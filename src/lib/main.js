@@ -1,27 +1,29 @@
 #!/usr/bin/env node
 // src/lib/main.js
-/*
-  Equation Plotter Library (in SVG)
-
-  Features:
-    - Plotting of standard mathematical functions (e.g., linear, quadratic, trigonometric, exponential).
-    - Support for parametric and polar equations.
-    - Interactive features such as zooming, panning, and custom scaling.
-    - Customizable styling for axes, grid, and plotted curves.
-    - Export functionality for saving plots as SVG files.
-    - Integration with popular libraries (like D3.js) for extended data visualization capabilities.
-
-  Demo usage in main:
-    - Plotting a simple quadratic function: y = x^2.
-    - Plotting a sine function: y = sin(x).
-
-  Future Development Ideas:
-    - Extend support for 3D equation plotting.
-    - Introduce animation for dynamic data visualization.
-    - Provide an API for transforming and customizing user-defined functions.
-    - Offer a canvas fallback option for environments without SVG support.
-    - Optimize performance for plotting large datasets.
-*/
+/**
+ * # Equation Plotter Library (SVG)
+ *
+ * A lightweight library for plotting mathematical equations in SVG format.
+ *
+ * ## Features
+ * - Plotting of standard mathematical functions (linear, quadratic, trigonometric, exponential).
+ * - Support for parametric and polar equations.
+ * - Interactive features such as zooming, panning, and custom scaling.
+ * - Customizable styling for axes, grid, and plotted curves.
+ * - Export functionality for saving plots as SVG files.
+ * - Integration with libraries like D3.js for advanced data visualization.
+ *
+ * ## Demo Usage
+ * - Plotting a quadratic function: y = x^2.
+ * - Plotting a sine function: y = sin(x) (with x in degrees).
+ *
+ * ## Future Development
+ * - Extend support for 3D equation plotting.
+ * - Introduce animation for dynamic visualizations.
+ * - Provide an API for transforming and customizing user-defined functions.
+ * - Offer a canvas fallback option for environments without SVG support.
+ * - Optimize performance for large datasets.
+ */
 
 import { fileURLToPath } from "url";
 
