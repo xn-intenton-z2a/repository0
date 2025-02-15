@@ -281,3 +281,4 @@ fabric.properties
 # npm auth resource
 /.npmrc
 /.idea/
+/output.svg
