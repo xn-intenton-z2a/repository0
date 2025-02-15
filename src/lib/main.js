@@ -170,6 +170,17 @@ function extractQuadraticCoefficients(expr) {
   return { a, b, c };
 }
 
+// Helper function to invert an algebraic expression consisting of additions and subtractions.
+function invertExpression(expr) {
+  const tokens = expr.match(/[+-]?[^+-]+/g) || [];
+  const inverted = tokens.map(token => {
+    token = token.trim();
+    if (token.startsWith('-')) return '+' + token.slice(1);
+    else return '-' + token;
+  }).join('');
+  return inverted[0] === '+' ? inverted.slice(1) : inverted;
+}
+
 // Parse a generic quadratic formula in standard algebraic form
 function parseGenericQuadratic(formulaStr) {
   let formula = formulaStr.replace(/\s+/g, '');
@@ -184,14 +195,12 @@ function parseGenericQuadratic(formulaStr) {
     let right = parts[1];
     // If 'y' exists in left or right, rearrange the equation to solve for y
     if (left.includes('y')) {
-      // Remove the first occurrence of 'y'
       const nonYPart = left.replace('y', '');
-      // Formulate new expression: y = (right) - (nonYPart)
-      const newExpr = (right || "0") + "-(" + nonYPart + ")";
+      const newExpr = (right || '0') + invertExpression(nonYPart);
       return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
     } else if (right.includes('y')) {
       const nonYPart = right.replace('y', '');
-      const newExpr = (left || "0") + "-(" + nonYPart + ")";
+      const newExpr = (left || '0') + invertExpression(nonYPart);
       return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
     } else {
       throw new Error('No y variable found in quadratic equation');
