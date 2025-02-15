@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 /**
  * Equation Plotter Library (SVG)
  *
@@ -297,6 +299,7 @@ function plotToSvg({ formulas = [] } = {}) {
   let quadraticPlot = null;
   let sinePlot = null;
   let polarPlot = null;
+
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
@@ -311,9 +314,11 @@ function plotToSvg({ formulas = [] } = {}) {
       console.error(e);
     }
   });
+
   if (!quadraticPlot) quadraticPlot = plotQuadratic();
   if (!sinePlot) sinePlot = plotSine();
   if (!polarPlot) polarPlot = plotPolar();
+
   return generateSvg(quadraticPlot, sinePlot, polarPlot);
 }
 
@@ -330,11 +335,13 @@ function plotToAscii({ formulas = [] } = {}) {
   const rows = 21;
   const cols = points.length;
   const grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
+  
   for (let col = 0; col < cols; col++) {
     const { y } = points[col];
     const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
     grid[row][col] = '*';
   }
+  
   const xAxisRow = Math.round(0.5 * (rows - 1));
   for (let col = 0; col < cols; col++) {
     if (grid[xAxisRow][col] === ' ') grid[xAxisRow][col] = '-';
@@ -349,6 +356,7 @@ function plotToText({ formulas = [] } = {}) {
   let quadraticPlot = null;
   let sinePlot = null;
   let polarPlot = null;
+  
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
@@ -363,9 +371,11 @@ function plotToText({ formulas = [] } = {}) {
       console.error(err);
     }
   });
+
   if (!quadraticPlot) quadraticPlot = plotQuadratic();
   if (!sinePlot) sinePlot = plotSine();
   if (!polarPlot) polarPlot = plotPolar();
+
   output += 'Quadratic Plot:\n' + quadraticPlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
   output += 'Sine Plot:\n' + sinePlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
   output += 'Polar Plot:\n' + polarPlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n';
@@ -442,6 +452,7 @@ Formula String Formats:
   if (!polarPlot) polarPlot = plotPolar();
 
   console.log('Demo: Raw formula strings and their parsed representations:');
+
   const rawQuad = 'x^2+y-1=0';
   console.log(`Raw Formula: "${rawQuad}"`);
   displayPlot('Quadratic from Raw Formula', plotFromString(rawQuad));
