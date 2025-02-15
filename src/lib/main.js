@@ -45,10 +45,7 @@
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-// ------------------------------------------------------------------------------
 // Plotting Functions
-// ------------------------------------------------------------------------------
-
 function plotQuadraticParam({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) {
   const points = [];
   for (let x = xMin; x <= xMax; x += step) {
@@ -91,10 +88,7 @@ function plotPolar() {
   return plotPolarParam();
 }
 
-// ------------------------------------------------------------------------------
 // Formula Parsing Functions
-// ------------------------------------------------------------------------------
-
 function parseQuadratic(formulaStr) {
   const parts = formulaStr.split(':');
   if (parts.length < 2) throw new Error('Invalid quadratic formula string');
@@ -137,7 +131,7 @@ function parsePolar(formulaStr) {
   });
 }
 
-// Helper function to invert the sign of each term in an expression string
+// Helper to invert the sign of each term in an expression string
 function invertExpression(expr) {
   const tokens = expr.match(/[+-]?[^+-]+/g);
   if (!tokens) return expr;
@@ -235,10 +229,7 @@ function plotFromString(formulaStr) {
   }
 }
 
-// ------------------------------------------------------------------------------
 // Display Functions
-// ------------------------------------------------------------------------------
-
 function displayPlot(plotName, points) {
   console.log(`Plot for ${plotName}:`);
   console.log(points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' '));
@@ -264,10 +255,7 @@ function displaySineAscii(points) {
   grid.forEach(row => console.log(row.join('')));
 }
 
-// ------------------------------------------------------------------------------
-// SVG Generation
-// ------------------------------------------------------------------------------
-
+// SVG Generation Function
 function generateSvg(quadraticPoints, sinePoints, polarPoints) {
   const width = 800;
   const height = 800;
@@ -304,10 +292,7 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
          `</svg>`;
 }
 
-// ------------------------------------------------------------------------------
 // Exported API Functions
-// ------------------------------------------------------------------------------
-
 function plotToSvg({ formulas = [] } = {}) {
   let quadraticPlot = null;
   let sinePlot = null;
@@ -407,10 +392,7 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
   return outputFileName;
 }
 
-// ------------------------------------------------------------------------------
 // Main Execution
-// ------------------------------------------------------------------------------
-
 function main() {
   const args = process.argv.slice(2);
 
