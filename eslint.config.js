@@ -36,8 +36,9 @@ export default [
       "prettier/prettier": "error",
       ...promise.configs.recommended.rules,
       ...sonarjs.configs.recommended.rules,
+      "sonarjs/os-command": "off",
 
-      // Local customizations
+      // Formatting and organisation
       "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "no-extra-semi": 2,
       "object-curly-newline": ["error", { consistent: true }],
