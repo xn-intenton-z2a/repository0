@@ -39,16 +39,8 @@ Follow these steps to set up and run repository0:
    `npm test`
 
 ## Repository Variables and Secrets
-The GitHub workflows in this repository use the following variables. Make sure they are set in your repository settings under Variables or Secrets:
 
-- **BUILD_SCRIPT:** `npm run build`
-- **TEST_SCRIPT:** `npm test`
-- **MAIN_SCRIPT:** `node src/lib/main.js`
-- **npmAuthOrganisation:** `@xn-intenton-z2a`
-- **gitUserEmail:** `action@github.com`
-- **gitUserName:** `GitHub Actions[bot]`
-
-Additionally, the following secrets are required by the workflows:
+The following secrets are required by the workflows:
 
 - **CHATGPT_API_SECRET_KEY**
 - **PERSONAL_ACCESS_TOKEN**
