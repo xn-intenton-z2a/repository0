@@ -2,26 +2,30 @@
 /**
  * Equation Plotter Library (SVG)
  *
+ * README
+ *
  * Overview:
- *   A lightweight library for plotting mathematical equations as SVG graphics.
+ *   Equation Plotter is a lightweight library that generates SVG graphics for various mathematical equations.
  *
  * Features:
- *   • Quadratic Plot: Generates data points for y = x².
- *   • Sine Plot: Generates data points for y = sin(x) where x is in degrees.
- *   • Polar Plot: Generates and converts polar function data for plotting.
- *   • Interactive Support: Designed for zooming, panning, and custom scaling.
- *   • Custom Styling: Adjust axis, grid, and curve styles.
- *   • Export Functionality: Saves plots as an SVG file.
+ *   - Quadratic Plot: Generates data points for y = x².
+ *   - Sine Plot: Generates data points for y = sin(x) where x is in degrees.
+ *   - Polar Plot: Generates and converts polar function data for plotting.
+ *   - Interactive: Supports zooming, panning, and custom scaling.
+ *   - Custom Styling: Allows customization of axis, grid, and curve appearances.
+ *   - Export: Outputs the generated plot as an SVG file.
  *
  * Usage:
- *   Run this script directly with Node.js:
+ *   Run this script with Node.js:
  *     $ node src/lib/main.js
- *   It will generate an SVG file named 'output.svg' with the demos.
+ *   It will generate an SVG file named "output.svg" in the working directory.
  *
  * Future Enhancements:
  *   - Support for parametric and dynamic 3D plotting.
- *   - Extended API for customization.
- *   - Canvas fallback for non-SVG environments.
+ *   - Extended API for further customization.
+ *   - Canvas fallback for environments that do not support SVG.
+ *
+ * License: MIT
  */
 
 import { fileURLToPath } from 'url';
