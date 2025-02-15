@@ -139,26 +139,6 @@ function parsePolar(formulaStr) {
   });
 }
 
-// Helper to invert the sign of each term in an expression string
-function invertExpression(expr) {
-  const tokens = expr.match(/[+-]?[^+-]+/g);
-  if (!tokens) return expr;
-  const invertedTokens = tokens.map(token => {
-    if (token[0] === '+') {
-      return '-' + token.slice(1);
-    } else if (token[0] === '-') {
-      return '+' + token.slice(1);
-    } else {
-      return '-' + token;
-    }
-  });
-  let inverted = invertedTokens.join('');
-  if (inverted[0] === '+') {
-    inverted = inverted.slice(1);
-  }
-  return inverted;
-}
-
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   expr = expr.replace(/\s+/g, '');
@@ -193,25 +173,29 @@ function extractQuadraticCoefficients(expr) {
 // Parse a generic quadratic formula in standard algebraic form
 function parseGenericQuadratic(formulaStr) {
   let formula = formulaStr.replace(/\s+/g, '');
+  // if formula starts with 'y=', simply parse the expression after y=
   if (formula.toLowerCase().startsWith('y=')) {
     const yExpr = formula.substring(2);
     return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
   } else {
     const parts = formula.split('=');
     if (parts.length !== 2) throw new Error('Unsupported formula format for quadratic parsing');
-    const left = parts[0];
-    const right = parts[1];
-    const normalized = left + '-(' + right + ')';
-    const yIndex = normalized.indexOf('y');
-    if (yIndex === -1) throw new Error('No y variable found in quadratic equation');
-    let beforeY = normalized.slice(0, yIndex);
-    let afterY = normalized.slice(yIndex + 1);
-    if (beforeY.endsWith('+') || beforeY.endsWith('-')) {
-      beforeY = beforeY.slice(0, -1);
+    let left = parts[0];
+    let right = parts[1];
+    // If 'y' exists in left or right, rearrange the equation to solve for y
+    if (left.includes('y')) {
+      // Remove the first occurrence of 'y'
+      const nonYPart = left.replace('y', '');
+      // Formulate new expression: y = (right) - (nonYPart)
+      const newExpr = (right || "0") + "-(" + nonYPart + ")";
+      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
+    } else if (right.includes('y')) {
+      const nonYPart = right.replace('y', '');
+      const newExpr = (left || "0") + "-(" + nonYPart + ")";
+      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
+    } else {
+      throw new Error('No y variable found in quadratic equation');
     }
-    const rhsExpr = beforeY + afterY;
-    const invertedExpr = invertExpression(rhsExpr);
-    return plotQuadraticParam({ ...extractQuadraticCoefficients(invertedExpr), xMin: -10, xMax: 10, step: 1 });
   }
 }
 
