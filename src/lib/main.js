@@ -47,7 +47,10 @@
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
+// ----------------------------------
 // Plotting Functions
+// ----------------------------------
+
 function plotQuadraticParam({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) {
   const points = [];
   for (let x = xMin; x <= xMax; x += step) {
@@ -90,7 +93,10 @@ function plotPolar() {
   return plotPolarParam();
 }
 
+// ----------------------------------
 // Formula Parsing Functions
+// ----------------------------------
+
 function parseQuadratic(formulaStr) {
   const parts = formulaStr.split(':');
   if (parts.length < 2) throw new Error('Invalid quadratic formula string');
@@ -231,7 +237,10 @@ function plotFromString(formulaStr) {
   }
 }
 
+// ----------------------------------
 // Display Functions
+// ----------------------------------
+
 function displayPlot(plotName, points) {
   console.log(`Plot for ${plotName}:`);
   console.log(points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' '));
@@ -257,7 +266,10 @@ function displaySineAscii(points) {
   grid.forEach(row => console.log(row.join('')));
 }
 
+// ----------------------------------
 // SVG Generation Function
+// ----------------------------------
+
 function generateSvg(quadraticPoints, sinePoints, polarPoints) {
   const width = 800;
   const height = 800;
@@ -294,7 +306,10 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
          `</svg>`;
 }
 
+// ----------------------------------
 // Exported API Functions
+// ----------------------------------
+
 function plotToSvg({ formulas = [] } = {}) {
   let quadraticPlot = null;
   let sinePlot = null;
@@ -335,13 +350,13 @@ function plotToAscii({ formulas = [] } = {}) {
   const rows = 21;
   const cols = points.length;
   const grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
-  
+
   for (let col = 0; col < cols; col++) {
     const { y } = points[col];
     const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
     grid[row][col] = '*';
   }
-  
+
   const xAxisRow = Math.round(0.5 * (rows - 1));
   for (let col = 0; col < cols; col++) {
     if (grid[xAxisRow][col] === ' ') grid[xAxisRow][col] = '-';
@@ -356,7 +371,7 @@ function plotToText({ formulas = [] } = {}) {
   let quadraticPlot = null;
   let sinePlot = null;
   let polarPlot = null;
-  
+
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
@@ -402,7 +417,10 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
   return outputFileName;
 }
 
+// ----------------------------------
 // Main Execution
+// ----------------------------------
+
 function main() {
   const args = process.argv.slice(2);
 
