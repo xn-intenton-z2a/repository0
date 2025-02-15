@@ -12,21 +12,47 @@
  *   - Polar Plot: Generates and converts polar function data for plotting: r = scale * |sin(multiplier * theta)|.
  *   - Interactive: Supports zooming, panning, and custom scaling.
  *   - Custom Styling: Allows customization of axis, grid, and curve appearances.
- *   - Export: Outputs the generated plot as an SVG file.
+ *   - Export: Outputs the generated plot as an SVG file, ASCII art, or textual data, and also allows writing output to a file.
  *
- * Usage:
- *   Run this script with Node.js:
- *     $ node src/lib/main.js [outputFileName] [formulaStrings...]
- *   You can optionally pass formula strings to override default plots. Expected formats:
- *     Quadratic: "quadratic:a,b,c[,xMin,xMax,step]"
- *     Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
- *     Polar:     "polar:scale,multiplier[,step]"
- *   Use --help or -h to see this message.
+ * --- SDK API ---
  *
- * Future Enhancements:
- *   - Support for parametric and dynamic 3D plotting.
- *   - Extended API for further customization.
- *   - Canvas fallback for environments that do not support SVG.
+ * Exported Functions:
+ *   plotToSvg(options)   -> Returns SVG string from given formula strings.
+ *   plotToAscii(options) -> Returns ASCII art string for sine plot from given formula strings.
+ *   plotToText(options)  -> Returns text representation of plot points for all plots.
+ *   plotToFile(options)  -> Saves the output (SVG, ASCII, or text) to a file and returns the file path.
+ *
+ * Other Functions:
+ *   plotQuadraticParam(params)  -> Returns an array of points for quadratic function.
+ *   plotSineParam(params)       -> Returns an array of points for sine function.
+ *   plotPolarParam(params)      -> Returns an array of points for polar function.
+ *   plotQuadratic()             -> Quadratic plot using default parameters.
+ *   plotSine()                  -> Sine plot using default parameters.
+ *   plotPolar()                 -> Polar plot using default parameters.
+ *   plotFromString(formulaStr)  -> Returns points from a formula string. (Formats: quadratic, sine, polar)
+ *   generateSvg(quadraticPoints, sinePoints, polarPoints) -> Returns SVG string based on plot points.
+ *   displayPlot(plotName, points)  -> Logs plot data as text to the console.
+ *   displaySineAscii(points)       -> Logs ASCII art representation of sine wave to the console.
+ *
+ * Examples:
+ *   1) Command Line Execution:
+ *      $ node src/lib/main.js output.svg "quadratic:1,0,0,-10,10,1" "sine:1,1,0,0,360,10"
+ *      Expected Output: SVG file generated with Quadratic, Sine and Polar plots, and demos of raw formula parsing.
+ *
+ *   2) Using the API:
+ *      import { plotToSvg, plotToAscii, plotToText, plotToFile } from './main.js';
+ *      const svg = plotToSvg({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
+ *      console.log(svg);
+ *      
+ *      const asciiArt = plotToAscii({ formulas: ["sine:1,1,0,0,360,10"] });
+ *      console.log(asciiArt);
+ *
+ *      const textData = plotToText({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
+ *      console.log(textData);
+ *
+ *      // Save SVG to a file
+ *      const filePath = plotToFile({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"], outputFileName: 'myplot.svg', type: 'svg' });
+ *      console.log(`File saved at: ${filePath}`);
  *
  * License: MIT
  */
@@ -226,6 +252,111 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
 }
 
 // ------------------------------------------------------------------------------
+// Exported API Functions
+// ------------------------------------------------------------------------------
+
+function plotToSvg({ formulas = [] } = {}) {
+  let quadraticPlot = null;
+  let sinePlot = null;
+  let polarPlot = null;
+  formulas.forEach(formula => {
+    const lower = formula.toLowerCase();
+    try {
+      if (lower.startsWith('quadratic:')) {
+        quadraticPlot = plotFromString(formula);
+      } else if (lower.startsWith('sine:')) {
+        sinePlot = plotFromString(formula);
+      } else if (lower.startsWith('polar:')) {
+        polarPlot = plotFromString(formula);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
+  if (!quadraticPlot) quadraticPlot = plotQuadratic();
+  if (!sinePlot) sinePlot = plotSine();
+  if (!polarPlot) polarPlot = plotPolar();
+  return generateSvg(quadraticPlot, sinePlot, polarPlot);
+}
+
+function plotToAscii({ formulas = [] } = {}) {
+  let points = [];
+  formulas.forEach(formula => {
+    if (formula.toLowerCase().startsWith('sine:')) {
+      points = plotFromString(formula);
+    }
+  });
+  if (points.length === 0) {
+    points = plotSine();
+  }
+  const rows = 21;
+  const cols = points.length;
+  let grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
+  for (let col = 0; col < cols; col++) {
+    const y = points[col].y;
+    const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
+    grid[row][col] = '*';
+  }
+  const xAxisRow = Math.round(0.5 * (rows - 1));
+  for (let col = 0; col < cols; col++) {
+    if (grid[xAxisRow][col] === ' ') {
+      grid[xAxisRow][col] = '-';
+    }
+  }
+  let asciiArt = 'ASCII Art of Sine Wave:\n';
+  asciiArt += grid.map(row => row.join('')).join('\n');
+  return asciiArt;
+}
+
+function plotToText({ formulas = [] } = {}) {
+  let output = "";
+  let quadraticPlot = null;
+  let sinePlot = null;
+  let polarPlot = null;
+  formulas.forEach(formula => {
+    const lower = formula.toLowerCase();
+    try {
+      if (lower.startsWith('quadratic:')) {
+        quadraticPlot = plotFromString(formula);
+      } else if (lower.startsWith('sine:')) {
+        sinePlot = plotFromString(formula);
+      } else if (lower.startsWith('polar:')) {
+        polarPlot = plotFromString(formula);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+  if (!quadraticPlot) quadraticPlot = plotQuadratic();
+  if (!sinePlot) sinePlot = plotSine();
+  if (!polarPlot) polarPlot = plotPolar();
+  output += "Quadratic Plot:\n" + quadraticPlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + "\n\n";
+  output += "Sine Plot:\n" + sinePlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + "\n\n";
+  output += "Polar Plot:\n" + polarPlot.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + "\n";
+  return output;
+}
+
+function plotToFile({ formulas = [], outputFileName = "output.svg", type = 'svg' } = {}) {
+  let content = "";
+  if (type === 'svg') {
+    content = plotToSvg({ formulas });
+  } else if (type === 'ascii') {
+    content = plotToAscii({ formulas });
+  } else if (type === 'text') {
+    content = plotToText({ formulas });
+  } else {
+    throw new Error("Unsupported type provided for plotToFile");
+  }
+  try {
+    fs.writeFileSync(outputFileName, content, 'utf8');
+  } catch (e) {
+    console.error("Error writing file:", e);
+    throw e;
+  }
+  return outputFileName;
+}
+
+// ------------------------------------------------------------------------------
 // Main Execution
 // ------------------------------------------------------------------------------
 
@@ -277,30 +408,37 @@ function main() {
   if (!sinePlot) sinePlot = plotSine();
   if (!polarPlot) polarPlot = plotPolar();
 
+  // Demo: Show raw formula strings and their parsed outputs
+  console.log('Demo: Raw formula strings and their parsed representations:');
+  const rawQuad = 'quadratic:1,0,0,-10,10,1';
+  console.log(`Raw Formula: "${rawQuad}"`);
+  displayPlot('Quadratic from Raw Formula', plotFromString(rawQuad));
+
+  const rawSine = 'sine:1,1,0,0,360,10';
+  console.log(`\nRaw Formula: "${rawSine}"`);
+  console.log('Parsed ASCII Art for Sine:');
+  console.log(plotToAscii({ formulas: [rawSine] }));
+
+  // Generate SVG
   const svgContent = generateSvg(quadraticPlot, sinePlot, polarPlot);
 
   try {
     fs.writeFileSync(outputFileName, svgContent, 'utf8');
-    console.log(`SVG file generated: ${outputFileName}`);
+    console.log(`\nSVG file generated: ${outputFileName}`);
   } catch (err) {
     console.error('Error writing SVG file:', err.message);
     process.exit(1);
   }
 
-  // Demo usage of string based plotting
-  console.log('Testing string based plotting:');
-  const qp = plotFromString('quadratic:1,0,0,-10,10,1');
-  displayPlot('Quadratic from String', qp);
-
-  const sp = plotFromString('sine:1,1,0,0,360,10');
-  displayPlot('Sine from String', sp);
-  displaySineAscii(sp);
-
-  const pp = plotFromString('polar:200,2,5');
-  displayPlot('Polar from String', pp);
+  // Additional demo outputs
+  console.log('\nText Representation of Plots:');
+  console.log(plotToText({ formulas: [] }));
 }
 
 // Execute main if this file is run directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
+
+// Exporting API functions
+export { plotToSvg, plotToAscii, plotToText, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
