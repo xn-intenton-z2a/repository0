@@ -441,7 +441,10 @@ Formula String Formats:
     outputFileName = nonFormulaArgs[0];
   }
 
-  args.filter(arg => arg.includes(':') || arg.includes('=')).forEach(arg => {
+  // Collect formulas from arguments
+  const formulasList = args.filter(arg => arg.includes(':') || arg.includes('='));
+
+  formulasList.forEach(arg => {
     const lowerArg = arg.toLowerCase();
     try {
       if (lowerArg.startsWith('quadratic:') || (arg.includes('=') && !lowerArg.startsWith('sine:') && !lowerArg.startsWith('polar:'))) {
@@ -483,7 +486,7 @@ Formula String Formats:
   }
 
   console.log('\nText Representation of Plots:');
-  console.log(plotToText({ formulas: [] }));
+  console.log(plotToText({ formulas: formulasList }));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
