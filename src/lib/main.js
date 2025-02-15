@@ -264,6 +264,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
 
+  // Demo usage of the string based parsing function
+  console.log('Testing string based plotting:');
+  let qp = plotFromString('quadratic:1,0,0,-10,10,1');
+  displayPlot('Quadratic from String', qp);
+  let sp = plotFromString('sine:1,1,0,0,360,10');
+  displayPlot('Sine from String', sp);
+  let pp = plotFromString('polar:200,2,5');
+  displayPlot('Polar from String', pp);
+
   // Uncomment below lines to test string parsing manually:
   // console.log('Testing string based plotting:');
   // let qp = plotFromString('quadratic:1,0,0,-10,10,1');
@@ -272,4 +281,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   // displayPlot('Sine from String', sp);
   // let pp = plotFromString('polar:200,2,5');
   // displayPlot('Polar from String', pp);
+
 }
