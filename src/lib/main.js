@@ -17,8 +17,12 @@
  *
  * Usage:
  *   Run this script with Node.js:
- *     $ node src/lib/main.js [outputFileName]
- *   It will generate an SVG file, defaulting to "output.svg" if no output file name is provided.
+ *     $ node src/lib/main.js [outputFileName] [formulaStrings...]
+ *   You can optionally pass formula strings to override default plots. Expected formats:
+ *     Quadratic: "quadratic:a,b,c[,xMin,xMax,step]"
+ *     Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
+ *     Polar:     "polar:scale,multiplier[,step]"
+ *   Use --help or -h to see this message.
  *
  * Future Enhancements:
  *   - Support for parametric and dynamic 3D plotting.
@@ -193,13 +197,64 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
 
 // Run main if executed directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const outputFileName = process.argv[2] || 'output.svg';
+  const args = process.argv.slice(2);
 
-  // Generate default plots using original functions
-  const quadratic = plotQuadratic();
-  const sine = plotSine();
-  const polar = plotPolar();
-  const svgContent = generateSvg(quadratic, sine, polar);
+  // Print help message if requested
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n` +
+                `\nOptions:\n` +
+                `  --help, -h       Show this help message\n` +
+                `\nFormula String Formats:\n` +
+                `  Quadratic: "quadratic:a,b,c[,xMin,xMax,step]"\n` +
+                `  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n` +
+                `  Polar:     "polar:scale,multiplier[,step]"\n`);
+    process.exit(0);
+  }
+
+  // Determine output file name and optional formula overrides
+  let outputFileName = 'output.svg';
+  let quadraticPlot = null;
+  let sinePlot = null;
+  let polarPlot = null;
+
+  // Non-formula arguments (do not contain a colon) are considered as output file name if provided
+  const nonFormulaArgs = args.filter(arg => !arg.includes(':'));
+  if (nonFormulaArgs.length > 0) {
+    outputFileName = nonFormulaArgs[0];
+  }
+
+  // Process formula strings, if any
+  args.filter(arg => arg.includes(':')).forEach(arg => {
+    const lowerArg = arg.toLowerCase();
+    if (lowerArg.startsWith('quadratic:')) {
+      try {
+        quadraticPlot = plotFromString(arg);
+      } catch (err) {
+        console.error('Error parsing quadratic formula:', err.message);
+      }
+    } else if (lowerArg.startsWith('sine:')) {
+      try {
+        sinePlot = plotFromString(arg);
+      } catch (err) {
+        console.error('Error parsing sine formula:', err.message);
+      }
+    } else if (lowerArg.startsWith('polar:')) {
+      try {
+        polarPlot = plotFromString(arg);
+      } catch (err) {
+        console.error('Error parsing polar formula:', err.message);
+      }
+    } else {
+      console.error('Unknown formula type in argument:', arg);
+    }
+  });
+
+  // If any curve is not provided, use default plots
+  if (!quadraticPlot) quadraticPlot = plotQuadratic();
+  if (!sinePlot) sinePlot = plotSine();
+  if (!polarPlot) polarPlot = plotPolar();
+
+  const svgContent = generateSvg(quadraticPlot, sinePlot, polarPlot);
 
   try {
     fs.writeFileSync(outputFileName, svgContent, 'utf8');
@@ -217,4 +272,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   displayPlot('Sine from String', sp);
   let pp = plotFromString('polar:200,2,5');
   displayPlot('Polar from String', pp);
+
+  // Uncomment below lines to test string parsing manually:
+  // console.log('Testing string based plotting:');
+  // let qp = plotFromString('quadratic:1,0,0,-10,10,1');
+  // displayPlot('Quadratic from String', qp);
+  // let sp = plotFromString('sine:1,1,0,0,360,10');
+  // displayPlot('Sine from String', sp);
+  // let pp = plotFromString('polar:200,2,5');
+  // displayPlot('Polar from String', pp);
+
 }
