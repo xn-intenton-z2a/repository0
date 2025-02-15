@@ -218,7 +218,7 @@ function parseGenericQuadratic(formulaStr) {
       throw new Error('No y variable found in quadratic equation');
     }
     // Split expression around y
-    const beforeY = expr.slice(0, yIndex);
+    let beforeY = expr.slice(0, yIndex);
     const afterY = expr.slice(yIndex + 1);
     // Determine the sign of y (check if there is a '-' immediately before y)
     let sign = '+';
