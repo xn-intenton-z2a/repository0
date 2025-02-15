@@ -7,7 +7,7 @@
  *   Equation Plotter is a lightweight library that generates SVG graphics for various mathematical equations.
  *
  * Features:
- *   - Quadratic Plot: Generates data points for y = ax² + bx + c.
+ *   - Quadratic Plot: Generates data points for y = ax² + bx + c. Supports formula strings like "y=x^2+2*x+1" or "x^2+y-1=0".
  *   - Sine Plot: Generates data points for y = A*sin(B*x + C) where x is in degrees.
  *   - Polar Plot: Generates and converts polar function data for plotting: r = scale * |sin(multiplier * theta)|.
  *   - Interactive: Supports zooming, panning, and custom scaling.
@@ -29,29 +29,29 @@
  *   plotQuadratic()             -> Quadratic plot using default parameters.
  *   plotSine()                  -> Sine plot using default parameters.
  *   plotPolar()                 -> Polar plot using default parameters.
- *   plotFromString(formulaStr)  -> Returns points from a formula string. (Formats: quadratic, sine, polar)
+ *   plotFromString(formulaStr)  -> Returns points from a formula string. (Supports formats: quadratic (including generic formula notation), sine, polar)
  *   generateSvg(quadraticPoints, sinePoints, polarPoints) -> Returns SVG string based on plot points.
  *   displayPlot(plotName, points)  -> Logs plot data as text to the console.
  *   displaySineAscii(points)       -> Logs ASCII art representation of sine wave to the console.
  *
  * Examples:
  *   1) Command Line Execution:
- *      $ node src/lib/main.js output.svg "quadratic:1,0,0,-10,10,1" "sine:1,1,0,0,360,10"
+ *      $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *      Expected Output: SVG file generated with Quadratic, Sine and Polar plots, and demos of raw formula parsing.
  *
  *   2) Using the API:
  *      import { plotToSvg, plotToAscii, plotToText, plotToFile } from './main.js';
- *      const svg = plotToSvg({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
+ *      const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
  *      console.log(svg);
  *
  *      const asciiArt = plotToAscii({ formulas: ["sine:1,1,0,0,360,10"] });
  *      console.log(asciiArt);
  *
- *      const textData = plotToText({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
+ *      const textData = plotToText({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10", "polar:200,2,5"] });
  *      console.log(textData);
  *
  *      // Save SVG to a file
- *      const filePath = plotToFile({ formulas: ["quadratic:1,0,0,-10,10,1", "sine:1,1,0,0,360,10", "polar:200,2,5"], outputFileName: 'myplot.svg', type: 'svg' });
+ *      const filePath = plotToFile({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10", "polar:200,2,5"], outputFileName: 'myplot.svg', type: 'svg' });
  *      console.log(`File saved at: ${filePath}`);
  *
  * License: MIT
@@ -109,7 +109,7 @@ function plotPolar() {
 // ------------------------------------------------------------------------------
 // Formula Parsing Functions
 // Expected formats:
-//   Quadratic: "quadratic:a,b,c[,xMin,xMax,step]"
+//   Quadratic: can be given as a prefixed string like "quadratic:1,0,0,-10,10,1" or as a formula such as "y=x^2+2*x+1" or "x^2+y-1=0"
 //   Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
 //   Polar:     "polar:scale,multiplier[,step]"
 // ------------------------------------------------------------------------------
@@ -156,14 +156,112 @@ function parsePolar(formulaStr) {
   });
 }
 
-// Delegate plotting based on formula string prefix
+// New helper: extract quadratic coefficients from an expression string assumed to be in the form ax^2+bx+c
+function extractQuadraticCoefficients(expr) {
+  // Remove whitespace
+  expr = expr.replace(/\s+/g, '');
+  let a = 0, b = 0, c = 0;
+
+  // Match ax^2
+  let aMatch = expr.match(/([+-]?\d*\.?\d*)x\^2/);
+  if (aMatch) {
+    let coeff = aMatch[1];
+    if (coeff === '' || coeff === '+') {
+      a = 1;
+    } else if (coeff === '-') {
+      a = -1;
+    } else {
+      a = parseFloat(coeff);
+    }
+    // Remove the matched part
+    expr = expr.replace(aMatch[0], '');
+  }
+
+  // Match bx (but not x^2)
+  let bMatch = expr.match(/([+-]?\d*\.?\d+)x(?!\^)/);
+  if (bMatch) {
+    let coeff = bMatch[1];
+    if (coeff === '' || coeff === '+') {
+      b = 1;
+    } else if (coeff === '-') {
+      b = -1;
+    } else {
+      b = parseFloat(coeff);
+    }
+    expr = expr.replace(bMatch[0], '');
+  }
+
+  // The remaining part should be the constant. It may contain multiple terms. Sum them up.
+  let constantMatches = expr.match(/([+-]?\d*\.?\d+)/g);
+  if (constantMatches) {
+    c = constantMatches.reduce((sum, numStr) => sum + parseFloat(numStr), 0);
+  }
+
+  return { a, b, c };
+}
+
+// New helper: parse a generic quadratic formula given in a standard algebraic form
+// Supports formulas starting with "y=" or in the form "<expression>=0" where expression includes a single y term.
+function parseGenericQuadratic(formulaStr) {
+  // Remove whitespace
+  const formula = formulaStr.replace(/\s+/g, '');
+  let yExpr = '';
+
+  if (formula.toLowerCase().startsWith('y=')) {
+    // Format: y=<expression>
+    yExpr = formula.substring(2);
+  } else if (formula.endsWith('=0')) {
+    // Format: <expression>=0, attempt to isolate y.
+    const expr = formula.slice(0, -2); // remove '=0'
+    const yIndex = expr.indexOf('y');
+    if (yIndex === -1) {
+      throw new Error('No y variable found in quadratic equation');
+    }
+    // Split expression around y
+    const beforeY = expr.slice(0, yIndex);
+    const afterY = expr.slice(yIndex + 1);
+    // Determine the sign of y (check if there is a '-' immediately before y)
+    let sign = '+';
+    if (beforeY.endsWith('-')) {
+      sign = '-';
+      // Remove the '-' from beforeY
+      beforeY = beforeY.slice(0, -1);
+    } else if (beforeY.endsWith('+')) {
+      beforeY = beforeY.slice(0, -1);
+    }
+    // The equation is: beforeY + (y) + afterY = 0, so y = -(beforeY + afterY)
+    yExpr = '-' + (beforeY + afterY);
+  } else {
+    throw new Error('Unsupported formula format for quadratic parsing');
+  }
+
+  // Now, we expect yExpr to be in the form of a quadratic expression in x: ax^2+bx+c
+  const { a, b, c } = extractQuadraticCoefficients(yExpr);
+  // Using default domain parameters
+  return plotQuadraticParam({ a, b, c, xMin: -10, xMax: 10, step: 1 });
+}
+
+// Delegate plotting based on formula string content
 function plotFromString(formulaStr) {
   const lowerStr = formulaStr.toLowerCase();
-  if (lowerStr.startsWith('quadratic:')) return parseQuadratic(formulaStr);
-  if (lowerStr.startsWith('sine:')) return parseSine(formulaStr);
-  if (lowerStr.startsWith('polar:')) return parsePolar(formulaStr);
-  console.error('Unknown formula type.');
-  return [];
+  if (formulaStr.includes(':')) {
+    if (lowerStr.startsWith('quadratic:')) return parseQuadratic(formulaStr);
+    if (lowerStr.startsWith('sine:')) return parseSine(formulaStr);
+    if (lowerStr.startsWith('polar:')) return parsePolar(formulaStr);
+    console.error('Unknown prefixed formula type.');
+    return [];
+  } else if (formulaStr.includes('=')) {
+    // Assume generic quadratic formula format, e.g. "y=x^2+2*x+1" or "x^2+y-1=0"
+    try {
+      return parseGenericQuadratic(formulaStr);
+    } catch (e) {
+      console.error('Error parsing generic quadratic formula:', e.message);
+      return [];
+    }
+  } else {
+    console.error('Formula string is not in a recognized format.');
+    return [];
+  }
 }
 
 // ------------------------------------------------------------------------------
@@ -250,7 +348,7 @@ function plotToSvg({ formulas = [] } = {}) {
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
-      if (lower.startsWith('quadratic:')) {
+      if (lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) {
         quadraticPlot = plotFromString(formula);
       } else if (lower.startsWith('sine:')) {
         sinePlot = plotFromString(formula);
@@ -302,7 +400,7 @@ function plotToText({ formulas = [] } = {}) {
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
-      if (lower.startsWith('quadratic:')) {
+      if (lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) {
         quadraticPlot = plotFromString(formula);
       } else if (lower.startsWith('sine:')) {
         sinePlot = plotFromString(formula);
@@ -356,7 +454,7 @@ Options:
   --help, -h       Show this help message
 
 Formula String Formats:
-  Quadratic: "quadratic:a,b,c[,xMin,xMax,step]"
+  Quadratic: can be provided as "y=x^2+2*x+1" or "x^2+y-1=0"
   Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
   Polar:     "polar:scale,multiplier[,step]"
 `);
@@ -369,16 +467,16 @@ Formula String Formats:
   let polarPlot = null;
 
   // Determine output file name from non-formula arguments
-  const nonFormulaArgs = args.filter(arg => !arg.includes(':'));
+  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('='));
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
 
   // Process formula strings
-  args.filter(arg => arg.includes(':')).forEach(arg => {
+  args.filter(arg => arg.includes(':') || arg.includes('=')).forEach(arg => {
     const lowerArg = arg.toLowerCase();
     try {
-      if (lowerArg.startsWith('quadratic:')) {
+      if (lowerArg.startsWith('quadratic:') || (arg.includes('=') && !arg.toLowerCase().startsWith('sine:') && !arg.toLowerCase().startsWith('polar:'))) {
         quadraticPlot = plotFromString(arg);
       } else if (lowerArg.startsWith('sine:')) {
         sinePlot = plotFromString(arg);
@@ -399,7 +497,7 @@ Formula String Formats:
 
   // Demo: Show raw formula and its parsed representation
   console.log('Demo: Raw formula strings and their parsed representations:');
-  const rawQuad = 'quadratic:1,0,0,-10,10,1';
+  const rawQuad = 'x^2+y-1=0';
   console.log(`Raw Formula: "${rawQuad}"`);
   displayPlot('Quadratic from Raw Formula', plotFromString(rawQuad));
 
