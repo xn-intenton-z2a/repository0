@@ -17,8 +17,8 @@
  *
  * Usage:
  *   Run this script with Node.js:
- *     $ node src/lib/main.js
- *   It will generate an SVG file named "output.svg" in the working directory.
+ *     $ node src/lib/main.js [outputFileName]
+ *   It will generate an SVG file, defaulting to "output.svg" if no output file name is provided.
  *
  * Future Enhancements:
  *   - Support for parametric and dynamic 3D plotting.
@@ -112,12 +112,17 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
 
 // Run main if executed directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const outputFileName = process.argv[2] || 'output.svg';
   const quadratic = plotQuadratic();
   const sine = plotSine();
   const polar = plotPolar();
   const svgContent = generateSvg(quadratic, sine, polar);
 
-  // Write the SVG content to a file
-  fs.writeFileSync('output.svg', svgContent, 'utf8');
-  console.log('SVG file generated: output.svg');
+  try {
+    fs.writeFileSync(outputFileName, svgContent, 'utf8');
+    console.log(`SVG file generated: ${outputFileName}`);
+  } catch (err) {
+    console.error('Error writing SVG file:', err.message);
+    process.exit(1);
+  }
 }
