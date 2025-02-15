@@ -156,6 +156,26 @@ function parsePolar(formulaStr) {
   });
 }
 
+// Helper function to invert the sign of each term in an expression string, e.g. 'x^2-1' becomes '-x^2+1'
+function invertExpression(expr) {
+  const tokens = expr.match(/[+-]?[^+-]+/g);
+  if (!tokens) return expr;
+  const invertedTokens = tokens.map(token => {
+    if (token[0] === '+') {
+      return '-' + token.slice(1);
+    } else if (token[0] === '-') {
+      return '+' + token.slice(1);
+    } else {
+      return '-' + token;
+    }
+  });
+  let inverted = invertedTokens.join('');
+  if (inverted[0] === '+') {
+    inverted = inverted.slice(1);
+  }
+  return inverted;
+}
+
 // New helper: extract quadratic coefficients from an expression string assumed to be in the form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   // Remove whitespace
@@ -173,7 +193,6 @@ function extractQuadraticCoefficients(expr) {
     } else {
       a = parseFloat(coeff);
     }
-    // Remove the matched part
     expr = expr.replace(aMatch[0], '');
   }
 
@@ -201,44 +220,34 @@ function extractQuadraticCoefficients(expr) {
 }
 
 // New helper: parse a generic quadratic formula given in a standard algebraic form
-// Supports formulas starting with "y=" or in the form "<expression>=0" where expression includes a single y term.
+// Supports formulas starting with "y=" or in the form where all terms are moved to one side (e.g., "x^2+y-1=z^3")
 function parseGenericQuadratic(formulaStr) {
-  // Remove whitespace
-  const formula = formulaStr.replace(/\s+/g, '');
-  let yExpr = '';
-
+  let formula = formulaStr.replace(/\s+/g, '');
   if (formula.toLowerCase().startsWith('y=')) {
-    // Format: y=<expression>
-    yExpr = formula.substring(2);
-  } else if (formula.endsWith('=0')) {
-    // Format: <expression>=0, attempt to isolate y.
-    const expr = formula.slice(0, -2); // remove '=0'
-    const yIndex = expr.indexOf('y');
+    const yExpr = formula.substring(2);
+    return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
+  } else {
+    const parts = formula.split('=');
+    if (parts.length !== 2) {
+      throw new Error('Unsupported formula format for quadratic parsing');
+    }
+    const left = parts[0];
+    const right = parts[1];
+    // Normalize by moving all terms to the left-hand side
+    const normalized = left + '-(' + right + ')';
+    const yIndex = normalized.indexOf('y');
     if (yIndex === -1) {
       throw new Error('No y variable found in quadratic equation');
     }
-    // Split expression around y
-    let beforeY = expr.slice(0, yIndex);
-    const afterY = expr.slice(yIndex + 1);
-    // Determine the sign of y (check if there is a '-' immediately before y)
-    let sign = '+';
-    if (beforeY.endsWith('-')) {
-      sign = '-';
-      // Remove the '-' from beforeY
-      beforeY = beforeY.slice(0, -1);
-    } else if (beforeY.endsWith('+')) {
+    let beforeY = normalized.slice(0, yIndex);
+    let afterY = normalized.slice(yIndex + 1);
+    if (beforeY.endsWith('+') || beforeY.endsWith('-')) {
       beforeY = beforeY.slice(0, -1);
     }
-    // The equation is: beforeY + (y) + afterY = 0, so y = -(beforeY + afterY)
-    yExpr = '-' + (beforeY + afterY);
-  } else {
-    throw new Error('Unsupported formula format for quadratic parsing');
+    const rhsExpr = beforeY + afterY;
+    const invertedExpr = invertExpression(rhsExpr);
+    return plotQuadraticParam({ ...extractQuadraticCoefficients(invertedExpr), xMin: -10, xMax: 10, step: 1 });
   }
-
-  // Now, we expect yExpr to be in the form of a quadratic expression in x: ax^2+bx+c
-  const { a, b, c } = extractQuadraticCoefficients(yExpr);
-  // Using default domain parameters
-  return plotQuadraticParam({ a, b, c, xMin: -10, xMax: 10, step: 1 });
 }
 
 // Delegate plotting based on formula string content
@@ -251,7 +260,7 @@ function plotFromString(formulaStr) {
     console.error('Unknown prefixed formula type.');
     return [];
   } else if (formulaStr.includes('=')) {
-    // Assume generic quadratic formula format, e.g. "y=x^2+2*x+1" or "x^2+y-1=0"
+    // Assume generic quadratic formula format, e.g. "y=x^2+2*x+1", "x^2+y-1=0", or "x^2+y-1=z^3"
     try {
       return parseGenericQuadratic(formulaStr);
     } catch (e) {
