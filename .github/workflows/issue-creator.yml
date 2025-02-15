@@ -1,0 +1,64 @@
+# .github/workflows/issue-creator.yml
+name: Create Issue
+run-name: "Create Issue [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue.'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      issueTitle:
+        description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
+        required: false
+        type: string
+        default: 'dealers choice'
+      runIssueWorker:
+        description: 'Should the downstream issue worker workflow be run?'
+        required: false
+        type: boolean
+        default: true
+  schedule:
+    #- cron: '*/20 * * * *'
+    - cron: '0 7 * * *'
+
+jobs:
+
+  create-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
+    with:
+      issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  run-issue-worker:
+    needs:
+      - create-issue
+    runs-on: ubuntu-latest
+    if: ${{ inputs.runIssueWorker == true }}
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Trigger downstream issue-worker workflow
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'issue-worker.yml',
+              ref: context.ref,
+              inputs: {}
+            });
