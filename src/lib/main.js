@@ -155,6 +155,34 @@ function displayPlot(plotName, points) {
   console.log(points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' '));
 }
 
+// New function to display an ASCII art version of the sine wave
+function displaySineAscii(points) {
+  const rows = 21; // number of rows for the ASCII art
+  const cols = points.length; // one column per point
+  let grid = [];
+  for (let r = 0; r < rows; r++) {
+    grid.push(new Array(cols).fill(' '));
+  }
+  // Map each sine point's y value (range [-1, 1]) to a row index (0 at top, rows-1 at bottom)
+  for (let col = 0; col < cols; col++) {
+    const y = points[col].y;
+    // y=1 -> row 0, y=-1 -> row rows-1
+    const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
+    grid[row][col] = '*';
+  }
+  // Draw x-axis at y=0, which maps to row = Math.round((1 - ((0 + 1) / 2)) * (rows - 1)) = Math.round(0.5 * (rows - 1))
+  const xAxisRow = Math.round(0.5 * (rows - 1));
+  for (let col = 0; col < cols; col++) {
+    if (grid[xAxisRow][col] === ' ') {
+      grid[xAxisRow][col] = '-';
+    }
+  }
+  console.log('ASCII Art of Sine Wave:');
+  for (let r = 0; r < rows; r++) {
+    console.log(grid[r].join(''));
+  }
+}
+
 function generateSvg(quadraticPoints, sinePoints, polarPoints) {
   const width = 800;
   const height = 800; // increased height to accommodate polar plot
@@ -270,6 +298,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   displayPlot('Quadratic from String', qp);
   let sp = plotFromString('sine:1,1,0,0,360,10');
   displayPlot('Sine from String', sp);
+  // Display ASCII art for the sine wave in the demo output
+  displaySineAscii(sp);
   let pp = plotFromString('polar:200,2,5');
   displayPlot('Polar from String', pp);
 
