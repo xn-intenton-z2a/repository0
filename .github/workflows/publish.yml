@@ -63,7 +63,6 @@ jobs:
     permissions:
       contents: write
       packages: write
-    #uses: './.github/workflows/wfr-publish.yml'
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@main'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}

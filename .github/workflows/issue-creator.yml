@@ -21,8 +21,8 @@ on:
         type: boolean
         default: true
   schedule:
-    #- cron: '*/20 * * * *'
-    - cron: '0 7 * * *'
+    - cron: '*/20 * * * *'
+    #- cron: '0 7 * * *'
 
 jobs:
 

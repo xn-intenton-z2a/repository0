@@ -21,8 +21,8 @@ on:
         type: string
         default: 'src/lib/main.js'
   schedule:
-    #- cron: '0/15 * * * *'
-    - cron: '30 */6 * * *'
+    - cron: '0/15 * * * *'
+    #- cron: '30 */6 * * *'
 
 jobs:
 
