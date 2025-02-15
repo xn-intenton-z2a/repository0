@@ -1,0 +1,36 @@
+./tests/unit/run-main.test.js
+==== Content of ./tests/unit/run-main.test.js ====
+import { exec } from "child_process";
+import { describe, test, expect } from "vitest";
+
+// This is a test
+
+describe("Main Script Execution", () => {
+  test("should exit with code 0", (done) => {
+    exec(`${process.execPath} ./src/lib/main.js`, (error, stdout, stderr) => {
+      expect(error).toBeNull();
+      expect(stderr).toBe("");
+      done();
+    });
+  });
+});
+./tests/unit/use-library.test.js
+==== Content of ./tests/unit/use-library.test.js ====
+import { describe, test, expect } from "vitest";
+import * as mainModule from "@src/lib/main.js";
+
+describe("Main Module Import", () => {
+  test("should be non-null", () => {
+    expect(mainModule).not.toBeNull();
+  });
+});
+./tests/unit/module-index.test.js
+==== Content of ./tests/unit/module-index.test.js ====
+import { describe, test, expect } from "vitest";
+import anything from "@src/index.js";
+
+describe("Index Module Exports", () => {
+  test("module index should be defined", () => {
+    expect(anything).toBeUndefined();
+  });
+});

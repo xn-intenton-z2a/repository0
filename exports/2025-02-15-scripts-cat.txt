@@ -1,3 +1,5 @@
+./scripts/export-source.sh
+==== Content of ./scripts/export-source.sh ====
 #!/usr/bin/env bash
 # Purpose: Export the source code to date stamped files.
 # Usage: ./scripts/export-source.sh
@@ -16,3 +18,33 @@ find "./.github" -type f -name '*.yml' -print -exec echo "==== Content of {} ===
 find "./scripts" -type f -name '*.sh' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-scripts-cat.txt"
 #git log --follow -p src/lib/main.js > "./exports/$(date +%Y-%m-%d)-git-log-main.js-history.txt"
 git log --since="12 hours ago" --follow -p src/lib/main.js > ./exports/$(date +%Y-%m-%d)-git-log-main.js-history-last-12-hours.txt
+./scripts/clear-history-locally.sh
+==== Content of ./scripts/clear-history-locally.sh ====
+#!/usr/bin/env bash
+# Usage: ./scripts/clear-history-locally.sh
+rm -rfv ./build \
+&& rm -rfv ./dist \
+&& rm -rfv ./coverage \
+;
+./scripts/update.sh
+==== Content of ./scripts/update.sh ====
+#!/usr/bin/env bash
+rm -f package-lock.json
+rm -f node-modules
+npm install
+npm run update-to-minor
+npm update
+npm upgrade
+npm install
+npm run build
+npm link
+./scripts/clean.sh
+==== Content of ./scripts/clean.sh ====
+#!/usr/bin/env bash
+./scripts/clear-history-locally.sh
+rm -rfv ./dist
+rm -rfv ./node_modules
+rm -rfv ./package-lock.json
+npm install
+npm run build
+npm link
