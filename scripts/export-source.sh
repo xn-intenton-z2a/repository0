@@ -14,5 +14,5 @@ find "./src" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \;
 find "./tests" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-test-cat.txt"
 find "./.github" -type f -name '*.yml' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-github-workflow-cat.txt"
 find "./scripts" -type f -name '*.sh' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "./exports/$(date +%Y-%m-%d)-scripts-cat.txt"
-#git log --follow -p src/lib/main.js > "./exports/$(date +%Y-%m-%d)-git-log-main.js-history.txt"
+git log --follow -p src/lib/main.js > "./exports/$(date +%Y-%m-%d)-git-log-main.js-history.txt"
 git log --since="12 hours ago" --follow -p src/lib/main.js > ./exports/$(date +%Y-%m-%d)-git-log-main.js-history-last-12-hours.txt

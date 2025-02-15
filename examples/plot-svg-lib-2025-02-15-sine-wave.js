@@ -1,36 +1,31 @@
-./src/index.js
-==== Content of ./src/index.js ====
-// src/index.js
-// This file is intentionally left empty../src/lib/main.js
-==== Content of ./src/lib/main.js ====
 #!/usr/bin/env node
+// src/lib/main.js
 /**
  * Equation Plotter Library (SVG)
  *
- * README
- *
- * Overview:
- *   Equation Plotter is a lightweight library that generates SVG graphics for various mathematical equations.
+ * Description:
+ *   A lightweight library for plotting mathematical equations as SVG graphics.
  *
  * Features:
- *   - Quadratic Plot: Generates data points for y = x².
- *   - Sine Plot: Generates data points for y = sin(x) where x is in degrees.
- *   - Polar Plot: Generates and converts polar function data for plotting.
- *   - Interactive: Supports zooming, panning, and custom scaling.
- *   - Custom Styling: Allows customization of axis, grid, and curve appearances.
- *   - Export: Outputs the generated plot as an SVG file.
+ *   - Plot standard mathematical functions such as quadratic (y = x²) and sine (y = sin(x), with x in degrees).
+ *   - Support for parametric and polar equations.
+ *   - Interactive features including zooming, panning, and customizable scaling.
+ *   - Custom styling options for axes, grids, and plotted curves.
+ *   - Export functionality for saving plots as SVG files.
+ *   - Future integration with libraries like D3.js for advanced data visualization.
  *
- * Usage:
- *   Run this script with Node.js:
- *     $ node src/lib/main.js [outputFileName]
- *   It will generate an SVG file, defaulting to "output.svg" if no output file name is provided.
+ * Demo Usage:
+ *   - Call plotQuadratic() to generate a quadratic plot.
+ *   - Call plotSine() to generate a sine plot.
+ *   - Call plotPolar() to generate a polar plot.
  *
  * Future Enhancements:
- *   - Support for parametric and dynamic 3D plotting.
- *   - Extended API for further customization.
- *   - Canvas fallback for environments that do not support SVG.
+ *   - Extend support for 3D equation plotting and dynamic visualizations.
+ *   - Develop a comprehensive API for transforming and customizing functions.
+ *   - Provide a canvas fallback option for non-SVG environments.
  *
- * License: MIT
+ * Usage:
+ *   Run this script directly to generate an SVG file (output.svg) containing the demos.
  */
 
 import { fileURLToPath } from 'url';
@@ -117,17 +112,12 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
 
 // Run main if executed directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const outputFileName = process.argv[2] || 'output.svg';
   const quadratic = plotQuadratic();
   const sine = plotSine();
   const polar = plotPolar();
   const svgContent = generateSvg(quadratic, sine, polar);
 
-  try {
-    fs.writeFileSync(outputFileName, svgContent, 'utf8');
-    console.log(`SVG file generated: ${outputFileName}`);
-  } catch (err) {
-    console.error('Error writing SVG file:', err.message);
-    process.exit(1);
-  }
+  // Write the SVG content to a file
+  fs.writeFileSync('output.svg', svgContent, 'utf8');
+  console.log('SVG file generated: output.svg');
 }
