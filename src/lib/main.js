@@ -554,32 +554,23 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
   }
 
-  // Dealers Choice: generate a full random color palette if the flag is enabled
-  function generateColorPalette(count) {
-    const palette = [];
-    for (let i = 0; i < count; i++) {
-      palette.push(randomColor());
-    }
-    return palette;
-  }
-
   // Define color palettes for each plot type
   let quadraticColors, linearColors, sineColors, polarColors, exponentialColors, logarithmicColors;
-  if (!dealersChoice) {
+  if (dealersChoice) {
+    // For dealers choice, assign a random color to each individual plot series
+    quadraticColors = quadraticPlots.map(() => randomColor());
+    linearColors = linearPlots.map(() => randomColor());
+    sineColors = sinePlots.map(() => randomColor());
+    polarColors = polarPlots.map(() => randomColor());
+    exponentialColors = exponentialPlots.map(() => randomColor());
+    logarithmicColors = logarithmicPlots.map(() => randomColor());
+  } else {
     quadraticColors = ["blue", "darkblue", "purple", "royalblue", "deepskyblue"];
     linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
     sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
     polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
     exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
-  } else {
-    // Dealers choice enabled: generate random color palettes for each plot based on the number of formulas, ensuring at least 5 colors
-    quadraticColors = generateColorPalette(Math.max(5, quadraticPlots.length));
-    linearColors = generateColorPalette(Math.max(5, linearPlots.length));
-    sineColors = generateColorPalette(Math.max(5, sinePlots.length));
-    polarColors = generateColorPalette(Math.max(5, polarPlots.length));
-    exponentialColors = generateColorPalette(Math.max(5, exponentialPlots.length));
-    logarithmicColors = generateColorPalette(Math.max(5, logarithmicPlots.length));
   }
 
   // Helper to draw grid for rectangular slots
