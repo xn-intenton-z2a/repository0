@@ -564,7 +564,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
   } else {
-    // Use dynamic random colors based on the number of plots in each type
+    // Dealers choice enabled: generate random colors for each plot based on the number of plots
     quadraticColors = quadraticPlots.map(() => randomColor());
     linearColors = linearPlots.map(() => randomColor());
     sineColors = sinePlots.map(() => randomColor());
