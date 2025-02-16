@@ -822,33 +822,6 @@ Formula String Formats:
 
   const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulasList);
 
-  console.log("Demo: Raw formula strings and their parsed representations:");
-
-  const rawQuad = "x^2+y-1=0";
-  console.log(`Raw Formula: \"${rawQuad}\"`);
-  console.log("Parsed representation for Quadratic from Raw Formula:");
-  displayPlot("Quadratic from Raw Formula", plotFromString(rawQuad));
-
-  const rawLinear = "linear:1,0,-10,10,1";
-  console.log(`\nRaw Formula: \"${rawLinear}\"`);
-  console.log("Parsed representation for Linear from Raw Formula:");
-  displayPlot("Linear from Raw Formula", plotFromString(rawLinear));
-
-  const rawSine = "sine:1,1,0,0,360,10";
-  console.log(`\nRaw Formula: \"${rawSine}\"`);
-  console.log("Parsed ASCII Art for Sine:");
-  console.log(plotToAscii({ formulas: [rawSine] }));
-
-  const rawPolar = "polar:200,2,5";
-  console.log(`\nRaw Formula: \"${rawPolar}\"`);
-  console.log("Parsed representation for Polar from Raw Formula:");
-  displayPlot("Polar from Raw Formula", plotFromString(rawPolar));
-
-  const rawExp = "exp:1,0.1,-10,10,1";
-  console.log(`\nRaw Formula: \"${rawExp}\"`);
-  console.log("Parsed representation for Exponential from Raw Formula:");
-  displayPlot("Exponential from Raw Formula", plotFromString(rawExp));
-
   // NEW: If debug flag is present, output the internal parsed plot data
   if (isDebug) {
     console.log("\nDebug: Internal parsed plot data:");
