@@ -43,7 +43,7 @@
  * License: MIT
  *
  * Updated:
- *   Version flag updated to 0.1.1-71 and documentation improved per issue-123 and issue-126. Generic quadratic and exponential parsing functions are now exported for extended usage.
+ *   Version flag updated to 0.1.1-72 and documentation improved per issue-123 and issue-126. Generic quadratic and exponential parsing functions are now exported for extended usage.
  */
 
 import { fileURLToPath } from "url";
@@ -963,7 +963,7 @@ function main() {
 
   // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-71");
+    console.log("Equation Plotter Library version 0.1.1-72");
     process.exit(0);
   }
 
