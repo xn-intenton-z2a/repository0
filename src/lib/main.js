@@ -191,16 +191,43 @@ function parseGenericQuadratic(formulaStr) {
     if (parts.length !== 2) throw new Error('Unsupported formula format for quadratic parsing');
     let left = parts[0];
     let right = parts[1];
+    // Improved parsing: if left contains 'y', isolate it by removing the y term and solving for y
     if (left.includes('y')) {
-      const nonYPart = left.replace('y', '');
+      const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
+      let yCoeff = 1;
+      if (yMatch) {
+        const coeffStr = yMatch[1];
+        if (coeffStr === '' || coeffStr === '+') yCoeff = 1;
+        else if (coeffStr === '-') yCoeff = -1;
+        else yCoeff = parseFloat(coeffStr);
+      }
+      // Remove the y term from the left side
+      let remaining = left.replace(/([+-]?\d*\.?\d*)y/, '');
+      // Now, y = (right - remaining) / yCoeff
+      // For our simple case, assume right is a constant or empty
+      const constantRight = parseFloat(right) || 0;
+      const coeffs = extractQuadraticCoefficients(remaining);
+      // The polynomial is: y = (right - (ax^2 + bx + c)) / yCoeff
+      // => y = (-a/yCoeff)x^2 + (-b/yCoeff)x + ((right - c)/yCoeff)
+      return plotQuadraticParam({ a: -coeffs.a / yCoeff, b: -coeffs.b / yCoeff, c: (constantRight - coeffs.c) / yCoeff, xMin: -10, xMax: 10, step: 1 });
+    } else if (right.includes('y')) {
+      const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
+      let yCoeff = 1;
+      if (yMatch) {
+        const coeffStr = yMatch[1];
+        if (coeffStr === '' || coeffStr === '+') yCoeff = 1;
+        else if (coeffStr === '-') yCoeff = -1;
+        else yCoeff = parseFloat(coeffStr);
+      }
+      let remaining = right.replace(/([+-]?\d*\.?\d*)y/, '');
+      const constantLeft = parseFloat(left) || 0;
+      const coeffs = extractQuadraticCoefficients(remaining);
+      return plotQuadraticParam({ a: -coeffs.a / yCoeff, b: -coeffs.b / yCoeff, c: (constantLeft - coeffs.c) / yCoeff, xMin: -10, xMax: 10, step: 1 });
+    } else {
+      // fallback to original inversion method
+      let nonYPart = left;
       const newExpr = (right || '0') + invertExpression(nonYPart);
       return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
-    } else if (right.includes('y')) {
-      const nonYPart = right.replace('y', '');
-      const newExpr = (left || '0') + invertExpression(nonYPart);
-      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
-    } else {
-      throw new Error('No y variable found in quadratic equation');
     }
   }
 }
@@ -432,6 +459,7 @@ Formula String Formats:
   let isJson = args.includes('--json');
   let isCsv = args.includes('--csv');
   let isHtml = false;
+  let isAscii = false;
 
   const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv');
   if (nonFormulaArgs.length > 0) {
@@ -444,6 +472,8 @@ Formula String Formats:
     isCsv = true;
   } else if (outputFileName.toLowerCase().endsWith('.html')) {
     isHtml = true;
+  } else if (outputFileName.toLowerCase().endsWith('.txt') || outputFileName.toLowerCase().endsWith('.ascii')) {
+    isAscii = true;
   }
 
   // Collect formulas from arguments
@@ -474,13 +504,15 @@ Formula String Formats:
     fileContent = plotToCsv({ formulas: formulasList });
   } else if (isHtml) {
     fileContent = plotToHtml({ formulas: formulasList });
+  } else if (isAscii) {
+    fileContent = plotToAscii({ formulas: formulasList });
   } else {
     fileContent = generateSvg(quadratic, sine, polar);
   }
 
   try {
     fs.writeFileSync(outputFileName, fileContent, 'utf8');
-    console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : 'SVG'} file generated: ${outputFileName}`);
+    console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : isAscii ? 'ASCII' : 'SVG'} file generated: ${outputFileName}`);
   } catch (err) {
     console.error(`Error writing file:`, err.message);
     process.exit(1);
