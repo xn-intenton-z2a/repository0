@@ -3,10 +3,10 @@
 'use strict';
 
 /**
- * Equation Plotter Library (SVG/JSON/CSV)
+ * Equation Plotter Library (SVG/JSON/CSV/HTML)
  *
  * Overview:
- *   A lightweight library that generates SVG graphics for various mathematical equations, with additional support for JSON and CSV export.
+ *   A lightweight library that generates SVG graphics for various mathematical equations, with additional support for JSON, CSV, and now HTML export.
  *
  * Features:
  *   - Quadratic Plot: Generates data points for y = ax² + bx + c. Supports formats like "y=x^2+2*x+1" or "x^2+y-1=0".
@@ -14,15 +14,16 @@
  *   - Polar Plot: Generates and converts polar function data for plotting: r = scale * |sin(multiplier * θ)|.
  *   - Interactive: Supports zooming, panning, and custom scaling.
  *   - Custom Styling: Customize axis, grid, and curve appearances.
- *   - Export: Outputs the plot as an SVG file, ASCII art, text representation, JSON, or CSV, and can also write it to a file.
+ *   - Export: Outputs the plot as an SVG file, ASCII art, text representation, JSON, CSV, or HTML, and can also write it to a file.
  *
  * SDK API Functions:
  *   plotToSvg(options)   -> Returns an SVG string.
  *   plotToAscii(options) -> Returns an ASCII art string for sine plot.
  *   plotToText(options)  -> Returns a text representation of plot points.
  *   plotToJson(options)  -> Returns a JSON string with the plot points.
- *   plotToFile(options)  -> Saves output to a file and returns the file path.
  *   plotToCsv(options)   -> Returns a CSV string with the plot points.
+ *   plotToHtml(options)  -> Returns an HTML string embedding the SVG plot.
+ *   plotToFile(options)  -> Saves output to a file and returns the file path.
  *
  * Additional Functions:
  *   plotQuadraticParam(params)  -> Returns points for a quadratic function.
@@ -40,12 +41,14 @@
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *
  * Example Usage (API):
- *   import { plotToSvg, plotToJson, plotToCsv } from './main.js';
+ *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *   const jsonData = plotToJson({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *   const csvData = plotToCsv({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
+ *   const htmlData = plotToHtml({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *
  * License: MIT
  */
@@ -306,6 +309,15 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
 }
 
 // ----------------------------------
+// HTML Generation Function
+// ----------------------------------
+
+function plotToHtml({ formulas = [] } = {}) {
+  const svgContent = plotToSvg({ formulas });
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
+}
+
+// ----------------------------------
 // Exported API Functions
 // ----------------------------------
 
@@ -482,6 +494,8 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
     content = JSON.stringify(plotToJson({ formulas }), null, 2);
   } else if (type === 'csv') {
     content = plotToCsv({ formulas });
+  } else if (type === 'html') {
+    content = plotToHtml({ formulas });
   } else {
     throw new Error('Unsupported type provided for plotToFile');
   }
@@ -508,6 +522,7 @@ Options:
   --help, -h       Show this help message
   --json           Generate output as JSON instead of SVG
   --csv            Generate output as CSV instead of SVG
+  (output file extension .html will generate HTML output)
 
 Formula String Formats:
   Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"
@@ -522,19 +537,22 @@ Formula String Formats:
   let sinePlot = null;
   let polarPlot = null;
 
-  // Determine if JSON or CSV output is requested
+  // Determine if JSON, CSV, or HTML output is requested
   let isJson = args.includes('--json');
   let isCsv = args.includes('--csv');
+  let isHtml = false;
 
   const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv');
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
-  // If output file extension is .json or .csv, then force respective output
+  // If output file extension is .json, .csv, or .html, then force respective output
   if (outputFileName.toLowerCase().endsWith('.json')) {
     isJson = true;
   } else if (outputFileName.toLowerCase().endsWith('.csv')) {
     isCsv = true;
+  } else if (outputFileName.toLowerCase().endsWith('.html')) {
+    isHtml = true;
   }
 
   // Collect formulas from arguments
@@ -578,15 +596,17 @@ Formula String Formats:
     fileContent = JSON.stringify(plotToJson({ formulas: formulasList }), null, 2);
   } else if (isCsv) {
     fileContent = plotToCsv({ formulas: formulasList });
+  } else if (isHtml) {
+    fileContent = plotToHtml({ formulas: formulasList });
   } else {
     fileContent = generateSvg(quadraticPlot, sinePlot, polarPlot);
   }
 
   try {
     fs.writeFileSync(outputFileName, fileContent, 'utf8');
-    console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : 'SVG'} file generated: ${outputFileName}`);
+    console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : 'SVG'} file generated: ${outputFileName}`);
   } catch (err) {
-    console.error(`Error writing ${isJson ? 'JSON' : isCsv ? 'CSV' : 'SVG'} file:`, err.message);
+    console.error(`Error writing ${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : 'SVG'} file:`, err.message);
     process.exit(1);
   }
 
@@ -598,4 +618,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
 
-export { plotToSvg, plotToAscii, plotToText, plotToJson, plotToCsv, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
+export { plotToSvg, plotToAscii, plotToText, plotToJson, plotToCsv, plotToHtml, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
