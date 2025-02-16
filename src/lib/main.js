@@ -21,6 +21,7 @@
  *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
  *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
  *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
+ *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
  *
  * API Functions:
  *   - plotToSvg(options): Returns an SVG string of the plots.
@@ -530,10 +531,27 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return grid;
   }
 
+  // Helper to draw axes lines for rectangular slots
+  function drawRectAxes(x, y, w, h, minX, maxX, minY, maxY) {
+    let axes = "";
+    // Draw horizontal axis if 0 is within y range
+    if (0 >= minY && 0 <= maxY) {
+      let zeroY = y + h - ((0 - minY) / (maxY - minY)) * h;
+      axes += `  <line x1="${formatNumber(x)}" y1="${formatNumber(zeroY)}" x2="${formatNumber(x + w)}" y2="${formatNumber(zeroY)}" stroke="black" stroke-width="1" />\n`;
+    }
+    // Draw vertical axis if 0 is within x range
+    if (0 >= minX && 0 <= maxX) {
+      let zeroX = x + ((0 - minX) / (maxX - minX)) * w;
+      axes += `  <line x1="${formatNumber(zeroX)}" y1="${formatNumber(y)}" x2="${formatNumber(zeroX)}" y2="${formatNumber(y + h)}" stroke="black" stroke-width="1" />\n`;
+    }
+    return axes;
+  }
+
   // Slot 1: Quadratic Plot (Area: y=50 to 230)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 50, 700, 180, 10, 5);
+    svg += drawRectAxes(50, 50, 700, 180, Math.min(...quadraticPlots.flat().map(p => p.x)), Math.max(...quadraticPlots.flat().map(p => p.x)), Math.min(...quadraticPlots.flat().map(p => p.y)), Math.max(...quadraticPlots.flat().map(p => p.y)));
   }
   const qAllPoints = quadraticPlots.flat();
   const qValues = qAllPoints.map((p) => p.y);
@@ -567,6 +585,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `  <text x="${width / 2}" y="250" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 270, 700, 180, 10, 5);
+    svg += drawRectAxes(50, 270, 700, 180, Math.min(...linearPlots.flat().map(p => p.x)), Math.max(...linearPlots.flat().map(p => p.x)), Math.min(...linearPlots.flat().map(p => p.y)), Math.max(...linearPlots.flat().map(p => p.y)));
   }
   const lAllPoints = linearPlots.flat();
   const lValues = lAllPoints.map((p) => p.y);
@@ -600,6 +619,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `  <text x="${width / 2}" y="470" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 490, 700, 180, 10, 5);
+    svg += drawRectAxes(50, 490, 700, 180, Math.min(...sinePlots.flat().map(p => p.x)), Math.max(...sinePlots.flat().map(p => p.x)), Math.min(...sinePlots.flat().map(p => p.y)), Math.max(...sinePlots.flat().map(p => p.y)));
   }
   const sAllPoints = sinePlots.flat();
   const sValues = sAllPoints.map((p) => p.y);
@@ -638,6 +658,9 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     [50, 100, 150].forEach(r => {
       svg += `  <circle cx="${formatNumber(centerX)}" cy="${formatNumber(centerY)}" r="${r}" stroke="#eee" stroke-width="1" fill="none" />\n`;
     });
+    // Draw cross axes for polar plot
+    svg += `  <line x1="${formatNumber(centerX - 150)}" y1="${formatNumber(centerY)}" x2="${formatNumber(centerX + 150)}" y2="${formatNumber(centerY)}" stroke="black" stroke-width="1" />\n`;
+    svg += `  <line x1="${formatNumber(centerX)}" y1="${formatNumber(centerY - 150)}" x2="${formatNumber(centerX)}" y2="${formatNumber(centerY + 150)}" stroke="black" stroke-width="1" />\n`;
   }
   polarPlots.forEach((points, idx) => {
     const color = polarColors[idx % polarColors.length];
@@ -656,6 +679,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `  <text x="${width / 2}" y="1000" font-size="16" text-anchor="middle">Exponential Plot: y = a * e^(b*x)</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 1020, 700, 180, 10, 5);
+    svg += drawRectAxes(50, 1020, 700, 180, Math.min(...exponentialPlots.flat().map(p => p.x)), Math.max(...exponentialPlots.flat().map(p => p.x)), Math.min(...exponentialPlots.flat().map(p => p.y)), Math.max(...exponentialPlots.flat().map(p => p.y)));
   }
   const expAllPoints = exponentialPlots.flat();
   const expValues = expAllPoints.map((p) => p.y);
