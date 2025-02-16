@@ -18,6 +18,7 @@
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
+ *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
  *
  * API Functions:
  *   - plotToSvg(options): Returns an SVG string of the plots.
@@ -624,8 +625,7 @@ function plotToAscii({ formulas = [] } = {}) {
     for (let col = 0; col < cols; col++) {
       if (grid[xAxisRow][col] === " ") grid[xAxisRow][col] = "-";
     }
-    result += header + grid.map((row) => row.join(""))
-      .join("\n") + "\n\n";
+    result += header + grid.map((row) => row.join("")).join("\n") + "\n\n";
   });
   return result;
 }
@@ -766,6 +766,7 @@ Options:
   --json           Generate output as JSON instead of SVG
   --csv            Generate output as CSV instead of SVG
   --ascii          Generate output as ASCII art instead of SVG
+  --debug          Output internal parsed plot data for debugging
   --version        Show version information
   (output file extension .html will generate HTML output)
 
@@ -785,6 +786,7 @@ Formula String Formats:
   let isCsv = args.includes("--csv");
   let isHtml = false;
   let isAscii = args.includes("--ascii");
+  let isDebug = args.includes("--debug");
 
   const nonFormulaArgs = args.filter(
     (arg) =>
@@ -793,7 +795,8 @@ Formula String Formats:
       arg !== "--json" &&
       arg !== "--csv" &&
       arg !== "--version" &&
-      arg !== "--ascii"
+      arg !== "--ascii" &&
+      arg !== "--debug"
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -845,6 +848,12 @@ Formula String Formats:
   console.log(`\nRaw Formula: \"${rawExp}\"`);
   console.log("Parsed representation for Exponential from Raw Formula:");
   displayPlot("Exponential from Raw Formula", plotFromString(rawExp));
+
+  // NEW: If debug flag is present, output the internal parsed plot data
+  if (isDebug) {
+    console.log("\nDebug: Internal parsed plot data:");
+    console.log(JSON.stringify(getPlotsFromFormulas(formulasList), null, 2));
+  }
 
   let fileContent = "";
   if (isJson) {
