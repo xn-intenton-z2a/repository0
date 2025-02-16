@@ -22,7 +22,7 @@
  *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
  *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
  *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
- *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots.
+ *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots. (Dealers Choice: each plot series gets its own random color)
  *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -147,7 +147,7 @@ function plotLogarithmic() {
 // ----------------------------------
 
 function parseQuadratic(formulaStr) {
-  const parts = formulaStr.split(":");
+  const parts = formulaStr.split(":" );
   if (parts.length < 2) throw new Error("Invalid quadratic formula string");
   const params = parts[1].split(",").map(Number);
   const [a, b, c, xMin, xMax, step] = params;
@@ -549,7 +549,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
-  // Function to generate a random color in hex format
+  // Dealers Choice Implementation: if dealersChoice is true, assign a unique random color for each plot series
   function randomColor() {
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
   }
