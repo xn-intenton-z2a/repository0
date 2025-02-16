@@ -551,7 +551,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
   // Dealers Choice Implementation: if dealersChoice is true, assign a unique random color for each plot series
   function randomColor() {
-    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+    // Updated to use 16777216 to include full spectrum up to #ffffff
+    return '#' + Math.floor(Math.random() * 16777216).toString(16).padStart(6, '0');
   }
 
   // Define color palettes for each plot type
@@ -808,8 +809,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
 function plotToHtml({ formulas = [], grid = false, dealersChoice = false } = {}) {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice });
-  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n
-default\n${svgContent}\n</body>\n</html>`;
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n\ndefault\n${svgContent}\n</body>\n</html>`;
 }
 
 // ----------------------------------
