@@ -438,6 +438,12 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
 function main() {
   const args = process.argv.slice(2);
 
+  // Added version flag support
+  if (args.includes('--version')) {
+    console.log('Equation Plotter Library version 0.1.0');
+    process.exit(0);
+  }
+
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
 
@@ -445,6 +451,7 @@ Options:
   --help, -h       Show this help message
   --json           Generate output as JSON instead of SVG
   --csv            Generate output as CSV instead of SVG
+  --version        Show version information
   (output file extension .html will generate HTML output)
 
 Formula String Formats:
@@ -461,7 +468,7 @@ Formula String Formats:
   let isHtml = false;
   let isAscii = false;
 
-  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv');
+  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv' && arg !== '--version');
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
