@@ -24,7 +24,7 @@ on:
   schedule:
     # Run every 10 minutes (as an example)
     #- cron: '0,10,20,30,40,50 * * * *'
-    - cron: '0 2 * * *'
+    - cron: '0 6 * * *'
 
 jobs:
 
@@ -43,19 +43,19 @@ jobs:
         || Generally tidy up the code.
       target: ${{ inputs.target || 'src/lib/main.js' }}
 
-  run-issue-worker:
-    needs:
-      - create-issue
-    runs-on: ubuntu-latest
-    if: ${{ inputs.runIssueWorker == true }}
-    permissions:
-      contents: write
-      actions: write
-      packages: write
-      issues: write
-      pull-requests: write
-      id-token: write
-      repository-projects: write
+  #run-issue-worker:
+  #needs:
+  #    - create-issue
+  #  runs-on: ubuntu-latest
+  #  if: ${{ inputs.runIssueWorker == true }}
+  #  permissions:
+  #    contents: write
+  #    actions: write
+  #    packages: write
+  #    issues: write
+  #    pull-requests: write
+  #    id-token: write
+  #    repository-projects: write
       #security-events: write
       #statuses: write
       #deployments: write
@@ -63,20 +63,20 @@ jobs:
       #pages: write
       #attestations: write
       #discussions: write
-    steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+  #  steps:
+  #    - uses: actions/setup-node@v4
+  #      with:
+  #        node-version: '20'
 
-      - name: Trigger downstream issue-worker workflow
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'issue-worker.yml',
-              ref: context.ref,
-              inputs: {}
-            });
+  #    - name: Trigger downstream issue-worker workflow
+  #      uses: actions/github-script@v7
+  #      with:
+  #        github-token: ${{ secrets.GITHUB_TOKEN }}
+  #        script: |
+  #          await github.rest.actions.createWorkflowDispatch({
+  #            owner: context.repo.owner,
+  #            repo: context.repo.repo,
+  #            workflow_id: 'issue-worker.yml',
+  #            ref: context.ref,
+  #            inputs: {}
+  #          });

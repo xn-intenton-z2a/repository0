@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: 'src/lib/main.js'
+  workflow_run:
+    workflows:
+      - "Automerge"
+    types:
+      - completed
   schedule:
     #- cron: '0,10,20,30,40,50 * * * *'
     - cron: '0 */6 * * *'

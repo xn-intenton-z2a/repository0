@@ -19,6 +19,12 @@ on:
         required: false
         type: string
         default: ''
+  workflow_run:
+    workflows:
+      - "Issue Worker"
+      - "Update"
+    types:
+      - completed
   schedule:
     # Run every 10 minutes (as an example)
     #- cron: '*/10 * * * *'

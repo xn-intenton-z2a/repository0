@@ -21,7 +21,11 @@ on:
         required: false
         type: string
         default: 'automated'
-
+  workflow_run:
+    workflows:
+      - "Create Issue"
+    types:
+      - completed
   schedule:
     #- cron: '5,35 * * * *'
     - cron: '0 */2 * * *'
