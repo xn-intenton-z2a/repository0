@@ -181,7 +181,7 @@ function parseLinear(formulaStr) {
   });
 }
 
-// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters e.g., "y=2x+3:-10,10,1"
+// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters (e.g., "y=2x+3:-10,10,1")
 function parseGenericLinear(formulaStr) {
   let parts = formulaStr.split(":");
   let exprPart = parts[0].replace(/\s+/g, "");
@@ -565,7 +565,8 @@ function plotToAscii({ formulas = [] } = {}) {
     for (let col = 0; col < cols; col++) {
       if (grid[xAxisRow][col] === " ") grid[xAxisRow][col] = "-";
     }
-    result += header + grid.map((row) => row.join("")).join("\n") + "\n\n";
+    result += header + grid.map((row) => row.join(""))
+      .join("\n") + "\n\n";
   });
   return result;
 }
