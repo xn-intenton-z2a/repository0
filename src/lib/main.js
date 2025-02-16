@@ -22,6 +22,7 @@
  *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
  *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
  *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
+ *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots.
  *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -44,6 +45,7 @@
  *
  * Updated:
  *   Version flag updated to 0.1.1-72 and documentation improved per issue-123 and issue-126. Generic quadratic and exponential parsing functions are now exported for extended usage.
+ *   Added dealer's choice option to randomize SVG color palettes per '--dealers-choice' flag.
  */
 
 import { fileURLToPath } from "url";
@@ -538,7 +540,7 @@ function displayPlot(plotName, points) {
 // SVG Generation Function
 // ----------------------------------
 
-function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots, logarithmicPlots, gridEnabled = false) {
+function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots, logarithmicPlots, gridEnabled = false, dealersChoice = false) {
   // New SVG with 6 plots arranged in separate slots
   const width = 800;
   const height = 1500;
@@ -547,13 +549,28 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
+  // Function to generate a random color in hex format
+  function randomColor() {
+    return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
+  }
+
   // Define color palettes for each plot type
-  const quadraticColors = ["blue", "darkblue", "purple", "royalblue", "deepskyblue"];
-  const linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
-  const sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
-  const polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
-  const exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
-  const logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
+  let quadraticColors, linearColors, sineColors, polarColors, exponentialColors, logarithmicColors;
+  if (!dealersChoice) {
+    quadraticColors = ["blue", "darkblue", "purple", "royalblue", "deepskyblue"];
+    linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
+    sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
+    polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
+    exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
+    logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
+  } else {
+    quadraticColors = Array.from({ length: 5 }, () => randomColor());
+    linearColors = Array.from({ length: 5 }, () => randomColor());
+    sineColors = Array.from({ length: 5 }, () => randomColor());
+    polarColors = Array.from({ length: 5 }, () => randomColor());
+    exponentialColors = Array.from({ length: 5 }, () => randomColor());
+    logarithmicColors = Array.from({ length: 5 }, () => randomColor());
+  }
 
   // Helper to draw grid for rectangular slots
   function drawRectGrid(x, y, w, h, vCount, hCount) {
@@ -788,8 +805,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 // HTML Generation Function
 // ----------------------------------
 
-function plotToHtml({ formulas = [], grid = false } = {}) {
-  const svgContent = plotToSvg({ formulas, grid });
+function plotToHtml({ formulas = [], grid = false, dealersChoice = false } = {}) {
+  const svgContent = plotToSvg({ formulas, grid, dealersChoice });
   return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
 }
 
@@ -797,9 +814,9 @@ function plotToHtml({ formulas = [], grid = false } = {}) {
 // Exported API Functions
 // ----------------------------------
 
-function plotToSvg({ formulas = [], grid = false } = {}) {
+function plotToSvg({ formulas = [], grid = false, dealersChoice = false } = {}) {
   const { quadratic, linear, sine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, linear, sine, polar, exponential, logarithmic, grid);
+  return generateSvg(quadratic, linear, sine, polar, exponential, logarithmic, grid, dealersChoice);
 }
 
 function plotToAscii({ formulas = [] } = {}) {
@@ -978,6 +995,7 @@ Options:
   --ascii          Generate output as ASCII art instead of SVG
   --grid           Overlay grid lines on SVG plots
   --debug          Output internal parsed plot data for debugging
+  --dealers-choice Use randomized color palette for SVG plots
   --version        Show version information
   (output file extension .html will generate HTML output)
 
@@ -1000,6 +1018,7 @@ Formula String Formats:
   let isAscii = args.includes("--ascii");
   let isDebug = args.includes("--debug");
   let gridEnabled = args.includes("--grid");
+  let isDealersChoice = args.includes("--dealers-choice");
 
   const nonFormulaArgs = args.filter(
     (arg) =>
@@ -1010,7 +1029,8 @@ Formula String Formats:
       arg !== "--version" &&
       arg !== "--ascii" &&
       arg !== "--debug" &&
-      arg !== "--grid"
+      arg !== "--grid" &&
+      arg !== "--dealers-choice"
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -1046,11 +1066,11 @@ Formula String Formats:
   } else if (isCsv) {
     fileContent = plotToCsv({ formulas: formulasList });
   } else if (isHtml) {
-    fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled });
+    fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
   } else if (isAscii) {
     fileContent = plotToAscii({ formulas: formulasList });
   } else {
-    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled });
+    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
   }
 
   try {
