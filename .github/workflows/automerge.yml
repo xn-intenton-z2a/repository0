@@ -113,6 +113,7 @@ jobs:
   wait-for-merge:
     needs:
       - merge-check
+    if: ${{ always() }}
     #if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
