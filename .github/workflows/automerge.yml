@@ -31,19 +31,19 @@ on:
     - cron: '15 */2 * * *'
 
 jobs:
-  pr-check:
+  pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  cs-check:
+  cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  determine-ls:
+  ls:
     if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && ( !github.event.inputs.pullNumber || github.event.inputs.pullNumber == '' ))
     runs-on: ubuntu-latest
     outputs:
@@ -76,14 +76,10 @@ jobs:
   merge-check:
     if: ${{ always() }}
     needs:
-      - pr-check
-      - cs-check
-      - determine-ls
+      - pr
+      - cs
+      - ls
     runs-on: ubuntu-latest
-    outputs:
-      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
-      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
-      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
     steps:
       - name: set-outputs
         id: set-outputs
@@ -92,16 +88,9 @@ jobs:
           script: |
             // Merge outputs from pr-check, cs-check, and determine-ls.
             // Only one of pr-check or cs-check should have run.
-            let prMerged = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.prMerged)
-                           || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.prMerged)
-                           || 'false';
-            let pullNumber = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.pullNumber)
-                             || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.pullNumber)
-                             || (needs['determine-ls'] && needs['determine-ls'].outputs && needs['determine-ls'].outputs.pullNumber)
-                             || core.getInput('pullNumber') || '';
-            let shouldSkipMerge = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.shouldSkipMerge)
-                                  || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.shouldSkipMerge)
-                                  || 'false';
+            let prMerged = '${{ needs.pr.outputs.prMerged || needs.cs.outputs.prMerged || 'false' }}';
+            let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber || needs.pullNumber }}';
+            let shouldSkipMerge = '${{ needs.pr.outputs.shouldSkipMerge || needs.cs.outputs.shouldSkipMerge || 'false' }}';
             core.setOutput('prMerged', prMerged);
             core.setOutput('pullNumber', pullNumber);
             core.setOutput('shouldSkipMerge', shouldSkipMerge);
@@ -109,6 +98,10 @@ jobs:
             core.info(`pullNumber: ${pullNumber}`);
             core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
           result-encoding: string
+    outputs:
+      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
+      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
 
   label-issue-after-check-pr:
     needs:
