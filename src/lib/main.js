@@ -50,6 +50,12 @@
 import { fileURLToPath } from "url";
 import fs from "fs";
 
+// Helper function to format numbers to two decimals and avoid negative zero
+function formatNumber(n) {
+  let s = n.toFixed(2);
+  return s === "-0.00" ? "0.00" : s;
+}
+
 // ----------------------------------
 // Plotting Functions
 // ----------------------------------
@@ -347,7 +353,7 @@ function getPlotsFromFormulas(formulas = []) {
 
 function displayPlot(plotName, points) {
   console.log(`Plot for ${plotName}:`);
-  console.log(points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "));
+  console.log(points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "));
 }
 
 // ----------------------------------
@@ -385,7 +391,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
       .map((p) => {
         const px = 50 + ((p.x + 10) / 20) * 700;
         const py = 250 - ((p.y - qMinY) / (qMaxY - qMinY)) * 200;
-        return `${px.toFixed(2)},${py.toFixed(2)}`;
+        return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
@@ -408,7 +414,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
       .map((p) => {
         const px = 50 + ((p.x + 10) / 20) * 700;
         const py = 480 - ((p.y - lMinY) / (lMaxY - lMinY)) * 200;
-        return `${px.toFixed(2)},${py.toFixed(2)}`;
+        return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
@@ -431,7 +437,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
       .map((p) => {
         const px = 50 + (p.x / 360) * 700;
         const py = 710 - ((p.y - sMinY) / (sMaxY - sMinY)) * 200;
-        return `${px.toFixed(2)},${py.toFixed(2)}`;
+        return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
@@ -448,7 +454,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
       .map((p) => {
         const px = centerX + p.x;
         const py = centerY - p.y;
-        return `${px.toFixed(2)},${py.toFixed(2)}`;
+        return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
@@ -505,25 +511,25 @@ function plotToText({ formulas = [] } = {}) {
   output +=
     "Quadratic Plot:\n" +
     quadratic
-      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "))
+      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
       .join("\n") +
     "\n\n";
   output +=
     "Linear Plot:\n" +
     linear
-      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "))
+      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
       .join("\n") +
     "\n\n";
   output +=
     "Sine Plot:\n" +
     sine
-      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "))
+      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
       .join("\n") +
     "\n\n";
   output +=
     "Polar Plot:\n" +
     polar
-      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "))
+      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
       .join("\n") +
     "\n";
   return output;
@@ -546,28 +552,28 @@ function plotToCsv({ formulas = [] } = {}) {
   lines.push("--Quadratic Plot--");
   quadratic.forEach((points, i) => {
     points.forEach((p) => {
-      lines.push(`Quadratic,Formula ${i + 1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+      lines.push(`Quadratic,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
     });
   });
   lines.push("");
   lines.push("--Linear Plot--");
   linear.forEach((points, i) => {
     points.forEach((p) => {
-      lines.push(`Linear,Formula ${i + 1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+      lines.push(`Linear,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
     });
   });
   lines.push("");
   lines.push("--Sine Plot--");
   sine.forEach((points, i) => {
     points.forEach((p) => {
-      lines.push(`Sine,Formula ${i + 1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+      lines.push(`Sine,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
     });
   });
   lines.push("");
   lines.push("--Polar Plot--");
   polar.forEach((points, i) => {
     points.forEach((p) => {
-      lines.push(`Polar,Formula ${i + 1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+      lines.push(`Polar,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
     });
   });
   return lines.join("\n");
@@ -614,7 +620,7 @@ function main() {
 
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
-      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier[,step]"\n`,
+      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier[,step]"\n`
     );
     process.exit(0);
   }
@@ -632,7 +638,7 @@ function main() {
       arg !== "--json" &&
       arg !== "--csv" &&
       arg !== "--version" &&
-      arg !== "--ascii",
+      arg !== "--ascii"
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -689,9 +695,7 @@ function main() {
 
   try {
     fs.writeFileSync(outputFileName, fileContent, "utf8");
-    console.log(
-      `\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`,
-    );
+    console.log(`\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`);
   } catch (err) {
     console.error(`Error writing file:`, err.message);
     process.exit(1);
