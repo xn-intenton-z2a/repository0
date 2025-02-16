@@ -484,6 +484,12 @@ Formula String Formats:
   console.log('Parsed ASCII Art for Sine:');
   console.log(plotToAscii({ formulas: [rawSine] }));
 
+  // Added test demonstration for Polar formula
+  const rawPolar = 'polar:200,2,5';
+  console.log(`\nRaw Formula: "${rawPolar}"`);
+  console.log('Parsed representation for Polar from Raw Formula:');
+  displayPlot('Polar from Raw Formula', plotFromString(rawPolar));
+
   let fileContent = '';
   if (isJson) {
     fileContent = JSON.stringify(plotToJson({ formulas: formulasList }), null, 2);
