@@ -16,6 +16,7 @@
  *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range.
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
+ *   - Multiple Formulas per Plot Type: Now supports multiple formulas for each plot type, each rendered with a distinct color.
  *
  * API Functions:
  *   - plotToSvg(options): Returns an SVG string of the plots.
@@ -293,29 +294,32 @@ function plotFromString(formulaStr) {
   }
 }
 
-// Helper function to parse formulas and return plots
+// Helper function to parse formulas and return plots grouped by type
 function getPlotsFromFormulas(formulas = []) {
-  let quadratic = null, linear = null, sine = null, polar = null;
+  const quadratic = [];
+  const sine = [];
+  const polar = [];
+  const linear = [];
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
-      if ((lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) && !quadratic) {
-        quadratic = plotFromString(formula);
-      } else if (lower.startsWith('sine:') && !sine) {
-        sine = plotFromString(formula);
-      } else if (lower.startsWith('polar:') && !polar) {
-        polar = plotFromString(formula);
-      } else if (lower.startsWith('linear:') && !linear) {
-        linear = plotFromString(formula);
+      if ((lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('=')))) {
+        quadratic.push(plotFromString(formula));
+      } else if (lower.startsWith('sine:')) {
+        sine.push(plotFromString(formula));
+      } else if (lower.startsWith('polar:')) {
+        polar.push(plotFromString(formula));
+      } else if (lower.startsWith('linear:')) {
+        linear.push(plotFromString(formula));
       }
     } catch (e) {
       console.error('Error parsing formula:', formula, e.message);
     }
   });
-  if (!quadratic) quadratic = plotQuadratic();
-  if (!linear) linear = plotLinear();
-  if (!sine) sine = plotSine();
-  if (!polar) polar = plotPolar();
+  if (quadratic.length === 0) quadratic.push(plotQuadratic());
+  if (linear.length === 0) linear.push(plotLinear());
+  if (sine.length === 0) sine.push(plotSine());
+  if (polar.length === 0) polar.push(plotPolar());
   return { quadratic, linear, sine, polar };
 }
 
@@ -332,55 +336,75 @@ function displayPlot(plotName, points) {
 // SVG Generation Function
 // ----------------------------------
 
-function generateSvg(quadraticPoints, linearPoints, sinePoints, polarPoints) {
-  // New SVG with 4 plots arranged vertically
+function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
+  // New SVG with 4 plots arranged in separate slots
   const width = 800;
   const height = 1000;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
+  // Define color palettes for each plot type
+  const quadraticColors = ["blue", "darkblue", "purple", "royalblue", "deepskyblue"];
+  const linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
+  const sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
+  const polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
+
   // Quadratic Plot (Slot 1: y from 50 to 250)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
   const qMinY = -100, qMaxY = 1;
-  const quadPts = quadraticPoints.map(p => {
-    const px = 50 + ((p.x + 10) / 20) * 700;
-    const py = 250 - ((p.y - qMinY) / (qMaxY - qMinY)) * 200;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
-  svg += `  <polyline points="${quadPts}" fill="none" stroke="blue" stroke-width="2" />\n\n`;
+  quadraticPlots.forEach((points, idx) => {
+    const color = quadraticColors[idx % quadraticColors.length];
+    const pts = points.map(p => {
+      const px = 50 + ((p.x + 10) / 20) * 700;
+      const py = 250 - ((p.y - qMinY) / (qMaxY - qMinY)) * 200;
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    }).join(' ');
+    svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
+  });
+  svg += `\n`;
 
   // Linear Plot (Slot 2: y from 280 to 480)
   svg += `  <text x="${width / 2}" y="260" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
   const lMinY = -10, lMaxY = 10;
-  const linearPts = linearPoints.map(p => {
-    const px = 50 + ((p.x + 10) / 20) * 700;
-    const py = 480 - ((p.y - lMinY) / (lMaxY - lMinY)) * 200;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
-  svg += `  <polyline points="${linearPts}" fill="none" stroke="orange" stroke-width="2" />\n\n`;
+  linearPlots.forEach((points, idx) => {
+    const color = linearColors[idx % linearColors.length];
+    const pts = points.map(p => {
+      const px = 50 + ((p.x + 10) / 20) * 700;
+      const py = 480 - ((p.y - lMinY) / (lMaxY - lMinY)) * 200;
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    }).join(' ');
+    svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
+  });
+  svg += `\n`;
 
   // Sine Plot (Slot 3: y from 510 to 710)
   svg += `  <text x="${width / 2}" y="490" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
   const sMinY = -1, sMaxY = 1;
-  const sinePts = sinePoints.map(p => {
-    const px = 50 + (p.x / 360) * 700;
-    const py = 710 - ((p.y - sMinY) / (sMaxY - sMinY)) * 200;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
-  svg += `  <polyline points="${sinePts}" fill="none" stroke="red" stroke-width="2" />\n\n`;
+  sinePlots.forEach((points, idx) => {
+    const color = sineColors[idx % sineColors.length];
+    const pts = points.map(p => {
+      const px = 50 + (p.x / 360) * 700;
+      const py = 710 - ((p.y - sMinY) / (sMaxY - sMinY)) * 200;
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    }).join(' ');
+    svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
+  });
+  svg += `\n`;
 
   // Polar Plot (Slot 4: y from 750 to 950, centered at (400,850))
   svg += `  <text x="${width / 2}" y="730" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
   const centerY = 850;
-  const polarPts = polarPoints.map(p => {
-    const px = centerX + p.x;
-    const py = centerY - p.y;
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
-  svg += `  <polyline points="${polarPts}" fill="none" stroke="green" stroke-width="2" />\n`;
-
+  polarPlots.forEach((points, idx) => {
+    const color = polarColors[idx % polarColors.length];
+    const pts = points.map(p => {
+      const px = centerX + p.x;
+      const py = centerY - p.y;
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    }).join(' ');
+    svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
+  });
   svg += '</svg>';
   return svg;
 }
@@ -391,7 +415,7 @@ function generateSvg(quadraticPoints, linearPoints, sinePoints, polarPoints) {
 
 function plotToHtml({ formulas = [] } = {}) {
   const svgContent = plotToSvg({ formulas });
-  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n">${svgContent}\n</body>\n</html>`;
 }
 
 // ----------------------------------
@@ -405,33 +429,35 @@ function plotToSvg({ formulas = [] } = {}) {
 
 function plotToAscii({ formulas = [] } = {}) {
   const { sine } = getPlotsFromFormulas(formulas);
-  const points = sine;
-  const rows = 21;
-  const cols = points.length;
-  const grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
+  let result = '';
+  sine.forEach((points, idx) => {
+    const header = `ASCII Art of Sine Wave - Formula ${idx + 1}:\n`;
+    const rows = 21;
+    const cols = points.length;
+    const grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
 
-  for (let col = 0; col < cols; col++) {
-    const { y } = points[col];
-    const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
-    grid[row][col] = '*';
-  }
+    for (let col = 0; col < cols; col++) {
+      const { y } = points[col];
+      const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
+      grid[row][col] = '*';
+    }
 
-  const xAxisRow = Math.round(0.5 * (rows - 1));
-  for (let col = 0; col < cols; col++) {
-    if (grid[xAxisRow][col] === ' ') grid[xAxisRow][col] = '-';
-  }
-  let asciiArt = 'ASCII Art of Sine Wave:\n';
-  asciiArt += grid.map(row => row.join('')).join('\n');
-  return asciiArt;
+    const xAxisRow = Math.round(0.5 * (rows - 1));
+    for (let col = 0; col < cols; col++) {
+      if (grid[xAxisRow][col] === ' ') grid[xAxisRow][col] = '-';
+    }
+    result += header + grid.map(row => row.join('')).join('\n') + '\n\n';
+  });
+  return result;
 }
 
 function plotToText({ formulas = [] } = {}) {
   const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
   let output = '';
-  output += 'Quadratic Plot:\n' + quadratic.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
-  output += 'Linear Plot:\n' + linear.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
-  output += 'Sine Plot:\n' + sine.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
-  output += 'Polar Plot:\n' + polar.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n';
+  output += 'Quadratic Plot:\n' + quadratic.map((points, i) => `Formula ${i+1}: ` + points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ')).join('\n') + '\n\n';
+  output += 'Linear Plot:\n' + linear.map((points, i) => `Formula ${i+1}: ` + points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ')).join('\n') + '\n\n';
+  output += 'Sine Plot:\n' + sine.map((points, i) => `Formula ${i+1}: ` + points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ')).join('\n') + '\n\n';
+  output += 'Polar Plot:\n' + polar.map((points, i) => `Formula ${i+1}: ` + points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ')).join('\n') + '\n';
   return output;
 }
 
@@ -448,25 +474,33 @@ function plotToJson({ formulas = [] } = {}) {
 function plotToCsv({ formulas = [] } = {}) {
   const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
   const lines = [];
-  lines.push('Plot, x, y');
+  lines.push('Plot, Formula, x, y');
   lines.push('--Quadratic Plot--');
-  quadratic.forEach(p => {
-    lines.push(`Quadratic,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+  quadratic.forEach((points, i) => {
+    points.forEach(p => {
+      lines.push(`Quadratic,Formula ${i+1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+    });
   });
   lines.push('');
   lines.push('--Linear Plot--');
-  linear.forEach(p => {
-    lines.push(`Linear,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+  linear.forEach((points, i) => {
+    points.forEach(p => {
+      lines.push(`Linear,Formula ${i+1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+    });
   });
   lines.push('');
   lines.push('--Sine Plot--');
-  sine.forEach(p => {
-    lines.push(`Sine,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+  sine.forEach((points, i) => {
+    points.forEach(p => {
+      lines.push(`Sine,Formula ${i+1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+    });
   });
   lines.push('');
   lines.push('--Polar Plot--');
-  polar.forEach(p => {
-    lines.push(`Polar,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+  polar.forEach((points, i) => {
+    points.forEach(p => {
+      lines.push(`Polar,Formula ${i+1},${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+    });
   });
   return lines.join("\n");
 }
