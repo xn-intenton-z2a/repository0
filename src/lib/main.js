@@ -257,13 +257,15 @@ function parseGenericQuadratic(formulaStr) {
     const yExpr = formula.substring(2);
     return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
   } else if (formula.endsWith("=0")) {
-    // Handle equations ending with =0
     const left = formula.split("=")[0];
-    const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
+    const yRegex = /([+-]?(?:\d*\.?\d*)?)y/;
+    const yMatch = left.match(yRegex);
     if (!yMatch) throw new Error("No y term found in equation");
-    const yCoeff = (yMatch[1] === "" || yMatch[1] === "+") ? 1 : yMatch[1] === "-" ? -1 : parseFloat(yMatch[1]);
-    const remaining = left.replace(yMatch[0], "");
-    const coeffs = extractQuadraticCoefficients(remaining);
+    const coeffStr = yMatch[1];
+    const yCoeff = (coeffStr === "" || coeffStr === "+") ? 1 : (coeffStr === "-") ? -1 : parseFloat(coeffStr);
+    const remaining = left.replace(yRegex, "");
+    const cleanedRemaining = remaining.replace(/^\+/, "");
+    const coeffs = extractQuadraticCoefficients(cleanedRemaining);
     return plotQuadraticParam({
       a: -coeffs.a / yCoeff,
       b: -coeffs.b / yCoeff,
@@ -658,7 +660,7 @@ function main() {
 
   // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-38");
+    console.log("Equation Plotter Library version 0.1.1-39");
     process.exit(0);
   }
 
