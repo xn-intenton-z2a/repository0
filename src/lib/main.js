@@ -573,13 +573,13 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
   } else {
-    // Dealers choice enabled: generate random color palettes for each plot based on the number of formulas
-    quadraticColors = generateColorPalette(quadraticPlots.length);
-    linearColors = generateColorPalette(linearPlots.length);
-    sineColors = generateColorPalette(sinePlots.length);
-    polarColors = generateColorPalette(polarPlots.length);
-    exponentialColors = generateColorPalette(exponentialPlots.length);
-    logarithmicColors = generateColorPalette(logarithmicPlots.length);
+    // Dealers choice enabled: generate random color palettes for each plot based on the number of formulas, ensuring at least 5 colors
+    quadraticColors = generateColorPalette(Math.max(5, quadraticPlots.length));
+    linearColors = generateColorPalette(Math.max(5, linearPlots.length));
+    sineColors = generateColorPalette(Math.max(5, sinePlots.length));
+    polarColors = generateColorPalette(Math.max(5, polarPlots.length));
+    exponentialColors = generateColorPalette(Math.max(5, exponentialPlots.length));
+    logarithmicColors = generateColorPalette(Math.max(5, logarithmicPlots.length));
   }
 
   // Helper to draw grid for rectangular slots
