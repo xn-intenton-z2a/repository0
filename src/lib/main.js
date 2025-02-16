@@ -187,12 +187,27 @@ function parseGenericQuadratic(formulaStr) {
   if (formula.toLowerCase().startsWith('y=')) {
     const yExpr = formula.substring(2);
     return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
+  } else if (formula.endsWith('=0')) { // New clause to handle equations ending with =0
+    const left = formula.split('=')[0];
+    const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
+    if (!yMatch) throw new Error('No y term found in equation');
+    let yCoeff = (yMatch[1] === '' || yMatch[1] === '+') ? 1 : (yMatch[1] === '-' ? -1 : parseFloat(yMatch[1]));
+    let remaining = left.replace(/([+-]?\d*\.?\d*)y/, '');
+    const coeffs = extractQuadraticCoefficients(remaining);
+    // For equation of form (remaining) + y = 0, solve for y: y = - (remaining) / yCoeff
+    return plotQuadraticParam({
+      a: -coeffs.a / yCoeff,
+      b: -coeffs.b / yCoeff,
+      c: -coeffs.c / yCoeff,
+      xMin: -10,
+      xMax: 10,
+      step: 1
+    });
   } else {
     const parts = formula.split('=');
     if (parts.length !== 2) throw new Error('Unsupported formula format for quadratic parsing');
     let left = parts[0];
     let right = parts[1];
-    // Improved parsing: if left contains 'y', isolate it by removing the y term
     if (left.includes('y')) {
       const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
       let yCoeff = 1;
@@ -202,12 +217,9 @@ function parseGenericQuadratic(formulaStr) {
         else if (coeffStr === '-') yCoeff = -1;
         else yCoeff = parseFloat(coeffStr);
       }
-      // Remove the y term from the left side
       let remaining = left.replace(/([+-]?\d*\.?\d*)y/, '');
-      // Now, y = (right - remaining) / yCoeff
       const constantRight = parseFloat(right) || 0;
       const coeffs = extractQuadraticCoefficients(remaining);
-      // The polynomial is: y = (-a/yCoeff)x^2 + (-b/yCoeff)x + ((right - c)/yCoeff)
       return plotQuadraticParam({ a: -coeffs.a / yCoeff, b: -coeffs.b / yCoeff, c: (constantRight - coeffs.c) / yCoeff, xMin: -10, xMax: 10, step: 1 });
     } else if (right.includes('y')) {
       const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
@@ -223,7 +235,6 @@ function parseGenericQuadratic(formulaStr) {
       const coeffs = extractQuadraticCoefficients(remaining);
       return plotQuadraticParam({ a: -coeffs.a / yCoeff, b: -coeffs.b / yCoeff, c: (constantLeft - coeffs.c) / yCoeff, xMin: -10, xMax: 10, step: 1 });
     } else {
-      // fallback to original inversion method
       let nonYPart = left;
       const newExpr = (right || '0') + invertExpression(nonYPart);
       return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
