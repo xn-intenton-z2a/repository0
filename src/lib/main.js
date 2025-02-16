@@ -564,12 +564,13 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
   } else {
-    quadraticColors = Array.from({ length: 5 }, () => randomColor());
-    linearColors = Array.from({ length: 5 }, () => randomColor());
-    sineColors = Array.from({ length: 5 }, () => randomColor());
-    polarColors = Array.from({ length: 5 }, () => randomColor());
-    exponentialColors = Array.from({ length: 5 }, () => randomColor());
-    logarithmicColors = Array.from({ length: 5 }, () => randomColor());
+    // Use dynamic random colors based on the number of plots in each type
+    quadraticColors = quadraticPlots.map(() => randomColor());
+    linearColors = linearPlots.map(() => randomColor());
+    sineColors = sinePlots.map(() => randomColor());
+    polarColors = polarPlots.map(() => randomColor());
+    exponentialColors = exponentialPlots.map(() => randomColor());
+    logarithmicColors = logarithmicPlots.map(() => randomColor());
   }
 
   // Helper to draw grid for rectangular slots
@@ -807,7 +808,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
 function plotToHtml({ formulas = [], grid = false, dealersChoice = false } = {}) {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice });
-  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n
+default\n${svgContent}\n</body>\n</html>`;
 }
 
 // ----------------------------------
