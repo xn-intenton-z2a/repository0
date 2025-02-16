@@ -23,17 +23,6 @@
  *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
  *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
  *
- * API Functions:
- *   - plotToSvg(options): Returns an SVG string of the plots.
- *   - plotToAscii(options): Returns an ASCII art string for the sine plot.
- *   - plotToText(options): Returns a textual representation of plot points.
- *   - plotToJson(options): Returns a JSON string containing the plot data.
- *   - plotToCsv(options): Returns a CSV string with plot points.
- *   - plotToHtml(options): Returns an HTML string that embeds the SVG plot.
- *   - plotToFile(options): Saves the generated output to a file and returns the path.
- *   - plotFromString(formulaStr): Parses a formula string to generate plot points.
- *   - plotQuadratic, plotSine, plotPolar, plotLinear, plotExponential, plotLogarithmic: Generate plots with default parameters.
- *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -247,7 +236,7 @@ function parseGenericLinear(formulaStr) {
   return plotLinearParam({ m, b, xMin, xMax, step });
 }
 
-// New: Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2x+1" or "y=x^2+2x+1:-10,10,1"
+// New: Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2*x+1" or "y=x^2+2*x+1:-10,10,1"
 function parseGenericQuadratic(formulaStr) {
   let parts = formulaStr.split(":");
   let mainPart = parts[0].replace(/\s+/g, "");
@@ -551,7 +540,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   const width = 800;
   const height = 1500;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+  // Added preserveAspectRatio attribute for better SVG scaling
+  svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
   // Define color palettes for each plot type
@@ -970,7 +960,7 @@ function main() {
 
   // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-62");
+    console.log("Equation Plotter Library version 0.1.1-63");
     process.exit(0);
   }
 
