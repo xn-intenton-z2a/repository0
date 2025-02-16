@@ -216,6 +216,8 @@ function parseGenericLinear(formulaStr) {
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   expr = expr.replace(/\s+/g, "");
+  // New improvement: normalize expression by replacing '+-' with '-'
+  expr = expr.replace(/\+\-/g, "-");
   let a = 0;
   let b = 0;
   let c = 0;
