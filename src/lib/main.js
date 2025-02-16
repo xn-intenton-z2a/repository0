@@ -183,7 +183,6 @@ function invertExpression(expr) {
 // Parse a generic quadratic formula in standard algebraic form
 function parseGenericQuadratic(formulaStr) {
   let formula = formulaStr.replace(/\s+/g, '');
-  // if formula starts with 'y=', simply parse the expression after y=
   if (formula.toLowerCase().startsWith('y=')) {
     const yExpr = formula.substring(2);
     return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
@@ -192,7 +191,6 @@ function parseGenericQuadratic(formulaStr) {
     if (parts.length !== 2) throw new Error('Unsupported formula format for quadratic parsing');
     let left = parts[0];
     let right = parts[1];
-    // If 'y' exists in left or right, rearrange the equation to solve for y
     if (left.includes('y')) {
       const nonYPart = left.replace('y', '');
       const newExpr = (right || '0') + invertExpression(nonYPart);
@@ -230,7 +228,6 @@ function plotFromString(formulaStr) {
 }
 
 // Helper function to parse formulas and return plots
-// Modified to use the first provided valid formula for each type, avoiding overwrites
 function getPlotsFromFormulas(formulas = []) {
   let quadratic = null, sine = null, polar = null;
   formulas.forEach(formula => {
@@ -260,26 +257,6 @@ function getPlotsFromFormulas(formulas = []) {
 function displayPlot(plotName, points) {
   console.log(`Plot for ${plotName}:`);
   console.log(points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' '));
-}
-
-function displaySineAscii(points) {
-  const rows = 21;
-  const cols = points.length;
-  const grid = Array.from({ length: rows }, () => new Array(cols).fill(' '));
-
-  for (let col = 0; col < cols; col++) {
-    const { y } = points[col];
-    const row = Math.round((1 - ((y + 1) / 2)) * (rows - 1));
-    grid[row][col] = '*';
-  }
-
-  const xAxisRow = Math.round(0.5 * (rows - 1));
-  for (let col = 0; col < cols; col++) {
-    if (grid[xAxisRow][col] === ' ') grid[xAxisRow][col] = '-';
-  }
-
-  console.log('ASCII Art of Sine Wave:');
-  grid.forEach(row => console.log(row.join('')));
 }
 
 // ----------------------------------
@@ -485,7 +462,6 @@ Formula String Formats:
   console.log('Parsed ASCII Art for Sine:');
   console.log(plotToAscii({ formulas: [rawSine] }));
 
-  // Added test demonstration for Polar formula
   const rawPolar = 'polar:200,2,5';
   console.log(`\nRaw Formula: "${rawPolar}"`);
   console.log('Parsed representation for Polar from Raw Formula:');
