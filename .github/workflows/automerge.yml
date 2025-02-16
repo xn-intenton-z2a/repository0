@@ -113,7 +113,7 @@ jobs:
   wait-for-merge:
     needs:
       - merge-check
-    if: ${{ always() }}
+    if: always()
     #if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -126,7 +126,7 @@ jobs:
     needs:
       #- merge-check
       - wait-for-merge
-    if: needs.merge-check.outputs.shouldSkipMerge != 'true'
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
     permissions:
       contents: write
       pull-requests: write
