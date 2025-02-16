@@ -22,7 +22,7 @@
  *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
  *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
  *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
- *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots. (Dealers Choice: each plot series gets its own random color)
+ *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots. (Dealer's Choice: each plot series gets its own random color)
  *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -809,7 +809,19 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
 function plotToHtml({ formulas = [], grid = false, dealersChoice = false } = {}) {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice });
-  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n\ndefault\n${svgContent}\n</body>\n</html>`;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Equation Plot</title>
+  <style>
+    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }
+  </style>
+</head>
+<body>
+${svgContent}
+</body>
+</html>`;
 }
 
 // ----------------------------------
