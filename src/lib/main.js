@@ -15,6 +15,7 @@
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
  *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
  *   - Exponential Plot: Generates data for y = a * e^(b*x) with control over coefficients and x range. Accepts formulas in the format "exponential:a,b,xMin,xMax,step" or shortened as "exp:".
+ *     Additionally, it now supports generic algebraic exponential formulas such as "y=2*e^(0.5x)" or with range "y=2*e^(0.5x):-10,10,1".
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
@@ -331,6 +332,29 @@ function parseExponential(formulaStr) {
   });
 }
 
+// New: Parse a generic exponential formula in algebraic form, e.g., "y=2*e^(0.5x)" optionally with range e.g., "y=2*e^(0.5x):-10,10,1"
+function parseGenericExponential(formulaStr) {
+  let parts = formulaStr.split(":");
+  let exprPart = parts[0].replace(/\s+/g, "");
+  let rangePart = parts.length > 1 ? parts[1].trim() : "";
+  let xMin = -10, xMax = 10, step = 1;
+  if (rangePart) {
+    const rangeParams = rangePart.split(",").map(Number);
+    if (rangeParams.length > 0 && !isNaN(rangeParams[0])) xMin = rangeParams[0];
+    if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
+    if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
+  }
+  let regex = /^y=([+-]?\d*\.?\d+)?\*?e\^\(?([+-]?\d*\.?\d+)\*?x\)?/i;
+  let match = exprPart.match(regex);
+  if (match) {
+    let a = match[1] ? parseFloat(match[1]) : 1;
+    let b = parseFloat(match[2]);
+    return plotExponentialParam({ a, b, xMin, xMax, step });
+  } else {
+    throw new Error("Invalid generic exponential formula string");
+  }
+}
+
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   expr = expr.replace(/\s+/g, "");
@@ -391,13 +415,28 @@ function plotFromString(formulaStr) {
     console.error("Unknown prefixed formula type.");
     return [];
   } else if (formulaStr.includes("=")) {
-    // Added support for linear equations in algebraic form (e.g., "y=2x+3" or with range, "y=2x+3:-10,10,1") if no quadratic terms
-    if (lowerStr.startsWith("y=") && !formulaStr.includes("x^2")) {
-      try {
-        return parseGenericLinear(formulaStr);
-      } catch (e) {
-        console.error("Error parsing linear formula:", e.message);
-        return [];
+    if (lowerStr.startsWith("y=")) {
+      if (formulaStr.toLowerCase().includes("e^")) {
+        try {
+          return parseGenericExponential(formulaStr);
+        } catch (e) {
+          console.error("Error parsing exponential formula:", e.message);
+          return [];
+        }
+      } else if (!formulaStr.includes("x^2")) {
+        try {
+          return parseGenericLinear(formulaStr);
+        } catch (e) {
+          console.error("Error parsing linear formula:", e.message);
+          return [];
+        }
+      } else {
+        try {
+          return parseGenericQuadratic(formulaStr);
+        } catch (e) {
+          console.error("Error parsing generic quadratic formula:", e.message);
+          return [];
+        }
       }
     } else {
       try {
@@ -429,9 +468,9 @@ function getPlotsFromFormulas(formulas = []) {
         sine.push(plotFromString(formula));
       } else if (lower.startsWith("polar:")) {
         polar.push(plotFromString(formula));
-      } else if (lower.startsWith("linear:") || (lower.startsWith("y=") && !formula.includes("x^2"))) {
+      } else if (lower.startsWith("linear:") || (lower.startsWith("y=") && !formula.includes("x^2") && !formula.toLowerCase().includes("e^"))) {
         linear.push(plotFromString(formula));
-      } else if (lower.startsWith("exponential:") || lower.startsWith("exp:")) {
+      } else if (lower.startsWith("exponential:") || lower.startsWith("exp:") || (lower.startsWith("y=") && formula.toLowerCase().includes("e^"))) {
         exponential.push(plotFromString(formula));
       } else {
         console.error("Unrecognized formula: " + formula);
@@ -775,7 +814,7 @@ Formula String Formats:
   Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")
   Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
   Polar:     "polar:scale,multiplier,step[,degMin,degMax]"
-  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step"
+  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")
 `
     );
     process.exit(0);
@@ -819,8 +858,6 @@ Formula String Formats:
   if (formulasList.length === 0) {
     console.log("No formulas provided. Using default plot functions for quadratic, linear, sine, polar, and exponential plots.");
   }
-
-  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulasList);
 
   // NEW: If debug flag is present, output the internal parsed plot data
   if (isDebug) {
