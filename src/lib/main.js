@@ -230,16 +230,17 @@ function plotFromString(formulaStr) {
 }
 
 // Helper function to parse formulas and return plots
+// Modified to use the first provided valid formula for each type, avoiding overwrites
 function getPlotsFromFormulas(formulas = []) {
-  let quadratic, sine, polar;
+  let quadratic = null, sine = null, polar = null;
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
-      if (lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) {
+      if ((lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) && !quadratic) {
         quadratic = plotFromString(formula);
-      } else if (lower.startsWith('sine:')) {
+      } else if (lower.startsWith('sine:') && !sine) {
         sine = plotFromString(formula);
-      } else if (lower.startsWith('polar:')) {
+      } else if (lower.startsWith('polar:') && !polar) {
         polar = plotFromString(formula);
       }
     } catch (e) {
