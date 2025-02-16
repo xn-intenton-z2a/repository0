@@ -3,10 +3,10 @@
 'use strict';
 
 /**
- * Equation Plotter Library (SVG)
+ * Equation Plotter Library (SVG/JSON)
  *
  * Overview:
- *   A lightweight library that generates SVG graphics for various mathematical equations.
+ *   A lightweight library that generates SVG graphics for various mathematical equations, with additional support for JSON data export.
  *
  * Features:
  *   - Quadratic Plot: Generates data points for y = ax² + bx + c. Supports formats like "y=x^2+2*x+1" or "x^2+y-1=0".
@@ -14,13 +14,14 @@
  *   - Polar Plot: Generates and converts polar function data for plotting: r = scale * |sin(multiplier * θ)|.
  *   - Interactive: Supports zooming, panning, and custom scaling.
  *   - Custom Styling: Customize axis, grid, and curve appearances.
- *   - Export: Outputs the plot as an SVG file, ASCII art, or text, and can also write it to a file.
+ *   - Export: Outputs the plot as an SVG file, ASCII art, text representation, or JSON, and can also write it to a file.
  *
  * SDK API Functions:
  *   plotToSvg(options)   -> Returns an SVG string.
  *   plotToAscii(options) -> Returns an ASCII art string for sine plot.
  *   plotToText(options)  -> Returns a text representation of plot points.
  *   plotToFile(options)  -> Saves output to a file and returns the file path.
+ *   plotToJson(options)  -> Returns a JSON string with the plot points.
  *
  * Additional Functions:
  *   plotQuadraticParam(params)  -> Returns points for a quadratic function.
@@ -36,10 +37,12 @@
  *
  * Example Usage (CLI):
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *
  * Example Usage (API):
- *   import { plotToSvg } from './main.js';
+ *   import { plotToSvg, plotToJson } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
+ *   const jsonData = plotToJson({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *
  * License: MIT
  */
@@ -390,6 +393,37 @@ function plotToText({ formulas = [] } = {}) {
   return output;
 }
 
+function plotToJson({ formulas = [] } = {}) {
+  let quadraticPlot = null;
+  let sinePlot = null;
+  let polarPlot = null;
+
+  formulas.forEach(formula => {
+    const lower = formula.toLowerCase();
+    try {
+      if (lower.startsWith('quadratic:') || (!formula.includes(':') && formula.includes('='))) {
+        quadraticPlot = plotFromString(formula);
+      } else if (lower.startsWith('sine:')) {
+        sinePlot = plotFromString(formula);
+      } else if (lower.startsWith('polar:')) {
+        polarPlot = plotFromString(formula);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+  if (!quadraticPlot) quadraticPlot = plotQuadratic();
+  if (!sinePlot) sinePlot = plotSine();
+  if (!polarPlot) polarPlot = plotPolar();
+
+  return {
+    quadratic: quadraticPlot,
+    sine: sinePlot,
+    polar: polarPlot
+  };
+}
+
 function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg' } = {}) {
   let content = '';
   if (type === 'svg') {
@@ -398,6 +432,8 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
     content = plotToAscii({ formulas });
   } else if (type === 'text') {
     content = plotToText({ formulas });
+  } else if (type === 'json') {
+    content = JSON.stringify(plotToJson({ formulas }), null, 2);
   } else {
     throw new Error('Unsupported type provided for plotToFile');
   }
@@ -422,6 +458,7 @@ function main() {
 
 Options:
   --help, -h       Show this help message
+  --json           Generate output as JSON instead of SVG
 
 Formula String Formats:
   Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"
@@ -436,13 +473,20 @@ Formula String Formats:
   let sinePlot = null;
   let polarPlot = null;
 
-  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('='));
+  // Determine if JSON output is requested
+  let isJson = args.includes('--json');
+
+  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json');
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
+  // If output file extension is .json, then force JSON output
+  if (outputFileName.toLowerCase().endsWith('.json')) {
+    isJson = true;
+  }
 
   // Collect formulas from arguments
-  const formulasList = args.filter(arg => arg.includes(':') || arg.includes('='));
+  const formulasList = args.filter(arg => (arg.includes(':') || arg.includes('=')));
 
   formulasList.forEach(arg => {
     const lowerArg = arg.toLowerCase();
@@ -476,12 +520,18 @@ Formula String Formats:
   console.log('Parsed ASCII Art for Sine:');
   console.log(plotToAscii({ formulas: [rawSine] }));
 
-  const svgContent = generateSvg(quadraticPlot, sinePlot, polarPlot);
+  let fileContent = '';
+  if (isJson) {
+    fileContent = JSON.stringify(plotToJson({ formulas: formulasList }), null, 2);
+  } else {
+    fileContent = generateSvg(quadraticPlot, sinePlot, polarPlot);
+  }
+
   try {
-    fs.writeFileSync(outputFileName, svgContent, 'utf8');
-    console.log(`\nSVG file generated: ${outputFileName}`);
+    fs.writeFileSync(outputFileName, fileContent, 'utf8');
+    console.log(`\n${isJson ? 'JSON' : 'SVG'} file generated: ${outputFileName}`);
   } catch (err) {
-    console.error('Error writing SVG file:', err.message);
+    console.error(`Error writing ${isJson ? 'JSON' : 'SVG'} file:`, err.message);
     process.exit(1);
   }
 
@@ -493,4 +543,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
 
-export { plotToSvg, plotToAscii, plotToText, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
+export { plotToSvg, plotToAscii, plotToText, plotToJson, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
