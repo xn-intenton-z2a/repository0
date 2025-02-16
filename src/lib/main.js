@@ -13,7 +13,7 @@
  *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings.
  *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
- *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range.
+ *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Now supports both prefixed and standard algebraic formats (e.g., "y=2x+3").
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *   - Multiple Formulas per Plot Type: Now supports multiple formulas for each plot type, each rendered with a distinct color.
@@ -181,6 +181,29 @@ function parseLinear(formulaStr) {
   });
 }
 
+// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3"
+function parseGenericLinear(formulaStr) {
+  const formula = formulaStr.replace(/\s+/g, "");
+  if (!formula.toLowerCase().startsWith("y=")) {
+    throw new Error("Linear formula must start with 'y='");
+  }
+  let expr = formula.substring(2);
+  // Ensure it's linear by checking absence of x^2
+  if (expr.includes("x^2")) {
+    throw new Error("Detected quadratic term in what should be a linear formula");
+  }
+  let m = 1, b = 0;
+  const mMatch = expr.match(/^([+-]?\d*\.?\d+)?\*?x/);
+  if (mMatch) {
+    m = (mMatch[1] === "" || mMatch[1] === undefined) ? 1 : parseFloat(mMatch[1]);
+  }
+  const bMatch = expr.match(/([+-]\d*\.?\d+)(?!\*?x)/);
+  if (bMatch) {
+    b = parseFloat(bMatch[1]);
+  }
+  return plotLinearParam({ m, b, xMin: -10, xMax: 10, step: 1 });
+}
+
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   expr = expr.replace(/\s+/g, "");
@@ -238,8 +261,8 @@ function parseGenericQuadratic(formulaStr) {
     const left = formula.split("=")[0];
     const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
     if (!yMatch) throw new Error("No y term found in equation");
-    const yCoeff = yMatch[1] === "" || yMatch[1] === "+" ? 1 : yMatch[1] === "-" ? -1 : parseFloat(yMatch[1]);
-    const remaining = left.replace(/([+-]?\d*\.?\d*)y/, "");
+    const yCoeff = (yMatch[1] === "" || yMatch[1] === "+") ? 1 : yMatch[1] === "-" ? -1 : parseFloat(yMatch[1]);
+    const remaining = left.replace(yMatch[0], "");
     const coeffs = extractQuadraticCoefficients(remaining);
     return plotQuadraticParam({
       a: -coeffs.a / yCoeff,
@@ -313,11 +336,21 @@ function plotFromString(formulaStr) {
     console.error("Unknown prefixed formula type.");
     return [];
   } else if (formulaStr.includes("=")) {
-    try {
-      return parseGenericQuadratic(formulaStr);
-    } catch (e) {
-      console.error("Error parsing generic quadratic formula:", e.message);
-      return [];
+    // Added support for linear equations in algebraic form (e.g., "y=2x+3") if no quadratic terms
+    if (lowerStr.startsWith("y=") && !formulaStr.includes("x^2")) {
+      try {
+        return parseGenericLinear(formulaStr);
+      } catch (e) {
+        console.error("Error parsing linear formula:", e.message);
+        return [];
+      }
+    } else {
+      try {
+        return parseGenericQuadratic(formulaStr);
+      } catch (e) {
+        console.error("Error parsing generic quadratic formula:", e.message);
+        return [];
+      }
     }
   } else {
     console.error("Formula string is not in a recognized format.");
@@ -334,13 +367,16 @@ function getPlotsFromFormulas(formulas = []) {
   formulas.forEach((formula) => {
     const lower = formula.toLowerCase();
     try {
-      if (lower.startsWith("quadratic:") || (!formula.includes(":") && formula.includes("="))) {
+      if (lower.startsWith("quadratic:") || (!formula.includes(":") && formula.includes("=") && (formula.includes("x^2") || formula.includes("y") === false))) {
         quadratic.push(plotFromString(formula));
       } else if (lower.startsWith("sine:")) {
         sine.push(plotFromString(formula));
       } else if (lower.startsWith("polar:")) {
         polar.push(plotFromString(formula));
       } else if (lower.startsWith("linear:")) {
+        linear.push(plotFromString(formula));
+      } else if (formula.includes("=") && lower.startsWith("y=") && !formula.includes("x^2")) {
+        // Treat as generic linear equation
         linear.push(plotFromString(formula));
       }
     } catch (e) {
@@ -507,7 +543,8 @@ function plotToAscii({ formulas = [] } = {}) {
     for (let col = 0; col < cols; col++) {
       if (grid[xAxisRow][col] === " ") grid[xAxisRow][col] = "-";
     }
-    result += header + grid.map((row) => row.join("")).join("\n") + "\n\n";
+    result += header + grid.map((row) => row.join(""))
+      .join("\n") + "\n\n";
   });
   return result;
 }
@@ -627,7 +664,7 @@ function main() {
 
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
-      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n`
+      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n`
     );
     process.exit(0);
   }
@@ -668,22 +705,22 @@ function main() {
   console.log("Demo: Raw formula strings and their parsed representations:");
 
   const rawQuad = "x^2+y-1=0";
-  console.log(`Raw Formula: "${rawQuad}"`);
+  console.log(`Raw Formula: \"${rawQuad}\"`);
   console.log("Parsed representation for Quadratic from Raw Formula:");
   displayPlot("Quadratic from Raw Formula", plotFromString(rawQuad));
 
   const rawLinear = "linear:1,0,-10,10,1";
-  console.log(`\nRaw Formula: "${rawLinear}"`);
+  console.log(`\nRaw Formula: \"${rawLinear}\"`);
   console.log("Parsed representation for Linear from Raw Formula:");
   displayPlot("Linear from Raw Formula", plotFromString(rawLinear));
 
   const rawSine = "sine:1,1,0,0,360,10";
-  console.log(`\nRaw Formula: "${rawSine}"`);
+  console.log(`\nRaw Formula: \"${rawSine}\"`);
   console.log("Parsed ASCII Art for Sine:");
   console.log(plotToAscii({ formulas: [rawSine] }));
 
   const rawPolar = "polar:200,2,5";
-  console.log(`\nRaw Formula: "${rawPolar}"`);
+  console.log(`\nRaw Formula: \"${rawPolar}\"`);
   console.log("Parsed representation for Polar from Raw Formula:");
   displayPlot("Polar from Raw Formula", plotFromString(rawPolar));
 
