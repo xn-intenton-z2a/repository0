@@ -1083,5 +1083,7 @@ export {
   plotPolar,
   plotLinear,
   plotExponential,
-  plotLogarithmic
+  plotLogarithmic,
+  parseGenericQuadratic,
+  parseGenericExponential
 };
