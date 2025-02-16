@@ -152,12 +152,19 @@ function parsePolar(formulaStr) {
   const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid polar formula string");
   const params = parts[1].split(",").map(Number);
-  const [scale, multiplier, step] = params;
-  return plotPolarParam({
-    scale: isNaN(scale) ? 200 : scale,
-    multiplier: isNaN(multiplier) ? 2 : multiplier,
-    step: isNaN(step) ? 5 : step,
-  });
+  const scale = isNaN(params[0]) ? 200 : params[0];
+  const multiplier = isNaN(params[1]) ? 2 : params[1];
+  let step = 5;
+  let degMin = 0;
+  let degMax = 360;
+  if (params.length >= 3) {
+    step = isNaN(params[2]) ? 5 : params[2];
+  }
+  if (params.length >= 5) {
+    degMin = isNaN(params[3]) ? 0 : params[3];
+    degMax = isNaN(params[4]) ? 360 : params[4];
+  }
+  return plotPolarParam({ scale, multiplier, step, degMin, degMax });
 }
 
 function parseLinear(formulaStr) {
@@ -620,7 +627,7 @@ function main() {
 
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
-      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier[,step]"\n`
+      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n`
     );
     process.exit(0);
   }
