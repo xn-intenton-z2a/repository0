@@ -31,26 +31,26 @@ on:
     - cron: '15 */2 * * *'
 
 jobs:
-  check-pr:
+  pr-check:
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  cs-check:
+    if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  determine-ls:
+    if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && ( !github.event.inputs.pullNumber || github.event.inputs.pullNumber == '' ))
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
+    outputs:
+      pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
     steps:
-
-      - name: Run pull_request check
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
-        id: pr
-        uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
-
-      - name: Run check_suite check
-        if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-        id: cs
-        uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
-
       - name: Determine pull request number
-        if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && !inputs.pullNumber )
-        id: ls
+        id: get-pull
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -70,16 +70,38 @@ jobs:
               core.setFailed('No open pull requests found.');
             }
             core.info(`pullNumber: ${pullNumber}`);
-            core.setOutput('pullNumber', pullNumber);
+            return pullNumber;
+          result-encoding: string
 
+  merge-check:
+    if: ${{ always() }}
+    needs:
+      - pr-check
+      - cs-check
+      - determine-ls
+    runs-on: ubuntu-latest
+    outputs:
+      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
+      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
+    steps:
       - name: set-outputs
         id: set-outputs
         uses: actions/github-script@v7
         with:
           script: |
-            let prMerged = '${{ steps.pr.outputs.prMerged || steps.cs.outputs.prMerged || 'false' }}';
-            let pullNumber = '${{ steps.pr.outputs.pullNumber || steps.cs.outputs.pullNumber || steps.ls.outputs.pullNumber || inputs.pullNumber }}';
-            let shouldSkipMerge = '${{ steps.pr.outputs.shouldSkipMerge || steps.cs.outputs.shouldSkipMerge || 'false' }}';
+            // Merge outputs from pr-check, cs-check, and determine-ls.
+            // Only one of pr-check or cs-check should have run.
+            let prMerged = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.prMerged)
+                           || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.prMerged)
+                           || 'false';
+            let pullNumber = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.pullNumber)
+                             || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.pullNumber)
+                             || (needs['determine-ls'] && needs['determine-ls'].outputs && needs['determine-ls'].outputs.pullNumber)
+                             || core.getInput('pullNumber') || '';
+            let shouldSkipMerge = (needs['pr-check'] && needs['pr-check'].outputs && needs['pr-check'].outputs.shouldSkipMerge)
+                                  || (needs['cs-check'] && needs['cs-check'].outputs && needs['cs-check'].outputs.shouldSkipMerge)
+                                  || 'false';
             core.setOutput('prMerged', prMerged);
             core.setOutput('pullNumber', pullNumber);
             core.setOutput('shouldSkipMerge', shouldSkipMerge);
@@ -87,28 +109,24 @@ jobs:
             core.info(`pullNumber: ${pullNumber}`);
             core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
           result-encoding: string
-    outputs:
-      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
-      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
-      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
 
   label-issue-after-check-pr:
     needs:
-      - check-pr
-    if: needs.check-pr.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
+      - merge-check
+    if: needs.merge-check.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
       pull-requests: read
       issues: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
     with:
-      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'issue-'
 
   wait-for-merge:
     needs:
-      - check-pr
-    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
+      - merge-check
+    if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Sleeping for 60 seconds."
@@ -118,26 +136,26 @@ jobs:
 
   automerge:
     needs:
-      - check-pr
+      - merge-check
       - wait-for-merge
-    if: needs.check-pr.outputs.shouldSkipMerge != 'true'
+    if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     permissions:
       contents: write
       pull-requests: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@main'
     with:
-      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
   label-issue-after-automerge:
     needs:
-      - check-pr
+      - merge-check
       - automerge
-    if: needs.automerge.outputs.prMerged == 'true' && needs.check-pr.outputs.pullNumber != ''
+    if: needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
       issues: write
       pull-requests: read
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
     with:
-      pullNumber: '${{ needs.check-pr.outputs.pullNumber }}'
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'issue-'
