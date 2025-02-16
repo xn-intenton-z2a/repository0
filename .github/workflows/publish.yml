@@ -1,7 +1,7 @@
 # .github/workflows/publish.yml
 name: Publish packages
 run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
-concurrency: publish-${{ github.ref_name }}
+concurrency: branch-${{ github.ref_name }}
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
   npm-test:
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -54,6 +54,9 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
       - run: npm test
 
   publish:
@@ -70,8 +73,6 @@ jobs:
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: 'node src/lib/main.js'
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: 'xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

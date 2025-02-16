@@ -21,8 +21,8 @@ on:
         type: string
         default: 'src/lib/main.js'
   schedule:
-    - cron: '0/15 * * * *'
-    #- cron: '30 */6 * * *'
+    #- cron: '0,10,20,30,40,50 * * * *'
+    - cron: '0 */6 * * *'
 
 jobs:
 
@@ -35,7 +35,6 @@ jobs:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
     secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   review-issue:
@@ -55,5 +54,4 @@ jobs:
       mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
       model: 'o3-mini'
     secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

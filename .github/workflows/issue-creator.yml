@@ -1,6 +1,7 @@
 # .github/workflows/issue-creator.yml
 name: Create Issue
-run-name: "Create Issue [${{ github.ref_name }}]"
+concurrency: create-issue
+run-name: "Create Issue"
 
 on:
   workflow_dispatch:
@@ -11,31 +12,36 @@ on:
         type: string
         default: 'src/lib/main.js'
       issueTitle:
-        description: 'Text to drive the issue title (if "dealers choice", a random prompt will be selected).'
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
         required: false
         type: string
-        default: 'dealers choice'
+        default: 'house choice'
       runIssueWorker:
         description: 'Should the downstream issue worker workflow be run?'
         required: false
         type: boolean
         default: true
   schedule:
-    - cron: '*/20 * * * *'
-    #- cron: '0 7 * * *'
+    # Run every 10 minutes (as an example)
+    #- cron: '0,10,20,30,40,50 * * * *'
+    - cron: '0 2 * * *'
 
 jobs:
 
   create-issue:
     permissions:
-      issues: read
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
     with:
-      issueTitle: ${{ inputs.issueTitle || 'dealers choice' }}
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      houseChoiceOptions: |
+        Create or refresh a README style comment block at the top of the file.
+        || Make code changes that improve the behaviour.
+        || Make code changes that extend the features.
+        || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
+        || Generally tidy up the code.
       target: ${{ inputs.target || 'src/lib/main.js' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   run-issue-worker:
     needs:
@@ -44,7 +50,19 @@ jobs:
     if: ${{ inputs.runIssueWorker == true }}
     permissions:
       contents: write
+      actions: write
+      packages: write
+      issues: write
+      pull-requests: write
       id-token: write
+      repository-projects: write
+      #security-events: write
+      #statuses: write
+      #deployments: write
+      #checks: write
+      #pages: write
+      #attestations: write
+      #discussions: write
     steps:
       - uses: actions/setup-node@v4
         with:
@@ -53,7 +71,7 @@ jobs:
       - name: Trigger downstream issue-worker workflow
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
