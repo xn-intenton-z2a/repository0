@@ -3,52 +3,42 @@
 'use strict';
 
 /**
- * Equation Plotter Library (SVG/JSON/CSV/HTML)
+ * Equation Plotter Library
  *
- * Overview:
- *   A lightweight library that generates SVG graphics for various mathematical equations, with additional support for JSON, CSV, and now HTML export.
+ * Description:
+ *   A lightweight library for generating plots of mathematical equations with export options in SVG, JSON, CSV, HTML, ASCII, and text formats.
+ *   It supports different mathematical functions including quadratic, sine, and polar equations.
  *
  * Features:
- *   - Quadratic Plot: Generates data points for y = ax² + bx + c. Supports formats like "y=x^2+2*x+1" or "x^2+y-1=0".
- *   - Sine Plot: Generates data points for y = A*sin(B*x + C) where x is in degrees.
- *   - Polar Plot: Generates and converts polar function data for plotting: r = scale * |sin(multiplier * θ)|.
- *   - Interactive: Supports zooming, panning, and custom scaling.
- *   - Custom Styling: Customize axis, grid, and curve appearances.
- *   - Export: Outputs the plot as an SVG file, ASCII art, text representation, JSON, CSV, or HTML, and can also write it to a file.
+ *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings.
+ *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
+ *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
+ *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
+ *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *
- * SDK API Functions:
- *   plotToSvg(options)   -> Returns an SVG string.
- *   plotToAscii(options) -> Returns an ASCII art string for sine plot.
- *   plotToText(options)  -> Returns a text representation of plot points.
- *   plotToJson(options)  -> Returns a JSON string with the plot points.
- *   plotToCsv(options)   -> Returns a CSV string with the plot points.
- *   plotToHtml(options)  -> Returns an HTML string embedding the SVG plot.
- *   plotToFile(options)  -> Saves output to a file and returns the file path.
+ * API Functions:
+ *   - plotToSvg(options): Returns an SVG string of the plots.
+ *   - plotToAscii(options): Returns an ASCII art string for the sine plot.
+ *   - plotToText(options): Returns a textual representation of plot points.
+ *   - plotToJson(options): Returns a JSON string containing the plot data.
+ *   - plotToCsv(options): Returns a CSV string with plot points.
+ *   - plotToHtml(options): Returns an HTML string that embeds the SVG plot.
+ *   - plotToFile(options): Saves the generated output to a file and returns the path.
+ *   - plotFromString(formulaStr): Parses a formula string to generate plot points.
+ *   - plotQuadratic, plotSine, plotPolar: Generate plots with default parameters.
  *
- * Additional Functions:
- *   plotQuadraticParam(params)  -> Returns points for a quadratic function.
- *   plotSineParam(params)       -> Returns points for a sine function.
- *   plotPolarParam(params)      -> Returns points for a polar function.
- *   plotQuadratic()             -> Quadratic plot with default parameters.
- *   plotSine()                  -> Sine plot with default parameters.
- *   plotPolar()                 -> Polar plot with default parameters.
- *   plotFromString(formulaStr)  -> Returns points parsed from formula string.
- *   generateSvg(quadraticPoints, sinePoints, polarPoints) -> Generates an SVG string from plot points.
- *   displayPlot(plotName, points)  -> Logs plot data to the console.
- *   displaySineAscii(points)       -> Logs ASCII art of a sine wave.
- *
- * Example Usage (CLI):
+ * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *
- * Example Usage (API):
+ * API Usage Example:
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
- *   const jsonData = plotToJson({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
- *   const csvData = plotToCsv({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
- *   const htmlData = plotToHtml({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
+ *
+ * Installation:
+ *   Install via npm with the required dependencies. See package.json for more details.
  *
  * License: MIT
  */
