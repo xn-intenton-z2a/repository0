@@ -535,20 +535,27 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   if (gridEnabled) {
     svg += drawRectGrid(50, 50, 700, 180, 10, 5);
   }
-  const qPoints = quadraticPlots.flat();
-  const qValues = qPoints.map((p) => p.y);
+  const qAllPoints = quadraticPlots.flat();
+  const qValues = qAllPoints.map((p) => p.y);
   let qMinY = Math.min(...qValues);
   let qMaxY = Math.max(...qValues);
   if (qMinY === qMaxY) {
     qMinY -= 10;
     qMaxY += 10;
   }
+  const qAllX = qAllPoints.map((p) => p.x);
+  let qMinX = Math.min(...qAllX);
+  let qMaxX = Math.max(...qAllX);
+  if (qMinX === qMaxX) {
+    qMinX -= 10;
+    qMaxX += 10;
+  }
   quadraticPlots.forEach((points, idx) => {
     const color = quadraticColors[idx % quadraticColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + ((p.x + 10) / 20) * 700; // assuming x in [-10,10]
-        const py = 230 - ((p.y - qMinY) / (qMaxY - qMinY)) * 180; // mapping to [50,230]
+        const px = 50 + ((p.x - qMinX) / (qMaxX - qMinX)) * 700;
+        const py = 230 - ((p.y - qMinY) / (qMaxY - qMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
@@ -561,19 +568,26 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   if (gridEnabled) {
     svg += drawRectGrid(50, 270, 700, 180, 10, 5);
   }
-  const lPoints = linearPlots.flat();
-  const lValues = lPoints.map((p) => p.y);
+  const lAllPoints = linearPlots.flat();
+  const lValues = lAllPoints.map((p) => p.y);
   let lMinY = Math.min(...lValues);
   let lMaxY = Math.max(...lValues);
   if (lMinY === lMaxY) {
     lMinY -= 10;
     lMaxY += 10;
   }
+  const lAllX = lAllPoints.map((p) => p.x);
+  let lMinX = Math.min(...lAllX);
+  let lMaxX = Math.max(...lAllX);
+  if (lMinX === lMaxX) {
+    lMinX -= 10;
+    lMaxX += 10;
+  }
   linearPlots.forEach((points, idx) => {
     const color = linearColors[idx % linearColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + ((p.x + 10) / 20) * 700;
+        const px = 50 + ((p.x - lMinX) / (lMaxX - lMinX)) * 700;
         const py = 450 - ((p.y - lMinY) / (lMaxY - lMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
@@ -587,19 +601,26 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   if (gridEnabled) {
     svg += drawRectGrid(50, 490, 700, 180, 10, 5);
   }
-  const sPoints = sinePlots.flat();
-  const sValues = sPoints.map((p) => p.y);
+  const sAllPoints = sinePlots.flat();
+  const sValues = sAllPoints.map((p) => p.y);
   let sMinY = Math.min(...sValues);
   let sMaxY = Math.max(...sValues);
   if (sMinY === sMaxY) {
     sMinY -= 1;
     sMaxY += 1;
   }
+  const sAllX = sAllPoints.map((p) => p.x);
+  let sMinX = Math.min(...sAllX);
+  let sMaxX = Math.max(...sAllX);
+  if (sMinX === sMaxX) {
+    sMinX -= 10;
+    sMaxX += 10;
+  }
   sinePlots.forEach((points, idx) => {
     const color = sineColors[idx % sineColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + (p.x / 360) * 700; // assuming x in [0,360]
+        const px = 50 + ((p.x - sMinX) / (sMaxX - sMinX)) * 700;
         const py = 670 - ((p.y - sMinY) / (sMaxY - sMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
@@ -636,19 +657,26 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   if (gridEnabled) {
     svg += drawRectGrid(50, 1020, 700, 180, 10, 5);
   }
-  const expPoints = exponentialPlots.flat();
-  const expValues = expPoints.map((p) => p.y);
+  const expAllPoints = exponentialPlots.flat();
+  const expValues = expAllPoints.map((p) => p.y);
   let expMinY = Math.min(...expValues);
   let expMaxY = Math.max(...expValues);
   if (expMinY === expMaxY) {
     expMinY -= 10;
     expMaxY += 10;
   }
+  const expAllX = expAllPoints.map((p) => p.x);
+  let expMinX = Math.min(...expAllX);
+  let expMaxX = Math.max(...expAllX);
+  if (expMinX === expMaxX) {
+    expMinX -= 10;
+    expMaxX += 10;
+  }
   exponentialPlots.forEach((points, idx) => {
     const color = exponentialColors[idx % exponentialColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + ((p.x + 10) / 20) * 700;
+        const px = 50 + ((p.x - expMinX) / (expMaxX - expMinX)) * 700;
         const py = 1200 - ((p.y - expMinY) / (expMaxY - expMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
