@@ -960,7 +960,7 @@ function main() {
 
   // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-63");
+    console.log("Equation Plotter Library version 0.1.1-64");
     process.exit(0);
   }
 
