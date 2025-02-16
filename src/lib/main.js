@@ -32,6 +32,7 @@
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *
  * API Usage Example:
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
@@ -191,7 +192,7 @@ function parseGenericQuadratic(formulaStr) {
     if (parts.length !== 2) throw new Error('Unsupported formula format for quadratic parsing');
     let left = parts[0];
     let right = parts[1];
-    // Improved parsing: if left contains 'y', isolate it by removing the y term and solving for y
+    // Improved parsing: if left contains 'y', isolate it by removing the y term
     if (left.includes('y')) {
       const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
       let yCoeff = 1;
@@ -204,11 +205,9 @@ function parseGenericQuadratic(formulaStr) {
       // Remove the y term from the left side
       let remaining = left.replace(/([+-]?\d*\.?\d*)y/, '');
       // Now, y = (right - remaining) / yCoeff
-      // For our simple case, assume right is a constant or empty
       const constantRight = parseFloat(right) || 0;
       const coeffs = extractQuadraticCoefficients(remaining);
-      // The polynomial is: y = (right - (ax^2 + bx + c)) / yCoeff
-      // => y = (-a/yCoeff)x^2 + (-b/yCoeff)x + ((right - c)/yCoeff)
+      // The polynomial is: y = (-a/yCoeff)x^2 + (-b/yCoeff)x + ((right - c)/yCoeff)
       return plotQuadraticParam({ a: -coeffs.a / yCoeff, b: -coeffs.b / yCoeff, c: (constantRight - coeffs.c) / yCoeff, xMin: -10, xMax: 10, step: 1 });
     } else if (right.includes('y')) {
       const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
@@ -438,9 +437,9 @@ function plotToFile({ formulas = [], outputFileName = 'output.svg', type = 'svg'
 function main() {
   const args = process.argv.slice(2);
 
-  // Added version flag support
+  // Added version flag support - version updated to match package version
   if (args.includes('--version')) {
-    console.log('Equation Plotter Library version 0.1.0');
+    console.log('Equation Plotter Library version 0.1.1-38');
     process.exit(0);
   }
 
@@ -451,6 +450,7 @@ Options:
   --help, -h       Show this help message
   --json           Generate output as JSON instead of SVG
   --csv            Generate output as CSV instead of SVG
+  --ascii          Generate output as ASCII art instead of SVG
   --version        Show version information
   (output file extension .html will generate HTML output)
 
@@ -466,9 +466,9 @@ Formula String Formats:
   let isJson = args.includes('--json');
   let isCsv = args.includes('--csv');
   let isHtml = false;
-  let isAscii = false;
+  let isAscii = args.includes('--ascii');
 
-  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv' && arg !== '--version');
+  const nonFormulaArgs = args.filter(arg => !arg.includes(':') && !arg.includes('=') && arg !== '--json' && arg !== '--csv' && arg !== '--version' && arg !== '--ascii');
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
