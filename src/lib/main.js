@@ -10,7 +10,7 @@
  *   It supports different mathematical functions including quadratic, sine, polar, linear, exponential, and logarithmic equations.
  *
  * Features:
- *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings. Also supports prefix alias 'quad:'.
+ *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings. Also supports prefix alias 'quad:'
  *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
  *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
@@ -554,6 +554,15 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
   }
 
+  // Dealers Choice: generate a full random color palette if the flag is enabled
+  function generateColorPalette(count) {
+    const palette = [];
+    for (let i = 0; i < count; i++) {
+      palette.push(randomColor());
+    }
+    return palette;
+  }
+
   // Define color palettes for each plot type
   let quadraticColors, linearColors, sineColors, polarColors, exponentialColors, logarithmicColors;
   if (!dealersChoice) {
@@ -564,13 +573,13 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
   } else {
-    // Dealers choice enabled: generate random colors for each plot based on the number of plots
-    quadraticColors = quadraticPlots.map(() => randomColor());
-    linearColors = linearPlots.map(() => randomColor());
-    sineColors = sinePlots.map(() => randomColor());
-    polarColors = polarPlots.map(() => randomColor());
-    exponentialColors = exponentialPlots.map(() => randomColor());
-    logarithmicColors = logarithmicPlots.map(() => randomColor());
+    // Dealers choice enabled: generate random color palettes for each plot based on the number of formulas
+    quadraticColors = generateColorPalette(quadraticPlots.length);
+    linearColors = generateColorPalette(linearPlots.length);
+    sineColors = generateColorPalette(sinePlots.length);
+    polarColors = generateColorPalette(polarPlots.length);
+    exponentialColors = generateColorPalette(exponentialPlots.length);
+    logarithmicColors = generateColorPalette(logarithmicPlots.length);
   }
 
   // Helper to draw grid for rectangular slots
