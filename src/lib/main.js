@@ -216,14 +216,13 @@ function parseGenericQuadratic(formulaStr) {
   if (formula.toLowerCase().startsWith('y=')) {
     const yExpr = formula.substring(2);
     return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
-  } else if (formula.endsWith('=0')) { // New clause to handle equations ending with =0
+  } else if (formula.endsWith('=0')) { // Handle equations ending with =0
     const left = formula.split('=')[0];
     const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
     if (!yMatch) throw new Error('No y term found in equation');
     let yCoeff = (yMatch[1] === '' || yMatch[1] === '+') ? 1 : (yMatch[1] === '-' ? -1 : parseFloat(yMatch[1]));
     let remaining = left.replace(/([+-]?\d*\.?\d*)y/, '');
     const coeffs = extractQuadraticCoefficients(remaining);
-    // For equation of form (remaining) + y = 0, solve for y: y = - (remaining) / yCoeff
     return plotQuadraticParam({
       a: -coeffs.a / yCoeff,
       b: -coeffs.b / yCoeff,
@@ -350,9 +349,14 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   const sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
   const polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
 
-  // Quadratic Plot (Slot 1: y from 50 to 250)
+  // Quadratic Plot (Slot 1)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
-  const qMinY = -100, qMaxY = 1;
+  let qPoints = quadraticPlots.flat();
+  let qValues = qPoints.map(p => p.y);
+  let qMinY = Math.min(...qValues);
+  let qMaxY = Math.max(...qValues);
+  if(qMinY === qMaxY) { qMinY -= 10; qMaxY += 10; }
+  // Slot for quadratic: y range mapped from 50 to 250
   quadraticPlots.forEach((points, idx) => {
     const color = quadraticColors[idx % quadraticColors.length];
     const pts = points.map(p => {
@@ -364,9 +368,13 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Linear Plot (Slot 2: y from 280 to 480)
+  // Linear Plot (Slot 2)
   svg += `  <text x="${width / 2}" y="260" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
-  const lMinY = -10, lMaxY = 10;
+  let lPoints = linearPlots.flat();
+  let lValues = lPoints.map(p => p.y);
+  let lMinY = Math.min(...lValues);
+  let lMaxY = Math.max(...lValues);
+  if(lMinY === lMaxY) { lMinY -= 10; lMaxY += 10; }
   linearPlots.forEach((points, idx) => {
     const color = linearColors[idx % linearColors.length];
     const pts = points.map(p => {
@@ -378,9 +386,13 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Sine Plot (Slot 3: y from 510 to 710)
+  // Sine Plot (Slot 3)
   svg += `  <text x="${width / 2}" y="490" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
-  const sMinY = -1, sMaxY = 1;
+  let sPoints = sinePlots.flat();
+  let sValues = sPoints.map(p => p.y);
+  let sMinY = Math.min(...sValues);
+  let sMaxY = Math.max(...sValues);
+  if(sMinY === sMaxY) { sMinY -= 1; sMaxY += 1; }
   sinePlots.forEach((points, idx) => {
     const color = sineColors[idx % sineColors.length];
     const pts = points.map(p => {
@@ -392,7 +404,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Polar Plot (Slot 4: y from 750 to 950, centered at (400,850))
+  // Polar Plot (Slot 4: centered)
   svg += `  <text x="${width / 2}" y="730" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
   const centerY = 850;
@@ -415,7 +427,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
 
 function plotToHtml({ formulas = [] } = {}) {
   const svgContent = plotToSvg({ formulas });
-  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n">${svgContent}\n</body>\n</html>`;
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
 }
 
 // ----------------------------------
