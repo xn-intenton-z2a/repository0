@@ -62,7 +62,7 @@ jobs:
               core.setFailed('No open pull requests found.');
             }
             core.info(`pullNumber: ${pullNumber}`);
-            return pullNumber;
+            core.setOutput('pullNumber', pullNumber);
           result-encoding: string
     outputs:
       pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
@@ -83,7 +83,7 @@ jobs:
             // Merge outputs from pr-check, cs-check, and determine-ls.
             // Only one of pr-check or cs-check should have run.
             let prMerged = '${{ needs.pr.outputs.prMerged || needs.cs.outputs.prMerged || 'false' }}';
-            let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber || needs.pullNumber }}';
+            let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}';
             let shouldSkipMerge = '${{ needs.pr.outputs.shouldSkipMerge || needs.cs.outputs.shouldSkipMerge || 'false' }}';
             core.setOutput('prMerged', prMerged);
             core.setOutput('pullNumber', pullNumber);
