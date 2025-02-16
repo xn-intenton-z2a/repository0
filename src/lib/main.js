@@ -13,7 +13,7 @@
  *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings.
  *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
- *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Now supports both prefixed and standard algebraic formats (e.g., "y=2x+3").
+ *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Now supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *   - Multiple Formulas per Plot Type: Now supports multiple formulas for each plot type, each rendered with a distinct color.
@@ -181,13 +181,15 @@ function parseLinear(formulaStr) {
   });
 }
 
-// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3"
+// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters e.g., "y=2x+3:-10,10,1"
 function parseGenericLinear(formulaStr) {
-  const formula = formulaStr.replace(/\s+/g, "");
-  if (!formula.toLowerCase().startsWith("y=")) {
+  let parts = formulaStr.split(":");
+  let exprPart = parts[0].replace(/\s+/g, "");
+  let rangePart = parts.length > 1 ? parts[1].trim() : "";
+  if (!exprPart.toLowerCase().startsWith("y=")) {
     throw new Error("Linear formula must start with 'y='");
   }
-  let expr = formula.substring(2);
+  let expr = exprPart.substring(2);
   // Ensure it's linear by checking absence of x^2
   if (expr.includes("x^2")) {
     throw new Error("Detected quadratic term in what should be a linear formula");
@@ -201,7 +203,14 @@ function parseGenericLinear(formulaStr) {
   if (bMatch) {
     b = parseFloat(bMatch[1]);
   }
-  return plotLinearParam({ m, b, xMin: -10, xMax: 10, step: 1 });
+  let xMin = -10, xMax = 10, step = 1;
+  if (rangePart) {
+    const rangeParams = rangePart.split(",").map(Number);
+    if (rangeParams.length > 0 && !isNaN(rangeParams[0])) xMin = rangeParams[0];
+    if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
+    if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
+  }
+  return plotLinearParam({ m, b, xMin, xMax, step });
 }
 
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
@@ -250,14 +259,25 @@ function invertExpression(expr) {
   return inverted[0] === "+" ? inverted.slice(1) : inverted;
 }
 
-// Parse a generic quadratic formula in standard algebraic form
+// Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2x+1" or "y=x^2+2x+1:-10,10,1"
 function parseGenericQuadratic(formulaStr) {
-  const formula = formulaStr.replace(/\s+/g, "");
-  if (formula.toLowerCase().startsWith("y=")) {
-    const yExpr = formula.substring(2);
-    return plotQuadraticParam({ ...extractQuadraticCoefficients(yExpr), xMin: -10, xMax: 10, step: 1 });
-  } else if (formula.endsWith("=0")) {
-    const left = formula.split("=")[0];
+  let parts = formulaStr.split(":");
+  let mainPart = parts[0].replace(/\s+/g, "");
+  let rangePart = parts.length > 1 ? parts[1].trim() : "";
+  let xMin = -10, xMax = 10, step = 1;
+  if (rangePart) {
+    const rangeParams = rangePart.split(",").map(Number);
+    if (rangeParams.length > 0 && !isNaN(rangeParams[0])) xMin = rangeParams[0];
+    if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
+    if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
+  }
+
+  if (mainPart.toLowerCase().startsWith("y=")) {
+    const yExpr = mainPart.substring(2);
+    const coeffs = extractQuadraticCoefficients(yExpr);
+    return plotQuadraticParam({ ...coeffs, xMin, xMax, step });
+  } else if (mainPart.endsWith("=0")) {
+    const left = mainPart.split("=")[0];
     const yRegex = /([+-]?(?:\d*\.?\d*)?)y/;
     const yMatch = left.match(yRegex);
     if (!yMatch) throw new Error("No y term found in equation");
@@ -270,15 +290,15 @@ function parseGenericQuadratic(formulaStr) {
       a: -coeffs.a / yCoeff,
       b: -coeffs.b / yCoeff,
       c: -coeffs.c / yCoeff,
-      xMin: -10,
-      xMax: 10,
-      step: 1,
+      xMin,
+      xMax,
+      step,
     });
   } else {
-    const parts = formula.split("=");
-    if (parts.length !== 2) throw new Error("Unsupported formula format for quadratic parsing");
-    const left = parts[0];
-    const right = parts[1];
+    const partsEq = mainPart.split("=");
+    if (partsEq.length !== 2) throw new Error("Unsupported formula format for quadratic parsing");
+    const left = partsEq[0];
+    const right = partsEq[1] || "0";
     if (left.includes("y")) {
       const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
       let yCoeff = 1;
@@ -295,9 +315,9 @@ function parseGenericQuadratic(formulaStr) {
         a: -coeffs.a / yCoeff,
         b: -coeffs.b / yCoeff,
         c: (constantRight - coeffs.c) / yCoeff,
-        xMin: -10,
-        xMax: 10,
-        step: 1,
+        xMin,
+        xMax,
+        step,
       });
     } else if (right.includes("y")) {
       const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
@@ -315,14 +335,14 @@ function parseGenericQuadratic(formulaStr) {
         a: -coeffs.a / yCoeff,
         b: -coeffs.b / yCoeff,
         c: (constantLeft - coeffs.c) / yCoeff,
-        xMin: -10,
-        xMax: 10,
-        step: 1,
+        xMin,
+        xMax,
+        step,
       });
     } else {
       const nonYPart = left;
       const newExpr = (right || "0") + invertExpression(nonYPart);
-      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin: -10, xMax: 10, step: 1 });
+      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin, xMax, step });
     }
   }
 }
@@ -338,7 +358,7 @@ function plotFromString(formulaStr) {
     console.error("Unknown prefixed formula type.");
     return [];
   } else if (formulaStr.includes("=")) {
-    // Added support for linear equations in algebraic form (e.g., "y=2x+3") if no quadratic terms
+    // Added support for linear equations in algebraic form (e.g., "y=2x+3" or with range, "y=2x+3:-10,10,1") if no quadratic terms
     if (lowerStr.startsWith("y=") && !formulaStr.includes("x^2")) {
       try {
         return parseGenericLinear(formulaStr);
@@ -545,8 +565,7 @@ function plotToAscii({ formulas = [] } = {}) {
     for (let col = 0; col < cols; col++) {
       if (grid[xAxisRow][col] === " ") grid[xAxisRow][col] = "-";
     }
-    result += header + grid.map((row) => row.join(""))
-      .join("\n") + "\n\n";
+    result += header + grid.map((row) => row.join("")).join("\n") + "\n\n";
   });
   return result;
 }
@@ -666,7 +685,7 @@ function main() {
 
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
-      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n`
+      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n`
     );
     process.exit(0);
   }
