@@ -13,12 +13,6 @@ on:
     types:
       - completed
   workflow_dispatch:
-    inputs:
-      pullNumber:
-        description: 'The pull request number to review. e.g. "123"'
-        required: false
-        type: string
-        default: ''
   workflow_run:
     workflows:
       - "Issue Worker"
@@ -34,26 +28,24 @@ jobs:
   pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #secrets:
+    #  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #secrets:
+    #  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   ls:
-    if: github.event_name == 'schedule' || ( github.event_name == 'workflow_dispatch' && ( !github.event.inputs.pullNumber || github.event.inputs.pullNumber == '' ))
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    outputs:
-      pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
     steps:
       - name: Determine pull request number
         id: get-pull
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
             let pullNumber;
             const { data: pullRequests } = await github.rest.pulls.list({
@@ -72,6 +64,8 @@ jobs:
             core.info(`pullNumber: ${pullNumber}`);
             return pullNumber;
           result-encoding: string
+    outputs:
+      pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
 
   merge-check:
     if: ${{ always() }}
