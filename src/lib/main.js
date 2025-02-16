@@ -41,6 +41,9 @@
  *   Install via npm with the required dependencies. See package.json for more details.
  *
  * License: MIT
+ *
+ * Updated:
+ *   Version flag updated to 0.1.1-68 and documentation improved per issue-123.
  */
 
 import { fileURLToPath } from "url";
