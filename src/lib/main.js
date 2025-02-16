@@ -738,6 +738,12 @@ Formula String Formats:
 
   // Collect formulas from arguments
   const formulasList = args.filter((arg) => arg.includes(":") || arg.includes("="));
+
+  // NEW: Warn if no formulas are provided
+  if (formulasList.length === 0) {
+    console.log("No formulas provided. Using default plot functions for quadratic, linear, sine, and polar plots.");
+  }
+
   const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulasList);
 
   console.log("Demo: Raw formula strings and their parsed representations:");
