@@ -7,16 +7,17 @@
  *
  * Description:
  *   A lightweight library for generating plots of mathematical equations with export options in SVG, JSON, CSV, HTML, ASCII, and text formats.
- *   It supports different mathematical functions including quadratic, sine, polar, and now linear equations.
+ *   It supports different mathematical functions including quadratic, sine, polar, linear, and now exponential equations.
  *
  * Features:
  *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings. Also supports prefix alias 'quad:'.
  *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
- *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Now supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
+ *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
+ *   - Exponential Plot: Generates data for y = a * e^(b*x) with control over coefficients and x range. Accepts formulas in the format "exponential:a,b,xMin,xMax,step" or shortened as "exp:".
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
- *   - Multiple Formulas per Plot Type: Now supports multiple formulas for each plot type, each rendered with a distinct color.
+ *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
  *
  * API Functions:
  *   - plotToSvg(options): Returns an SVG string of the plots.
@@ -27,7 +28,7 @@
  *   - plotToHtml(options): Returns an HTML string that embeds the SVG plot.
  *   - plotToFile(options): Saves the generated output to a file and returns the path.
  *   - plotFromString(formulaStr): Parses a formula string to generate plot points.
- *   - plotQuadratic, plotSine, plotPolar, plotLinear: Generate plots with default parameters.
+ *   - plotQuadratic, plotSine, plotPolar, plotLinear, plotExponential: Generate plots with default parameters.
  *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -36,6 +37,7 @@
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.svg "linear:1,0,-10,10,1" "x^2+y-1=0" "sine:1,1,0,0,360,10" "polar:200,2,5"
+ *   $ node src/lib/main.js output.svg "exp:1,0.1,-10,10,1" "quad:x^2+y-1=0"
  *
  * API Usage Example:
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
@@ -97,6 +99,14 @@ function plotLinearParam({ m = 1, b = 0, xMin = -10, xMax = 10, step = 1 } = {})
   return points;
 }
 
+function plotExponentialParam({ a = 1, b = 1, xMin = -10, xMax = 10, step = 1 } = {}) {
+  const points = [];
+  for (let x = xMin; x <= xMax; x += step) {
+    points.push({ x, y: a * Math.exp(b * x) });
+  }
+  return points;
+}
+
 // Backward compatible wrappers
 function plotQuadratic() {
   return plotQuadraticParam();
@@ -114,6 +124,10 @@ function plotLinear() {
   return plotLinearParam();
 }
 
+function plotExponential() {
+  return plotExponentialParam();
+}
+
 // ----------------------------------
 // Formula Parsing Functions
 // ----------------------------------
@@ -129,7 +143,7 @@ function parseQuadratic(formulaStr) {
     c: isNaN(c) ? 0 : c,
     xMin: isNaN(xMin) ? -10 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 }
 
@@ -144,7 +158,7 @@ function parseSine(formulaStr) {
     phase: isNaN(phase) ? 0 : phase,
     xMin: isNaN(xMin) ? 0 : xMin,
     xMax: isNaN(xMax) ? 360 : xMax,
-    step: isNaN(step) ? 10 : step,
+    step: isNaN(step) ? 10 : step
   });
 }
 
@@ -177,7 +191,7 @@ function parseLinear(formulaStr) {
     b: isNaN(b) ? 0 : b,
     xMin: isNaN(xMin) ? -10 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 }
 
@@ -211,6 +225,109 @@ function parseGenericLinear(formulaStr) {
     if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
   }
   return plotLinearParam({ m, b, xMin, xMax, step });
+}
+
+// New: Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2x+1" or "y=x^2+2x+1:-10,10,1"
+function parseGenericQuadratic(formulaStr) {
+  let parts = formulaStr.split(":");
+  let mainPart = parts[0].replace(/\s+/g, "");
+  let rangePart = parts.length > 1 ? parts[1].trim() : "";
+  let xMin = -10, xMax = 10, step = 1;
+  if (rangePart) {
+    const rangeParams = rangePart.split(",").map(Number);
+    if (rangeParams.length > 0 && !isNaN(rangeParams[0])) xMin = rangeParams[0];
+    if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
+    if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
+  }
+
+  if (mainPart.toLowerCase().startsWith("y=")) {
+    const yExpr = mainPart.substring(2);
+    const coeffs = extractQuadraticCoefficients(yExpr);
+    return plotQuadraticParam({ ...coeffs, xMin, xMax, step });
+  } else if (mainPart.endsWith("=0")) {
+    const left = mainPart.split("=")[0];
+    const yRegex = /([+-]?(?:\d*\.?\d*)?)y/;
+    const yMatch = left.match(yRegex);
+    if (!yMatch) throw new Error("No y term found in equation");
+    const coeffStr = yMatch[1];
+    const yCoeff = (coeffStr === "" || coeffStr === "+") ? 1 : (coeffStr === "-") ? -1 : parseFloat(coeffStr);
+    const remaining = left.replace(yRegex, "");
+    const cleanedRemaining = remaining.replace(/^\+/, "");
+    const coeffs = extractQuadraticCoefficients(cleanedRemaining);
+    return plotQuadraticParam({
+      a: -coeffs.a / yCoeff,
+      b: -coeffs.b / yCoeff,
+      c: -coeffs.c / yCoeff,
+      xMin,
+      xMax,
+      step
+    });
+  } else {
+    const partsEq = mainPart.split("=");
+    if (partsEq.length !== 2) throw new Error("Unsupported formula format for quadratic parsing");
+    const left = partsEq[0];
+    const right = partsEq[1] || "0";
+    if (left.includes("y")) {
+      const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
+      let yCoeff = 1;
+      if (yMatch) {
+        const coeffStr = yMatch[1];
+        if (coeffStr === "" || coeffStr === "+") yCoeff = 1;
+        else if (coeffStr === "-") yCoeff = -1;
+        else yCoeff = parseFloat(coeffStr);
+      }
+      const remaining = left.replace(/([+-]?\d*\.?\d*)y/, "");
+      const constantRight = parseFloat(right) || 0;
+      const coeffs = extractQuadraticCoefficients(remaining);
+      return plotQuadraticParam({
+        a: -coeffs.a / yCoeff,
+        b: -coeffs.b / yCoeff,
+        c: (constantRight - coeffs.c) / yCoeff,
+        xMin,
+        xMax,
+        step
+      });
+    } else if (right.includes("y")) {
+      const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
+      let yCoeff = 1;
+      if (yMatch) {
+        const coeffStr = yMatch[1];
+        if (coeffStr === "" || coeffStr === "+") yCoeff = 1;
+        else if (coeffStr === "-") yCoeff = -1;
+        else yCoeff = parseFloat(coeffStr);
+      }
+      const remaining = right.replace(/([+-]?\d*\.?\d*)y/, "");
+      const constantLeft = parseFloat(left) || 0;
+      const coeffs = extractQuadraticCoefficients(remaining);
+      return plotQuadraticParam({
+        a: -coeffs.a / yCoeff,
+        b: -coeffs.b / yCoeff,
+        c: (constantLeft - coeffs.c) / yCoeff,
+        xMin,
+        xMax,
+        step
+      });
+    } else {
+      const nonYPart = left;
+      const newExpr = (right || "0") + invertExpression(nonYPart);
+      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin, xMax, step });
+    }
+  }
+}
+
+// New: Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step"
+function parseExponential(formulaStr) {
+  const parts = formulaStr.split(":");
+  if (parts.length < 2) throw new Error("Invalid exponential formula string");
+  const params = parts[1].split(",").map(Number);
+  const [a, b, xMin, xMax, step] = params;
+  return plotExponentialParam({
+    a: isNaN(a) ? 1 : a,
+    b: isNaN(b) ? 1 : b,
+    xMin: isNaN(xMin) ? -10 : xMin,
+    xMax: isNaN(xMax) ? 10 : xMax,
+    step: isNaN(step) ? 1 : step
+  });
 }
 
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
@@ -261,94 +378,6 @@ function invertExpression(expr) {
   return inverted[0] === "+" ? inverted.slice(1) : inverted;
 }
 
-// Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2x+1" or "y=x^2+2x+1:-10,10,1"
-function parseGenericQuadratic(formulaStr) {
-  let parts = formulaStr.split(":");
-  let mainPart = parts[0].replace(/\s+/g, "");
-  let rangePart = parts.length > 1 ? parts[1].trim() : "";
-  let xMin = -10, xMax = 10, step = 1;
-  if (rangePart) {
-    const rangeParams = rangePart.split(",").map(Number);
-    if (rangeParams.length > 0 && !isNaN(rangeParams[0])) xMin = rangeParams[0];
-    if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
-    if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
-  }
-
-  if (mainPart.toLowerCase().startsWith("y=")) {
-    const yExpr = mainPart.substring(2);
-    const coeffs = extractQuadraticCoefficients(yExpr);
-    return plotQuadraticParam({ ...coeffs, xMin, xMax, step });
-  } else if (mainPart.endsWith("=0")) {
-    const left = mainPart.split("=")[0];
-    const yRegex = /([+-]?(?:\d*\.?\d*)?)y/;
-    const yMatch = left.match(yRegex);
-    if (!yMatch) throw new Error("No y term found in equation");
-    const coeffStr = yMatch[1];
-    const yCoeff = (coeffStr === "" || coeffStr === "+") ? 1 : (coeffStr === "-") ? -1 : parseFloat(coeffStr);
-    const remaining = left.replace(yRegex, "");
-    const cleanedRemaining = remaining.replace(/^\+/, "");
-    const coeffs = extractQuadraticCoefficients(cleanedRemaining);
-    return plotQuadraticParam({
-      a: -coeffs.a / yCoeff,
-      b: -coeffs.b / yCoeff,
-      c: -coeffs.c / yCoeff,
-      xMin,
-      xMax,
-      step,
-    });
-  } else {
-    const partsEq = mainPart.split("=");
-    if (partsEq.length !== 2) throw new Error("Unsupported formula format for quadratic parsing");
-    const left = partsEq[0];
-    const right = partsEq[1] || "0";
-    if (left.includes("y")) {
-      const yMatch = left.match(/([+-]?\d*\.?\d*)y/);
-      let yCoeff = 1;
-      if (yMatch) {
-        const coeffStr = yMatch[1];
-        if (coeffStr === "" || coeffStr === "+") yCoeff = 1;
-        else if (coeffStr === "-") yCoeff = -1;
-        else yCoeff = parseFloat(coeffStr);
-      }
-      const remaining = left.replace(/([+-]?\d*\.?\d*)y/, "");
-      const constantRight = parseFloat(right) || 0;
-      const coeffs = extractQuadraticCoefficients(remaining);
-      return plotQuadraticParam({
-        a: -coeffs.a / yCoeff,
-        b: -coeffs.b / yCoeff,
-        c: (constantRight - coeffs.c) / yCoeff,
-        xMin,
-        xMax,
-        step,
-      });
-    } else if (right.includes("y")) {
-      const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
-      let yCoeff = 1;
-      if (yMatch) {
-        const coeffStr = yMatch[1];
-        if (coeffStr === "" || coeffStr === "+") yCoeff = 1;
-        else if (coeffStr === "-") yCoeff = -1;
-        else yCoeff = parseFloat(coeffStr);
-      }
-      const remaining = right.replace(/([+-]?\d*\.?\d*)y/, "");
-      const constantLeft = parseFloat(left) || 0;
-      const coeffs = extractQuadraticCoefficients(remaining);
-      return plotQuadraticParam({
-        a: -coeffs.a / yCoeff,
-        b: -coeffs.b / yCoeff,
-        c: (constantLeft - coeffs.c) / yCoeff,
-        xMin,
-        xMax,
-        step,
-      });
-    } else {
-      const nonYPart = left;
-      const newExpr = (right || "0") + invertExpression(nonYPart);
-      return plotQuadraticParam({ ...extractQuadraticCoefficients(newExpr), xMin, xMax, step });
-    }
-  }
-}
-
 // Delegate plotting based on formula string content
 function plotFromString(formulaStr) {
   const lowerStr = formulaStr.toLowerCase();
@@ -357,6 +386,7 @@ function plotFromString(formulaStr) {
     if (lowerStr.startsWith("sine:")) return parseSine(formulaStr);
     if (lowerStr.startsWith("polar:")) return parsePolar(formulaStr);
     if (lowerStr.startsWith("linear:")) return parseLinear(formulaStr);
+    if (lowerStr.startsWith("exponential:") || lowerStr.startsWith("exp:")) return parseExponential(formulaStr);
     console.error("Unknown prefixed formula type.");
     return [];
   } else if (formulaStr.includes("=")) {
@@ -388,6 +418,7 @@ function getPlotsFromFormulas(formulas = []) {
   const sine = [];
   const polar = [];
   const linear = [];
+  const exponential = [];
   formulas.forEach((formula) => {
     const lower = formula.toLowerCase();
     try {
@@ -399,6 +430,8 @@ function getPlotsFromFormulas(formulas = []) {
         polar.push(plotFromString(formula));
       } else if (lower.startsWith("linear:") || (lower.startsWith("y=") && !formula.includes("x^2"))) {
         linear.push(plotFromString(formula));
+      } else if (lower.startsWith("exponential:") || lower.startsWith("exp:")) {
+        exponential.push(plotFromString(formula));
       } else {
         console.error("Unrecognized formula: " + formula);
       }
@@ -410,7 +443,8 @@ function getPlotsFromFormulas(formulas = []) {
   if (linear.length === 0) linear.push(plotLinear());
   if (sine.length === 0) sine.push(plotSine());
   if (polar.length === 0) polar.push(plotPolar());
-  return { quadratic, linear, sine, polar };
+  if (exponential.length === 0) exponential.push(plotExponential());
+  return { quadratic, linear, sine, polar, exponential };
 }
 
 // ----------------------------------
@@ -426,10 +460,10 @@ function displayPlot(plotName, points) {
 // SVG Generation Function
 // ----------------------------------
 
-function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
-  // New SVG with 4 plots arranged in separate slots
+function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots) {
+  // New SVG with 5 plots arranged in separate slots
   const width = 800;
-  const height = 1000;
+  const height = 1300;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
@@ -439,8 +473,9 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   const linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
   const sineColors = ["red", "darkred", "crimson", "firebrick", "tomato"];
   const polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
+  const exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
 
-  // Quadratic Plot (Slot 1)
+  // Slot 1: Quadratic Plot (Area: y=50 to 230)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
   const qPoints = quadraticPlots.flat();
   const qValues = qPoints.map((p) => p.y);
@@ -450,13 +485,12 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
     qMinY -= 10;
     qMaxY += 10;
   }
-  // Slot for quadratic: y range mapped from 50 to 250
   quadraticPlots.forEach((points, idx) => {
     const color = quadraticColors[idx % quadraticColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + ((p.x + 10) / 20) * 700;
-        const py = 250 - ((p.y - qMinY) / (qMaxY - qMinY)) * 200;
+        const px = 50 + ((p.x + 10) / 20) * 700; // assuming x in [-10,10]
+        const py = 230 - ((p.y - qMinY) / (qMaxY - qMinY)) * 180; // mapping to [50,230]
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
@@ -464,8 +498,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Linear Plot (Slot 2)
-  svg += `  <text x="${width / 2}" y="260" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
+  // Slot 2: Linear Plot (Area: y=270 to 450)
+  svg += `  <text x="${width / 2}" y="250" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
   const lPoints = linearPlots.flat();
   const lValues = lPoints.map((p) => p.y);
   let lMinY = Math.min(...lValues);
@@ -479,7 +513,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
     const pts = points
       .map((p) => {
         const px = 50 + ((p.x + 10) / 20) * 700;
-        const py = 480 - ((p.y - lMinY) / (lMaxY - lMinY)) * 200;
+        const py = 450 - ((p.y - lMinY) / (lMaxY - lMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
@@ -487,8 +521,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Sine Plot (Slot 3)
-  svg += `  <text x="${width / 2}" y="490" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
+  // Slot 3: Sine Plot (Area: y=490 to 670)
+  svg += `  <text x="${width / 2}" y="470" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
   const sPoints = sinePlots.flat();
   const sValues = sPoints.map((p) => p.y);
   let sMinY = Math.min(...sValues);
@@ -501,8 +535,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
     const color = sineColors[idx % sineColors.length];
     const pts = points
       .map((p) => {
-        const px = 50 + (p.x / 360) * 700;
-        const py = 710 - ((p.y - sMinY) / (sMaxY - sMinY)) * 200;
+        const px = 50 + (p.x / 360) * 700; // assuming x in [0,360]
+        const py = 670 - ((p.y - sMinY) / (sMaxY - sMinY)) * 180;
         return `${formatNumber(px)},${formatNumber(py)}`;
       })
       .join(" ");
@@ -510,10 +544,10 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
   });
   svg += `\n`;
 
-  // Polar Plot (Slot 4: centered)
-  svg += `  <text x="${width / 2}" y="730" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
+  // Slot 4: Polar Plot (centered in slot, use center at (400,750))
+  svg += `  <text x="${width / 2}" y="690" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
-  const centerY = 850;
+  const centerY = 750;
   polarPlots.forEach((points, idx) => {
     const color = polarColors[idx % polarColors.length];
     const pts = points
@@ -525,6 +559,30 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots) {
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
+  svg += `\n`;
+
+  // Slot 5: Exponential Plot (Area: y=1020 to 1200)
+  svg += `  <text x="${width / 2}" y="1000" font-size="16" text-anchor="middle">Exponential Plot: y = a * e^(b*x)</text>\n`;
+  const expPoints = exponentialPlots.flat();
+  const expValues = expPoints.map((p) => p.y);
+  let expMinY = Math.min(...expValues);
+  let expMaxY = Math.max(...expValues);
+  if (expMinY === expMaxY) {
+    expMinY -= 10;
+    expMaxY += 10;
+  }
+  exponentialPlots.forEach((points, idx) => {
+    const color = exponentialColors[idx % exponentialColors.length];
+    const pts = points
+      .map((p) => {
+        const px = 50 + ((p.x + 10) / 20) * 700;
+        const py = 1200 - ((p.y - expMinY) / (expMaxY - expMinY)) * 180;
+        return `${formatNumber(px)},${formatNumber(py)}`;
+      })
+      .join(" ");
+    svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
+  });
+
   svg += "</svg>";
   return svg;
 }
@@ -543,8 +601,8 @@ function plotToHtml({ formulas = [] } = {}) {
 // ----------------------------------
 
 function plotToSvg({ formulas = [] } = {}) {
-  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, linear, sine, polar);
+  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulas);
+  return generateSvg(quadratic, linear, sine, polar, exponential);
 }
 
 function plotToAscii({ formulas = [] } = {}) {
@@ -573,7 +631,7 @@ function plotToAscii({ formulas = [] } = {}) {
 }
 
 function plotToText({ formulas = [] } = {}) {
-  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulas);
   let output = "";
   output +=
     "Quadratic Plot:\n" +
@@ -598,22 +656,29 @@ function plotToText({ formulas = [] } = {}) {
     polar
       .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
       .join("\n") +
+    "\n\n";
+  output +=
+    "Exponential Plot:\n" +
+    exponential
+      .map((points, i) => `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "))
+      .join("\n") +
     "\n";
   return output;
 }
 
 function plotToJson({ formulas = [] } = {}) {
-  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulas);
   return {
     quadratic,
     linear,
     sine,
     polar,
+    exponential
   };
 }
 
 function plotToCsv({ formulas = [] } = {}) {
-  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulas);
   const lines = [];
   lines.push("Plot, Formula, x, y");
   lines.push("--Quadratic Plot--");
@@ -641,6 +706,13 @@ function plotToCsv({ formulas = [] } = {}) {
   polar.forEach((points, i) => {
     points.forEach((p) => {
       lines.push(`Polar,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
+    });
+  });
+  lines.push("");
+  lines.push("--Exponential Plot--");
+  exponential.forEach((points, i) => {
+    points.forEach((p) => {
+      lines.push(`Exponential,Formula ${i + 1},${formatNumber(p.x)},${formatNumber(p.y)}`);
     });
   });
   return lines.join("\n");
@@ -702,6 +774,7 @@ Formula String Formats:
   Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")
   Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
   Polar:     "polar:scale,multiplier,step[,degMin,degMax]"
+  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step"
 `
     );
     process.exit(0);
@@ -741,10 +814,10 @@ Formula String Formats:
 
   // NEW: Warn if no formulas are provided
   if (formulasList.length === 0) {
-    console.log("No formulas provided. Using default plot functions for quadratic, linear, sine, and polar plots.");
+    console.log("No formulas provided. Using default plot functions for quadratic, linear, sine, polar, and exponential plots.");
   }
 
-  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulasList);
+  const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulasList);
 
   console.log("Demo: Raw formula strings and their parsed representations:");
 
@@ -767,6 +840,11 @@ Formula String Formats:
   console.log(`\nRaw Formula: \"${rawPolar}\"`);
   console.log("Parsed representation for Polar from Raw Formula:");
   displayPlot("Polar from Raw Formula", plotFromString(rawPolar));
+
+  const rawExp = "exp:1,0.1,-10,10,1";
+  console.log(`\nRaw Formula: \"${rawExp}\"`);
+  console.log("Parsed representation for Exponential from Raw Formula:");
+  displayPlot("Exponential from Raw Formula", plotFromString(rawExp));
 
   let fileContent = "";
   if (isJson) {
@@ -810,4 +888,5 @@ export {
   plotSine,
   plotPolar,
   plotLinear,
+  plotExponential
 };
