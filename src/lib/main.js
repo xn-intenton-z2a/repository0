@@ -324,7 +324,7 @@ function parseGenericQuadratic(formulaStr) {
   }
 }
 
-// New: Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step"
+// New: Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form
 function parseExponential(formulaStr) {
   const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid exponential formula string");
@@ -960,7 +960,7 @@ function main() {
 
   // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-64");
+    console.log("Equation Plotter Library version 0.1.1-68");
     process.exit(0);
   }
 
