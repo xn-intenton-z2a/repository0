@@ -346,7 +346,8 @@ function parseGenericExponential(formulaStr) {
     if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
     if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
   }
-  let regex = /^y=([+-]?\d*\.?\d+)?\*?e\^\(?([+-]?\d*\.?\d+)\*?x\)?/i;
+  // Improved regex to allow optional multiplication symbol before x
+  let regex = /^y=([+-]?\d*\.?\d+)?\*?e\^\(?([+-]?\d*\.?\d+)(?:\*?x)\)?/i;
   let match = exprPart.match(regex);
   if (match) {
     let a = match[1] ? parseFloat(match[1]) : 1;
@@ -595,7 +596,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     lMinY -= 10;
     lMaxY += 10;
   }
-  const lAllX = lAllPoints.map((p) => p.x);
+  const lAllX = linearPlots.flat().map((p) => p.x);
   let lMinX = Math.min(...lAllX);
   let lMaxX = Math.max(...lAllX);
   if (lMinX === lMaxX) {
@@ -629,7 +630,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     sMinY -= 1;
     sMaxY += 1;
   }
-  const sAllX = sAllPoints.map((p) => p.x);
+  const sAllX = sinePlots.flat().map((p) => p.x);
   let sMinX = Math.min(...sAllX);
   let sMaxX = Math.max(...sAllX);
   if (sMinX === sMaxX) {
@@ -689,7 +690,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     expMinY -= 10;
     expMaxY += 10;
   }
-  const expAllX = expAllPoints.map((p) => p.x);
+  const expAllX = exponentialPlots.flat().map((p) => p.x);
   let expMinX = Math.min(...expAllX);
   let expMaxX = Math.max(...expAllX);
   if (expMinX === expMaxX) {
@@ -749,7 +750,7 @@ function plotToAscii({ formulas = [] } = {}) {
     for (let col = 0; col < cols; col++) {
       if (grid[xAxisRow][col] === " ") grid[xAxisRow][col] = "-";
     }
-    result += header + grid.map((row) => row.join("")).join("\n") + "\n\n";
+    result += header + grid.map((row) => row.join(" ")).join("\n") + "\n\n";
   });
   return result;
 }
