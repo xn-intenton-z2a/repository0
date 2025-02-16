@@ -20,6 +20,7 @@
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
  *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
+ *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
  *
  * API Functions:
  *   - plotToSvg(options): Returns an SVG string of the plots.
@@ -500,7 +501,7 @@ function displayPlot(plotName, points) {
 // SVG Generation Function
 // ----------------------------------
 
-function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots) {
+function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots, gridEnabled = false) {
   // New SVG with 5 plots arranged in separate slots
   const width = 800;
   const height = 1300;
@@ -515,8 +516,25 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   const polarColors = ["green", "darkgreen", "limegreen", "seagreen", "forestgreen"];
   const exponentialColors = ["magenta", "darkmagenta", "violet", "indigo", "purple"];
 
+  // Helper to draw grid for rectangular slots
+  function drawRectGrid(x, y, w, h, vCount, hCount) {
+    let grid = "";
+    for (let i = 0; i <= vCount; i++) {
+      let gx = x + i * (w / vCount);
+      grid += `  <line x1="${formatNumber(gx)}" y1="${formatNumber(y)}" x2="${formatNumber(gx)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
+    }
+    for (let i = 0; i <= hCount; i++) {
+      let gy = y + i * (h / hCount);
+      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
+    }
+    return grid;
+  }
+
   // Slot 1: Quadratic Plot (Area: y=50 to 230)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
+  if (gridEnabled) {
+    svg += drawRectGrid(50, 50, 700, 180, 10, 5);
+  }
   const qPoints = quadraticPlots.flat();
   const qValues = qPoints.map((p) => p.y);
   let qMinY = Math.min(...qValues);
@@ -540,6 +558,9 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
   // Slot 2: Linear Plot (Area: y=270 to 450)
   svg += `  <text x="${width / 2}" y="250" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
+  if (gridEnabled) {
+    svg += drawRectGrid(50, 270, 700, 180, 10, 5);
+  }
   const lPoints = linearPlots.flat();
   const lValues = lPoints.map((p) => p.y);
   let lMinY = Math.min(...lValues);
@@ -563,6 +584,9 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
   // Slot 3: Sine Plot (Area: y=490 to 670)
   svg += `  <text x="${width / 2}" y="470" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
+  if (gridEnabled) {
+    svg += drawRectGrid(50, 490, 700, 180, 10, 5);
+  }
   const sPoints = sinePlots.flat();
   const sValues = sPoints.map((p) => p.y);
   let sMinY = Math.min(...sValues);
@@ -588,6 +612,12 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
   svg += `  <text x="${width / 2}" y="690" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
   const centerY = 750;
+  if (gridEnabled) {
+    // Draw concentric circles as grid
+    [50, 100, 150].forEach(r => {
+      svg += `  <circle cx="${formatNumber(centerX)}" cy="${formatNumber(centerY)}" r="${r}" stroke="#eee" stroke-width="1" fill="none" />\n`;
+    });
+  }
   polarPlots.forEach((points, idx) => {
     const color = polarColors[idx % polarColors.length];
     const pts = points
@@ -603,6 +633,9 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
   // Slot 5: Exponential Plot (Area: y=1020 to 1200)
   svg += `  <text x="${width / 2}" y="1000" font-size="16" text-anchor="middle">Exponential Plot: y = a * e^(b*x)</text>\n`;
+  if (gridEnabled) {
+    svg += drawRectGrid(50, 1020, 700, 180, 10, 5);
+  }
   const expPoints = exponentialPlots.flat();
   const expValues = expPoints.map((p) => p.y);
   let expMinY = Math.min(...expValues);
@@ -631,8 +664,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 // HTML Generation Function
 // ----------------------------------
 
-function plotToHtml({ formulas = [] } = {}) {
-  const svgContent = plotToSvg({ formulas });
+function plotToHtml({ formulas = [], grid = false } = {}) {
+  const svgContent = plotToSvg({ formulas, grid });
   return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
 }
 
@@ -640,9 +673,9 @@ function plotToHtml({ formulas = [] } = {}) {
 // Exported API Functions
 // ----------------------------------
 
-function plotToSvg({ formulas = [] } = {}) {
+function plotToSvg({ formulas = [], grid = false } = {}) {
   const { quadratic, linear, sine, polar, exponential } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, linear, sine, polar, exponential);
+  return generateSvg(quadratic, linear, sine, polar, exponential, grid);
 }
 
 function plotToAscii({ formulas = [] } = {}) {
@@ -805,6 +838,7 @@ Options:
   --json           Generate output as JSON instead of SVG
   --csv            Generate output as CSV instead of SVG
   --ascii          Generate output as ASCII art instead of SVG
+  --grid           Overlay grid lines on SVG plots
   --debug          Output internal parsed plot data for debugging
   --version        Show version information
   (output file extension .html will generate HTML output)
@@ -826,6 +860,7 @@ Formula String Formats:
   let isHtml = false;
   let isAscii = args.includes("--ascii");
   let isDebug = args.includes("--debug");
+  let gridEnabled = args.includes("--grid");
 
   const nonFormulaArgs = args.filter(
     (arg) =>
@@ -835,7 +870,8 @@ Formula String Formats:
       arg !== "--csv" &&
       arg !== "--version" &&
       arg !== "--ascii" &&
-      arg !== "--debug"
+      arg !== "--debug" &&
+      arg !== "--grid"
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -871,11 +907,11 @@ Formula String Formats:
   } else if (isCsv) {
     fileContent = plotToCsv({ formulas: formulasList });
   } else if (isHtml) {
-    fileContent = plotToHtml({ formulas: formulasList });
+    fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled });
   } else if (isAscii) {
     fileContent = plotToAscii({ formulas: formulasList });
   } else {
-    fileContent = plotToSvg({ formulas: formulasList });
+    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled });
   }
 
   try {
