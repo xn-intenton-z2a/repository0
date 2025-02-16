@@ -7,12 +7,13 @@
  *
  * Description:
  *   A lightweight library for generating plots of mathematical equations with export options in SVG, JSON, CSV, HTML, ASCII, and text formats.
- *   It supports different mathematical functions including quadratic, sine, and polar equations.
+ *   It supports different mathematical functions including quadratic, sine, polar, and now linear equations.
  *
  * Features:
  *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings.
  *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
  *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
+ *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range.
  *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
  *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
  *
@@ -25,7 +26,7 @@
  *   - plotToHtml(options): Returns an HTML string that embeds the SVG plot.
  *   - plotToFile(options): Saves the generated output to a file and returns the path.
  *   - plotFromString(formulaStr): Parses a formula string to generate plot points.
- *   - plotQuadratic, plotSine, plotPolar: Generate plots with default parameters.
+ *   - plotQuadratic, plotSine, plotPolar, plotLinear: Generate plots with default parameters.
  *
  * CLI Usage Examples:
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
@@ -33,6 +34,7 @@
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   $ node src/lib/main.js output.svg "linear:1,0,-10,10,1" "x^2+y-1=0" "sine:1,1,0,0,360,10" "polar:200,2,5"
  *
  * API Usage Example:
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
@@ -80,6 +82,14 @@ function plotPolarParam({ scale = 200, multiplier = 2, step = 5, degMin = 0, deg
   return points;
 }
 
+function plotLinearParam({ m = 1, b = 0, xMin = -10, xMax = 10, step = 1 } = {}) {
+  const points = [];
+  for (let x = xMin; x <= xMax; x += step) {
+    points.push({ x, y: m * x + b });
+  }
+  return points;
+}
+
 // Backward compatible wrappers
 function plotQuadratic() {
   return plotQuadraticParam();
@@ -91,6 +101,10 @@ function plotSine() {
 
 function plotPolar() {
   return plotPolarParam();
+}
+
+function plotLinear() {
+  return plotLinearParam();
 }
 
 // ----------------------------------
@@ -136,6 +150,20 @@ function parsePolar(formulaStr) {
     scale: isNaN(scale) ? 200 : scale,
     multiplier: isNaN(multiplier) ? 2 : multiplier,
     step: isNaN(step) ? 5 : step
+  });
+}
+
+function parseLinear(formulaStr) {
+  const parts = formulaStr.split(':');
+  if (parts.length < 2) throw new Error('Invalid linear formula string');
+  const params = parts[1].split(',').map(Number);
+  const [m, b, xMin, xMax, step] = params;
+  return plotLinearParam({
+    m: isNaN(m) ? 1 : m,
+    b: isNaN(b) ? 0 : b,
+    xMin: isNaN(xMin) ? -10 : xMin,
+    xMax: isNaN(xMax) ? 10 : xMax,
+    step: isNaN(step) ? 1 : step
   });
 }
 
@@ -249,6 +277,7 @@ function plotFromString(formulaStr) {
     if (lowerStr.startsWith('quadratic:')) return parseQuadratic(formulaStr);
     if (lowerStr.startsWith('sine:')) return parseSine(formulaStr);
     if (lowerStr.startsWith('polar:')) return parsePolar(formulaStr);
+    if (lowerStr.startsWith('linear:')) return parseLinear(formulaStr);
     console.error('Unknown prefixed formula type.');
     return [];
   } else if (formulaStr.includes('=')) {
@@ -266,7 +295,7 @@ function plotFromString(formulaStr) {
 
 // Helper function to parse formulas and return plots
 function getPlotsFromFormulas(formulas = []) {
-  let quadratic = null, sine = null, polar = null;
+  let quadratic = null, linear = null, sine = null, polar = null;
   formulas.forEach(formula => {
     const lower = formula.toLowerCase();
     try {
@@ -276,15 +305,18 @@ function getPlotsFromFormulas(formulas = []) {
         sine = plotFromString(formula);
       } else if (lower.startsWith('polar:') && !polar) {
         polar = plotFromString(formula);
+      } else if (lower.startsWith('linear:') && !linear) {
+        linear = plotFromString(formula);
       }
     } catch (e) {
       console.error('Error parsing formula:', formula, e.message);
     }
   });
   if (!quadratic) quadratic = plotQuadratic();
+  if (!linear) linear = plotLinear();
   if (!sine) sine = plotSine();
   if (!polar) polar = plotPolar();
-  return { quadratic, sine, polar };
+  return { quadratic, linear, sine, polar };
 }
 
 // ----------------------------------
@@ -300,40 +332,57 @@ function displayPlot(plotName, points) {
 // SVG Generation Function
 // ----------------------------------
 
-function generateSvg(quadraticPoints, sinePoints, polarPoints) {
+function generateSvg(quadraticPoints, linearPoints, sinePoints, polarPoints) {
+  // New SVG with 4 plots arranged vertically
   const width = 800;
-  const height = 800;
+  const height = 1000;
+  let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+  svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+  svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
+  // Quadratic Plot (Slot 1: y from 50 to 250)
+  svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
+  const qMinY = -100, qMaxY = 1;
   const quadPts = quadraticPoints.map(p => {
-    const px = 50 + (p.x + 10) * ((750 - 50) / 20);
-    const py = 50 + (100 - p.y) * (200 / 100);
+    const px = 50 + ((p.x + 10) / 20) * 700;
+    const py = 250 - ((p.y - qMinY) / (qMaxY - qMinY)) * 200;
     return `${px.toFixed(2)},${py.toFixed(2)}`;
   }).join(' ');
+  svg += `  <polyline points="${quadPts}" fill="none" stroke="blue" stroke-width="2" />\n\n`;
 
+  // Linear Plot (Slot 2: y from 280 to 480)
+  svg += `  <text x="${width / 2}" y="260" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
+  const lMinY = -10, lMaxY = 10;
+  const linearPts = linearPoints.map(p => {
+    const px = 50 + ((p.x + 10) / 20) * 700;
+    const py = 480 - ((p.y - lMinY) / (lMaxY - lMinY)) * 200;
+    return `${px.toFixed(2)},${py.toFixed(2)}`;
+  }).join(' ');
+  svg += `  <polyline points="${linearPts}" fill="none" stroke="orange" stroke-width="2" />\n\n`;
+
+  // Sine Plot (Slot 3: y from 510 to 710)
+  svg += `  <text x="${width / 2}" y="490" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
+  const sMinY = -1, sMaxY = 1;
   const sinePts = sinePoints.map(p => {
-    const px = 50 + p.x * ((750 - 50) / 360);
-    const py = 350 + (1 - p.y) * (200 / 2);
+    const px = 50 + (p.x / 360) * 700;
+    const py = 710 - ((p.y - sMinY) / (sMaxY - sMinY)) * 200;
     return `${px.toFixed(2)},${py.toFixed(2)}`;
   }).join(' ');
+  svg += `  <polyline points="${sinePts}" fill="none" stroke="red" stroke-width="2" />\n\n`;
 
+  // Polar Plot (Slot 4: y from 750 to 950, centered at (400,850))
+  svg += `  <text x="${width / 2}" y="730" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
-  const centerY = 700;
+  const centerY = 850;
   const polarPts = polarPoints.map(p => {
     const px = centerX + p.x;
     const py = centerY - p.y;
     return `${px.toFixed(2)},${py.toFixed(2)}`;
   }).join(' ');
+  svg += `  <polyline points="${polarPts}" fill="none" stroke="green" stroke-width="2" />\n`;
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-         `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n` +
-         `  <rect width="100%" height="100%" fill="white" />\n` +
-         `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n` +
-         `  <polyline points="${quadPts}" fill="none" stroke="blue" stroke-width="2" />\n\n` +
-         `  <text x="${width / 2}" y="330" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n` +
-         `  <polyline points="${sinePts}" fill="none" stroke="red" stroke-width="2" />\n\n` +
-         `  <text x="${width / 2}" y="670" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n` +
-         `  <polyline points="${polarPts}" fill="none" stroke="green" stroke-width="2" />\n` +
-         `</svg>`;
+  svg += '</svg>';
+  return svg;
 }
 
 // ----------------------------------
@@ -350,8 +399,8 @@ function plotToHtml({ formulas = [] } = {}) {
 // ----------------------------------
 
 function plotToSvg({ formulas = [] } = {}) {
-  const { quadratic, sine, polar } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, sine, polar);
+  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
+  return generateSvg(quadratic, linear, sine, polar);
 }
 
 function plotToAscii({ formulas = [] } = {}) {
@@ -377,30 +426,37 @@ function plotToAscii({ formulas = [] } = {}) {
 }
 
 function plotToText({ formulas = [] } = {}) {
-  const { quadratic, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
   let output = '';
   output += 'Quadratic Plot:\n' + quadratic.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
+  output += 'Linear Plot:\n' + linear.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
   output += 'Sine Plot:\n' + sine.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n\n';
   output += 'Polar Plot:\n' + polar.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' ') + '\n';
   return output;
 }
 
 function plotToJson({ formulas = [] } = {}) {
-  const { quadratic, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
   return {
     quadratic,
+    linear,
     sine,
     polar
   };
 }
 
 function plotToCsv({ formulas = [] } = {}) {
-  const { quadratic, sine, polar } = getPlotsFromFormulas(formulas);
+  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulas);
   const lines = [];
   lines.push('Plot, x, y');
   lines.push('--Quadratic Plot--');
   quadratic.forEach(p => {
     lines.push(`Quadratic,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
+  });
+  lines.push('');
+  lines.push('--Linear Plot--');
+  linear.forEach(p => {
+    lines.push(`Linear,${p.x.toFixed(2)},${p.y.toFixed(2)}`);
   });
   lines.push('');
   lines.push('--Sine Plot--');
@@ -455,21 +511,7 @@ function main() {
   }
 
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
-
-Options:
-  --help, -h       Show this help message
-  --json           Generate output as JSON instead of SVG
-  --csv            Generate output as CSV instead of SVG
-  --ascii          Generate output as ASCII art instead of SVG
-  --version        Show version information
-  (output file extension .html will generate HTML output)
-
-Formula String Formats:
-  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"
-  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
-  Polar:     "polar:scale,multiplier[,step]"
-`);
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h       Show this help message\n  --json           Generate output as JSON instead of SVG\n  --csv            Generate output as CSV instead of SVG\n  --ascii          Generate output as ASCII art instead of SVG\n  --version        Show version information\n  (output file extension .html will generate HTML output)\n\nFormula String Formats:\n  Quadratic: "y=x^2+2*x+1" or "x^2+y-1=0"\n  Linear:    "linear:m,b[,xMin,xMax,step]"\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Polar:     "polar:scale,multiplier[,step]"\n`);
     process.exit(0);
   }
 
@@ -496,7 +538,7 @@ Formula String Formats:
 
   // Collect formulas from arguments
   const formulasList = args.filter(arg => arg.includes(':') || arg.includes('='));
-  const { quadratic, sine, polar } = getPlotsFromFormulas(formulasList);
+  const { quadratic, linear, sine, polar } = getPlotsFromFormulas(formulasList);
 
   console.log('Demo: Raw formula strings and their parsed representations:');
 
@@ -504,6 +546,11 @@ Formula String Formats:
   console.log(`Raw Formula: "${rawQuad}"`);
   console.log('Parsed representation for Quadratic from Raw Formula:');
   displayPlot('Quadratic from Raw Formula', plotFromString(rawQuad));
+
+  const rawLinear = 'linear:1,0,-10,10,1';
+  console.log(`\nRaw Formula: "${rawLinear}"`);
+  console.log('Parsed representation for Linear from Raw Formula:');
+  displayPlot('Linear from Raw Formula', plotFromString(rawLinear));
 
   const rawSine = 'sine:1,1,0,0,360,10';
   console.log(`\nRaw Formula: "${rawSine}"`);
@@ -525,7 +572,7 @@ Formula String Formats:
   } else if (isAscii) {
     fileContent = plotToAscii({ formulas: formulasList });
   } else {
-    fileContent = generateSvg(quadratic, sine, polar);
+    fileContent = plotToSvg({ formulas: formulasList });
   }
 
   try {
@@ -544,4 +591,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main();
 }
 
-export { plotToSvg, plotToAscii, plotToText, plotToJson, plotToCsv, plotToHtml, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar };
+export { plotToSvg, plotToAscii, plotToText, plotToJson, plotToCsv, plotToHtml, plotToFile, plotFromString, plotQuadratic, plotSine, plotPolar, plotLinear };
