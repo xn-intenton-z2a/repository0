@@ -85,12 +85,12 @@ jobs:
             let prMerged = '${{ needs.pr.outputs.prMerged || needs.cs.outputs.prMerged || 'false' }}';
             let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}';
             let shouldSkipMerge = '${{ needs.pr.outputs.shouldSkipMerge || needs.cs.outputs.shouldSkipMerge || 'false' }}';
-            core.setOutput('prMerged', prMerged);
-            core.setOutput('pullNumber', pullNumber);
-            core.setOutput('shouldSkipMerge', shouldSkipMerge);
-            core.info(`prMerged: ${prMerged}`);
-            core.info(`pullNumber: ${pullNumber}`);
-            core.info(`shouldSkipMerge: ${shouldSkipMerge}`);
+            core.setOutput('prMerged', `${prMerged}`);
+            core.setOutput('pullNumber', `${pullNumber}`);
+            core.setOutput('shouldSkipMerge', `${shouldSkipMerge}`);
+            core.info(`prMerged: '${prMerged}'`);
+            core.info(`pullNumber: '${pullNumber}'`);
+            core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
           result-encoding: string
     outputs:
       prMerged: ${{ steps.set-outputs.outputs.prMerged }}
@@ -113,17 +113,17 @@ jobs:
   wait-for-merge:
     needs:
       - merge-check
-    if: needs.merge-check.outputs.shouldSkipMerge != 'true'
+    #if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Sleeping for 60 seconds."
+      - run: echo "Sleeping for 10 seconds."
         shell: bash
-      - run: sleep 60
+      - run: sleep 10
         shell: bash
 
   automerge:
     needs:
-      - merge-check
+      #- merge-check
       - wait-for-merge
     if: needs.merge-check.outputs.shouldSkipMerge != 'true'
     permissions:
@@ -135,7 +135,7 @@ jobs:
 
   label-issue-after-automerge:
     needs:
-      - merge-check
+      #- merge-check
       - automerge
     if: needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
