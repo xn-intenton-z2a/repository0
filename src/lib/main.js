@@ -147,7 +147,7 @@ function plotLogarithmic() {
 // ----------------------------------
 
 function parseQuadratic(formulaStr) {
-  const parts = formulaStr.split(":" );
+  const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid quadratic formula string");
   const params = parts[1].split(",").map(Number);
   const [a, b, c, xMin, xMax, step] = params;
@@ -551,20 +551,27 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
 
   // Dealers Choice Implementation: if dealersChoice is true, assign a unique random color for each plot series
   function randomColor() {
-    // Updated to use 16777216 to include full spectrum up to #ffffff
     return '#' + Math.floor(Math.random() * 16777216).toString(16).padStart(6, '0');
+  }
+
+  function generateUniqueColors(n) {
+    const colors = new Set();
+    while (colors.size < n) {
+      colors.add(randomColor());
+    }
+    return Array.from(colors);
   }
 
   // Define color palettes for each plot type
   let quadraticColors, linearColors, sineColors, polarColors, exponentialColors, logarithmicColors;
   if (dealersChoice) {
-    // For dealers choice, assign a random color to each individual plot series
-    quadraticColors = quadraticPlots.map(() => randomColor());
-    linearColors = linearPlots.map(() => randomColor());
-    sineColors = sinePlots.map(() => randomColor());
-    polarColors = polarPlots.map(() => randomColor());
-    exponentialColors = exponentialPlots.map(() => randomColor());
-    logarithmicColors = logarithmicPlots.map(() => randomColor());
+    // For dealers choice, assign a unique random color to each individual plot series
+    quadraticColors = generateUniqueColors(quadraticPlots.length);
+    linearColors = generateUniqueColors(linearPlots.length);
+    sineColors = generateUniqueColors(sinePlots.length);
+    polarColors = generateUniqueColors(polarPlots.length);
+    exponentialColors = generateUniqueColors(exponentialPlots.length);
+    logarithmicColors = generateUniqueColors(logarithmicPlots.length);
   } else {
     quadraticColors = ["blue", "darkblue", "purple", "royalblue", "deepskyblue"];
     linearColors = ["orange", "darkorange", "gold", "chocolate", "peru"];
