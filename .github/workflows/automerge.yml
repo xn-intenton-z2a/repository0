@@ -145,6 +145,6 @@ jobs:
       pull-requests: read
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
     with:
-      pullNumber: |
+      pullNumber: >
         ${{ needs.automerge.outputs.prMerged == 'true' ? needs.merge-check.outputs.pullNumber : '' }}
       branchPrefix: 'issue-'
