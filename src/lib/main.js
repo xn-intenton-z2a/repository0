@@ -3,49 +3,50 @@
 "use strict";
 
 /**
+ * =============================================================================
  * Equation Plotter Library
+ * =============================================================================
  *
- * Description:
- *   A lightweight library for generating plots of mathematical equations with export options in SVG, JSON, CSV, HTML, ASCII, and text formats.
- *   It supports different mathematical functions including quadratic, sine, polar, linear, exponential, and logarithmic equations.
+ * Overview:
+ *   A lightweight library for generating plots of mathematical equations. It supports
+ *   multiple plot types including quadratic, linear, sine, polar, exponential, and
+ *   logarithmic graphs. The plots can be exported in SVG, HTML, JSON, CSV, ASCII, and
+ *   plain text formats.
  *
  * Features:
- *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both standard algebraic and prefixed formula strings. Also supports prefix alias 'quad:'
- *   - Sine Plot: Generates data for y = A*sin(B*x + C) with control over amplitude, frequency, phase, and x range.
- *   - Polar Plot: Generates data for r = scale * |sin(multiplier*θ)|, useful for polar function visualizations.
- *   - Linear Plot: Generates data for y = m*x + b with control over slope, intercept, and x range. Supports both prefixed and standard algebraic formats (e.g., "y=2x+3" or "y=2x+3:-10,10,1").
- *   - Exponential Plot: Generates data for y = a * e^(b*x) with control over coefficients and x range. Accepts formulas in the format "exponential:a,b,xMin,xMax,step" or shortened as "exp:".
- *   - Logarithmic Plot: Generates data for y = a*log_b(x) with control over coefficient, base, and x range. Accepts formulas in the format "log:a,base,xMin,xMax,step" or "ln:" (for natural logarithm with base e).
- *   - Export Options: Outputs plots as SVG for graphics, ASCII art for console visualization, plain text, JSON, CSV, or full HTML embedding the SVG.
- *   - Customization: Offers interactive features like zoom and pan, along with styling options for grid, axes, and curves.
- *   - Multiple Formulas per Plot Type: Supports multiple formulas for each plot type, each rendered with a distinct color.
- *   - Debug Option: Added a '--debug' flag to output the parsed internal representation of plots.
- *   - Grid Option: Added a '--grid' flag to overlay light grid lines on SVG plots for better visual reference.
- *   - Axes Display: When grid is enabled, axes lines are drawn to provide better plotting context.
- *   - Dealer's Choice Option: Added a '--dealers-choice' flag to apply a randomized color palette to SVG plots. (Dealer's Choice: each plot series gets its own random color)
+ *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both algebraic and
+ *     prefixed input formats (e.g., "quad:" or "quadratic:").
+ *   - Linear Plot: Generates data for y = m*x + b with support for both prefixed and
+ *     standard algebraic formats (e.g., "linear:" or "y=2x+3").
+ *   - Sine Plot: Plots y = A*sin(B*x + C) with customizable amplitude, frequency, and phase.
+ *   - Polar Plot: Generates plots for r = scale * |sin(multiplier*θ)| implementing polar coordinates.
+ *   - Exponential Plot: Works with formulas of the form y = a * e^(b*x) with optional algebraic
+ *     parsing (e.g., "exp:" or "y=2*e^(0.5x)").
+ *   - Logarithmic Plot: Plots y = a * log_b(x) with options for base specification (also supported
+ *     via "ln:" for natural logarithm).
+ *   - Export Options: Supports output as SVG, HTML embedding, JSON data for plots, CSV for tabular
+ *     data, ASCII art for console viewing, and plain text summaries.
+ *   - Customizable Visuals: Include grid overlays, axes, and a dealer's choice random color palette
+ *     for unique styling.
  *
- * CLI Usage Examples:
+ * Usage Examples (CLI):
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js output.svg "linear:1,0,-10,10,1" "x^2+y-1=0" "sine:1,1,0,0,360,10" "polar:200,2,5"
- *   $ node src/lib/main.js output.svg "exp:1,0.1,-10,10,1" "quad:x^2+y-1=0"
- *   $ node src/lib/main.js output.svg "log:1,10,1,100,1" "quad:x^2+y-1=0"
  *
  * API Usage Example:
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *
  * Installation:
- *   Install via npm with the required dependencies. See package.json for more details.
+ *   Install via npm. Refer to package.json for full dependency details.
  *
+ * Version: 0.1.1-72
  * License: MIT
  *
- * Updated:
- *   Version flag updated to 0.1.1-72 and documentation improved per issue-123 and issue-126. Generic quadratic and exponential parsing functions are now exported for extended usage.
- *   Added dealer's choice option to randomize SVG color palettes per '--dealers-choice' flag.
+ * =============================================================================
  */
 
 import { fileURLToPath } from "url";
