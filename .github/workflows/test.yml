@@ -1,0 +1,35 @@
+# .github/workflows/test.yml
+name: Tests
+run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+
+on:
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!exports/**'
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Automerge"
+    types:
+      - completed
+  schedule:
+    - cron: '45 */6 * * *'
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test

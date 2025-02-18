@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "// Also make path changes in vitest.config.js": "",
+    "paths": {
+      "@dist/*": ["dist/*"],
+      "@src/*": ["src/*"],
+      "@tests/*": ["tests/*"]
+    }
+  }
+}

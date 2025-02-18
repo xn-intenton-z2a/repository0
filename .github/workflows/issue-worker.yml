@@ -1,0 +1,121 @@
+# .github/workflows/issue-worker.yml
+name: Issue Worker
+concurrency: issue-worker
+run-name: "Issue Worker [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        required: false
+        type: string
+        default: 'tests/unit/main.test.js'
+      selectionLabel:
+        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        required: false
+        type: string
+        default: 'automated'
+  workflow_run:
+    workflows:
+      - "Create Issue"
+    types:
+      - completed
+  schedule:
+    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
+    - cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  check-branch:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'issue-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this intention type
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the intention type prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the intention type prefix found."
+          fi
+
+  start-issue:
+    needs:
+      - select-issue
+      - check-branch
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ 'README.md' }}
+      contributingFile: ${{ 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ 'package.json' }}
+      branchPrefix: 'issue-'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - select-issue
+      - start-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      label: 'automerge'

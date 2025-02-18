@@ -1,0 +1,62 @@
+# .github/workflows/issue-reviewer.yml
+name: Review Issue
+run-name: "Review Issue [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      selectionLabel:
+        description: 'Label used to filter issues for review. e.g. "merged"'
+        required: false
+        type: string
+        default: 'merged'
+      target:
+        description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+  workflow_run:
+    workflows:
+      - "Automerge"
+    types:
+      - completed
+  schedule:
+    #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
+    - cron: '0 */6 * * *' # Run every 6 hours at 0 minutes past
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  review-issue:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.select-issue.outputs.merged == 'true' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
+      model: 'o3-mini'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

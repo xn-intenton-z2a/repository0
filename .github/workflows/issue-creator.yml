@@ -1,0 +1,43 @@
+# .github/workflows/issue-creator.yml
+name: Create Issue
+concurrency: create-issue
+run-name: "Create Issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue.'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      issueTitle:
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
+        required: false
+        type: string
+        default: 'house choice'
+      runIssueWorker:
+        description: 'Should the downstream issue worker workflow be run?'
+        required: false
+        type: boolean
+        default: true
+  schedule:
+    #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
+    - cron: '0 6 * * *' # Run every day at 6:00
+
+jobs:
+
+  create-issue:
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
+    with:
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      houseChoiceOptions: |
+        Create or refresh a README style comment block at the top of the file.
+        || Make code changes that improve the behaviour.
+        || Make code changes that extend the features.
+        || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
+        || Generally tidy up the code.
+      target: ${{ inputs.target || 'src/lib/main.js' }}

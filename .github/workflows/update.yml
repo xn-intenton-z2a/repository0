@@ -1,0 +1,59 @@
+# .github/workflows/update.yml
+name: Update
+concurrency: branch-${{ github.ref_name }}
+run-name: "Update [${{ github.ref_name }}]"
+
+on:
+  repository_dispatch:
+    types: [package-published]
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      upgradeTarget:
+        description: 'Select the type of update to run'
+        type: choice
+        default: 'minor'
+        required: false
+        options:
+          - greatest
+          - latest
+          - newest
+          - patch
+          - minor
+          - semver
+
+jobs:
+  update-dependencies:
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@main'
+    with:
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'chore: dependency updates'
+
+  create-pr:
+    needs:
+      - update-dependencies
+    if: ${{ needs.update-dependencies.outputs.branch != '' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: '${{ needs.update-dependencies.outputs.branch }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: dependency updates'
+      label: 'automerge'

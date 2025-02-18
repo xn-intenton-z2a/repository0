@@ -1,0 +1,24 @@
+# .github/workflows/formating.yml
+name: Formatting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Formatting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 3 * * *' # Run every day at 3:15
+
+jobs:
+
+  format-and-push:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-push-changes.yml@main'
+    with:
+      script: 'prettier --write'
+      testScript: 'npm test'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'Updated by `prettier --write`'

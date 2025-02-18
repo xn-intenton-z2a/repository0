@@ -1,0 +1,78 @@
+# .github/workflows/publish.yml
+name: Publish packages
+run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: branch-${{ github.ref_name }}
+
+on:
+  push:
+    branches:
+      # When publishing from a branch, add branch name here, e,g, 'beta'
+      - main
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!intentions/**'
+      - '!conversations/**'
+      - '!exports/**'
+      - '!programs/**'
+      - '!results/**'
+  workflow_dispatch:
+    inputs:
+      versionIncrement:
+        description: 'Select the Semantic Versioning segment to increment'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+          - premajor
+          - preminor
+          - prepatch
+      featureTag:
+        description: 'Enter the version post-fix e.g. beta'
+        required: false
+        # When publishing from a branch, change the default here to a derivative of the branch name, e,g, 'beta'
+        default: ''
+        type: string
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
+      - run: npm test
+
+  publish:
+    name: 'publish packages'
+    needs:
+      - npm-test
+    permissions:
+      contents: write
+      packages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@main'
+    with:
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      featureTag: ${{ inputs.featureTag || '' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      npmAuthOrganisation: 'xn-intenton-z2a'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
