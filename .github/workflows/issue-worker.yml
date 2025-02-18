@@ -17,10 +17,10 @@ on:
         type: string
         default: 'src/lib/main.js'
       testFile:
-        description: 'The test file to run to validate the resolution. e.g. "test/test-main.js"'
+        description: 'The test file to run to validate the resolution. e.g. "tests/test-main.js"'
         required: false
         type: string
-        default: 'test/test-main.js'
+        default: 'tests/test-main.js'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "automated"'
         required: false
@@ -87,7 +87,7 @@ jobs:
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'test/test-main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/test-main.js' }}
       readmeFile: ${{ 'README.md' }}
       contributingFile: ${{ 'CONTRIBUTING.md' }}
       dependenciesFile: ${{ 'package.json' }}
