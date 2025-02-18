@@ -965,9 +965,22 @@ const plotToFile = ({ formulas = [], outputFileName = "output.svg", type = "svg"
 // Demo Test Function
 const demoTest = () => {
   console.log("=== Demo Test Output ===");
+
+  // Original sine plot demo
   const demoPlotJson = plotToJson({ formulas: ["sine:1,1,0,0,360,30"] });
   console.log("Plot JSON output for formula 'sine:1,1,0,0,360,30':");
   console.log(JSON.stringify(demoPlotJson, null, 2));
+
+  // Additional demo: Markdown output for a linear formula
+  const demoMarkdown = plotToMarkdown({ formulas: ["y=2x+3:-10,10,1"] });
+  console.log("\nPlot Markdown output for formula 'y=2x+3:-10,10,1':");
+  console.log(demoMarkdown);
+
+  // Additional demo: Text output for a quadratic formula
+  const demoText = plotToText({ formulas: ["quad:1,0,0,-10,10,1"] });
+  console.log("\nPlot Text output for formula 'quad:1,0,0,-10,10,1':");
+  console.log(demoText);
+
   console.log("=== End Demo Test Output ===");
 };
 
