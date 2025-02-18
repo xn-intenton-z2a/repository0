@@ -8,40 +8,33 @@
  * =============================================================================
  *
  * Overview:
- *   A lightweight library for generating plots of mathematical equations. It supports
- *   multiple plot types including quadratic, linear, sine, polar, exponential, and
- *   logarithmic graphs. The plots can be exported in SVG, HTML, JSON, CSV, ASCII, and
- *   plain text formats.
+ *   The Equation Plotter Library is a versatile tool for generating plots of
+ *   mathematical equations. It supports various plot types such as quadratic, linear,
+ *   sine, polar, exponential, and logarithmic graphs, and outputs them in multiple
+ *   formats including SVG, HTML, JSON, CSV, and ASCII.
  *
  * Features:
- *   - Quadratic Plot: Generates data for y = ax² + bx + c, supporting both algebraic and
- *     prefixed input formats (e.g., "quad:" or "quadratic:").
- *   - Linear Plot: Generates data for y = m*x + b with support for both prefixed and
- *     standard algebraic formats (e.g., "linear:" or "y=2x+3").
- *   - Sine Plot: Plots y = A*sin(B*x + C) with customizable amplitude, frequency, and phase.
- *   - Polar Plot: Generates plots for r = scale * |sin(multiplier*θ)| implementing polar coordinates.
- *   - Exponential Plot: Works with formulas of the form y = a * e^(b*x) with optional algebraic
- *     parsing (e.g., "exp:" or "y=2*e^(0.5x)").
- *   - Logarithmic Plot: Plots y = a * log_b(x) with options for base specification (also supported
- *     via "ln:" for natural logarithm).
- *   - Export Options: Supports output as SVG, HTML embedding, JSON data for plots, CSV for tabular
- *     data, ASCII art for console viewing, and plain text summaries.
- *   - Customizable Visuals: Include grid overlays, axes, and a dealer's choice random color palette
- *     for unique styling.
+ *   - Generate plots for Quadratic (y = ax² + bx + c), Linear (y = m*x + b), Sine (y = A*sin(B*x + C)),
+ *     Polar (r = scale * |sin(multiplier * θ)|), Exponential (y = a * e^(b*x)), and
+ *     Logarithmic (y = a * log_b(x)) equations.
+ *   - Accepts both prefixed input strings (e.g., "quad:", "sine:", "polar:") and standard
+ *     algebraic forms (e.g., "y=2x+3", "x^2+y-1=0").
+ *   - Multiple output formats: SVG (scalable vector graphics), HTML, JSON, CSV, ASCII art, and plain text.
+ *   - Customizable plotting options including grid overlays and randomized color palettes.
  *
- * Usage Examples (CLI):
+ * Usage (CLI):
  *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *
- * API Usage Example:
+ * API (Importing Functions):
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *
  * Installation:
- *   Install via npm. Refer to package.json for full dependency details.
+ *   Install via npm. See package.json for version and dependency details.
  *
  * Version: 0.1.1-72
  * License: MIT
