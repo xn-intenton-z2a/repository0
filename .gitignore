@@ -283,3 +283,4 @@ fabric.properties
 /.idea/
 /output.svg
 /json
+/src/lib/output.svg

@@ -27,8 +27,8 @@ on:
     types:
       - completed
   schedule:
-    #- cron: '5,35 * * * *'
-    - cron: '0 */2 * * *'
+    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
+    - cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
 
 jobs:
 
@@ -107,5 +107,5 @@ jobs:
     with:
       branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      commit-message: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      getCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
       label: 'automerge'

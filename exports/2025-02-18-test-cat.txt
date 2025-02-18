@@ -1,3 +1,13 @@
+./tests/unit/main.test.js
+==== Content of ./tests/unit/main.test.js ====
+import { describe, test, expect } from "vitest";
+import * as mainModule from "@src/lib/main.js";
+
+describe("Main Module Import", () => {
+  test("should be non-null", () => {
+    expect(mainModule).not.toBeNull();
+  });
+});
 ./tests/unit/run-main.test.js
 ==== Content of ./tests/unit/run-main.test.js ====
 import { exec } from "child_process";
@@ -12,16 +22,6 @@ describe("Main Script Execution", () => {
       expect(stderr).toBe("");
       done();
     });
-  });
-});
-./tests/unit/use-library.test.js
-==== Content of ./tests/unit/use-library.test.js ====
-import { describe, test, expect } from "vitest";
-import * as mainModule from "@src/lib/main.js";
-
-describe("Main Module Import", () => {
-  test("should be non-null", () => {
-    expect(mainModule).not.toBeNull();
   });
 });
 ./tests/unit/module-index.test.js

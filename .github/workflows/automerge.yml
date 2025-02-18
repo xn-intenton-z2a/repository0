@@ -20,22 +20,17 @@ on:
     types:
       - completed
   schedule:
-    # Run every 10 minutes (as an example)
-    #- cron: '*/10 * * * *'
-    - cron: '15 */2 * * *'
+    #- cron: '*/10 * * * *' # Run every 10 minutes
+    - cron: '15 */2 * * *'  # Run every 2 hours at 15 minutes past
 
 jobs:
   pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
-    #secrets:
-    #  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
-    #secrets:
-    #  PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   ls:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -45,7 +40,7 @@ jobs:
         id: get-pull
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let pullNumber;
             const { data: pullRequests } = await github.rest.pulls.list({
@@ -113,13 +108,12 @@ jobs:
   wait-for-merge:
     needs:
       - merge-check
-    if: always()
-    #if: needs.merge-check.outputs.shouldSkipMerge != 'true'
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Sleeping for 10 seconds."
+      - run: echo "Sleeping for 60 seconds."
         shell: bash
-      - run: sleep 10
+      - run: sleep 60
         shell: bash
 
   automerge:

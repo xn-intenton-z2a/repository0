@@ -6,8 +6,7 @@ run-name: "Formatting [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    # Nightly check and uplift: 0:00 test, 3:15 formatting, 3:30 linting
-    - cron: '15 3 * * *'
+    - cron: '15 3 * * *' # Run every day at 3:15
 
 jobs:
 
