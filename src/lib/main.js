@@ -19,7 +19,7 @@
  *     Logarithmic (y = a * log_b(x)) equations.
  *   - Accepts both prefixed input strings (e.g., "quad:", "sine:", "polar:") and standard
  *     algebraic forms (e.g., "y=2x+3", "x^2+y-1=0").
- *   - Multiple output formats: SVG (scalable vector graphics), HTML, JSON, CSV, ASCII art, and plain text.
+ *   - Multiple output formats: SVG, HTML, JSON, CSV, ASCII art, and plain text.
  *   - Customizable plotting options including grid overlays and randomized color palettes.
  *
  * Usage (CLI):
@@ -103,7 +103,6 @@ function plotExponentialParam({ a = 1, b = 1, xMin = -10, xMax = 10, step = 1 } 
 function plotLogarithmicParam({ a = 1, base = Math.E, xMin = 1, xMax = 10, step = 1 } = {}) {
   const points = [];
   for (let x = xMin; x <= xMax; x += step) {
-    // Ensure x is positive for logarithm
     if (x > 0) {
       points.push({ x, y: a * (Math.log(x) / Math.log(base)) });
     }
@@ -203,7 +202,7 @@ function parseLinear(formulaStr) {
   });
 }
 
-// New: Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters (e.g., "y=2x+3:-10,10,1")
+// Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters
 function parseGenericLinear(formulaStr) {
   let parts = formulaStr.split(":");
   let exprPart = parts[0].replace(/\s+/g, "");
@@ -212,7 +211,6 @@ function parseGenericLinear(formulaStr) {
     throw new Error("Linear formula must start with 'y='");
   }
   let expr = exprPart.substring(2);
-  // Ensure it's linear by checking absence of x^2
   if (expr.includes("x^2")) {
     throw new Error("Detected quadratic term in what should be a linear formula");
   }
@@ -235,7 +233,7 @@ function parseGenericLinear(formulaStr) {
   return plotLinearParam({ m, b, xMin, xMax, step });
 }
 
-// New: Parse a generic quadratic formula in standard algebraic form with optional range, e.g., "y=x^2+2*x+1" or "y=x^2+2*x+1:-10,10,1"
+// Parse a generic quadratic formula in standard algebraic form with optional range
 function parseGenericQuadratic(formulaStr) {
   let parts = formulaStr.split(":");
   let mainPart = parts[0].replace(/\s+/g, "");
@@ -323,7 +321,7 @@ function parseGenericQuadratic(formulaStr) {
   }
 }
 
-// New: Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form
+// Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form
 function parseExponential(formulaStr) {
   const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid exponential formula string");
@@ -338,7 +336,7 @@ function parseExponential(formulaStr) {
   });
 }
 
-// New: Parse a generic exponential formula in algebraic form, e.g., "y=2*e^(0.5x)" optionally with range e.g., "y=2*e^(0.5x):-10,10,1"
+// Parse a generic exponential formula in algebraic form, e.g., "y=2*e^(0.5x)" optionally with range
 function parseGenericExponential(formulaStr) {
   let parts = formulaStr.split(":");
   let exprPart = parts[0].replace(/\s+/g, "");
@@ -350,7 +348,6 @@ function parseGenericExponential(formulaStr) {
     if (rangeParams.length > 1 && !isNaN(rangeParams[1])) xMax = rangeParams[1];
     if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
   }
-  // Improved regex to allow optional multiplication symbol before x
   let regex = /^y=([+-]?\d*\.?\d+)?\*?e\^\(?([+-]?\d*\.?\d+)(?:\*?x)\)?/i;
   let match = exprPart.match(regex);
   if (match) {
@@ -362,7 +359,7 @@ function parseGenericExponential(formulaStr) {
   }
 }
 
-// New: Parse logarithmic formula string in the format "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
+// Parse logarithmic formula string in the format "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
 function parseLogarithmic(formulaStr) {
   const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid logarithmic formula string");
@@ -380,7 +377,6 @@ function parseLogarithmic(formulaStr) {
 // Extract quadratic coefficients from an expression of form ax^2+bx+c
 function extractQuadraticCoefficients(expr) {
   expr = expr.replace(/\s+/g, "");
-  // New improvement: normalize expression by replacing '+-' with '-'
   expr = expr.replace(/\+\-/g, "-");
   let a = 0;
   let b = 0;
@@ -412,7 +408,7 @@ function extractQuadraticCoefficients(expr) {
   return { a, b, c };
 }
 
-// Helper function to invert an algebraic expression consisting of additions and subtractions.
+// Helper function to invert an algebraic expression consisting of additions and subtractions
 function invertExpression(expr) {
   const tokens = expr.match(/[+-]?[^+-]+/g) || [];
   const inverted = tokens
@@ -535,15 +531,12 @@ function displayPlot(plotName, points) {
 // ----------------------------------
 
 function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponentialPlots, logarithmicPlots, gridEnabled = false, dealersChoice = false) {
-  // New SVG with 6 plots arranged in separate slots
   const width = 800;
   const height = 1500;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-  // Added preserveAspectRatio attribute for better SVG scaling
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
 
-  // Dealers Choice Implementation: if dealersChoice is true, assign a unique random color for each plot series
   function randomColor() {
     return '#' + Math.floor(Math.random() * 16777216).toString(16).padStart(6, '0');
   }
@@ -556,10 +549,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return Array.from(colors);
   }
 
-  // Define color palettes for each plot type
   let quadraticColors, linearColors, sineColors, polarColors, exponentialColors, logarithmicColors;
   if (dealersChoice) {
-    // For dealers choice, assign a unique random color to each individual plot series
     quadraticColors = generateUniqueColors(quadraticPlots.length);
     linearColors = generateUniqueColors(linearPlots.length);
     sineColors = generateUniqueColors(sinePlots.length);
@@ -575,7 +566,6 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     logarithmicColors = ["brown", "saddlebrown", "peru", "chocolate", "tan"];
   }
 
-  // Helper to draw grid for rectangular slots
   function drawRectGrid(x, y, w, h, vCount, hCount) {
     let grid = "";
     for (let i = 0; i <= vCount; i++) {
@@ -589,15 +579,12 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return grid;
   }
 
-  // Helper to draw axes lines for rectangular slots
   function drawRectAxes(x, y, w, h, minX, maxX, minY, maxY) {
     let axes = "";
-    // Draw horizontal axis if 0 is within y range
     if (0 >= minY && 0 <= maxY) {
       let zeroY = y + h - ((0 - minY) / (maxY - minY)) * h;
       axes += `  <line x1="${formatNumber(x)}" y1="${formatNumber(zeroY)}" x2="${formatNumber(x + w)}" y2="${formatNumber(zeroY)}" stroke="black" stroke-width="1" />\n`;
     }
-    // Draw vertical axis if 0 is within x range
     if (0 >= minX && 0 <= maxX) {
       let zeroX = x + ((0 - minX) / (maxX - minX)) * w;
       axes += `  <line x1="${formatNumber(zeroX)}" y1="${formatNumber(y)}" x2="${formatNumber(zeroX)}" y2="${formatNumber(y + h)}" stroke="black" stroke-width="1" />\n`;
@@ -605,7 +592,6 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     return axes;
   }
 
-  // Slot 1: Quadratic Plot (Area: y=50 to 230)
   svg += `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = ax² + bx + c</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 50, 700, 180, 10, 5);
@@ -637,9 +623,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
-  svg += `\n`;
+  svg += "\n";
 
-  // Slot 2: Linear Plot (Area: y=270 to 450)
   svg += `  <text x="${width / 2}" y="250" font-size="16" text-anchor="middle">Linear Plot: y = m*x + b</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 270, 700, 180, 10, 5);
@@ -653,7 +638,7 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
     lMinY -= 10;
     lMaxY += 10;
   }
-  const lAllX = linearPlots.flat().map((p) => p.x);
+  const lAllX = lAllPoints.map((p) => p.x);
   let lMinX = Math.min(...lAllX);
   let lMaxX = Math.max(...lAllX);
   if (lMinX === lMaxX) {
@@ -671,9 +656,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
-  svg += `\n`;
+  svg += "\n";
 
-  // Slot 3: Sine Plot (Area: y=490 to 670)
   svg += `  <text x="${width / 2}" y="470" font-size="16" text-anchor="middle">Sine Plot: y = A*sin(B*x + C)</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 490, 700, 180, 10, 5);
@@ -705,18 +689,15 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
-  svg += `\n`;
+  svg += "\n";
 
-  // Slot 4: Polar Plot (centered in slot, use center at (400,750))
   svg += `  <text x="${width / 2}" y="690" font-size="16" text-anchor="middle">Polar Plot: r = scale * |sin(multiplier * θ)|</text>\n`;
   const centerX = width / 2;
   const centerY = 750;
   if (gridEnabled) {
-    // Draw concentric circles as grid
     [50, 100, 150].forEach(r => {
       svg += `  <circle cx="${formatNumber(centerX)}" cy="${formatNumber(centerY)}" r="${r}" stroke="#eee" stroke-width="1" fill="none" />\n`;
     });
-    // Draw cross axes for polar plot
     svg += `  <line x1="${formatNumber(centerX - 150)}" y1="${formatNumber(centerY)}" x2="${formatNumber(centerX + 150)}" y2="${formatNumber(centerY)}" stroke="black" stroke-width="1" />\n`;
     svg += `  <line x1="${formatNumber(centerX)}" y1="${formatNumber(centerY - 150)}" x2="${formatNumber(centerX)}" y2="${formatNumber(centerY + 150)}" stroke="black" stroke-width="1" />\n`;
   }
@@ -731,9 +712,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
-  svg += `\n`;
+  svg += "\n";
 
-  // Slot 5: Exponential Plot (Area: y=1020 to 1200)
   svg += `  <text x="${width / 2}" y="1000" font-size="16" text-anchor="middle">Exponential Plot: y = a * e^(b*x)</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 1020, 700, 180, 10, 5);
@@ -765,9 +745,8 @@ function generateSvg(quadraticPlots, linearPlots, sinePlots, polarPlots, exponen
       .join(" ");
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
-  svg += `\n`;
+  svg += "\n";
 
-  // Slot 6: Logarithmic Plot (Area: y=1230 to 1410)
   svg += `  <text x="${width / 2}" y="1210" font-size="16" text-anchor="middle">Logarithmic Plot: y = a * log_b(x)</text>\n`;
   if (gridEnabled) {
     svg += drawRectGrid(50, 1230, 700, 180, 10, 5);
@@ -993,15 +972,13 @@ function plotToFile({ formulas = [], outputFileName = "output.svg", type = "svg"
 function main() {
   const args = process.argv.slice(2);
 
-  // Added version flag support - version updated to match package version
   if (args.includes("--version")) {
     console.log("Equation Plotter Library version 0.1.1-72");
     process.exit(0);
   }
 
   if (args.includes("--help") || args.includes("-h")) {
-    console.log(
-      `Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
 
 Options:
   --help, -h       Show this help message
@@ -1020,7 +997,7 @@ Formula String Formats:
   Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
   Polar:     "polar:scale,multiplier,step[,degMin,degMax]"
   Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")
-  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step" (for natural log, use base as e or omit value to default to e)
+  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
 `
     );
     process.exit(0);
@@ -1050,7 +1027,6 @@ Formula String Formats:
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
-  // Force output type based on file extension
   if (outputFileName.toLowerCase().endsWith(".json")) {
     isJson = true;
   } else if (outputFileName.toLowerCase().endsWith(".csv")) {
@@ -1061,15 +1037,12 @@ Formula String Formats:
     isAscii = true;
   }
 
-  // Collect formulas from arguments
   const formulasList = args.filter((arg) => arg.includes(":") || arg.includes("="));
 
-  // NEW: Warn if no formulas are provided
   if (formulasList.length === 0) {
     console.log("No formulas provided. Using default plot functions for quadratic, linear, sine, polar, exponential, and logarithmic plots.");
   }
 
-  // NEW: If debug flag is present, output the internal parsed plot data
   if (isDebug) {
     console.log("\nDebug: Internal parsed plot data:");
     console.log(JSON.stringify(getPlotsFromFormulas(formulasList), null, 2));
