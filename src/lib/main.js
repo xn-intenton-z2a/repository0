@@ -16,7 +16,6 @@
  * Features:
  *   - Generate plots for Quadratic (y = ax² + bx + c), Linear (y = m*x + b), Sine (y = A*sin(B*x + C)),
  *     Polar (r = scale * |sin(multiplier * θ)|), Exponential (y = a * e^(b*x)), and
- *     Logarithmic (y = a * log_b(x)) equations.
  *   - Accepts both prefixed input strings (e.g., "quad:", "sine:", "polar:") and standard
  *     algebraic forms (e.g., "y=2x+3", "x^2+y-1=0").
  *   - Multiple output formats: SVG, HTML, JSON, CSV, ASCII art, and plain text.
@@ -28,6 +27,7 @@
  *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   $ node src/lib/main.js --demo    # Run demo test that outputs JSON to console
  *
  * API (Importing Functions):
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
@@ -966,6 +966,18 @@ function plotToFile({ formulas = [], outputFileName = "output.svg", type = "svg"
 }
 
 // ----------------------------------
+// Demo Test Function
+// ----------------------------------
+
+function demoTest() {
+  console.log("=== Demo Test Output ===");
+  const demoPlotJson = plotToJson({ formulas: ["sine:1,1,0,0,360,30"] });
+  console.log("Plot JSON output for formula 'sine:1,1,0,0,360,30':");
+  console.log(JSON.stringify(demoPlotJson, null, 2));
+  console.log("=== End Demo Test Output ===");
+}
+
+// ----------------------------------
 // Main Execution
 // ----------------------------------
 
@@ -988,6 +1000,7 @@ Options:
   --grid           Overlay grid lines on SVG plots
   --debug          Output internal parsed plot data for debugging
   --dealers-choice Use randomized color palette for SVG plots
+  --demo           Run demo test output
   --version        Show version information
   (output file extension .html will generate HTML output)
 
@@ -1000,6 +1013,12 @@ Formula String Formats:
   Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
 `
     );
+    process.exit(0);
+  }
+
+  // If --demo flag is provided, run the demo test and exit
+  if (args.includes("--demo")) {
+    demoTest();
     process.exit(0);
   }
 
