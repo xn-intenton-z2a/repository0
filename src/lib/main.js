@@ -981,6 +981,21 @@ const demoTest = () => {
   console.log("\nPlot Text output for formula 'quad:1,0,0,-10,10,1':");
   console.log(demoText);
 
+  // New demo: ASCII art output for sine formula
+  const demoAscii = plotToAscii({ formulas: ["sine:1,1,0,0,360,30"] });
+  console.log("\nPlot ASCII art output for formula 'sine:1,1,0,0,360,30':");
+  console.log(demoAscii);
+
+  // New demo: CSV output for quadratic formula
+  const demoCsv = plotToCsv({ formulas: ["quad:1,0,0,-10,10,1"] });
+  console.log("\nPlot CSV output for formula 'quad:1,0,0,-10,10,1':");
+  console.log(demoCsv);
+
+  // New demo: HTML output for linear formula with grid
+  const demoHtml = plotToHtml({ formulas: ["y=2x+3:-10,10,1"], grid: true });
+  console.log("\nPlot HTML output for formula 'y=2x+3:-10,10,1':");
+  console.log(demoHtml);
+
   console.log("=== End Demo Test Output ===");
 };
 
