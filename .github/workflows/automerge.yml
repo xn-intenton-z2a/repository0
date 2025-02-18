@@ -5,13 +5,7 @@ run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
   pull_request:
-    #types:
-    #  - labeled
-    #  - reopened
-    #  - synchronize
   check_suite:
-    #types:
-    #  - completed
   workflow_dispatch:
   workflow_run:
     workflows:
