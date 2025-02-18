@@ -116,5 +116,5 @@ jobs:
     with:
       branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      getCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
       label: 'automerge'

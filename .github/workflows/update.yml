@@ -54,5 +54,5 @@ jobs:
     with:
       branch: '${{ needs.update-dependencies.outputs.branch }}'
       baseBranch: 'main'
-      getCommitMessage: 'chore: dependency updates'
+      gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'

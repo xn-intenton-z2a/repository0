@@ -266,7 +266,7 @@ jobs:
     with:
       branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      getCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
       label: 'automerge'
 ./.github/workflows/automerge.yml
 ==== Content of ./.github/workflows/automerge.yml ====
@@ -471,7 +471,7 @@ jobs:
     with:
       branch: '${{ needs.update-dependencies.outputs.branch }}'
       baseBranch: 'main'
-      getCommitMessage: 'chore: dependency updates'
+      gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
 ./.github/workflows/issue-reviewer.yml
 ==== Content of ./.github/workflows/issue-reviewer.yml ====
