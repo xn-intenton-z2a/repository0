@@ -1,6 +1,6 @@
-# Contributing to Project EverGrow
+# Contributing
 
-This project goals are consumed by the workflow and can be modified to guide the evolution of the project.
+This project's goals (in this file) are consumed by the workflow and can be modified to guide the evolution of the project.
 
 ## Project goals
 
