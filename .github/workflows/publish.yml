@@ -40,11 +40,6 @@ on:
         # When publishing from a branch, change the default here to a derivative of the branch name, e,g, 'beta'
         default: ''
         type: string
-  workflow_run:
-    workflows:
-      - "Automerge"
-    types:
-      - completed
 
 jobs:
 
