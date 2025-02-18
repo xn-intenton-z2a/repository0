@@ -3,32 +3,25 @@
 "use strict";
 
 /**
- * =============================================================================
  * Equation Plotter Library
- * =============================================================================
  *
  * Overview:
- *   The Equation Plotter Library is a versatile tool for generating plots of
- *   mathematical equations. It supports various plot types such as quadratic, linear,
- *   sine, cosine, polar, exponential, and logarithmic graphs, and outputs them in multiple
- *   formats including SVG, HTML, JSON, CSV, and ASCII.
+ *   The Equation Plotter Library is a versatile tool for generating plots of mathematical equations.
+ *   It supports quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions, and outputs them in
+ *   multiple formats including SVG, HTML, JSON, CSV, ASCII, plain text, and Markdown.
  *
  * Features:
- *   - Generate plots for Quadratic (y = ax² + bx + c), Linear (y = m*x + b), Sine (y = A*sin(B*x + C)),
- *     Cosine (y = A*cos(B*x + C)), Polar (r = scale * |sin(multiplier * θ)|), Exponential (y = a * e^(b*x)),
- *     and Logarithmic functions.
- *   - Accepts both prefixed input strings (e.g., "quad:", "sine:", "cos:", "polar:") and standard
- *     algebraic forms (e.g., "y=2x+3", "x^2+y-1=0").
- *   - Supports multiple output formats: SVG, HTML, JSON, CSV, ASCII art, plain text, and now Markdown.
- *   - Customizable plotting options including grid overlays and randomized color palettes.
+ *   - Generate plots for various functions (e.g., y = ax² + bx + c, y = m*x + b, A*sin(B*x + C), etc.).
+ *   - Accept prefixed input strings (e.g., "quad:", "sine:", "cos:", "polar:") as well as standard algebraic forms.
+ *   - Customizable plotting options (grid overlays, randomized color palettes).
  *
  * Usage (CLI):
- *   $ node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   $ node src/lib/main.js --demo    # Run demo test that outputs JSON to console
+ *   node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js --demo
  *
  * API (Importing Functions):
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml, plotToMarkdown } from './main.js';
@@ -39,8 +32,6 @@
  *
  * Version: 0.1.1-72
  * License: MIT
- *
- * =============================================================================
  */
 
 import { fileURLToPath } from "url";
@@ -52,9 +43,7 @@ const formatNumber = (n) => {
   return s === "-0.00" ? "0.00" : s;
 };
 
-// ----------------------------------
 // Plotting Functions
-// ----------------------------------
 
 const plotQuadraticParam = ({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
   const points = [];
@@ -129,9 +118,7 @@ const plotLinear = () => plotLinearParam();
 const plotExponential = () => plotExponentialParam();
 const plotLogarithmic = () => plotLogarithmicParam();
 
-// ----------------------------------
 // Formula Parsing Functions
-// ----------------------------------
 
 const parseQuadratic = (formulaStr) => {
   const parts = formulaStr.split(":");
@@ -211,7 +198,7 @@ const parseLinear = (formulaStr) => {
   });
 };
 
-// Parse a generic linear formula in standard algebraic form, e.g., "y=2x+3" with optional range parameters
+// Parse a generic linear formula in algebraic form, e.g., "y=2x+3" with optional range parameters
 const parseGenericLinear = (formulaStr) => {
   const parts = formulaStr.split(":");
   const exprPart = parts[0].replace(/\s+/g, "");
@@ -520,19 +507,13 @@ const getPlotsFromFormulas = (formulas = []) => {
   return { quadratic, linear, sine, cosine, polar, exponential, logarithmic };
 };
 
-// ----------------------------------
 // Display Functions
-// ----------------------------------
-
 const displayPlot = (plotName, points) => {
   console.log(`Plot for ${plotName}:`);
   console.log(points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "));
 };
 
-// ----------------------------------
 // SVG Generation Function
-// ----------------------------------
-
 const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, polarPlots, exponentialPlots, logarithmicPlots, gridEnabled = false, dealersChoice = false) => {
   const width = 800;
   const height = 1700;
@@ -775,10 +756,7 @@ const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, polarP
   return svg;
 };
 
-// ----------------------------------
 // HTML Generation Function
-// ----------------------------------
-
 const plotToHtml = ({ formulas = [], grid = false, dealersChoice = false } = {}) => {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice });
   return `<!DOCTYPE html>
@@ -796,10 +774,7 @@ ${svgContent}
 </html>`;
 };
 
-// ----------------------------------
 // Markdown Generation Function (Extended Feature)
-// ----------------------------------
-
 const plotToMarkdown = ({ formulas = [] } = {}) => {
   const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
   let md = "# Plot Data\n\n";
@@ -834,10 +809,7 @@ const plotToMarkdown = ({ formulas = [] } = {}) => {
   return md;
 };
 
-// ----------------------------------
 // Exported API Functions
-// ----------------------------------
-
 const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false } = {}) => {
   const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
   return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice);
@@ -870,32 +842,25 @@ const plotToAscii = ({ formulas = [] } = {}) => {
 const plotToText = ({ formulas = [] } = {}) => {
   const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
   let output = "";
-  output +=
-    "Quadratic Plot:\n" +
+  output += "Quadratic Plot:\n" +
     quadratic.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Linear Plot:\n" +
+  output += "Linear Plot:\n" +
     linear.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Sine Plot:\n" +
+  output += "Sine Plot:\n" +
     sine.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Cosine Plot:\n" +
+  output += "Cosine Plot:\n" +
     cosine.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Polar Plot:\n" +
+  output += "Polar Plot:\n" +
     polar.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Exponential Plot:\n" +
+  output += "Exponential Plot:\n" +
     exponential.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n\n";
-  output +=
-    "Logarithmic Plot:\n" +
+  output += "Logarithmic Plot:\n" +
     logarithmic.map((points, i) => `Formula ${i + 1}: ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")).join("\n") +
     "\n";
   return output;
@@ -997,10 +962,7 @@ const plotToFile = ({ formulas = [], outputFileName = "output.svg", type = "svg"
   return outputFileName;
 };
 
-// ----------------------------------
 // Demo Test Function
-// ----------------------------------
-
 const demoTest = () => {
   console.log("=== Demo Test Output ===");
   const demoPlotJson = plotToJson({ formulas: ["sine:1,1,0,0,360,30"] });
@@ -1009,10 +971,7 @@ const demoTest = () => {
   console.log("=== End Demo Test Output ===");
 };
 
-// ----------------------------------
 // Main Execution
-// ----------------------------------
-
 const main = () => {
   const args = process.argv.slice(2);
 
