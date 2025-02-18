@@ -5,4 +5,10 @@ describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();
   });
+
+  test("should export CLI functions", () => {
+    expect(typeof mainModule.plotToSvg).toBe("function");
+    expect(typeof mainModule.plotToJson).toBe("function");
+    expect(typeof mainModule.plotToHtml).toBe("function");
+  });
 });

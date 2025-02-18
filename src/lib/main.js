@@ -15,13 +15,14 @@
  *   - Accept prefixed input strings (e.g., "quad:", "sine:", "cos:", "polar:") as well as standard algebraic forms.
  *   - Customizable plotting options (grid overlays, randomized color palettes).
  *
- * Usage (CLI):
+ * CLI Usage:
  *   node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
+ *   node src/lib/main.js output.html --html "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
  *   node src/lib/main.js --demo
+ *   node src/lib/main.js --version
  *
  * API (Importing Functions):
  *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml, plotToMarkdown } from './main.js';
