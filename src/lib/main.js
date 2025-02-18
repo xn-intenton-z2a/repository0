@@ -19,7 +19,7 @@
  *     and Logarithmic functions.
  *   - Accepts both prefixed input strings (e.g., "quad:", "sine:", "cos:", "polar:") and standard
  *     algebraic forms (e.g., "y=2x+3", "x^2+y-1=0").
- *   - Supports multiple output formats: SVG, HTML, JSON, CSV, ASCII art, and plain text.
+ *   - Supports multiple output formats: SVG, HTML, JSON, CSV, ASCII art, plain text, and now Markdown.
  *   - Customizable plotting options including grid overlays and randomized color palettes.
  *
  * Usage (CLI):
@@ -31,7 +31,7 @@
  *   $ node src/lib/main.js --demo    # Run demo test that outputs JSON to console
  *
  * API (Importing Functions):
- *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml } from './main.js';
+ *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml, plotToMarkdown } from './main.js';
  *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
  *
  * Installation:
@@ -797,6 +797,44 @@ ${svgContent}
 };
 
 // ----------------------------------
+// Markdown Generation Function (Extended Feature)
+// ----------------------------------
+
+const plotToMarkdown = ({ formulas = [] } = {}) => {
+  const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
+  let md = "# Plot Data\n\n";
+  md += "## Quadratic Plot:\n";
+  quadratic.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Linear Plot:\n";
+  linear.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Sine Plot:\n";
+  sine.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Cosine Plot:\n";
+  cosine.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Polar Plot:\n";
+  polar.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Exponential Plot:\n";
+  exponential.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  md += "## Logarithmic Plot:\n";
+  logarithmic.forEach((points, i) => {
+    md += `**Formula ${i + 1}:** ` + points.map(p => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+  });
+  return md;
+};
+
+// ----------------------------------
 // Exported API Functions
 // ----------------------------------
 
@@ -945,6 +983,8 @@ const plotToFile = ({ formulas = [], outputFileName = "output.svg", type = "svg"
     content = plotToCsv({ formulas });
   } else if (type === "html") {
     content = plotToHtml({ formulas });
+  } else if (type === "md") {
+    content = plotToMarkdown({ formulas });
   } else {
     throw new Error("Unsupported type provided for plotToFile");
   }
@@ -1004,8 +1044,7 @@ Formula String Formats:
   Polar:     "polar:scale,multiplier,step[,degMin,degMax]"
   Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")
   Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
-`
-    );
+`);
     process.exit(0);
   }
 
@@ -1089,6 +1128,7 @@ export {
   plotToJson,
   plotToCsv,
   plotToHtml,
+  plotToMarkdown,
   plotToFile,
   plotFromString,
   plotQuadratic,
