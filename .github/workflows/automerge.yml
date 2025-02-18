@@ -55,7 +55,7 @@ jobs:
 
   pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-check-pr-and-merge.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@main'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'

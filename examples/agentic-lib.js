@@ -668,7 +668,7 @@ export function analyzeSarifResults(resultsBefore, resultsAfter) {
 }
 
 // -----------------------------------------------------------------------------
-// 14. (Merging from wfr-automerge-check-pr-and-merge.yml is covered by autoMergePullRequest)
+// 14. (Merging from wfr-automerge-find-pr-from-pull-request.yml is covered by autoMergePullRequest)
 // -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
