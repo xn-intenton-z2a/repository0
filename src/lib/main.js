@@ -30,7 +30,7 @@
  * Installation:
  *   Install via npm. See package.json for version and dependency details.
  *
- * Version: 0.1.1-72
+ * Version: 0.1.1-73
  * License: MIT
  */
 
@@ -122,7 +122,7 @@ const plotLogarithmic = () => plotLogarithmicParam();
 
 const parseQuadratic = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid quadratic formula string");
+  if (parts.length < 2) throw new Error("Invalid quadratic formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [a, b, c, xMin, xMax, step] = params;
   return plotQuadraticParam({
@@ -137,7 +137,7 @@ const parseQuadratic = (formulaStr) => {
 
 const parseSine = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid sine formula string");
+  if (parts.length < 2) throw new Error("Invalid sine formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [amplitude, frequency, phase, xMin, xMax, step] = params;
   return plotSineParam({
@@ -152,7 +152,7 @@ const parseSine = (formulaStr) => {
 
 const parseCosine = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid cosine formula string");
+  if (parts.length < 2) throw new Error("Invalid cosine formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [amplitude, frequency, phase, xMin, xMax, step] = params;
   return plotCosineParam({
@@ -167,7 +167,7 @@ const parseCosine = (formulaStr) => {
 
 const parsePolar = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid polar formula string");
+  if (parts.length < 2) throw new Error("Invalid polar formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const scale = isNaN(params[0]) ? 200 : params[0];
   const multiplier = isNaN(params[1]) ? 2 : params[1];
@@ -186,7 +186,7 @@ const parsePolar = (formulaStr) => {
 
 const parseLinear = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid linear formula string");
+  if (parts.length < 2) throw new Error("Invalid linear formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [m, b, xMin, xMax, step] = params;
   return plotLinearParam({
@@ -204,11 +204,11 @@ const parseGenericLinear = (formulaStr) => {
   const exprPart = parts[0].replace(/\s+/g, "");
   const rangePart = parts.length > 1 ? parts[1].trim() : "";
   if (!exprPart.toLowerCase().startsWith("y=")) {
-    throw new Error("Linear formula must start with 'y='");
+    throw new Error("Linear formula must start with 'y=': " + formulaStr);
   }
   const expr = exprPart.substring(2);
   if (expr.includes("x^2")) {
-    throw new Error("Detected quadratic term in what should be a linear formula");
+    throw new Error("Detected quadratic term in what should be a linear formula: " + formulaStr);
   }
   let m = 1, b = 0;
   const mMatch = expr.match(/^([+-]?\d*\.?\d+)?\*?x/);
@@ -250,7 +250,7 @@ const parseGenericQuadratic = (formulaStr) => {
     const left = mainPart.split("=")[0];
     const yRegex = /([+-]?(?:\d*\.?\d*)?)y/;
     const yMatch = left.match(yRegex);
-    if (!yMatch) throw new Error("No y term found in equation");
+    if (!yMatch) throw new Error("No y term found in equation: " + formulaStr);
     const coeffStr = yMatch[1];
     const yCoeff = (coeffStr === "" || coeffStr === "+") ? 1 : (coeffStr === "-") ? -1 : parseFloat(coeffStr);
     const remaining = left.replace(yRegex, "");
@@ -266,7 +266,7 @@ const parseGenericQuadratic = (formulaStr) => {
     });
   } else {
     const partsEq = mainPart.split("=");
-    if (partsEq.length !== 2) throw new Error("Unsupported formula format for quadratic parsing");
+    if (partsEq.length !== 2) throw new Error("Unsupported formula format for quadratic parsing: " + formulaStr);
     const left = partsEq[0];
     const right = partsEq[1] || "0";
     if (left.includes("y")) {
@@ -320,7 +320,7 @@ const parseGenericQuadratic = (formulaStr) => {
 // Parse exponential formula string in the format "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form
 const parseExponential = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid exponential formula string");
+  if (parts.length < 2) throw new Error("Invalid exponential formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [a, b, xMin, xMax, step] = params;
   return plotExponentialParam({
@@ -351,14 +351,14 @@ const parseGenericExponential = (formulaStr) => {
     const b = parseFloat(match[2]);
     return plotExponentialParam({ a, b, xMin, xMax, step });
   } else {
-    throw new Error("Invalid generic exponential formula string");
+    throw new Error("Invalid generic exponential formula string: " + formulaStr);
   }
 };
 
 // Parse logarithmic formula string in the format "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
 const parseLogarithmic = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error("Invalid logarithmic formula string");
+  if (parts.length < 2) throw new Error("Invalid logarithmic formula string: " + formulaStr);
   const params = parts[1].split(",").map(Number);
   const [a, base, xMin, xMax, step] = params;
   return plotLogarithmicParam({
@@ -416,7 +416,7 @@ const plotFromString = (formulaStr) => {
     if (lowerStr.startsWith("polar:")) return parsePolar(formulaStr);
     if (lowerStr.startsWith("linear:")) return parseLinear(formulaStr);
     if (lowerStr.startsWith("exponential:") || lowerStr.startsWith("exp:")) return parseExponential(formulaStr);
-    console.error("Unknown prefixed formula type.");
+    console.error("Unknown prefixed formula type for formula: " + formulaStr);
     return [];
   } else if (formulaStr.includes("=")) {
     if (lowerStr.startsWith("y=")) {
@@ -424,28 +424,28 @@ const plotFromString = (formulaStr) => {
         try {
           return parseGenericExponential(formulaStr);
         } catch (e) {
-          console.error("Error parsing exponential formula:", e.message);
+          console.error("Error parsing exponential formula: " + e.message);
           return [];
         }
       } else if (formulaStr.toLowerCase().includes("log(")) {
         try {
           return parseLogarithmic(formulaStr);
         } catch (e) {
-          console.error("Error parsing logarithmic formula:", e.message);
+          console.error("Error parsing logarithmic formula: " + e.message);
           return [];
         }
       } else if (!formulaStr.includes("x^2")) {
         try {
           return parseGenericLinear(formulaStr);
         } catch (e) {
-          console.error("Error parsing linear formula:", e.message);
+          console.error("Error parsing linear formula: " + e.message);
           return [];
         }
       } else {
         try {
           return parseGenericQuadratic(formulaStr);
         } catch (e) {
-          console.error("Error parsing generic quadratic formula:", e.message);
+          console.error("Error parsing generic quadratic formula: " + e.message);
           return [];
         }
       }
@@ -453,12 +453,12 @@ const plotFromString = (formulaStr) => {
       try {
         return parseGenericQuadratic(formulaStr);
       } catch (e) {
-        console.error("Error parsing generic quadratic formula:", e.message);
+        console.error("Error parsing generic quadratic formula: " + e.message);
         return [];
       }
     }
   } else {
-    console.error("Formula string is not in a recognized format.");
+    console.error("Formula string is not in a recognized format: " + formulaStr);
     return [];
   }
 };
@@ -493,7 +493,7 @@ const getPlotsFromFormulas = (formulas = []) => {
         console.error("Unrecognized formula: " + formula);
       }
     } catch (e) {
-      console.error("Error parsing formula:", formula, e.message);
+      console.error("Error parsing formula: " + formula + ". " + e.message);
     }
   });
   // Use defaults if no formulas were provided
@@ -989,7 +989,7 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-72");
+    console.log("Equation Plotter Library version 0.1.1-73");
     process.exit(0);
   }
 
