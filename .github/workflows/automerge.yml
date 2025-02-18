@@ -83,7 +83,8 @@ jobs:
             if (pullRequests.length > 0) {
               pullNumber = pullRequests[0].number;
             } else {
-              core.setFailed('No open pull requests found.');
+              pullNumber = '';
+              core.info('No open pull requests found.');
             }
             core.info(`pullNumber: ${pullNumber}`);
             core.setOutput('pullNumber', pullNumber);
