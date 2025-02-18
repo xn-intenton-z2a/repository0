@@ -49,6 +49,7 @@ jobs:
       packages: write
       issues: write
       pull-requests: write
+      checks: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
     with:
