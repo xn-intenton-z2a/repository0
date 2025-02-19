@@ -2,40 +2,9 @@
 
 "use strict";
 
-/**
- * Equation Plotter Library
- *
- * Overview:
- *   The Equation Plotter Library is a versatile tool for generating plots of mathematical equations.
- *   It supports quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions, and outputs them in
- *   multiple formats including SVG, HTML, JSON, CSV, ASCII, plain text, and Markdown.
- *
- * Features:
- *   - Generate plots for various functions (e.g., y = ax² + bx + c, y = m*x + b, A*sin(B*x + C), etc.).
- *   - Accept prefixed input strings (e.g., "quad:", "sine:", "cos:", "polar:") as well as standard algebraic forms.
- *   - Customizable plotting options (grid overlays, randomized color palettes).
- *
- * Usage (CLI):
- *   node src/lib/main.js output.svg "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js output.json --json "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js output.csv --csv "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js output.html "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js output.txt --ascii "x^2+y-1=0" "sine:1,1,0,0,360,10"
- *   node src/lib/main.js --demo
- *
- * API (Importing Functions):
- *   import { plotToSvg, plotToJson, plotToCsv, plotToHtml, plotToMarkdown } from './main.js';
- *   const svg = plotToSvg({ formulas: ["x^2+y-1=0", "sine:1,1,0,0,360,10"] });
- *
- * Installation:
- *   Install via npm. See package.json for version and dependency details.
- *
- * Version: 0.1.1-73
- * License: MIT
- */
-
 import { fileURLToPath } from "url";
 import fs from "fs";
+import _ from "lodash"; // Using lodash for range generation to reduce code size
 
 // Helper function to format numbers to two decimals and avoid negative zero
 const formatNumber = (n) => {
@@ -46,66 +15,50 @@ const formatNumber = (n) => {
 // Plotting Functions
 
 const plotQuadraticParam = ({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = [];
-  for (let x = xMin; x <= xMax; x += step) {
-    points.push({ x, y: a * x * x + b * x + c });
-  }
+  const points = _.range(xMin, xMax + step, step).map(x => ({ x, y: a * x * x + b * x + c }));
   return points;
 };
 
 const plotSineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xMax = 360, step = 10 } = {}) => {
-  const points = [];
-  for (let deg = xMin; deg <= xMax; deg += step) {
+  const points = _.range(xMin, xMax + step, step).map(deg => {
     const rad = deg * (Math.PI / 180);
-    points.push({ x: deg, y: amplitude * Math.sin(frequency * rad + phase) });
-  }
+    return { x: deg, y: amplitude * Math.sin(frequency * rad + phase) };
+  });
   return points;
 };
 
 const plotCosineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xMax = 360, step = 10 } = {}) => {
-  const points = [];
-  for (let deg = xMin; deg <= xMax; deg += step) {
+  const points = _.range(xMin, xMax + step, step).map(deg => {
     const rad = deg * (Math.PI / 180);
-    points.push({ x: deg, y: amplitude * Math.cos(frequency * rad + phase) });
-  }
+    return { x: deg, y: amplitude * Math.cos(frequency * rad + phase) };
+  });
   return points;
 };
 
 const plotPolarParam = ({ scale = 200, multiplier = 2, step = 5, degMin = 0, degMax = 360 } = {}) => {
-  const points = [];
-  for (let deg = degMin; deg <= degMax; deg += step) {
+  const points = _.range(degMin, degMax + step, step).map(deg => {
     const rad = deg * (Math.PI / 180);
     const r = scale * Math.abs(Math.sin(multiplier * rad));
-    const x = r * Math.cos(rad);
-    const y = r * Math.sin(rad);
-    points.push({ x, y });
-  }
+    return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
+  });
   return points;
 };
 
 const plotLinearParam = ({ m = 1, b = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = [];
-  for (let x = xMin; x <= xMax; x += step) {
-    points.push({ x, y: m * x + b });
-  }
+  const points = _.range(xMin, xMax + step, step).map(x => ({ x, y: m * x + b }));
   return points;
 };
 
 const plotExponentialParam = ({ a = 1, b = 1, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = [];
-  for (let x = xMin; x <= xMax; x += step) {
-    points.push({ x, y: a * Math.exp(b * x) });
-  }
+  const points = _.range(xMin, xMax + step, step).map(x => ({ x, y: a * Math.exp(b * x) }));
   return points;
 };
 
 const plotLogarithmicParam = ({ a = 1, base = Math.E, xMin = 1, xMax = 10, step = 1 } = {}) => {
-  const points = [];
-  for (let x = xMin; x <= xMax; x += step) {
-    if (x > 0) {
-      points.push({ x, y: a * (Math.log(x) / Math.log(base)) });
-    }
-  }
+  const points = _.range(xMin, xMax + step, step).reduce((arr, x) => {
+    if (x > 0) arr.push({ x, y: a * (Math.log(x) / Math.log(base)) });
+    return arr;
+  }, []);
   return points;
 };
 
@@ -171,16 +124,9 @@ const parsePolar = (formulaStr) => {
   const params = parts[1].split(",").map(Number);
   const scale = isNaN(params[0]) ? 200 : params[0];
   const multiplier = isNaN(params[1]) ? 2 : params[1];
-  let step = 5;
-  let degMin = 0;
-  let degMax = 360;
-  if (params.length >= 3) {
-    step = isNaN(params[2]) ? 5 : params[2];
-  }
-  if (params.length >= 5) {
-    degMin = isNaN(params[3]) ? 0 : params[3];
-    degMax = isNaN(params[4]) ? 360 : params[4];
-  }
+  let step = params.length >= 3 ? (isNaN(params[2]) ? 5 : params[2]) : 5;
+  let degMin = params.length >= 5 ? (isNaN(params[3]) ? 0 : params[3]) : 0;
+  let degMax = params.length >= 5 ? (isNaN(params[4]) ? 360 : params[4]) : 360;
   return plotPolarParam({ scale, multiplier, step, degMin, degMax });
 };
 
@@ -551,14 +497,14 @@ const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, polarP
 
   const drawRectGrid = (x, y, w, h, vCount, hCount) => {
     let grid = "";
-    for (let i = 0; i <= vCount; i++) {
+    _.range(0, vCount + 1).forEach(i => {
       const gx = x + i * (w / vCount);
       grid += `  <line x1="${formatNumber(gx)}" y1="${formatNumber(y)}" x2="${formatNumber(gx)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
-    }
-    for (let i = 0; i <= hCount; i++) {
+    });
+    _.range(0, hCount + 1).forEach(i => {
       const gy = y + i * (h / hCount);
       grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
-    }
+    });
     return grid;
   };
 
