@@ -17,7 +17,7 @@ Create a repository from a Repository Template to get started with the agentic c
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. You can modify the tests as needed.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. The test coverage has been optimized to be pragmatic about risk, ensuring critical functionality is validated without over-testing.
 
 - **Docs**  
   This `README.md` can be modified by the workflow.
@@ -73,7 +73,10 @@ You can run the demo and tests locally:
    `node src/lib/main.js`  
    This will display the plots for the quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions.
 
-### Tuning the agentic coding system
+## Test Coverage
+The project now includes an enhanced suite of tests that verify key exported functions and their outputs. This ensures critical functionality while remaining pragmatic in risk coverage.
+
+## Tuning the agentic coding system
 
 The default setup is open and may be refined over time. You can modify these files which the workflow takes into consideration:
 - `CONTRIBUTING.md` - Guidelines for contributing to the project.
