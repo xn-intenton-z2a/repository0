@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        required: false
+        type: string
+        default: 'tests/unit/main.test.js'
   workflow_run:
     workflows:
       - "Automerge"
@@ -54,6 +59,10 @@ jobs:
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: ${{ 'EXAMPLE.md' }}
+      contributingFile: ${{ 'CONTRIBUTING.md' }}
+      dependenciesFile: ${{ 'package.json' }}
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
