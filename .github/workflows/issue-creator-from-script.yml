@@ -1,0 +1,83 @@
+# .github/workflows/issue-creator-from-script.yml
+name: Create Lining Issue
+concurrency: create-issue
+run-name: "Create Linting Issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue.'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      script:
+        description: 'The script to run. e.g. "eslint"'
+        required: false
+        type: string
+        default: 'eslint'
+  schedule:
+    - cron: '0 4 * * *' # Run every day at 4:00
+
+jobs:
+
+  script-runner:
+    runs-on: ubuntu-latest
+
+    env:
+      script: ${{ inputs.script || 'eslint' }}
+      npmAuthOrganisation: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Run script
+        id: script-runner
+        shell: bash
+        run: |
+          output=$(${{ env.script }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+    outputs:
+      scriptOutput: ${{ steps.script-runner.outputs.output }}
+
+  create-issue:
+    needs:
+      - script-runner
+    if: ${{ needs.script-runner.outputs.scriptOutput != '' }}
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
+    with:
+      issueTitle: 'Resolve issues in output from running: ${{ needs.script-runner.outputs.script }}'
+      issueBody: ${{ needs.script-runner.outputs.scriptOutput }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
