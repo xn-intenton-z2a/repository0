@@ -1,7 +1,7 @@
 # .github/workflows/issue-creator-from-script.yml
-name: Create Lining Issue
+name: Create Issue from Script
 concurrency: create-issue
-run-name: "Create Linting Issue"
+run-name: "Create Issue from Script"
 
 on:
   workflow_dispatch:
@@ -61,11 +61,13 @@ jobs:
         id: script-runner
         shell: bash
         run: |
+          set +e
           output=$(${{ env.script }} 2>&1)
           echo "output<<EOF" >> "$GITHUB_OUTPUT"
           echo "$output" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
           echo "output=${output}"
+          set -e
     outputs:
       scriptOutput: ${{ steps.script-runner.outputs.output }}
 
