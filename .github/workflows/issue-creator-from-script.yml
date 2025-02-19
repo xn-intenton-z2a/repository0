@@ -12,10 +12,10 @@ on:
         type: string
         default: 'src/lib/main.js'
       script:
-        description: 'The script to run. e.g. "eslint"'
+        description: 'The script to run. e.g. "npm run linting"'
         required: false
         type: string
-        default: 'eslint'
+        default: 'npm run linting'
   schedule:
     - cron: '0 4 * * *' # Run every day at 4:00
 
