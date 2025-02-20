@@ -1,5 +1,6 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
+import fs from "fs";
 
 // Basic import test
 describe("Main Module Import", () => {
@@ -49,5 +50,18 @@ describe("Exported API Functions", () => {
   test("plotToMarkdown returns markdown formatted string", () => {
     const md = mainModule.plotToMarkdown({ formulas: ["sine:1,1,0,0,360,30"] });
     expect(md).toContain("# Plot Data");
+  });
+
+  test("main generates markdown file when output file ends with .md", () => {
+    const writeFileSyncSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+    const originalArgv = process.argv;
+    process.argv = ["node", "src/lib/main.js", "output.md", "y=2x+3:-10,10,1"];
+    if(mainModule.main) {
+      mainModule.main();
+    }
+    const argsCall = writeFileSyncSpy.mock.calls[0];
+    expect(argsCall[1]).toContain("# Plot Data");
+    writeFileSyncSpy.mockRestore();
+    process.argv = originalArgv;
   });
 });

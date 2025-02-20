@@ -73,6 +73,11 @@ You can run the demo and tests locally:
    `node src/lib/main.js`  
    This will display the plots for the quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions.
 
+5. **Markdown Output:**
+   You can also generate markdown output by specifying an output file with the `.md` extension. For example:
+   `node src/lib/main.js output.md "y=2x+3:-10,10,1"`
+   This will generate a markdown file containing the plot data.
+
 ## Test Coverage
 The project now includes an enhanced suite of tests that verify key exported functions and their outputs. This ensures critical functionality while remaining pragmatic in risk coverage.
 
