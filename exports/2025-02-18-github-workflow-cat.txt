@@ -1,0 +1,581 @@
+./.github/workflows/publish.yml
+==== Content of ./.github/workflows/publish.yml ====
+# .github/workflows/publish.yml
+name: Publish packages
+run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: branch-${{ github.ref_name }}
+
+on:
+  push:
+    branches:
+      # When publishing from a branch, add branch name here, e,g, 'beta'
+      - main
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!intentions/**'
+      - '!conversations/**'
+      - '!exports/**'
+      - '!programs/**'
+      - '!results/**'
+  workflow_dispatch:
+    inputs:
+      versionIncrement:
+        description: 'Select the Semantic Versioning segment to increment'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - patch
+          - minor
+          - major
+          - premajor
+          - preminor
+          - prepatch
+      featureTag:
+        description: 'Enter the version post-fix e.g. beta'
+        required: false
+        # When publishing from a branch, change the default here to a derivative of the branch name, e,g, 'beta'
+        default: ''
+        type: string
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: pwd
+      - run: ls -l
+      - run: find . -name '*.js' -exec echo '{}' \; | grep -v 'node_modules'
+      - run: npm test
+
+  publish:
+    name: 'publish packages'
+    needs:
+      - npm-test
+    permissions:
+      contents: write
+      packages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@main'
+    with:
+      versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
+      featureTag: ${{ inputs.featureTag || '' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      npmAuthOrganisation: 'xn-intenton-z2a'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+./.github/workflows/test.yml
+==== Content of ./.github/workflows/test.yml ====
+# .github/workflows/test.yml
+name: Tests
+run-name: 'Tests [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+
+on:
+  push:
+    paths:
+      - '**/*.sh'
+      - '**/*.js'
+      - '**/*.json'
+      - '**/*.yml'
+      - '**/*.properties'
+      - '!exports/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '45 */6 * * *'
+
+jobs:
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+./.github/workflows/issue-creator.yml
+==== Content of ./.github/workflows/issue-creator.yml ====
+# .github/workflows/issue-creator.yml
+name: Create Issue
+concurrency: create-issue
+run-name: "Create Issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue.'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      issueTitle:
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected).'
+        required: false
+        type: string
+        default: 'house choice'
+      runIssueWorker:
+        description: 'Should the downstream issue worker workflow be run?'
+        required: false
+        type: boolean
+        default: true
+  schedule:
+    #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
+    - cron: '0 6 * * *' # Run every day at 6:00
+
+jobs:
+
+  create-issue:
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@main'
+    with:
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      houseChoiceOptions: |
+        Create or refresh a README style comment block at the top of the file.
+        || Make code changes that improve the behaviour.
+        || Make code changes that extend the features.
+        || Improve or add a test (a test is run from a main and outputs to console to demonstrate the feature).
+        || Generally tidy up the code.
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+./.github/workflows/issue-worker.yml
+==== Content of ./.github/workflows/issue-worker.yml ====
+# .github/workflows/issue-worker.yml
+name: Issue Worker
+concurrency: issue-worker
+run-name: "Issue Worker [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      selectionLabel:
+        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        required: false
+        type: string
+        default: 'automated'
+  workflow_run:
+    workflows:
+      - "Create Issue"
+    types:
+      - completed
+  schedule:
+    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
+    - cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  check-branch:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'issue-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this intention type
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the intention type prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the intention type prefix found."
+          fi
+
+  start-issue:
+    needs:
+      - select-issue
+      - check-branch
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      branchPrefix: 'issue-'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  create-pr:
+    needs:
+      - select-issue
+      - start-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      label: 'automerge'
+./.github/workflows/automerge.yml
+==== Content of ./.github/workflows/automerge.yml ====
+# .github/workflows/automerge.yml
+name: Automerge
+concurrency: branch-main
+run-name: "Automerge [${{ github.ref_name }}]"
+
+on:
+  pull_request:
+    types:
+      - labeled
+      - reopened
+      - synchronize
+  check_suite:
+    types:
+      - completed
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Issue Worker"
+      - "Update"
+    types:
+      - completed
+  schedule:
+    #- cron: '*/10 * * * *' # Run every 10 minutes
+    - cron: '15 */2 * * *'  # Run every 2 hours at 15 minutes past
+
+jobs:
+  pr:
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@main'
+
+  cs:
+    if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@main'
+
+  ls:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine pull request number
+        id: get-pull
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            let pullNumber;
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 1,
+              sort: 'created',
+              direction: 'asc'
+            });
+            if (pullRequests.length > 0) {
+              pullNumber = pullRequests[0].number;
+            } else {
+              core.setFailed('No open pull requests found.');
+            }
+            core.info(`pullNumber: ${pullNumber}`);
+            core.setOutput('pullNumber', pullNumber);
+          result-encoding: string
+    outputs:
+      pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
+
+  merge-check:
+    if: ${{ always() }}
+    needs:
+      - pr
+      - cs
+      - ls
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-outputs
+        id: set-outputs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Merge outputs from pr-check, cs-check, and determine-ls.
+            // Only one of pr-check or cs-check should have run.
+            let prMerged = '${{ needs.pr.outputs.prMerged || needs.cs.outputs.prMerged || 'false' }}';
+            let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}';
+            let shouldSkipMerge = '${{ needs.pr.outputs.shouldSkipMerge || needs.cs.outputs.shouldSkipMerge || 'false' }}';
+            core.setOutput('prMerged', `${prMerged}`);
+            core.setOutput('pullNumber', `${pullNumber}`);
+            core.setOutput('shouldSkipMerge', `${shouldSkipMerge}`);
+            core.info(`prMerged: '${prMerged}'`);
+            core.info(`pullNumber: '${pullNumber}'`);
+            core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+          result-encoding: string
+    outputs:
+      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
+      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
+
+  label-issue-after-check-pr:
+    needs:
+      - merge-check
+    if: needs.merge-check.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
+    permissions:
+      contents: write
+      pull-requests: read
+      issues: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
+    with:
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
+      branchPrefix: 'issue-'
+
+  wait-for-merge:
+    needs:
+      - merge-check
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Sleeping for 60 seconds."
+        shell: bash
+      - run: sleep 60
+        shell: bash
+
+  automerge:
+    needs:
+      - merge-check
+      - wait-for-merge
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true'
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@main'
+    with:
+      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
+
+  label-issue-after-automerge:
+    needs:
+      - merge-check
+      - automerge
+    if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' )
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: read
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@main'
+    with:
+      pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
+      branchPrefix: 'issue-'
+./.github/workflows/update.yml
+==== Content of ./.github/workflows/update.yml ====
+# .github/workflows/update.yml
+name: Update
+concurrency: branch-${{ github.ref_name }}
+run-name: "Update [${{ github.ref_name }}]"
+
+on:
+  repository_dispatch:
+    types: [package-published]
+  schedule:
+    - cron: '30 7 * * *'
+  workflow_dispatch:
+    inputs:
+      upgradeTarget:
+        description: 'Select the type of update to run'
+        type: choice
+        default: 'minor'
+        required: false
+        options:
+          - greatest
+          - latest
+          - newest
+          - patch
+          - minor
+          - semver
+
+jobs:
+  update-dependencies:
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@main'
+    with:
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'node src/lib/main.js'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'chore: dependency updates'
+
+  create-pr:
+    needs:
+      - update-dependencies
+    if: ${{ needs.update-dependencies.outputs.branch != '' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@main'
+    with:
+      branch: '${{ needs.update-dependencies.outputs.branch }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: dependency updates'
+      label: 'automerge'
+./.github/workflows/issue-reviewer.yml
+==== Content of ./.github/workflows/issue-reviewer.yml ====
+# .github/workflows/issue-reviewer.yml
+name: Review Issue
+run-name: "Review Issue [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      issueNumber:
+        description: 'The issue number to review. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      selectionLabel:
+        description: 'Label used to filter issues for review. e.g. "merged"'
+        required: false
+        type: string
+        default: 'merged'
+      target:
+        description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+  workflow_run:
+    workflows:
+      - "Automerge"
+    types:
+      - completed
+  schedule:
+    #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
+    - cron: '0 */6 * * *' # Run every 6 hours at 0 minutes past
+
+jobs:
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@main'
+    with:
+      issueNumber: ${{ inputs.issueNumber || '' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  review-issue:
+    needs:
+      - select-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.select-issue.outputs.merged == 'true' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@main'
+    with:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
+      model: 'o3-mini'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+./.github/workflows/formating.yml
+==== Content of ./.github/workflows/formating.yml ====
+# .github/workflows/formating.yml
+name: Formatting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Formatting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 3 * * *' # Run every day at 3:15
+
+jobs:
+
+  format-and-push:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-push-changes.yml@main'
+    with:
+      script: 'prettier --write'
+      testScript: 'npm test'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'Updated by `prettier --write`'
+./.github/dependabot.yml
+==== Content of ./.github/dependabot.yml ====
+# See: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - dependencies
+      - automated
+      - automerge
+    #ignore:
+    #  - dependency-name: "some-dependency" # Example of ignoring a specific dependency
+    #    versions: ["1.x", "2.x"]

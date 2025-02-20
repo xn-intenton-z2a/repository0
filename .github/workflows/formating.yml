@@ -1,0 +1,55 @@
+# .github/workflows/formating.yml
+name: Formatting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Formatting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 3 * * *' # Run every day at 3:15
+
+jobs:
+
+  formatting-and-linting:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.1.0'
+    with:
+      script: 'npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10'
+      testScript: 'npm test'
+      branch: 'apply-formatting'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10`'
+
+  create-issue:
+    needs:
+      - formatting-and-linting
+    if: ${{ needs.formatting-and-linting.outputs.scriptOutput != '' }}
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.1.0'
+    with:
+      issueTitle: 'Resolve issues in output from running: npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10'
+      issueBody: ${{ needs.formatting-and-linting.outputs.scriptOutput }}
+
+  create-pr:
+    needs:
+      - formatting-and-linting
+    if: ${{ needs.formatting-and-linting.outputs.updatedFiles == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.1.0'
+    with:
+      branch: 'apply-formatting'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: formatting and linting fixes'
+      label: 'automerge'
