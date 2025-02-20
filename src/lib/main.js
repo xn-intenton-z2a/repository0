@@ -6,6 +6,13 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import _ from "lodash"; // Using lodash for range generation to reduce code size
 
+/*
+ Next Up:
+ - Refactor plotting functions for better performance.
+ - Add interactive CLI mode for user inputs.
+ - Enhance error handling and logging.
+*/
+
 // Helper function to format numbers to two decimals and avoid negative zero
 const formatNumber = (n) => {
   const s = n.toFixed(2);
