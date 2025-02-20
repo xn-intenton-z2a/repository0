@@ -1157,16 +1157,17 @@ const main = () => {
     console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
 
 Options:
-  --help, -h       Show this help message
-  --json           Generate output as JSON instead of SVG
-  --csv            Generate output as CSV instead of SVG
-  --ascii          Generate output as ASCII art instead of SVG
-  --grid           Overlay grid lines on SVG plots
-  --debug          Output internal parsed plot data for debugging
-  --dealers-choice Use randomized color palette for SVG plots
-  --demo           Run demo test output
-  --version        Show version information
-  (output file extension .html will generate HTML output)
+  --help, -h         Show this help message
+  --json             Generate output as JSON instead of SVG
+  --csv              Generate output as CSV instead of SVG
+  --ascii            Generate output as ASCII art instead of SVG
+  --grid             Overlay grid lines on SVG plots
+  --debug            Output internal parsed plot data for debugging
+  --dealers-choice   Use randomized color palette for SVG plots
+  --demo             Run demo test output
+  --version          Show version information
+  (output file extension .html will generate HTML output,
+   .md for Markdown output, .txt or .ascii for ASCII output)
 
 Formula String Formats:
   Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")
