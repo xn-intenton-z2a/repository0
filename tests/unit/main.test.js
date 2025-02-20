@@ -28,6 +28,7 @@ describe("Exported API Functions", () => {
   });
 
   test("plotToText returns non-empty string", () => {
+    // Using algebraic linear formula with range
     const text = mainModule.plotToText({ formulas: ["y=2x+3:-10,10,1"] });
     expect(typeof text).toBe("string");
     expect(text.length).toBeGreaterThan(0);

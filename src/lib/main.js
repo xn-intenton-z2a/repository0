@@ -354,8 +354,38 @@ const invertExpression = (expr) => {
 // Delegate plotting based on formula string content
 const plotFromString = (formulaStr) => {
   const lowerStr = formulaStr.toLowerCase();
-  if (lowerStr.startsWith("log:") || lowerStr.startsWith("ln:")) return parseLogarithmic(formulaStr);
-  if (formulaStr.includes(":")) {
+  if (lowerStr.startsWith("y=")) {
+    if (formulaStr.toLowerCase().includes("e^")) {
+      try {
+        return parseGenericExponential(formulaStr);
+      } catch (e) {
+        console.error("Error parsing exponential formula: " + e.message);
+        return [];
+      }
+    } else if (formulaStr.toLowerCase().includes("log(")) {
+      try {
+        return parseLogarithmic(formulaStr);
+      } catch (e) {
+        console.error("Error parsing logarithmic formula: " + e.message);
+        return [];
+      }
+    } else if (!formulaStr.includes("x^2")) {
+      try {
+        return parseGenericLinear(formulaStr);
+      } catch (e) {
+        console.error("Error parsing linear formula: " + e.message);
+        return [];
+      }
+    } else {
+      try {
+        return parseGenericQuadratic(formulaStr);
+      } catch (e) {
+        console.error("Error parsing generic quadratic formula: " + e.message);
+        return [];
+      }
+    }
+  } else if (formulaStr.includes(":")) {
+    if (lowerStr.startsWith("log:") || lowerStr.startsWith("ln:")) return parseLogarithmic(formulaStr);
     if (lowerStr.startsWith("quadratic:") || lowerStr.startsWith("quad:")) return parseQuadratic(formulaStr);
     if (lowerStr.startsWith("sine:")) return parseSine(formulaStr);
     if (lowerStr.startsWith("cosine:") || lowerStr.startsWith("cos:")) return parseCosine(formulaStr);
@@ -365,43 +395,11 @@ const plotFromString = (formulaStr) => {
     console.error("Unknown prefixed formula type for formula: " + formulaStr);
     return [];
   } else if (formulaStr.includes("=")) {
-    if (lowerStr.startsWith("y=")) {
-      if (formulaStr.toLowerCase().includes("e^")) {
-        try {
-          return parseGenericExponential(formulaStr);
-        } catch (e) {
-          console.error("Error parsing exponential formula: " + e.message);
-          return [];
-        }
-      } else if (formulaStr.toLowerCase().includes("log(")) {
-        try {
-          return parseLogarithmic(formulaStr);
-        } catch (e) {
-          console.error("Error parsing logarithmic formula: " + e.message);
-          return [];
-        }
-      } else if (!formulaStr.includes("x^2")) {
-        try {
-          return parseGenericLinear(formulaStr);
-        } catch (e) {
-          console.error("Error parsing linear formula: " + e.message);
-          return [];
-        }
-      } else {
-        try {
-          return parseGenericQuadratic(formulaStr);
-        } catch (e) {
-          console.error("Error parsing generic quadratic formula: " + e.message);
-          return [];
-        }
-      }
-    } else {
-      try {
-        return parseGenericQuadratic(formulaStr);
-      } catch (e) {
-        console.error("Error parsing generic quadratic formula: " + e.message);
-        return [];
-      }
+    try {
+      return parseGenericQuadratic(formulaStr);
+    } catch (e) {
+      console.error("Error parsing generic quadratic formula: " + e.message);
+      return [];
     }
   } else {
     console.error("Formula string is not in a recognized format: " + formulaStr);
@@ -950,7 +948,7 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.1.1-74");
+    console.log("Equation Plotter Library version 0.2.0-1");
     process.exit(0);
   }
 
