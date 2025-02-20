@@ -3,7 +3,7 @@
 Create a repository from a Repository Template to get started with the agentic coding system. See: [Tamplate README](TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate these automated CI/CD workflows. One example seed idea included here is the Equation Plotter—a simple tool that generates plots (SVG, JSON, CSV, Markdown, ASCII, and HTML) of mathematical functions like quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool uses lodash for concise iteration and supports multiple output formats via a CLI.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate these automated CI/CD workflows. One example seed idea included here is the Equation Plotter—a simple tool that generates plots (SVG, JSON, CSV, Markdown, ASCII, and HTML) of mathematical functions like quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool uses a custom range function for generating number sequences, eliminating the need for an external library for this purpose, and supports multiple output formats via a CLI.
 
 ## What’s Inside
 

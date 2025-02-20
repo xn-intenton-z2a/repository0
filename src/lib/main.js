@@ -4,7 +4,21 @@
 
 import { fileURLToPath } from "url";
 import fs from "fs";
-import _ from "lodash"; // Using lodash for range generation to reduce code size
+
+// Custom range function to generate a sequence of numbers
+const range = (start, end, step = 1) => {
+  const arr = [];
+  if (step > 0) {
+    for (let i = start; i < end; i += step) {
+      arr.push(i);
+    }
+  } else {
+    for (let i = start; i > end; i += step) {
+      arr.push(i);
+    }
+  }
+  return arr;
+};
 
 /*
  Next Up:
@@ -22,12 +36,12 @@ const formatNumber = (n) => {
 // Plotting Functions
 
 const plotQuadraticParam = ({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).map((x) => ({ x, y: a * x * x + b * x + c }));
+  const points = range(xMin, xMax + step, step).map((x) => ({ x, y: a * x * x + b * x + c }));
   return points;
 };
 
 const plotSineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xMax = 360, step = 10 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).map((deg) => {
+  const points = range(xMin, xMax + step, step).map((deg) => {
     const rad = deg * (Math.PI / 180);
     return { x: deg, y: amplitude * Math.sin(frequency * rad + phase) };
   });
@@ -35,7 +49,7 @@ const plotSineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xMax
 };
 
 const plotCosineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xMax = 360, step = 10 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).map((deg) => {
+  const points = range(xMin, xMax + step, step).map((deg) => {
     const rad = deg * (Math.PI / 180);
     return { x: deg, y: amplitude * Math.cos(frequency * rad + phase) };
   });
@@ -43,7 +57,7 @@ const plotCosineParam = ({ amplitude = 1, frequency = 1, phase = 0, xMin = 0, xM
 };
 
 const plotPolarParam = ({ scale = 200, multiplier = 2, step = 5, degMin = 0, degMax = 360 } = {}) => {
-  const points = _.range(degMin, degMax + step, step).map((deg) => {
+  const points = range(degMin, degMax + step, step).map((deg) => {
     const rad = deg * (Math.PI / 180);
     const r = scale * Math.abs(Math.sin(multiplier * rad));
     return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
@@ -52,17 +66,17 @@ const plotPolarParam = ({ scale = 200, multiplier = 2, step = 5, degMin = 0, deg
 };
 
 const plotLinearParam = ({ m = 1, b = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).map((x) => ({ x, y: m * x + b }));
+  const points = range(xMin, xMax + step, step).map((x) => ({ x, y: m * x + b }));
   return points;
 };
 
 const plotExponentialParam = ({ a = 1, b = 1, xMin = -10, xMax = 10, step = 1 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).map((x) => ({ x, y: a * Math.exp(b * x) }));
+  const points = range(xMin, xMax + step, step).map((x) => ({ x, y: a * Math.exp(b * x) }));
   return points;
 };
 
 const plotLogarithmicParam = ({ a = 1, base = Math.E, xMin = 1, xMax = 10, step = 1 } = {}) => {
-  const points = _.range(xMin, xMax + step, step).reduce((arr, x) => {
+  const points = range(xMin, xMax + step, step).reduce((arr, x) => {
     if (x > 0) arr.push({ x, y: a * (Math.log(x) / Math.log(base)) });
     return arr;
   }, []);
@@ -550,11 +564,11 @@ const generateSvg = (
 
   const drawRectGrid = (x, y, w, h, vCount, hCount) => {
     let grid = "";
-    _.range(0, vCount + 1).forEach((i) => {
+    range(0, vCount + 1, 1).forEach((i) => {
       const gx = x + i * (w / vCount);
       grid += `  <line x1="${formatNumber(gx)}" y1="${formatNumber(y)}" x2="${formatNumber(gx)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
     });
-    _.range(0, hCount + 1).forEach((i) => {
+    range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
       grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
     });
