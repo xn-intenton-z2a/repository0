@@ -56,7 +56,7 @@ describe("Exported API Functions", () => {
     const writeFileSyncSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
     const originalArgv = process.argv;
     process.argv = ["node", "src/lib/main.js", "output.md", "y=2x+3:-10,10,1"];
-    if(mainModule.main) {
+    if (mainModule.main) {
       mainModule.main();
     }
     const argsCall = writeFileSyncSpy.mock.calls[0];
