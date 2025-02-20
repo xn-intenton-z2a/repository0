@@ -28,8 +28,8 @@
  *   Run this script directly to generate an SVG file (output.svg) containing the demos.
  */
 
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import { fileURLToPath } from "url";
+import fs from "fs";
 
 function plotQuadratic() {
   // Generate points for a quadratic function: y = x²
@@ -67,7 +67,7 @@ function plotPolar() {
 
 function displayPlot(plotName, points) {
   console.log(`Plot for ${plotName}:`);
-  console.log(points.map(p => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(' '));
+  console.log(points.map((p) => `(${p.x.toFixed(2)}, ${p.y.toFixed(2)})`).join(" "));
 }
 
 function generateSvg(quadraticPoints, sinePoints, polarPoints) {
@@ -75,39 +75,47 @@ function generateSvg(quadraticPoints, sinePoints, polarPoints) {
   const height = 800; // increased height to accommodate polar plot
 
   // Mapping quadratic points from coordinate space to SVG space
-  const quadPts = quadraticPoints.map(p => {
-    const px = 50 + (p.x + 10) * ((750 - 50) / 20); // mapping x from [-10,10] to [50,750]
-    const py = 50 + (100 - p.y) * (200 / 100); // mapping y from [0,100] to [250,50] (inverted y-axis)
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
+  const quadPts = quadraticPoints
+    .map((p) => {
+      const px = 50 + (p.x + 10) * ((750 - 50) / 20); // mapping x from [-10,10] to [50,750]
+      const py = 50 + (100 - p.y) * (200 / 100); // mapping y from [0,100] to [250,50] (inverted y-axis)
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    })
+    .join(" ");
 
   // Mapping sine points from coordinate space to SVG space
-  const sinePts = sinePoints.map(p => {
-    const px = 50 + p.x * ((750 - 50) / 360); // mapping x from [0,360] to [50,750]
-    const py = 350 + (1 - p.y) * (200 / 2); // mapping y from [-1,1] to [550,350] (inverted y-axis)
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
+  const sinePts = sinePoints
+    .map((p) => {
+      const px = 50 + p.x * ((750 - 50) / 360); // mapping x from [0,360] to [50,750]
+      const py = 350 + (1 - p.y) * (200 / 2); // mapping y from [-1,1] to [550,350] (inverted y-axis)
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    })
+    .join(" ");
 
   // Mapping polar points from Cartesian space (centered at 0,0) to SVG space
   // We will center the polar plot in its section with center at (width/2, 700)
   const centerX = width / 2;
   const centerY = 700;
-  const polarPts = polarPoints.map(p => {
-    const px = centerX + p.x;
-    const py = centerY - p.y; // invert y-axis
-    return `${px.toFixed(2)},${py.toFixed(2)}`;
-  }).join(' ');
+  const polarPts = polarPoints
+    .map((p) => {
+      const px = centerX + p.x;
+      const py = centerY - p.y; // invert y-axis
+      return `${px.toFixed(2)},${py.toFixed(2)}`;
+    })
+    .join(" ");
 
-  return `<?xml version="1.0" encoding="UTF-8"?>\n` +
-         `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n` +
-         `  <rect width="100%" height="100%" fill="white" />\n` +
-         `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = x²</text>\n` +
-         `  <polyline points="${quadPts}" fill="none" stroke="blue" stroke-width="2" />\n\n` +
-         `  <text x="${width / 2}" y="330" font-size="16" text-anchor="middle">Sine Plot: y = sin(x)</text>\n` +
-         `  <polyline points="${sinePts}" fill="none" stroke="red" stroke-width="2" />\n\n` +
-         `  <text x="${width / 2}" y="670" font-size="16" text-anchor="middle">Polar Plot: r = 200 * |sin(2θ)|</text>\n` +
-         `  <polyline points="${polarPts}" fill="none" stroke="green" stroke-width="2" />\n` +
-         `</svg>`;
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">\n` +
+    `  <rect width="100%" height="100%" fill="white" />\n` +
+    `  <text x="${width / 2}" y="30" font-size="16" text-anchor="middle">Quadratic Plot: y = x²</text>\n` +
+    `  <polyline points="${quadPts}" fill="none" stroke="blue" stroke-width="2" />\n\n` +
+    `  <text x="${width / 2}" y="330" font-size="16" text-anchor="middle">Sine Plot: y = sin(x)</text>\n` +
+    `  <polyline points="${sinePts}" fill="none" stroke="red" stroke-width="2" />\n\n` +
+    `  <text x="${width / 2}" y="670" font-size="16" text-anchor="middle">Polar Plot: r = 200 * |sin(2θ)|</text>\n` +
+    `  <polyline points="${polarPts}" fill="none" stroke="green" stroke-width="2" />\n` +
+    `</svg>`
+  );
 }
 
 // Run main if executed directly
@@ -118,6 +126,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const svgContent = generateSvg(quadratic, sine, polar);
 
   // Write the SVG content to a file
-  fs.writeFileSync('output.svg', svgContent, 'utf8');
-  console.log('SVG file generated: output.svg');
+  fs.writeFileSync("output.svg", svgContent, "utf8");
+  console.log("SVG file generated: output.svg");
 }
