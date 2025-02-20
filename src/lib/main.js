@@ -67,7 +67,8 @@ const plotQuadratic = () => plotQuadraticParam();
 const plotSine = () => plotSineParam();
 const plotCosine = () => plotCosineParam();
 const plotPolar = () => plotPolarParam();
-const plotLinear = () => plotLinearParam();
+// Changed default linear plot to use y = 2x + 3 for better demonstration
+const plotLinear = () => plotLinearParam({ m: 2, b: 3 });
 const plotExponential = () => plotExponentialParam();
 const plotLogarithmic = () => plotLogarithmicParam();
 
