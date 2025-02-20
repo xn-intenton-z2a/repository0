@@ -99,8 +99,7 @@ Then came a daring expansion. A new chapter was written when polar plot function
 
 The journey was dynamic. The demo run, once content with console outputs, was transformed to generate tangible output files, and code formatting improvements were continuously integrated. Recently, a refactor was performed to reduce source size by leveraging lodash for range generation, streamlining iterative logic while preserving functionality.
 
-**Summary:**
-`repository0`’s evolution is marked by distinct arcs of initiative. It began with core plotting functions, evolved with iterative refinements and expanded features, and now boasts a concise, maintainable codebase.
+**Version:** Equation Plotter Library version 0.2.0-1
 
 ## Final Notes
 `repository0` demonstrates intentïon agentic‑lib workflows and is a starting point for your projects.
