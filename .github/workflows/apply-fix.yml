@@ -1,0 +1,55 @@
+# .github/workflows/apply-fix.yml
+name: Apply Fix
+concurrency:
+  issue-worker
+  branch-main
+run-name: "Apply Fix [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      testFile:
+        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        required: false
+        type: string
+        default: 'tests/unit/main.test.js'
+  # TODO: Add check for failed Test run then re-instate
+  #workflow_run:
+  #  workflows:
+  #    - "Tests"
+  #  types:
+  #    - completed
+  # TODO: Detect failing build rather than relying on a passive no change
+  schedule:
+    - cron: '15 2 * * *' # Run at 2:15am
+
+jobs:
+
+  apply-fix:
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@1.3.0'
+    with:
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: 'README.md'
+      contributingFile: 'CONTRIBUTING.md'
+      dependenciesFile: 'package.json'
+      formattingFile: '.prettierrc'
+      lintingFile: 'eslint.config.js'
+      branchPrefix: 'issue-'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: 'npm run start'
+      model: 'o3-mini'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

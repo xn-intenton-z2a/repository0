@@ -1,0 +1,35 @@
+# .github/workflows/issue-for-linting.yml
+name: Linting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Linting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 4 * * *' # Run every day at 4:15
+
+jobs:
+
+  linting:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.3.0'
+    with:
+      #script: 'npm run linting "." -- --max-warnings=10'
+      script: 'npm run linting'
+      sarifScript: 'npm run linting-json --silent'
+      testScript: 'npm test'
+
+  create-issue:
+    needs:
+      - linting
+    if: ${{ needs.linting.outputs.fixStillRequired == 'true' || needs.linting.outputs.fixStillRequired == true || needs.linting.outputs.remainingResultsCount != '0' }}
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.3.0'
+    with:
+      issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
+      issueBody: ${{ needs.linting.outputs.scriptOutput }}
