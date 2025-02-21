@@ -93,12 +93,14 @@ In the early hours, `repository0` burst into existence with a bold declaration: 
 
 **Version:** Equation Plotter Library version 0.2.0-6
 
-## Final Notes
-`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
-
 ## Next Up
 - Enhance performance by optimizing the SVG rendering logic and plotting algorithms.
 - Introduce an interactive CLI mode for real-time user input.
 - Improve error handling and logging mechanisms across the application.
 - Expand the library to support additional equation types and output formats.
 - Refine CLI argument parsing for enhanced user guidance.
+- Refactor formula parsing logic for improved maintainability.
+- Investigate integration with external plotting libraries for advanced visuals.
+
+## Final Notes
+`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.

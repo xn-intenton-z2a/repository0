@@ -571,7 +571,7 @@ const generateSvg = (
     });
     range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
-      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
+      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
     });
     return grid;
   };
