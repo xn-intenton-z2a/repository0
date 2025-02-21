@@ -24,13 +24,13 @@ on:
           - semver
 
 jobs:
-  update-dependencies:
+  update:
     permissions:
       contents: write
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@1.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@1.4.0'
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
@@ -43,8 +43,8 @@ jobs:
 
   create-pr:
     needs:
-      - update-dependencies
-    if: ${{ needs.update-dependencies.outputs.branch != '' }}
+      - update
+    if: ${{ needs.update.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -52,7 +52,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.4.0'
     with:
       branch: 'apply-update'
       baseBranch: 'main'

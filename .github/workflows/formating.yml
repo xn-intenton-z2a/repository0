@@ -10,25 +10,25 @@ on:
 
 jobs:
 
-  formatting-and-linting:
+  formatting:
     permissions:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.4.0'
     with:
-      script: 'npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10'
-      sarifScript: 'npm run linting-json --silent'
+      script: 'npm run formatting-fix -- "." ; npm run linting-fix "."'
+      sarifScript: ''
       testScript: 'npm test'
       branch: 'apply-formatting'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-      gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10`'
+      gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "."`'
 
   create-pr:
     needs:
-      - formatting-and-linting
-    if: ${{ needs.formatting-and-linting.outputs.updatedFiles == 'true' }}
+      - formatting
+    if: ${{ needs.formatting.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -36,22 +36,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.4.0'
     with:
       branch: 'apply-formatting'
       baseBranch: 'main'
-      gitCommitMessage: 'chore: formatting and linting fixes'
+      gitCommitMessage: 'chore: formatting fixes'
       label: 'automerge'
-
-  create-issue:
-    needs:
-      - formatting-and-linting
-    if: ${{ needs.formatting-and-linting.outputs.updatedFiles != 'true' && needs.formatting-and-linting.outputs.fixRequired == 'true' }}
-    #if: ${{ needs.formatting-and-linting.outputs.updatedFiles != 'true' && needs.formatting-and-linting.outputs.resultsCount != '0' }}
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0'
-    with:
-      issueTitle: 'Resolve issues in output from running: npm run formatting-fix -- "." ; npm run linting-fix "." -- --max-warnings=10'
-      issueBody: ${{ needs.formatting-and-linting.outputs.scriptOutput }}
