@@ -17,7 +17,7 @@ Create a repository from a Repository Template to get started with the agentic c
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs.
+  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs, including additional tests for error handling and branch coverage.
 
 - **Docs:**
   This `README.md` is maintained to keep track of the repository usage and the evolution of the CLI behaviour.
@@ -69,7 +69,7 @@ Other flags include:
 - `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, and `--demo` for respective functionalities.
 
 ## Test Coverage
-The project includes a suite of tests verifying key exported functions and CLI behaviour. This ensures that changes in the code do not break critical functionality.
+The project includes a suite of tests verifying key exported functions, CLI behavior, and error handling, ensuring that changes in the code do not break critical functionality.
 
 ## Tuning the agentic coding system
 
@@ -88,10 +88,10 @@ Other files considered by the workflow:
 
 In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI.
 
-**Version:** Equation Plotter Library version 0.2.0-1
+**Version:** Equation Plotter Library version 0.2.0-3
 
 ## Final Notes
-`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements.
+`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
 
 ## Next Up
 - Enhance performance by optimizing the SVG rendering logic and plotting algorithms.

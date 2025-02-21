@@ -516,7 +516,7 @@ const generateSvg = (
   exponentialPlots,
   logarithmicPlots,
   gridEnabled = false,
-  dealersChoice = false,
+  dealersChoice = false
 ) => {
   const width = 800;
   const height = 1700;
@@ -600,7 +600,7 @@ const generateSvg = (
       Math.min(...quadraticPlots.flat().map((p) => p.x)),
       Math.max(...quadraticPlots.flat().map((p) => p.x)),
       Math.min(...quadraticPlots.flat().map((p) => p.y)),
-      Math.max(...quadraticPlots.flat().map((p) => p.y)),
+      Math.max(...quadraticPlots.flat().map((p) => p.y))
     );
   }
   const qAllPoints = quadraticPlots.flat();
@@ -643,7 +643,7 @@ const generateSvg = (
       Math.min(...linearPlots.flat().map((p) => p.x)),
       Math.max(...linearPlots.flat().map((p) => p.x)),
       Math.min(...linearPlots.flat().map((p) => p.y)),
-      Math.max(...linearPlots.flat().map((p) => p.y)),
+      Math.max(...linearPlots.flat().map((p) => p.y))
     );
   }
   const lAllPoints = linearPlots.flat();
@@ -686,7 +686,7 @@ const generateSvg = (
       Math.min(...sinePlots.flat().map((p) => p.x)),
       Math.max(...sinePlots.flat().map((p) => p.x)),
       Math.min(...sinePlots.flat().map((p) => p.y)),
-      Math.max(...sinePlots.flat().map((p) => p.y)),
+      Math.max(...sinePlots.flat().map((p) => p.y))
     );
   }
   const sAllPoints = sinePlots.flat();
@@ -729,7 +729,7 @@ const generateSvg = (
       Math.min(...cosinePlots.flat().map((p) => p.x)),
       Math.max(...cosinePlots.flat().map((p) => p.x)),
       Math.min(...cosinePlots.flat().map((p) => p.y)),
-      Math.max(...cosinePlots.flat().map((p) => p.y)),
+      Math.max(...cosinePlots.flat().map((p) => p.y))
     );
   }
   const cAllPoints = cosinePlots.flat();
@@ -796,7 +796,7 @@ const generateSvg = (
       Math.min(...exponentialPlots.flat().map((p) => p.x)),
       Math.max(...exponentialPlots.flat().map((p) => p.x)),
       Math.min(...exponentialPlots.flat().map((p) => p.y)),
-      Math.max(...exponentialPlots.flat().map((p) => p.y)),
+      Math.max(...exponentialPlots.flat().map((p) => p.y))
     );
   }
   const expAllPoints = exponentialPlots.flat();
@@ -839,7 +839,7 @@ const generateSvg = (
       Math.min(...logarithmicPlots.flat().map((p) => p.x)),
       Math.max(...logarithmicPlots.flat().map((p) => p.x)),
       Math.min(...logarithmicPlots.flat().map((p) => p.y)),
-      Math.max(...logarithmicPlots.flat().map((p) => p.y)),
+      Math.max(...logarithmicPlots.flat().map((p) => p.y))
     );
   }
   const logAllPoints = logarithmicPlots.flat();
@@ -971,7 +971,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     quadratic
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -980,7 +980,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     linear
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -989,7 +989,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     sine
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -998,7 +998,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     cosine
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -1007,7 +1007,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     polar
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -1016,7 +1016,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     exponential
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n\n";
@@ -1025,7 +1025,7 @@ const plotToText = ({ formulas = [] } = {}) => {
     logarithmic
       .map(
         (points, i) =>
-          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "),
+          `Formula ${i + 1}: ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ")
       )
       .join("\n") +
     "\n";
@@ -1170,7 +1170,7 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.2.0-1");
+    console.log("Equation Plotter Library version 0.2.0-3");
     process.exit(0);
   }
 
