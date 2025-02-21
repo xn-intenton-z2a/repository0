@@ -33,9 +33,5 @@ jobs:
         Update the README file adding the next changes to attempt in a *next up* section.
         || Make a change to the source file that greater aligns the behaviour to the readme README.
         || Make a change to extend the functionality of source file in line with the README *next up* section (if there is one).
-        || If possible, reduce the source file or test file size by introducing at most 1 new library to the dependencies file.
-        || If possible, reduce duplication in the source file by creating or extending 1 or 2 standalone functionss.
-        || Optimise the test coverage by the test file (not under or over and pragmatic about risk) and fix bugs the tests highlight.
+        || Optimise the test coverage by the test file and fix bugs the tests highlight.
         || Ensure that the main defaults to the usage and a demo which outputs to console and that the main terminates without user input.
-        || Update the dependencies file by consolidating or migrating no more than 1 or 2 dependencies to contemporary versions.
-        || Refresh the README file to match the current source file and test file and document the CLI behaviour.
