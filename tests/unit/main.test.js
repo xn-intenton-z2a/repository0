@@ -1,6 +1,7 @@
 import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import fs from "fs";
+import readline from "readline";
 
 // Basic import test
 describe("Main Module Import", () => {
@@ -62,6 +63,24 @@ describe("Exported API Functions", () => {
     const argsCall = writeFileSyncSpy.mock.calls[0];
     expect(argsCall[1]).toContain("# Plot Data");
     writeFileSyncSpy.mockRestore();
+    process.argv = originalArgv;
+  });
+});
+
+// Interactive CLI Mode test
+describe("Interactive CLI Mode", () => {
+  test("should prompt for input when --interactive flag is provided", () => {
+    const rlMock = {
+      question: vi.fn((prompt, callback) => { callback("y=2x+3:-10,10,1"); }),
+      close: vi.fn(),
+    };
+    vi.spyOn(readline, "createInterface").mockReturnValue(rlMock);
+    const originalArgv = process.argv;
+    process.argv = ["node", "src/lib/main.js", "--interactive"];
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    mainModule.main();
+    expect(rlMock.question).toHaveBeenCalled();
+    exitSpy.mockRestore();
     process.argv = originalArgv;
   });
 });
