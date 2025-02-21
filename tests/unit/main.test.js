@@ -81,6 +81,15 @@ describe("Exported API Functions", () => {
   });
 });
 
+// New test for rotation feature
+describe("Rotation Feature", () => {
+  test("plotToSvg includes rotation transform when rotate parameter is provided", () => {
+    const svg = mainModule.plotToSvg({ formulas: ["y=2x+3:-10,10,1"], rotate: 45 });
+    // Check for a rotate transform attribute with center (400,850)
+    expect(svg).toContain('transform="rotate(45.00, 400.00, 850.00)"');
+  });
+});
+
 // Interactive CLI Mode test
 describe("Interactive CLI Mode", () => {
   test("should prompt for input when --interactive flag is provided", () => {

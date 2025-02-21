@@ -29,6 +29,7 @@ const range = (start, end, step = 1) => {
  - Add interactive CLI mode for user inputs.
  - Enhance error handling and logging.
  - New Feature: PNG output conversion using sharp
+ - New Feature: Add rotation support for SVG output using a CLI flag (--rotate)
 */
 
 // Helper function to format numbers to two decimals and avoid negative zero
@@ -510,7 +511,7 @@ const displayPlot = (plotName, points) => {
   console.log(points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" "));
 };
 
-// SVG Generation Function
+// SVG Generation Function with rotation support
 const generateSvg = (
   quadraticPlots,
   linearPlots,
@@ -520,13 +521,18 @@ const generateSvg = (
   exponentialPlots,
   logarithmicPlots,
   gridEnabled = false,
-  dealersChoice = false
+  dealersChoice = false,
+  rotate = 0
 ) => {
   const width = 800;
   const height = 1700;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   svg += `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">\n`;
   svg += `  <rect width="100%" height="100%" fill="white" />\n`;
+  // If rotation is requested, wrap the content in a group with a rotate transform
+  if (rotate !== 0) {
+    svg += `  <g transform="rotate(${formatNumber(rotate)}, ${formatNumber(width / 2)}, ${formatNumber(height / 2)})">\n`;
+  }
 
   const randomColor = () =>
     "#" +
@@ -873,13 +879,17 @@ const generateSvg = (
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
 
+  if (rotate !== 0) {
+    svg += "  </g>\n";
+  }
+
   svg += "</svg>";
   return svg;
 };
 
 // HTML Generation Function
-const plotToHtml = ({ formulas = [], grid = false, dealersChoice = false } = {}) => {
-  const svgContent = plotToSvg({ formulas, grid, dealersChoice });
+const plotToHtml = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0 } = {}) => {
+  const svgContent = plotToSvg({ formulas, grid, dealersChoice, rotate });
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -937,9 +947,9 @@ const plotToMarkdown = ({ formulas = [] } = {}) => {
   return md;
 };
 
-const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false } = {}) => {
+const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0 } = {}) => {
   const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice);
+  return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice, rotate);
 };
 
 const plotToAscii = ({ formulas = [] } = {}) => {
@@ -1172,13 +1182,27 @@ const demoTest = () => {
 const main = async () => {
   const args = process.argv.slice(2);
 
+  // Parse rotation flag if provided
+  let rotation = 0;
+  const rotateIndex = args.findIndex(arg => arg.startsWith("--rotate"));
+  if (rotateIndex > -1) {
+    let angleStr = "";
+    const rotateArg = args[rotateIndex];
+    if (rotateArg.includes("=")) {
+      angleStr = rotateArg.split("=")[1];
+    } else if (args.length > rotateIndex + 1) {
+      angleStr = args[rotateIndex + 1];
+    }
+    rotation = parseFloat(angleStr) || 0;
+  }
+
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.2.0-6");
+    console.log("Equation Plotter Library version 0.2.0-8");
     process.exit(0);
   }
 
   if (args.includes("--help") || args.includes("-h")) {
-    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...] [--rotate <angle>]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --rotate <angle>   Rotate SVG output by specified degrees\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
     process.exit(0);
   }
 
@@ -1202,7 +1226,7 @@ const main = async () => {
         (arg) =>
           !arg.includes(":") &&
           !arg.includes("=") &&
-          !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html"].includes(arg)
+          !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html", "--rotate"].includes(arg)
       );
       if (nonFormulaArgs.length > 0) {
         outputFileName = nonFormulaArgs[0];
@@ -1227,13 +1251,13 @@ const main = async () => {
       } else if (isAscii) {
         fileContent = plotToAscii({ formulas: formulasList });
       } else {
-        fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+        fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice, rotate: rotation });
       }
 
       try {
         if (isPng) {
           // Always generate SVG and then convert to PNG using sharp
-          const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+          const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice, rotate: rotation });
           await sharp(Buffer.from(svgContent)).png().toFile(outputFileName);
           console.log(`\nPNG file generated: ${outputFileName}`);
         } else {
@@ -1266,7 +1290,7 @@ const main = async () => {
     (arg) =>
       !arg.includes(":") &&
       !arg.includes("=") &&
-      !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html"].includes(arg)
+      !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html", "--rotate"].includes(arg)
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -1310,12 +1334,12 @@ const main = async () => {
   } else if (isAscii) {
     fileContent = plotToAscii({ formulas: formulasList });
   } else {
-    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice, rotate: rotation });
   }
 
   try {
     if (isPng) {
-      const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+      const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice, rotate: rotation });
       await sharp(Buffer.from(svgContent)).png().toFile(outputFileName);
       console.log(`\nPNG file generated: ${outputFileName}`);
     } else {
