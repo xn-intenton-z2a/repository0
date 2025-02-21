@@ -65,3 +65,19 @@ describe("Exported API Functions", () => {
     process.argv = originalArgv;
   });
 });
+
+// Error Handling Tests
+describe("Error Handling", () => {
+  test("parseGenericQuadratic throws error for invalid input", () => {
+    expect(() => mainModule.parseGenericQuadratic("invalid formula")).toThrow();
+  });
+  
+  test("plotFromString returns empty array for unrecognized formula", () => {
+    const result = mainModule.plotFromString("unknown:parameter");
+    expect(result).toEqual([]);
+  });
+  
+  test("parseSine throws error for invalid sine formula string", () => {
+    expect(() => mainModule.parseSine("sine:invalid")).toThrow();
+  });
+});
