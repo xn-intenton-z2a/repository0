@@ -3,6 +3,9 @@ import * as mainModule from "@src/lib/main.js";
 import fs from "fs";
 import readline from "readline";
 
+// Added greeting for Christo
+console.log("Hello Christo");
+
 // Basic import test
 describe("Main Module Import", () => {
   test("should be non-null", () => {

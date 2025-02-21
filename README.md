@@ -1,5 +1,7 @@
 # `repository0`
 
+Hello Christo
+
 Create a repository from a Repository Template to get started with the agentic coding system. See: [Tamplate README](TEMPLATE-README.md)
 
 ## Overview
