@@ -6,6 +6,7 @@
 import { fileURLToPath } from "url";
 import fs from "fs";
 import readline from "readline";
+import sharp from "sharp";
 
 // Custom range function to generate a sequence of numbers
 const range = (start, end, step = 1) => {
@@ -27,6 +28,7 @@ const range = (start, end, step = 1) => {
  - Refactor plotting functions for better performance.
  - Add interactive CLI mode for user inputs.
  - Enhance error handling and logging.
+ - New Feature: PNG output conversion using sharp
 */
 
 // Helper function to format numbers to two decimals and avoid negative zero
@@ -935,7 +937,6 @@ const plotToMarkdown = ({ formulas = [] } = {}) => {
   return md;
 };
 
-// Exported API Functions
 const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false } = {}) => {
   const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
   return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice);
@@ -1168,7 +1169,7 @@ const demoTest = () => {
 };
 
 // Main Execution
-const main = () => {
+const main = async () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
@@ -1177,47 +1178,17 @@ const main = () => {
   }
 
   if (args.includes("--help") || args.includes("-h")) {
-    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]
-
-Options:
-  --help, -h         Show this help message
-  --json             Generate output as JSON instead of SVG
-  --csv              Generate output as CSV instead of SVG
-  --ascii            Generate output as ASCII art instead of SVG
-  --md               Generate output as Markdown instead of SVG
-  --html             Generate output as HTML
-  --grid             Overlay grid lines on SVG plots
-  --debug            Output internal parsed plot data for debugging
-  --dealers-choice   Use randomized color palette for SVG plots
-  --interactive      Enable interactive CLI mode for real-time user input
-  --demo             Run demo test output
-  --version          Show version information
-(output file extension .html will generate HTML output,
- .md for Markdown output, .txt or .ascii for ASCII output)
-
-Formula String Formats:
-  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")
-  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")
-  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"
-  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."
-  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"
-  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")
-  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"
-`);
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
     process.exit(0);
   }
 
   // Interactive CLI mode support
   if (args.includes("--interactive")) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question("Enter formula strings (semicolon-separated): ", (answer) => {
+    rl.question("Enter formula strings (semicolon-separated): ", async (answer) => {
       const interactiveFormulas = answer.split(";").map(s => s.trim()).filter(Boolean);
-      // Remove the interactive flag for further processing
       const filteredArgs = args.filter(arg => arg !== "--interactive");
-      // Use interactive formulas if provided, otherwise fall back to default
       const formulasList = interactiveFormulas.length ? interactiveFormulas : [];
-
-      // Determine output options from remaining args
       let outputFileName = "output.svg";
       let isJson = filteredArgs.includes("--json");
       let isCsv = filteredArgs.includes("--csv");
@@ -1227,7 +1198,6 @@ Formula String Formats:
       const isDebug = filteredArgs.includes("--debug");
       const gridEnabled = filteredArgs.includes("--grid");
       const isDealersChoice = filteredArgs.includes("--dealers-choice");
-
       const nonFormulaArgs = filteredArgs.filter(
         (arg) =>
           !arg.includes(":") &&
@@ -1237,24 +1207,15 @@ Formula String Formats:
       if (nonFormulaArgs.length > 0) {
         outputFileName = nonFormulaArgs[0];
       }
-      if (outputFileName.toLowerCase().endsWith(".json")) {
-        isJson = true;
-      } else if (outputFileName.toLowerCase().endsWith(".csv")) {
-        isCsv = true;
-      } else if (outputFileName.toLowerCase().endsWith(".html")) {
-        isHtml = true;
-      } else if (outputFileName.toLowerCase().endsWith(".md")) {
-        isMarkdown = true;
-      } else if (outputFileName.toLowerCase().endsWith(".txt") || outputFileName.toLowerCase().endsWith(".ascii")) {
-        isAscii = true;
-      }
+      const lowerName = outputFileName.toLowerCase();
+      const isPng = lowerName.endsWith(".png");
 
       if (isDebug) {
         console.log("\nDebug: Internal parsed plot data:");
         console.log(JSON.stringify(getPlotsFromFormulas(formulasList), null, 2));
       }
 
-      let fileContent = "";
+      let fileContent = '';
       if (isJson) {
         fileContent = JSON.stringify(plotToJson({ formulas: formulasList }), null, 2);
       } else if (isCsv) {
@@ -1270,8 +1231,15 @@ Formula String Formats:
       }
 
       try {
-        fs.writeFileSync(outputFileName, fileContent, "utf8");
-        console.log(`\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`);
+        if (isPng) {
+          // Always generate SVG and then convert to PNG using sharp
+          const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+          await sharp(Buffer.from(svgContent)).png().toFile(outputFileName);
+          console.log(`\nPNG file generated: ${outputFileName}`);
+        } else {
+          fs.writeFileSync(outputFileName, fileContent, "utf8");
+          console.log(`\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`);
+        }
       } catch (err) {
         console.error(`Error writing file:`, err.message);
         process.exit(1);
@@ -1294,7 +1262,6 @@ Formula String Formats:
   const isDebug = args.includes("--debug");
   const gridEnabled = args.includes("--grid");
   const isDealersChoice = args.includes("--dealers-choice");
-
   const nonFormulaArgs = args.filter(
     (arg) =>
       !arg.includes(":") &&
@@ -1304,15 +1271,17 @@ Formula String Formats:
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
   }
-  if (outputFileName.toLowerCase().endsWith(".json")) {
+  const lowerName = outputFileName.toLowerCase();
+  const isPng = lowerName.endsWith(".png");
+  if (lowerName.endsWith(".json")) {
     isJson = true;
-  } else if (outputFileName.toLowerCase().endsWith(".csv")) {
+  } else if (lowerName.endsWith(".csv")) {
     isCsv = true;
-  } else if (outputFileName.toLowerCase().endsWith(".html")) {
+  } else if (lowerName.endsWith(".html")) {
     isHtml = true;
-  } else if (outputFileName.toLowerCase().endsWith(".md")) {
+  } else if (lowerName.endsWith(".md")) {
     isMarkdown = true;
-  } else if (outputFileName.toLowerCase().endsWith(".txt") || outputFileName.toLowerCase().endsWith(".ascii")) {
+  } else if (lowerName.endsWith(".txt") || lowerName.endsWith(".ascii")) {
     isAscii = true;
   }
 
@@ -1345,10 +1314,14 @@ Formula String Formats:
   }
 
   try {
-    fs.writeFileSync(outputFileName, fileContent, "utf8");
-    console.log(
-      `\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`
-    );
+    if (isPng) {
+      const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+      await sharp(Buffer.from(svgContent)).png().toFile(outputFileName);
+      console.log(`\nPNG file generated: ${outputFileName}`);
+    } else {
+      fs.writeFileSync(outputFileName, fileContent, "utf8");
+      console.log(`\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`);
+    }
   } catch (err) {
     console.error(`Error writing file:`, err.message);
     process.exit(1);
