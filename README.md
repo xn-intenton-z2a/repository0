@@ -63,10 +63,17 @@ The CLI offers a variety of output formats depending on the file extension provi
   node src/lib/main.js output.html --grid "y=2x+3:-10,10,1"
   ```
 
+- **Interactive Mode:**
+  For real-time user input, run:
+  ```bash
+  node src/lib/main.js --interactive
+  ```
+  You will be prompted to enter comma-separated formula strings.
+
 Other flags include:
 
 - `--help` or `-h`: Display the help message with detailed usage instructions.
-- `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, and `--demo` for respective functionalities.
+- `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, `--demo`, `--md`, `--html` for respective functionalities.
 
 ## Linting
 The project uses ESLint for code quality. The `no-console` rule has been disabled in `src/lib/main.js` to facilitate necessary console output in the CLI, ensuring that linting passes with fewer warnings.
