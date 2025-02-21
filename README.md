@@ -11,7 +11,7 @@ Create a repository from a Repository Template to get started with the agentic c
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML).
+  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML). Note: The source file has been updated to disable the `no-console` rule for smoother linting.
 
 - **Dependencies:**
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
@@ -67,6 +67,9 @@ Other flags include:
 
 - `--help` or `-h`: Display the help message with detailed usage instructions.
 - `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, and `--demo` for respective functionalities.
+
+## Linting
+The project uses ESLint for code quality. The `no-console` rule has been disabled in `src/lib/main.js` to facilitate necessary console output in the CLI, ensuring that linting passes with fewer warnings.
 
 ## Test Coverage
 The project includes a suite of tests verifying key exported functions, CLI behavior, and error handling, ensuring that changes in the code do not break critical functionality.
