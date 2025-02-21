@@ -204,7 +204,7 @@ const parseGenericLinear = (formulaStr) => {
 // Parse a generic quadratic formula in standard algebraic form with optional range
 const parseGenericQuadratic = (formulaStr) => {
   const parts = formulaStr.split(":");
-  const mainPart = parts[0].replace(/\s+/g, "");
+  const mainPart = parts[0].replace(/\s+/g, "").toLowerCase();
   const rangePart = parts.length > 1 ? parts[1].trim() : "";
   let xMin = -10;
   let xMax = 10;
@@ -216,7 +216,7 @@ const parseGenericQuadratic = (formulaStr) => {
     if (rangeParams.length > 2 && !isNaN(rangeParams[2])) step = rangeParams[2];
   }
 
-  if (mainPart.toLowerCase().startsWith("y=")) {
+  if (mainPart.startsWith("y=")) {
     const yExpr = mainPart.substring(2);
     const coeffs = extractQuadraticCoefficients(yExpr);
     return plotQuadraticParam({ ...coeffs, xMin, xMax, step });
