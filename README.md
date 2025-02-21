@@ -68,7 +68,7 @@ The CLI offers a variety of output formats depending on the file extension provi
   ```bash
   node src/lib/main.js --interactive
   ```
-  You will be prompted to enter comma-separated formula strings.
+  You will be prompted to enter semicolon-separated formula strings.
 
 Other flags include:
 

@@ -1210,8 +1210,8 @@ Formula String Formats:
   // Interactive CLI mode support
   if (args.includes("--interactive")) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question("Enter formula strings (comma-separated): ", (answer) => {
-      const interactiveFormulas = answer.split(",").map(s => s.trim()).filter(Boolean);
+    rl.question("Enter formula strings (semicolon-separated): ", (answer) => {
+      const interactiveFormulas = answer.split(";").map(s => s.trim()).filter(Boolean);
       // Remove the interactive flag for further processing
       const filteredArgs = args.filter(arg => arg !== "--interactive");
       // Use interactive formulas if provided, otherwise fall back to default
