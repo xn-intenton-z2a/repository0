@@ -5,6 +5,7 @@
 
 import { fileURLToPath } from "url";
 import fs from "fs";
+import readline from "readline";
 
 // Custom range function to generate a sequence of numbers
 const range = (start, end, step = 1) => {
@@ -571,7 +572,7 @@ const generateSvg = (
     });
     range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
-      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
+      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
     });
     return grid;
   };
@@ -1171,7 +1172,7 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.2.0-3");
+    console.log("Equation Plotter Library version 0.2.0-6");
     process.exit(0);
   }
 
@@ -1183,13 +1184,16 @@ Options:
   --json             Generate output as JSON instead of SVG
   --csv              Generate output as CSV instead of SVG
   --ascii            Generate output as ASCII art instead of SVG
+  --md               Generate output as Markdown instead of SVG
+  --html             Generate output as HTML
   --grid             Overlay grid lines on SVG plots
   --debug            Output internal parsed plot data for debugging
   --dealers-choice   Use randomized color palette for SVG plots
+  --interactive      Enable interactive CLI mode for real-time user input
   --demo             Run demo test output
   --version          Show version information
-  (output file extension .html will generate HTML output,
-   .md for Markdown output, .txt or .ascii for ASCII output)
+(output file extension .html will generate HTML output,
+ .md for Markdown output, .txt or .ascii for ASCII output)
 
 Formula String Formats:
   Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")
@@ -1203,10 +1207,82 @@ Formula String Formats:
     process.exit(0);
   }
 
-  // If --demo flag is provided, run the demo test and exit
-  if (args.includes("--demo")) {
-    demoTest();
-    process.exit(0);
+  // Interactive CLI mode support
+  if (args.includes("--interactive")) {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question("Enter formula strings (comma-separated): ", (answer) => {
+      const interactiveFormulas = answer.split(",").map(s => s.trim()).filter(Boolean);
+      // Remove the interactive flag for further processing
+      const filteredArgs = args.filter(arg => arg !== "--interactive");
+      // Use interactive formulas if provided, otherwise fall back to default
+      const formulasList = interactiveFormulas.length ? interactiveFormulas : [];
+
+      // Determine output options from remaining args
+      let outputFileName = "output.svg";
+      let isJson = filteredArgs.includes("--json");
+      let isCsv = filteredArgs.includes("--csv");
+      let isHtml = false;
+      let isAscii = filteredArgs.includes("--ascii");
+      let isMarkdown = filteredArgs.includes("--md");
+      const isDebug = filteredArgs.includes("--debug");
+      const gridEnabled = filteredArgs.includes("--grid");
+      const isDealersChoice = filteredArgs.includes("--dealers-choice");
+
+      const nonFormulaArgs = filteredArgs.filter(
+        (arg) =>
+          !arg.includes(":") &&
+          !arg.includes("=") &&
+          !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html"].includes(arg)
+      );
+      if (nonFormulaArgs.length > 0) {
+        outputFileName = nonFormulaArgs[0];
+      }
+      if (outputFileName.toLowerCase().endsWith(".json")) {
+        isJson = true;
+      } else if (outputFileName.toLowerCase().endsWith(".csv")) {
+        isCsv = true;
+      } else if (outputFileName.toLowerCase().endsWith(".html")) {
+        isHtml = true;
+      } else if (outputFileName.toLowerCase().endsWith(".md")) {
+        isMarkdown = true;
+      } else if (outputFileName.toLowerCase().endsWith(".txt") || outputFileName.toLowerCase().endsWith(".ascii")) {
+        isAscii = true;
+      }
+
+      if (isDebug) {
+        console.log("\nDebug: Internal parsed plot data:");
+        console.log(JSON.stringify(getPlotsFromFormulas(formulasList), null, 2));
+      }
+
+      let fileContent = "";
+      if (isJson) {
+        fileContent = JSON.stringify(plotToJson({ formulas: formulasList }), null, 2);
+      } else if (isCsv) {
+        fileContent = plotToCsv({ formulas: formulasList });
+      } else if (isHtml) {
+        fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+      } else if (isMarkdown) {
+        fileContent = plotToMarkdown({ formulas: formulasList });
+      } else if (isAscii) {
+        fileContent = plotToAscii({ formulas: formulasList });
+      } else {
+        fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, dealersChoice: isDealersChoice });
+      }
+
+      try {
+        fs.writeFileSync(outputFileName, fileContent, "utf8");
+        console.log(`\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`);
+      } catch (err) {
+        console.error(`Error writing file:`, err.message);
+        process.exit(1);
+      }
+
+      console.log("\nText Representation of Plots:");
+      console.log(plotToText({ formulas: formulasList }));
+      rl.close();
+      process.exit(0);
+    });
+    return;
   }
 
   let outputFileName = "output.svg";
@@ -1214,7 +1290,7 @@ Formula String Formats:
   let isCsv = args.includes("--csv");
   let isHtml = false;
   let isAscii = args.includes("--ascii");
-  let isMarkdown = false;
+  let isMarkdown = args.includes("--md");
   const isDebug = args.includes("--debug");
   const gridEnabled = args.includes("--grid");
   const isDealersChoice = args.includes("--dealers-choice");
@@ -1223,7 +1299,7 @@ Formula String Formats:
     (arg) =>
       !arg.includes(":") &&
       !arg.includes("=") &&
-      !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice"].includes(arg),
+      !["--json", "--csv", "--version", "--ascii", "--debug", "--grid", "--dealers-choice", "--interactive", "--md", "--html"].includes(arg)
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -1244,7 +1320,7 @@ Formula String Formats:
 
   if (formulasList.length === 0) {
     console.log(
-      "No formulas provided. Using default plot functions for quadratic, linear, sine, cosine, polar, exponential, and logarithmic plots.",
+      "No formulas provided. Using default plot functions for quadratic, linear, sine, cosine, polar, exponential, and logarithmic plots."
     );
   }
 
@@ -1271,7 +1347,7 @@ Formula String Formats:
   try {
     fs.writeFileSync(outputFileName, fileContent, "utf8");
     console.log(
-      `\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`,
+      `\n${isJson ? "JSON" : isCsv ? "CSV" : isHtml ? "HTML" : isMarkdown ? "Markdown" : isAscii ? "ASCII" : "SVG"} file generated: ${outputFileName}`
     );
   } catch (err) {
     console.error(`Error writing file:`, err.message);

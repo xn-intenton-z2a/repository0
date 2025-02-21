@@ -63,10 +63,17 @@ The CLI offers a variety of output formats depending on the file extension provi
   node src/lib/main.js output.html --grid "y=2x+3:-10,10,1"
   ```
 
+- **Interactive Mode:**
+  For real-time user input, run:
+  ```bash
+  node src/lib/main.js --interactive
+  ```
+  You will be prompted to enter comma-separated formula strings.
+
 Other flags include:
 
 - `--help` or `-h`: Display the help message with detailed usage instructions.
-- `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, and `--demo` for respective functionalities.
+- `--json`, `--csv`, `--ascii`, `--grid`, `--debug`, `--dealers-choice`, `--demo`, `--md`, `--html` for respective functionalities.
 
 ## Linting
 The project uses ESLint for code quality. The `no-console` rule has been disabled in `src/lib/main.js` to facilitate necessary console output in the CLI, ensuring that linting passes with fewer warnings.
@@ -91,10 +98,7 @@ Other files considered by the workflow:
 
 In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI.
 
-**Version:** Equation Plotter Library version 0.2.0-3
-
-## Final Notes
-`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
+**Version:** Equation Plotter Library version 0.2.0-6
 
 ## Next Up
 - Enhance performance by optimizing the SVG rendering logic and plotting algorithms.
@@ -102,3 +106,8 @@ In the early hours, `repository0` burst into existence with a bold declaration: 
 - Improve error handling and logging mechanisms across the application.
 - Expand the library to support additional equation types and output formats.
 - Refine CLI argument parsing for enhanced user guidance.
+- Refactor formula parsing logic for improved maintainability.
+- Investigate integration with external plotting libraries for advanced visuals.
+
+## Final Notes
+`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
