@@ -26,12 +26,13 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.6.0'
     with:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       houseChoiceOptions: |
-        Update the README file adding the next changes to attempt in a *next up* section.
-        || Make a change to the source file that greater aligns the behaviour to the readme README.
-        || Make a change to extend the functionality of source file in line with the README *next up* section (if there is one).
-        || Optimise the test coverage by the test file and fix bugs the tests highlight.
-        || Ensure that the main defaults to the usage and a demo which outputs to console and that the main terminates without user input.
+        Add a new feature to the source file pulling in at most 1 new dependency if you need to.
+        || Extend the functionality in the source file.
+        || Improve the consistency of the source file and test file.
+        || Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
+        || Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
+        || Synchronise the README with current behaviour and call out future features that have not yet been implemented.
