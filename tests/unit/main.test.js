@@ -2,6 +2,7 @@ import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import fs from "fs";
 import readline from "readline";
+import sharp from "sharp";
 
 // Added greeting for Christo
 console.log("Hello Christo");
@@ -66,6 +67,16 @@ describe("Exported API Functions", () => {
     const argsCall = writeFileSyncSpy.mock.calls[0];
     expect(argsCall[1]).toContain("# Plot Data");
     writeFileSyncSpy.mockRestore();
+    process.argv = originalArgv;
+  });
+
+  test("main generates PNG file when output file ends with .png", async () => {
+    const toFileSpy = vi.spyOn(sharp.prototype, "toFile").mockResolvedValue({});
+    const originalArgv = process.argv;
+    process.argv = ["node", "src/lib/main.js", "output.png", "y=2x+3:-10,10,1"];
+    await mainModule.main();
+    expect(toFileSpy).toHaveBeenCalled();
+    toFileSpy.mockRestore();
     process.argv = originalArgv;
   });
 });

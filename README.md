@@ -5,7 +5,7 @@ Hello Christo
 Create a repository from a Repository Template to get started with the agentic coding system. See: [Tamplate README](TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate these automated CI/CD workflows. One example seed idea included here is the Equation Plotter—a simple tool that generates plots (SVG, JSON, CSV, Markdown, ASCII, and HTML) of mathematical functions like quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool uses a custom range function for generating number sequences, eliminating the need for an external library for this purpose, and supports multiple output formats via a CLI.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate these automated CI/CD workflows. One example seed idea included here is the Equation Plotter—a simple tool that generates plots (SVG, JSON, CSV, Markdown, ASCII, HTML, and now PNG) of mathematical functions like quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool uses a custom range function for generating number sequences, eliminating the need for an external library for this purpose, and supports multiple output formats via a CLI.
 
 ## What’s Inside
 
@@ -13,7 +13,7 @@ Create a repository from a Repository Template to get started with the agentic c
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML). Note: The source file has been updated to disable the `no-console` rule for smoother linting.
+  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML, and now PNG). Note: The source file has been updated to disable the `no-console` rule for smoother linting.
 
 - **Dependencies:**
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
@@ -63,6 +63,11 @@ The CLI offers a variety of output formats depending on the file extension provi
 - Generate an HTML output with grid overlay:
   ```bash
   node src/lib/main.js output.html --grid "y=2x+3:-10,10,1"
+  ```
+
+- Generate a PNG output (new feature):
+  ```bash
+  node src/lib/main.js output.png "sine:1,1,0,0,360,30"
   ```
 
 - **Interactive Mode:**
