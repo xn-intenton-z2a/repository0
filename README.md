@@ -13,13 +13,13 @@ Create a repository from a Repository Template to get started with the agentic c
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML, and now PNG). Note: The source file has been updated to disable the `no-console` rule for smoother linting.
+  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML, PNG) including a new rotation feature via the `--rotate` flag. Note: The source file has been updated to disable the `no-console` rule for smoother linting.
 
 - **Dependencies:**
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs, including additional tests for error handling and branch coverage.
+  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs, including additional tests for error handling, rotation feature, and branch coverage.
 
 - **Docs:**
   This `README.md` is maintained to keep track of the repository usage and the evolution of the CLI behaviour.
@@ -70,6 +70,13 @@ The CLI offers a variety of output formats depending on the file extension provi
   node src/lib/main.js output.png "sine:1,1,0,0,360,30"
   ```
 
+- **Rotation Feature:**
+  You can now rotate the SVG output by specifying the rotation angle with the `--rotate` flag. For example, to rotate the plot by 45 degrees, run:
+  ```bash
+  node src/lib/main.js output.svg "y=2x+3:-10,10,1" --rotate 45
+  ```
+  This rotates the entire plot around the center of the SVG.
+
 - **Interactive Mode:**
   For real-time user input, run:
   ```bash
@@ -86,7 +93,7 @@ Other flags include:
 The project uses ESLint for code quality. The `no-console` rule has been disabled in `src/lib/main.js` to facilitate necessary console output in the CLI, ensuring that linting passes with fewer warnings.
 
 ## Test Coverage
-The project includes a suite of tests verifying key exported functions, CLI behavior, and error handling, ensuring that changes in the code do not break critical functionality.
+The project includes a suite of tests verifying key exported functions, CLI behavior, error handling, and the new rotation feature, ensuring that changes in the code do not break critical functionality.
 
 ## Tuning the agentic coding system
 
@@ -103,9 +110,9 @@ Other files considered by the workflow:
 ## Diary of an agentic coding system - Day 1
 (An narrative exploration of the repository's evolution when asked to create an Equation Plotter Library.)
 
-In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI.
+In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI. This release also introduces a rotation feature for the SVG output.
 
-**Version:** Equation Plotter Library version 0.2.0-6
+**Version:** Equation Plotter Library version 0.2.0-8
 
 ## Next Up
 - Enhance performance by optimizing the SVG rendering logic and plotting algorithms.
@@ -117,4 +124,4 @@ In the early hours, `repository0` burst into existence with a bold declaration: 
 - Investigate integration with external plotting libraries for advanced visuals.
 
 ## Final Notes
-`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
+`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling, branch conditions, and the new rotation feature.
