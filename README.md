@@ -101,3 +101,4 @@ In the early hours, `repository0` burst into existence with a bold declaration: 
 - Introduce an interactive CLI mode for real-time user input.
 - Improve error handling and logging mechanisms across the application.
 - Expand the library to support additional equation types and output formats.
+- Refine CLI argument parsing for enhanced user guidance.
