@@ -1171,7 +1171,7 @@ const main = () => {
   const args = process.argv.slice(2);
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.2.0-3");
+    console.log("Equation Plotter Library version 0.2.0-6");
     process.exit(0);
   }
 

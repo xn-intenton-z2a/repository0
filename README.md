@@ -91,7 +91,7 @@ Other files considered by the workflow:
 
 In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI.
 
-**Version:** Equation Plotter Library version 0.2.0-3
+**Version:** Equation Plotter Library version 0.2.0-6
 
 ## Final Notes
 `repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling and branch condition tests.
