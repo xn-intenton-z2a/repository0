@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "0.2.0-4",
+  "version": "0.2.0-5",
   "description": "A self-evolving test repository for the intentïon agentic-lib suite of GitHub Workflows.",
   "type": "module",
   "main": "src/index.js",
@@ -51,9 +51,9 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.26.8",
-    "@eslint/config-array": "^0.19.1",
-    "@eslint/js": "^9.19.0",
-    "@eslint/object-schema": "^2.1.5",
+    "@eslint/config-array": "^0.19.2",
+    "@eslint/js": "^9.20.0",
+    "@eslint/object-schema": "^2.1.6",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@vitest/coverage-v8": "^3.0.5",
     "eslint": "^9.19.0",
@@ -68,9 +68,13 @@
     "eslint-plugin-sonarjs": "^3.0.2",
     "globals": "^16.0.0",
     "npm-check-updates": "^17.1.14",
-    "openai": "^4.85.1",
     "pino-pretty": "^13.0.0",
     "prettier": "^3.5.1",
+    "recast": "^0.23.9",
+    "rxjs": "^7.8.1",
+    "tiktoken": "^1.0.20",
+    "uuid": "^11.0.5",
+    "vitest": "^3.0.5",
     "zod": "^3.24.2"
   },
   "overrides": {
