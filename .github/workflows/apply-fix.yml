@@ -48,7 +48,7 @@ jobs:
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: 'npm run start'
-      model: 'o3-mini'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:

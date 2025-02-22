@@ -18,7 +18,7 @@ on:
         default: 'house choice'
   schedule:
     #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
-    - cron: '0 6 * * *' # Run every day at 6:00
+    - cron: '0 2,6,10 * * *' # Run every day at 6:00
 
 jobs:
 
