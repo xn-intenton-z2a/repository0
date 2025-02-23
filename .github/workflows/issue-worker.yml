@@ -33,8 +33,9 @@ on:
     types:
       - completed
   schedule:
-    #- cron: '5,35 * * * *' # Run every 30 minutes at 5 and 35 minutes past
-    - cron: '0 */2 * * *' # Run every 2 hours at 0 minutes past
+    #- cron: '15 */2 * * *' # Run every 2 hours at 0 minutes past
+    - cron: '*/30 * * * *' # Run every 30 minutes
+    #- cron: '*/15 * * * *' # Run every 15 minutes
 
 jobs:
 
