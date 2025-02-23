@@ -585,7 +585,7 @@ const generateSvg = (
     });
     range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
-      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
+      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
     });
     return grid;
   };
@@ -895,19 +895,7 @@ const generateSvg = (
 // HTML Generation Function
 const plotToHtml = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0, customTitle = "" } = {}) => {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice, rotate, customTitle });
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Equation Plot</title>
-  <style>
-    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }
-  </style>
-</head>
-<body>
-${svgContent}
-</body>
-</html>`;
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
 };
 
 // Markdown Generation Function (Extended Feature)
@@ -1222,7 +1210,7 @@ const main = async () => {
   }
 
   if (args.includes("--version")) {
-    console.log("Equation Plotter Library version 0.2.0-8");
+    console.log("Equation Plotter Library version 0.2.0-11");
     process.exit(0);
   }
 
