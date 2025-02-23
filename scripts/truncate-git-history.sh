@@ -3,8 +3,8 @@
 # Purpose: Truncate the history so that future revisions don't follow a past trend.
 # Usage: ./scripts/truncate-git-history.sh
 #
-# This file is part of the repository template which uses `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-# This file is licensed under the MIT License. For details, see the file LICENSE
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
 #
 git checkout --orphan temp-branch
 git add --verbose --all

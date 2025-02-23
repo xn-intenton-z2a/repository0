@@ -2,8 +2,8 @@
 # scripts/update.sh
 # Usage: ./scripts/update.sh
 #
-# This file is part of the repository template which uses `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-# This file is licensed under the MIT License. For details, see the file LICENSE
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
 #
 
 rm -f package-lock.json
