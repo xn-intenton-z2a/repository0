@@ -1181,6 +1181,12 @@ const demoTest = () => {
 // Main Execution
 const main = async () => {
   const args = process.argv.slice(2);
+  // If no command-line arguments are provided, run demo output and exit
+  if (args.length === 0) {
+    console.log("No arguments provided. Running demo output...");
+    demoTest();
+    process.exit(0);
+  }
 
   // Parse rotation flag if provided
   let rotation = 0;
