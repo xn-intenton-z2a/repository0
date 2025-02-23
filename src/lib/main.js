@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 
-"use strict";
+'use strict';
 
 import { fileURLToPath } from "url";
 import fs from "fs";
@@ -23,14 +23,6 @@ const range = (start, end, step = 1) => {
   return arr;
 };
 
-/*
- Next Up:
- - Refactor plotting functions for better performance.
- - Enhance interactive CLI mode for improved user experience.
- - Further improve error handling and logging.
- - Future Feature: Integrate additional plotting optimizations and mobile friendly outputs.
-*/
-
 // Helper function to format numbers to two decimals and avoid negative zero
 const formatNumber = (n) => {
   const s = n.toFixed(2);
@@ -38,7 +30,6 @@ const formatNumber = (n) => {
 };
 
 // Plotting Functions
-
 const plotQuadraticParam = ({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
   const points = range(xMin, xMax + step, step).map((x) => ({ x, y: a * x * x + b * x + c }));
   return points;
@@ -98,7 +89,6 @@ const plotExponential = () => plotExponentialParam();
 const plotLogarithmic = () => plotLogarithmicParam();
 
 // Formula Parsing Functions
-
 const parseQuadratic = (formulaStr) => {
   const parts = formulaStr.split(":");
   if (parts.length < 2) throw new Error("Invalid quadratic formula string: " + formulaStr);
@@ -110,7 +100,7 @@ const parseQuadratic = (formulaStr) => {
     c: isNaN(c) ? 0 : c,
     xMin: isNaN(xMin) ? -10 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 };
 
@@ -125,7 +115,7 @@ const parseSine = (formulaStr) => {
     phase: isNaN(phase) ? 0 : phase,
     xMin: isNaN(xMin) ? 0 : xMin,
     xMax: isNaN(xMax) ? 360 : xMax,
-    step: isNaN(step) ? 10 : step,
+    step: isNaN(step) ? 10 : step
   });
 };
 
@@ -140,7 +130,7 @@ const parseCosine = (formulaStr) => {
     phase: isNaN(phase) ? 0 : phase,
     xMin: isNaN(xMin) ? 0 : xMin,
     xMax: isNaN(xMax) ? 360 : xMax,
-    step: isNaN(step) ? 10 : step,
+    step: isNaN(step) ? 10 : step
   });
 };
 
@@ -166,7 +156,7 @@ const parseLinear = (formulaStr) => {
     b: isNaN(b) ? 0 : b,
     xMin: isNaN(xMin) ? -10 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 };
 
@@ -239,7 +229,7 @@ const parseGenericQuadratic = (formulaStr) => {
       c: -coeffs.c / yCoeff,
       xMin,
       xMax,
-      step,
+      step
     });
   } else {
     const partsEq = mainPart.split("=");
@@ -264,7 +254,7 @@ const parseGenericQuadratic = (formulaStr) => {
         c: (constantRight - coeffs.c) / yCoeff,
         xMin,
         xMax,
-        step,
+        step
       });
     } else if (right.includes("y")) {
       const yMatch = right.match(/([+-]?\d*\.?\d*)y/);
@@ -284,7 +274,7 @@ const parseGenericQuadratic = (formulaStr) => {
         c: (constantLeft - coeffs.c) / yCoeff,
         xMin,
         xMax,
-        step,
+        step
       });
     } else {
       const nonYPart = left;
@@ -305,7 +295,7 @@ const parseExponential = (formulaStr) => {
     b: isNaN(b) ? 1 : b,
     xMin: isNaN(xMin) ? -10 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 };
 
@@ -345,7 +335,7 @@ const parseLogarithmic = (formulaStr) => {
     base: isNaN(base) ? Math.E : base,
     xMin: isNaN(xMin) ? 1 : xMin,
     xMax: isNaN(xMax) ? 10 : xMax,
-    step: isNaN(step) ? 1 : step,
+    step: isNaN(step) ? 1 : step
   });
 };
 
@@ -710,7 +700,7 @@ const generateSvg = (
     sMinY -= 1;
     sMaxY += 1;
   }
-  const sAllX = sinePlots.flat().map((p) => p.x);
+  const sAllX = sAllPoints.map((p) => p.x);
   let sMinX = Math.min(...sAllX);
   let sMaxX = Math.max(...sAllX);
   if (sMinX === sMaxX) {
@@ -902,38 +892,31 @@ const plotToMarkdown = ({ formulas = [] } = {}) => {
   let md = "# Plot Data\n\n";
   md += "## Quadratic Plot:\n";
   quadratic.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Linear Plot:\n";
   linear.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Sine Plot:\n";
   sine.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Cosine Plot:\n";
   cosine.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Polar Plot:\n";
   polar.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Exponential Plot:\n";
   exponential.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   md += "## Logarithmic Plot:\n";
   logarithmic.forEach((points, i) => {
-    md +=
-      `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
+    md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(" ") + "\n\n";
   });
   return md;
 };
@@ -1045,7 +1028,7 @@ const plotToJson = ({ formulas = [] } = {}) => {
     cosine,
     polar,
     exponential,
-    logarithmic,
+    logarithmic
   };
 };
 
@@ -1390,5 +1373,5 @@ export {
   parseGenericQuadratic,
   parseGenericExponential,
   parseCosine,
-  main,
+  main
 };
