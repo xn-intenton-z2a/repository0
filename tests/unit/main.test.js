@@ -107,6 +107,27 @@ describe('Summary Feature', () => {
   });
 });
 
+// New test for getSummary function
+describe('getSummary Function', () => {
+  test('returns empty object for empty array', () => {
+    const summary = mainModule.getSummary([]);
+    expect(summary).toEqual({});
+  });
+
+  test('returns correct summary statistics for non-empty input', () => {
+    const points = [{ x: 0, y: 1 }, { x: 2, y: 3 }, { x: 4, y: 5 }];
+    const summary = mainModule.getSummary(points);
+    expect(summary).toEqual({
+      minX: '0.00',
+      maxX: '4.00',
+      avgX: '2.00',
+      minY: '1.00',
+      maxY: '5.00',
+      avgY: '3.00'
+    });
+  });
+});
+
 // Interactive CLI Mode test
 describe('Interactive CLI Mode', () => {
   test('should prompt for input when --interactive flag is provided', () => {

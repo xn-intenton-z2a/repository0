@@ -1421,5 +1421,6 @@ export {
   parseGenericQuadratic,
   parseGenericExponential,
   parseCosine,
-  main
+  main,
+  getSummary
 };

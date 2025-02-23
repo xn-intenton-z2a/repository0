@@ -18,6 +18,8 @@ The repository is intended as a template that includes:
 - **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, and then terminates immediately without requiring any user input.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 
+> **Note:** The library now exports a `getSummary` function for convenience and improved test coverage.
+
 ## What’s Inside
 
 - **GitHub Workflows:**
@@ -30,7 +32,7 @@ The repository is intended as a template that includes:
   The dependencies in `package.json` support the range of functionalities including CLI argument parsing, file generation, testing, and image conversion (via sharp).
 
 - **Tests:**
-  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, interactive mode, summary output, error handling, and the default SVG output behavior.
+  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, summary output, interactive mode, error handling, and the default SVG output behavior. New tests have been added for the `getSummary` function.
 
 - **Docs:**
   This `README.md` records the repository usage and tracks the evolution of the CLI behavior.
@@ -121,7 +123,7 @@ The project uses ESLint to enforce code quality and consistency. The `no-console
 
 ## Test Coverage
 
-Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default demo output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
+Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default demo output behavior), error handling, and the new `getSummary` function. These tests help ensure that enhancements do not break existing functionality.
 
 ## Future Enhancements
 
@@ -151,7 +153,7 @@ Other files taken into account by our workflows (but not changed by the workflow
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default demo output when no arguments are provided, and improved error handling alongside consistent code formatting.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default demo output when no arguments are provided, improved error handling alongside consistent code formatting, and an exported `getSummary` function for better integration and testing.
 
 **Version:** Equation Plotter Library version 0.2.0-14
 
