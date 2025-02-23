@@ -9,7 +9,7 @@ Create a repository from a Repository Template to get started with the agentic c
 - **Rotation Feature:** Rotate SVG output around its center using the `--rotate` flag.
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
-- **Default Demo Behavior:** When no arguments are provided, the tool displays a demo output and exits immediately.
+- **Default Behavior:** When no arguments are provided, the tool now automatically outputs an SVG file (output.svg) containing the default plots and exits immediately.
 - **Improved Error Handling:** Strict validation for input formulas (e.g. sine formula) to avoid silent failures.
 
 ## What’s Inside
@@ -24,7 +24,7 @@ Create a repository from a Repository Template to get started with the agentic c
   The dependencies in `package.json` support the range of functionalities including CLI argument parsing, file generation, testing, and image conversion (via sharp).
 
 - **Tests:**
-  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and particularly test new features like rotation, custom title, interactive mode, error handling, and default demo output.
+  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and particularly test new features like rotation, custom title, interactive mode, error handling, and the default SVG output behavior.
 
 - **Docs:**
   This `README.md` records the repository usage and tracks the evolution of the CLI behavior.
@@ -38,13 +38,13 @@ You can set these in your repository settings under *Settings > Secrets and Vari
 
 ### Running the CLI
 
-The CLI adapts its output based on the provided file extension. Some examples:
+When you run the CLI with no arguments, it now outputs an SVG file named `output.svg` containing the default plots.
 
-- Run the demo (SVG output):
+- Run with no arguments (SVG output):
   ```bash
   node src/lib/main.js
   ```
-  This displays demo output on the console and exits immediately.
+  This will create an `output.svg` file in the current directory.
 
 - Generate JSON output:
   ```bash
@@ -109,7 +109,7 @@ The project uses ESLint to enforce code quality and consistency. The `no-console
 
 ## Test Coverage
 
-Unit tests verify core functions, CLI behavior (including new rotation, custom title, interactive mode, and default demo output), and error handling. These tests help ensure that enhancements do not break existing functionality.
+Unit tests verify core functions, CLI behavior (including new rotation, custom title, interactive mode, and default SVG output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
 
 ## Future Enhancements
 
@@ -139,7 +139,7 @@ Other files taken into account by our workflows include:
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, a default demo output when no arguments are provided, and improved error handling for more robust input validation.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, a default SVG output when no arguments are provided, and improved error handling for more robust input validation.
 
 **Version:** Equation Plotter Library version 0.2.0-11
 

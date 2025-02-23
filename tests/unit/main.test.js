@@ -130,15 +130,16 @@ describe('Error Handling', () => {
   });
 });
 
-// New test for default demo behavior when no arguments are provided
+// New test for default behavior when no arguments are provided
+// Updated to expect SVG file generation message
 describe('Default Demo Output', () => {
-  test('should run demoTest and exit if no command-line arguments are provided', () => {
+  test('should output an SVG file and exit if no command-line arguments are provided', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     const originalArgv = process.argv;
     process.argv = ['node', 'src/lib/main.js'];
     mainModule.main();
-    expect(consoleLogSpy).toHaveBeenCalledWith('No arguments provided. Running demo output...');
+    expect(consoleLogSpy).toHaveBeenCalledWith('SVG file generated: output.svg');
     expect(exitSpy).toHaveBeenCalledWith(0);
     exitSpy.mockRestore();
     consoleLogSpy.mockRestore();
