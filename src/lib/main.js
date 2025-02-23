@@ -26,11 +26,9 @@ const range = (start, end, step = 1) => {
 /*
  Next Up:
  - Refactor plotting functions for better performance.
- - Add interactive CLI mode for user inputs.
- - Enhance error handling and logging.
- - New Feature: PNG output conversion using sharp
- - New Feature: Add rotation support for SVG output using a CLI flag (--rotate)
- - New Feature: Add custom title support for SVG output using a CLI flag (--title)
+ - Enhance interactive CLI mode for improved user experience.
+ - Further improve error handling and logging.
+ - Future Feature: Integrate additional plotting optimizations and mobile friendly outputs.
 */
 
 // Helper function to format numbers to two decimals and avoid negative zero
