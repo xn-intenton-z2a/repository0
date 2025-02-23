@@ -3,12 +3,13 @@
 Create a repository from a Repository Template to get started with the agentic coding system. See: [TEMPLATE README](TEMPLATE-README.md)
 
 ## Overview
+
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate automated CI/CD workflows and serves as a seed for the Equation Plotter—a CLI tool that generates plots for mathematical functions including quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool supports multiple output formats (SVG, JSON, CSV, Markdown, ASCII, HTML, and PNG) and offers additional features:
 
 - **Rotation Feature:** Rotate SVG output around its center using the `--rotate` flag.
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
-- **Default Demo Behavior:** When no arguments are provided, the tool displays a demo output and exits to prevent hanging.
+- **Default Demo Behavior:** When no arguments are provided, the tool displays a demo output and exits immediately.
 
 ## What’s Inside
 
@@ -144,6 +145,6 @@ In its early hours, `repository0` emerged with the revolutionary idea of transfo
 ## Next Up
 
 - Optimize SVG rendering and plotting performance.
-- Enhance the interactive CLI further for more intuitive user input.
+- Enhance the interactive CLI further for a more intuitive user experience.
 - Refine error handling and explore additional logging mechanisms.
 - Investigate integration with advanced plotting libraries and mobile-friendly optimizations.
