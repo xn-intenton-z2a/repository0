@@ -10,7 +10,7 @@ Create a repository from a Repository Template to get started with the agentic c
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
 - **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
-- **Default Behavior:** When no arguments are provided, the tool automatically outputs an SVG file (`output.svg`) containing the default plots and exits immediately.
+- **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, and then terminates immediately without requiring any user input.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 
 ## What’s Inside
@@ -39,13 +39,13 @@ You can set these in your repository settings under *Settings > Secrets and Vari
 
 ### Running the CLI
 
-When you run the CLI with no arguments, it outputs an SVG file named `output.svg` containing the default plots.
+When you run the CLI with no arguments, it will print a usage message and automatically output an SVG file named `output.svg` containing the default plots, then exit immediately.
 
-- Run with no arguments (SVG output):
+- Run with no arguments (default demo output):
   ```bash
   node src/lib/main.js
   ```
-  This will create an `output.svg` file in the current directory.
+  This will print a usage message, create an `output.svg` file in the current directory, and terminate without waiting for user input.
 
 - Generate JSON output:
   ```bash
@@ -90,7 +90,7 @@ When you run the CLI with no arguments, it outputs an SVG file named `output.svg
   ```
 
 - **Summary Feature:**
-  Print summary statistics (min, max, average) for the first plot of each type by adding the `--summary` flag:
+  Print summary statistics (min, max, avg) for the first plot of each type by adding the `--summary` flag:
   ```bash
   node src/lib/main.js output.svg "y=2x+3:-10,10,1" --summary
   ```
@@ -116,7 +116,7 @@ The project uses ESLint to enforce code quality and consistency. The `no-console
 
 ## Test Coverage
 
-Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default SVG output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
+Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default demo output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
 
 ## Future Enhancements
 
@@ -146,7 +146,7 @@ Other files taken into account by our workflows include:
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default SVG output when no arguments are provided, and improved error handling alongside consistent code formatting.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default demo output when no arguments are provided, and improved error handling alongside consistent code formatting.
 
 **Version:** Equation Plotter Library version 0.2.0-14
 

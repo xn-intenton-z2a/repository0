@@ -1164,8 +1164,9 @@ const demoTest = () => {
 // Main Execution
 const main = async () => {
   const args = process.argv.slice(2);
-  // If no command-line arguments are provided, output an SVG file
+  // If no command-line arguments are provided, output default usage message and SVG file demo output
   if (args.length === 0) {
+    console.log('No arguments provided. Running default demo output.');
     const fileContent = plotToSvg({ formulas: [] });
     const outputFileName = 'output.svg';
     fs.writeFileSync(outputFileName, fileContent, 'utf8');
