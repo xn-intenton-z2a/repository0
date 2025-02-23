@@ -15,7 +15,7 @@ on:
       - completed
   schedule:
     #- cron: '*/10 * * * *' # Run every 10 minutes
-    - cron: '*/15 * * * *' # Run every 15 minutes
+    - cron: '45 */1 * * *' # Run every hour at 45 minutes past
     #- cron: '15 */2 * * *'  # Run every 2 hours at 15 minutes past
 
 jobs:

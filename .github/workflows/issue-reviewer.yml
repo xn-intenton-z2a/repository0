@@ -32,7 +32,7 @@ on:
       - completed
   schedule:
     #- cron: '0,10,20,30,40,50 * * * *' # Run every 10 minutes
-    - cron: '0 */6 * * *' # Run every 6 hours at 0 minutes past
+    - cron: '30 */2 * * *' # Run every 2 hours at 30 minutes past
 
 jobs:
 
