@@ -1,0 +1,48 @@
+# .github/workflows/formating.yml
+#
+# This file is part of the repository template which uses `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see the file LICENSE
+
+name: ∞ Formatting
+concurrency: branch-${{ github.ref_name }}
+run-name: "Formatting [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 3 * * *' # Run every day at 3:15
+
+jobs:
+
+  formatting:
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@1.8.0'
+    with:
+      script: 'npm run formatting-fix -- "." ; npm run linting-fix "."'
+      sarifScript: ''
+      testScript: 'npm test'
+      branch: 'apply-formatting'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "."`'
+
+  create-pr:
+    needs:
+      - formatting
+    if: ${{ needs.formatting.outputs.updatedFiles == 'true' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.8.0'
+    with:
+      branch: 'apply-formatting'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: formatting fixes'
+      label: 'automerge'
