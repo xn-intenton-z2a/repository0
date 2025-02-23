@@ -117,7 +117,7 @@ Other files considered by the workflow:
 
 In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI. This release also introduces a rotation feature for the SVG output, custom title support for enhanced usability, and now defaults to demo output when no arguments are provided.
 
-**Version:** Equation Plotter Library version 0.2.0-8
+**Version:** Equation Plotter Library version 0.2.0-11
 
 ## Next Up
 - Enhance performance by optimizing the SVG rendering logic and plotting algorithms.
