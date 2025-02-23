@@ -90,6 +90,14 @@ describe("Rotation Feature", () => {
   });
 });
 
+// New test for custom title feature
+describe("Custom Title Feature", () => {
+  test("plotToSvg includes custom title in <title> element when customTitle parameter is provided", () => {
+    const svg = mainModule.plotToSvg({ formulas: ["y=2x+3:-10,10,1"], customTitle: "Custom Plot Title" });
+    expect(svg).toContain("<title>Custom Plot Title</title>");
+  });
+});
+
 // Interactive CLI Mode test
 describe("Interactive CLI Mode", () => {
   test("should prompt for input when --interactive flag is provided", () => {
