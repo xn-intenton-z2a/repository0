@@ -10,6 +10,7 @@ Create a repository from a Repository Template to get started with the agentic c
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
 - **Default Demo Behavior:** When no arguments are provided, the tool displays a demo output and exits immediately.
+- **Improved Error Handling:** Strict validation for input formulas (e.g. sine formula) to avoid silent failures.
 
 ## What’s Inside
 
@@ -17,7 +18,7 @@ Create a repository from a Repository Template to get started with the agentic c
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality resides in `src/lib/main.js`. This file implements the plotting logic, various parsing functions, and the CLI with all the features described above. Recent improvements have been made to enhance consistency and formatting across the source and test files.
+  The main functionality resides in `src/lib/main.js`. This file implements the plotting logic, various parsing functions, and the CLI with all the features described above. Recent improvements include enhancing consistency, formatting, and stricter error checking, particularly in the sine formula parser.
 
 - **Dependencies:**
   The dependencies in `package.json` support the range of functionalities including CLI argument parsing, file generation, testing, and image conversion (via sharp).
@@ -138,7 +139,7 @@ Other files taken into account by our workflows include:
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, and a default demo output when no arguments are provided.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, a default demo output when no arguments are provided, and improved error handling for more robust input validation.
 
 **Version:** Equation Plotter Library version 0.2.0-11
 
