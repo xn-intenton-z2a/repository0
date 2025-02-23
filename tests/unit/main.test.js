@@ -123,3 +123,19 @@ describe("Error Handling", () => {
     expect(() => mainModule.parseSine("sine:invalid")).toThrow();
   });
 });
+
+// New test for default demo behavior when no arguments are provided
+describe("Default Demo Output", () => {
+  test("should run demoTest and exit if no command-line arguments are provided", () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const originalArgv = process.argv;
+    process.argv = ["node", "src/lib/main.js"];
+    mainModule.main();
+    expect(consoleLogSpy).toHaveBeenCalledWith("No arguments provided. Running demo output...");
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    exitSpy.mockRestore();
+    consoleLogSpy.mockRestore();
+    process.argv = originalArgv;
+  });
+});

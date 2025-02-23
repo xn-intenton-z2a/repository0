@@ -11,13 +11,13 @@ Create a repository from a Repository Template to get started with the agentic c
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML, PNG) including a new rotation feature via the `--rotate` flag. Note: The source file has been updated to disable the `no-console` rule for smoother linting.
+  The main functionality is in `src/lib/main.js`. It provides a CLI with various options to generate plots in different formats (SVG, JSON, CSV, Markdown, ASCII, HTML, PNG) including a new rotation feature via the `--rotate` flag. Additionally, if no arguments are provided, the application displays a demo output and then terminates without awaiting further user input so that execution does not hang.
 
 - **Dependencies:**
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs, including additional tests for error handling, rotation feature, and branch coverage.
+  Unit tests in the `tests/unit/` folder validate critical exported functions and ensure the CLI produces expected outputs, including additional tests for error handling, the rotation feature, interactive mode, and the default demo output behavior.
 
 - **Docs:**
   This `README.md` is maintained to keep track of the repository usage and the evolution of the CLI behaviour.
@@ -31,12 +31,13 @@ Set these secrets in your repository settings under *Settings > Secrets and Vari
 
 ### Running the CLI
 
-The CLI offers a variety of output formats depending on the file extension provided:
+The CLI offers a variety of output formats depending on the file extension provided. If no command-line arguments are provided, a demo output is displayed and the program terminates immediately.
 
 - Run the demo with defaults (SVG output):
   ```bash
   node src/lib/main.js
   ```
+  This will display demo output on the console and exit.
 
 - Generate a JSON output:
   ```bash
@@ -91,7 +92,7 @@ Other flags include:
 The project uses ESLint for code quality. The `no-console` rule has been disabled in `src/lib/main.js` to facilitate necessary console output in the CLI, ensuring that linting passes with fewer warnings.
 
 ## Test Coverage
-The project includes a suite of tests verifying key exported functions, CLI behavior, error handling, and the new rotation feature, ensuring that changes in the code do not break critical functionality.
+The project includes a suite of tests verifying key exported functions, CLI behavior (including the new default demo output when no arguments are provided), error handling, and the new rotation feature, ensuring that changes in the code do not break critical functionality.
 
 ## Tuning the agentic coding system
 
@@ -108,7 +109,7 @@ Other files considered by the workflow:
 ## Diary of an agentic coding system - Day 1
 (An narrative exploration of the repository's evolution when asked to create an Equation Plotter Library.)
 
-In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI. This release also introduces a rotation feature for the SVG output.
+In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library transforming mathematical functions into visual representations. The initial implementation showcased quadratic curves and sine waves. Subsequent revisions expanded functionality to include linear, cosine, polar, exponential, and logarithmic plots, while also introducing multiple output formats via the CLI. This release also introduces a rotation feature for the SVG output and now defaults to demo output when no arguments are provided.
 
 **Version:** Equation Plotter Library version 0.2.0-8
 
@@ -122,4 +123,4 @@ In the early hours, `repository0` burst into existence with a bold declaration: 
 - Investigate integration with external plotting libraries for advanced visuals.
 
 ## Final Notes
-`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling, branch conditions, and the new rotation feature.
+`repository0` serves as a demonstration of intentïon agentic‑lib workflows and acts as a starting point for further enhancements. This release increases unit test coverage by adding error handling, branch conditions, the new rotation feature, and a default demo output when no arguments are provided.
