@@ -96,6 +96,20 @@ describe('Custom Title Feature', () => {
   });
 });
 
+// New test for summary feature
+describe('Summary Feature', () => {
+  test('should output summary statistics when --summary flag is provided', () => {
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const originalArgv = process.argv;
+    process.argv = ['node', 'src/lib/main.js', 'output.svg', 'y=2x+3:-10,10,1', '--summary'];
+    mainModule.main();
+    const summaryCall = consoleLogSpy.mock.calls.find(call => call[0].includes('Summary of Plots:'));
+    expect(summaryCall).toBeDefined();
+    consoleLogSpy.mockRestore();
+    process.argv = originalArgv;
+  });
+});
+
 // Interactive CLI Mode test
 describe('Interactive CLI Mode', () => {
   test('should prompt for input when --interactive flag is provided', () => {

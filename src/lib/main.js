@@ -29,6 +29,31 @@ const formatNumber = (n) => {
   return s === '-0.00' ? '0.00' : s;
 };
 
+// New function: getSummary calculates min, max, and average for plot points
+const getSummary = (points) => {
+  if (!points || points.length === 0) return {};
+  let minX = Infinity, maxX = -Infinity, sumX = 0;
+  let minY = Infinity, maxY = -Infinity, sumY = 0;
+  for (const p of points) {
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+    sumX += p.x;
+    sumY += p.y;
+  }
+  const avgX = sumX / points.length;
+  const avgY = sumY / points.length;
+  return {
+    minX: formatNumber(minX),
+    maxX: formatNumber(maxX),
+    avgX: formatNumber(avgX),
+    minY: formatNumber(minY),
+    maxY: formatNumber(maxY),
+    avgY: formatNumber(avgY)
+  };
+};
+
 // Plotting Functions
 const plotQuadraticParam = ({ a = 1, b = 0, c = 0, xMin = -10, xMax = 10, step = 1 } = {}) => {
   const points = range(xMin, xMax + step, step).map((x) => ({ x, y: a * x * x + b * x + c }));
@@ -1145,6 +1170,17 @@ const main = async () => {
     const outputFileName = 'output.svg';
     fs.writeFileSync(outputFileName, fileContent, 'utf8');
     console.log(`SVG file generated: ${outputFileName}`);
+    // Check for summary flag
+    if (process.argv.includes('--summary')) {
+      const plotsInfo = getPlotsFromFormulas([]);
+      console.log('\nSummary of Plots:');
+      for (const key in plotsInfo) {
+        if (plotsInfo[key].length > 0) {
+          const summary = getSummary(plotsInfo[key][0]);
+          console.log(`${key}:`, summary);
+        }
+      }
+    }
     process.exit(0);
   }
 
@@ -1177,12 +1213,12 @@ const main = async () => {
   }
 
   if (args.includes('--version')) {
-    console.log('Equation Plotter Library version 0.2.0-11');
+    console.log('Equation Plotter Library version 0.2.0-14');
     process.exit(0);
   }
 
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...] [--rotate <angle>] [--title <custom title>]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --rotate <angle>   Rotate SVG output by specified degrees\n  --title <title>    Add a custom title to the SVG output (appears as a <title> element)\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...] [--rotate <angle>] [--title <custom title>] [--summary]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --rotate <angle>   Rotate SVG output by specified degrees\n  --title <title>    Add a custom title to the SVG output (appears as a <title> element)\n  --summary        Print summary statistics (min, max, avg) for the first plot of each type\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
     process.exit(0);
   }
 
@@ -1206,7 +1242,7 @@ const main = async () => {
         (arg) =>
           !arg.includes(":") &&
           !arg.includes('=') &&
-          !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title'].includes(arg)
+          !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary'].includes(arg)
       );
       if (nonFormulaArgs.length > 0) {
         outputFileName = nonFormulaArgs[0];
@@ -1251,6 +1287,19 @@ const main = async () => {
 
       console.log('\nText Representation of Plots:');
       console.log(plotToText({ formulas: formulasList }));
+
+      // New Feature: Summary Output
+      if (filteredArgs.includes('--summary')) {
+        const plotsInfo = getPlotsFromFormulas(formulasList);
+        console.log('\nSummary of Plots:');
+        for (const key in plotsInfo) {
+          if (plotsInfo[key].length > 0) {
+            const summary = getSummary(plotsInfo[key][0]);
+            console.log(`${key}:`, summary);
+          }
+        }
+      }
+
       rl.close();
       process.exit(0);
     });
@@ -1270,7 +1319,7 @@ const main = async () => {
     (arg) =>
       !arg.includes(":") &&
       !arg.includes('=') &&
-      !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title'].includes(arg)
+      !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary'].includes(arg)
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -1333,6 +1382,18 @@ const main = async () => {
 
   console.log('\nText Representation of Plots:');
   console.log(plotToText({ formulas: formulasList }));
+
+  // New Feature: Summary Output in non-interactive mode
+  if (args.includes('--summary')) {
+    const plotsInfo = getPlotsFromFormulas(formulasList);
+    console.log('\nSummary of Plots:');
+    for (const key in plotsInfo) {
+      if (plotsInfo[key].length > 0) {
+        const summary = getSummary(plotsInfo[key][0]);
+        console.log(`${key}:`, summary);
+      }
+    }
+  }
 };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

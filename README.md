@@ -9,6 +9,7 @@ Create a repository from a Repository Template to get started with the agentic c
 - **Rotation Feature:** Rotate SVG output around its center using the `--rotate` flag.
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
+- **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
 - **Default Behavior:** When no arguments are provided, the tool automatically outputs an SVG file (`output.svg`) containing the default plots and exits immediately.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 
@@ -24,7 +25,7 @@ Create a repository from a Repository Template to get started with the agentic c
   The dependencies in `package.json` support the range of functionalities including CLI argument parsing, file generation, testing, and image conversion (via sharp).
 
 - **Tests:**
-  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, interactive mode, error handling, and the default SVG output behavior.
+  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, interactive mode, summary output, error handling, and the default SVG output behavior.
 
 - **Docs:**
   This `README.md` records the repository usage and tracks the evolution of the CLI behavior.
@@ -88,6 +89,12 @@ When you run the CLI with no arguments, it outputs an SVG file named `output.svg
   node src/lib/main.js output.svg "y=2x+3:-10,10,1" --title "My Custom Plot Title"
   ```
 
+- **Summary Feature:**
+  Print summary statistics (min, max, average) for the first plot of each type by adding the `--summary` flag:
+  ```bash
+  node src/lib/main.js output.svg "y=2x+3:-10,10,1" --summary
+  ```
+
 - **Interactive Mode:**
   Engage real-time input with:
   ```bash
@@ -109,7 +116,7 @@ The project uses ESLint to enforce code quality and consistency. The `no-console
 
 ## Test Coverage
 
-Unit tests verify core functions, CLI behavior (including new rotation, custom title, interactive mode, and default SVG output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
+Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default SVG output behavior), and error handling. These tests help ensure that enhancements do not break existing functionality.
 
 ## Future Enhancements
 
@@ -139,9 +146,9 @@ Other files taken into account by our workflows include:
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, a default SVG output when no arguments are provided, and improved error handling alongside consistent code formatting.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default SVG output when no arguments are provided, and improved error handling alongside consistent code formatting.
 
-**Version:** Equation Plotter Library version 0.2.0-11
+**Version:** Equation Plotter Library version 0.2.0-14
 
 ## Next Up
 
