@@ -16,6 +16,7 @@ The repository is intended as a template that includes:
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
 - **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
 - **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, and then terminates immediately without requiring any user input.
+- **Data URI Support:** Generate a Data URI for the SVG output using the new `plotToDataUri` function, enabling easy embedding into web pages or other applications.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 
 > **Note:** The library now exports a `getSummary` function for convenience and improved test coverage.
@@ -26,13 +27,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
 
 - **Source Code:**
-  The main functionality resides in `src/lib/main.js`. This file implements the plotting logic, various parsing functions, and the CLI with all the features described above. Recent improvements include a consistent code style, better formatting, and stricter error checking.
+  The main functionality resides in `src/lib/main.js`. This file implements the plotting logic, various parsing functions, and the CLI with all the features described above. Recent improvements include a consistent code style, better formatting, and stricter error checking. A new function `plotToDataUri` has been added to generate a Data URI from SVG output.
 
 - **Dependencies:**
   The dependencies in `package.json` support the range of functionalities including CLI argument parsing, file generation, testing, and image conversion (via sharp).
 
 - **Tests:**
-  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, summary output, interactive mode, error handling, and the default SVG output behavior. New tests have been added for the `getSummary` function.
+  Unit tests located in `tests/unit/` validate core functionalities, ensure correct CLI behavior, and test new features like rotation, custom title, summary output, interactive mode, error handling, default SVG output behavior, and the new data URI generation.
 
 - **Docs:**
   This `README.md` records the repository usage and tracks the evolution of the CLI behavior.
@@ -102,6 +103,12 @@ When you run the CLI with no arguments, it will print a usage message and automa
   node src/lib/main.js output.svg "y=2x+3:-10,10,1" --summary
   ```
 
+- **Data URI Feature:**
+  Generate a Data URI for the SVG output using the new function:
+  ```bash
+  node -e "console.log(require('./src/lib/main.js').plotToDataUri({ formulas: ['y=2x+3:-10,10,1'] }))"
+  ```
+
 - **Interactive Mode:**
   Engage real-time input with:
   ```bash
@@ -123,7 +130,7 @@ The project uses ESLint to enforce code quality and consistency. The `no-console
 
 ## Test Coverage
 
-Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, and default demo output behavior), error handling, and the new `getSummary` function. These tests help ensure that enhancements do not break existing functionality.
+Unit tests verify core functions, CLI behavior (including new rotation, custom title, summary output, interactive mode, default demo output behavior, and data URI generation), error handling, and the new `getSummary` function. These tests help ensure that enhancements do not break existing functionality.
 
 ## Future Enhancements
 
@@ -153,13 +160,6 @@ Other files taken into account by our workflows (but not changed by the workflow
 
 (An exploration of our repository's evolution through the Equation Plotter Library's development.)
 
-In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default demo output when no arguments are provided, improved error handling alongside consistent code formatting, and an exported `getSummary` function for better integration and testing.
+In its early hours, `repository0` emerged with the revolutionary idea of transforming mathematical formulae into visual plots. Initially featuring quadratic curves and sine waves, the functionality has been expanded to include linear, cosine, polar, exponential, and logarithmic plots. This release introduces a rotation feature for SVG outputs, custom title support for enhanced user-friendliness, an interactive CLI mode, summary output for plot statistics, a default demo output when no arguments are provided, improved error handling alongside consistent code formatting, an exported `getSummary` function, and a new Data URI generation feature for embedding plots.
 
 **Version:** Equation Plotter Library version 0.2.0-14
-
-## Next Up
-
-- Optimize SVG rendering and plotting performance.
-- Enhance the interactive CLI further for a more intuitive user experience.
-- Refine error handling and explore additional logging mechanisms.
-- Investigate integration with advanced plotting libraries and mobile-friendly optimizations.

@@ -1124,6 +1124,16 @@ const plotToFile = ({ formulas = [], outputFileName = 'output.svg', type = 'svg'
   return outputFileName;
 };
 
+// New Feature: Convert plot to Data URI (SVG only)
+const plotToDataUri = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0, customTitle = '', type = 'svg' } = {}) => {
+  if (type !== 'svg') {
+    throw new Error('plotToDataUri currently only supports SVG output');
+  }
+  const svgContent = plotToSvg({ formulas, grid, dealersChoice, rotate, customTitle });
+  const base64 = Buffer.from(svgContent, 'utf8').toString('base64');
+  return `data:image/svg+xml;base64,${base64}`;
+};
+
 // Demo Test Function
 const demoTest = () => {
   console.log('=== Demo Test Output ===');
@@ -1422,5 +1432,6 @@ export {
   parseGenericExponential,
   parseCosine,
   main,
-  getSummary
+  getSummary,
+  plotToDataUri
 };

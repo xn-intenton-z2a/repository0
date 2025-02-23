@@ -53,6 +53,12 @@ describe('Exported API Functions', () => {
     expect(md).toContain('# Plot Data');
   });
 
+  test('plotToDataUri returns a data URI string for SVG', () => {
+    const dataUri = mainModule.plotToDataUri({ formulas: ['y=2x+3:-10,10,1'] });
+    expect(typeof dataUri).toBe('string');
+    expect(dataUri.startsWith('data:image/svg+xml;base64,')).toBe(true);
+  });
+
   test('main generates markdown file when output file ends with .md', () => {
     const writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
     const originalArgv = process.argv;
@@ -100,7 +106,7 @@ describe('Summary Feature', () => {
     const originalArgv = process.argv;
     process.argv = ['node', 'src/lib/main.js', 'output.svg', 'y=2x+3:-10,10,1', '--summary'];
     mainModule.main();
-    const summaryCall = consoleLogSpy.mock.calls.find(call => call[0].includes('Summary of Plots:'));
+    const summaryCall = consoleLogSpy.mock.calls.find(call => String(call[0]).includes('Summary of Plots:'));
     expect(summaryCall).toBeDefined();
     consoleLogSpy.mockRestore();
     process.argv = originalArgv;
