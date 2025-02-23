@@ -85,7 +85,6 @@ describe("Exported API Functions", () => {
 describe("Rotation Feature", () => {
   test("plotToSvg includes rotation transform when rotate parameter is provided", () => {
     const svg = mainModule.plotToSvg({ formulas: ["y=2x+3:-10,10,1"], rotate: 45 });
-    // Check for a rotate transform attribute with center (400,850)
     expect(svg).toContain('transform="rotate(45.00, 400.00, 850.00)"');
   });
 });
@@ -103,7 +102,7 @@ describe("Interactive CLI Mode", () => {
   test("should prompt for input when --interactive flag is provided", () => {
     const rlMock = {
       question: vi.fn((prompt, callback) => { callback("y=2x+3:-10,10,1"); }),
-      close: vi.fn(),
+      close: vi.fn()
     };
     vi.spyOn(readline, "createInterface").mockReturnValue(rlMock);
     const originalArgv = process.argv;
