@@ -104,19 +104,19 @@ const parseQuadratic = (formulaStr) => {
   });
 };
 
+// Updated parseSine to require exactly 6 valid numeric parameters
 const parseSine = (formulaStr) => {
   const parts = formulaStr.split(":");
-  if (parts.length < 2) throw new Error('Invalid sine formula string: ' + formulaStr);
-  const params = parts[1].split(",").map(Number);
+  if (parts.length < 2 || !parts[1].trim()) {
+    throw new Error('Invalid sine formula string: ' + formulaStr);
+  }
+  const rawParams = parts[1].split(",").map(s => s.trim()).filter(Boolean);
+  const params = rawParams.map(Number);
+  if (params.length !== 6 || params.some(p => isNaN(p))) {
+    throw new Error('Invalid sine formula string: ' + formulaStr);
+  }
   const [amplitude, frequency, phase, xMin, xMax, step] = params;
-  return plotSineParam({
-    amplitude: isNaN(amplitude) ? 1 : amplitude,
-    frequency: isNaN(frequency) ? 1 : frequency,
-    phase: isNaN(phase) ? 0 : phase,
-    xMin: isNaN(xMin) ? 0 : xMin,
-    xMax: isNaN(xMax) ? 360 : xMax,
-    step: isNaN(step) ? 10 : step
-  });
+  return plotSineParam({ amplitude, frequency, phase, xMin, xMax, step });
 };
 
 const parseCosine = (formulaStr) => {
