@@ -378,6 +378,8 @@ const invertExpression = (expr) => {
 
 // Delegate plotting based on formula string content
 const plotFromString = (formulaStr) => {
+  // Trim formula string to improve consistency
+  formulaStr = formulaStr.trim();
   const lowerStr = formulaStr.toLowerCase();
   if (lowerStr.startsWith('y=')) {
     if (formulaStr.toLowerCase().includes('e^')) {
