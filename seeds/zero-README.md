@@ -39,7 +39,7 @@ node src/lib/main.js --help
 
 - **Default Demo Output:**
   ```bash
-  node src/lib/main.js
+  npm run start
   ```
 
 

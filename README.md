@@ -41,7 +41,7 @@ If the --help flag is provided, a help menu will be displayed with available opt
 
 - **Default Demo Output:**
   ```bash
-  node src/lib/main.js
+  npm run start
   ```
 
 ## Incremental Changes Plan
