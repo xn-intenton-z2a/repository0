@@ -14,7 +14,7 @@ npm install owl-builder
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
 - **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
-- **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, then terminates immediately without requiring any user input.
+- **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, then terminates execution immediately without requiring any user input.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 - **Incremental Changes Plan:** A detailed, step-by-step plan to evolve the project:
   1. **Code Refactoring:** Modularize and optimize plotting functions and CLI logic.
@@ -58,7 +58,7 @@ Set these in your repository settings under *Settings > Secrets and Variables > 
   ```bash
   node src/lib/main.js
   ```
-  Outputs a usage message, creates an `output.svg` file with default plots, and exits.
+  Outputs a usage message, creates an `output.svg` file with default plots, and terminates execution immediately without waiting for user input.
 
 - **Generate JSON Output:**
   ```bash

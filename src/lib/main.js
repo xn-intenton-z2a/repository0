@@ -1171,14 +1171,14 @@ const demoTest = () => {
 // Main Execution
 const main = async () => {
   const args = process.argv.slice(2);
-  // If no command-line arguments are provided, output default usage message and SVG file demo output
+  // Default Demo Output: if no command-line arguments are provided, output default demo SVG and exit
   if (args.length === 0) {
     console.log('No arguments provided. Running default demo output.');
     const fileContent = plotToSvg({ formulas: [] });
     const outputFileName = 'output.svg';
     fs.writeFileSync(outputFileName, fileContent, 'utf8');
     console.log(`SVG file generated: ${outputFileName}`);
-    // Check for summary flag
+    console.log('Execution completed. Terminating without waiting for user input.');
     if (process.argv.includes('--summary')) {
       const plotsInfo = getPlotsFromFormulas([]);
       console.log('\nSummary of Plots:');

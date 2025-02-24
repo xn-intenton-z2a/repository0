@@ -5,6 +5,8 @@ import fs from 'fs';
 import readline from 'readline';
 import sharp from 'sharp';
 
+// Existing tests
+
 describe('Main Module Import', () => {
   test('should be non-null', () => {
     expect(mainModule).not.toBeNull();
@@ -100,7 +102,7 @@ describe('Summary Feature', () => {
     const originalArgv = process.argv;
     process.argv = ['node', 'src/lib/main.js', 'output.svg', 'y=2x+3:-10,10,1', '--summary'];
     mainModule.main();
-    const summaryCall = consoleLogSpy.mock.calls.find(call => call[0].includes('Summary of Plots:'));
+    const summaryCall = consoleLogSpy.mock.calls.find(call => call[0] && call[0].includes('Summary of Plots:'));
     expect(summaryCall).toBeDefined();
     consoleLogSpy.mockRestore();
     process.argv = originalArgv;
@@ -171,7 +173,7 @@ describe('Error Handling', () => {
 });
 
 // New test for default behavior when no arguments are provided
-// Updated to expect SVG file generation message
+// Updated to expect SVG file generation message and termination message
 describe('Default Demo Output', () => {
   test('should output an SVG file and exit if no command-line arguments are provided', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
@@ -180,6 +182,7 @@ describe('Default Demo Output', () => {
     process.argv = ['node', 'src/lib/main.js'];
     mainModule.main();
     expect(consoleLogSpy).toHaveBeenCalledWith('SVG file generated: output.svg');
+    expect(consoleLogSpy).toHaveBeenCalledWith('Execution completed. Terminating without waiting for user input.');
     expect(exitSpy).toHaveBeenCalledWith(0);
     exitSpy.mockRestore();
     consoleLogSpy.mockRestore();
