@@ -6,7 +6,7 @@ Thank you for your interest in contributing to **agentic‑lib**! This document 
 
 **agentic‑lib** is the heart of our automated workflow system. It encapsulates the core logic extracted from GitHub script sections to:
 
-- Verify issue fixes via an AI (simulated ChatGPT) prompt.
+- Verify issue fixes via an AI prompt.
 - Update source files based on build, test, and main execution outputs (supporting fixes for failing builds and starting issue fixes).
 - Extract issue numbers from branch names.
 - Automatically merge pull requests.
