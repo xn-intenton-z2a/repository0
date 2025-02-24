@@ -7,7 +7,7 @@ Incremental Change Plan:
 2. Enhance error handling and input validation across all formula parsing functions.
 3. Expand CLI interactive mode with clearer prompts and additional output formats support.
 4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary, table) is robust.
-5. Continue aligning with contributing guidelines to match the project goals as described in CONTRIBUTING.md.
+5. Reorder utility function definitions to fix dependency ordering issues (e.g. plotToSvg used in plotToHtml) and improve test coverage.
 6. Extended functionality: added global uncaught exception handler for improved stability.
 */
 
@@ -511,12 +511,6 @@ const getPlotsFromFormulas = (formulas = []) => {
   return { quadratic, linear, sine, cosine, polar, exponential, logarithmic };
 };
 
-// Display Functions
-const displayPlot = (plotName, points) => {
-  console.log(`Plot for ${plotName}:`);
-  console.log(points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(' '));
-};
-
 // SVG Generation Function with rotation support and custom title
 const generateSvg = (
   quadraticPlots,
@@ -897,7 +891,13 @@ const generateSvg = (
   return svg;
 };
 
-// HTML Generation Function
+// Conversion Functions
+// Define plotToSvg first so that it can be used by others
+const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0, customTitle = '' } = {}) => {
+  const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
+  return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice, rotate, customTitle);
+};
+
 const plotToHtml = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0, customTitle = '' } = {}) => {
   const svgContent = plotToSvg({ formulas, grid, dealersChoice, rotate, customTitle });
   return `<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Equation Plot</title>\n  <style>\n    body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f8f8f8; }\n  </style>\n</head>\n<body>\n${svgContent}\n</body>\n</html>`;
@@ -936,11 +936,6 @@ const plotToMarkdown = ({ formulas = [] } = {}) => {
     md += `**Formula ${i + 1}:** ` + points.map((p) => `(${formatNumber(p.x)}, ${formatNumber(p.y)})`).join(' ') + '\n\n';
   });
   return md;
-};
-
-const plotToSvg = ({ formulas = [], grid = false, dealersChoice = false, rotate = 0, customTitle = '' } = {}) => {
-  const { quadratic, linear, sine, cosine, polar, exponential, logarithmic } = getPlotsFromFormulas(formulas);
-  return generateSvg(quadratic, linear, sine, cosine, polar, exponential, logarithmic, grid, dealersChoice, rotate, customTitle);
 };
 
 const plotToAscii = ({ formulas = [] } = {}) => {
@@ -1479,4 +1474,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 }
 
 // Exporting API functions for tests and external usage
-export { main, plotToSvg, plotToJson, plotToText, plotToCsv, plotToHtml, plotToMarkdown, plotToAscii, plotFromString, getSummary };
+export { main, plotToSvg, plotToJson, plotToText, plotToCsv, plotToHtml, plotToMarkdown, plotToAscii, plotFromString, getSummary, parseGenericQuadratic, parseSine };
