@@ -35,7 +35,7 @@ To run the CLI tool and see help instructions:
 node src/lib/main.js --help
 ```
 
-If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output.
+If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output and then terminates execution automatically.
 
 ### Example Commands
 

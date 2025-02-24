@@ -2,6 +2,8 @@ import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
+// Ensure that process.exit does not terminate tests
+process.env.NODE_ENV = "test";
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
