@@ -9,6 +9,7 @@ Incremental Change Plan:
 4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary, table) is robust.
 5. Reorder utility function definitions to fix dependency ordering issues (e.g. plotToSvg used in plotToHtml) and improve test coverage.
 6. Extended functionality: added global uncaught exception handler for improved stability.
+7. Improve test coverage by refining error logging (using console.warn for unknown formula types) and ensuring proper async handling in main.
 */
 
 import { fileURLToPath } from 'url';
@@ -419,28 +420,28 @@ const plotFromString = (formulaStr) => {
       try {
         return parseGenericExponential(formulaStr);
       } catch (e) {
-        console.error('Error parsing exponential formula: ' + e.message);
+        console.warn('Error parsing exponential formula: ' + e.message);
         return [];
       }
     } else if (formulaStr.toLowerCase().includes('log(')) {
       try {
         return parseLogarithmic(formulaStr);
       } catch (e) {
-        console.error('Error parsing logarithmic formula: ' + e.message);
+        console.warn('Error parsing logarithmic formula: ' + e.message);
         return [];
       }
     } else if (!formulaStr.includes('x^2')) {
       try {
         return parseGenericLinear(formulaStr);
       } catch (e) {
-        console.error('Error parsing linear formula: ' + e.message);
+        console.warn('Error parsing linear formula: ' + e.message);
         return [];
       }
     } else {
       try {
         return parseGenericQuadratic(formulaStr);
       } catch (e) {
-        console.error('Error parsing generic quadratic formula: ' + e.message);
+        console.warn('Error parsing generic quadratic formula: ' + e.message);
         return [];
       }
     }
@@ -452,17 +453,17 @@ const plotFromString = (formulaStr) => {
     if (lowerStr.startsWith('polar:')) return parsePolar(formulaStr);
     if (lowerStr.startsWith('linear:')) return parseLinear(formulaStr);
     if (lowerStr.startsWith('exponential:') || lowerStr.startsWith('exp:')) return parseExponential(formulaStr);
-    console.error('Unknown prefixed formula type for formula: ' + formulaStr);
+    console.warn('Unknown prefixed formula type for formula: ' + formulaStr);
     return [];
   } else if (formulaStr.includes('=')) {
     try {
       return parseGenericQuadratic(formulaStr);
     } catch (e) {
-      console.error('Error parsing generic quadratic formula: ' + e.message);
+      console.warn('Error parsing generic quadratic formula: ' + e.message);
       return [];
     }
   } else {
-    console.error('Formula string is not in a recognized format: ' + formulaStr);
+    console.warn('Formula string is not in a recognized format: ' + formulaStr);
     return [];
   }
 };
@@ -494,10 +495,10 @@ const getPlotsFromFormulas = (formulas = []) => {
       } else if (lower.startsWith('log:') || lower.startsWith('ln:') || (lower.startsWith('y=') && formula.toLowerCase().includes('log('))) {
         logarithmic.push(plotFromString(formula));
       } else {
-        console.error('Unrecognized formula: ' + formula);
+        console.warn('Unrecognized formula: ' + formula);
       }
     } catch (e) {
-      console.error('Error parsing formula: ' + formula + '. ' + e.message);
+      console.warn('Error parsing formula: ' + formula + '. ' + e.message);
     }
   });
   // Use defaults if no formulas were provided
@@ -1121,7 +1122,7 @@ const plotToFile = ({ formulas = [], outputFileName = 'output.svg', type = 'svg'
   try {
     fs.writeFileSync(outputFileName, content, 'utf8');
   } catch (e) {
-    console.error('Error writing file:', e);
+    console.warn('Error writing file:', e);
     throw e;
   }
   return outputFileName;
@@ -1305,7 +1306,7 @@ const main = async () => {
           console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : isMarkdown ? 'Markdown' : isAscii ? 'ASCII' : 'SVG'} file generated: ${outputFileName}`);
         }
       } catch (err) {
-        console.error(`Error writing file:`, err.message);
+        console.warn(`Error writing file:`, err.message);
         process.exit(1);
       }
 
@@ -1421,7 +1422,7 @@ const main = async () => {
       console.log(`\n${isJson ? 'JSON' : isCsv ? 'CSV' : isHtml ? 'HTML' : isMarkdown ? 'Markdown' : isAscii ? 'ASCII' : 'SVG'} file generated: ${outputFileName}`);
     }
   } catch (err) {
-    console.error(`Error writing file:`, err.message);
+    console.warn(`Error writing file:`, err.message);
     process.exit(1);
   }
 
@@ -1464,13 +1465,15 @@ const main = async () => {
 
 // Global uncaught exception handler for extended functionality
 process.on('uncaughtException', (err) => {
-  console.error('Unhandled Exception:', err);
+  console.warn('Unhandled Exception:', err);
   process.exit(1);
 });
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+  main().catch(err => {
+    console.warn(err);
+    process.exit(1);
+  });
 }
 
 // Exporting API functions for tests and external usage
