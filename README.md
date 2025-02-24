@@ -1,6 +1,6 @@
-# Owl Builder
+# owl-builder
 
-Owl Builder is a versatile JavaScript library and CLI tool for building, managing, and querying OWL ontologies.
+**owl-builder** is a versatile JavaScript library and CLI tool designed to build, manage, and query OWL ontologies. It not only provides functionality for ontology creation from public data sources but also serves as a dynamic knowledge base with a user-friendly command-line interface.
 
 ## Installation
 
@@ -10,56 +10,30 @@ Install via npm:
 npm install owl-builder
 ```
 
-- **Rotation Feature:** Rotate SVG output around its center using the `--rotate` flag.
-- **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
-- **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
-- **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
-- **Table Summary Feature:** Use the `--table` flag to output summary statistics in a table format.
-- **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, then terminates execution immediately without requiring any user input.
-- **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
-- **Incremental Changes Plan:** A detailed, step-by-step plan to evolve the project:
-  1. **Code Refactoring:** Modularize and optimize plotting functions and CLI logic.
-  2. **Robust Error Handling:** Enhance input validation and error messaging across parsing functions.
-  3. **CLI Enhancements:** Expand interactive mode and add new output formats including table summary.
-  4. **Testing Improvements:** Incrementally add tests to cover new features like rotation, custom titles, summary outputs, and table output.
-  5. **Documentation Updates:** Continuously update this README and CONTRIBUTING.md to reflect project goals and development milestones.
+## Features
+
+- **Ontology Management:** Build and query OWL ontologies from diverse data sources.
+- **CLI Tool:** Manage your ontologies via a comprehensive command-line interface.
+- **Output Flexibility:** Generate output in multiple formats (SVG, JSON, CSV, Markdown, HTML, ASCII, and PNG).
+- **Rotation & Custom Title:** Enhance SVG outputs by applying rotation transforms and adding custom titles.
+- **Interactive Mode:** Enjoy real-time user input for on-the-fly plotting or ontology queries.
+- **Summary & Table Output:** Quickly view summary statistics (min, max, average) for your data plots in textual or tabular form.
 
 ## Usage
 
-To run the CLI tool:
+To run the CLI tool and see help instructions:
 
 ```bash
 node src/lib/main.js --help
 ```
 
-## Testing
-
-- **Source Code:**
-  The main functionality resides in `src/lib/main.js`, which implements the plotting logic, various parsing functions, and the CLI with all the described features. The source code now includes a comment block outlining our incremental changes plan.
-
-- **Dependencies:**
-  The dependencies in `package.json` support CLI argument parsing, file generation, testing, and image conversion (via sharp). A new script, `plan`, has been added to remind developers of the incremental plan detailed in this README.
-
-- **Tests:**
-  Unit tests in `tests/unit/` validate core functionalities, CLI behavior (including new features), and now check for the presence of the incremental changes plan in the code.
-
-- **Docs:**
-  This README outlines project usage and a detailed incremental development plan, aligning with the guidelines in `CONTRIBUTING.md`.
-
-## Getting Started
-
-This repository is preconfigured with essential workflows and scripts. Ensure you provide the required secrets:
-- `CHATGPT_API_SECRET_KEY`
-
-Set these in your repository settings under *Settings > Secrets and Variables > Actions*.
-
-### Running the CLI
+### Example Commands
 
 - **Default Demo Output (SVG):**
   ```bash
   node src/lib/main.js
   ```
-  Outputs a usage message, creates an `output.svg` file with default plots, and terminates execution immediately without waiting for user input.
+  This command generates a demo SVG file (`output.svg`) with default plots and terminates immediately.
 
 - **Generate JSON Output:**
   ```bash
@@ -115,69 +89,66 @@ Set these in your repository settings under *Settings > Secrets and Variables > 
   ```bash
   node src/lib/main.js --interactive
   ```
-  Enter semicolon-separated formula strings when prompted.
+  When prompted, enter semicolon-separated formula strings.
 
 Other flags:
 - `--help` or `-h`: Display usage instructions.
 - `--json`, `--csv`, `--ascii`, `--md`, `--html`: Choose output format.
 - `--grid`: Overlay grid lines on SVG plots.
 - `--debug`: Print internal parsed plot data.
-- `--dealers-choice`: Use randomized color palette for SVG plots.
+- `--dealers-choice`: Use a randomized color palette for SVG plots.
 
 ## Incremental Changes Plan
 
-Our incremental development strategy focuses on continuous improvements:
+Our development strategy is divided into phases:
+
 1. **Phase 1 - Refactoring & Optimization:**
-   - Break down complex plotting functions into modular components.
-   - Optimize performance by refining the custom range and formatting functions.
+   - Modularize plotting functions and CLI logic.
+   - Optimize performance with refined utility functions.
 
 2. **Phase 2 - Robustness & Error Handling:**
-   - Enhance input validation for formula parsing (especially for sine formulas).
-   - Update error messages for clarity.
+   - Enhance input validation, particularly for formula parsing.
+   - Improve error messaging for clarity.
 
 3. **Phase 3 - Extended CLI Features:**
-   - Improve interactive mode and add new output formats including a table summary output.
-   - Integrate rotation and custom title features more seamlessly.
+   - Expand interactive mode and add new output formats, including table summary output.
+   - Integrate rotation and custom title features seamlessly.
 
 4. **Phase 4 - Testing & Documentation:**
-   - Expand unit test coverage to include new features and error handling.
-   - Maintain up-to-date documentation reflecting changes
-     and guide contributions as per CONTRIBUTING.md.
+   - Increase test coverage to include new features and error handling scenarios.
+   - Keep documentation up-to-date with development milestones and contribution guidelines.
 
 5. **Phase 5 - Future Enhancements:**
-   - Explore performance optimizations in SVG rendering.
-   - Consider additional output formats and mobile-friendly designs.
-
-## Linting
-
-ESLint is used for code quality and consistency; `no-console` is disabled for CLI output.
-
-## Test Coverage
-
-Unit tests in `tests/unit/` cover core functions, CLI behavior, and new features.
-
-## Tuning the Agentic Coding System
-
-Key files evolving alongside project goals:
-- `README.md`
-- `package.json` (new script: `plan`)
-- `src/lib/main.js`
-- `tests/unit/main.test.js`
-
-Refer to `CONTRIBUTING.md` for detailed guidelines.
-
-## Diary of an Agentic Coding System - Day 1
-
-The repository began with simple quadratic and sine plots. Our staged plan now aims to expand functionality to include interactive modes, multiple output formats, and enhanced error handling. Each incremental update is guided by our project goals and documented here.
-
-**Version:** Equation Plotter Library version 0.2.0-14
-=======
-Run the tests using:
-
-```bash
-npm test
-```
+   - Further optimize SVG rendering performance.
+   - Explore additional output formats and responsive designs.
 
 ## Contributing
 
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to help improve Owl Builder.
+We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively:
+
+- **Open an Issue:** Provide detailed descriptions and reproducible examples.
+- **Submit a Pull Request:** Follow our coding standards, write tests, and update documentation as needed.
+- **Enhance Documentation:** Help us keep our docs clear and up-to-date.
+
+Your contributions help make **owl-builder** a robust and reliable tool for ontology management and querying.
+
+## Linting & Testing
+
+- **Linting:** We use ESLint and Prettier for code quality. Run:
+  ```bash
+  npm run linting
+  ```
+
+- **Testing:** Unit tests are located in `tests/unit/`. Run tests with:
+  ```bash
+  npm test
+  ```
+
+## Additional Resources
+
+- **Change Log:** See our version history in the source code comments and documentation.
+- **Support:** Open an issue on GitHub for bugs or feature requests.
+
+## License
+
+Released under the Apache-2.0 License.
