@@ -262,7 +262,7 @@ const getPlotsFromFormulas = (formulas = []) => {
 };
 
 // SVG Generation Function (simplified and aligned with updated guidelines)
-const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, gridEnabled = false, rotate = 0, customTitle = '') => {
+const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, gridEnabled = false, rotation = 0, customTitle = '') => {
   const width = 800;
   const height = 1700;
   let svg = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -271,8 +271,8 @@ const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, gridEn
   if (customTitle) {
     svg += `  <title>${customTitle}</title>\n`;
   }
-  if (rotate !== 0) {
-    svg += `  <g transform="rotate(${formatNumber(rotate)}, ${formatNumber(width / 2)}, ${formatNumber(height / 2)})">\n`;
+  if (rotation !== 0) {
+    svg += `  <g transform="rotate(${formatNumber(rotation)}, ${formatNumber(width / 2)}, ${formatNumber(height / 2)})">\n`;
   }
 
   // Use preset colors
@@ -352,7 +352,7 @@ const generateSvg = (quadraticPlots, linearPlots, sinePlots, cosinePlots, gridEn
     svg += `  <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" />\n`;
   });
 
-  if (rotate !== 0) {
+  if (rotation !== 0) {
     svg += '  </g>\n';
   }
   svg += '</svg>';
@@ -469,6 +469,27 @@ const demoTest = () => {
 // Main Execution
 const main = async () => {
   const args = process.argv.slice(2);
+
+  // Interactive Mode
+  if (args.includes('--interactive')) {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question('Enter formula: ', async (answer) => {
+      const formulas = [answer];
+      const outputFileName = 'output.svg';
+      try {
+        const content = plotToSvg({ formulas, grid: false, rotate: 0, customTitle: '' });
+        fs.writeFileSync(outputFileName, content, 'utf8');
+        console.log(`File generated: ${outputFileName}`);
+      } catch (err) {
+        console.warn('Error in interactive mode:', err.message);
+        process.exit(1);
+      }
+      rl.close();
+      process.exit(0);
+    });
+    return;
+  }
+
   if (args.length === 0) {
     console.log('No arguments provided. Running default demo output.');
     const fileContent = plotToSvg({ formulas: [] });
@@ -560,18 +581,18 @@ const main = async () => {
   } else if (isCsv) {
     fileContent = plotToCsv({ formulas: formulasList });
   } else if (isHtml) {
-    fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled, rotate, customTitle });
+    fileContent = plotToHtml({ formulas: formulasList, grid: gridEnabled, rotate: rotation, customTitle });
   } else if (isMarkdown) {
     fileContent = plotToMarkdown({ formulas: formulasList });
   } else if (isAscii) {
     fileContent = plotToAscii({ formulas: formulasList });
   } else {
-    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, rotate, customTitle });
+    fileContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, rotate: rotation, customTitle });
   }
 
   try {
     if (lowerName.endsWith('.png')) {
-      const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, rotate, customTitle });
+      const svgContent = plotToSvg({ formulas: formulasList, grid: gridEnabled, rotate: rotation, customTitle });
       await sharp(Buffer.from(svgContent)).png().toFile(outputFileName);
       console.log(`\nPNG file generated: ${outputFileName}`);
     } else {

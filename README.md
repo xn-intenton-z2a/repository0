@@ -16,7 +16,7 @@ npm install owl-builder
 - **CLI Tool:** Manage your ontologies and generate visual data plots via a comprehensive command-line interface.
 - **Output Flexibility:** Generate output in multiple formats (SVG, JSON, CSV, Markdown, HTML, ASCII, and PNG).
 - **Rotation & Custom Title:** Enhance SVG outputs by applying rotation transforms and adding custom titles.
-- **Interactive Mode:** Enjoy real-time user input for on-the-fly plotting or ontology queries.
+- **Interactive Mode:** Enjoy real-time user input for on-the-fly plotting or ontology queries. When running in interactive mode, you will be prompted to enter formula strings.
 - **Summary & Table Output:** Quickly view summary statistics (min, max, average) for your data plots in textual or tabular form.
 - **Enhanced Error Handling:** Robust error logging and a global uncaught exception handler improve stability across operations.
 
@@ -90,7 +90,7 @@ node src/lib/main.js --help
   ```bash
   node src/lib/main.js --interactive
   ```
-  When prompted, enter semicolon-separated formula strings.
+  When prompted, enter your formula string (e.g., "y=2x+3:-10,10,1").
 
 Other flags:
 - `--help` or `-h`: Display usage instructions.
