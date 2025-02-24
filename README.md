@@ -35,13 +35,20 @@ To run the CLI tool and see help instructions:
 node src/lib/main.js --help
 ```
 
-If the --help flag is provided, a help menu will be displayed with available options.
+If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output.
 
 ### Example Commands
 
 - **Default Demo Output:**
   ```bash
   npm run start
+  ```
+  Running without arguments will print:
+  ```
+  Usage: node src/lib/main.js [options]
+  Options:
+    --help     Show help
+  Demo Output: Run with: []
   ```
 
 ## Incremental Changes Plan

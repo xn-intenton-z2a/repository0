@@ -10,9 +10,14 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should terminate without error", () => {
-    // Pass an empty array to simulate no arguments
+  test("should display usage and demo output when no arguments are provided", () => {
+    let output = "";
+    const originalConsoleLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
     main([]);
+    console.log = originalConsoleLog;
+    expect(output).toContain("Usage: node src/lib/main.js [options]");
+    expect(output).toContain("Demo Output: Run with: []");
   });
 });
 
