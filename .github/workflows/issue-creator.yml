@@ -41,3 +41,4 @@ jobs:
         || Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
         || Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
         || Synchronise the README with current behaviour and call out future features that have not yet been implemented.
+        || Ensure that README.md is consistent with the guidance in the CONTRIBUTING.md.
