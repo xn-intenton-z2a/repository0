@@ -2,7 +2,7 @@
 
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template (but is not necessarily production‑ready).
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
 * Reusable Workflows from agentic‑lib: External automation workflows that are integrated into the template.
 
 ## Overview
