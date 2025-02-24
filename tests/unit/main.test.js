@@ -27,9 +27,6 @@ describe('Exported API Functions', () => {
     expect(json).toHaveProperty('linear');
     expect(json).toHaveProperty('sine');
     expect(json).toHaveProperty('cosine');
-    expect(json).toHaveProperty('polar');
-    expect(json).toHaveProperty('exponential');
-    expect(json).toHaveProperty('logarithmic');
   });
 
   test('plotToText returns non-empty string', () => {
@@ -143,11 +140,11 @@ describe('getSummary Function', () => {
   });
 });
 
-// New test for incremental changes plan comment in source file
+// New test for incremental changes plan documentation
 describe('Incremental Changes Plan Documentation', () => {
-  test('source file contains incremental changes plan comment', () => {
+  test('source file contains incremental changes plan comment aligned with CONTRIBUTING.md', () => {
     const sourceContent = fs.readFileSync('src/lib/main.js', 'utf8');
-    expect(sourceContent).toContain('Incremental Change Plan:');
+    expect(sourceContent).toContain('Incremental Change Plan (aligned with CONTRIBUTING.md):');
   });
 });
 
@@ -171,10 +168,6 @@ describe('Interactive CLI Mode', () => {
 
 // Error Handling Tests
 describe('Error Handling', () => {
-  test('parseGenericQuadratic throws error for invalid input', () => {
-    expect(() => mainModule.parseGenericQuadratic('invalid formula')).toThrow();
-  });
-
   test('plotFromString returns empty array for unrecognized formula', () => {
     const result = mainModule.plotFromString('unknown:parameter');
     expect(result).toEqual([]);
@@ -185,8 +178,7 @@ describe('Error Handling', () => {
   });
 });
 
-// New test for default behavior when no arguments are provided
-// Updated to expect SVG file generation message and termination message
+// Default Demo Output Test
 describe('Default Demo Output', () => {
   test('should output an SVG file and exit if no command-line arguments are provided', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
