@@ -13,7 +13,7 @@ import { randomInt } from "crypto";
  * reusable workflows. Its functions are fully testable and do not rely on GitHub Actions
  * globals. They implement the “brains” behind:
  *
- *   - Verifying issue fixes via an AI (simulated ChatGPT) prompt.
+ *   - Verifying issue fixes via an AI prompt.
  *   - Updating source files in response to build/test/main outputs (two variants:
  *     one for fixing failing builds and one for starting an issue fix).
  *   - Extracting issue numbers from branch names.

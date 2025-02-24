@@ -1,15 +1,14 @@
-# `repository0`
+# Owl Builder
 
-Create a repository from a Repository Template to get started with the agentic coding system. See: [TEMPLATE README](TEMPLATE-README.md)
+Owl Builder is a versatile JavaScript library and CLI tool for building, managing, and querying OWL ontologies.
 
-The repository is intended as a template that includes:
-* A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template (but is not necessarily production‑ready).
-* Reusable Workflows from agentic‑lib: External automation workflows that are integrated into the template.
+## Installation
 
-## Overview
+Install via npm:
 
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate automated CI/CD workflows and serves as a seed for the Equation Plotter—a CLI tool that generates plots for mathematical functions including quadratic, linear, sine, cosine, polar, exponential, and logarithmic functions. The tool supports multiple output formats (SVG, JSON, CSV, Markdown, ASCII, HTML, and PNG) and offers additional features:
+```bash
+npm install owl-builder
+```
 
 - **Rotation Feature:** Rotate SVG output around its center using the `--rotate` flag.
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
@@ -24,12 +23,15 @@ The repository is intended as a template that includes:
   4. **Testing Improvements:** Incrementally add tests to cover new features like rotation, custom titles, and summary outputs.
   5. **Documentation Updates:** Continuously update this README and CONTRIBUTING.md to reflect project goals and development milestones.
 
-> **Note:** The library now exports a `getSummary` function for convenience and improved test coverage.
+## Usage
 
-## What’s Inside
+To run the CLI tool:
 
-- **GitHub Workflows:**
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon agentic‑lib.
+```bash
+node src/lib/main.js --help
+```
+
+## Testing
 
 - **Source Code:**
   The main functionality resides in `src/lib/main.js`, which implements the plotting logic, various parsing functions, and the CLI with all the described features. The source code now includes a comment block outlining our incremental changes plan.
@@ -163,3 +165,14 @@ Refer to `CONTRIBUTING.md` for detailed guidelines.
 The repository began with simple quadratic and sine plots. Our staged plan now aims to expand functionality to include interactive modes, multiple output formats, and enhanced error handling. Each incremental update is guided by our project goals and documented here.
 
 **Version:** Equation Plotter Library version 0.2.0-14
+=======
+Run the tests using:
+
+```bash
+npm test
+```
+
+## Contributing
+
+We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to help improve Owl Builder.
+

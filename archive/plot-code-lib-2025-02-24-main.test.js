@@ -1,9 +1,12 @@
-import { describe, test, expect } from "vitest";
-import * as mainModule from "@src/lib/main.js";
-import { main } from "@src/lib/main.js";
+import { describe, test, expect, vi } from 'vitest';
+import * as mainModule from '@src/lib/main.js';
+import fs from 'fs';
+import readline from 'readline';
+import sharp from 'sharp';
 
-describe("Main Module Import", () => {
-  test("should be non-null", () => {
+// Basic import test
+describe('Main Module Import', () => {
+  test('should be non-null', () => {
     expect(mainModule).not.toBeNull();
   });
 });
@@ -122,14 +125,6 @@ describe('getSummary Function', () => {
       maxY: '5.00',
       avgY: '3.00'
     });
-  });
-});
-
-// New test for incremental changes plan comment in source file
-describe('Incremental Changes Plan Documentation', () => {
-  test('source file contains incremental changes plan comment', () => {
-    const sourceContent = fs.readFileSync('src/lib/main.js', 'utf8');
-    expect(sourceContent).toContain('Incremental Change Plan:');
   });
 });
 
