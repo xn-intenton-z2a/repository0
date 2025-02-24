@@ -8,6 +8,7 @@ Incremental Change Plan:
 3. Expand CLI interactive mode with clearer prompts and additional output formats support.
 4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary, table) is robust.
 5. Continue aligning with contributing guidelines to match the project goals as described in CONTRIBUTING.md.
+6. Extended functionality: added global uncaught exception handler for improved stability.
 */
 
 import { fileURLToPath } from 'url';
@@ -589,7 +590,7 @@ const generateSvg = (
     });
     range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
-      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(gy)}" stroke="#eee" stroke-width="1" />\n`;
+      grid += `  <line x1="${formatNumber(x)}" y1="${formatNumber(gy)}" x2="${formatNumber(x + w)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
     });
     return grid;
   };
@@ -1465,6 +1466,12 @@ const main = async () => {
     console.table(tableData);
   }
 };
+
+// Global uncaught exception handler for extended functionality
+process.on('uncaughtException', (err) => {
+  console.error('Unhandled Exception:', err);
+  process.exit(1);
+});
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
