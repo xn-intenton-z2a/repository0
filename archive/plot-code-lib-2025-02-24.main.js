@@ -1,8 +1,3 @@
-./src/index.js
-==== Content of ./src/index.js ====
-// src/index.js
-// This file is intentionally left empty../src/lib/main.js
-==== Content of ./src/lib/main.js ====
 #!/usr/bin/env node
 /* eslint-disable no-console */
 
@@ -1426,5 +1421,6 @@ export {
   parseGenericQuadratic,
   parseGenericExponential,
   parseCosine,
-  main
+  main,
+  getSummary
 };
