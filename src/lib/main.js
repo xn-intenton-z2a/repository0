@@ -4,7 +4,12 @@
 import { fileURLToPath } from "url";
 
 export function main(args) {
-  if (args && args.includes("--help")) {
+  if (!args || args.length === 0) {
+    console.log("Usage: node src/lib/main.js [options]\nOptions:\n  --help     Show help");
+    console.log("Demo Output: Run with: []");
+    return;
+  }
+  if (args.includes("--help")) {
     console.log("Usage: node src/lib/main.js [options]\nOptions:\n  --help     Show help");
     return;
   }
