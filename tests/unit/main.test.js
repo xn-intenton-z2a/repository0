@@ -128,6 +128,14 @@ describe('getSummary Function', () => {
   });
 });
 
+// New test for incremental changes plan comment in source file
+describe('Incremental Changes Plan Documentation', () => {
+  test('source file contains incremental changes plan comment', () => {
+    const sourceContent = fs.readFileSync('src/lib/main.js', 'utf8');
+    expect(sourceContent).toContain('Incremental Change Plan:');
+  });
+});
+
 // Interactive CLI Mode test
 describe('Interactive CLI Mode', () => {
   test('should prompt for input when --interactive flag is provided', () => {

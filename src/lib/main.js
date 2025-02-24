@@ -3,6 +3,15 @@
 
 'use strict';
 
+/*
+Incremental Change Plan:
+1. Refactor and modularize plotting functions for better performance and maintainability.
+2. Enhance error handling and input validation across all formula parsing functions.
+3. Expand CLI interactive mode with clearer prompts and additional output formats support.
+4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary) is robust.
+5. Continue aligning with contributing guidelines to match the project goals as described in CONTRIBUTING.md.
+*/
+
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import readline from 'readline';
