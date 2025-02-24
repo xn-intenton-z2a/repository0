@@ -35,6 +35,8 @@ To run the CLI tool and see help instructions:
 node src/lib/main.js --help
 ```
 
+If the --help flag is provided, a help menu will be displayed with available options.
+
 ### Example Commands
 
 - **Default Demo Output:**

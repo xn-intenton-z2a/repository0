@@ -4,6 +4,10 @@
 import { fileURLToPath } from "url";
 
 export function main(args) {
+  if (args && args.includes("--help")) {
+    console.log("Usage: node src/lib/main.js [options]\nOptions:\n  --help     Show help");
+    return;
+  }
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 

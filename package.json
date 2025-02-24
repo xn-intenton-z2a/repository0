@@ -3,7 +3,7 @@
   "version": "1.2.0-1",
   "description": "TODO: Populate in line with CONTRIBUTING.md.",
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/lib/main.js",
   "scripts": {
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check .",
