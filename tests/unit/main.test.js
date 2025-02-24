@@ -109,6 +109,19 @@ describe('Summary Feature', () => {
   });
 });
 
+// New test for table summary feature
+describe('Table Summary Feature', () => {
+  test('should output summary table using console.table when --table flag is provided', () => {
+    const consoleTableSpy = vi.spyOn(console, 'table').mockImplementation(() => {});
+    const originalArgv = process.argv;
+    process.argv = ['node', 'src/lib/main.js', 'output.svg', 'y=2x+3:-10,10,1', '--table'];
+    mainModule.main();
+    expect(consoleTableSpy).toHaveBeenCalled();
+    consoleTableSpy.mockRestore();
+    process.argv = originalArgv;
+  });
+});
+
 // New test for getSummary function
 describe('getSummary Function', () => {
   test('returns empty object for empty array', () => {

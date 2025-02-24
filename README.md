@@ -14,13 +14,14 @@ npm install owl-builder
 - **Custom Title Support:** Add a custom title to the SVG output using the `--title` flag.
 - **Interactive Mode:** Allows real-time user input via the `--interactive` flag.
 - **Summary Feature:** Use the `--summary` flag to print summary statistics (min, max, average) for the first plot of each type.
+- **Table Summary Feature:** Use the `--table` flag to output summary statistics in a table format.
 - **Default Behavior:** When no arguments are provided, the tool outputs a usage message and a demo SVG file (`output.svg`) with default plots, then terminates execution immediately without requiring any user input.
 - **Improved Error Handling & Consistency:** Enhanced input validation (especially for sine formulas) and consistent code formatting for better maintenance.
 - **Incremental Changes Plan:** A detailed, step-by-step plan to evolve the project:
   1. **Code Refactoring:** Modularize and optimize plotting functions and CLI logic.
   2. **Robust Error Handling:** Enhance input validation and error messaging across parsing functions.
-  3. **CLI Enhancements:** Expand interactive mode and add new output formats.
-  4. **Testing Improvements:** Incrementally add tests to cover new features like rotation, custom titles, and summary outputs.
+  3. **CLI Enhancements:** Expand interactive mode and add new output formats including table summary.
+  4. **Testing Improvements:** Incrementally add tests to cover new features like rotation, custom titles, summary outputs, and table output.
   5. **Documentation Updates:** Continuously update this README and CONTRIBUTING.md to reflect project goals and development milestones.
 
 ## Usage
@@ -105,6 +106,11 @@ Set these in your repository settings under *Settings > Secrets and Variables > 
   node src/lib/main.js output.svg "y=2x+3:-10,10,1" --summary
   ```
 
+- **Table Summary Feature:**
+  ```bash
+  node src/lib/main.js output.svg "y=2x+3:-10,10,1" --table
+  ```
+
 - **Interactive Mode:**
   ```bash
   node src/lib/main.js --interactive
@@ -130,7 +136,7 @@ Our incremental development strategy focuses on continuous improvements:
    - Update error messages for clarity.
 
 3. **Phase 3 - Extended CLI Features:**
-   - Improve interactive mode and add new output formats.
+   - Improve interactive mode and add new output formats including a table summary output.
    - Integrate rotation and custom title features more seamlessly.
 
 4. **Phase 4 - Testing & Documentation:**
