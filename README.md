@@ -34,7 +34,7 @@ node src/lib/main.js --help
   ```bash
   node src/lib/main.js
   ```
-  This command generates a demo SVG file (`output.svg`) with default plots and terminates immediately.
+  This command generates a demo SVG file (`output.svg`) with default plots and terminates immediately without waiting for further input.
 
 - **Generate JSON Output:**
   ```bash
