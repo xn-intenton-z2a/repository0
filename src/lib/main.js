@@ -6,7 +6,7 @@ Incremental Change Plan:
 1. Refactor and modularize plotting functions for better performance and maintainability.
 2. Enhance error handling and input validation across all formula parsing functions.
 3. Expand CLI interactive mode with clearer prompts and additional output formats support.
-4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary) is robust.
+4. Integrate incremental test updates to ensure each feature (rotation, custom title, summary, table) is robust.
 5. Continue aligning with contributing guidelines to match the project goals as described in CONTRIBUTING.md.
 */
 
@@ -585,7 +585,7 @@ const generateSvg = (
     let grid = '';
     range(0, vCount + 1, 1).forEach((i) => {
       const gx = x + i * (w / vCount);
-      grid += `  <line x1="${formatNumber(gx)}" y1="${formatNumber(y)}" x2="${formatNumber(gx)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
+      grid += `  <line x1="${formatNumber(gx)}" y1="${formatNumber(y)}" x2="${formatNumber(x + w)}" y2="${formatNumber(y + h)}" stroke="#eee" stroke-width="1" />\n`;
     });
     range(0, hCount + 1, 1).forEach((i) => {
       const gy = y + i * (h / hCount);
@@ -1189,6 +1189,26 @@ const main = async () => {
         }
       }
     }
+    if (process.argv.includes('--table')) {
+      const plotsInfo = getPlotsFromFormulas([]);
+      const tableData = [];
+      for (const key in plotsInfo) {
+        if (plotsInfo[key].length > 0) {
+          const summary = getSummary(plotsInfo[key][0]);
+          tableData.push({
+            PlotType: key,
+            MinX: summary.minX,
+            MaxX: summary.maxX,
+            AvgX: summary.avgX,
+            MinY: summary.minY,
+            MaxY: summary.maxY,
+            AvgY: summary.avgY
+          });
+        }
+      }
+      console.log('\nSummary Table of Plots:');
+      console.table(tableData);
+    }
     process.exit(0);
   }
 
@@ -1226,7 +1246,7 @@ const main = async () => {
   }
 
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...] [--rotate <angle>] [--title <custom title>] [--summary]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --rotate <angle>   Rotate SVG output by specified degrees\n  --title <title>    Add a custom title to the SVG output (appears as a <title> element)\n  --summary        Print summary statistics (min, max, avg) for the first plot of each type\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
+    console.log(`Usage: node src/lib/main.js [outputFileName] [formulaStrings...] [--rotate <angle>] [--title <custom title>] [--summary] [--table]\n\nOptions:\n  --help, -h         Show this help message\n  --json             Generate output as JSON instead of SVG\n  --csv              Generate output as CSV instead of SVG\n  --ascii            Generate output as ASCII art instead of SVG\n  --md               Generate output as Markdown instead of SVG\n  --html             Generate output as HTML\n  --grid             Overlay grid lines on SVG plots\n  --debug            Output internal parsed plot data for debugging\n  --dealers-choice   Use randomized color palette for SVG plots\n  --rotate <angle>   Rotate SVG output by specified degrees\n  --title <title>    Add a custom title to the SVG output (appears as a <title> element)\n  --summary        Print summary statistics for the first plot of each type\n  --table          Output summary statistics in a table format\n  --interactive      Enable interactive CLI mode for real-time user input\n  --demo             Run demo test output\n  --version          Show version information\n(output file extension .html will generate HTML output,\n .md for Markdown output, .txt or .ascii for ASCII output, .png for PNG output)\n\nFormula String Formats:\n  Quadratic: "quad:y=x^2+2*x+1" or "quadratic:y=x^2+2*x+1" or "x^2+y-1=0" (or with range e.g., "y=x^2+2*x+1:-10,10,1")\n  Linear:    "linear:m,b[,xMin,xMax,step]" or algebraic form like "y=2x+3" (or "y=2x+3:-10,10,1")\n  Sine:      "sine:amplitude,frequency,phase[,xMin,xMax,step]"\n  Cosine:    "cosine:amplitude,frequency,phase[,xMin,xMax,step]" or "cos:..."\n  Polar:     "polar:scale,multiplier,step[,degMin,degMax]"\n  Exponential: "exponential:a,b,xMin,xMax,step" or "exp:a,b,xMin,xMax,step" or in algebraic form like "y=2*e^(0.5x)" (optionally with range e.g., "y=2*e^(0.5x):-10,10,1")\n  Logarithmic: "log:a,base,xMin,xMax,step" or "ln:a,base,xMin,xMax,step"\n`);
     process.exit(0);
   }
 
@@ -1250,7 +1270,7 @@ const main = async () => {
         (arg) =>
           !arg.includes(":") &&
           !arg.includes('=') &&
-          !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary'].includes(arg)
+          !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary', '--table'].includes(arg)
       );
       if (nonFormulaArgs.length > 0) {
         outputFileName = nonFormulaArgs[0];
@@ -1307,6 +1327,27 @@ const main = async () => {
           }
         }
       }
+      // New Feature: Table Summary Output
+      if (filteredArgs.includes('--table')) {
+        const plotsInfo = getPlotsFromFormulas(formulasList);
+        const tableData = [];
+        for (const key in plotsInfo) {
+          if (plotsInfo[key].length > 0) {
+            const summary = getSummary(plotsInfo[key][0]);
+            tableData.push({
+              PlotType: key,
+              MinX: summary.minX,
+              MaxX: summary.maxX,
+              AvgX: summary.avgX,
+              MinY: summary.minY,
+              MaxY: summary.maxY,
+              AvgY: summary.avgY
+            });
+          }
+        }
+        console.log('\nSummary Table of Plots:');
+        console.table(tableData);
+      }
 
       rl.close();
       process.exit(0);
@@ -1327,7 +1368,7 @@ const main = async () => {
     (arg) =>
       !arg.includes(":") &&
       !arg.includes('=') &&
-      !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary'].includes(arg)
+      !['--json', '--csv', '--version', '--ascii', '--debug', '--grid', '--dealers-choice', '--interactive', '--md', '--html', '--rotate', '--title', '--summary', '--table'].includes(arg)
   );
   if (nonFormulaArgs.length > 0) {
     outputFileName = nonFormulaArgs[0];
@@ -1391,7 +1432,7 @@ const main = async () => {
   console.log('\nText Representation of Plots:');
   console.log(plotToText({ formulas: formulasList }));
 
-  // New Feature: Summary Output in non-interactive mode
+  // Summary Output
   if (args.includes('--summary')) {
     const plotsInfo = getPlotsFromFormulas(formulasList);
     console.log('\nSummary of Plots:');
@@ -1401,6 +1442,27 @@ const main = async () => {
         console.log(`${key}:`, summary);
       }
     }
+  }
+  // Table Summary Output
+  if (args.includes('--table')) {
+    const plotsInfo = getPlotsFromFormulas(formulasList);
+    const tableData = [];
+    for (const key in plotsInfo) {
+      if (plotsInfo[key].length > 0) {
+        const summary = getSummary(plotsInfo[key][0]);
+        tableData.push({
+          PlotType: key,
+          MinX: summary.minX,
+          MaxX: summary.maxX,
+          AvgX: summary.avgX,
+          MinY: summary.minY,
+          MaxY: summary.maxY,
+          AvgY: summary.avgY
+        });
+      }
+    }
+    console.log('\nSummary Table of Plots:');
+    console.table(tableData);
   }
 };
 
