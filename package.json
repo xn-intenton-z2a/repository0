@@ -15,7 +15,8 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest tests/unit/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "plan": "echo 'Please refer to README.md for the detailed incremental changes plan.'"
   },
   "keywords": [],
   "author": "",
