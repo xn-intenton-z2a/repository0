@@ -1408,3 +1408,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
 }
+
+// Exporting API functions for tests and external usage
+export { main, plotToSvg, plotToJson, plotToText, plotToCsv, plotToHtml, plotToMarkdown, plotToAscii, plotFromString, getSummary };

@@ -1,9 +1,12 @@
-import { describe, test, expect } from "vitest";
-import * as mainModule from "@src/lib/main.js";
-import { main } from "@src/lib/main.js";
+import { describe, test, expect, vi } from 'vitest';
+import * as mainModule from '@src/lib/main.js';
+import { main } from '@src/lib/main.js';
+import fs from 'fs';
+import readline from 'readline';
+import sharp from 'sharp';
 
-describe("Main Module Import", () => {
-  test("should be non-null", () => {
+describe('Main Module Import', () => {
+  test('should be non-null', () => {
     expect(mainModule).not.toBeNull();
   });
 });

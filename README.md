@@ -19,7 +19,7 @@ npm install owl-builder
 - **Incremental Changes Plan:** A detailed, step-by-step plan to evolve the project:
   1. **Code Refactoring:** Modularize and optimize plotting functions and CLI logic.
   2. **Robust Error Handling:** Enhance input validation and error messaging across parsing functions.
-  3. **CLI Enhancements:** Expand interactive mode and add more output options.
+  3. **CLI Enhancements:** Expand interactive mode and add new output formats.
   4. **Testing Improvements:** Incrementally add tests to cover new features like rotation, custom titles, and summary outputs.
   5. **Documentation Updates:** Continuously update this README and CONTRIBUTING.md to reflect project goals and development milestones.
 
@@ -175,4 +175,3 @@ npm test
 ## Contributing
 
 We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to help improve Owl Builder.
-
