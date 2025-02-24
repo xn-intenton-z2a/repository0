@@ -1,9 +1,9 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.2.0-2",
-  "description": "TODO: Populate in line with CONTRIBUTING.md.",
+  "description": "A JavaScript library and CLI tool for building, managing, and querying OWL ontologies.",
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/lib/main.js",
   "scripts": {
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check",
