@@ -18,6 +18,7 @@ npm install owl-builder
 - **Rotation & Custom Title:** Enhance SVG outputs by applying rotation transforms and adding custom titles.
 - **Interactive Mode:** Enjoy real-time user input for on-the-fly plotting or ontology queries.
 - **Summary & Table Output:** Quickly view summary statistics (min, max, average) for your data plots in textual or tabular form.
+- **Enhanced Error Handling:** Robust error logging and a global uncaught exception handler improve stability across all operations.
 
 ## Usage
 
@@ -116,11 +117,11 @@ Our development strategy is divided into phases:
 
 4. **Phase 4 - Testing & Documentation:**
    - Increase test coverage to include new features and error handling scenarios.
-   - Keep documentation up-to-date with development milestones and contribution guidelines.
+   - Update documentation to reflect development milestones and extended functionality.
 
 5. **Phase 5 - Future Enhancements:**
    - Further optimize SVG rendering performance.
-   - Explore additional output formats and responsive designs.
+   - Explore additional output formats and responsive design improvements.
 
 ## Contributing
 
