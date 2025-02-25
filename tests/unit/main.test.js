@@ -59,3 +59,31 @@ describe("Example OWL Functionality", () => {
     expect(output).toContain('"Tea"');
   });
 });
+
+describe("Fetch OWL Functionality", () => {
+  test("should fetch API data and display OWL ontology JSON when --fetch-owl is passed", async () => {
+    // Backup the original fetch
+    const originalFetch = global.fetch;
+    // Stub fetch to return a controlled response
+    global.fetch = async () => ({
+      ok: true,
+      json: async () => ({
+        entries: [
+          { API: "Cat Facts", Description: "Daily cat facts", Category: "Animals" },
+          { API: "Dog Facts", Description: "Random dog facts", Category: "Animals" },
+          { API: "Space API", Description: "Space related info", Category: "Space" }
+        ]
+      })
+    });
+    let output = "";
+    const originalConsoleLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    await main(["--fetch-owl"]);
+    console.log = originalConsoleLog;
+    // Restore the original fetch
+    global.fetch = originalFetch;
+    expect(output).toContain("Fetched OWL Ontology as JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/apis.owl"');
+    expect(output).toContain('"Cat Facts"');
+  });
+});

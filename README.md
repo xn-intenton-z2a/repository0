@@ -65,23 +65,16 @@ Providing the `--help` flag displays a help menu with available options. Running
   node src/lib/main.js --version
   ```
 
-- **Display OWL Ontology as JSON:**
+- **Display OWL Ontology as JSON (Example):**
   ```bash
   node src/lib/main.js --example-owl
   ```
 
-  Running with the `--example-owl` flag will output a JSON representation of a simple OWL ontology. For example:
-
-  ```json
-  {
-    "ontologyIRI": "http://example.org/tea.owl",
-    "classes": [
-      { "id": "Tea", "label": "Tea" }
-    ],
-    "properties": [],
-    "individuals": []
-  }
+- **Fetch and Render OWL Ontology from Public API:**
+  ```bash
+  node src/lib/main.js --fetch-owl
   ```
+  Running with the `--fetch-owl` flag fetches public API data from an unauthenticated endpoint (https://api.publicapis.org/entries), maps a subset of the data to an OWL ontology structure, and outputs it as formatted JSON.
 
 - **Default Demo Output:**
   ```bash
@@ -92,9 +85,10 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   Usage: node src/lib/main.js [options]
   Options:
-    --help         Show help
-    --version      Show version
-    --example-owl  Show an example OWL ontology as JSON
+    --help           Show help
+    --version        Show version
+    --example-owl    Show an example OWL ontology as JSON
+    --fetch-owl      Fetch public API data and render as OWL ontology JSON
   Demo Output: Run with: []
   ```
 
