@@ -87,7 +87,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
-  This command performs a self-test by fetching public API data and reporting the number of records fetched along with the response time.
+  This command performs a self-test by fetching public API data and reporting the number of records fetched along with the response time. It additionally logs the OWL ontology JSON derived from the fetched data.
 
 - **Default Demo Output:**
   ```bash

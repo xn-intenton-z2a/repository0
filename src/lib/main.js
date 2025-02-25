@@ -8,14 +8,7 @@ const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, r
 
 // Helper function to print usage message
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]
-Options:
-  --help           Show help
-  --version        Show version
-  --example-owl    Show an example OWL ontology as JSON
-  --fetch-owl      Fetch public API data and render as OWL ontology JSON
-  --build-owl      Build a demo OWL ontology as JSON
-  --diagnostics    Run diagnostics to test public API connectivity`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -118,7 +111,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW: If diagnostics flag is provided, run a self-test fetching public API data
+  // NEW: If diagnostics flag is provided, run a self-test fetching public API data and log OWL ontology JSON
   if (args.includes("--diagnostics")) {
     console.log(chalk.green("Running Diagnostics..."));
     try {
@@ -132,6 +125,19 @@ export async function main(args) {
       const data = await response.json();
       const latency = Date.now() - start;
       console.log(chalk.green(`Diagnostics: Fetched ${data.length} records in ${latency} ms.`));
+      // Log the OWL ontology JSON format derived from the fetched data
+      const individuals = data.slice(0, 3).map(country => ({
+        id: country.name && country.name.common ? country.name.common : "Unknown",
+        label: country.region || "Unknown"
+      }));
+      const diagOwlOntology = {
+        ontologyIRI: "http://example.org/diagnostics.owl",
+        classes: [{ id: "Country", label: "Country" }],
+        properties: [],
+        individuals: individuals
+      };
+      console.log(chalk.green("Diagnostics: OWL Ontology JSON:"));
+      console.log(JSON.stringify(diagOwlOntology, null, 2));
     } catch (error) {
       console.error(chalk.red("Diagnostics: Error fetching public API data:"), error);
       safeExit(1);

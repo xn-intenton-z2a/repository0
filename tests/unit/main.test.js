@@ -96,7 +96,7 @@ describe("Build OWL Functionality", () => {
 });
 
 describe("Diagnostics Functionality", () => {
-  test("should run diagnostics and fetch public API data when --diagnostics is passed", async () => {
+  test("should run diagnostics, fetch public API data, and log OWL ontology JSON when --diagnostics is passed", async () => {
     const originalFetch = global.fetch;
     global.fetch = async () => ({
       ok: true,
@@ -106,6 +106,8 @@ describe("Diagnostics Functionality", () => {
     global.fetch = originalFetch;
     expect(output).toContain("Running Diagnostics...");
     expect(output).toMatch(/Fetched \d+ records in \d+ ms\./);
+    expect(output).toContain("Diagnostics: OWL Ontology JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/diagnostics.owl"');
   });
 });
 
