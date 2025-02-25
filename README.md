@@ -15,7 +15,7 @@ For more details, see [TEMPLATE-README.md](./TEMPLATE-README.md).
 
 ## intentïon `agentic-lib`
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
@@ -65,6 +65,24 @@ Providing the `--help` flag displays a help menu with available options. Running
   node src/lib/main.js --version
   ```
 
+- **Display OWL Ontology as JSON:**
+  ```bash
+  node src/lib/main.js --example-owl
+  ```
+
+  Running with the `--example-owl` flag will output a JSON representation of a simple OWL ontology. For example:
+
+  ```json
+  {
+    "ontologyIRI": "http://example.org/tea.owl",
+    "classes": [
+      { "id": "Tea", "label": "Tea" }
+    ],
+    "properties": [],
+    "individuals": []
+  }
+  ```
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -74,8 +92,9 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   Usage: node src/lib/main.js [options]
   Options:
-    --help     Show help
-    --version  Show version
+    --help         Show help
+    --version      Show version
+    --example-owl  Show an example OWL ontology as JSON
   Demo Output: Run with: []
   ```
 
