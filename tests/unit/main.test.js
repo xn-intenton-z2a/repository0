@@ -31,6 +31,8 @@ describe("Help Functionality", () => {
     main(["--help"]);
     console.log = originalConsoleLog;
     expect(output).toContain("Usage: node src/lib/main.js [options]");
+    // Ensure that demo output is not printed when --help is used
+    expect(output).not.toContain("Demo Output: Run with: []");
   });
 });
 
