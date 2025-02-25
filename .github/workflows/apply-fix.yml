@@ -75,7 +75,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm run start
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   apply-fix:
     needs:

@@ -59,7 +59,7 @@ jobs:
       - name: main
         id: main
         shell: bash
-        run: timeout 5m npm run start
+        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   publish:
     needs:
