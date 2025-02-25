@@ -2,7 +2,7 @@
 
 `owl-builder` is a versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies. It showcases automated CI/CD workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
 
-This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems.
+This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems. The current CLI provides several implemented commands, while future enhancements will introduce advanced querying capabilities, a web interface for ontology visualization, and persistent knowledge base features.
 
 ## Repository Template
 
@@ -21,13 +21,25 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `owl-builder` Coding System?
+## Current Features
 
-* Do you have access to an OpenAI account with necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how such a system can be built?
-* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+The current implementation of `owl-builder` includes:
+
+- Displaying a help message (--help) with usage information and demo output.
+- Showing version information (--version).
+- Presenting an example OWL ontology as JSON (--example-owl).
+- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as an OWL ontology JSON (--fetch-owl).
+- Building a demo OWL ontology as JSON (--build-owl).
+- Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
+
+## Future Enhancements
+
+Planned features for upcoming releases include:
+
+- Advanced ontology building from diverse public data sources.
+- Querying capabilities through both the CLI and a web interface.
+- A persistent knowledge base for managing ontologies over time.
+- Integration with additional external data crawlers and improved data mapping.
 
 ## Installation
 
@@ -37,13 +49,6 @@ Install via npm:
 npm install owl-builder
 ```
 
-## Features
-
-- Build OWL ontologies from public data sources (upcoming feature)
-- Manage and query ontologies via a CLI and web interface (upcoming feature)
-- Automated CI/CD workflows for continuous evolution
-- Enhanced terminal output with colored messages using chalk
-
 ## Usage
 
 To use the CLI tool, run:
@@ -52,7 +57,7 @@ To use the CLI tool, run:
 node src/lib/main.js --help
 ```
 
-Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. Note: In a testing environment, process termination is suppressed to allow for proper test execution.
+Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. In a testing environment, process termination is suppressed to allow for proper test execution.
 
 ### Example Commands
 
@@ -75,7 +80,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --fetch-owl
   ```
-  Running with the `--fetch-owl` flag attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure.
+  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure.
 
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
@@ -87,7 +92,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
-  This command performs a self-test by fetching public API data and reporting the number of records fetched along with the response time. It additionally logs the OWL ontology JSON derived from the fetched data.
+  This command performs a self-test by fetching public API data, reporting the number of records and response time, and logging the derived OWL ontology JSON.
 
 - **Default Demo Output:**
   ```bash
@@ -108,7 +113,7 @@ Providing the `--help` flag displays a help menu with available options. Running
 
 ## JSON-LD Ontology Example
 
-Below is a simple example of an OWL ontology expressed in JSON-LD. This example defines a basic ontology with two classes (Person and Employee) and one datatype property (hasAge). It shows how OWL concepts can be represented in a JSON structure.
+Below is a simple example of an OWL ontology expressed in JSON-LD. This example defines a basic ontology with two classes (Person and Employee) and one datatype property (hasAge), showcasing how OWL concepts can be represented in a JSON structure.
 
 ```json
 {
@@ -142,15 +147,6 @@ Below is a simple example of an OWL ontology expressed in JSON-LD. This example 
 }
 ```
 
-## Future Enhancements
-
-The following features are planned for future releases:
-
-- Enhanced ontology building from diverse public data sources
-- Advanced querying capabilities through both CLI and a web interface
-- Integration with additional external data crawlers
-- Extended user configuration and customization options
-
 ## Contributing
 
 We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively. In summary:
@@ -163,7 +159,7 @@ Your contributions help improve the functionality and quality of the project.
 
 ## Incremental Changes Plan
 
-- Upcoming enhancements include advanced CLI commands, web interface improvements, and expanded ontology management capabilities.
+- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities.
 
 ## License
 
