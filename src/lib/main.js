@@ -60,35 +60,57 @@ export async function main(args) {
     return;
   }
 
-  // If fetch-owl flag is provided, fetch public API data and convert to OWL ontology JSON
+  // If fetch-owl flag is provided, fetch public API data and convert to OWL ontology JSON using multiple endpoints
   if (args.includes("--fetch-owl")) {
+    let owlOntology;
+    let data;
+    let endpoint = "https://restcountries.com/v3.1/all";
     try {
-      // Using the REST Countries API as a real public data source
-      const response = await fetch("https://restcountries.com/v3.1/all");
+      let response = await fetch(endpoint);
       if (!response.ok) {
-        console.error(chalk.red("Failed to fetch countries data"));
-        safeExit(1);
-        return;
+        console.warn(chalk.red(`Primary endpoint failed with status ${response.status}. Trying backup endpoint...`));
+        endpoint = "https://jsonplaceholder.typicode.com/users";
+        response = await fetch(endpoint);
+        if (!response.ok) {
+          console.error(chalk.red("Failed to fetch from both primary and backup endpoints"));
+          safeExit(1);
+          return;
+        }
       }
-      const data = await response.json();
-      // Map first 3 entries as individuals, using country common name and region
+      data = await response.json();
+    } catch (error) {
+      console.error(chalk.red("Error fetching data:"), error);
+      safeExit(1);
+      return;
+    }
+
+    // Map data to OWL ontology based on the endpoint used
+    if (endpoint === "https://restcountries.com/v3.1/all") {
       const individuals = data.slice(0, 3).map(country => ({
         id: country.name && country.name.common ? country.name.common : "Unknown",
         label: country.region || "Unknown"
       }));
-      const owlOntology = {
+      owlOntology = {
         ontologyIRI: "http://example.org/countries.owl",
         classes: [{ id: "Country", label: "Country" }],
         properties: [],
         individuals: individuals
       };
-      console.log(chalk.green("Fetched OWL Ontology as JSON:"));
-      console.log(JSON.stringify(owlOntology, null, 2));
-    } catch (error) {
-      console.error(chalk.red("Error fetching countries data:"), error);
-      safeExit(1);
-      return;
+    } else {
+      // Backup endpoint mapping using JSONPlaceholder users
+      const individuals = data.slice(0, 3).map(user => ({
+        id: user.username || "Unknown",
+        label: user.company && user.company.name ? user.company.name : "Unknown"
+      }));
+      owlOntology = {
+        ontologyIRI: "http://example.org/users.owl",
+        classes: [{ id: "User", label: "User" }],
+        properties: [],
+        individuals: individuals
+      };
     }
+    console.log(chalk.green("Fetched OWL Ontology as JSON:"));
+    console.log(JSON.stringify(owlOntology, null, 2));
     safeExit(0);
     return;
   }
