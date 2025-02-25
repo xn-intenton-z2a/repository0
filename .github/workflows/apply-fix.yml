@@ -3,11 +3,11 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Apply Fix
+name: Apply Fix on Fail
 concurrency:
   issue-worker
   branch-main
-run-name: "Apply Fix [${{ github.ref_name }}]"
+run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ on:
       - apply-formatting
       - apply-update
   schedule:
-    - cron: '15 */2 * * *' # Run every 2 hours at 0 minutes past
+    - cron: '15 */2 * * *' # Run every 1 hour at 0 minutes past
     #- cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
