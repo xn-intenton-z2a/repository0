@@ -17,25 +17,32 @@ Options:
 }
 
 export function main(args) {
-  // If no arguments or help flag, show usage. If no args, include demo output.
+  // If no arguments are provided, display usage with demo output and exit
   if (!args || args.length === 0) {
     printUsage(true);
     if (process.env.NODE_ENV !== "test") process.exit(0);
     return;
   }
+  
+  // If help flag is provided, display usage without demo output and exit
   if (args.includes("--help")) {
     printUsage(false);
     if (process.env.NODE_ENV !== "test") process.exit(0);
     return;
   }
+  
+  // If version flag is provided, display version info and exit
   if (args.includes("--version")) {
     console.log(`Version: ${pkg.version}`);
     if (process.env.NODE_ENV !== "test") process.exit(0);
     return;
   }
+
+  // For any other arguments, simply log them
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
+// Ensure that the script is executed only when run directly, not when imported
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
