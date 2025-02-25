@@ -13,7 +13,7 @@ The repository includes:
 
 For more details, see [TEMPLATE-README.md](./TEMPLATE-README.md).
 
-## intentïon `agentic-lib`
+## intentïon `agentic‑lib`
 
 The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
@@ -75,7 +75,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --fetch-owl
   ```
-  Running with the `--fetch-owl` flag fetches data from the REST Countries API (https://restcountries.com/v3.1/all), maps the first three records into an OWL ontology structure with a Country class, and outputs the formatted JSON.
+  Running with the `--fetch-owl` flag attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure.
 
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
