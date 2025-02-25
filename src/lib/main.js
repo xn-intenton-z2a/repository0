@@ -11,7 +11,8 @@ Options:
   --help           Show help
   --version        Show version
   --example-owl    Show an example OWL ontology as JSON
-  --fetch-owl      Fetch public API data and render as OWL ontology JSON`;
+  --fetch-owl      Fetch public API data and render as OWL ontology JSON
+  --build-owl      Build a demo OWL ontology as JSON`;
   console.log(usageMsg);
   if (withDemo) {
     console.log("Demo Output: Run with: []");
@@ -83,6 +84,24 @@ export async function main(args) {
     } catch (error) {
       console.error("Error fetching countries data:", error);
     }
+    if (process.env.NODE_ENV !== "test") process.exit(0);
+    return;
+  }
+
+  // NEW: If build-owl flag is provided, build a demo OWL ontology JSON and exit
+  if (args.includes("--build-owl")) {
+    const builtOntology = {
+      ontologyIRI: "http://example.org/built.owl",
+      classes: [
+        { id: "Demo", label: "Demo Class" }
+      ],
+      properties: [],
+      individuals: [
+        { id: "SampleIndividual", label: "Sample Label" }
+      ]
+    };
+    console.log("Built OWL Ontology as JSON:");
+    console.log(JSON.stringify(builtOntology, null, 2));
     if (process.env.NODE_ENV !== "test") process.exit(0);
     return;
   }
