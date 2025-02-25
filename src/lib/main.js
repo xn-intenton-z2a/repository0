@@ -59,28 +59,29 @@ export async function main(args) {
   // If fetch-owl flag is provided, fetch public API data and convert to OWL ontology JSON
   if (args.includes("--fetch-owl")) {
     try {
-      const response = await fetch("https://api.publicapis.org/entries");
+      // Using the REST Countries API as a real public data source
+      const response = await fetch("https://restcountries.com/v3.1/all");
       if (!response.ok) {
-        console.error("Failed to fetch public API data");
+        console.error("Failed to fetch countries data");
         if (process.env.NODE_ENV !== "test") process.exit(1);
         return;
       }
       const data = await response.json();
-      // Map first 3 entries as individuals
-      const individuals = (data.entries || []).slice(0, 3).map(entry => ({
-        id: entry.API,
-        label: entry.Description || entry.Category
+      // Map first 3 entries as individuals, using country common name and region
+      const individuals = data.slice(0, 3).map(country => ({
+        id: country.name && country.name.common ? country.name.common : "Unknown",
+        label: country.region || "Unknown"
       }));
       const owlOntology = {
-        ontologyIRI: "http://example.org/apis.owl",
-        classes: [{ id: "API", label: "API" }],
+        ontologyIRI: "http://example.org/countries.owl",
+        classes: [{ id: "Country", label: "Country" }],
         properties: [],
         individuals: individuals
       };
       console.log("Fetched OWL Ontology as JSON:");
       console.log(JSON.stringify(owlOntology, null, 2));
     } catch (error) {
-      console.error("Error fetching public API data:", error);
+      console.error("Error fetching countries data:", error);
     }
     if (process.env.NODE_ENV !== "test") process.exit(0);
     return;

@@ -61,19 +61,17 @@ describe("Example OWL Functionality", () => {
 });
 
 describe("Fetch OWL Functionality", () => {
-  test("should fetch API data and display OWL ontology JSON when --fetch-owl is passed", async () => {
+  test("should fetch countries data and display OWL ontology JSON when --fetch-owl is passed", async () => {
     // Backup the original fetch
     const originalFetch = global.fetch;
-    // Stub fetch to return a controlled response
+    // Stub fetch to return a controlled response mimicking REST Countries API
     global.fetch = async () => ({
       ok: true,
-      json: async () => ({
-        entries: [
-          { API: "Cat Facts", Description: "Daily cat facts", Category: "Animals" },
-          { API: "Dog Facts", Description: "Random dog facts", Category: "Animals" },
-          { API: "Space API", Description: "Space related info", Category: "Space" }
-        ]
-      })
+      json: async () => ([
+        { name: { common: "France" }, region: "Europe" },
+        { name: { common: "Japan" }, region: "Asia" },
+        { name: { common: "Brazil" }, region: "Americas" }
+      ])
     });
     let output = "";
     const originalConsoleLog = console.log;
@@ -83,7 +81,7 @@ describe("Fetch OWL Functionality", () => {
     // Restore the original fetch
     global.fetch = originalFetch;
     expect(output).toContain("Fetched OWL Ontology as JSON:");
-    expect(output).toContain('"ontologyIRI": "http://example.org/apis.owl"');
-    expect(output).toContain('"Cat Facts"');
+    expect(output).toContain('"ontologyIRI": "http://example.org/countries.owl"');
+    expect(output).toContain("France");
   });
 });
