@@ -86,15 +86,16 @@ jobs:
     if: >
       ${{ always() && 
         (
-          (needs.npm-test.result != 'success' ||
-           needs.npm-build.result != 'success' ||
-           needs.npm-run.result != 'success') ||
-          (inputs.applyFixEvenIfTestsPass == true)
+          needs.npm-test.result != 'success' ||
+          needs.npm-build.result != 'success' ||
+          needs.npm-run.result != 'success' ||
+          inputs.applyFixEvenIfTestsPass == true
         )
       }}
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Needs Fix"
+      - run: |
+          echo "Needs Fix because: npm-test ${{ needs.npm-test.result }} != success or npm-build ${{ needs.npm-build.result }} != success or npm-run ${{ needs.npm-run.result }}!= success or applyFixEvenIfTestsPass ${{ inputs.applyFixEvenIfTestsPass }} == true"
 
   apply-fix:
     needs:
