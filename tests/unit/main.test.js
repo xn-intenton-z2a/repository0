@@ -88,3 +88,11 @@ describe("Build OWL Functionality", () => {
     expect(output).toContain("Demo Class");
   });
 });
+
+describe("Unknown Arguments Functionality", () => {
+  test("should log unknown arguments when an unrecognized flag is passed", () => {
+    const args = ["--unknown", "abc"];
+    const output = captureConsole(() => { main(args); });
+    expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
+  });
+});

@@ -92,6 +92,8 @@ export async function main(args) {
       console.log(JSON.stringify(owlOntology, null, 2));
     } catch (error) {
       console.error(chalk.red("Error fetching countries data:"), error);
+      safeExit(1);
+      return;
     }
     safeExit(0);
     return;
