@@ -74,7 +74,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --fetch-owl
   ```
-  Running with the `--fetch-owl` flag fetches public API data from an unauthenticated endpoint (https://api.publicapis.org/entries), maps a subset of the data to an OWL ontology structure, and outputs it as formatted JSON.
+  Running with the `--fetch-owl` flag fetches data from the REST Countries API (https://restcountries.com/v3.1/all), maps the first three records into an OWL ontology structure with a Country class, and outputs the formatted JSON.
 
 - **Default Demo Output:**
   ```bash
