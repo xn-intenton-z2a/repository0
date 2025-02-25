@@ -94,12 +94,40 @@ jobs:
       }}
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "Needs Fix because: npm-test ${{ needs.npm-test.result }} != success or npm-build ${{ needs.npm-build.result }} != success or npm-run ${{ needs.npm-run.result }}!= success or applyFixEvenIfTestsPass ${{ inputs.applyFixEvenIfTestsPass }} == true"
+    - name: Set output values and log
+      id: set-needs-fix
+      shell: node
+      env:
+        NODE_OPTIONS: '--loader ts-node/esm'
+      run: |
+        const core = require('@actions/core');
+         
+        core.info('npm-test result:${{ needs.npm-test.result }}');
+        core.info('npm-build result:${{ needs.npm-build.result }}');
+        core.info('npm-run result:${{ needs.npm-run.result }}');
+        core.info('applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+    
+        const npmTestResult = '${{ needs.npm-test.result }}';
+        const npmBuildResult = '${{ needs.npm-build.result }}';
+        const npmRunResult = '${{ needs.npm-run.result }}';
+        const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
+    
+        core.info(`npm-test result: ${npmTestResult}`);
+        core.info(`npm-build result: ${npmBuildResult}`);
+        core.info(`npm-run result: ${npmRunResult}`);
+        core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
+    
+        const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
+        core.info(`Needs Fix: ${needsFix}`);
+    
+        core.setOutput('needsFix', needsFix);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
   apply-fix:
     needs:
       - needs-fix
+    if: ${{ needs.needs-fix.outputs.needsFix == true }}
     permissions:
       contents: write
       issues: write
