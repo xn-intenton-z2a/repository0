@@ -83,11 +83,16 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command builds a demo OWL ontology with a sample class and individual, outputting the result as formatted JSON.
 
+- **Run Diagnostics (Self-Test):**
+  ```bash
+  node src/lib/main.js --diagnostics
+  ```
+  This command performs a self-test by fetching public API data and reporting the number of records fetched along with the response time.
+
 - **Default Demo Output:**
   ```bash
   npm run start
   ```
-
   Running without arguments produces:
   ```
   Usage: node src/lib/main.js [options]
@@ -97,6 +102,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --example-owl    Show an example OWL ontology as JSON
     --fetch-owl      Fetch public API data and render as OWL ontology JSON
     --build-owl      Build a demo OWL ontology as JSON
+    --diagnostics    Run diagnostics to test public API connectivity
   Demo Output: Run with: []
   ```
 

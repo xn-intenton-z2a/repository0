@@ -15,6 +15,16 @@ function captureConsole(callback) {
   return output;
 }
 
+// Utility to capture async console output
+async function captureConsoleAsync(callback) {
+  let output = "";
+  const originalConsoleLog = console.log;
+  console.log = (msg) => { output += msg + "\n"; };
+  await callback();
+  console.log = originalConsoleLog;
+  return output;
+}
+
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();
@@ -33,7 +43,6 @@ describe("Help Functionality", () => {
   test("should display help message when --help is passed", () => {
     const output = captureConsole(() => { main(["--help"]); });
     expect(output).toContain("Usage: node src/lib/main.js [options]");
-    // Ensure that demo output is not printed when --help is used
     expect(output).not.toContain("Demo Output: Run with: []");
   });
 });
@@ -56,9 +65,7 @@ describe("Example OWL Functionality", () => {
 
 describe("Fetch OWL Functionality", () => {
   test("should fetch countries data and display OWL ontology JSON when --fetch-owl is passed", async () => {
-    // Backup the original fetch
     const originalFetch = global.fetch;
-    // Stub fetch to return a controlled response mimicking REST Countries API
     global.fetch = async () => ({
       ok: true,
       json: async () => ([
@@ -72,7 +79,6 @@ describe("Fetch OWL Functionality", () => {
     console.log = (msg) => { output += msg + "\n"; };
     await main(["--fetch-owl"]);
     console.log = originalConsoleLog;
-    // Restore the original fetch
     global.fetch = originalFetch;
     expect(output).toContain("Fetched OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/countries.owl"');
@@ -86,6 +92,20 @@ describe("Build OWL Functionality", () => {
     expect(output).toContain("Built OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/built.owl"');
     expect(output).toContain("Demo Class");
+  });
+});
+
+describe("Diagnostics Functionality", () => {
+  test("should run diagnostics and fetch public API data when --diagnostics is passed", async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async () => ({
+      ok: true,
+      json: async () => new Array(250).fill({})
+    });
+    const output = await captureConsoleAsync(async () => { await main(["--diagnostics"]); });
+    global.fetch = originalFetch;
+    expect(output).toContain("Running Diagnostics...");
+    expect(output).toMatch(/Fetched \d+ records in \d+ ms\./);
   });
 });
 

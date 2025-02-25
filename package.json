@@ -15,7 +15,8 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest",
     "test:unit": "vitest --coverage",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "diagnostics": "node src/lib/main.js --diagnostics"
   },
   "keywords": [],
   "author": "",
