@@ -1,0 +1,44 @@
+# .github/workflows/issue-creator.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: Create Issue
+concurrency: create-issue
+run-name: "Create Issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'An asset (e.g. source file) to reference in the issue. e.g. "src/lib/main.js"'
+        required: false
+        type: string
+        default: 'src/lib/main.js'
+      issueTitle:
+        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected). e.g. "Make a small improvement."'
+        required: false
+        type: string
+        default: 'house choice'
+  schedule:
+    - cron: '0 */4 * * *' # Every 4 hours at 0 minutes past
+    # - cron: '0 */1 * * *' # Every hour
+    # - cron: '0,30 * * * *' # Every 30 minutes
+
+jobs:
+
+  create-issue:
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.9.2'
+    with:
+      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
+      houseChoiceOptions: |
+        Add a new feature to the source file pulling in at most 1 new dependency if you need to.
+        || Extend the functionality in the source file.
+        || Improve the consistency of the source file and test file.
+        || Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
+        || Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
+        || Synchronise the README with current behaviour and call out future features that have not yet been implemented.
+        || Ensure that README.md is consistent with the guidance in the CONTRIBUTING.md.

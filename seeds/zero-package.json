@@ -1,0 +1,50 @@
+{
+  "name": "@xn-intenton-z2a/repository0",
+  "version": "1.2.0-0",
+  "description": "TODO: Populate in line with CONTRIBUTING.md.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "echo 'Nothing to build'",
+    "formatting": "prettier --check .",
+    "formatting-fix": "prettier --write .",
+    "linting": "eslint .",
+    "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif .",
+    "linting-fix": "eslint --fix .",
+    "update-to-minor": "npx ncu --upgrade --enginesNode --target minor --verbose --install always",
+    "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
+    "test": "vitest",
+    "test:unit": "vitest --coverage",
+    "start": "node src/lib/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "openai": "^4.85.4",
+    "dotenv": "^16.4.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0",
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "prettier": "^3.5.2",
+    "vitest": "^3.0.7",
+    "npm-check-updates": "^17.1.15"
+  },
+  "overrides": {
+    "rimraf": "^4.0.0",
+    "glob": "^9.3.0",
+    "@humanwhocodes/config-array": "^0.13.0",
+    "@humanwhocodes/object-schema": "^2.0.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "package.json"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
