@@ -33,13 +33,24 @@ To run the CLI tool and display help instructions:
 node src/lib/main.js --help
 ```
 
-If the --help flag is provided, a help menu with available options will display. When no arguments are provided, the CLI prints usage instructions along with a demo output, then terminates automatically.
+To display the version of the application:
+
+```bash
+node src/lib/main.js --version
+```
+
+When the --help flag is provided, a help menu with available options will be displayed. When no arguments are provided, the CLI prints usage instructions along with a demo output, then terminates automatically.
 
 ### Example Commands
 
 - **Display Help:**
   ```bash
   node src/lib/main.js --help
+  ```
+
+- **Display Version:**
+  ```bash
+  node src/lib/main.js --version
   ```
 
 - **Default Demo Output:**

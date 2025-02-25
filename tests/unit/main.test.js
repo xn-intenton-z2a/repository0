@@ -33,3 +33,14 @@ describe("Help Functionality", () => {
     expect(output).toContain("Usage: node src/lib/main.js [options]");
   });
 });
+
+describe("Version Functionality", () => {
+  test("should display version info when --version is passed", () => {
+    let output = "";
+    const originalConsoleLog = console.log;
+    console.log = (msg) => { output += msg; };
+    main(["--version"]);
+    console.log = originalConsoleLog;
+    expect(output).toMatch(/Version: \d+\.\d+\.\d+/);
+  });
+});
