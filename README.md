@@ -5,8 +5,6 @@ This repository's primary purpose is to demonstrate these automated CI/CD workfl
 
 To create a self-evolving agentic coding system of your own based on this one see the [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
 
-This readme shall evolve into a based on of the seed CONTRIBUTING files in [./seeds](./seeds).
-
 ## Repository Template
 
 The repository is intended as a template that includes:
@@ -76,16 +74,23 @@ If the --help flag is provided, a help menu will be displayed with available opt
   Usage: node src/lib/main.js [options]
   Options:
     --help     Show help
+    --version  Show version
   Demo Output: Run with: []
   ```
+
+## Contributing
+
+We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively. In summary:
+
+1. Fork the repository and create a feature branch.
+2. Implement your changes ensuring code quality, tests, and documentation are updated.
+3. Submit a pull request and respond to feedback from maintainers.
+
+Your contributions help enhance the functionality and quality of the project.
 
 ## Incremental Changes Plan
 
 TODO: Add forthcoming changes here.
-
-## Contributing
-
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
 
 ## License
 
