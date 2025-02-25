@@ -1,70 +1,91 @@
-# owl-builder
+# repository0
 
-`owl-builder` is a versatile JavaScript library and CLI tool designed to build, manage, and query OWL ontologies from public data sources. This repository serves both as a template for new projects and as a running example that showcases automated CI/CD workflows derived from [agentic‑lib](https://github.com/xn-intenton-z2a/agentic-lib).
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
+This repository's primary purpose is to demonstrate these automated CI/CD workflows.
+
+To create a self-evolving agentic coding system of your own based on this one see the [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
+
+This readme shall evolve into a based on of the seed CONTRIBUTING files in [./seeds](./seeds).
 
 ## Repository Template
 
-The repository provides:
-* A flexible starting point for building ontology-driven applications.
-* An example implementation that demonstrates how to use the CLI tool and library.
-* Automated workflows that streamline development and deployment.
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Example GitHub Workflows from [agentic‑lib](https://github.com/xn-intenton-z2a/agentic-lib) which hand off to reusable workflows.
 
-For detailed guidelines on contributing, please review our [CONTRIBUTING.md](./CONTRIBUTING.md).
+* See [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
+
+# intentïon `agentic-lib`
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
+repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and
+issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
+GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, using this
+tool and the reusable workflows shall become bundled actions in due course.
+
+*Warning:* Executing these workflows shall incur charges on your OpenAI account and consume chargeable GitHub Actions resources minutes.
+
+*Warning:* Experimental. This coding system has generated a few interesting examples (I have been educated) but nothing of personal utility.
+
+*Warning:* This project is not yet ready for production use. You should not point the `agentic-lib` workflows a repository containing existing intellectual property.
+
+## Should you use the `agentic-lib` Coding System?
+
+* Can you access an OpenAI account with API keys that can access at least `o3-mini` ?
+* Are you willing to incur charges the resources consumed by the OpenAI API and GitHub Actions ?
+* Are you curious as to where self-evolving code might lead ?
+* Would you like to see how such a system can be built and has been built ?
+* Do you like that it's OpenAI and GitHub API calls wired together in JS (GitHub Script) and packaged as GitHub Workflows* ?
+* Do you appreciate that you need `dotenv, openai, zod` in your `package.json` because the JS has dependencies on them ?
+
+*Actions with bundled JS coming soon.
+
+---
 
 ## Installation
 
 Install via npm:
 
 ```bash
-npm install owl-builder
+npm install repository0
 ```
 
 ## Features
 
-- Build OWL ontologies from public data sources.
-- Manage and persist ontologies as files.
-- Query ontological data through a CLI.
+TODO: Add features here.
 
 ## Usage
 
-To run the CLI tool and display help instructions:
+To run the CLI tool and see help instructions:
 
 ```bash
 node src/lib/main.js --help
 ```
 
-To display the version of the application:
-
-```bash
-node src/lib/main.js --version
-```
-
-When the --help flag is provided, a help menu with available options will be displayed. When no arguments are provided, the CLI prints usage instructions along with a demo output, then terminates automatically.
+If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output.
 
 ### Example Commands
-
-- **Display Help:**
-  ```bash
-  node src/lib/main.js --help
-  ```
-
-- **Display Version:**
-  ```bash
-  node src/lib/main.js --version
-  ```
 
 - **Default Demo Output:**
   ```bash
   npm run start
   ```
+  Running without arguments will print:
+  ```
+  Usage: node src/lib/main.js [options]
+  Options:
+    --help     Show help
+  Demo Output: Run with: []
+  ```
 
 ## Incremental Changes Plan
 
-TODO: Outline forthcoming changes and enhancements.
+TODO: Add forthcoming changes here.
 
 ## Contributing
 
-We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively.
+We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
 
 ## License
 

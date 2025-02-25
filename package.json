@@ -19,7 +19,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "openai": "^4.85.4",
     "dotenv": "^16.4.7",

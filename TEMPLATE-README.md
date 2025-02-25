@@ -3,15 +3,15 @@
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Reusable Workflows from agentic‑lib: External automation workflows that are integrated into the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon agentic‑lib. Its primary purpose is to demonstrate these automated CI/CD workflows. One example seed idea included here is the Equation Plotter—a simple SVG-based tool that plots mathematical functions (quadratic and sine). This seed idea is one of many possible projects you can create by changing the seed directive.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. 
 
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon agentic‑lib.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -38,7 +38,7 @@ Run the action "Create Issue" and enter some text to create an issue. This will 
 If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
 The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
-Development Workflows:
+#### Development Workflows:
 ```
 On timer / Manual: Create Issue (new issue opened) 
 -> Issue Worker (code changed, issue updated) 
@@ -55,6 +55,13 @@ On timer: Automerge (code merged)
 On timer: Review Issue (issue reviewed and closed)
 ```
 (Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+
+#### Running the workflows:
+
+The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt. 
 
 ### Running the Demo
 
@@ -110,4 +117,4 @@ This has been story of [`plot-code-lib`](https://github.com/xn-intenton-z2a/plot
 `repository0`’s evolution is marked by distinct arcs of initiative. It began with the core plotting of quadratic and sine functions, then shifted into a series of documentation and formatting enhancements. The dramatic introduction of polar plotting expanded its visual vocabulary, while changes in demo output transformed user interaction. Throughout, iterative revisions—sometimes even undoing earlier stylistic choices—revealed a dynamic, evolving vision striving for clarity and excellence.
 
 ## Final Notes
-`repository0` demonstrates intentïon agentic‑lib workflows for you to run with your own projects.
+`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
