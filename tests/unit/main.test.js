@@ -5,6 +5,16 @@ import { main } from "@src/lib/main.js";
 // Ensure that process.exit does not terminate tests
 process.env.NODE_ENV = "test";
 
+// Utility to capture console output
+function captureConsole(callback) {
+  let output = "";
+  const originalConsoleLog = console.log;
+  console.log = (msg) => { output += msg + "\n"; };
+  callback();
+  console.log = originalConsoleLog;
+  return output;
+}
+
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();
@@ -13,11 +23,7 @@ describe("Main Module Import", () => {
 
 describe("Default Demo Output", () => {
   test("should display usage and demo output when no arguments are provided", () => {
-    let output = "";
-    const originalConsoleLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main([]);
-    console.log = originalConsoleLog;
+    const output = captureConsole(() => { main([]); });
     expect(output).toContain("Usage: node src/lib/main.js [options]");
     expect(output).toContain("Demo Output: Run with: []");
   });
@@ -25,11 +31,7 @@ describe("Default Demo Output", () => {
 
 describe("Help Functionality", () => {
   test("should display help message when --help is passed", () => {
-    let output = "";
-    const originalConsoleLog = console.log;
-    console.log = (msg) => { output += msg; };
-    main(["--help"]);
-    console.log = originalConsoleLog;
+    const output = captureConsole(() => { main(["--help"]); });
     expect(output).toContain("Usage: node src/lib/main.js [options]");
     // Ensure that demo output is not printed when --help is used
     expect(output).not.toContain("Demo Output: Run with: []");
@@ -38,25 +40,17 @@ describe("Help Functionality", () => {
 
 describe("Version Functionality", () => {
   test("should display version info when --version is passed", () => {
-    let output = "";
-    const originalConsoleLog = console.log;
-    console.log = (msg) => { output += msg; };
-    main(["--version"]);
-    console.log = originalConsoleLog;
+    const output = captureConsole(() => { main(["--version"]); });
     expect(output).toMatch(/Version: \d+\.\d+\.\d+/);
   });
 });
 
 describe("Example OWL Functionality", () => {
   test("should display OWL example as JSON when --example-owl is passed", () => {
-    let output = "";
-    const originalConsoleLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main(["--example-owl"]);
-    console.log = originalConsoleLog;
+    const output = captureConsole(() => { main(["--example-owl"]); });
     expect(output).toContain("Example OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/tea.owl"');
-    expect(output).toContain('"Tea"');
+    expect(output).toContain("Tea");
   });
 });
 
@@ -88,11 +82,7 @@ describe("Fetch OWL Functionality", () => {
 
 describe("Build OWL Functionality", () => {
   test("should display built OWL ontology as JSON when --build-owl is passed", () => {
-    let output = "";
-    const originalConsoleLog = console.log;
-    console.log = (msg) => { output += msg + "\n"; };
-    main(["--build-owl"]);
-    console.log = originalConsoleLog;
+    const output = captureConsole(() => { main(["--build-owl"]); });
     expect(output).toContain("Built OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/built.owl"');
     expect(output).toContain("Demo Class");
