@@ -3,6 +3,8 @@
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" assert { type: "json" };
+import chalkImport from "chalk";
+const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, red: s => s } : chalkImport;
 
 // Helper function to print usage message
 function printUsage(withDemo) {
@@ -13,9 +15,9 @@ Options:
   --example-owl    Show an example OWL ontology as JSON
   --fetch-owl      Fetch public API data and render as OWL ontology JSON
   --build-owl      Build a demo OWL ontology as JSON`;
-  console.log(usageMsg);
+  console.log(chalk.blue(usageMsg));
   if (withDemo) {
-    console.log("Demo Output: Run with: []");
+    console.log(chalk.green("Demo Output: Run with: []"));
   }
 }
 
@@ -43,7 +45,7 @@ export async function main(args) {
 
   // If version flag is provided, display version info and exit
   if (args.includes("--version")) {
-    console.log(`Version: ${pkg.version}`);
+    console.log(chalk.green(`Version: ${pkg.version}`));
     safeExit(0);
     return;
   }
@@ -58,7 +60,7 @@ export async function main(args) {
       properties: [],
       individuals: []
     };
-    console.log("Example OWL Ontology as JSON:");
+    console.log(chalk.green("Example OWL Ontology as JSON:"));
     console.log(JSON.stringify(exampleOWL, null, 2));
     safeExit(0);
     return;
@@ -70,7 +72,7 @@ export async function main(args) {
       // Using the REST Countries API as a real public data source
       const response = await fetch("https://restcountries.com/v3.1/all");
       if (!response.ok) {
-        console.error("Failed to fetch countries data");
+        console.error(chalk.red("Failed to fetch countries data"));
         safeExit(1);
         return;
       }
@@ -86,10 +88,10 @@ export async function main(args) {
         properties: [],
         individuals: individuals
       };
-      console.log("Fetched OWL Ontology as JSON:");
+      console.log(chalk.green("Fetched OWL Ontology as JSON:"));
       console.log(JSON.stringify(owlOntology, null, 2));
     } catch (error) {
-      console.error("Error fetching countries data:", error);
+      console.error(chalk.red("Error fetching countries data:"), error);
     }
     safeExit(0);
     return;
@@ -107,7 +109,7 @@ export async function main(args) {
         { id: "SampleIndividual", label: "Sample Label" }
       ]
     };
-    console.log("Built OWL Ontology as JSON:");
+    console.log(chalk.green("Built OWL Ontology as JSON:"));
     console.log(JSON.stringify(builtOntology, null, 2));
     safeExit(0);
     return;
