@@ -98,6 +98,42 @@ Providing the `--help` flag displays a help menu with available options. Running
   Demo Output: Run with: []
   ```
 
+## JSON-LD Ontology Example
+
+Below is a simple example of an OWL ontology expressed in JSON-LD. This example defines a basic ontology with two classes (Person and Employee) and one datatype property (hasAge). It shows how OWL concepts can be represented in a JSON structure.
+
+```json
+{
+  "@context": {
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "ex": "http://example.org/ontology#"
+  },
+  "@graph": [
+    {
+      "@id": "ex:Person",
+      "@type": "owl:Class",
+      "rdfs:label": "Person"
+    },
+    {
+      "@id": "ex:Employee",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": { "@id": "ex:Person" },
+      "rdfs:label": "Employee"
+    },
+    {
+      "@id": "ex:hasAge",
+      "@type": "owl:DatatypeProperty",
+      "rdfs:domain": { "@id": "ex:Person" },
+      "rdfs:range": { "@id": "xsd:integer" },
+      "rdfs:label": "has age"
+    }
+  ]
+}
+```
+
 ## Future Enhancements
 
 The following features are planned for future releases:
