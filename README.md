@@ -39,8 +39,8 @@ npm install owl-builder
 
 ## Features
 
-- Build OWL ontologies from public data sources
-- Manage and query ontologies via a CLI and web interface
+- Build OWL ontologies from public data sources (upcoming feature)
+- Manage and query ontologies via a CLI and web interface (upcoming feature)
 - Automated CI/CD workflows for continuous evolution
 
 ## Usage
@@ -51,7 +51,7 @@ To use the CLI tool, run:
 node src/lib/main.js --help
 ```
 
-Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. This default behavior ensures that users immediately see how to interact with the tool without providing additional input.
+Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. This behavior is intended to quickly introduce new users to the tool's functionality.
 
 ### Example Commands
 
@@ -79,6 +79,15 @@ Providing the `--help` flag displays a help menu with available options. Running
   Demo Output: Run with: []
   ```
 
+## Future Enhancements
+
+The following features are planned for future releases:
+
+- Enhanced ontology building from diverse public data sources
+- Advanced querying capabilities through both CLI and a web interface
+- Integration with additional external data crawlers
+- Extended user configuration and customization options
+
 ## Contributing
 
 We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively. In summary:
@@ -91,7 +100,7 @@ Your contributions help improve the functionality and quality of the project.
 
 ## Incremental Changes Plan
 
-TODO: Add forthcoming changes here.
+- Upcoming enhancements include advanced CLI commands, web interface improvements, and expanded ontology management capabilities.
 
 ## License
 
