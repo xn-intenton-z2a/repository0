@@ -19,25 +19,32 @@ Options:
   }
 }
 
+// Helper function for safe exit (skips process.exit during tests)
+function safeExit(code) {
+  if (process.env.NODE_ENV !== "test") {
+    process.exit(code);
+  }
+}
+
 export async function main(args) {
   // If no arguments are provided, display usage with demo output and exit
   if (!args || args.length === 0) {
     printUsage(true);
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 
   // If help flag is provided, display usage without demo output and exit
   if (args.includes("--help")) {
     printUsage(false);
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 
   // If version flag is provided, display version info and exit
   if (args.includes("--version")) {
     console.log(`Version: ${pkg.version}`);
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 
@@ -53,7 +60,7 @@ export async function main(args) {
     };
     console.log("Example OWL Ontology as JSON:");
     console.log(JSON.stringify(exampleOWL, null, 2));
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 
@@ -64,7 +71,7 @@ export async function main(args) {
       const response = await fetch("https://restcountries.com/v3.1/all");
       if (!response.ok) {
         console.error("Failed to fetch countries data");
-        if (process.env.NODE_ENV !== "test") process.exit(1);
+        safeExit(1);
         return;
       }
       const data = await response.json();
@@ -84,7 +91,7 @@ export async function main(args) {
     } catch (error) {
       console.error("Error fetching countries data:", error);
     }
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 
@@ -102,7 +109,7 @@ export async function main(args) {
     };
     console.log("Built OWL Ontology as JSON:");
     console.log(JSON.stringify(builtOntology, null, 2));
-    if (process.env.NODE_ENV !== "test") process.exit(0);
+    safeExit(0);
     return;
   }
 

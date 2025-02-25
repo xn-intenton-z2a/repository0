@@ -51,7 +51,7 @@ To use the CLI tool, run:
 node src/lib/main.js --help
 ```
 
-Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. This behavior quickly introduces new users to the tool's functionality and ensures that the process terminates when no further input is provided.
+Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output. Note: In a testing environment, process termination is suppressed to allow for proper test execution.
 
 ### Example Commands
 
