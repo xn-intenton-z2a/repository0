@@ -85,3 +85,16 @@ describe("Fetch OWL Functionality", () => {
     expect(output).toContain("France");
   });
 });
+
+describe("Build OWL Functionality", () => {
+  test("should display built OWL ontology as JSON when --build-owl is passed", () => {
+    let output = "";
+    const originalConsoleLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main(["--build-owl"]);
+    console.log = originalConsoleLog;
+    expect(output).toContain("Built OWL Ontology as JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/built.owl"');
+    expect(output).toContain("Demo Class");
+  });
+});

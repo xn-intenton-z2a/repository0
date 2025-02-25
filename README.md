@@ -76,6 +76,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   Running with the `--fetch-owl` flag fetches data from the REST Countries API (https://restcountries.com/v3.1/all), maps the first three records into an OWL ontology structure with a Country class, and outputs the formatted JSON.
 
+- **Build OWL Ontology as JSON (Demo):**
+  ```bash
+  node src/lib/main.js --build-owl
+  ```
+  This command builds a demo OWL ontology with a sample class and individual, outputting the result as formatted JSON.
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -89,6 +95,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --version        Show version
     --example-owl    Show an example OWL ontology as JSON
     --fetch-owl      Fetch public API data and render as OWL ontology JSON
+    --build-owl      Build a demo OWL ontology as JSON
   Demo Output: Run with: []
   ```
 
