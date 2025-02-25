@@ -46,3 +46,16 @@ describe("Version Functionality", () => {
     expect(output).toMatch(/Version: \d+\.\d+\.\d+/);
   });
 });
+
+describe("Example OWL Functionality", () => {
+  test("should display OWL example as JSON when --example-owl is passed", () => {
+    let output = "";
+    const originalConsoleLog = console.log;
+    console.log = (msg) => { output += msg + "\n"; };
+    main(["--example-owl"]);
+    console.log = originalConsoleLog;
+    expect(output).toContain("Example OWL Ontology as JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/tea.owl"');
+    expect(output).toContain('"Tea"');
+  });
+});
