@@ -1,75 +1,76 @@
-# repository0
+# owl-builder
 
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
-This repository's primary purpose is to demonstrate these automated CI/CD workflows.
+`owl-builder` is a versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies. It showcases automated CI/CD workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
 
-To create a self-evolving agentic coding system of your own based on this one see the [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
+This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems.
 
 ## Repository Template
 
-The repository is intended as a template that includes:
+The repository includes:
 * A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Example GitHub Workflows from [agentic‑lib](https://github.com/xn-intenton-z2a/agentic-lib) which hand off to reusable workflows.
+* A Running Experiment: An example implementation demonstrating one way to use the template.
+* Example GitHub Workflows from [agentic‑lib](https://github.com/xn-intenton-z2a/agentic-lib) that hand off to reusable workflows.
 
-* See [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
+For more details, see [TEMPLATE-README.md](./TEMPLATE-README.md).
 
-# intentïon `agentic-lib`
+## intentïon `agentic-lib`
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your
-repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and
-issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
-GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, using this
-tool and the reusable workflows shall become bundled actions in due course.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
-*Warning:* Executing these workflows shall incur charges on your OpenAI account and consume chargeable GitHub Actions resources minutes.
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This coding system has generated a few interesting examples (I have been educated) but nothing of personal utility.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-*Warning:* This project is not yet ready for production use. You should not point the `agentic-lib` workflows a repository containing existing intellectual property.
+## Should you use the `owl-builder` Coding System?
 
-## Should you use the `agentic-lib` Coding System?
-
-* Can you access an OpenAI account with API keys that can access at least `o3-mini` ?
-* Are you willing to incur charges the resources consumed by the OpenAI API and GitHub Actions ?
-* Are you curious as to where self-evolving code might lead ?
-* Would you like to see how such a system can be built and has been built ?
-* Do you like that it's OpenAI and GitHub API calls wired together in JS (GitHub Script) and packaged as GitHub Workflows* ?
-* Do you appreciate that you need `dotenv, openai, zod` in your `package.json` because the JS has dependencies on them ?
-
-*Actions with bundled JS coming soon.
-
----
+* Do you have access to an OpenAI account with necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how such a system can be built?
+* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 
 ## Installation
 
 Install via npm:
 
 ```bash
-npm install repository0
+npm install owl-builder
 ```
 
 ## Features
 
-TODO: Add features here.
+- Build OWL ontologies from public data sources
+- Manage and query ontologies via a CLI and web interface
+- Automated CI/CD workflows for continuous evolution
 
 ## Usage
 
-To run the CLI tool and see help instructions:
+To use the CLI tool, run:
 
 ```bash
 node src/lib/main.js --help
 ```
 
-If the --help flag is provided, a help menu will be displayed with available options. Additionally, if no arguments are provided, the CLI defaults to displaying the usage instructions along with a demo output.
+Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output.
 
 ### Example Commands
+
+- **Display Help:**
+  ```bash
+  node src/lib/main.js --help
+  ```
+
+- **Display Version:**
+  ```bash
+  node src/lib/main.js --version
+  ```
 
 - **Default Demo Output:**
   ```bash
   npm run start
   ```
-  Running without arguments will print:
+
+  Running without arguments produces:
   ```
   Usage: node src/lib/main.js [options]
   Options:
@@ -83,10 +84,10 @@ If the --help flag is provided, a help menu will be displayed with available opt
 We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively. In summary:
 
 1. Fork the repository and create a feature branch.
-2. Implement your changes ensuring code quality, tests, and documentation are updated.
-3. Submit a pull request and respond to feedback from maintainers.
+2. Implement your changes ensuring that code quality, tests, and documentation are updated.
+3. Submit a pull request and address any feedback from maintainers.
 
-Your contributions help enhance the functionality and quality of the project.
+Your contributions help improve the functionality and quality of the project.
 
 ## Incremental Changes Plan
 
