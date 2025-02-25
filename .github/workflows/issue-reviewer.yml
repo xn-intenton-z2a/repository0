@@ -70,7 +70,7 @@ jobs:
       dependenciesFile: 'package.json'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: "node ${{ inputs.target || 'src/lib/main.js' }}"
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

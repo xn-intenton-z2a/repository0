@@ -102,7 +102,7 @@ jobs:
       branchPrefix: 'issue-'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'npm run start'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'

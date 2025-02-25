@@ -38,7 +38,7 @@ jobs:
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
-      mainScript: 'npm run start'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
       branch: 'apply-update'
       gitUserEmail: 'action@github.com'
