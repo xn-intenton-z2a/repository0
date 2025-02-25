@@ -42,6 +42,7 @@ npm install owl-builder
 - Build OWL ontologies from public data sources (upcoming feature)
 - Manage and query ontologies via a CLI and web interface (upcoming feature)
 - Automated CI/CD workflows for continuous evolution
+- Enhanced terminal output with colored messages using chalk
 
 ## Usage
 
