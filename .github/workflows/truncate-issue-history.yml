@@ -1,0 +1,66 @@
+# .github/workflows/truncate-issue-history.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: ∞ Truncate Issue History
+concurrency: truncate-issue-history
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean up old GitHub issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Set retention period (in days)
+            const retentionDays = 7;
+            const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const perPage = 100;
+            let issuesDeleted = 0;
+
+            console.log(`Deleting issues not updated in the last ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
+
+            let page = 1;
+            while (true) {
+              const issuesResponse = await github.rest.issues.listForRepo({
+                owner,
+                repo,
+                state: 'all',
+                per_page: perPage,
+                page
+              });
+              const issues = issuesResponse.data;
+              if (issues.length === 0) break;
+              for (const issue of issues) {
+                // Skip pull requests
+                if (issue.pull_request) continue;
+                const updatedAt = new Date(issue.updated_at);
+                if (updatedAt < cutoffDate) {
+                  try {
+                    // Hypothetical deletion of the issue
+                    await github.request('DELETE /repos/{owner}/{repo}/issues/{issue_number}', {
+                      owner,
+                      repo,
+                      issue_number: issue.number
+                    });
+                    console.log(`Deleted issue #${issue.number} (last updated at ${issue.updated_at})`);
+                    issuesDeleted++;
+                  } catch (error) {
+                    console.error(`Failed to delete issue #${issue.number}: ${error.message}`);
+                  }
+                }
+              }
+              page++;
+            }
+            console.log(`Total issues deleted: ${issuesDeleted}`);
+            return `Cleanup complete. Deleted ${issuesDeleted} issues.`;
+          result-encoding: string
