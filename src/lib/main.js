@@ -14,7 +14,8 @@ Options:
   --version        Show version
   --example-owl    Show an example OWL ontology as JSON
   --fetch-owl      Fetch public API data and render as OWL ontology JSON
-  --build-owl      Build a demo OWL ontology as JSON`;
+  --build-owl      Build a demo OWL ontology as JSON
+  --diagnostics    Run diagnostics to test public API connectivity`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -99,7 +100,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW: If build-owl flag is provided, build a demo OWL ontology JSON and exit
+  // If build-owl flag is provided, build a demo OWL ontology JSON and exit
   if (args.includes("--build-owl")) {
     const builtOntology = {
       ontologyIRI: "http://example.org/built.owl",
@@ -113,6 +114,29 @@ export async function main(args) {
     };
     console.log(chalk.green("Built OWL Ontology as JSON:"));
     console.log(JSON.stringify(builtOntology, null, 2));
+    safeExit(0);
+    return;
+  }
+
+  // NEW: If diagnostics flag is provided, run a self-test fetching public API data
+  if (args.includes("--diagnostics")) {
+    console.log(chalk.green("Running Diagnostics..."));
+    try {
+      const start = Date.now();
+      const response = await fetch("https://restcountries.com/v3.1/all");
+      if (!response.ok) {
+        console.error(chalk.red("Diagnostics: Failed to fetch public API data"));
+        safeExit(1);
+        return;
+      }
+      const data = await response.json();
+      const latency = Date.now() - start;
+      console.log(chalk.green(`Diagnostics: Fetched ${data.length} records in ${latency} ms.`));
+    } catch (error) {
+      console.error(chalk.red("Diagnostics: Error fetching public API data:"), error);
+      safeExit(1);
+      return;
+    }
     safeExit(0);
     return;
   }
