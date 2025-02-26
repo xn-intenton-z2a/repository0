@@ -2,7 +2,7 @@
 
 `owl-builder` is a versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies. It showcases automated CI/CD workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
 
-This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems. The current CLI provides several implemented commands, while future enhancements will introduce advanced querying capabilities, a web interface for ontology visualization, and persistent knowledge base features.
+This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems. The current CLI provides a range of implemented commands for help, versioning, ontology examples, diagnostics, and more. Future enhancements will introduce advanced querying capabilities and persistent knowledge base features, which are still under development.
 
 ## Repository Template
 
@@ -37,19 +37,19 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
-- **Improved Consistency:** Uniform command responses and logging across the CLI tool.
-- *Improved Test Coverage:* Enhanced tests now cover fallback mechanisms for fetching data from backup endpoints.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates.
 
 ## Future Enhancements
 
-Planned features for upcoming releases include:
+Planned features for upcoming releases (not yet implemented) include:
 
 - Advanced ontology building from diverse public data sources.
-- Querying capabilities through both the CLI and a web interface.
+- Querying capabilities through both the CLI and an interactive web interface.
 - A persistent knowledge base for managing ontologies over time.
 - Integration with additional external data crawlers and improved data mapping.
+
+These future enhancements are part of our roadmap to extend the functionality of `owl-builder` while maintaining a robust and user-friendly tool.
 
 ## Installation
 
@@ -179,7 +179,7 @@ By following these guidelines, you help ensure that our project remains robust, 
 
 ## Incremental Changes Plan
 
-- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities.
+- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities. Note that features such as advanced querying and persistent knowledge bases are planned for future releases and are not yet implemented.
 
 ## License
 
