@@ -97,19 +97,26 @@ describe("Diagnostics Functionality", () => {
   });
 });
 
-describe("Unknown Arguments Functionality", () => {
-  test("should log unknown arguments when an unrecognized flag is passed", async () => {
-    const args = ["--unknown", "abc"];
-    const output = await captureConsoleAsync(async () => { await main(args); });
-    expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
-  });
-});
-
 describe("Extended Functionality", () => {
   test("should display extended OWL ontology as JSON when --extend is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--extend"]); });
     expect(output).toContain("Extended OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/extended.owl"');
     expect(output).toContain("Extended Class");
+  });
+});
+
+describe("Logging Functionality", () => {
+  test("should log to file and display logging message when --log is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--log"]); });
+    expect(output).toContain("Logging output to file 'owl-builder.log'");
+  });
+});
+
+describe("Unknown Arguments Functionality", () => {
+  test("should log unknown arguments when an unrecognized flag is passed", async () => {
+    const args = ["--unknown", "abc"];
+    const output = await captureConsoleAsync(async () => { await main(args); });
+    expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
   });
 });

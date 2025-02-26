@@ -4,11 +4,21 @@
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" assert { type: "json" };
 import chalkImport from "chalk";
+import { appendFile } from "fs/promises";
 const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, red: s => s } : chalkImport;
 
 // Helper function to print usage message
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata`;
+  const usageMsg = `Usage: node src/lib/main.js [options]
+Options:
+  --help           Show help
+  --version        Show version
+  --example-owl    Show an example OWL ontology as JSON
+  --fetch-owl      Fetch public API data and render as OWL ontology JSON
+  --build-owl      Build a demo OWL ontology as JSON
+  --diagnostics    Run diagnostics to test public API connectivity
+  --extend         Display extended OWL ontology as JSON with additional metadata
+  --log            Enable logging of output to file`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -169,7 +179,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW: If extend flag is provided, display extended OWL ontology as JSON and exit
+  // If extend flag is provided, display extended OWL ontology as JSON and exit
   if (args.includes("--extend")) {
     const extendedOntology = {
       ontologyIRI: "http://example.org/extended.owl",
@@ -189,6 +199,21 @@ export async function main(args) {
     };
     console.log(chalk.green("Extended OWL Ontology as JSON:"));
     console.log(JSON.stringify(extendedOntology, null, 2));
+    safeExit(0);
+    return;
+  }
+
+  // NEW FEATURE: If log flag is provided, log output message to a file
+  if (args.includes("--log")) {
+    const logMessage = "Logging output to file 'owl-builder.log'";
+    console.log(chalk.green(logMessage));
+    try {
+      await appendFile('owl-builder.log', new Date().toISOString() + " " + logMessage + "\n");
+    } catch (error) {
+      console.error(chalk.red("Error writing log file:"), error);
+      safeExit(1);
+      return;
+    }
     safeExit(0);
     return;
   }
