@@ -167,14 +167,15 @@ Providing the `--help` flag displays a help menu with available options. Running
 
 ## Contributing
 
-We welcome contributions to improve owl-builder! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines on how to contribute. This document covers:
+We welcome contributions to improve owl-builder! For detailed instructions, please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md). Contributors are encouraged to:
 
-- Reporting issues and suggesting enhancements.
-- Forking the repository and creating a feature branch.
-- Implementing changes with adherence to our coding standards and test requirements.
-- Updating documentation accordingly before submitting a pull request.
+- Open an issue with a detailed description or suggestion.
+- Fork the repository and create a feature branch.
+- Implement changes following our coding standards and include tests.
+- Update documentation where necessary.
+- Submit your pull request for review.
 
-Your contributions help make owl-builder a robust and user-friendly tool for ontology management.
+By following these guidelines, you help ensure that our project remains robust, maintainable, and in line with community best practices.
 
 ## Incremental Changes Plan
 
