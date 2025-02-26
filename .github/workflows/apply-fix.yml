@@ -60,7 +60,7 @@ jobs:
         with:
           script: |
             let branch;
-            if (context.eventName === "schedule" || "${{ inputs.scanForBranches }}" === "true") {
+            if (context.eventName === "schedule" || context.eventName === "workflow_run" || "${{ inputs.scanForBranches }}" === "true") {
               core.info("Schedule event detected. Scanning for matching branches.");
               const branchesResp = await github.rest.repos.listBranches({
                 owner: context.repo.owner,
