@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js
-// Improved consistency: unified comment style and consistent error handling across commands.
+// Improved consistency: unified comment style, consistent error handling, and consolidated JSON outputs for improved testability.
 // Ensures that default behavior shows usage with demo output and terminates execution without waiting for user input.
 
 import { fileURLToPath } from "url";
@@ -109,8 +109,7 @@ export async function main(args) {
         "--detailed-diagnostics"
       ]
     };
-    console.log(chalk.green("Help JSON:"));
-    console.log(JSON.stringify(helpJson, null, 2));
+    console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
     safeExit(0);
     return;
   }
@@ -248,8 +247,7 @@ export async function main(args) {
         properties: [],
         individuals: individuals
       };
-      console.log(chalk.green("Diagnostics: OWL Ontology JSON:"));
-      console.log(JSON.stringify(diagOwlOntology, null, 2));
+      console.log(chalk.green(`Diagnostics: OWL Ontology JSON:\n${JSON.stringify(diagOwlOntology, null, 2)}`));
     } catch (error) {
       console.error(chalk.red("Diagnostics: Error fetching public API data:"), error);
       safeExit(1);
@@ -278,10 +276,8 @@ export async function main(args) {
         timestamp: new Date().toISOString()
       }
     };
-    printAndExit([
-      "Extended OWL Ontology as JSON:",
-      JSON.stringify(extendedOntology, null, 2)
-    ]);
+    console.log(chalk.green(`Extended OWL Ontology as JSON:\n${JSON.stringify(extendedOntology, null, 2)}`));
+    safeExit(0);
     return;
   }
 
@@ -315,10 +311,8 @@ export async function main(args) {
       nodeVersion: process.version,
       cpu: os.cpus()[0].model
     };
-    printAndExit([
-      "System Information:",
-      JSON.stringify(systemInfo, null, 2)
-    ]);
+    console.log(chalk.green(`System Information:\n${JSON.stringify(systemInfo, null, 2)}`));
+    safeExit(0);
     return;
   }
 
@@ -332,10 +326,8 @@ export async function main(args) {
       uptime: os.uptime(),
       loadAverage: os.loadavg()
     };
-    printAndExit([
-      "Detailed Diagnostics:",
-      JSON.stringify(detailedDiagnostics, null, 2)
-    ]);
+    console.log(chalk.green(`Detailed Diagnostics:\n${JSON.stringify(detailedDiagnostics, null, 2)}`));
+    safeExit(0);
     return;
   }
 
