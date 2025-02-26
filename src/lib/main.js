@@ -55,6 +55,9 @@ function printAndExit(messages, colorFunc = (msg) => chalk.green(msg)) {
  * Main function of the CLI tool. It processes the provided command line arguments
  * and executes the corresponding functionality.
  * 
+ * If no arguments are provided, it defaults to displaying usage instructions
+ * along with a demo output, then terminates execution.
+ * 
  * @param {string[]} args - The command line arguments.
  */
 export async function main(args) {
