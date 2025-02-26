@@ -333,6 +333,8 @@ export async function main(args) {
 
   // For any other arguments, simply log them in a consistent style
   console.log(chalk.green(`Run with: ${JSON.stringify(args)}`));
+  safeExit(0);
+  return;
 }
 
 // Ensure that the script is executed only when run directly, not when imported
