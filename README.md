@@ -32,6 +32,7 @@ The current implementation of `owl-builder` includes:
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
+- **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - *Improved consistency across source and test files with standardized async outputs.*
 
 ## Future Enhancements
@@ -102,6 +103,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays an extended OWL ontology as JSON, including additional metadata to showcase enhanced functionality.
 
+- **Enable Logging:**
+  ```bash
+  node src/lib/main.js --log
+  ```
+  This new command logs a message to a file named `owl-builder.log` and confirms logging via console output.
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -117,6 +124,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --build-owl      Build a demo OWL ontology as JSON
     --diagnostics    Run diagnostics to test public API connectivity
     --extend         Display extended OWL ontology as JSON with additional metadata
+    --log            Enable logging of output to file
   Demo Output: Run with: []
   ```
 
