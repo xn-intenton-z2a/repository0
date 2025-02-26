@@ -104,3 +104,12 @@ describe("Unknown Arguments Functionality", () => {
     expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
   });
 });
+
+describe("Extended Functionality", () => {
+  test("should display extended OWL ontology as JSON when --extend is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--extend"]); });
+    expect(output).toContain("Extended OWL Ontology as JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/extended.owl"');
+    expect(output).toContain("Extended Class");
+  });
+});

@@ -31,6 +31,7 @@ The current implementation of `owl-builder` includes:
 - Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as an OWL ontology JSON (--fetch-owl).
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
+- Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
 - *Improved consistency across source and test files with standardized async outputs.*
 
 ## Future Enhancements
@@ -95,6 +96,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command performs a self-test by fetching public API data, reporting the number of records and response time, and logging the derived OWL ontology JSON.
 
+- **Extended Functionality:**
+  ```bash
+  node src/lib/main.js --extend
+  ```
+  This command displays an extended OWL ontology as JSON, including additional metadata to showcase enhanced functionality.
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -109,6 +116,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --fetch-owl      Fetch public API data and render as OWL ontology JSON
     --build-owl      Build a demo OWL ontology as JSON
     --diagnostics    Run diagnostics to test public API connectivity
+    --extend         Display extended OWL ontology as JSON with additional metadata
   Demo Output: Run with: []
   ```
 

@@ -8,7 +8,7 @@ const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, r
 
 // Helper function to print usage message
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -133,7 +133,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW: If diagnostics flag is provided, run a self-test fetching public API data and log OWL ontology JSON
+  // If diagnostics flag is provided, run a self-test fetching public API data and log OWL ontology JSON
   if (args.includes("--diagnostics")) {
     console.log(chalk.green("Running Diagnostics..."));
     try {
@@ -165,6 +165,30 @@ export async function main(args) {
       safeExit(1);
       return;
     }
+    safeExit(0);
+    return;
+  }
+
+  // NEW: If extend flag is provided, display extended OWL ontology as JSON and exit
+  if (args.includes("--extend")) {
+    const extendedOntology = {
+      ontologyIRI: "http://example.org/extended.owl",
+      classes: [
+        { id: "Extended", label: "Extended Class" }
+      ],
+      properties: [
+        { id: "hasExtension", label: "Has Extension" }
+      ],
+      individuals: [
+        { id: "ExtensionIndividual", label: "Extension Label" }
+      ],
+      metadata: {
+        applied: true,
+        description: "This ontology includes extended functionality options."
+      }
+    };
+    console.log(chalk.green("Extended OWL Ontology as JSON:"));
+    console.log(JSON.stringify(extendedOntology, null, 2));
     safeExit(0);
     return;
   }
