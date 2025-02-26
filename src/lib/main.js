@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
-import dayjs from "dayjs";
+imp  ort dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
@@ -24,7 +24,7 @@ const chalk = process.env.NODE_ENV === "test"
  * Prints the usage instructions for the CLI tool.
  * @param {boolean} withDemo - Whether to include demo output.
  */
-func   tion printUsage(withDemo) {
+function printUsage(withDemo) {
   const usageMsg = `Usage: node src/lib/main.js [options]
 Options:
   --help                  Show help
