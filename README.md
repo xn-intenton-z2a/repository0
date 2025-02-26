@@ -180,3 +180,5 @@ Providing the `--help` flag displays a help menu with available options. Running
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
+<!-- Consistency improvements applied to code and documentation for better readability and maintainability. -->
