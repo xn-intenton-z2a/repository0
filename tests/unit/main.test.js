@@ -23,7 +23,6 @@ async function captureConsoleAsync(callback) {
   return output;
 }
 
-
 describe("Main Module Import", () => {
   test("module should be non-null", () => {
     expect(mainModule).not.toBeNull();
@@ -172,6 +171,19 @@ describe("Extended Functionality", () => {
     expect(output).toContain("Extended OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/extended.owl"');
     expect(output).toContain("Extended Class");
+  });
+});
+
+describe("Random OWL Functionality", () => {
+  test("displays a random OWL ontology as JSON when --random-owl is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--random-owl"]); });
+    expect(output).toContain("Random OWL Ontology as JSON:");
+    // Check that the output contains one of the sample ontology IRIs
+    const hasOwl1 = output.includes("http://example.org/owl1");
+    const hasOwl2 = output.includes("http://example.org/owl2");
+    expect(hasOwl1 || hasOwl2).toBe(true);
+    expect(output).toContain("generatedAt");
+    expect(output).toContain("randomSeed");
   });
 });
 
