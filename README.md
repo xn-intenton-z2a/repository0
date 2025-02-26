@@ -44,6 +44,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
 - **New Feature:** **Generate UUID (--uuid)** which generates and displays a new random UUID.
 - **New Feature:** **Analyze OWL Ontology (--analyze-owl)** which analyzes a built OWL ontology and reports the number of classes, properties, and individuals.
+- **Extended Feature:** **Combined Extended Info (--extended)** which displays a combined JSON output of system information and detailed diagnostics.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
@@ -167,6 +168,11 @@ Providing the `--help` flag displays a help menu with available options. Running
 - **Analyze OWL Ontology:**
   ```bash
   node src/lib/main.js --analyze-owl
+  ```
+
+- **Combined Extended Info:**
+  ```bash
+  node src/lib/main.js --extended
   ```
 
 - **Default Demo Output:**

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
-// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, and analyze a built ontology.
+// Extended functionality: added a new flag '--extended' to provide combined system information and detailed diagnostics.
+// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, analyze a built ontology, and display combined extended info.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -44,6 +45,7 @@ Options:
   --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
   --uuid                  Generate a new random UUID
   --analyze-owl           Analyze the built OWL ontology and report counts
+  --extended              Display combined system info and detailed diagnostics as JSON
 `;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
@@ -111,7 +113,8 @@ export async function main(args) {
         "--system",
         "--detailed-diagnostics",
         "--uuid",
-        "--analyze-owl"
+        "--analyze-owl",
+        "--extended"
       ]
     };
     console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
@@ -389,6 +392,32 @@ export async function main(args) {
     };
     console.log(chalk.green("OWL Ontology Analysis:"));
     console.log(chalk.green(JSON.stringify(analysis, null, 2)));
+    safeExit(0);
+    return;
+  }
+
+  // New Feature: Display combined system and diagnostics info as JSON (Extended Info)
+  if (args.includes("--extended")) {
+    const systemInfo = {
+      platform: os.platform(),
+      arch: os.arch(),
+      nodeVersion: process.version,
+      cpu: os.cpus()[0].model
+    };
+    const detailedDiagnostics = {
+      memory: {
+        total: os.totalmem(),
+        free: os.freemem()
+      },
+      uptime: os.uptime(),
+      loadAverage: os.loadavg()
+    };
+    const combinedInfo = {
+      systemInfo,
+      detailedDiagnostics,
+      timestamp: new Date().toISOString()
+    };
+    console.log(chalk.green(`Extended Info as JSON:\n${JSON.stringify(combinedInfo, null, 2)}`));
     safeExit(0);
     return;
   }
