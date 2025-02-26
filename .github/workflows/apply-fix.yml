@@ -150,6 +150,8 @@ jobs:
   npm-test-after-fix:
     needs:
       - apply-fix
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -164,6 +166,8 @@ jobs:
   npm-build-after-fix:
     needs:
       - apply-fix
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -178,6 +182,8 @@ jobs:
   npm-run-after-fix:
     needs:
       - apply-fix
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -195,6 +201,8 @@ jobs:
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       packages: write
