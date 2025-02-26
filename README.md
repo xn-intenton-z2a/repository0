@@ -53,6 +53,8 @@ Install via npm:
 npm install owl-builder
 ```
 
+Note: This version requires Node 20.0.0 or higher as it uses the new JSON module import syntax with the `with` keyword.
+
 ## Usage
 
 To use the CLI tool, run:
