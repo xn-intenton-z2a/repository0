@@ -2,7 +2,9 @@
 
 `owl-builder` is a versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies. It showcases automated CI/CD workflows imported from intentïon [`agentic‑lib`](https://github.com/xn-intenton-z2a/agentic-lib).
 
-This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems. The current CLI provides a range of implemented commands for help, versioning, ontology examples, diagnostics, and more. Future enhancements will introduce advanced querying capabilities and persistent knowledge base features, which are still under development.
+This repository serves as both a template and a demonstration environment for creating robust, self-evolving ontology management systems. The current CLI provides a range of implemented commands for help, versioning, ontology examples, diagnostics, and more. 
+
+**Note:** Advanced querying capabilities and persistent knowledge base features are planned for future releases and are not yet implemented.
 
 ## Repository Template
 
@@ -43,20 +45,14 @@ The current implementation of `owl-builder` includes:
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
-## Contributing
+## Future Enhancements
 
-We welcome contributions to improve owl-builder! Please follow the guidelines outlined in [CONTRIBUTING.md](./CONTRIBUTING.md). In summary:
+Planned features for future releases include:
 
-- Open an issue with a detailed description of your suggestion or bug.
-- Fork the repository, create your feature branch, and implement your changes ensuring you include tests.
-- Update documentation as necessary to reflect your changes.
-- Submit a pull request for review.
+- Advanced ontology querying capabilities.
+- Persistent knowledge base integration.
 
-Your adherence to our contribution guidelines helps us maintain a robust, clean, and efficient project.
-
-## Incremental Changes Plan
-
-- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities. Note that features such as advanced querying and persistent knowledge bases are planned for future releases and are not yet implemented.
+These features are currently under discussion and development.
 
 ## Installation
 
@@ -192,6 +188,25 @@ Providing the `--help` flag displays a help menu with available options. Running
     --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
   Demo Output: Run with: []
   ```
+
+## Contributing
+
+We welcome contributions to improve owl-builder! Please follow the guidelines outlined in [CONTRIBUTING.md](./CONTRIBUTING.md). In summary:
+
+- Open an issue with a detailed description of your suggestion or bug.
+- Fork the repository, create your feature branch, and implement your changes ensuring you include tests.
+- Update documentation as necessary to reflect your changes.
+- Submit a pull request for review.
+
+Your adherence to our contribution guidelines helps us maintain a robust, clean, and efficient project.
+
+## Incremental Changes Plan
+
+Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities. 
+
+**Planned Features:**
+- Advanced ontology querying capabilities (not yet implemented).
+- Persistent knowledge base integration (not yet implemented).
 
 ## License
 
