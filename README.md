@@ -31,6 +31,7 @@ The current implementation of `owl-builder` includes:
 - Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as an OWL ontology JSON (--fetch-owl).
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
+- *Improved consistency across source and test files with standardized async outputs.*
 
 ## Future Enhancements
 
