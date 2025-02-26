@@ -120,7 +120,6 @@ describe("Time Functionality", () => {
     Date.now = () => fixedDate.getTime();
     const output = await captureConsoleAsync(async () => { await main(["--time"]); });
     Date.now = originalDateNow;
-    // Since we use UTC formatting, the expected output should be based on the fixedDate in UTC
     expect(output).toContain("Current Time: 2023-01-01 12:00:00");
   });
 });

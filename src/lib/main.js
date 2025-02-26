@@ -14,18 +14,7 @@ const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, r
 
 // Helper function to print usage message
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]
-Options:
-  --help           Show help
-  --version        Show version
-  --example-owl    Show an example OWL ontology as JSON
-  --fetch-owl      Fetch public API data and render as OWL ontology JSON
-  --build-owl      Build a demo OWL ontology as JSON
-  --diagnostics    Run diagnostics to test public API connectivity
-  --extend         Display extended OWL ontology as JSON with additional metadata
-  --log            Enable logging of output to file
-  --time           Display the current UTC time
-`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -85,7 +74,7 @@ export async function main(args) {
     try {
       let response = await fetch(endpoint);
       if (!response.ok) {
-        console.warn(chalk.red(`Primary endpoint failed with status ${response.status}. Trying backup endpoint...`));
+        console.error(chalk.red(`Primary endpoint failed with status ${response.status}. Trying backup endpoint...`));
         endpoint = "https://jsonplaceholder.typicode.com/users";
         response = await fetch(endpoint);
         if (!response.ok) {
@@ -234,8 +223,8 @@ export async function main(args) {
     return;
   }
 
-  // For any other arguments, simply log them
-  console.log(`Run with: ${JSON.stringify(args)}`);
+  // For any other arguments, simply log them in a consistent style
+  console.log(chalk.green(`Run with: ${JSON.stringify(args)}`));
 }
 
 // Ensure that the script is executed only when run directly, not when imported
