@@ -149,8 +149,8 @@ jobs:
 
   npm-test-after-fix:
     needs:
-      - apply-fix
       - needs-fix
+      - apply-fix
     if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
@@ -165,8 +165,8 @@ jobs:
 
   npm-build-after-fix:
     needs:
-      - apply-fix
       - needs-fix
+      - apply-fix
     if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run build'
     runs-on: ubuntu-latest
@@ -181,8 +181,8 @@ jobs:
 
   npm-run-after-fix:
     needs:
-      - apply-fix
       - needs-fix
+      - apply-fix
     if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run start'
     runs-on: ubuntu-latest
@@ -195,14 +195,55 @@ jobs:
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
-  create-pr:
+  needs-fix-after-fix:
     needs:
-      - apply-fix
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
+    if: >
+      ${{ always() && 
+        (
+          needs.npm-test-after-fix.result != 'success' ||
+          needs.npm-build-after-fix.result != 'success' ||
+          needs.npm-run-after-fix.result != 'success' ||
+          inputs.applyFixEvenIfTestsPass == true
+        )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.info('needs.npm-test.result:${{ needs.npm-test-after-fix.result }}');
+            core.info('needs.npm-build.result:${{ needs.npm-build-after-fix.result }}');
+            core.info('needs.npm-run.result:${{ needs.npm-run-after-fix.result }}');
+            core.info('inputs.applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+            
+            const npmTestResult = '${{ needs.npm-test-after-fix.result }}';
+            const npmBuildResult = '${{ needs.npm-build-after-fix.result }}';
+            const npmRunResult = '${{ needs.npm-run-after-fix.result }}';
+            const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
+            
+            core.info(`npmTestResult: ${npmTestResult}`);
+            core.info(`npmBuildResult: ${npmBuildResult}`);
+            core.info(`npmRunResult: ${npmRunResult}`);
+            core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
+            
+            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
+            core.info(`Needs Fix: ${needsFix}`);
+            
+            core.setOutput('needsFix', `${needsFix}`);
+    outputs:
+      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+
+  create-pr:
+    needs:
+      - apply-fix
       - needs-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+      - needs-fix-after-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.needs-fix-after-fix.outputs.needsFix == 'false' }}
     permissions:
       contents: write
       packages: write
