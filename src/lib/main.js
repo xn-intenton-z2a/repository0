@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
-imp  ort dayjs from "dayjs";
+i mport dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
