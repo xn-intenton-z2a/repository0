@@ -228,24 +228,33 @@ export async function main(args) {
     return;
   }
 
-  // Run diagnostics
+  // Run diagnostics with fallback to backup endpoint if primary fails
   if (args.includes("--diagnostics")) {
     console.log(chalk.green("Running Diagnostics..."));
     try {
       const start = Date.now();
-      const response = await fetch("https://restcountries.com/v3.1/all");
+      let endpoint = "https://restcountries.com/v3.1/all";
+      let response = await fetch(endpoint);
       if (!response.ok) {
-        console.error(chalk.red("Diagnostics: Failed to fetch public API data"));
-        safeExit(1);
-        return;
+        console.error(chalk.red(`Diagnostics: Primary endpoint failed with status ${response.status}. Trying backup endpoint...`));
+        endpoint = "https://jsonplaceholder.typicode.com/users";
+        response = await fetch(endpoint);
+        if (!response.ok) {
+          console.error(chalk.red("Diagnostics: Failed to fetch from both primary and backup endpoints"));
+          safeExit(1);
+          return;
+        }
       }
       const data = await response.json();
       const latency = Date.now() - start;
       console.log(chalk.green(`Diagnostics: Fetched ${data.length} records in ${latency} ms.`));
-      const individuals = data.slice(0, 3).map(country => ({
-        id: country.name && country.name.common ? country.name.common : "Unknown",
-        label: country.region || "Unknown"
-      }));
+      const individuals = data.slice(0, 3).map(item => {
+        if (item.name && item.name.common) {
+          return { id: item.name.common, label: item.region || "Unknown" };
+        } else {
+          return { id: item.username || "Unknown", label: item.company && item.company.name ? item.company.name : "Unknown" };
+        }
+      });
       const diagOwlOntology = {
         ontologyIRI: "http://example.org/diagnostics.owl",
         classes: [{ id: "Country", label: "Country" }],
@@ -255,7 +264,8 @@ export async function main(args) {
       diagOwlOntology.metadata = {
         fetchedAt: new Date().toISOString(),
         recordCount: data.length,
-        latencyMs: latency
+        latencyMs: latency,
+        sourceEndpoint: endpoint
       };
       console.log(chalk.green(`Diagnostics: OWL Ontology JSON:\n${JSON.stringify(diagOwlOntology, null, 2)}`));
     } catch (error) {

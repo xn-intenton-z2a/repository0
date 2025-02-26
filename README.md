@@ -31,9 +31,9 @@ The current implementation of `owl-builder` includes:
 - Showing version information (--version).
 - Displaying detailed version info (--version-full) including name, version, and description.
 - Presenting an example OWL ontology as JSON (--example-owl).
-- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl). This output now includes metadata such as the fetch timestamp, source endpoint, and record count.
+- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl). This output now includes metadata such as the fetch timestamp, source endpoint, and record count. The diagnostics command now also falls back to a backup endpoint if the primary fails.
 - Building a demo OWL ontology as JSON (--build-owl).
-- Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output also includes metadata.
+- Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output includes metadata such as fetch timestamp, record count, latency, and source endpoint.
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
 - **New Feature:** Displaying a full extended OWL ontology (--full-extend) that includes environment details such as Node.js version and platform.
 - **New Feature:** Generating a random OWL ontology (--random-owl) from a set of sample ontologies.
@@ -108,7 +108,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --fetch-owl
   ```
-  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure. The output now includes metadata (fetch timestamp, source endpoint, record count).
+  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure. The output includes metadata such as fetch timestamp, source endpoint, and record count.
 
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
@@ -120,7 +120,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
-  This command performs a self-test by fetching public API data, reporting the number of records and response time, and logging the derived OWL ontology JSON (with metadata).
+  This command performs a self-test by fetching public API data. If the primary endpoint fails, it uses a backup endpoint. It then reports the number of records, response time, and logs the derived OWL ontology JSON (with metadata).
 
 - **Extended Functionality:**
   ```bash
