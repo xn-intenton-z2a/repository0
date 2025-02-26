@@ -218,7 +218,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull origin ${{ github.ref_name }}
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
       - run: npm ci
       - run: npm test
 
@@ -246,7 +246,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull origin ${{ github.ref_name }}
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
       - run: npm ci
       - run: npm run build
 
@@ -274,7 +274,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull origin ${{ github.ref_name }}
+          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
