@@ -41,16 +41,20 @@ The current implementation of `owl-builder` includes:
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
-## Future Enhancements
+## Contributing
 
-Planned features for upcoming releases (not yet implemented) include:
+We welcome contributions to improve owl-builder! Please follow the guidelines outlined in [CONTRIBUTING.md](./CONTRIBUTING.md). In summary:
 
-- Advanced ontology building from diverse public data sources.
-- Querying capabilities through both the CLI and an interactive web interface.
-- A persistent knowledge base for managing ontologies over time.
-- Integration with additional external data crawlers and improved data mapping.
+- Open an issue with a detailed description of your suggestion or bug.
+- Fork the repository, create your feature branch, and implement your changes ensuring you include tests.
+- Update documentation as necessary to reflect your changes.
+- Submit a pull request for review.
 
-These future enhancements are part of our roadmap to extend the functionality of `owl-builder` while maintaining a robust and user-friendly tool.
+Your adherence to our contribution guidelines helps us maintain a robust, clean, and efficient project.
+
+## Incremental Changes Plan
+
+- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities. Note that features such as advanced querying and persistent knowledge bases are planned for future releases and are not yet implemented.
 
 ## Installation
 
@@ -172,22 +176,6 @@ Providing the `--help` flag displays a help menu with available options. Running
     --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
   Demo Output: Run with: []
   ```
-
-## Contributing
-
-We welcome contributions to improve owl-builder! For detailed instructions, please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md). Contributors are encouraged to:
-
-- Open an issue with a detailed description or suggestion.
-- Fork the repository and create a feature branch.
-- Implement changes following our coding standards and include tests.
-- Update documentation where necessary.
-- Submit your pull request for review.
-
-By following these guidelines, you help ensure that our project remains robust, maintainable, and in line with community best practices.
-
-## Incremental Changes Plan
-
-- Upcoming enhancements include advanced CLI commands, a web interface for ontology querying, and extended ontology management capabilities. Note that features such as advanced querying and persistent knowledge bases are planned for future releases and are not yet implemented.
 
 ## License
 
