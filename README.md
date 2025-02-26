@@ -36,6 +36,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
+- **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
 - *Improved Test Coverage:* Enhanced tests now cover fallback mechanisms for fetching data from backup endpoints.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates.
@@ -134,6 +135,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays details about the system including platform, architecture, Node.js version, and CPU model.
 
+- **Display Detailed Diagnostics:**
+  ```bash
+  node src/lib/main.js --detailed-diagnostics
+  ```
+  This command displays extended diagnostics information including memory usage, uptime, and load averages.
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -142,17 +149,18 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   Usage: node src/lib/main.js [options]
   Options:
-    --help           Show help
-    --help-json      Show help in JSON format
-    --version        Show version
-    --example-owl    Show an example OWL ontology as JSON
-    --fetch-owl      Fetch public API data and render as OWL ontology JSON
-    --build-owl      Build a demo OWL ontology as JSON
-    --diagnostics    Run diagnostics to test public API connectivity
-    --extend         Display extended OWL ontology as JSON with additional metadata
-    --log            Enable logging of output to file
-    --time           Display the current UTC time
-    --system         Display system information
+    --help                  Show help
+    --help-json             Show help in JSON format
+    --version               Show version
+    --example-owl           Show an example OWL ontology as JSON
+    --fetch-owl             Fetch public API data and render as OWL ontology JSON
+    --build-owl             Build a demo OWL ontology as JSON
+    --diagnostics           Run diagnostics to test public API connectivity
+    --extend                Display extended OWL ontology as JSON with additional metadata
+    --log                   Enable logging of output to file
+    --time                  Display the current UTC time
+    --system                Display system information
+    --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
   Demo Output: Run with: []
   ```
 
