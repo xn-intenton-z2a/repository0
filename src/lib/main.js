@@ -288,8 +288,8 @@ export async function main(args) {
 
   // NEW FEATURE: If time flag is provided, display current UTC time and exit
   if (args.includes("--time")) {
-    const now = new Date();
-    const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
+    // Use Date.now() directly to allow test overrides to work
+    const formattedTime = dayjs.utc(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     printAndExit([`Current Time: ${formattedTime}`]);
     return;
   }
