@@ -2,7 +2,7 @@
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
 // Extended functionality: added a new flag '--extended' to provide combined system information and detailed diagnostics.
-// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, analyze a built ontology, and display combined extended info.
+// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, analyze a built ontology, display combined extended info, and now display an ASCII art version using figlet.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -12,6 +12,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
+import figlet from "figlet"; // New dependency for ASCII art version display
 
 // Extend dayjs to support UTC formatting
 dayjs.extend(utc);
@@ -46,6 +47,7 @@ Options:
   --uuid                  Generate a new random UUID
   --analyze-owl           Analyze the built OWL ontology and report counts
   --extended              Display combined system info and detailed diagnostics as JSON
+  --ascii-version         Display the CLI version in ASCII art format
 `;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
@@ -114,7 +116,8 @@ export async function main(args) {
         "--detailed-diagnostics",
         "--uuid",
         "--analyze-owl",
-        "--extended"
+        "--extended",
+        "--ascii-version"
       ]
     };
     console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
@@ -135,6 +138,19 @@ export async function main(args) {
   // Simple version info
   if (args.includes("--version")) {
     printAndExit([`Version: ${pkg.version}`]);
+    return;
+  }
+
+  // New Feature: Display ASCII art version using figlet
+  if (args.includes("--ascii-version")) {
+    figlet(`Version: ${pkg.version}`, function(err, data) {
+      if (err) {
+        console.error(chalk.red("Error generating ASCII art version:"), err);
+      } else {
+        console.log(chalk.green(data));
+      }
+      safeExit(0);
+    });
     return;
   }
 

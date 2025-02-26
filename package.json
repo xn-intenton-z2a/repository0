@@ -27,7 +27,8 @@
     "zod": "^3.24.2",
     "chalk": "^5.2.0",
     "dayjs": "^1.11.9",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "figlet": "^1.5.2"
   },
   "devDependencies": {
     "eslint": "^9.19.0",
