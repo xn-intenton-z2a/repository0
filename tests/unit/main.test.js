@@ -99,6 +99,31 @@ describe("Fetch OWL Functionality", () => {
   });
 });
 
+describe("Fetch OWL Fallback Functionality", () => {
+  test("should fetch data from the backup endpoint when primary fails", async () => {
+    const originalFetch = global.fetch;
+    global.fetch = async (url) => {
+      if (url === "https://restcountries.com/v3.1/all") {
+        return { ok: false, status: 500 };
+      } else if (url === "https://jsonplaceholder.typicode.com/users") {
+        return {
+          ok: true,
+          json: async () => ([
+            { username: "BackupUser1", company: { name: "BackupCompany1" } },
+            { username: "BackupUser2", company: { name: "BackupCompany2" } },
+            { username: "BackupUser3", company: { name: "BackupCompany3" } }
+          ])
+        };
+      }
+    };
+    const output = await captureConsoleAsync(async () => { await main(["--fetch-owl"]); });
+    global.fetch = originalFetch;
+    expect(output).toContain("Fetched OWL Ontology as JSON:");
+    expect(output).toContain('"ontologyIRI": "http://example.org/users.owl"');
+    expect(output).toContain("BackupUser1");
+  });
+});
+
 describe("Build OWL Functionality", () => {
   test("should display built OWL ontology as JSON when --build-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--build-owl"]); });
