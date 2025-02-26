@@ -46,6 +46,24 @@ describe("Help Functionality", () => {
   });
 });
 
+describe("JSON Help Functionality", () => {
+  test("should display JSON help message when --help-json is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--help-json"]); });
+    expect(output).toContain("Help JSON:");
+    // Try to parse the JSON output
+    const jsonString = output.split("Help JSON:")[1].trim();
+    let helpObj;
+    try {
+      helpObj = JSON.parse(jsonString);
+    } catch (error) {
+      helpObj = null;
+    }
+    expect(helpObj).not.toBeNull();
+    expect(helpObj).toHaveProperty("usage");
+    expect(helpObj).toHaveProperty("options");
+  });
+});
+
 describe("Version Functionality", () => {
   test("should display version info when --version is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--version"]); });
