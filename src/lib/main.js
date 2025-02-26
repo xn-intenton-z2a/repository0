@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // Improved consistency: unified comment style and consistent error handling across commands.
+// Ensures that default behavior shows usage with demo output and terminates execution without waiting for user input.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
