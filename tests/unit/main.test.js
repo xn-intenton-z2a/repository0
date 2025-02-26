@@ -63,6 +63,15 @@ describe("JSON Help Functionality", () => {
   });
 });
 
+describe("Detailed Version Functionality", () => {
+  test("displays detailed version info when --version-full is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--version-full"]); });
+    expect(output).toContain("Name:");
+    expect(output).toContain("Version:");
+    expect(output).toContain("Description:");
+  });
+});
+
 describe("Version Functionality", () => {
   test("displays version info when --version is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--version"]); });

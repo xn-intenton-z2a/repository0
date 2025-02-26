@@ -27,6 +27,7 @@ The current implementation of `owl-builder` includes:
 
 - Displaying a help message (--help) with usage information and demo output.
 - Showing version information (--version).
+- Displaying detailed version info (--version-full) including name, version, and description.
 - Presenting an example OWL ontology as JSON (--example-owl).
 - Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as an OWL ontology JSON (--fetch-owl).
 - Building a demo OWL ontology as JSON (--build-owl).
@@ -88,6 +89,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --version
   ```
+
+- **Display Detailed Version Info:**
+  ```bash
+  node src/lib/main.js --version-full
+  ```
+  This command outputs detailed version information including the package name, version, and description.
 
 - **Display OWL Ontology as JSON (Example):**
   ```bash
@@ -153,6 +160,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --help                  Show help
     --help-json             Show help in JSON format
     --version               Show version
+    --version-full          Show detailed version info
     --example-owl           Show an example OWL ontology as JSON
     --fetch-owl             Fetch public API data and render as OWL ontology JSON
     --build-owl             Build a demo OWL ontology as JSON
