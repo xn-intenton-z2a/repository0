@@ -146,51 +146,17 @@ Providing the `--help` flag displays a help menu with available options. Running
   Demo Output: Run with: []
   ```
 
-## JSON-LD Ontology Example
-
-Below is a simple example of an OWL ontology expressed in JSON-LD. This example defines a basic ontology with two classes (Person and Employee) and one datatype property (hasAge), showcasing how OWL concepts can be represented in a JSON structure.
-
-```json
-{
-  "@context": {
-    "owl": "http://www.w3.org/2002/07/owl#",
-    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "xsd": "http://www.w3.org/2001/XMLSchema#",
-    "ex": "http://example.org/ontology#"
-  },
-  "@graph": [
-    {
-      "@id": "ex:Person",
-      "@type": "owl:Class",
-      "rdfs:label": "Person"
-    },
-    {
-      "@id": "ex:Employee",
-      "@type": "owl:Class",
-      "rdfs:subClassOf": { "@id": "ex:Person" },
-      "rdfs:label": "Employee"
-    },
-    {
-      "@id": "ex:hasAge",
-      "@type": "owl:DatatypeProperty",
-      "rdfs:domain": { "@id": "ex:Person" },
-      "rdfs:range": { "@id": "xsd:integer" },
-      "rdfs:label": "has age"
-    }
-  ]
-}
-```
-
 ## Contributing
 
-We welcome contributions! Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on how to contribute effectively. In summary:
+We welcome contributions to improve both functionality and documentation. Please refer to our [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines and best practices. In summary:
 
 1. Fork the repository and create a feature branch.
-2. Implement your changes ensuring that code quality, tests, and documentation are updated.
+2. Implement your changes ensuring that code quality, tests, and documentation (including this README) are updated.
 3. Submit a pull request and address any feedback from maintainers.
 
-Your contributions help improve the functionality and quality of the project.
+Before submitting a pull request, please ensure your code adheres to our coding standards, includes appropriate tests, and updates relevant documentation as outlined in the contributing guidelines.
+
+Your contributions help make owl-builder more robust and user-friendly.
 
 ## Incremental Changes Plan
 
