@@ -160,6 +160,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: npm test
 
@@ -176,6 +183,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: npm run build
 
@@ -192,6 +206,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
