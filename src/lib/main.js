@@ -13,6 +13,7 @@ import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
 import figlet from "figlet"; // New dependency for ASCII art version display
+import { promisify } from "util"; // Added promisify for async figlet
 
 // Extend dayjs to support UTC formatting
 dayjs.extend(utc);
@@ -21,6 +22,9 @@ dayjs.extend(utc);
 const chalk = process.env.NODE_ENV === "test"
   ? { blue: s => s, green: s => s, red: s => s }
   : chalkImport;
+
+// Promisify figlet for async/await usage
+const figletAsync = promisify(figlet);
 
 /**
  * Prints the usage instructions for the CLI tool.
@@ -143,14 +147,13 @@ export async function main(args) {
 
   // New Feature: Display ASCII art version using figlet
   if (args.includes("--ascii-version")) {
-    figlet(`Version: ${pkg.version}`, function(err, data) {
-      if (err) {
-        console.error(chalk.red("Error generating ASCII art version:"), err);
-      } else {
-        console.log(chalk.green(data));
-      }
-      safeExit(0);
-    });
+    try {
+      const asciiArt = await figletAsync(`Version: ${pkg.version}`);
+      console.log(chalk.green(asciiArt));
+    } catch (err) {
+      console.error(chalk.red("Error generating ASCII art version:"), err);
+    }
+    safeExit(0);
     return;
   }
 
