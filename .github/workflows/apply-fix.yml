@@ -120,7 +120,7 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
-      - run: ${{ vars.MAIN_SCRIPT || "npm run start" }}
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   needs-fix:
     needs:
@@ -249,7 +249,7 @@ jobs:
       - needs-fix
       - apply-fix
     if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
-    name: "npm run start"
+    name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
