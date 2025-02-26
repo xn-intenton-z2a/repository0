@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.2.2-14",
+  "version": "1.2.2-15",
   "description": "owl-builder: A versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies.",
   "type": "module",
   "main": "src/lib/main.js",
