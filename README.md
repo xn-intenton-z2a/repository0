@@ -37,6 +37,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
+- **Improved Consistency:** Uniform command responses and logging across the CLI tool.
 - *Improved Test Coverage:* Enhanced tests now cover fallback mechanisms for fetching data from backup endpoints.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates.

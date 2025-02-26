@@ -23,14 +23,15 @@ async function captureConsoleAsync(callback) {
   return output;
 }
 
+
 describe("Main Module Import", () => {
-  test("should be non-null", () => {
+  test("module should be non-null", () => {
     expect(mainModule).not.toBeNull();
   });
 });
 
 describe("Default Demo Output", () => {
-  test("should display usage and demo output when no arguments are provided", async () => {
+  test("displays usage and demo output when no arguments are provided", async () => {
     const output = await captureConsoleAsync(async () => { await main([]); });
     expect(output).toContain("Usage: node src/lib/main.js [options]");
     expect(output).toContain("Demo Output: Run with: []");
@@ -38,7 +39,7 @@ describe("Default Demo Output", () => {
 });
 
 describe("Help Functionality", () => {
-  test("should display help message when --help is passed", async () => {
+  test("displays help message when --help is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--help"]); });
     expect(output).toContain("Usage: node src/lib/main.js [options]");
     expect(output).not.toContain("Demo Output: Run with: []");
@@ -46,7 +47,7 @@ describe("Help Functionality", () => {
 });
 
 describe("JSON Help Functionality", () => {
-  test("should display JSON help message when --help-json is passed", async () => {
+  test("displays JSON help when --help-json is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--help-json"]); });
     expect(output).toContain("Help JSON:");
     const jsonString = output.split("Help JSON:")[1].trim();
@@ -63,14 +64,14 @@ describe("JSON Help Functionality", () => {
 });
 
 describe("Version Functionality", () => {
-  test("should display version info when --version is passed", async () => {
+  test("displays version info when --version is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--version"]); });
     expect(output).toMatch(/Version: \d+\.\d+\.\d+/);
   });
 });
 
 describe("Example OWL Functionality", () => {
-  test("should display OWL example as JSON when --example-owl is passed", async () => {
+  test("displays example OWL ontology as JSON when --example-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--example-owl"]); });
     expect(output).toContain("Example OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/tea.owl"');
@@ -79,7 +80,7 @@ describe("Example OWL Functionality", () => {
 });
 
 describe("Fetch OWL Functionality", () => {
-  test("should fetch countries data and display OWL ontology JSON when --fetch-owl is passed", async () => {
+  test("fetches countries data and displays OWL ontology JSON when --fetch-owl is passed", async () => {
     const originalFetch = global.fetch;
     global.fetch = async () => ({
       ok: true,
@@ -98,7 +99,7 @@ describe("Fetch OWL Functionality", () => {
 });
 
 describe("Fetch OWL Fallback Functionality", () => {
-  test("should fetch data from the backup endpoint when primary fails", async () => {
+  test("fetches data from backup endpoint when primary fails", async () => {
     const originalFetch = global.fetch;
     global.fetch = async (url) => {
       if (url === "https://restcountries.com/v3.1/all") {
@@ -123,7 +124,7 @@ describe("Fetch OWL Fallback Functionality", () => {
 });
 
 describe("Build OWL Functionality", () => {
-  test("should display built OWL ontology as JSON when --build-owl is passed", async () => {
+  test("displays built OWL ontology as JSON when --build-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--build-owl"]); });
     expect(output).toContain("Built OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/built.owl"');
@@ -132,7 +133,7 @@ describe("Build OWL Functionality", () => {
 });
 
 describe("Diagnostics Functionality", () => {
-  test("should run diagnostics, fetch public API data, and log OWL ontology JSON when --diagnostics is passed", async () => {
+  test("runs diagnostics and displays OWL ontology JSON when --diagnostics is passed", async () => {
     const originalFetch = global.fetch;
     global.fetch = async () => ({
       ok: true,
@@ -148,7 +149,7 @@ describe("Diagnostics Functionality", () => {
 });
 
 describe("Extended Functionality", () => {
-  test("should display extended OWL ontology as JSON when --extend is passed", async () => {
+  test("displays extended OWL ontology as JSON when --extend is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--extend"]); });
     expect(output).toContain("Extended OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/extended.owl"');
@@ -157,14 +158,14 @@ describe("Extended Functionality", () => {
 });
 
 describe("Logging Functionality", () => {
-  test("should log to file and display logging message when --log is passed", async () => {
+  test("logs to file and displays logging message when --log is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--log"]); });
     expect(output).toContain("Logging output to file 'owl-builder.log'");
   });
 });
 
 describe("Time Functionality", () => {
-  test("should display the current UTC time when --time flag is passed", async () => {
+  test("displays current UTC time when --time flag is passed", async () => {
     const fixedDate = new Date("2023-01-01T12:00:00Z");
     const originalDateNow = Date.now;
     Date.now = () => fixedDate.getTime();
@@ -175,7 +176,7 @@ describe("Time Functionality", () => {
 });
 
 describe("System Information Functionality", () => {
-  test("should display system information when --system is passed", async () => {
+  test("displays system information when --system is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--system"]); });
     expect(output).toContain("System Information:");
     const jsonString = output.split("System Information:")[1].trim();
@@ -194,7 +195,7 @@ describe("System Information Functionality", () => {
 });
 
 describe("Detailed Diagnostics Functionality", () => {
-  test("should display detailed diagnostics information when --detailed-diagnostics is passed", async () => {
+  test("displays detailed diagnostics information when --detailed-diagnostics is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--detailed-diagnostics"]); });
     expect(output).toContain("Detailed Diagnostics:");
     const jsonString = output.split("Detailed Diagnostics:")[1].trim();
@@ -214,7 +215,7 @@ describe("Detailed Diagnostics Functionality", () => {
 });
 
 describe("Unknown Arguments Functionality", () => {
-  test("should log unknown arguments when an unrecognized flag is passed", async () => {
+  test("logs unknown arguments when an unrecognized flag is passed", async () => {
     const args = ["--unknown", "abc"];
     const output = await captureConsoleAsync(async () => { await main(args); });
     expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
