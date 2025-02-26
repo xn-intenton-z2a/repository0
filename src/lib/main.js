@@ -16,7 +16,7 @@ function printUsage(withDemo) {
 }
 
 // Helper function for safe exit (skips process.exit during tests)
-function safeExit(code) {
+func  tion safeExit(code) {
   if (process.env.NODE_ENV !== "test") {
     process.exit(code);
   }
