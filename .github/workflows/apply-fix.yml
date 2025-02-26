@@ -37,7 +37,7 @@ on:
       - apply-formatting
       - apply-update
   schedule:
-    - cron: '15 */2 * * *' # Run every 1 hour at 0 minutes past
+    - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
     #- cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
