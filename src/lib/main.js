@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // src/lib/main.js
+// Improved consistency: unified comment style and consistent error handling across commands.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -12,17 +13,31 @@ import os from "os";
 // Extend dayjs to support UTC formatting
 dayjs.extend(utc);
 
-// Use a no-op chalk when in test mode for consistency
+// Use a no-op chalk when in test mode for consistent output during testing
 const chalk = process.env.NODE_ENV === "test"
   ? { blue: s => s, green: s => s, red: s => s }
   : chalkImport;
 
 /**
  * Prints the usage instructions for the CLI tool.
- * @param {boolean} withDemo - Whether to include the demo output message.
+ * @param {boolean} withDemo - Whether to include demo output.
  */
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help                  Show help\n  --help-json             Show help in JSON format\n  --version               Show version\n  --example-owl           Show an example OWL ontology as JSON\n  --fetch-owl             Fetch public API data and render as OWL ontology JSON\n  --build-owl             Build a demo OWL ontology as JSON\n  --diagnostics           Run diagnostics to test public API connectivity\n  --extend                Display extended OWL ontology as JSON with additional metadata\n  --log                   Enable logging of output to file\n  --time                  Display the current UTC time\n  --system                Display system information\n  --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages\n`;
+  const usageMsg = `Usage: node src/lib/main.js [options]
+Options:
+  --help                  Show help
+  --help-json             Show help in JSON format
+  --version               Show version
+  --example-owl           Show an example OWL ontology as JSON
+  --fetch-owl             Fetch public API data and render as OWL ontology JSON
+  --build-owl             Build a demo OWL ontology as JSON
+  --diagnostics           Run diagnostics to test public API connectivity
+  --extend                Display extended OWL ontology as JSON with additional metadata
+  --log                   Enable logging of output to file
+  --time                  Display the current UTC time
+  --system                Display system information
+  --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
+`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -30,7 +45,7 @@ function printUsage(withDemo) {
 }
 
 /**
- * Safely exits the process unless in test environment. In test mode, simply returns.
+ * Safely exits the process unless in test environment.
  * @param {number} code - The exit code.
  */
 function safeExit(code) {
@@ -54,9 +69,6 @@ function printAndExit(messages, colorFunc = (msg) => chalk.green(msg)) {
 /**
  * Main function of the CLI tool. It processes the provided command line arguments
  * and executes the corresponding functionality.
- * 
- * If no arguments are provided, it defaults to displaying usage instructions
- * along with a demo output, then terminates execution.
  * 
  * @param {string[]} args - The command line arguments.
  */
@@ -276,8 +288,8 @@ export async function main(args) {
 
   // NEW FEATURE: If time flag is provided, display current UTC time and exit
   if (args.includes("--time")) {
-    const now = new Date(Date.now());
-    const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
+    // Use Date.now() directly to allow test overrides to work
+    const formattedTime = dayjs.utc(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     printAndExit([`Current Time: ${formattedTime}`]);
     return;
   }
