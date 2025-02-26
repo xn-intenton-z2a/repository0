@@ -27,6 +27,11 @@ on:
         required: false
         type: boolean
         default: true
+      scanForBranches:
+        description: 'Scan for branches matching the pattern. e.g. true'
+        required: false
+        type: boolean
+        default: false
   workflow_run:
     workflows:
       - 'Tests'
@@ -55,7 +60,7 @@ jobs:
         with:
           script: |
             let branch;
-            if (context.eventName === "schedule") {
+            if (context.eventName === "schedule" || "${{ inputs.scanForBranches }}" === "true") {
               core.info("Schedule event detected. Scanning for matching branches.");
               const branchesResp = await github.rest.repos.listBranches({
                 owner: context.repo.owner,
