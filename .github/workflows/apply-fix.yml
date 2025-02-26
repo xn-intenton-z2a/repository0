@@ -99,35 +99,32 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          core.info('npm-test result:${{ needs.npm-test.result }}');
-          core.info('npm-build result:${{ needs.npm-build.result }}');
-          core.info('npm-run result:${{ needs.npm-run.result }}');
-          core.info('applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+          core.info('needs.npm-test.result:${{ needs.npm-test.result }}');
+          core.info('needs.npm-build.result:${{ needs.npm-build.result }}');
+          core.info('needs.npm-run.result:${{ needs.npm-run.result }}');
+          core.info('inputs.applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
       
           const npmTestResult = '${{ needs.npm-test.result }}';
           const npmBuildResult = '${{ needs.npm-build.result }}';
           const npmRunResult = '${{ needs.npm-run.result }}';
           const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
       
-          core.info(`npm-test result: ${npmTestResult}`);
-          core.info(`npm-build result: ${npmBuildResult}`);
-          core.info(`npm-run result: ${npmRunResult}`);
+          core.info(`npmTestResult: ${npmTestResult}`);
+          core.info(`npmBuildResult: ${npmBuildResult}`);
+          core.info(`npmRunResult: ${npmRunResult}`);
           core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
       
           const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
           core.info(`Needs Fix: ${needsFix}`);
       
-          core.setOutput('needsFix', needsFix);
+          core.setOutput('needsFix', `${needsFix}`);
     outputs:
-      npmTestResult: ${{ needs.npm-test.result }}
-      npmBuildResult: ${{ needs.npm-build.result }}
-      npmRunResult: ${{ needs.npm-run.result }}
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
   apply-fix:
     needs:
       - needs-fix
-    if: ${{ needs.needs-fix.outputs.needsFix == true }}
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       issues: write
