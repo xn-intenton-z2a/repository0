@@ -7,7 +7,7 @@ import chalkImport from "chalk";
 const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, red: s => s } : chalkImport;
 
 // Helper function to print usage message
-function printUsage(withDemo) {
+func  tion printUsage(withDemo) {
   const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
