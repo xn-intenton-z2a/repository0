@@ -198,6 +198,13 @@ describe("Random OWL Functionality", () => {
   });
 });
 
+describe("UUID Functionality", () => {
+  test("generates and displays a UUID when --uuid is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--uuid"]); });
+    expect(output).toMatch(/Generated UUID: [0-9a-fA-F\-]{36}/);
+  });
+});
+
 describe("Logging Functionality", () => {
   test("logs to file and displays logging message when --log is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--log"]); });
