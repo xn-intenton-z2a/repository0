@@ -36,7 +36,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
-- *Improved consistency across source and test files with standardized async outputs and logging behavior.*
+- *Improved Test Coverage:* Enhanced tests now cover fallback mechanisms for fetching data from backup endpoints.
 
 ## Future Enhancements
 
