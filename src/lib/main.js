@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 // src/lib/main.js
-// Improved consistency: unified comment style, consistent error handling, and consolidated JSON outputs for improved testability.
-// Extended functionality: Now includes metadata (fetch time, source endpoint, and record count) in OWL ontology outputs for data gathering commands.
+// This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
+// It now follows a more unified style across all functionalities.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc.js"; // Updated import to include .js extension
+import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 
 // Extend dayjs to support UTC formatting
@@ -39,7 +39,7 @@ Options:
   --time                  Display the current UTC time
   --system                Display system information
   --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
-`
+`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -53,8 +53,6 @@ Options:
 function safeExit(code) {
   if (process.env.NODE_ENV !== "test") {
     process.exit(code);
-  } else {
-    return;
   }
 }
 
@@ -71,25 +69,23 @@ function printAndExit(messages, colorFunc = msg => chalk.green(msg)) {
 /**
  * Main function of the CLI tool. It processes the provided command line arguments
  * and executes the corresponding functionality.
- * 
  * @param {string[]} args - The command line arguments.
  */
 export async function main(args) {
-  // If no arguments are provided, display usage with demo output and exit immediately
+  // If no arguments are provided, display usage with demo output and exit
   if (!args || args.length === 0) {
     printUsage(true);
     safeExit(0);
     return;
   }
 
-  // If help flag is provided, display usage without demo output and exit
+  // Handle help flags
   if (args.includes("--help")) {
     printUsage(false);
     safeExit(0);
     return;
   }
 
-  // NEW FEATURE: If help-json flag is provided, display help in JSON format and exit
   if (args.includes("--help-json")) {
     const helpJson = {
       usage: "node src/lib/main.js [options]",
@@ -114,7 +110,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW FEATURE: Detailed version info command
+  // Detailed version info
   if (args.includes("--version-full")) {
     printAndExit([
       `Name: ${pkg.name}`,
@@ -124,13 +120,13 @@ export async function main(args) {
     return;
   }
 
-  // If version flag is provided, display version info and exit
+  // Simple version info
   if (args.includes("--version")) {
     printAndExit([`Version: ${pkg.version}`]);
     return;
   }
 
-  // If example-owl flag is provided, display an OWL ontology example as JSON and exit
+  // Example OWL ontology
   if (args.includes("--example-owl")) {
     const exampleOWL = {
       ontologyIRI: "http://example.org/tea.owl",
@@ -147,7 +143,7 @@ export async function main(args) {
     return;
   }
 
-  // If fetch-owl flag is provided, fetch public API data and convert to OWL ontology JSON using multiple endpoints
+  // Fetch OWL ontology from public API with fallback
   if (args.includes("--fetch-owl")) {
     let owlOntology;
     let data;
@@ -171,7 +167,6 @@ export async function main(args) {
       return;
     }
 
-    // Map data to OWL ontology based on the endpoint used
     if (endpoint === "https://restcountries.com/v3.1/all") {
       const individuals = data.slice(0, 3).map(country => ({
         id: country.name && country.name.common ? country.name.common : "Unknown",
@@ -184,7 +179,6 @@ export async function main(args) {
         individuals
       };
     } else {
-      // Backup endpoint mapping using JSONPlaceholder users
       const individuals = data.slice(0, 3).map(user => ({
         id: user.username || "Unknown",
         label: user.company && user.company.name ? user.company.name : "Unknown"
@@ -196,7 +190,6 @@ export async function main(args) {
         individuals
       };
     }
-    // Extend OWL ontology with metadata information
     owlOntology.metadata = {
       fetchedAt: new Date().toISOString(),
       sourceEndpoint: endpoint,
@@ -209,7 +202,7 @@ export async function main(args) {
     return;
   }
 
-  // If build-owl flag is provided, build a demo OWL ontology JSON and exit
+  // Build demo OWL ontology
   if (args.includes("--build-owl")) {
     const builtOntology = {
       ontologyIRI: "http://example.org/built.owl",
@@ -228,7 +221,7 @@ export async function main(args) {
     return;
   }
 
-  // If diagnostics flag is provided, run a self-test fetching public API data and log OWL ontology JSON
+  // Run diagnostics
   if (args.includes("--diagnostics")) {
     console.log(chalk.green("Running Diagnostics..."));
     try {
@@ -242,7 +235,6 @@ export async function main(args) {
       const data = await response.json();
       const latency = Date.now() - start;
       console.log(chalk.green(`Diagnostics: Fetched ${data.length} records in ${latency} ms.`));
-      // Log the OWL ontology JSON format derived from the fetched data
       const individuals = data.slice(0, 3).map(country => ({
         id: country.name && country.name.common ? country.name.common : "Unknown",
         label: country.region || "Unknown"
@@ -253,7 +245,6 @@ export async function main(args) {
         properties: [],
         individuals
       };
-      // Add metadata to diagnostics output
       diagOwlOntology.metadata = {
         fetchedAt: new Date().toISOString(),
         recordCount: data.length,
@@ -269,7 +260,7 @@ export async function main(args) {
     return;
   }
 
-  // If extend flag is provided, display extended OWL ontology as JSON and exit
+  // Extended OWL ontology with additional metadata
   if (args.includes("--extend")) {
     const extendedOntology = {
       ontologyIRI: "http://example.org/extended.owl",
@@ -293,7 +284,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW FEATURE: If log flag is provided, log output message to a file
+  // Logging output to file
   if (args.includes("--log")) {
     const logMessage = "Logging output to file 'owl-builder.log'";
     console.log(chalk.green(logMessage));
@@ -308,14 +299,14 @@ export async function main(args) {
     return;
   }
 
-  // NEW FEATURE: If time flag is provided, display current UTC time and exit
+  // Display current UTC time
   if (args.includes("--time")) {
     const formattedTime = dayjs.utc(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     printAndExit([`Current Time: ${formattedTime}`]);
     return;
   }
 
-  // NEW FEATURE: If system flag is provided, display system information and exit
+  // Display system information
   if (args.includes("--system")) {
     const systemInfo = {
       platform: os.platform(),
@@ -328,7 +319,7 @@ export async function main(args) {
     return;
   }
 
-  // NEW FEATURE: If detailed-diagnostics flag is provided, display extended diagnostics details and exit
+  // Detailed diagnostics information
   if (args.includes("--detailed-diagnostics")) {
     const detailedDiagnostics = {
       memory: {
@@ -343,13 +334,12 @@ export async function main(args) {
     return;
   }
 
-  // For any other arguments, simply log them in a consistent style
+  // Default case: log unknown arguments
   console.log(chalk.green(`Run with: ${JSON.stringify(args)}`));
   safeExit(0);
-  return;
 }
 
-// Ensure that the script is executed only when run directly, not when imported
+// Execute main only if this script is run directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);

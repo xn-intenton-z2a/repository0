@@ -104,7 +104,6 @@ describe("Fetch OWL Functionality", () => {
     expect(output).toContain("Fetched OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/countries.owl"');
     expect(output).toContain("France");
-    // Check for metadata fields
     expect(output).toContain("fetchedAt");
     expect(output).toContain("sourceEndpoint");
     expect(output).toContain("recordCount");
@@ -133,7 +132,6 @@ describe("Fetch OWL Fallback Functionality", () => {
     expect(output).toContain("Fetched OWL Ontology as JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/users.owl"');
     expect(output).toContain("BackupUser1");
-    // Check for metadata fields
     expect(output).toContain("fetchedAt");
     expect(output).toContain("sourceEndpoint");
     expect(output).toContain("recordCount");
@@ -162,7 +160,6 @@ describe("Diagnostics Functionality", () => {
     expect(output).toMatch(/Fetched \d+ records in \d+ ms\./);
     expect(output).toContain("Diagnostics: OWL Ontology JSON:");
     expect(output).toContain('"ontologyIRI": "http://example.org/diagnostics.owl"');
-    // Check for metadata fields
     expect(output).toContain("fetchedAt");
     expect(output).toContain("recordCount");
     expect(output).toContain("latencyMs");
