@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
-// It now follows a more unified style across all functionalities, including a new feature to generate a random OWL ontology.
+// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -35,6 +35,7 @@ Options:
   --build-owl             Build a demo OWL ontology as JSON
   --diagnostics           Run diagnostics to test public API connectivity (includes metadata)
   --extend                Display extended OWL ontology as JSON with additional metadata
+  --full-extend           Display full extended OWL ontology as JSON with environment details
   --random-owl            Generate a random OWL ontology as JSON
   --log                   Enable logging of output to file
   --time                  Display the current UTC time
@@ -100,6 +101,7 @@ export async function main(args) {
         "--build-owl",
         "--diagnostics",
         "--extend",
+        "--full-extend",
         "--random-owl",
         "--log",
         "--time",
@@ -282,6 +284,32 @@ export async function main(args) {
       }
     };
     console.log(chalk.green(`Extended OWL Ontology as JSON:\n${JSON.stringify(extendedOntology, null, 2)}`));
+    safeExit(0);
+    return;
+  }
+
+  // New Feature: Full Extended OWL ontology with additional environment details
+  if (args.includes("--full-extend")) {
+    const fullExtendedOntology = {
+      ontologyIRI: "http://example.org/full-extended.owl",
+      classes: [
+        { id: "FullExtended", label: "Full Extended Class" }
+      ],
+      properties: [
+        { id: "hasFullExtension", label: "Has Full Extension" }
+      ],
+      individuals: [
+        { id: "FullExtensionIndividual", label: "Full Extension Label" }
+      ],
+      metadata: {
+        applied: true,
+        description: "This ontology includes full extended functionality with environment details.",
+        timestamp: new Date().toISOString(),
+        nodeVersion: process.version,
+        platform: os.platform()
+      }
+    };
+    console.log(chalk.green(`Full Extended OWL Ontology as JSON:\n${JSON.stringify(fullExtendedOntology, null, 2)}`));
     safeExit(0);
     return;
   }

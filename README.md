@@ -39,6 +39,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
+- **Extended Functionality:** Displaying a full extended OWL ontology (--full-extend) that includes environment details such as Node version and platform.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
@@ -130,6 +131,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays an extended OWL ontology as JSON, including additional metadata to showcase enhanced functionality.
 
+- **Full Extended Functionality:**
+  ```bash
+  node src/lib/main.js --full-extend
+  ```
+  This command displays a full extended OWL ontology as JSON that includes environment details such as Node.js version and platform.
+
 - **Random OWL Ontology:**
   ```bash
   node src/lib/main.js --random-owl
@@ -177,6 +184,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --build-owl             Build a demo OWL ontology as JSON
     --diagnostics           Run diagnostics to test public API connectivity (with metadata)
     --extend                Display extended OWL ontology as JSON with additional metadata
+    --full-extend           Display full extended OWL ontology as JSON with environment details
     --random-owl            Generate a random OWL ontology as JSON
     --log                   Enable logging of output to file
     --time                  Display the current UTC time
