@@ -37,9 +37,9 @@ on:
     types:
       - completed
   schedule:
-    #- cron: '15 */2 * * *' # Run every 2 hours at 0 minutes past
+    - cron: '15 */2 * * *' # Run every 2 hours at 0 minutes past
     #- cron: '*/30 * * * *' # Run every 30 minutes
-    - cron: '*/15 * * * *' # Run every 15 minutes
+    #- cron: '*/15 * * * *' # Run every 15 minutes
 
 jobs:
 
@@ -47,7 +47,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.10.1'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
@@ -89,7 +89,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@1.10.1'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -121,7 +121,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.10.1'
     with:
       branch: 'issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'

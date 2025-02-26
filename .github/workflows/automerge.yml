@@ -18,8 +18,8 @@ on:
     types:
       - completed
   schedule:
-    - cron: '*/10 * * * *' # Run every 10 minutes
-    #- cron: '45 */1 * * *' # Run every hour at 45 minutes past
+    #- cron: '*/10 * * * *' # Run every 10 minutes
+    - cron: '45 */1 * * *' # Run every hour at 45 minutes past
     #- cron: '15 */2 * * *'  # Run every 2 hours at 15 minutes past
 
 jobs:
@@ -53,11 +53,11 @@ jobs:
 
   pr:
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'automerge')
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.10.1'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.10.1'
 
   ls:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -128,7 +128,7 @@ jobs:
       contents: write
       pull-requests: read
       issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.10.1'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'issue-'
@@ -140,7 +140,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.10.1'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -153,7 +153,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.10.1'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'issue-'

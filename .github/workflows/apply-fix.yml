@@ -175,7 +175,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@1.10.1'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -188,6 +188,7 @@ jobs:
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      branch: ${{ needs.select-branch.outputs.branch }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:
@@ -333,7 +334,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.9.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.10.1'
     with:
       branch: "${{ needs.select-branch.outputs.branch }}"
       baseBranch: 'main'
