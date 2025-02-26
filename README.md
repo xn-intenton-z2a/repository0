@@ -29,9 +29,9 @@ The current implementation of `owl-builder` includes:
 - Showing version information (--version).
 - Displaying detailed version info (--version-full) including name, version, and description.
 - Presenting an example OWL ontology as JSON (--example-owl).
-- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl).
+- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl). This output now includes metadata such as the fetch timestamp, source endpoint, and record count.
 - Building a demo OWL ontology as JSON (--build-owl).
-- Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
+- Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output also includes metadata.
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
@@ -109,7 +109,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --fetch-owl
   ```
-  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure.
+  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure. The output now includes metadata (fetch timestamp, source endpoint, record count).
 
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
@@ -121,7 +121,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
-  This command performs a self-test by fetching public API data, reporting the number of records and response time, and logging the derived OWL ontology JSON.
+  This command performs a self-test by fetching public API data, reporting the number of records and response time, and logging the derived OWL ontology JSON (with metadata).
 
 - **Extended Functionality:**
   ```bash
@@ -166,9 +166,9 @@ Providing the `--help` flag displays a help menu with available options. Running
     --version               Show version
     --version-full          Show detailed version info
     --example-owl           Show an example OWL ontology as JSON
-    --fetch-owl             Fetch public API data and render as OWL ontology JSON
+    --fetch-owl             Fetch public API data and render as OWL ontology JSON (with metadata)
     --build-owl             Build a demo OWL ontology as JSON
-    --diagnostics           Run diagnostics to test public API connectivity
+    --diagnostics           Run diagnostics to test public API connectivity (with metadata)
     --extend                Display extended OWL ontology as JSON with additional metadata
     --log                   Enable logging of output to file
     --time                  Display the current UTC time
