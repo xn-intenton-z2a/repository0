@@ -22,7 +22,7 @@ const chalk = process.env.NODE_ENV === "test"
  * @param {boolean} withDemo - Whether to include the demo output message.
  */
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --help-json      Show help in JSON format\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n  --system         Display system information\n`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help                  Show help\n  --help-json             Show help in JSON format\n  --version               Show version\n  --example-owl           Show an example OWL ontology as JSON\n  --fetch-owl             Fetch public API data and render as OWL ontology JSON\n  --build-owl             Build a demo OWL ontology as JSON\n  --diagnostics           Run diagnostics to test public API connectivity\n  --extend                Display extended OWL ontology as JSON with additional metadata\n  --log                   Enable logging of output to file\n  --time                  Display the current UTC time\n  --system                Display system information\n  --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages\n`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -90,7 +90,8 @@ export async function main(args) {
         "--extend",
         "--log",
         "--time",
-        "--system"
+        "--system",
+        "--detailed-diagnostics"
       ]
     };
     console.log(chalk.green("Help JSON:"));
@@ -292,6 +293,23 @@ export async function main(args) {
     printAndExit([
       "System Information:",
       JSON.stringify(systemInfo, null, 2)
+    ]);
+    return;
+  }
+
+  // NEW FEATURE: If detailed-diagnostics flag is provided, display extended diagnostics details and exit
+  if (args.includes("--detailed-diagnostics")) {
+    const detailedDiagnostics = {
+      memory: {
+        total: os.totalmem(),
+        free: os.freemem()
+      },
+      uptime: os.uptime(),
+      loadAverage: os.loadavg()
+    };
+    printAndExit([
+      "Detailed Diagnostics:",
+      JSON.stringify(detailedDiagnostics, null, 2)
     ]);
     return;
   }

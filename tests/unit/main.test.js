@@ -23,7 +23,6 @@ async function captureConsoleAsync(callback) {
   return output;
 }
 
-
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();
@@ -50,7 +49,6 @@ describe("JSON Help Functionality", () => {
   test("should display JSON help message when --help-json is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--help-json"]); });
     expect(output).toContain("Help JSON:");
-    // Try to parse the JSON output
     const jsonString = output.split("Help JSON:")[1].trim();
     let helpObj;
     try {
@@ -192,6 +190,26 @@ describe("System Information Functionality", () => {
     expect(sysInfo).toHaveProperty("arch");
     expect(sysInfo).toHaveProperty("nodeVersion");
     expect(sysInfo).toHaveProperty("cpu");
+  });
+});
+
+describe("Detailed Diagnostics Functionality", () => {
+  test("should display detailed diagnostics information when --detailed-diagnostics is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--detailed-diagnostics"]); });
+    expect(output).toContain("Detailed Diagnostics:");
+    const jsonString = output.split("Detailed Diagnostics:")[1].trim();
+    let details;
+    try {
+      details = JSON.parse(jsonString);
+    } catch (error) {
+      details = null;
+    }
+    expect(details).not.toBeNull();
+    expect(details).toHaveProperty("memory");
+    expect(details.memory).toHaveProperty("total");
+    expect(details.memory).toHaveProperty("free");
+    expect(details).toHaveProperty("uptime");
+    expect(details).toHaveProperty("loadAverage");
   });
 });
 
