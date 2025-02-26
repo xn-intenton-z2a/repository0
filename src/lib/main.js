@@ -24,7 +24,7 @@ const chalk = process.env.NODE_ENV === "test"
  * Prints the usage instructions for the CLI tool.
  * @param {boolean} withDemo - Whether to include demo output.
  */
-func   ti on printUsage(withDemo) {
+func   tion printUsage(withDemo) {
   const usageMsg = `Usage: node src/lib/main.js [options]
 Options:
   --help                  Show help
