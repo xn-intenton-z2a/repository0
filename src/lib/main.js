@@ -232,7 +232,7 @@ export async function main(args) {
 
   // NEW FEATURE: If time flag is provided, display current UTC time and exit
   if (args.includes("--time")) {
-    const now = new Date();
+    const now = new Date(Date.now());
     const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
     console.log(chalk.green(`Current Time: ${formattedTime}`));
     safeExit(0);
