@@ -35,13 +35,14 @@ The current implementation of `owl-builder` includes:
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output also includes metadata.
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
+- **New Feature:** Displaying a full extended OWL ontology (--full-extend) that includes environment details such as Node.js version and platform.
 - **New Feature:** Generating a random OWL ontology (--random-owl) from a set of sample ontologies.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
-- **Extended Functionality:** Displaying a full extended OWL ontology (--full-extend) that includes environment details such as Node version and platform.
+- **New Feature:** **Generate UUID (--uuid)** which generates and displays a new random UUID.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
@@ -157,11 +158,17 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays details about the system including platform, architecture, Node.js version, and CPU model.
 
-- **Display Detailed Diagnostics:**
+- **Detailed Diagnostics:**
   ```bash
   node src/lib/main.js --detailed-diagnostics
   ```
   This command displays extended diagnostics information including memory usage, uptime, and load averages.
+
+- **Generate UUID:**
+  ```bash
+  node src/lib/main.js --uuid
+  ```
+  This command generates and displays a new random UUID.
 
 - **Default Demo Output:**
   ```bash
@@ -186,6 +193,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --time                  Display the current UTC time
     --system                Display system information
     --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
+    --uuid                  Generate a new random UUID
   Demo Output: Run with: []
   ```
 

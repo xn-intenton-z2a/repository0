@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
-// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details.
+// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details and generate UUIDs.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -10,6 +10,7 @@ import { appendFile } from "fs/promises";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
+import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
 
 // Extend dayjs to support UTC formatting
 dayjs.extend(utc);
@@ -41,6 +42,7 @@ Options:
   --time                  Display the current UTC time
   --system                Display system information
   --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
+  --uuid                  Generate a new random UUID
 `;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
@@ -106,7 +108,8 @@ export async function main(args) {
         "--log",
         "--time",
         "--system",
-        "--detailed-diagnostics"
+        "--detailed-diagnostics",
+        "--uuid"
       ]
     };
     console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
@@ -339,6 +342,15 @@ export async function main(args) {
     printAndExit([
       "Random OWL Ontology as JSON:",
       JSON.stringify(randomOWL, null, 2)
+    ]);
+    return;
+  }
+
+  // New Feature: Generate a new UUID
+  if (args.includes("--uuid")) {
+    const newUuid = uuidv4();
+    printAndExit([
+      `Generated UUID: ${newUuid}`
     ]);
     return;
   }
