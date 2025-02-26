@@ -81,7 +81,7 @@ jobs:
             core.info(`Selected branch: ${branch}`);
             return { branch };
     outputs:
-      branch: ${{ steps.determine.outputs.result.branch }}
+      branch: ${{ steps.determine.outputs.branch }}
 
   npm-test:
     needs: select-branch
