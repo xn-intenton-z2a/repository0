@@ -113,6 +113,18 @@ describe("Logging Functionality", () => {
   });
 });
 
+describe("Time Functionality", () => {
+  test("should display the current UTC time when --time flag is passed", async () => {
+    const fixedDate = new Date("2023-01-01T12:00:00Z");
+    const originalDateNow = Date.now;
+    Date.now = () => fixedDate.getTime();
+    const output = await captureConsoleAsync(async () => { await main(["--time"]); });
+    Date.now = originalDateNow;
+    // Since we use UTC formatting, the expected output should be based on the fixedDate in UTC
+    expect(output).toContain("Current Time: 2023-01-01 12:00:00");
+  });
+});
+
 describe("Unknown Arguments Functionality", () => {
   test("should log unknown arguments when an unrecognized flag is passed", async () => {
     const args = ["--unknown", "abc"];
