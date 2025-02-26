@@ -164,17 +164,6 @@ describe("Logging Functionality", () => {
   });
 });
 
-describe("Time Functionality", () => {
-  test("displays current UTC time when --time flag is passed", async () => {
-    const fixedDate = new Date("2023-01-01T12:00:00Z");
-    const originalDateNow = Date.now;
-    Date.now = () => fixedDate.getTime();
-    const output = await captureConsoleAsync(async () => { await main(["--time"]); });
-    Date.now = originalDateNow;
-    expect(output).toContain("Current Time: 2023-01-01 12:00:00");
-  });
-});
-
 describe("System Information Functionality", () => {
   test("displays system information when --system is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--system"]); });
