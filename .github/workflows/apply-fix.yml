@@ -29,7 +29,7 @@ on:
         default: true
   workflow_run:
     workflows:
-      - "Tests"
+      - 'Tests'
     types:
       - completed
     branches:
@@ -38,15 +38,51 @@ on:
       - apply-update
   schedule:
     - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
-    #- cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
 
+  select-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch all branches
+        run: |
+          git fetch --all
+          git branch -r
+
+      - name: determine-branch
+        id: determine
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let branch;
+            if (context.eventName === "schedule") {
+              core.info("Schedule event detected. Scanning for matching branches.");
+              const branchesResp = await github.rest.repos.listBranches({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              const matchingBranches = branchesResp.data
+                .filter(branch => branch.name.match(/^(issue-.*|apply-formatting|apply-update)$/))
+                .map(branch => branch.name);
+              core.info(`Matching branches: ${matchingBranches}`);
+              branch = matchingBranches.length > 0 ? matchingBranches[0] : context.payload.repository?.default_branch || "main";
+            } else {
+              branch = context.ref.startsWith("refs/heads/") ? context.ref.substring("refs/heads/".length) : context.ref;
+            }
+            core.info(`Selected branch: ${branch}`);
+            return { branch };
+    outputs:
+      branch: ${{ steps.determine.outputs.result.branch }}
+
   npm-test:
+    needs: select-branch
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -55,10 +91,14 @@ jobs:
       - run: npm test
 
   npm-build:
+    needs: select-branch
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -67,10 +107,14 @@ jobs:
       - run: npm run build
 
   npm-run:
+    needs: select-branch
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -80,49 +124,39 @@ jobs:
 
   needs-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
     if: >
-      ${{ always() && 
-        (
-          needs.npm-test.result != 'success' ||
-          needs.npm-build.result != 'success' ||
-          needs.npm-run.result != 'success' ||
-          inputs.applyFixEvenIfTestsPass == true
-        )
+      ${{ always() &&
+         (
+           needs.npm-test.result != 'success' ||
+           needs.npm-build.result != 'success' ||
+           needs.npm-run.result != 'success' ||
+           inputs.applyFixEvenIfTestsPass == true
+         )
       }}
     runs-on: ubuntu-latest
     steps:
-    - name: set-needs-fix
-      id: set-needs-fix
-      uses: actions/github-script@v7
-      with:
-        script: |
-          core.info('needs.npm-test.result:${{ needs.npm-test.result }}');
-          core.info('needs.npm-build.result:${{ needs.npm-build.result }}');
-          core.info('needs.npm-run.result:${{ needs.npm-run.result }}');
-          core.info('inputs.applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
-      
-          const npmTestResult = '${{ needs.npm-test.result }}';
-          const npmBuildResult = '${{ needs.npm-build.result }}';
-          const npmRunResult = '${{ needs.npm-run.result }}';
-          const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
-      
-          core.info(`npmTestResult: ${npmTestResult}`);
-          core.info(`npmBuildResult: ${npmBuildResult}`);
-          core.info(`npmRunResult: ${npmRunResult}`);
-          core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
-      
-          const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
-          core.info(`Needs Fix: ${needsFix}`);
-      
-          core.setOutput('needsFix', `${needsFix}`);
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const npmTestResult = "${{ needs.npm-test.result }}";
+            const npmBuildResult = "${{ needs.npm-build.result }}";
+            const npmRunResult = "${{ needs.npm-run.result }}";
+            const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
+            const needsFix = npmTestResult !== "success" || npmBuildResult !== "success" || npmRunResult !== "success" || applyFixEvenIfTestsPass;
+            core.info(`Needs Fix: ${needsFix}`);
+            core.setOutput("needsFix", needsFix);
     outputs:
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
   apply-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -152,6 +186,7 @@ jobs:
 
   npm-test-after-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -163,23 +198,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.select-branch.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - name: Get latest from remote
         run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git status -v
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
           git pull origin ${{ github.ref_name }}
-          git status -v
       - run: npm ci
       - run: npm test
 
   npm-build-after-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -191,23 +226,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.select-branch.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - name: Get latest from remote
         run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git status -v
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
           git pull origin ${{ github.ref_name }}
-          git status -v
       - run: npm ci
       - run: npm run build
 
   npm-run-after-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -219,23 +254,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.select-branch.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
       - name: Get latest from remote
         run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git status -v
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
           git pull origin ${{ github.ref_name }}
-          git status -v
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   needs-fix-after-fix:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -245,13 +280,13 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     if: >
-      ${{ always() && 
-        (
-          needs.npm-test-after-fix.result != 'success' ||
-          needs.npm-build-after-fix.result != 'success' ||
-          needs.npm-run-after-fix.result != 'success' ||
-          inputs.applyFixEvenIfTestsPass == true
-        )
+      ${{ always() &&
+         (
+           needs.npm-test-after-fix.result != 'success' ||
+           needs.npm-build-after-fix.result != 'success' ||
+           needs.npm-run-after-fix.result != 'success' ||
+           inputs.applyFixEvenIfTestsPass == true
+         )
       }}
     runs-on: ubuntu-latest
     steps:
@@ -260,27 +295,18 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            core.info('needs.npm-test-after-fix.result: ${{ needs.npm-test-after-fix.result }}');
-            core.info('needs.npm-build-after-fix.result: ${{ needs.npm-build-after-fix.result }}');
-            core.info('needs.npm-run-after-fix.result: ${{ needs.npm-run-after-fix.result }}');
-            
-            const npmTestResult = '${{ needs.npm-test-after-fix.result }}';
-            const npmBuildResult = '${{ needs.npm-build-after-fix.result }}';
-            const npmRunResult = '${{ needs.npm-run-after-fix.result }}';
-            
-            core.info(`npmTestResult: ${npmTestResult}`);
-            core.info(`npmBuildResult: ${npmBuildResult}`);
-            core.info(`npmRunResult: ${npmRunResult}`);
-            
-            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success'
+            const npmTestResult = "${{ needs.npm-test-after-fix.result }}";
+            const npmBuildResult = "${{ needs.npm-build-after-fix.result }}";
+            const npmRunResult = "${{ needs.npm-run-after-fix.result }}";
+            const needsFix = npmTestResult !== "success" || npmBuildResult !== "success" || npmRunResult !== "success";
             core.info(`Needs Fix: ${needsFix}`);
-            
-            core.setOutput('needsFix', `${needsFix}`);
+            core.setOutput("needsFix", needsFix);
     outputs:
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
   create-pr:
     needs:
+      - select-branch
       - npm-test
       - npm-build
       - npm-run
@@ -300,7 +326,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.9.2'
     with:
-      branch: '${{ github.ref_name }}'
+      branch: "${{ needs.select-branch.outputs.branch }}"
       baseBranch: 'main'
       gitCommitMessage: 'Fix applied for failing tests'
       label: 'automerge'

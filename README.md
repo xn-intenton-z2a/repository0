@@ -32,19 +32,21 @@ The current implementation of `owl-builder` includes:
 - Displaying version information (--version).
 - Displaying detailed version info (--version-full) including name, version, and description.
 - Presenting an example OWL ontology as JSON (--example-owl).
-- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON with metadata (--fetch-owl).
+- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl). This output now includes metadata such as the fetch timestamp, source endpoint, and record count. The diagnostics command now also falls back to a backup endpoint if the primary fails.
 - Building a demo OWL ontology as JSON (--build-owl).
-- Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
-- Displaying extended OWL ontology with additional metadata (--extend).
-- **New Feature:** Displaying full extended OWL ontology with environment details (--full-extend).
-- **New Feature:** Generating a random OWL ontology as JSON (--random-owl).
-- **New Feature:** Logging output to a file (--log).
-- **New Feature:** Displaying current UTC time (--time).
-- **New Feature:** Displaying system information (--system).
-- **New Feature:** Displaying detailed diagnostics including memory usage, uptime, and load averages (--detailed-diagnostics).
-- **New Feature:** Generating a new random UUID (--uuid).
+- Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output includes metadata such as fetch timestamp, record count, latency, and source endpoint.
+- Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
+- **New Feature:** Displaying a full extended OWL ontology (--full-extend) that includes environment details such as Node.js version and platform.
+- **New Feature:** Generating a random OWL ontology (--random-owl) from a set of sample ontologies.
+- **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
+- **New Feature:** Displaying the current UTC time (--time) using a standardized format.
+- **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
+- **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
+- **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
+- **New Feature:** **Generate UUID (--uuid)** which generates and displays a new random UUID.
 
-**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately.
+**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
+
 
 ## Future Enhancements
 
@@ -108,6 +110,8 @@ Providing the `--help` flag displays a help menu with available options. Running
   node src/lib/main.js --fetch-owl
   ```
 
+  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure. The output includes metadata such as fetch timestamp, source endpoint, and record count.
+
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
   node src/lib/main.js --build-owl
@@ -117,6 +121,8 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
+
+  This command performs a self-test by fetching public API data. If the primary endpoint fails, it uses a backup endpoint. It then reports the number of records, response time, and logs the derived OWL ontology JSON (with metadata).
 
 - **Extended Functionality:**
   ```bash
