@@ -2,6 +2,7 @@
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
 // It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details and generate UUIDs.
+//
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
