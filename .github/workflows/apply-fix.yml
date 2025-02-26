@@ -260,22 +260,19 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            core.info('needs.npm-test.result:${{ needs.npm-test-after-fix.result }}');
-            core.info('needs.npm-build.result:${{ needs.npm-build-after-fix.result }}');
-            core.info('needs.npm-run.result:${{ needs.npm-run-after-fix.result }}');
-            core.info('inputs.applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+            core.info('needs.npm-test-after-fix.result: ${{ needs.npm-test-after-fix.result }}');
+            core.info('needs.npm-build-after-fix.result: ${{ needs.npm-build-after-fix.result }}');
+            core.info('needs.npm-run-after-fix.result: ${{ needs.npm-run-after-fix.result }}');
             
             const npmTestResult = '${{ needs.npm-test-after-fix.result }}';
             const npmBuildResult = '${{ needs.npm-build-after-fix.result }}';
             const npmRunResult = '${{ needs.npm-run-after-fix.result }}';
-            const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
             
             core.info(`npmTestResult: ${npmTestResult}`);
             core.info(`npmBuildResult: ${npmBuildResult}`);
             core.info(`npmRunResult: ${npmRunResult}`);
-            core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
             
-            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
+            const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success'
             core.info(`Needs Fix: ${needsFix}`);
             
             core.setOutput('needsFix', `${needsFix}`);
