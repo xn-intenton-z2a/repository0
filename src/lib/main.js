@@ -41,6 +41,16 @@ function safeExit(code) {
 }
 
 /**
+ * Helper function to print messages and then exit.
+ * @param {string[]} messages - Array of messages to print.
+ * @param {function} colorFunc - Optional function to color the message (default: chalk.green).
+ */
+function printAndExit(messages, colorFunc = (msg) => chalk.green(msg)) {
+  messages.forEach(message => console.log(colorFunc(message)));
+  safeExit(0);
+}
+
+/**
  * Main function of the CLI tool. It processes the provided command line arguments
  * and executes the corresponding functionality.
  * 
@@ -86,8 +96,7 @@ export async function main(args) {
 
   // If version flag is provided, display version info and exit
   if (args.includes("--version")) {
-    console.log(chalk.green(`Version: ${pkg.version}`));
-    safeExit(0);
+    printAndExit([`Version: ${pkg.version}`]);
     return;
   }
 
@@ -101,9 +110,10 @@ export async function main(args) {
       properties: [],
       individuals: []
     };
-    console.log(chalk.green("Example OWL Ontology as JSON:"));
-    console.log(JSON.stringify(exampleOWL, null, 2));
-    safeExit(0);
+    printAndExit([
+      "Example OWL Ontology as JSON:",
+      JSON.stringify(exampleOWL, null, 2)
+    ]);
     return;
   }
 
@@ -156,9 +166,10 @@ export async function main(args) {
         individuals: individuals
       };
     }
-    console.log(chalk.green("Fetched OWL Ontology as JSON:"));
-    console.log(JSON.stringify(owlOntology, null, 2));
-    safeExit(0);
+    printAndExit([
+      "Fetched OWL Ontology as JSON:",
+      JSON.stringify(owlOntology, null, 2)
+    ]);
     return;
   }
 
@@ -174,9 +185,10 @@ export async function main(args) {
         { id: "SampleIndividual", label: "Sample Label" }
       ]
     };
-    console.log(chalk.green("Built OWL Ontology as JSON:"));
-    console.log(JSON.stringify(builtOntology, null, 2));
-    safeExit(0);
+    printAndExit([
+      "Built OWL Ontology as JSON:",
+      JSON.stringify(builtOntology, null, 2)
+    ]);
     return;
   }
 
@@ -234,9 +246,10 @@ export async function main(args) {
         description: "This ontology includes extended functionality options."
       }
     };
-    console.log(chalk.green("Extended OWL Ontology as JSON:"));
-    console.log(JSON.stringify(extendedOntology, null, 2));
-    safeExit(0);
+    printAndExit([
+      "Extended OWL Ontology as JSON:",
+      JSON.stringify(extendedOntology, null, 2)
+    ]);
     return;
   }
 
@@ -259,8 +272,7 @@ export async function main(args) {
   if (args.includes("--time")) {
     const now = new Date(Date.now());
     const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
-    console.log(chalk.green(`Current Time: ${formattedTime}`));
-    safeExit(0);
+    printAndExit([`Current Time: ${formattedTime}`]);
     return;
   }
 
