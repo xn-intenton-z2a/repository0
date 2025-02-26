@@ -5,6 +5,11 @@ import { fileURLToPath } from "url";
 import pkg from "../../package.json" assert { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+
 const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, red: s => s } : chalkImport;
 
 // Helper function to print usage message
@@ -18,7 +23,9 @@ Options:
   --build-owl      Build a demo OWL ontology as JSON
   --diagnostics    Run diagnostics to test public API connectivity
   --extend         Display extended OWL ontology as JSON with additional metadata
-  --log            Enable logging of output to file`;
+  --log            Enable logging of output to file
+  --time           Display the current UTC time
+`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -214,6 +221,14 @@ export async function main(args) {
       safeExit(1);
       return;
     }
+    safeExit(0);
+    return;
+  }
+
+  // NEW FEATURE: If time flag is provided, display current UTC time and exit
+  if (args.includes("--time")) {
+    const formattedTime = dayjs.utc().format("YYYY-MM-DD HH:mm:ss");
+    console.log(chalk.green(`Current Time: ${formattedTime}`));
     safeExit(0);
     return;
   }
