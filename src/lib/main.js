@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // Improved consistency: unified comment style, consistent error handling, and consolidated JSON outputs for improved testability.
-// Ensures that default behavior shows usage with demo output and terminates execution without waiting for user input.
+// Extended functionality: Now includes metadata (fetch time, source endpoint, and record count) in OWL ontology outputs for data gathering commands.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -31,15 +31,15 @@ Options:
   --version               Show version
   --version-full          Show detailed version info
   --example-owl           Show an example OWL ontology as JSON
-  --fetch-owl             Fetch public API data and render as OWL ontology JSON
+  --fetch-owl             Fetch public API data and render as OWL ontology JSON (includes metadata)
   --build-owl             Build a demo OWL ontology as JSON
-  --diagnostics           Run diagnostics to test public API connectivity
+  --diagnostics           Run diagnostics to test public API connectivity (includes metadata)
   --extend                Display extended OWL ontology as JSON with additional metadata
   --log                   Enable logging of output to file
   --time                  Display the current UTC time
   --system                Display system information
   --detailed-diagnostics  Display extended diagnostics including memory usage, uptime, and load averages
-`;
+`
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -181,7 +181,7 @@ export async function main(args) {
         ontologyIRI: "http://example.org/countries.owl",
         classes: [{ id: "Country", label: "Country" }],
         properties: [],
-        individuals: individuals
+        individuals
       };
     } else {
       // Backup endpoint mapping using JSONPlaceholder users
@@ -193,9 +193,15 @@ export async function main(args) {
         ontologyIRI: "http://example.org/users.owl",
         classes: [{ id: "User", label: "User" }],
         properties: [],
-        individuals: individuals
+        individuals
       };
     }
+    // Extend OWL ontology with metadata information
+    owlOntology.metadata = {
+      fetchedAt: new Date().toISOString(),
+      sourceEndpoint: endpoint,
+      recordCount: data.length
+    };
     printAndExit([
       "Fetched OWL Ontology as JSON:",
       JSON.stringify(owlOntology, null, 2)
@@ -245,7 +251,13 @@ export async function main(args) {
         ontologyIRI: "http://example.org/diagnostics.owl",
         classes: [{ id: "Country", label: "Country" }],
         properties: [],
-        individuals: individuals
+        individuals
+      };
+      // Add metadata to diagnostics output
+      diagOwlOntology.metadata = {
+        fetchedAt: new Date().toISOString(),
+        recordCount: data.length,
+        latencyMs: latency
       };
       console.log(chalk.green(`Diagnostics: OWL Ontology JSON:\n${JSON.stringify(diagOwlOntology, null, 2)}`));
     } catch (error) {
