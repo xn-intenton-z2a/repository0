@@ -5,15 +5,24 @@ import { main } from "@src/lib/main.js";
 // Ensure that process.exit does not terminate tests
 process.env.NODE_ENV = "test";
 
-// Utility to capture async console output
+/**
+ * Utility function to capture async console output.
+ * Captures both console.log and console.error outputs.
+ * @param {Function} callback - The async function to execute.
+ * @returns {Promise<string>} - The captured output.
+ */
 async function captureConsoleAsync(callback) {
   let output = "";
   const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
   console.log = (msg) => { output += msg + "\n"; };
+  console.error = (msg) => { output += msg + "\n"; };
   await callback();
   console.log = originalConsoleLog;
+  console.error = originalConsoleError;
   return output;
 }
+
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -86,7 +95,7 @@ describe("Diagnostics Functionality", () => {
     const originalFetch = global.fetch;
     global.fetch = async () => ({
       ok: true,
-      json: async () => new Array(250).fill({})
+      json: async () => new Array(250).fill({ name: { common: "CountryName" }, region: "Region" })
     });
     const output = await captureConsoleAsync(async () => { await main(["--diagnostics"]); });
     global.fetch = originalFetch;

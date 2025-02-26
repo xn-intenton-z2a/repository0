@@ -34,7 +34,7 @@ The current implementation of `owl-builder` includes:
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
-- *Improved consistency across source and test files with standardized async outputs.*
+- *Improved consistency across source and test files with standardized async outputs and logging behavior.*
 
 ## Future Enhancements
 
