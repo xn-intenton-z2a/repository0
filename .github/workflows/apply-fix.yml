@@ -94,34 +94,36 @@ jobs:
       }}
     runs-on: ubuntu-latest
     steps:
-    - name: Set output values and log
+    - name: set-needs-fix
       id: set-needs-fix
-      shell: node
-      env:
-        NODE_OPTIONS: '--loader ts-node/esm'
-      run: |
-        const core = require('@actions/core');
-         
-        core.info('npm-test result:${{ needs.npm-test.result }}');
-        core.info('npm-build result:${{ needs.npm-build.result }}');
-        core.info('npm-run result:${{ needs.npm-run.result }}');
-        core.info('applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
-    
-        const npmTestResult = '${{ needs.npm-test.result }}';
-        const npmBuildResult = '${{ needs.npm-build.result }}';
-        const npmRunResult = '${{ needs.npm-run.result }}';
-        const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
-    
-        core.info(`npm-test result: ${npmTestResult}`);
-        core.info(`npm-build result: ${npmBuildResult}`);
-        core.info(`npm-run result: ${npmRunResult}`);
-        core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
-    
-        const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
-        core.info(`Needs Fix: ${needsFix}`);
-    
-        core.setOutput('needsFix', needsFix);
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const core = require('@actions/core');
+           
+          core.info('npm-test result:${{ needs.npm-test.result }}');
+          core.info('npm-build result:${{ needs.npm-build.result }}');
+          core.info('npm-run result:${{ needs.npm-run.result }}');
+          core.info('applyFixEvenIfTestsPass:${{ inputs.applyFixEvenIfTestsPass }}');
+      
+          const npmTestResult = '${{ needs.npm-test.result }}';
+          const npmBuildResult = '${{ needs.npm-build.result }}';
+          const npmRunResult = '${{ needs.npm-run.result }}';
+          const applyFixEvenIfTestsPass = '${{ inputs.applyFixEvenIfTestsPass }}' === 'true';
+      
+          core.info(`npm-test result: ${npmTestResult}`);
+          core.info(`npm-build result: ${npmBuildResult}`);
+          core.info(`npm-run result: ${npmRunResult}`);
+          core.info(`applyFixEvenIfTestsPass: ${applyFixEvenIfTestsPass}`);
+      
+          const needsFix = npmTestResult !== 'success' || npmBuildResult !== 'success' || npmRunResult !== 'success' || applyFixEvenIfTestsPass;
+          core.info(`Needs Fix: ${needsFix}`);
+      
+          core.setOutput('needsFix', needsFix);
     outputs:
+      npmTestResult: ${{ needs.npm-test.result }}
+      npmBuildResult: ${{ needs.npm-build.result }}
+      npmRunResult: ${{ needs.npm-run.result }}
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
   apply-fix:
@@ -149,3 +151,65 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  npm-test-after-fix:
+    needs:
+      - apply-fix
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+
+  npm-build-after-fix:
+    needs:
+      - apply-fix
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  npm-run-after-fix:
+    needs:
+      - apply-fix
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  create-pr:
+    needs:
+      - apply-fix
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.9.2'
+    with:
+      branch: '${{ github.ref_name }}'
+      baseBranch: 'main'
+      gitCommitMessage: 'Fix applied for failing tests'
+      label: 'automerge'
