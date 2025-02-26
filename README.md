@@ -29,7 +29,7 @@ The current implementation of `owl-builder` includes:
 - Showing version information (--version).
 - Displaying detailed version info (--version-full) including name, version, and description.
 - Presenting an example OWL ontology as JSON (--example-owl).
-- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as an OWL ontology JSON (--fetch-owl).
+- Fetching public API data (from REST Countries or JSONPlaceholder) and rendering it as OWL ontology JSON (--fetch-owl).
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics).
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
@@ -39,7 +39,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
 
-**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates without waiting for further user input.
+**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
 ## Future Enhancements
 
