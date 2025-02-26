@@ -28,6 +28,7 @@ Options:
   --help                  Show help
   --help-json             Show help in JSON format
   --version               Show version
+  --version-full          Show detailed version info
   --example-owl           Show an example OWL ontology as JSON
   --fetch-owl             Fetch public API data and render as OWL ontology JSON
   --build-owl             Build a demo OWL ontology as JSON
@@ -95,6 +96,7 @@ export async function main(args) {
         "--help",
         "--help-json",
         "--version",
+        "--version-full",
         "--example-owl",
         "--fetch-owl",
         "--build-owl",
@@ -109,6 +111,16 @@ export async function main(args) {
     console.log(chalk.green("Help JSON:"));
     console.log(JSON.stringify(helpJson, null, 2));
     safeExit(0);
+    return;
+  }
+
+  // NEW FEATURE: Detailed version info command
+  if (args.includes("--version-full")) {
+    printAndExit([
+      `Name: ${pkg.name}`,
+      `Version: ${pkg.version}`,
+      `Description: ${pkg.description}`
+    ]);
     return;
   }
 
@@ -261,7 +273,8 @@ export async function main(args) {
       ],
       metadata: {
         applied: true,
-        description: "This ontology includes extended functionality options."
+        description: "This ontology includes extended functionality options.",
+        timestamp: new Date().toISOString()
       }
     };
     printAndExit([
