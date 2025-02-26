@@ -8,11 +8,18 @@ import { appendFile } from "fs/promises";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Updated import to include .js extension
 
+// Extend dayjs to support UTC formatting
 dayjs.extend(utc);
 
-const chalk = process.env.NODE_ENV === "test" ? { blue: s => s, green: s => s, red: s => s } : chalkImport;
+// Use a no-op chalk when in test mode for consistency
+const chalk = process.env.NODE_ENV === "test"
+  ? { blue: s => s, green: s => s, red: s => s }
+  : chalkImport;
 
-// Helper function to print usage message
+/**
+ * Prints the usage instructions for the CLI tool.
+ * @param {boolean} withDemo - Whether to include the demo output message.
+ */
 function printUsage(withDemo) {
   const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n`;
   console.log(chalk.blue(usageMsg));
@@ -21,13 +28,22 @@ function printUsage(withDemo) {
   }
 }
 
-// Helper function for safe exit (skips process.exit during tests)
+/**
+ * Safely exits the process unless in test environment.
+ * @param {number} code - The exit code.
+ */
 function safeExit(code) {
   if (process.env.NODE_ENV !== "test") {
     process.exit(code);
   }
 }
 
+/**
+ * Main function of the CLI tool. It processes the provided command line arguments
+ * and executes the corresponding functionality.
+ * 
+ * @param {string[]} args - The command line arguments.
+ */
 export async function main(args) {
   // If no arguments are provided, display usage with demo output and exit
   if (!args || args.length === 0) {
@@ -204,7 +220,7 @@ export async function main(args) {
     const logMessage = "Logging output to file 'owl-builder.log'";
     console.log(chalk.green(logMessage));
     try {
-      await appendFile('owl-builder.log', new Date().toISOString() + " " + logMessage + "\n");
+      await appendFile('owl-builder.log', `${new Date().toISOString()} ${logMessage}\n`);
     } catch (error) {
       console.error(chalk.red("Error writing log file:"), error);
       safeExit(1);
