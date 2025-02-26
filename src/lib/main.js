@@ -61,7 +61,7 @@ function safeExit(code) {
  * @param {string[]} messages - Array of messages to print.
  * @param {function} colorFunc - Optional function to color the message (default: chalk.green).
  */
-function printAndExit(messages, colorFunc = (msg) => chalk.green(msg)) {
+function printAndExit(messages, colorFunc = msg => chalk.green(msg)) {
   messages.forEach(message => console.log(colorFunc(message)));
   safeExit(0);
 }
@@ -288,7 +288,6 @@ export async function main(args) {
 
   // NEW FEATURE: If time flag is provided, display current UTC time and exit
   if (args.includes("--time")) {
-    // Use Date.now() directly to allow test overrides to work
     const formattedTime = dayjs.utc(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     printAndExit([`Current Time: ${formattedTime}`]);
     return;

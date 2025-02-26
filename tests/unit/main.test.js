@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
-// Ensure that process.exit does not terminate tests
+// Set test environment variable to prevent process.exit from terminating tests
 process.env.NODE_ENV = "test";
 
 /**
