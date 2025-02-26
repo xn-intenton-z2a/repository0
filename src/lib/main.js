@@ -7,6 +7,7 @@ import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Updated import to include .js extension
+import os from "os";
 
 // Extend dayjs to support UTC formatting
 dayjs.extend(utc);
@@ -21,7 +22,7 @@ const chalk = process.env.NODE_ENV === "test"
  * @param {boolean} withDemo - Whether to include the demo output message.
  */
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --help-json      Show help in JSON format\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --help-json      Show help in JSON format\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n  --system         Display system information\n`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -85,7 +86,8 @@ export async function main(args) {
         "--diagnostics",
         "--extend",
         "--log",
-        "--time"
+        "--time",
+        "--system"
       ]
     };
     console.log(chalk.green("Help JSON:"));
@@ -273,6 +275,21 @@ export async function main(args) {
     const now = new Date(Date.now());
     const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
     printAndExit([`Current Time: ${formattedTime}`]);
+    return;
+  }
+
+  // NEW FEATURE: If system flag is provided, display system information and exit
+  if (args.includes("--system")) {
+    const systemInfo = {
+      platform: os.platform(),
+      arch: os.arch(),
+      nodeVersion: process.version,
+      cpu: os.cpus()[0].model
+    };
+    printAndExit([
+      "System Information:",
+      JSON.stringify(systemInfo, null, 2)
+    ]);
     return;
   }
 

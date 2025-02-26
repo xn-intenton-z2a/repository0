@@ -151,6 +151,25 @@ describe("Time Functionality", () => {
   });
 });
 
+describe("System Information Functionality", () => {
+  test("should display system information when --system is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--system"]); });
+    expect(output).toContain("System Information:");
+    const jsonString = output.split("System Information:")[1].trim();
+    let sysInfo;
+    try {
+      sysInfo = JSON.parse(jsonString);
+    } catch (error) {
+      sysInfo = null;
+    }
+    expect(sysInfo).not.toBeNull();
+    expect(sysInfo).toHaveProperty("platform");
+    expect(sysInfo).toHaveProperty("arch");
+    expect(sysInfo).toHaveProperty("nodeVersion");
+    expect(sysInfo).toHaveProperty("cpu");
+  });
+});
+
 describe("Unknown Arguments Functionality", () => {
   test("should log unknown arguments when an unrecognized flag is passed", async () => {
     const args = ["--unknown", "abc"];

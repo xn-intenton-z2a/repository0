@@ -35,6 +35,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
+- **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - *Improved consistency across source and test files with standardized async outputs and logging behavior.*
 
 ## Future Enhancements
@@ -125,6 +126,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays the current UTC time in the format `YYYY-MM-DD HH:mm:ss`.
 
+- **Display System Information:**
+  ```bash
+  node src/lib/main.js --system
+  ```
+  This command displays details about the system including platform, architecture, Node.js version, and CPU model.
+
 - **Default Demo Output:**
   ```bash
   npm run start
@@ -143,6 +150,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --extend         Display extended OWL ontology as JSON with additional metadata
     --log            Enable logging of output to file
     --time           Display the current UTC time
+    --system         Display system information
   Demo Output: Run with: []
   ```
 
