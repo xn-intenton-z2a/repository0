@@ -34,6 +34,7 @@ The current implementation of `owl-builder` includes:
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
+- **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - *Improved consistency across source and test files with standardized async outputs and logging behavior.*
 
 ## Future Enhancements
@@ -71,6 +72,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --help
   ```
+
+- **Display Help in JSON Format:**
+  ```bash
+  node src/lib/main.js --help-json
+  ```
+  This command outputs the help information in a machine-readable JSON format.
 
 - **Display Version:**
   ```bash
@@ -116,7 +123,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --time
   ```
-  This new command displays the current UTC time in the format `YYYY-MM-DD HH:mm:ss`.
+  This command displays the current UTC time in the format `YYYY-MM-DD HH:mm:ss`.
 
 - **Default Demo Output:**
   ```bash
@@ -127,6 +134,7 @@ Providing the `--help` flag displays a help menu with available options. Running
   Usage: node src/lib/main.js [options]
   Options:
     --help           Show help
+    --help-json      Show help in JSON format
     --version        Show version
     --example-owl    Show an example OWL ontology as JSON
     --fetch-owl      Fetch public API data and render as OWL ontology JSON

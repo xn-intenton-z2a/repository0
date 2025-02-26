@@ -21,7 +21,7 @@ const chalk = process.env.NODE_ENV === "test"
  * @param {boolean} withDemo - Whether to include the demo output message.
  */
 function printUsage(withDemo) {
-  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n`;
+  const usageMsg = `Usage: node src/lib/main.js [options]\nOptions:\n  --help           Show help\n  --help-json      Show help in JSON format\n  --version        Show version\n  --example-owl    Show an example OWL ontology as JSON\n  --fetch-owl      Fetch public API data and render as OWL ontology JSON\n  --build-owl      Build a demo OWL ontology as JSON\n  --diagnostics    Run diagnostics to test public API connectivity\n  --extend         Display extended OWL ontology as JSON with additional metadata\n  --log            Enable logging of output to file\n  --time           Display the current UTC time\n`;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
     console.log(chalk.green("Demo Output: Run with: []"));
@@ -57,6 +57,29 @@ export async function main(args) {
   // If help flag is provided, display usage without demo output and exit
   if (args.includes("--help")) {
     printUsage(false);
+    safeExit(0);
+    return;
+  }
+
+  // NEW FEATURE: If help-json flag is provided, display help in JSON format and exit
+  if (args.includes("--help-json")) {
+    const helpJson = {
+      usage: "node src/lib/main.js [options]",
+      options: [
+        "--help",
+        "--help-json",
+        "--version",
+        "--example-owl",
+        "--fetch-owl",
+        "--build-owl",
+        "--diagnostics",
+        "--extend",
+        "--log",
+        "--time"
+      ]
+    };
+    console.log(chalk.green("Help JSON:"));
+    console.log(JSON.stringify(helpJson, null, 2));
     safeExit(0);
     return;
   }
