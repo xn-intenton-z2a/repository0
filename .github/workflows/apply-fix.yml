@@ -37,7 +37,7 @@ on:
       - apply-formatting
       - apply-update
   schedule:
-    - cron: '15 */2 * * *' # Run every 1 hour at 0 minutes past
+    - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
     #- cron: '15 2 * * *' # Run at 2:15am
 
 jobs:
@@ -156,10 +156,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: npm test
 
@@ -172,10 +181,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: npm run build
 
@@ -188,10 +206,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git pull origin ${{ github.ref_name }}
+          git status -v
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
