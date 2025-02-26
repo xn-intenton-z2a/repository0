@@ -253,7 +253,7 @@ describe("Detailed Diagnostics Functionality", () => {
 
 describe("Unknown Arguments Functionality", () => {
   test("logs unknown arguments when an unrecognized flag is passed", async () => {
-    const args = ["--unknown", "abc"]; 
+    const args = ["--unknown", "abc"];
     const output = await captureConsoleAsync(async () => { await main(args); });
     expect(output).toContain(`Run with: ${JSON.stringify(args)}`);
   });
