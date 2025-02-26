@@ -6,7 +6,7 @@ import pkg from "../../package.json" assert { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js"; // Updated import to include .js extension
 
 dayjs.extend(utc);
 
@@ -227,7 +227,8 @@ export async function main(args) {
 
   // NEW FEATURE: If time flag is provided, display current UTC time and exit
   if (args.includes("--time")) {
-    const formattedTime = dayjs.utc().format("YYYY-MM-DD HH:mm:ss");
+    const now = new Date(Date.now());
+    const formattedTime = dayjs.utc(now).format("YYYY-MM-DD HH:mm:ss");
     console.log(chalk.green(`Current Time: ${formattedTime}`));
     safeExit(0);
     return;
