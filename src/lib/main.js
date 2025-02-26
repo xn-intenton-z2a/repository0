@@ -2,13 +2,12 @@
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
 // It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details and generate UUIDs.
-//
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
 import chalkImport from "chalk";
 import { appendFile } from "fs/promises";
-im port dayjs from "dayjs";
+import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js"; // Including .js extension for clarity
 import os from "os";
 import { v4 as uuidv4 } from "uuid"; // New dependency for UUID generation
