@@ -38,7 +38,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
 
-**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates.
+**Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates without waiting for further user input.
 
 ## Future Enhancements
 
@@ -69,7 +69,7 @@ To use the CLI tool, run:
 node src/lib/main.js --help
 ```
 
-Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output and then exit.
+Providing the `--help` flag displays a help menu with available options. Running without any arguments will display usage instructions along with a demo output and then exit immediately.
 
 ### Example Commands
 

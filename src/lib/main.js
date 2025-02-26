@@ -73,7 +73,7 @@ function printAndExit(messages, colorFunc = msg => chalk.green(msg)) {
  * @param {string[]} args - The command line arguments.
  */
 export async function main(args) {
-  // If no arguments are provided, display usage with demo output and exit
+  // If no arguments are provided, display usage with demo output and exit immediately
   if (!args || args.length === 0) {
     printUsage(true);
     safeExit(0);
