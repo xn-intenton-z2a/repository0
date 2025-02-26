@@ -40,10 +40,10 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** Generating a random OWL ontology (--random-owl) from a set of sample ontologies.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
-- **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
 - **New Feature:** Displaying system information (--system) including platform, architecture, Node.js version, and CPU model.
 - **New Feature:** **Detailed Diagnostics (--detailed-diagnostics)** which displays extended diagnostics including memory usage, uptime, and load averages.
 - **New Feature:** **Generate UUID (--uuid)** which generates and displays a new random UUID.
+- **New Feature:** **Analyze OWL Ontology (--analyze-owl)** which analyzes a built OWL ontology and reports the number of classes, properties, and individuals.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
@@ -162,6 +162,11 @@ Providing the `--help` flag displays a help menu with available options. Running
 - **Generate UUID:**
   ```bash
   node src/lib/main.js --uuid
+  ```
+
+- **Analyze OWL Ontology:**
+  ```bash
+  node src/lib/main.js --analyze-owl
   ```
 
 - **Default Demo Output:**

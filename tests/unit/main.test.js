@@ -251,6 +251,16 @@ describe("Detailed Diagnostics Functionality", () => {
   });
 });
 
+describe("Analyze OWL Functionality", () => {
+  test("displays analysis of built ontology when --analyze-owl is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--analyze-owl"]); });
+    expect(output).toContain("OWL Ontology Analysis:");
+    expect(output).toContain("classCount");
+    expect(output).toContain("propertyCount");
+    expect(output).toContain("individualCount");
+  });
+});
+
 describe("Unknown Arguments Functionality", () => {
   test("logs unknown arguments when an unrecognized flag is passed", async () => {
     const args = ["--unknown", "abc"];
