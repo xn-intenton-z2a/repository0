@@ -79,7 +79,7 @@ jobs:
               branch = context.ref.startsWith("refs/heads/") ? context.ref.substring("refs/heads/".length) : context.ref;
             }
             core.info(`Selected branch: ${branch}`);
-            return { branch };
+            setOutput("branch", branch);
     outputs:
       branch: ${{ steps.determine.outputs.branch }}
 
