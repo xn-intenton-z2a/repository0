@@ -33,6 +33,7 @@ The current implementation of `owl-builder` includes:
 - Building a demo OWL ontology as JSON (--build-owl).
 - Running diagnostics to test public API connectivity and log relevant details (--diagnostics). The diagnostics output also includes metadata.
 - Displaying extended functionality (--extend) that outputs an extended OWL ontology with additional metadata.
+- **New Feature:** Generating a random OWL ontology (--random-owl) from a set of sample ontologies.
 - **New Feature:** Logging output to a file (--log) which appends a log entry to `owl-builder.log`.
 - **New Feature:** Displaying the current UTC time (--time) using a standardized format.
 - **New Feature:** Displaying the help information in JSON format (--help-json) for machine-readable output.
@@ -129,6 +130,12 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```
   This command displays an extended OWL ontology as JSON, including additional metadata to showcase enhanced functionality.
 
+- **Random OWL Ontology:**
+  ```bash
+  node src/lib/main.js --random-owl
+  ```
+  This command generates and displays a random OWL ontology as JSON from a set of predefined samples.
+
 - **Enable Logging:**
   ```bash
   node src/lib/main.js --log
@@ -170,6 +177,7 @@ Providing the `--help` flag displays a help menu with available options. Running
     --build-owl             Build a demo OWL ontology as JSON
     --diagnostics           Run diagnostics to test public API connectivity (with metadata)
     --extend                Display extended OWL ontology as JSON with additional metadata
+    --random-owl            Generate a random OWL ontology as JSON
     --log                   Enable logging of output to file
     --time                  Display the current UTC time
     --system                Display system information

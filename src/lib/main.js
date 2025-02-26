@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
-// It now follows a more unified style across all functionalities.
+// It now follows a more unified style across all functionalities, including a new feature to generate a random OWL ontology.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -35,6 +35,7 @@ Options:
   --build-owl             Build a demo OWL ontology as JSON
   --diagnostics           Run diagnostics to test public API connectivity (includes metadata)
   --extend                Display extended OWL ontology as JSON with additional metadata
+  --random-owl            Generate a random OWL ontology as JSON
   --log                   Enable logging of output to file
   --time                  Display the current UTC time
   --system                Display system information
@@ -99,6 +100,7 @@ export async function main(args) {
         "--build-owl",
         "--diagnostics",
         "--extend",
+        "--random-owl",
         "--log",
         "--time",
         "--system",
@@ -281,6 +283,35 @@ export async function main(args) {
     };
     console.log(chalk.green(`Extended OWL Ontology as JSON:\n${JSON.stringify(extendedOntology, null, 2)}`));
     safeExit(0);
+    return;
+  }
+
+  // New Feature: Generate a random OWL ontology
+  if (args.includes("--random-owl")) {
+    const samples = [
+      {
+        ontologyIRI: "http://example.org/owl1",
+        classes: [{ id: "Class1", label: "Class 1" }],
+        properties: [],
+        individuals: [{ id: "Individual1", label: "Individual 1" }]
+      },
+      {
+        ontologyIRI: "http://example.org/owl2",
+        classes: [{ id: "Class2", label: "Class 2" }],
+        properties: [],
+        individuals: [{ id: "Individual2", label: "Individual 2" }]
+      }
+    ];
+    const randomIndex = Math.floor(Math.random() * samples.length);
+    const randomOWL = samples[randomIndex];
+    randomOWL.metadata = {
+      generatedAt: new Date().toISOString(),
+      randomSeed: Math.random().toString(36).substr(2, 5)
+    };
+    printAndExit([
+      "Random OWL Ontology as JSON:",
+      JSON.stringify(randomOWL, null, 2)
+    ]);
     return;
   }
 
