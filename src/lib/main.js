@@ -29,12 +29,14 @@ function printUsage(withDemo) {
 }
 
 /**
- * Safely exits the process unless in test environment.
+ * Safely exits the process unless in test environment. In test mode, simply returns.
  * @param {number} code - The exit code.
  */
 function safeExit(code) {
   if (process.env.NODE_ENV !== "test") {
     process.exit(code);
+  } else {
+    return;
   }
 }
 
