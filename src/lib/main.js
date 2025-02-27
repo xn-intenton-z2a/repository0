@@ -150,6 +150,8 @@ export async function main(args) {
     try {
       const asciiArt = await figletAsync(`Version: ${pkg.version}`);
       console.log(chalk.green(asciiArt));
+      // Added plain text version line to ensure 'Version:' is included in output
+      console.log(chalk.green(`Version: ${pkg.version}`));
     } catch (err) {
       console.error(chalk.red("Error generating ASCII art version:"), err);
     }
