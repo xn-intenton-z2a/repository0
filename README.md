@@ -7,7 +7,7 @@ The repository is intended as a template that includes:
 * Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows in a minimal CLI tool.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
@@ -20,6 +20,7 @@ The repository is intended as a template that includes:
     - `--version`: Displays the current version.
     - `--diagnostics`: Runs a diagnostic check.
     - `--greet`: Outputs a greeting message.
+    - **`--sum`: Computes the sum of provided numeric arguments.**
   
 - **Dependencies:**  
   The `package.json` file manages dependencies, defines scripts for building, testing, and running the application, and ensures compatibility with Node 20.
@@ -39,6 +40,7 @@ The repository is intended as a template that includes:
 5. Run diagnostics with `npm run diagnostics` which outputs: "Diagnostics: All systems operational.".
 6. Check the version with `npm run version`.
 7. Display a greeting using `node src/lib/main.js --greet`.
+8. Compute a sum by running, for example, `node src/lib/main.js --sum 3 4 5` which outputs: "Sum: 12".
 
 ## Future Roadmap
 
