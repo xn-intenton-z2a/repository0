@@ -27,7 +27,9 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]",
+    );
     consoleSpy.mockRestore();
   });
 
