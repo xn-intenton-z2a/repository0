@@ -4,8 +4,10 @@
 import { fileURLToPath } from "url";
 
 export function main(args = []) {
-  // Ensure args defaults to empty array if undefined
-  // Currently, the CLI simply logs the arguments in JSON format.
+  if (args.includes("--help")) {
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help]");
+    return;
+  }
   console.log(`Run with: ${JSON.stringify(args)}`);
   
   // Future enhancement: Add more comprehensive command-line options and help documentation.

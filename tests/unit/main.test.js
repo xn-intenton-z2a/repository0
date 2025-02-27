@@ -23,4 +23,12 @@ describe("Default Demo Output", () => {
     expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
     consoleSpy.mockRestore();
   });
+
+  test("should display usage message when --help flag is provided", () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    const args = ["--help"];
+    main(args);
+    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help]");
+    consoleSpy.mockRestore();
+  });
 });
