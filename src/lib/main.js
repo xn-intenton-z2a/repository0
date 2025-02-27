@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--divide] [numbers...]");
     return;
   }
 
@@ -59,6 +59,30 @@ export async function main(args = []) {
       .filter(num => !isNaN(num));
     const product = numArgs.reduce((acc, curr) => acc * curr, 1);
     console.log(`Multiply: ${product}`);
+    return;
+  }
+
+  // Extended functionality: division calculation
+  if (args.includes("--divide")) {
+    const divideIndex = args.indexOf("--divide");
+    // Consider all arguments after --divide that do not start with '--' as numbers, then filter out NaN values
+    const numArgs = args.slice(divideIndex + 1)
+      .filter(arg => !arg.startsWith("--"))
+      .map(Number)
+      .filter(num => !isNaN(num));
+    if (numArgs.length === 0) {
+      console.log("Divide: No numbers provided.");
+    } else {
+      let result = numArgs[0];
+      for (let i = 1; i < numArgs.length; i++) {
+        if (numArgs[i] === 0) {
+          console.log("Divide: Error - Division by zero.");
+          return;
+        }
+        result /= numArgs[i];
+      }
+      console.log(`Divide: ${result}`);
+    }
     return;
   }
 

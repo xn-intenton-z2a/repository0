@@ -12,16 +12,16 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` are designed to consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file has been extended to support new CLI flags including a multiplication calculation and now features improved input validation that filters out non-numeric values for arithmetic operations.
+  The main functionality is in `src/lib/main.js`. This file has been extended to support new CLI flags including multiplication, division, sum calculations and greeting messages. Input validation has been improved for arithmetic operations.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and also defines some of the test and build scripts.
+  `package.json` can be modified by the workflows to add or update dependencies and also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains consistent. The test file `tests/unit/main.test.js` has been updated to cover all supported flags, including the improved numeric validation for sum and multiplication.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains consistent. The test file `tests/unit/main.test.js` now covers all supported flags including the new division operation.
 
 - **Docs:**  
   This `README.md` is maintained and updated by the workflows.

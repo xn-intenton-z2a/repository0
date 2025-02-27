@@ -27,7 +27,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--divide] [numbers...]");
     consoleSpy.mockRestore();
   });
 
@@ -64,6 +64,20 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--multiply", "3", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Multiply: 12");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes division when --divide flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "12", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: 4");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles division by zero", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "12", "0"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: Error - Division by zero.");
     consoleSpy.mockRestore();
   });
 });
