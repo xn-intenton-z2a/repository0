@@ -15,17 +15,16 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` are designed to consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and has been extended to support new CLI flags including a multiplication calculation.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  The test file `tests/unit/main.test.js` can be modified by the workflow to fix any version of behavior where changes are needed.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains consistent. The test file `tests/unit/main.test.js` has been updated to cover all supported flags, including the new multiplication feature.
 
 - **Docs:**  
-  This `README.md` can be modified by the workflow.
+  This `README.md` is maintained and updated by the workflows.
 
 ## Getting Started
 
@@ -39,16 +38,11 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This coding system is still in development and may not be suitable for production use.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic-lib` Coding System?
-
-* Do you have access to an OpenAI account with necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how such a system can be built?
-* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 END_README_BEGINNING
+
+---
 
 START_README_END
 ### Contributing

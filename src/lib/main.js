@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
     return;
   }
 
@@ -43,6 +43,16 @@ export async function main(args = []) {
     const numArgs = args.slice(sumIndex + 1).filter(arg => !arg.startsWith("--")).map(Number);
     const total = numArgs.reduce((acc, curr) => acc + curr, 0);
     console.log(`Sum: ${total}`);
+    return;
+  }
+
+  // New feature: multiplication calculation
+  if (args.includes("--multiply")) {
+    const multiplyIndex = args.indexOf("--multiply");
+    // Consider all arguments after --multiply that do not start with '--' as numbers
+    const numArgs = args.slice(multiplyIndex + 1).filter(arg => !arg.startsWith("--")).map(Number);
+    const product = numArgs.reduce((acc, curr) => acc * curr, 1);
+    console.log(`Multiply: ${product}`);
     return;
   }
 
