@@ -11,6 +11,13 @@ export async function main(args = []) {
 
   if (args.includes("--help")) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
+    console.log("  --diagnostics: Check system diagnostics");
+    console.log("  --help       : Display this help message with flag descriptions");
+    console.log("  --version    : Show current version of the application");
+    console.log("  --greet      : Display a greeting message");
+    console.log("  --sum        : Compute the sum of the following numbers");
+    console.log("  --multiply   : Compute the product of the following numbers");
+    console.log("  --subtract   : Subtract each subsequent number from the first provided number");
     return;
   }
 
@@ -69,6 +76,11 @@ export async function main(args = []) {
       .filter(num => !isNaN(num));
     if (numArgs.length === 0) {
       console.log("Subtract: No numbers provided");
+      return;
+    }
+    // When only one number is provided, return it as the result
+    if (numArgs.length === 1) {
+      console.log(`Subtract: ${numArgs[0]}`);
       return;
     }
     const result = numArgs.slice(1).reduce((acc, curr) => acc - curr, numArgs[0]);
