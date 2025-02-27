@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("outputs provided arguments", async () => {
+  test("outputs provided arguments for diagnostics", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--diagnostics"];
     await main(args);
@@ -27,7 +27,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [numbers...]");
+    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
     consoleSpy.mockRestore();
   });
 
@@ -64,6 +64,13 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--sum", "3", "4", "5"]);
     expect(consoleSpy).toHaveBeenCalledWith("Sum: 12");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes multiplication when --multiply flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--multiply", "3", "4"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Multiply: 12");
     consoleSpy.mockRestore();
   });
 });
