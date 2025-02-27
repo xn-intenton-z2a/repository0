@@ -18,7 +18,8 @@ export async function main(args = []) {
     try {
       // Dynamically import package.json to retrieve version
       const pkg = await import("../../package.json", { assert: { type: "json" } });
-      console.log(`Version: ${pkg.default.version}`);
+      const version = pkg.default ? pkg.default.version : pkg.version;
+      console.log(`Version: ${version}`);
     } catch (err) {
       console.error("Could not retrieve version:", err);
     }
