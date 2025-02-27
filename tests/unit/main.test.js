@@ -85,6 +85,14 @@ describe("Version Functionality", () => {
 });
 
 
+describe("ASCII Version Functionality", () => {
+  test("displays ASCII art for version when --ascii-version is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--ascii-version"]); });
+    expect(output).toContain("Version:");
+  });
+});
+
+
 describe("Example OWL Functionality", () => {
   test("displays example OWL ontology as JSON when --example-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--example-owl"]); });
