@@ -22,7 +22,7 @@ The repository is intended as a template that includes:
     - `--greet` to display a greeting message,
     - `--sum` to calculate the sum of provided numbers,
     - `--multiply` to compute the product of provided numbers,
-    - `--subtract` to compute the subtraction of provided numbers (subtracting each subsequent number from the first).
+    - `--subtract` to subtract each subsequent number from the first provided number.
 
 - **Default Behavior:**
   When no arguments are provided, the program displays a usage message followed by a demo output and exits. This ensures users see the intended instructions without needing further input.

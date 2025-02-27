@@ -28,9 +28,14 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]"
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
+    expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
+    expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
+    expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
+    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of the following numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of the following numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number");
     consoleSpy.mockRestore();
   });
 
@@ -71,10 +76,17 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("computes subtraction when --subtract flag is provided", async () => {
+  test("computes subtraction when --subtract flag is provided with multiple numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--subtract", "10", "3", "2"]);
     expect(consoleSpy).toHaveBeenCalledWith("Subtract: 5");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes subtraction when --subtract flag is provided with a single number", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--subtract", "10"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Subtract: 10");
     consoleSpy.mockRestore();
   });
 
