@@ -15,17 +15,16 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file drives the CLI tool and is updated by the workflows to deliver the repository’s capabilities.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
+  The `package.json` file lists all dependencies and scripts used for testing, building, formatting, and linting.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow (`tests/unit/main.test.js`), duplicate `main.test.js` to fix a version of the behavior where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder (e.g., `tests/unit/main.test.js`) ensure that the CLI tool behaves as expected.
 
-- **Docs**  
-  This `README.md` can be modified by the workflow.
+- **Documentation:**  
+  This `README.md` provides an overview of the project and its capabilities. For detailed contribution guidelines, please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
 
@@ -40,7 +39,7 @@ The repository is intended as a template that includes:
 
 ## intentïon `agentic‑lib`
 
-The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable autonomous, self-evolving code in your repository. By integrating these workflows, the repository stays up-to-date with automated testing, formatting, and dependency management.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
@@ -48,6 +47,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 END_README_BEGINNING
 
+START_README_END
 ### Contributing
 
 We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
@@ -55,5 +55,4 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
-
 END_README_END
