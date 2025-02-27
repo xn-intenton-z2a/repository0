@@ -11,7 +11,7 @@ describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main();
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
@@ -29,7 +29,7 @@ describe("CLI Behavior", () => {
     const args = ["--help"];
     await main(args);
     expect(consoleSpy).toHaveBeenCalledWith(
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]"
     );
     consoleSpy.mockRestore();
   });
@@ -37,7 +37,7 @@ describe("CLI Behavior", () => {
   test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(null);
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
@@ -68,6 +68,13 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--multiply", "3", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Multiply: 12");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes subtraction when --subtract flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--subtract", "10", "3", "2"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Subtract: 5");
     consoleSpy.mockRestore();
   });
 

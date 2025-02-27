@@ -15,22 +15,23 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file handles a command-line interface with multiple flags including:
+  The main functionality is in `src/lib/main.js`. This file handles a command-line interface supporting several flags, including:
     - `--help` for usage instructions,
     - `--version` to print the current version,
     - `--diagnostics` to check system operation,
     - `--greet` to display a greeting message,
     - `--sum` to calculate the sum of provided numbers,
-    - `--multiply` to compute the product of provided numbers.
+    - `--multiply` to compute the product of provided numbers,
+    - `--subtract` to compute the subtraction of provided numbers (subtracting each subsequent number from the first).
 
 - **Default Behavior:**
-  When no arguments are provided, the program now displays a usage message followed by a demo output and exits. This ensures users see the intended instructions without requiring further input.
+  When no arguments are provided, the program displays a usage message followed by a demo output and exits. This ensures users see the intended instructions without needing further input.
 
 - **Dependencies:**  
-  The `package.json` file is maintained by the workflows to manage and update dependencies as well as to define test and build scripts.
+  The `package.json` file manages dependencies and defines test and build scripts (which may be updated by the workflows).
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure consistency of the CLI behavior as implemented in `src/lib/main.js`.
+  Unit tests in the `tests/unit/` folder ensure consistency of CLI behavior as implemented in `src/lib/main.js`.
 
 - **Future Features:**
   Future enhancements may include more advanced mathematical operations, interactive mode support, integration with external APIs for enriched diagnostics, and further automation of deployment processes.
@@ -40,7 +41,7 @@ The repository is intended as a template that includes:
 
 ## Getting Started
 
-This repository is pre-configured with necessary workflows and scripts. To run the CLI demo, supply the following secrets:
+This repository is pre-configured with necessary workflows and scripts. To run the CLI demo, supply the following secret:
 - `CHATGPT_API_SECRET_KEY` - Required for automated workflows interacting with the OpenAI API. Set this secret under *Settings > Secrets and Variables > Actions* in your repository.
 
 ## intentïon `agentic-lib`

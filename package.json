@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.3.1-4",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Extended to support sum and multiplication calculations with improved input validation.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Extended to support sum, multiplication, and subtraction calculations with improved input validation.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
