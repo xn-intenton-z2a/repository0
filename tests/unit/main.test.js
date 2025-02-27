@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
@@ -9,8 +9,18 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
+  test("should terminate without error and output an empty array when no args provided", () => {
+    const consoleSpy = vi.spyOn(console, "log");
     main();
+    expect(consoleSpy).toHaveBeenCalledWith(`Run with: []`);
+    consoleSpy.mockRestore();
+  });
+
+  test("should work with provided arguments", () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    const args = ["--diagnostics"];
+    main(args);
+    expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
+    consoleSpy.mockRestore();
   });
 });

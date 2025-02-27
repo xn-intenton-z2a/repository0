@@ -3,7 +3,8 @@
 
 import { fileURLToPath } from "url";
 
-export function main(args) {
+export function main(args = []) {
+  // Ensure args defaults to empty array if undefined
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
