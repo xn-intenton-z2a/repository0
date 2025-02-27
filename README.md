@@ -12,49 +12,54 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` enabling automated tests, builds, formatting, and issue management.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file handles a command-line interface supporting several flags, including:
-    - `--help` for usage instructions,
-    - `--version` to print the current version,
-    - `--diagnostics` to check system operation,
-    - `--greet` to display a greeting message,
-    - `--sum` to calculate the sum of provided numbers,
-    - `--multiply` to compute the product of provided numbers,
-    - `--subtract` to subtract each subsequent number from the first provided number.
+  The main functionality resides in `src/lib/main.js`. This CLI tool supports various commands including:
+    - `--help` for usage instructions
+    - `--version` to display the current version
+    - `--diagnostics` to check system health
+    - `--greet` to display a greeting message
+    - `--sum` to compute the sum of provided numbers
+    - `--multiply` to calculate the product of numbers
+    - `--subtract` to subtract subsequent numbers from the first
 
 - **Default Behavior:**
-  When no arguments are provided, the program displays a usage message followed by a demo output and exits. This ensures users see the intended instructions without needing further input.
-
-- **Dependencies:**  
-  The `package.json` file manages dependencies and defines test and build scripts (which may be updated by the workflows).
+  When no arguments are provided, the tool displays a usage message and a demo output indicating no arguments were passed.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure consistency of CLI behavior as implemented in `src/lib/main.js`.
+  Unit tests in the `tests/unit/` folder ensure consistency of behavior as implemented in the main script.
 
-- **Future Features:**
-  Future enhancements may include more advanced mathematical operations, interactive mode support, integration with external APIs for enriched diagnostics, and further automation of deployment processes.
+- **Dependencies:**
+  The `package.json` file lists all dependencies required for running, testing, and maintaining the project. It also contains scripts for build, formatting, linting, and testing.
 
-- **Docs:**  
-  This `README.md` is maintained and updated automatically by the CI/CD workflows.
+## Future Features
+
+- **Interactive Mode:** An interactive CLI mode is planned to improve user experience.
+- **Enhanced Diagnostics:** Future updates will include more detailed system diagnostics and error reporting.
+- **Extended Math Operations:** Additional mathematical functions and validations may be introduced.
+- **External API Integrations:** Expansion to include external data validations and interfacing with other APIs.
 
 ## Getting Started
 
-This repository is pre-configured with necessary workflows and scripts. To run the CLI demo, supply the following secret:
-- `CHATGPT_API_SECRET_KEY` - Required for automated workflows interacting with the OpenAI API. Set this secret under *Settings > Secrets and Variables > Actions* in your repository.
+This repository comes pre-configured with the necessary workflows. To run the CLI demo, execute:
+```bash
+npm run start [--help]
+```
 
-## intentïon `agentic-lib`
+Supply the following secret in your repository settings under *Settings > Secrets and Variables > Actions*:
+- `CHATGPT_API_SECRET_KEY` (required for automated workflows, e.g. for publishing and diagnostics).
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project is evolving, and these workflows may eventually become bundled actions.
+## intentïon `agentic‑lib`
 
-*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
+The **intentïon `agentic‑lib`** is a suite of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. These workflows are designed to be composed like an SDK and are continuously updated through automated processes.
 
-*Warning:* Experimental. This coding system is still in development and may not suit production use.
+*Warning:* Running these workflows may incur API costs and consume GitHub Actions minutes.
+
+*Warning:* Experimental. This coding system is in development and may not be ready for production use.
 
 END_README_BEGINNING
 
----
 ---
 
 START_README_END
@@ -65,4 +70,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
 END_README_END
