@@ -15,8 +15,8 @@ export async function main(args = []) {
     console.log("  --help       : Display this help message with flag descriptions");
     console.log("  --version    : Show current version of the application");
     console.log("  --greet      : Display a greeting message");
-    console.log("  --sum        : Compute the sum of the following numbers");
-    console.log("  --multiply   : Compute the product of the following numbers");
+    console.log("  --sum        : Compute the sum of provided numbers");
+    console.log("  --multiply   : Compute the product of provided numbers");
     console.log("  --subtract   : Subtract each subsequent number from the first provided number");
     console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
     return;

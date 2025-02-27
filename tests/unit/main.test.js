@@ -33,8 +33,8 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
     expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
     expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
-    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of the following numbers");
-    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of the following numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers");
     expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number");
     expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially");
     consoleSpy.mockRestore();
