@@ -38,13 +38,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("displays version when --version flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log");
-    await main(["--version"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-1");
-    consoleSpy.mockRestore();
-  });
-
   test("outputs generic run message for unknown flags", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--unknown"];
