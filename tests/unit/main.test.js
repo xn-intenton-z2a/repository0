@@ -27,7 +27,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet]");
+    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [numbers...]");
     consoleSpy.mockRestore();
   });
 
@@ -57,6 +57,13 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--greet"]);
     expect(consoleSpy).toHaveBeenCalledWith("Hello, welcome to repository0!");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes sum when --sum flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--sum", "3", "4", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Sum: 12");
     consoleSpy.mockRestore();
   });
 });

@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [numbers...]");
     return;
   }
 
@@ -33,6 +33,16 @@ export async function main(args = []) {
   // Extended functionality: greeting message
   if (args.includes("--greet")) {
     console.log("Hello, welcome to repository0!");
+    return;
+  }
+
+  // Extended functionality: sum calculation
+  if (args.includes("--sum")) {
+    const sumIndex = args.indexOf("--sum");
+    // Consider all arguments after --sum that do not start with '--' as numbers
+    const numArgs = args.slice(sumIndex + 1).filter(arg => !arg.startsWith("--")).map(Number);
+    const total = numArgs.reduce((acc, curr) => acc + curr, 0);
+    console.log(`Sum: ${total}`);
     return;
   }
 
