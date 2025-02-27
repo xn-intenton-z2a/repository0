@@ -31,4 +31,12 @@ describe("Default Demo Output", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help]");
     consoleSpy.mockRestore();
   });
+
+  test("should default to empty array when non-array argument is passed", () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    // Passing null, which is not an array, should default to []
+    main(null);
+    expect(consoleSpy).toHaveBeenCalledWith(`Run with: []`);
+    consoleSpy.mockRestore();
+  });
 });
