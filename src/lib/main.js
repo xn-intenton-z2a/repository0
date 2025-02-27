@@ -60,6 +60,14 @@ export async function main(args = []) {
     return;
   }
 
+  // New default behavior when no arguments are provided
+  if (args.length === 0) {
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    console.log("Demo: No arguments provided. Exiting.");
+    return;
+  }
+
+  // Fallback for unknown flags
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 

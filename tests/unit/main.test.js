@@ -8,10 +8,11 @@ describe("Main Module", () => {
 });
 
 describe("CLI Behavior", () => {
-  test("outputs empty array when no args provided", async () => {
+  test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main();
-    expect(consoleSpy).toHaveBeenCalledWith("Run with: []");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
@@ -33,10 +34,11 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("defaults to empty array when non-array argument is passed", async () => {
+  test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(null);
-    expect(consoleSpy).toHaveBeenCalledWith("Run with: []");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
