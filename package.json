@@ -16,7 +16,8 @@
     "test": "vitest",
     "test:unit": "vitest --coverage",
     "start": "node src/lib/main.js",
-    "diagnostics": "node src/lib/main.js --diagnostics"
+    "diagnostics": "node src/lib/main.js --diagnostics",
+    "version": "node src/lib/main.js --version"
   },
   "keywords": [],
   "author": "",
