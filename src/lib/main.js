@@ -16,9 +16,8 @@ export async function main(args = []) {
 
   if (args.includes("--version")) {
     try {
-      // Dynamically import package.json to retrieve version
-      const pkg = await import("../../package.json", { assert: { type: "json" } });
-      const version = pkg.default ? pkg.default.version : pkg.version;
+      const pkgModule = await import("../../package.json", { assert: { type: "json" } });
+      const { version } = pkgModule.default || pkgModule;
       console.log(`Version: ${version}`);
     } catch (err) {
       console.error("Could not retrieve version:", err);
@@ -40,7 +39,6 @@ export async function main(args = []) {
   // Extended functionality: sum calculation
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
-    // Consider all arguments after --sum that do not start with '--' as numbers, then filter out NaN values
     const numArgs = args.slice(sumIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
@@ -53,7 +51,6 @@ export async function main(args = []) {
   // Extended functionality: multiplication calculation
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    // Consider all arguments after --multiply that do not start with '--' as numbers, then filter out NaN values
     const numArgs = args.slice(multiplyIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
