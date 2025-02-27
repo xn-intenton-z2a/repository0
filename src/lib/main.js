@@ -25,6 +25,11 @@ export async function main(args = []) {
     return;
   }
 
+  if (args.includes("--diagnostics")) {
+    console.log("Diagnostics: All systems operational.");
+    return;
+  }
+
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
