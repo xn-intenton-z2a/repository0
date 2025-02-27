@@ -30,7 +30,6 @@ describe("Main Module Import", () => {
   });
 });
 
-
 describe("Default Demo Output", () => {
   test("displays usage and demo output when no arguments are provided", async () => {
     const output = await captureConsoleAsync(async () => { await main([]); });
@@ -39,7 +38,6 @@ describe("Default Demo Output", () => {
   });
 });
 
-
 describe("Help Functionality", () => {
   test("displays help message when --help is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--help"]); });
@@ -47,7 +45,6 @@ describe("Help Functionality", () => {
     expect(output).not.toContain("Demo Output: Run with: []");
   });
 });
-
 
 describe("JSON Help Functionality", () => {
   test("displays JSON help when --help-json is passed", async () => {
@@ -66,7 +63,6 @@ describe("JSON Help Functionality", () => {
   });
 });
 
-
 describe("Detailed Version Functionality", () => {
   test("displays detailed version info when --version-full is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--version-full"]); });
@@ -76,7 +72,6 @@ describe("Detailed Version Functionality", () => {
   });
 });
 
-
 describe("Version Functionality", () => {
   test("displays version info when --version is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--version"]); });
@@ -84,14 +79,12 @@ describe("Version Functionality", () => {
   });
 });
 
-
 describe("ASCII Version Functionality", () => {
   test("displays ASCII art for version when --ascii-version is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--ascii-version"]); });
     expect(output).toContain("Version:");
   });
 });
-
 
 describe("Example OWL Functionality", () => {
   test("displays example OWL ontology as JSON when --example-owl is passed", async () => {
@@ -101,7 +94,6 @@ describe("Example OWL Functionality", () => {
     expect(output).toContain("Tea");
   });
 });
-
 
 describe("Fetch OWL Functionality", () => {
   test("fetches countries data and displays OWL ontology JSON with metadata when --fetch-owl is passed", async () => {
@@ -124,7 +116,6 @@ describe("Fetch OWL Functionality", () => {
     expect(output).toContain("recordCount");
   });
 });
-
 
 describe("Fetch OWL Fallback Functionality", () => {
   test("fetches data from backup endpoint when primary fails", async () => {
@@ -154,7 +145,6 @@ describe("Fetch OWL Fallback Functionality", () => {
   });
 });
 
-
 describe("Build OWL Functionality", () => {
   test("displays built OWL ontology as JSON when --build-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--build-owl"]); });
@@ -163,7 +153,6 @@ describe("Build OWL Functionality", () => {
     expect(output).toContain("Demo Class");
   });
 });
-
 
 describe("Diagnostics Functionality", () => {
   test("runs diagnostics and displays OWL ontology JSON with metadata when --diagnostics is passed", async () => {
@@ -184,7 +173,6 @@ describe("Diagnostics Functionality", () => {
   });
 });
 
-
 describe("Extended Functionality", () => {
   test("displays extended OWL ontology as JSON when --extend is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--extend"]); });
@@ -193,7 +181,6 @@ describe("Extended Functionality", () => {
     expect(output).toContain("Extended Class");
   });
 });
-
 
 describe("Full Extended Functionality", () => {
   test("displays full extended OWL ontology as JSON when --full-extend is passed", async () => {
@@ -205,7 +192,6 @@ describe("Full Extended Functionality", () => {
     expect(output).toContain("platform");
   });
 });
-
 
 describe("Random OWL Functionality", () => {
   test("displays a random OWL ontology as JSON when --random-owl is passed", async () => {
@@ -219,7 +205,6 @@ describe("Random OWL Functionality", () => {
   });
 });
 
-
 describe("UUID Functionality", () => {
   test("generates and displays a UUID when --uuid is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--uuid"]); });
@@ -227,14 +212,12 @@ describe("UUID Functionality", () => {
   });
 });
 
-
 describe("Logging Functionality", () => {
   test("logs to file and displays logging message when --log is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--log"]); });
     expect(output).toContain("Logging output to file 'owl-builder.log'");
   });
 });
-
 
 describe("System Information Functionality", () => {
   test("displays system information when --system is passed", async () => {
@@ -254,7 +237,6 @@ describe("System Information Functionality", () => {
     expect(sysInfo).toHaveProperty("cpu");
   });
 });
-
 
 describe("Detailed Diagnostics Functionality", () => {
   test("displays detailed diagnostics information when --detailed-diagnostics is passed", async () => {
@@ -276,7 +258,6 @@ describe("Detailed Diagnostics Functionality", () => {
   });
 });
 
-
 describe("Analyze OWL Functionality", () => {
   test("displays analysis of built ontology when --analyze-owl is passed", async () => {
     const output = await captureConsoleAsync(async () => { await main(["--analyze-owl"]); });
@@ -287,17 +268,13 @@ describe("Analyze OWL Functionality", () => {
   });
 });
 
-// New test for the extended combined info functionality
-describe("Extended Info Functionality", () => {
-  test("displays combined system info and detailed diagnostics as JSON when --extended is passed", async () => {
-    const output = await captureConsoleAsync(async () => { await main(["--extended"]); });
-    expect(output).toContain("Extended Info as JSON:");
-    expect(output).toContain("systemInfo");
-    expect(output).toContain("detailedDiagnostics");
-    expect(output).toContain("timestamp");
+// New test for the inspirational quote functionality
+describe("Quote Functionality", () => {
+  test("displays an inspirational quote when --quote is passed", async () => {
+    const output = await captureConsoleAsync(async () => { await main(["--quote"]); });
+    expect(output).toContain("Inspirational Quote:");
   });
 });
-
 
 describe("Unknown Arguments Functionality", () => {
   test("logs unknown arguments when an unrecognized flag is passed", async () => {

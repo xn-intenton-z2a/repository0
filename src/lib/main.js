@@ -2,7 +2,7 @@
 // src/lib/main.js
 // This file has been updated for improved consistency in comments, error handling, and JSON output formatting.
 // Extended functionality: added a new flag '--extended' to provide combined system information and detailed diagnostics.
-// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, analyze a built ontology, display combined extended info, and now display an ASCII art version using figlet.
+// It now follows a more unified style across all functionalities, including extended functionality to generate a full extended OWL ontology with environment details, generate UUIDs, analyze a built ontology, display combined extended info, display an ASCII art version using figlet, and display an inspirational quote.
 
 import { fileURLToPath } from "url";
 import pkg from "../../package.json" with { type: "json" };
@@ -52,6 +52,7 @@ Options:
   --analyze-owl           Analyze the built OWL ontology and report counts
   --extended              Display combined system info and detailed diagnostics as JSON
   --ascii-version         Display the CLI version in ASCII art format
+  --quote                 Display an inspirational quote
 `;
   console.log(chalk.blue(usageMsg));
   if (withDemo) {
@@ -121,7 +122,8 @@ export async function main(args) {
         "--uuid",
         "--analyze-owl",
         "--extended",
-        "--ascii-version"
+        "--ascii-version",
+        "--quote"
       ]
     };
     console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
@@ -327,7 +329,7 @@ export async function main(args) {
     return;
   }
 
-  // New Feature: Full Extended OWL ontology with additional environment details
+  // Full Extended OWL ontology with additional environment details
   if (args.includes("--full-extend")) {
     const fullExtendedOntology = {
       ontologyIRI: "http://example.org/full-extended.owl",
@@ -353,7 +355,7 @@ export async function main(args) {
     return;
   }
 
-  // New Feature: Generate a random OWL ontology
+  // Random OWL ontology
   if (args.includes("--random-owl")) {
     const samples = [
       {
@@ -382,7 +384,7 @@ export async function main(args) {
     return;
   }
 
-  // New Feature: Generate a new UUID
+  // Generate a new UUID
   if (args.includes("--uuid")) {
     const newUuid = uuidv4();
     printAndExit([
@@ -391,9 +393,8 @@ export async function main(args) {
     return;
   }
 
-  // New Feature: Analyze the built OWL ontology
+  // Analyze built OWL ontology
   if (args.includes("--analyze-owl")) {
-    // Using the built ontology as a sample for analysis
     const builtOntology = {
       ontologyIRI: "http://example.org/built.owl",
       classes: [
@@ -417,7 +418,7 @@ export async function main(args) {
     return;
   }
 
-  // New Feature: Display combined system and diagnostics info as JSON (Extended Info)
+  // Combined Extended Info: Display combined system info and detailed diagnostics as JSON
   if (args.includes("--extended")) {
     const systemInfo = {
       platform: os.platform(),
@@ -439,6 +440,19 @@ export async function main(args) {
       timestamp: new Date().toISOString()
     };
     console.log(chalk.green(`Extended Info as JSON:\n${JSON.stringify(combinedInfo, null, 2)}`));
+    safeExit(0);
+    return;
+  }
+
+  // New Feature: Display an inspirational quote
+  if (args.includes("--quote")) {
+    const quotes = [
+      "The only limit to our realization of tomorrow is our doubts of today.",
+      "The future belongs to those who believe in the beauty of their dreams.",
+      "In the middle of every difficulty lies opportunity."
+    ];
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    console.log(chalk.green(`Inspirational Quote: ${randomQuote}`));
     safeExit(0);
     return;
   }

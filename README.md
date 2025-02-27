@@ -46,6 +46,7 @@ The current implementation of `owl-builder` includes:
 - **New Feature:** **Analyze OWL Ontology (--analyze-owl)** which analyzes a built OWL ontology and reports the number of classes, properties, and individuals.
 - **Extended Feature:** **Combined Extended Info (--extended)** which displays a combined JSON output of system information and detailed diagnostics.
 - **New Feature:** **ASCII Art Version (--ascii-version)** which displays the CLI version in an ASCII art banner using figlet.
+- **New Feature:** **Inspirational Quote (--quote)** which displays a random inspirational quote from a preset list.
 
 **Default Behavior:** If no command line arguments are provided, the CLI displays usage instructions along with a demo output and then terminates immediately without waiting for user input.
 
@@ -111,8 +112,6 @@ Providing the `--help` flag displays a help menu with available options. Running
   node src/lib/main.js --fetch-owl
   ```
 
-  The command attempts to fetch data from the REST Countries API as the primary source. If the primary endpoint fails, it falls back to the JSONPlaceholder API to extract data and map it into an OWL ontology structure. The output includes metadata such as fetch timestamp, source endpoint, and record count.
-
 - **Build OWL Ontology as JSON (Demo):**
   ```bash
   node src/lib/main.js --build-owl
@@ -122,8 +121,6 @@ Providing the `--help` flag displays a help menu with available options. Running
   ```bash
   node src/lib/main.js --diagnostics
   ```
-
-  This command performs a self-test by fetching public API data. If the primary endpoint fails, it uses a backup endpoint. It then reports the number of records, response time, and logs the derived OWL ontology JSON (with metadata).
 
 - **Extended Functionality:**
   ```bash
@@ -178,6 +175,11 @@ Providing the `--help` flag displays a help menu with available options. Running
 - **Display ASCII Art Version:**
   ```bash
   node src/lib/main.js --ascii-version
+  ```
+
+- **Display Inspirational Quote:**
+  ```bash
+  node src/lib/main.js --quote
   ```
 
 - **Default Demo Output:**
