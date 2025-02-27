@@ -28,7 +28,7 @@ describe("CLI Behavior", () => {
     const args = ["--help"];
     await main(args);
     expect(consoleSpy).toHaveBeenCalledWith(
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]"
     );
     consoleSpy.mockRestore();
   });
@@ -66,6 +66,15 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--multiply", "3", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Multiply: 12");
+    consoleSpy.mockRestore();
+  });
+
+  test("displays version message when --version flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    const args = ["--version"];
+    await main(args);
+    // Assumes package.json version is "1.3.1-4"
+    expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-4");
     consoleSpy.mockRestore();
   });
 });
