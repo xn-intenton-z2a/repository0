@@ -50,7 +50,7 @@ realtime‑web‑diff empowers users to track dynamic content changes across web
 
 3. **Run the CLI Tool:**
    ```bash
-   npm run cli -- --help
+   npm run start -- --help
    ```
 
 4. **Run Tests:**

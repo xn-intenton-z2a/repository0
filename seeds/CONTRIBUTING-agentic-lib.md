@@ -39,7 +39,7 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 4. **Run and Test the Library:**  
    To explore the capabilities of **agentic‑lib**, run the demo function with:
    ```bash
-   node main.js [--help]
+   npm run start [--help]
    ```
    This command prints a detailed help message, including available functions and parameters.
 

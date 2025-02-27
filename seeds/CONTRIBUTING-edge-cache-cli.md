@@ -52,7 +52,7 @@ edge-cache-cli bridges the gap between local development and production‑grade 
 
 3. **Run the CLI Tool:**
    \`\`\`bash
-   npm run cli -- --help
+   npm run start -- --help
    \`\`\`
 
 4. **Run Tests:**

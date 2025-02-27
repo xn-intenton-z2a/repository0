@@ -52,7 +52,7 @@ contain-script aims to abstract the complexities of container management. By off
 
 3. **Run the CLI Utility:**
    ```bash
-   npm run cli -- --help
+   npm run start -- --help
    ```
 
 4. **Run Tests:**

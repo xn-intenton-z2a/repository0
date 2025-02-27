@@ -1,9 +1,9 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.2.3-8",
-  "description": "TODO: Populate in line with CONTRIBUTING.md.",
+  "description": "owl-builder: A versatile CLI tool and JavaScript library for building, managing, and querying OWL ontologies.",
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/lib/main.js",
   "scripts": {
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check .",
@@ -15,22 +15,28 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest",
     "test:unit": "vitest --coverage",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "diagnostics": "node src/lib/main.js --diagnostics"
   },
   "keywords": [],
   "author": "",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "openai": "^4.85.4",
     "dotenv": "^16.4.7",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "chalk": "^5.2.0",
+    "dayjs": "^1.11.9",
+    "uuid": "^9.0.0",
+    "figlet": "^1.5.2"
   },
   "devDependencies": {
     "eslint": "^9.19.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "prettier": "^3.5.2",
     "vitest": "^3.0.7",
-    "npm-check-updates": "^17.1.15"
+    "npm-check-updates": "^17.1.15",
+    "eslint-config-google": "^0.14.0"
   },
   "overrides": {
     "rimraf": "^4.0.0",

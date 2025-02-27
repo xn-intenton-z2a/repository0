@@ -82,7 +82,7 @@ To dive in:
 
    For a quick demonstration of core functionality, run:
    ```bash
-   npm run start -- --help
+   node src/lib/main.js --help
    ```
    This will output a detailed help message, outlining available commands and parameters.
 

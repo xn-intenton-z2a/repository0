@@ -53,7 +53,7 @@ plan-flex-js is designed to bridge the gap between cutting‑edge planning resea
 
 3. **Run the CLI Tool:**
    ```bash
-   npm run cli -- --help
+   npm run start -- --help
    ```
 
 4. **Run Tests:**
