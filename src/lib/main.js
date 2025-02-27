@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
     return;
   }
 
@@ -60,9 +60,25 @@ export async function main(args = []) {
     return;
   }
 
+  // Extended functionality: subtraction calculation
+  if (args.includes("--subtract")) {
+    const subtractIndex = args.indexOf("--subtract");
+    const numArgs = args.slice(subtractIndex + 1)
+      .filter(arg => !arg.startsWith("--"))
+      .map(Number)
+      .filter(num => !isNaN(num));
+    if (numArgs.length === 0) {
+      console.log("Subtract: No numbers provided");
+      return;
+    }
+    const result = numArgs.slice(1).reduce((acc, curr) => acc - curr, numArgs[0]);
+    console.log(`Subtract: ${result}`);
+    return;
+  }
+
   // New default behavior when no arguments are provided
   if (args.length === 0) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
     return;
   }
