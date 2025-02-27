@@ -43,9 +43,11 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 *Warning:* Running these workflows may consume GitHub Actions minutes and incur charges on your OpenAI account.
 
 *Warning:* Experimental. Not recommended for production use.
+
 END_README_BEGINNING
 
 ---
+
 ---
 
 START_README_END
