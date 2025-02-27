@@ -8,7 +8,7 @@ export function main(args = []) {
   if (!Array.isArray(args)) {
     args = [];
   }
-  
+
   if (args.includes("--help")) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help]");
     return;
@@ -18,7 +18,9 @@ export function main(args = []) {
   // Future enhancement: Add more comprehensive command-line options and help documentation.
 }
 
+// If called directly via command-line, execute main and ensure termination without waiting for user input.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
+  process.exit(0);
 }
