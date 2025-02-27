@@ -12,25 +12,33 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` are designed to consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file now includes improved input validation and enhanced version retrieval logic.
+  The main functionality is in `src/lib/main.js`. This file handles a command-line interface with multiple flags including:
+    - `--help` for usage instructions,
+    - `--version` to print the current version,
+    - `--diagnostics` to check system operation,
+    - `--greet` to display a greeting message,
+    - `--sum` to calculate the sum of provided numbers,
+    - `--multiply` to compute the product of provided numbers.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and also defines some of the test and build scripts.
+  The `package.json` file is maintained by the workflows to manage and update dependencies as well as to define test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. The version flag functionality is now specifically covered in tests.
+  Unit tests in the `tests/unit/` folder ensure consistency of the CLI behavior as implemented in `src/lib/main.js`.
+
+- **Future Features:**
+  Future enhancements may include more advanced mathematical operations, interactive mode support, integration with external APIs for enriched diagnostics, and further automation of deployment processes.
 
 - **Docs:**  
-  This `README.md` is maintained and updated by the workflows.
+  This `README.md` is maintained and updated automatically by the CI/CD workflows.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts, but you need to supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows like publishing packages and managing issues.
+This repository is pre-configured with necessary workflows and scripts. To run the CLI demo, supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - Required for automated workflows interacting with the OpenAI API. Set this secret under *Settings > Secrets and Variables > Actions* in your repository.
 
 ## intentïon `agentic-lib`
 
@@ -43,6 +51,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 END_README_BEGINNING
 
 ---
+
 ---
 
 START_README_END
