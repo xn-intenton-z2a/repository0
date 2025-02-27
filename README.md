@@ -54,7 +54,6 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 END_README_BEGINNING
 
 ---
-
 ---
 
 START_README_END
