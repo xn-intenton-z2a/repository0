@@ -39,18 +39,24 @@ export async function main(args = []) {
   // Extended functionality: sum calculation
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
-    // Consider all arguments after --sum that do not start with '--' as numbers
-    const numArgs = args.slice(sumIndex + 1).filter(arg => !arg.startsWith("--")).map(Number);
+    // Consider all arguments after --sum that do not start with '--' as numbers, then filter out NaN values
+    const numArgs = args.slice(sumIndex + 1)
+      .filter(arg => !arg.startsWith("--"))
+      .map(Number)
+      .filter(num => !isNaN(num));
     const total = numArgs.reduce((acc, curr) => acc + curr, 0);
     console.log(`Sum: ${total}`);
     return;
   }
 
-  // New feature: multiplication calculation
+  // Extended functionality: multiplication calculation
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    // Consider all arguments after --multiply that do not start with '--' as numbers
-    const numArgs = args.slice(multiplyIndex + 1).filter(arg => !arg.startsWith("--")).map(Number);
+    // Consider all arguments after --multiply that do not start with '--' as numbers, then filter out NaN values
+    const numArgs = args.slice(multiplyIndex + 1)
+      .filter(arg => !arg.startsWith("--"))
+      .map(Number)
+      .filter(num => !isNaN(num));
     const product = numArgs.reduce((acc, curr) => acc * curr, 1);
     console.log(`Multiply: ${product}`);
     return;
