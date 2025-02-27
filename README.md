@@ -12,24 +12,21 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file handles CLI arguments including:
-    - `--help`: Shows usage instructions.
-    - `--version`: Displays the current version.
-    - `--diagnostics`: Runs a diagnostic check.
-    - `--greet`: Outputs a greeting message.
-    - **`--sum`: Computes the sum of provided numeric arguments.**
-  
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+
 - **Dependencies:**  
-  The `package.json` file manages dependencies, defines scripts for building, testing, and running the application, and ensures compatibility with Node 20.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests within `tests/unit/` ensure that the CLI behaves as expected across different flags and input types.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
-- **Docs:**  
-  This `README.md` explains the current behavior. Future updates may include additional functionalities such as enhanced command suggestions, extended diagnostics, and more interactive CLI features.
+- **Docs**  
+  This `README.md` can be modified by the workflow.
+END_README_BEGINNING
 
 ## Getting Started
 
@@ -42,12 +39,6 @@ The repository is intended as a template that includes:
 7. Display a greeting using `node src/lib/main.js --greet`.
 8. Compute a sum by running, for example, `node src/lib/main.js --sum 3 4 5` which outputs: "Sum: 12".
 
-## Future Roadmap
-
-- Integration of intelligent command suggestions based on user input.
-- Extended diagnostics and self-healing features.
-- More comprehensive test coverage and additional CLI functionality enhancements.
-
 ## intentïon `agentic‑lib`
 
 The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
@@ -55,11 +46,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
-
-END_README_BEGINNING
-
----
----
 
 START_README_END
 ### Contributing
