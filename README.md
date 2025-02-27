@@ -12,21 +12,20 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
   Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  This test file can be modified by the workflow (`tests/unit/main.test.js`), duplicate `main.test.js` to fix a version of the behavior where the workflow can't change it.
 
 - **Docs**  
   This `README.md` can be modified by the workflow.
-END_README_BEGINNING
 
 ## Getting Started
 
@@ -47,7 +46,8 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-START_README_END
+END_README_BEGINNING
+
 ### Contributing
 
 We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
@@ -55,4 +55,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
 END_README_END
