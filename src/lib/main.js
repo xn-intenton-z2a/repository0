@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet]");
     return;
   }
 
@@ -27,6 +27,12 @@ export async function main(args = []) {
 
   if (args.includes("--diagnostics")) {
     console.log("Diagnostics: All systems operational.");
+    return;
+  }
+
+  // Extended functionality: greeting message
+  if (args.includes("--greet")) {
+    console.log("Hello, welcome to repository0!");
     return;
   }
 
