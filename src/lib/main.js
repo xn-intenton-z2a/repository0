@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 
 export async function main(args = []) {
-  // Ensure args is an array
+  // Normalize input: ensure args is an array
   if (!Array.isArray(args)) {
     args = [];
   }
@@ -15,8 +15,8 @@ export async function main(args = []) {
   }
 
   if (args.includes("--version")) {
-    // Dynamically import package.json to retrieve version
     try {
+      // Dynamically import package.json to retrieve version
       const pkg = await import("../../package.json", { assert: { type: "json" } });
       console.log(`Version: ${pkg.default.version}`);
     } catch (err) {
@@ -26,11 +26,9 @@ export async function main(args = []) {
   }
 
   console.log(`Run with: ${JSON.stringify(args)}`);
-  
-  // Future enhancement: Add more comprehensive command-line options and help documentation.
 }
 
-// If called directly via command-line, execute main and ensure termination without waiting for user input.
+// If executed directly, run main and exit
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args).then(() => process.exit(0));
