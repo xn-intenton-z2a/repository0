@@ -18,8 +18,9 @@ describe("CLI Behavior", () => {
   test("outputs provided arguments", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--diagnostics"];
+    // This test now expects diagnostics output since --diagnostics is handled separately
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
+    expect(consoleSpy).toHaveBeenCalledWith("Diagnostics: All systems operational.");
     consoleSpy.mockRestore();
   });
 
@@ -42,6 +43,14 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--version"]);
     expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-1");
+    consoleSpy.mockRestore();
+  });
+
+  test("outputs generic run message for unknown flags", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    const args = ["--unknown"];
+    await main(args);
+    expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
     consoleSpy.mockRestore();
   });
 });

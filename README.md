@@ -15,16 +15,16 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is integral to the CLI demonstration and is maintained by automation for consistency.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. Recent updates include diagnostic capabilities to aid in self-testing.
 
 - **Dependencies:**  
   The `package.json` file manages dependencies and defines scripts for building, testing, and running the application.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script operates as expected.
+  Unit tests in the `tests/unit/` folder ensure that the main script operates as intended, covering new diagnostic functionality and improved flag support.
 
-- **Documentation:**  
-  This README along with inline documentation provides detailed guidance on using and contributing to the repository. For contribution guidelines, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
+- **Docs:**
+  This `README.md` can be modified by the workflow to reflect ongoing improvements.
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ The repository is intended as a template that includes:
 2. Install dependencies with `npm install`.
 3. Run tests with `npm test`.
 4. Launch the CLI tool with `npm run start` or view help using `node src/lib/main.js --help`.
-5. Run diagnostics with `npm run diagnostics`.
+5. Run diagnostics with `npm run diagnostics` (this will output: "Diagnostics: All systems operational.").
 6. Check the version with `npm run version`.
 
 ## intentïon `agentic‑lib`
@@ -44,6 +44,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 *Warning:* Experimental. Not recommended for production use.
 END_README_BEGINNING
 
+---
 ---
 
 START_README_END
