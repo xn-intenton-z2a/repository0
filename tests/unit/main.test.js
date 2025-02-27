@@ -11,7 +11,7 @@ describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main();
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
@@ -28,7 +28,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
     expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
@@ -36,13 +36,14 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of the following numbers");
     expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of the following numbers");
     expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number");
+    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially");
     consoleSpy.mockRestore();
   });
 
   test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(null);
-    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
@@ -87,6 +88,27 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--subtract", "10"]);
     expect(consoleSpy).toHaveBeenCalledWith("Subtract: 10");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes division when --divide flag is provided with multiple numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "100", "2", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: 10");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes division when --divide flag is provided with a single number", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "42"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: 42");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles division by zero with --divide flag", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "100", "0", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: Division by zero error");
     consoleSpy.mockRestore();
   });
 
