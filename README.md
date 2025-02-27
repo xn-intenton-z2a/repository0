@@ -15,13 +15,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. Recent updates include diagnostic capabilities to aid in self-testing.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. Recent updates include diagnostic capabilities and a new greeting functionality.
 
 - **Dependencies:**  
   The `package.json` file manages dependencies and defines scripts for building, testing, and running the application.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script operates as intended, covering new diagnostic functionality and improved flag support.
+  Unit tests in the `tests/unit/` folder ensure that the main script operates as intended, now including tests for the new greeting functionality.
 
 - **Docs:**
   This `README.md` can be modified by the workflow to reflect ongoing improvements.
@@ -34,6 +34,7 @@ The repository is intended as a template that includes:
 4. Launch the CLI tool with `npm run start` or view help using `node src/lib/main.js --help`.
 5. Run diagnostics with `npm run diagnostics` (this will output: "Diagnostics: All systems operational.").
 6. Check the version with `npm run version`.
+7. Display a greeting using `node src/lib/main.js --greet`.
 
 ## intentïon `agentic‑lib`
 

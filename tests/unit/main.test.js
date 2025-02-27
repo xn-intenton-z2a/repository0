@@ -18,7 +18,6 @@ describe("CLI Behavior", () => {
   test("outputs provided arguments", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--diagnostics"];
-    // This test now expects diagnostics output since --diagnostics is handled separately
     await main(args);
     expect(consoleSpy).toHaveBeenCalledWith("Diagnostics: All systems operational.");
     consoleSpy.mockRestore();
@@ -28,7 +27,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--help"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version]");
+    expect(consoleSpy).toHaveBeenCalledWith("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet]");
     consoleSpy.mockRestore();
   });
 
@@ -51,6 +50,13 @@ describe("CLI Behavior", () => {
     const args = ["--unknown"];
     await main(args);
     expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
+    consoleSpy.mockRestore();
+  });
+
+  test("displays greeting message when --greet flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--greet"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Hello, welcome to repository0!");
     consoleSpy.mockRestore();
   });
 });
