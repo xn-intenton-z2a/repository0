@@ -23,6 +23,9 @@ The repository is intended as a template that includes:
     - `--sum` to calculate the sum of provided numbers,
     - `--multiply` to compute the product of provided numbers.
 
+- **Default Behavior:**
+  When no arguments are provided, the program now displays a usage message followed by a demo output and exits. This ensures users see the intended instructions without requiring further input.
+
 - **Dependencies:**  
   The `package.json` file is maintained by the workflows to manage and update dependencies as well as to define test and build scripts.
 
