@@ -23,6 +23,7 @@ The repository is intended as a template that includes:
     - `--sum`: Compute the sum of provided numbers.
     - `--multiply`: Compute the product of provided numbers.
     - `--subtract`: Subtract each subsequent number from the first provided number.
+    - `--divide`: Compute the division of provided numbers sequentially. If a division by zero is attempted, an error message is displayed.
   
   When no arguments are provided, the tool displays a usage message and a demo output indicating that no arguments were passed.
 
@@ -49,11 +50,12 @@ Supply the following secret in your repository settings:
 
 - **Interactive Mode:** A future update will introduce an interactive CLI mode to enhance user experience.
 - **Enhanced Diagnostics:** More detailed system diagnostics and error reporting will be added.
-- **Extended Math Operations:** Additional mathematical functionalities and robust validations are planned.
+- **Extended Math Operations:** Additional mathematical functionalities (like division) and robust validations are planned.
 - **External API Integrations:** Future versions may interface with external services for enriched functionality.
 
 END_README_BEGINNING
 
+---
 ---
 
 START_README_END
