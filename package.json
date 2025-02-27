@@ -23,17 +23,17 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "openai": "^4.85.4",
     "dotenv": "^16.4.7",
+    "openai": "^4.85.4",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "eslint": "^9.19.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
-    "prettier": "^3.5.2",
-    "vitest": "^3.0.7",
+    "eslint": "^9.19.0",
+    "eslint-config-google": "^0.14.0",
     "npm-check-updates": "^17.1.15",
-    "eslint-config-google": "^0.14.0"
+    "prettier": "^3.5.2",
+    "vitest": "^3.0.7"
   },
   "overrides": {
     "rimraf": "^4.0.0",
