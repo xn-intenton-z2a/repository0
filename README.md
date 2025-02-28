@@ -15,21 +15,21 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflows and is modified by them to deliver the project goals.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
+  `package.json` can be modified by the workflows to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. The test file `tests/unit/main.test.js` may be updated by the workflow.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains consistent. The test file `tests/unit/main.test.js` may be updated by the workflows when necessary.
 
 - **Docs:**  
-  This `README.md` can be updated by the workflow.
+  This `README.md` can be updated by the workflows to reflect current functionality and future enhancements.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts. You must supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - A key for an account with access to the OpenAI chat completions API for model `o3-mini`. Set this secret in *Settings > Secrets and Variables > Actions*.
+This repository is already set up with the necessary workflows and scripts. You must supply the following secrets in your repository settings:
+- `CHATGPT_API_SECRET_KEY` - A key for an account with access to the OpenAI chat completions API for model `o3-mini`.
 
 ## intentïon `agentic‑lib`
 
@@ -37,7 +37,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This coding system is in development and may not suit production use.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
 ## Should you use the `agentic‑lib` Coding System?
 
@@ -46,7 +46,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-
 END_README_BEGINNING
 
 ---

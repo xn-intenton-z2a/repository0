@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable-next-line */
 /* eslint-env node, es2022 */
 // src/lib/main.js
 
