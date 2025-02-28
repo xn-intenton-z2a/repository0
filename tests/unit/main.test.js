@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { describe, test, expect, vi } from "vitest";
-import { main } from "@src/lib/main.js";
+import { main } from "../../src/lib/main.js";
 
 describe("Main Module", () => {
   test("should not be null", () => {
@@ -197,4 +197,4 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
     consoleSpy.mockRestore();
   });
-/* eslint-enable prettier/prettier */
+});
