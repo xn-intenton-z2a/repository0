@@ -15,13 +15,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations.
+  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. Recent updates have added enhanced input validation and clearer logging for edge cases.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for building, testing, and running the application.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI. Recent updates to the test file improve coverage of edge cases such as missing arguments for subtraction, division, and modulo operations.
+  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI. The test suite has been expanded to cover additional edge cases such as non-numeric inputs and scenarios where no valid numbers are provided.
 
 - **Docs:**  
   This `README.md` is maintained to reflect current functionality and guide contributions.
@@ -47,7 +47,6 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-
 END_README_BEGINNING
 
 ---
@@ -63,5 +62,4 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
-
 END_README_END

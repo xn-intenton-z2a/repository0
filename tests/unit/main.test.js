@@ -71,10 +71,24 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles non-numeric inputs for --sum flag", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--sum", "a", "5", "hello"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Sum: 5");
+    consoleSpy.mockRestore();
+  });
+
   test("computes multiplication when --multiply flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--multiply", "3", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Multiply: 12");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles multiply with no numbers provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--multiply"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Multiply: 1");
     consoleSpy.mockRestore();
   });
 
@@ -110,6 +124,14 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--divide", "42"]);
     expect(consoleSpy).toHaveBeenCalledWith("Divide: 42");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles non-numeric input for --divide flag", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide", "10", "b", "2"]);
+    // Non-numeric values are filtered, so effectively [10,2] remain
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: 5");
     consoleSpy.mockRestore();
   });
 
@@ -155,6 +177,14 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--modulo", "20", "0", "5"]);
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: Division by zero error");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles non-numeric input for --modulo flag", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    // Here, non-numeric input is filtered; so with input ["--modulo", "10", "b", "3"], only 10 and 3 are used
+    await main(["--modulo", "10", "b", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
     consoleSpy.mockRestore();
   });
 });
