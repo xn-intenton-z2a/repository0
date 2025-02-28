@@ -152,7 +152,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--version"];
     await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-4");
+    expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-5");
     consoleSpy.mockRestore();
   });
 

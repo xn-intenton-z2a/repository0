@@ -5,7 +5,7 @@
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 
-export async function main(args = []) {
+export async function main(args) {
   // Normalize input: ensure args is an array
   if (!Array.isArray(args)) {
     args = [];
@@ -42,13 +42,11 @@ export async function main(args = []) {
     return;
   }
 
-  // Extended functionality: greeting message
   if (args.includes("--greet")) {
     console.log("Hello, welcome to repository0!");
     return;
   }
 
-  // Extended functionality: sum calculation
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
     const numArgs = args.slice(sumIndex + 1)
@@ -60,7 +58,6 @@ export async function main(args = []) {
     return;
   }
 
-  // Extended functionality: multiplication calculation
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
     const numArgs = args.slice(multiplyIndex + 1)
@@ -72,7 +69,6 @@ export async function main(args = []) {
     return;
   }
 
-  // Extended functionality: subtraction calculation
   if (args.includes("--subtract")) {
     const subtractIndex = args.indexOf("--subtract");
     const numArgs = args.slice(subtractIndex + 1)
@@ -92,7 +88,6 @@ export async function main(args = []) {
     return;
   }
 
-  // Extended functionality: division calculation
   if (args.includes("--divide")) {
     const divideIndex = args.indexOf("--divide");
     const numArgs = args.slice(divideIndex + 1)
@@ -116,7 +111,6 @@ export async function main(args = []) {
     return;
   }
 
-  // Extended functionality: modulo calculation
   if (args.includes("--modulo")) {
     const moduloIndex = args.indexOf("--modulo");
     const numArgs = args.slice(moduloIndex + 1)
@@ -136,7 +130,7 @@ export async function main(args = []) {
     return;
   }
 
-  // New default behavior when no arguments are provided
+  // Default behavior when no valid arguments are provided
   if (args.length === 0) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
