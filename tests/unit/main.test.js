@@ -200,7 +200,6 @@ describe("CLI Behavior", () => {
 
   test("computes modulo when --modulo flag is provided with multiple numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log");
-    // For example: 20 % 7 = 6, then 6 % 4 = 2
     await main(["--modulo", "20", "7", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 2");
     consoleSpy.mockRestore();
