@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable */
 // src/lib/main.js
+/* eslint-enable */
 
 // Note: Enhanced input validation and commentary added for improved test coverage, especially for non-numeric input and edge cases.
 
