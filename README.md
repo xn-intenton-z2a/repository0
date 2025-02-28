@@ -17,7 +17,7 @@ The repository is intended as a template that includes:
   The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. The version retrieval now uses Node's createRequire mechanism to safely import JSON without using import assertions.
 
 - **Dependencies:**  
-  `package.json` defines dependencies and scripts for building, testing, and running the application.
+  `package.json` defines dependencies and scripts for building, testing, and running the application. Linting is configured via ESLint, and the configuration ignores the contents of the archive directory to prevent legacy files from affecting code quality.
 
 - **Tests:**  
   Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI, covering edge cases including non-numeric inputs and scenarios where no valid numbers are provided.
