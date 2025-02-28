@@ -140,6 +140,10 @@ export async function main(args = []) {
   if (args.length === 0) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
+    // Terminate execution immediately when run directly
+    if (process.argv[1] === fileURLToPath(import.meta.url)) {
+      process.exit(0);
+    }
     return;
   }
 
