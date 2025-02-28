@@ -12,7 +12,9 @@ export async function main(args) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
+    console.log(
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
+    );
     console.log("  --diagnostics: Check system diagnostics");
     console.log("  --help       : Display this help message with flag descriptions");
     console.log("  --version    : Show current version of the application");
@@ -20,8 +22,12 @@ export async function main(args) {
     console.log("  --sum        : Compute the sum of provided numbers");
     console.log("  --multiply   : Compute the product of provided numbers");
     console.log("  --subtract   : Subtract each subsequent number from the first provided number");
-    console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
-    console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ...)");
+    console.log(
+      "  --divide     : Divide the first number by each of the subsequent numbers sequentially"
+    );
+    console.log(
+      "  --modulo     : Compute the modulo of provided numbers (first % second % ...)"
+    );
     return;
   }
 
@@ -49,10 +55,11 @@ export async function main(args) {
 
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
-    const numArgs = args.slice(sumIndex + 1)
-      .filter(arg => !arg.startsWith("--"))
+    const numArgs = args
+      .slice(sumIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
       .map(Number)
-      .filter(num => !isNaN(num));
+      .filter((num) => !isNaN(num));
     const total = numArgs.reduce((acc, curr) => acc + curr, 0);
     console.log(`Sum: ${total}`);
     return;
@@ -60,10 +67,11 @@ export async function main(args) {
 
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    const numArgs = args.slice(multiplyIndex + 1)
-      .filter(arg => !arg.startsWith("--"))
+    const numArgs = args
+      .slice(multiplyIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
       .map(Number)
-      .filter(num => !isNaN(num));
+      .filter((num) => !isNaN(num));
     const product = numArgs.reduce((acc, curr) => acc * curr, 1);
     console.log(`Multiply: ${product}`);
     return;
@@ -71,10 +79,11 @@ export async function main(args) {
 
   if (args.includes("--subtract")) {
     const subtractIndex = args.indexOf("--subtract");
-    const numArgs = args.slice(subtractIndex + 1)
-      .filter(arg => !arg.startsWith("--"))
+    const numArgs = args
+      .slice(subtractIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
       .map(Number)
-      .filter(num => !isNaN(num));
+      .filter((num) => !isNaN(num));
     if (numArgs.length === 0) {
       console.log("Subtract: No numbers provided");
       return;
@@ -90,10 +99,11 @@ export async function main(args) {
 
   if (args.includes("--divide")) {
     const divideIndex = args.indexOf("--divide");
-    const numArgs = args.slice(divideIndex + 1)
-      .filter(arg => !arg.startsWith("--"))
+    const numArgs = args
+      .slice(divideIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
       .map(Number)
-      .filter(num => !isNaN(num));
+      .filter((num) => !isNaN(num));
     if (numArgs.length === 0) {
       console.log("Divide: No numbers provided");
       return;
@@ -102,7 +112,7 @@ export async function main(args) {
       console.log(`Divide: ${numArgs[0]}`);
       return;
     }
-    if (numArgs.slice(1).some(n => n === 0)) {
+    if (numArgs.slice(1).some((n) => n === 0)) {
       console.log("Divide: Division by zero error");
       return;
     }
@@ -113,15 +123,16 @@ export async function main(args) {
 
   if (args.includes("--modulo")) {
     const moduloIndex = args.indexOf("--modulo");
-    const numArgs = args.slice(moduloIndex + 1)
-      .filter(arg => !arg.startsWith("--"))
+    const numArgs = args
+      .slice(moduloIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
       .map(Number)
-      .filter(num => !isNaN(num));
+      .filter((num) => !isNaN(num));
     if (numArgs.length < 2) {
       console.log("Modulo: Provide at least two numbers");
       return;
     }
-    if (numArgs.slice(1).some(n => n === 0)) {
+    if (numArgs.slice(1).some((n) => n === 0)) {
       console.log("Modulo: Division by zero error");
       return;
     }
@@ -131,7 +142,9 @@ export async function main(args) {
   }
 
   if (args.length === 0) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
+    console.log(
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
+    );
     console.log("Demo: No arguments provided. Exiting.");
     return;
   }
