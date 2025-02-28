@@ -35,7 +35,8 @@ export async function main(args) {
     try {
       const require = createRequire(import.meta.url);
       const pkg = require("../../package.json");
-      const { version } = pkg;
+      // Fixed destructuring to avoid parsing errors
+      const version = pkg.version;
       console.log(`Version: ${version}`);
     } catch (err) {
       console.error("Could not retrieve version:", err);
