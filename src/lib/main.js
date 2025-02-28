@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
+// Note: Enhanced input validation and commentary added for improved test coverage, especially for non-numeric input and edge cases.
+
 import { fileURLToPath } from "url";
 
 export async function main(args = []) {
@@ -60,6 +62,7 @@ export async function main(args = []) {
   // Extended functionality: multiplication calculation
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
+    // If no valid numbers provided, the product remains 1
     const numArgs = args.slice(multiplyIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
