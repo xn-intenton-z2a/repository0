@@ -35,7 +35,6 @@ export async function main(args) {
     try {
       const require = createRequire(import.meta.url);
       const pkg = require("../../package.json");
-      // Fixed destructuring to avoid parsing errors
       const version = pkg.version;
       console.log(`Version: ${version}`);
     } catch (err) {
@@ -154,7 +153,8 @@ export async function main(args) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).then(() => {
+  (async () => {
+    await main(process.argv.slice(2));
     process.exit(0);
-  });
+  })();
 }
