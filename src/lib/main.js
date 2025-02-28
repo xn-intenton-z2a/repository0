@@ -144,7 +144,6 @@ export async function main(args) {
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
-// If executed directly, run main and exit
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args).then(() => process.exit(0));
