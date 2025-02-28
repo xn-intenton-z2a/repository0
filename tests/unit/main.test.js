@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { describe, test, expect, vi } from "vitest";
 import { main } from "../../src/lib/main.js";
 
@@ -12,30 +11,22 @@ describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main();
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      `Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]`
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
   test("outputs provided arguments for diagnostics", async () => {
     const consoleSpy = vi.spyOn(console, "log");
-    const args = ["--diagnostics"];
-    await main(args);
+    await main(["--diagnostics"]);
     expect(consoleSpy).toHaveBeenCalledWith("Diagnostics: All systems operational.");
     consoleSpy.mockRestore();
   });
 
   test("displays help message when --help flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
-    const args = ["--help"];
-    await main(args);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      `Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]`
-    );
+    await main(["--help"]);
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
     expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
@@ -51,19 +42,15 @@ describe("CLI Behavior", () => {
   test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(null);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      `Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]()`
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]()");
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
   test("outputs generic run message for unknown flags", async () => {
     const consoleSpy = vi.spyOn(console, "log");
-    const args = ["--unknown"];
-    await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
+    await main(["--unknown"]);
+    expect(consoleSpy).toHaveBeenCalledWith('Run with: ' + JSON.stringify(["--unknown"]));
     consoleSpy.mockRestore();
   });
 
@@ -160,8 +147,7 @@ describe("CLI Behavior", () => {
 
   test("displays version message when --version flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
-    const args = ["--version"];
-    await main(args);
+    await main(["--version"]);
     expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-6");
     consoleSpy.mockRestore();
   });
