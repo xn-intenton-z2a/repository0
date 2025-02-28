@@ -14,15 +14,17 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. Note that ESLint is configured to ignore the archive directory to prevent legacy files from impacting code quality.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  
+  *Note: The archive directory is excluded from linting to avoid legacy code issues.*
 
 - **Dependencies:**  
-  `package.json` defines dependencies and scripts for building, testing, and running the application.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI and cover edge cases including non-numeric inputs and scenarios where no valid numbers are provided.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. The test file (`tests/unit/main.test.js`) validates the CLI behavior and covers edge cases.
 
-- **Docs:**  
+- **Docs**  
   This `README.md` is maintained to reflect current functionality and guide contributions.
 
 ## Getting Started
@@ -48,15 +50,9 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 
 ---
+---
 
-START_README_END
-### Contributing
-
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
-
-## License
-
-Released under the MIT License (see [LICENSE](./LICENSE)).
+# Ensure README.md begins like this:
 
 START_README_BEGINNING
 # `repository0`
@@ -72,16 +68,17 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
 - **Docs**  
   This `README.md` can be modified by the workflow.
@@ -107,4 +104,19 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-END_README_BEGIN
+END_README_BEGINNING
+
+---
+---
+
+# Ensure README.md ends like this:
+
+START_README_END
+### Contributing
+
+We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
+
+## License
+
+Released under the MIT License (see [LICENSE](./LICENSE)).
+END_README_END
