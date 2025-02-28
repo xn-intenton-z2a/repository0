@@ -1,3 +1,49 @@
+# `repository0`
+
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
+
+## Overview
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+
+## What’s Inside
+
+- **GitHub Workflows:**
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+
+- **Source Code:**
+  The main functionality is in `src/lib/main.js`. This file demonstrates various CLI operations including diagnostics, arithmetic operations, and help/version output.
+
+- **Dependencies:**
+  `package.json` specifies dependencies and defines test and build scripts.
+
+- **Tests:**
+  Unit tests in the `tests/unit/` folder ensure consistent functionality of the main script.
+
+- **Docs:**
+  This `README.md` is maintained and updated to reflect current functionality and future enhancements.
+
+## Getting Started
+
+This repository is already set up with necessary workflows and scripts. You must supply the following secret in your repository settings:
+- `CHATGPT_API_SECRET_KEY` - Your OpenAI API key for model `o3-mini`.
+
+## intentïon `agentic‑lib`
+
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an "agentic" manner. Autonomous workflows use branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, allowing them to be composed like an SDK.
+
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
+
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
+
+---
+---
+---
+
+# Ensure README.md begins like this:
+
 START_README_BEGINNING
 # `repository0`
 
@@ -12,32 +58,34 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflows and demonstrates various CLI operations including diagnostics, arithmetic operations, and help/version output.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
-  `package.json` specifies dependencies, and it also defines test and build scripts which may be updated by workflows.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main functionality remains consistent. The test file `tests/unit/main.test.js` is maintained and updated as needed.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
-- **Docs:**  
-  This `README.md` is kept up-to-date to reflect current functionality and future enhancements.
+- **Docs**  
+  This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
-This repository is set up with the necessary workflows and scripts. You must supply the following secret in your repository settings:
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
-The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that allow your repository to operate in an "agentic" manner. Autonomous workflows use branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event and can be composed like an SDK.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This coding system is still under development and may not suit production use.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
 ## Should you use the `agentic‑lib` Coding System?
 
@@ -46,9 +94,9 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-
 END_README_BEGINNING
 
+---
 ---
 ---
 
