@@ -92,6 +92,13 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles subtract with no numbers provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--subtract"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Subtract: No numbers provided");
+    consoleSpy.mockRestore();
+  });
+
   test("computes division when --divide flag is provided with multiple numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--divide", "100", "2", "5"]);
@@ -113,6 +120,13 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles division with no numbers provided for --divide flag", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--divide"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Divide: No numbers provided");
+    consoleSpy.mockRestore();
+  });
+
   test("displays version message when --version flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     const args = ["--version"];
@@ -127,6 +141,20 @@ describe("CLI Behavior", () => {
     // For example: 20 % 7 = 6, then 6 % 4 = 2
     await main(["--modulo", "20", "7", "4"]);
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 2");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles modulo with less than two numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--modulo", "10"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Modulo: Provide at least two numbers");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles modulo division by zero error", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--modulo", "20", "0", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Modulo: Division by zero error");
     consoleSpy.mockRestore();
   });
 });
