@@ -4,6 +4,7 @@
 // Note: Enhanced input validation and commentary added for improved test coverage, especially for non-numeric input and edge cases.
 
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
 export async function main(args = []) {
   // Normalize input: ensure args is an array
@@ -27,8 +28,9 @@ export async function main(args = []) {
 
   if (args.includes("--version")) {
     try {
-      const pkgModule = await import("../../package.json", { assert: { type: "json" } });
-      const { version } = pkgModule.default || pkgModule;
+      const require = createRequire(import.meta.url);
+      const pkg = require("../../package.json");
+      const { version } = pkg;
       console.log(`Version: ${version}`);
     } catch (err) {
       console.error("Could not retrieve version:", err);
