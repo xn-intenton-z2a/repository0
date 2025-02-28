@@ -64,7 +64,6 @@ export async function main(args = []) {
   // Extended functionality: multiplication calculation
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    // If no valid numbers provided, the product remains 1
     const numArgs = args.slice(multiplyIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
@@ -142,7 +141,6 @@ export async function main(args = []) {
   if (args.length === 0) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
-    // Terminate execution immediately when run directly
     if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.exit(0);
     }

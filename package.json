@@ -54,6 +54,9 @@
   "files": [
     "package.json"
   ],
+  "eslintIgnore": [
+    "archive/"
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
