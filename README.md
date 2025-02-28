@@ -24,8 +24,7 @@ The repository is intended as a template that includes:
   Unit tests in the `tests/unit/` folder ensure that the main script remains robust and its CLI behavior is as expected.
 
 - **Docs:**  
-  This `README.md` is maintained to guide contributions and explain repository functionality. 
-  *Note: Linting is configured to ignore archive and build directories to prevent errors from legacy files.*
+  This `README.md` is maintained to guide contributions and explain repository functionality.
 
 ## Getting Started
 
