@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. When no arguments are provided, the CLI prints a usage message along with a demo output and terminates gracefully.
+  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. When no arguments are provided, the CLI prints a usage message along with a demo output and terminates immediately when executed directly.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for building, testing, and running the application.
