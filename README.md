@@ -32,21 +32,22 @@ This repository is already set up with the necessary workflows and scripts but y
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
-## intentïon `agentic-lib`
+## intentïon `agentic‑lib`
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic-lib` Coding System?
+## Should you use the `agentic‑lib` Coding System?
 
 * Do you have access to an OpenAI account with necessary API keys?
 * Are you willing to incur charges for consumed resources?
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+
 END_README_BEGINNING
 
 ---

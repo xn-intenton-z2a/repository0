@@ -59,7 +59,8 @@
     "exports/**",
     "build/**",
     "coverage/**",
-    "dist/**"
+    "dist/**",
+    "node_modules/**"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
