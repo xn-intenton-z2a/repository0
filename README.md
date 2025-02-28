@@ -15,13 +15,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. Recent updates have added enhanced input validation and clearer logging for edge cases.
+  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations. When no arguments are provided, the CLI prints a usage message along with a demo output and terminates gracefully.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for building, testing, and running the application.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI. The test suite has been expanded to cover additional edge cases such as non-numeric inputs and scenarios where no valid numbers are provided.
+  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI, covering edge cases including non-numeric inputs and scenarios where no valid numbers are provided.
 
 - **Docs:**  
   This `README.md` is maintained to reflect current functionality and guide contributions.
@@ -40,13 +40,6 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic-lib` Coding System?
-
-* Do you have access to an OpenAI account with necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how such a system can be built?
-* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 END_README_BEGINNING
 
 ---
