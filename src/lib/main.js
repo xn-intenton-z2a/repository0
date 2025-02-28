@@ -154,7 +154,7 @@ export async function main(args) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
+  (async function run() {
     await main(process.argv.slice(2));
     process.exit(0);
   })();
