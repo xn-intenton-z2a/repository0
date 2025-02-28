@@ -10,7 +10,7 @@ export async function main(args = []) {
   }
 
   if (args.includes("--help")) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("  --diagnostics: Check system diagnostics");
     console.log("  --help       : Display this help message with flag descriptions");
     console.log("  --version    : Show current version of the application");
@@ -19,6 +19,7 @@ export async function main(args = []) {
     console.log("  --multiply   : Compute the product of provided numbers");
     console.log("  --subtract   : Subtract each subsequent number from the first provided number");
     console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
+    console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ...)");
     return;
   }
 
@@ -112,9 +113,29 @@ export async function main(args = []) {
     return;
   }
 
+  // New extended functionality: modulo calculation
+  if (args.includes("--modulo")) {
+    const moduloIndex = args.indexOf("--modulo");
+    const numArgs = args.slice(moduloIndex + 1)
+      .filter(arg => !arg.startsWith("--"))
+      .map(Number)
+      .filter(num => !isNaN(num));
+    if (numArgs.length < 2) {
+      console.log("Modulo: Provide at least two numbers");
+      return;
+    }
+    if (numArgs.slice(1).some(n => n === 0)) {
+      console.log("Modulo: Division by zero error");
+      return;
+    }
+    const result = numArgs.slice(1).reduce((acc, curr) => acc % curr, numArgs[0]);
+    console.log(`Modulo: ${result}`);
+    return;
+  }
+
   // New default behavior when no arguments are provided
   if (args.length === 0) {
-    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [numbers...]");
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
     return;
   }
