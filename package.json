@@ -8,6 +8,7 @@
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check .",
     "formatting-fix": "prettier --write .",
+    "lint": "eslint .",
     "linting": "eslint .",
     "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif .",
     "linting-fix": "eslint --fix .",
