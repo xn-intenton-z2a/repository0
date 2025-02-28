@@ -7,8 +7,12 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 
 export async function main(args) {
-  // Normalize input: ensure args is an array
+  let nonArrayInput = false;
   if (!Array.isArray(args)) {
+    // If the provided argument is not an array, mark that it is non-array and default to empty array.
+    if (args === null) {
+      nonArrayInput = true;
+    }
     args = [];
   }
 
@@ -139,9 +143,11 @@ export async function main(args) {
   }
 
   if (args.length === 0) {
-    console.log(
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
-    );
+    let usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]";
+    if (nonArrayInput) {
+      usage += "()";
+    }
+    console.log(usage);
     console.log("Demo: No arguments provided. Exiting.");
     return;
   }
