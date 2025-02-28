@@ -1,9 +1,6 @@
 #!/usr/bin/env node
-/* eslint-disable */
+/* eslint-env node, es2022 */
 // src/lib/main.js
-/* eslint-enable */
-
-// Note: Enhanced input validation and commentary added for improved test coverage, especially for non-numeric input and edge cases.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
