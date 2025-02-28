@@ -130,20 +130,17 @@ export async function main(args) {
     return;
   }
 
-  // Default behavior when no valid arguments are provided
   if (args.length === 0) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
     return;
   }
 
-  // Fallback for unknown flags
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  (async () => {
-    await main(process.argv.slice(2));
+  main(process.argv.slice(2)).then(() => {
     process.exit(0);
-  })();
+  });
 }
