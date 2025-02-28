@@ -134,9 +134,6 @@ export async function main(args) {
   if (args.length === 0) {
     console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("Demo: No arguments provided. Exiting.");
-    if (process.argv[1] === fileURLToPath(import.meta.url)) {
-      process.exit(0);
-    }
     return;
   }
 
@@ -145,6 +142,8 @@ export async function main(args) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args).then(() => process.exit(0));
+  (async () => {
+    await main(process.argv.slice(2));
+    process.exit(0);
+  })();
 }
