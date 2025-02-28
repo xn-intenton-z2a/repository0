@@ -30,9 +30,9 @@ The repository is intended as a template that includes:
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
-> Note: To avoid linting issues in archived files, the ESLint configuration ignores the `archive/` directory.
+> Note: Archive directories are excluded from linting to avoid irrelevant parsing errors.
 
 ## intentïon `agentic‑lib`
 
@@ -49,7 +49,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-
 END_README_BEGINNING
 
 ---
