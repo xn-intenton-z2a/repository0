@@ -15,16 +15,16 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and now supports additional operations including greeting, sum, multiplication, subtraction, division, and modulo calculations.
+  The main functionality is in `src/lib/main.js`. This file implements a CLI with operations including greeting, sum, multiplication, subtraction, division, and modulo calculations.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and also defines some of the test and build scripts.
+  `package.json` defines dependencies and scripts for building, testing, and running the application.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script maintains robust behavior. The test file `tests/unit/main.test.js` covers various command-line flags including the new modulo operation.
+  Unit tests in the `tests/unit/` folder ensure robust behavior of the CLI. Recent updates to the test file improve coverage of edge cases such as missing arguments for subtraction, division, and modulo operations.
 
-- **Docs**  
-  This `README.md` can be modified by the workflow to reflect current functionality.
+- **Docs:**  
+  This `README.md` is maintained to reflect current functionality and guide contributions.
 
 ## Getting Started
 
@@ -47,6 +47,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+
 END_README_BEGINNING
 
 ---
@@ -62,4 +63,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
 END_README_END

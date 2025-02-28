@@ -113,7 +113,7 @@ export async function main(args = []) {
     return;
   }
 
-  // New extended functionality: modulo calculation
+  // Extended functionality: modulo calculation
   if (args.includes("--modulo")) {
     const moduloIndex = args.indexOf("--modulo");
     const numArgs = args.slice(moduloIndex + 1)
