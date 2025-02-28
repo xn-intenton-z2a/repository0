@@ -32,6 +32,8 @@ This repository is already set up with the necessary workflows and scripts but y
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
+> Note: To avoid linting issues in archived files, the ESLint configuration ignores the `archive/` directory.
+
 ## intentïon `agentic‑lib`
 
 The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
