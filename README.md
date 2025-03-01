@@ -60,7 +60,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and now includes a new feature for calculating the average of numbers.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and now includes a new feature for calculating the average of numbers.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
@@ -107,3 +107,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
 END_README_END
+
+README_FILE_END

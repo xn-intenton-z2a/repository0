@@ -28,7 +28,7 @@ export async function main(args) {
     console.log("  --multiply   : Compute the product of provided numbers");
     console.log("  --subtract   : Subtract each subsequent number from the first provided number");
     console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
-    console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ...)");
+    console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... )");
     console.log("  --average    : Compute the arithmetic average of provided numbers");
     return;
   }
