@@ -21,7 +21,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.1.0'
     with:
-      script: 'npm run formatting-fix -- "." ; npm run linting-fix "."'
+      script: 'npm run formatting-fix -- src/lib/main.js tests/unit/main.test.js ; npm run linting-fix src/lib/main.js tests/unit/main.test.js'
       sarifScript: ''
       testScript: 'npm test'
       branch: 'apply-formatting'
