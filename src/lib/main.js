@@ -12,7 +12,6 @@ const USAGE_MESSAGE = "Usage: node src/lib/main.js [--diagnostics] [--help] [--v
 export async function main(args) {
   let nonArrayInput = false;
   if (!Array.isArray(args)) {
-    // If the provided argument is not an array, mark that it is non-array and default to empty array.
     if (args === null) {
       nonArrayInput = true;
     }
@@ -40,8 +39,8 @@ export async function main(args) {
       const pkg = require("../../package.json");
       const version = pkg.version;
       console.log(`Version: ${version}`);
-    } catch (err) {
-      console.error("Could not retrieve version:", err);
+    } catch {
+      console.error("Could not retrieve version: unknown error");
     }
     return;
   }
@@ -146,7 +145,7 @@ export async function main(args) {
       .map((arg) => {
         try {
           return z.number().parse(Number(arg));
-        } catch (e) {
+        } catch {
           return NaN;
         }
       })
@@ -168,7 +167,6 @@ export async function main(args) {
     }
     console.log(usage);
     console.log("Demo: No arguments provided. Exiting.");
-    // Terminate execution in CLI mode without waiting for user input
     return;
   }
 
