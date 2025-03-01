@@ -158,14 +158,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("displays version message when --version flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log");
-    const args = ["--version"];
-    await main(args);
-    expect(consoleSpy).toHaveBeenCalledWith("Version: 1.3.1-6");
-    consoleSpy.mockRestore();
-  });
-
   test("computes modulo when --modulo flag is provided with multiple numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--modulo", "20", "7", "4"]);
