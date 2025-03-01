@@ -17,10 +17,10 @@ The repository is intended as a template that includes:
   The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. Recent updates ensure that when no arguments are provided, a usage message and demo output are shown and the process terminates without waiting for user input.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies; it also defines some of the test and build scripts.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) covers all supported functionalities.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) covers all supported functionalities and can be updated by automated workflows if needed.
 
 - **Docs:**
   This `README.md` is maintained by automated workflows and provides information about the repository and its usage.
@@ -76,7 +76,7 @@ The repository is intended as a template that includes:
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for automated workflows such as publishing packages and managing issues.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 

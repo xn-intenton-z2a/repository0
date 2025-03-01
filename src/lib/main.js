@@ -39,7 +39,7 @@ export async function main(args) {
       const pkg = require("../../package.json");
       const version = pkg.version;
       console.log(`Version: ${version}`);
-    } catch {
+    } catch (_error) {
       console.error("Could not retrieve version: unknown error");
     }
     return;
@@ -57,7 +57,8 @@ export async function main(args) {
 
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
-    const numArgs = args.slice(sumIndex + 1)
+    const numArgs = args
+      .slice(sumIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map(Number)
       .filter((num) => !isNaN(num));
@@ -68,7 +69,8 @@ export async function main(args) {
 
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    const numArgs = args.slice(multiplyIndex + 1)
+    const numArgs = args
+      .slice(multiplyIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map(Number)
       .filter((num) => !isNaN(num));
@@ -79,7 +81,8 @@ export async function main(args) {
 
   if (args.includes("--subtract")) {
     const subtractIndex = args.indexOf("--subtract");
-    const numArgs = args.slice(subtractIndex + 1)
+    const numArgs = args
+      .slice(subtractIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map(Number)
       .filter((num) => !isNaN(num));
@@ -98,7 +101,8 @@ export async function main(args) {
 
   if (args.includes("--divide")) {
     const divideIndex = args.indexOf("--divide");
-    const numArgs = args.slice(divideIndex + 1)
+    const numArgs = args
+      .slice(divideIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map(Number)
       .filter((num) => !isNaN(num));
@@ -121,7 +125,8 @@ export async function main(args) {
 
   if (args.includes("--modulo")) {
     const moduloIndex = args.indexOf("--modulo");
-    const numArgs = args.slice(moduloIndex + 1)
+    const numArgs = args
+      .slice(moduloIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map(Number)
       .filter((num) => !isNaN(num));
@@ -140,7 +145,8 @@ export async function main(args) {
 
   if (args.includes("--average")) {
     const averageIndex = args.indexOf("--average");
-    const numArgs = args.slice(averageIndex + 1)
+    const numArgs = args
+      .slice(averageIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
       .map((arg) => {
         try {
