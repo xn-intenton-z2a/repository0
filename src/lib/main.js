@@ -153,7 +153,7 @@ export async function main(args = []) {
     "--subtract": () => handleSubtract(args),
     "--divide": () => handleDivide(args),
     "--modulo": () => handleModulo(args),
-    "--average": () => handleAverage(args),
+    "--average": () => handleAverage(args)
   };
 
   for (const flag in flagHandlers) {
