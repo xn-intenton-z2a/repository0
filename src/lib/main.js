@@ -154,12 +154,14 @@ export async function main(args = []) {
     "--modulo": () => handleModulo(args),
     "--average": () => handleAverage(args)
   };
-  for (const flag of Object.keys(flagHandlers)) {
+
+  for (const flag in flagHandlers) {
     if (args.includes(flag)) {
       flagHandlers[flag]();
       return;
     }
   }
+
   console.log("Run with: " + JSON.stringify(args));
 }
 
