@@ -5,6 +5,7 @@
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
+import { z } from "zod";
 
 const USAGE_MESSAGE = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]";
 
@@ -142,7 +143,13 @@ export async function main(args) {
     const averageIndex = args.indexOf("--average");
     const numArgs = args.slice(averageIndex + 1)
       .filter((arg) => !arg.startsWith("--"))
-      .map(Number)
+      .map((arg) => {
+        try {
+          return z.number().parse(Number(arg));
+        } catch (e) {
+          return NaN;
+        }
+      })
       .filter((num) => !isNaN(num));
     if (numArgs.length === 0) {
       console.log("Average: No numbers provided");
