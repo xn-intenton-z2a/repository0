@@ -1,4 +1,3 @@
-START_README_BEGINNING
 # `repository0`
 
 The repository is intended as a template that includes:
@@ -48,7 +47,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-END_README_BEGINNING
 
 ---
 ---
