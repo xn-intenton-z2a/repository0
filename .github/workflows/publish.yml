@@ -8,21 +8,21 @@ run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_comm
 concurrency: branch-${{ github.ref_name }}
 
 on:
-  push:
-    branches:
-      # When publishing from a branch, add branch name here, e,g, 'beta'
-      - main
-    paths:
-      - '**/*.sh'
-      - '**/*.js'
-      - '**/*.json'
-      - '**/*.yml'
-      - '**/*.properties'
-      - '!intentions/**'
-      - '!conversations/**'
-      - '!exports/**'
-      - '!programs/**'
-      - '!results/**'
+  #push:
+  #  branches:
+  #    # When publishing from a branch, add branch name here, e,g, 'beta'
+  #    - main
+  #  paths:
+  #    - '**/*.sh'
+  #    - '**/*.js'
+  #    - '**/*.json'
+  #    - '**/*.yml'
+  #    - '**/*.properties'
+  #    - '!intentions/**'
+  #    - '!conversations/**'
+  #    - '!exports/**'
+  #    - '!programs/**'
+  #    - '!results/**'
   workflow_dispatch:
     inputs:
       versionIncrement:
