@@ -19,7 +19,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.2.1'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
       script: 'npm run linting src/lib/main.js tests/unit/main.test.js'
@@ -33,7 +33,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.2.1'
     with:
       issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
       issueBody: ${{ needs.linting.outputs.scriptOutput }}

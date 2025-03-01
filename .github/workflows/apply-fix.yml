@@ -177,7 +177,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.2.1'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -336,7 +336,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.2.1'
     with:
       branch: "${{ needs.select-branch.outputs.branch }}"
       baseBranch: 'main'

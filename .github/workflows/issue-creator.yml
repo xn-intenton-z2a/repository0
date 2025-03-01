@@ -31,7 +31,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.2.1'
     with:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       houseChoiceOptions: |
