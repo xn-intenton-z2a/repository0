@@ -15,7 +15,10 @@ describe("CLI Behavior", () => {
       1,
       "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
     );
-    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      2,
+      "Demo: No arguments provided. Exiting."
+    );
     consoleSpy.mockRestore();
   });
 
@@ -83,7 +86,10 @@ describe("CLI Behavior", () => {
       1,
       "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()"
     );
-    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      2,
+      "Demo: No arguments provided. Exiting."
+    );
     consoleSpy.mockRestore();
   });
 

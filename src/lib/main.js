@@ -41,110 +41,148 @@ function getNumbers(args, flag) {
     .filter((num) => !isNaN(num));
 }
 
+function handleHelp() {
+  printHelp();
+}
+
+function handleVersion() {
+  try {
+    const require = createRequire(import.meta.url);
+    const pkg = require("../../package.json");
+    const version = pkg.version;
+    console.log(`Version: ${version}`);
+  } catch {
+    console.error("Could not retrieve version: unknown error");
+  }
+}
+
+function handleDiagnostics() {
+  console.log("Diagnostics: All systems operational.");
+}
+
+function handleGreet() {
+  console.log("Hello, welcome to repository0!");
+}
+
+function handleSum(args) {
+  const nums = getNumbers(args, "--sum");
+  const total = nums.reduce((acc, curr) => acc + curr, 0);
+  console.log(`Sum: ${total}`);
+}
+
+function handleMultiply(args) {
+  const nums = getNumbers(args, "--multiply");
+  const product = nums.reduce((acc, curr) => acc * curr, 1);
+  console.log(`Multiply: ${product}`);
+}
+
+function handleSubtract(args) {
+  const nums = getNumbers(args, "--subtract");
+  if (nums.length === 0) {
+    console.log("Subtract: No numbers provided");
+  } else if (nums.length === 1) {
+    console.log(`Subtract: ${nums[0]}`);
+  } else {
+    const result = nums.slice(1).reduce((acc, curr) => acc - curr, nums[0]);
+    console.log(`Subtract: ${result}`);
+  }
+}
+
+function handleDivide(args) {
+  const nums = getNumbers(args, "--divide");
+  if (nums.length === 0) {
+    console.log("Divide: No numbers provided");
+  } else if (nums.length === 1) {
+    console.log(`Divide: ${nums[0]}`);
+  } else if (nums.slice(1).some((n) => n === 0)) {
+    console.log("Divide: Division by zero error");
+  } else {
+    const result = nums.slice(1).reduce((acc, curr) => acc / curr, nums[0]);
+    console.log(`Divide: ${result}`);
+  }
+}
+
+function handleModulo(args) {
+  const nums = getNumbers(args, "--modulo");
+  if (nums.length < 2) {
+    console.log("Modulo: Provide at least two numbers");
+  } else if (nums.slice(1).some((n) => n === 0)) {
+    console.log("Modulo: Division by zero error");
+  } else {
+    const result = nums.slice(1).reduce((acc, curr) => acc % curr, nums[0]);
+    console.log(`Modulo: ${result}`);
+  }
+}
+
+function handleAverage(args) {
+  let nums = getNumbers(args, "--average")
+    .map((num) => {
+      try {
+        return z.number().parse(num);
+      } catch {
+        return NaN;
+      }
+    })
+    .filter((n) => !isNaN(n));
+  if (nums.length === 0) {
+    console.log("Average: No numbers provided");
+  } else {
+    const total = nums.reduce((acc, curr) => acc + curr, 0);
+    const avg = total / nums.length;
+    console.log(`Average: ${avg}`);
+  }
+}
+
 export async function main(args = []) {
   let nonArrayInput = false;
   if (!Array.isArray(args)) {
     nonArrayInput = true;
     args = [];
   }
-
   if (args.includes("--help")) {
-    printHelp();
-    return;
-  } else if (args.includes("--version")) {
-    try {
-      const require = createRequire(import.meta.url);
-      const pkg = require("../../package.json");
-      const version = pkg.version;
-      console.log(`Version: ${version}`);
-    } catch {
-      console.error("Could not retrieve version: unknown error");
-    }
-    return;
-  } else if (args.includes("--diagnostics")) {
-    console.log("Diagnostics: All systems operational.");
-    return;
-  } else if (args.includes("--greet")) {
-    console.log("Hello, welcome to repository0!");
-    return;
-  } else if (args.includes("--sum")) {
-    const nums = getNumbers(args, "--sum");
-    const total = nums.reduce((acc, curr) => acc + curr, 0);
-    console.log(`Sum: ${total}`);
-    return;
-  } else if (args.includes("--multiply")) {
-    const nums = getNumbers(args, "--multiply");
-    const product = nums.reduce((acc, curr) => acc * curr, 1);
-    console.log(`Multiply: ${product}`);
-    return;
-  } else if (args.includes("--subtract")) {
-    const nums = getNumbers(args, "--subtract");
-    if (nums.length === 0) {
-      console.log("Subtract: No numbers provided");
-      return;
-    }
-    if (nums.length === 1) {
-      console.log(`Subtract: ${nums[0]}`);
-      return;
-    }
-    const result = nums.slice(1).reduce((acc, curr) => acc - curr, nums[0]);
-    console.log(`Subtract: ${result}`);
-    return;
-  } else if (args.includes("--divide")) {
-    const nums = getNumbers(args, "--divide");
-    if (nums.length === 0) {
-      console.log("Divide: No numbers provided");
-      return;
-    }
-    if (nums.length === 1) {
-      console.log(`Divide: ${nums[0]}`);
-      return;
-    }
-    if (nums.slice(1).some((n) => n === 0)) {
-      console.log("Divide: Division by zero error");
-      return;
-    }
-    const result = nums.slice(1).reduce((acc, curr) => acc / curr, nums[0]);
-    console.log(`Divide: ${result}`);
-    return;
-  } else if (args.includes("--modulo")) {
-    const nums = getNumbers(args, "--modulo");
-    if (nums.length < 2) {
-      console.log("Modulo: Provide at least two numbers");
-      return;
-    }
-    if (nums.slice(1).some((n) => n === 0)) {
-      console.log("Modulo: Division by zero error");
-      return;
-    }
-    const result = nums.slice(1).reduce((acc, curr) => acc % curr, nums[0]);
-    console.log(`Modulo: ${result}`);
-    return;
-  } else if (args.includes("--average")) {
-    const nums = getNumbers(args, "--average")
-      .map((num) => {
-        try {
-          return z.number().parse(num);
-        } catch {
-          return NaN;
-        }
-      })
-      .filter((n) => !isNaN(n));
-    if (nums.length === 0) {
-      console.log("Average: No numbers provided");
-    } else {
-      const total = nums.reduce((acc, curr) => acc + curr, 0);
-      const avg = total / nums.length;
-      console.log(`Average: ${avg}`);
-    }
+    handleHelp();
     return;
   }
-
+  if (args.includes("--version")) {
+    handleVersion();
+    return;
+  }
+  if (args.includes("--diagnostics")) {
+    handleDiagnostics();
+    return;
+  }
+  if (args.includes("--greet")) {
+    handleGreet();
+    return;
+  }
+  if (args.includes("--sum")) {
+    handleSum(args);
+    return;
+  }
+  if (args.includes("--multiply")) {
+    handleMultiply(args);
+    return;
+  }
+  if (args.includes("--subtract")) {
+    handleSubtract(args);
+    return;
+  }
+  if (args.includes("--divide")) {
+    handleDivide(args);
+    return;
+  }
+  if (args.includes("--modulo")) {
+    handleModulo(args);
+    return;
+  }
+  if (args.includes("--average")) {
+    handleAverage(args);
+    return;
+  }
   if (args.length === 0) {
     printUsage(nonArrayInput);
     return;
   }
-
   console.log("Run with: " + JSON.stringify(args));
 }
 
