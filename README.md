@@ -108,3 +108,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
 END_README_END
+
+README_FILE_END

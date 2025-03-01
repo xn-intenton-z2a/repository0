@@ -41,7 +41,7 @@ function getNumbers(args, flag) {
     .filter((num) => !isNaN(num));
 }
 
-export async function main(args) {
+export async function main(args = []) {
   let nonArrayInput = false;
   if (!Array.isArray(args)) {
     nonArrayInput = true;
