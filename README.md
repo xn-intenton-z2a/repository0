@@ -11,7 +11,7 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -20,17 +20,16 @@ The repository is intended as a template that includes:
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains accurate and robust. The test file `tests/unit/main.test.js` can be modified by the workflow to address issues or update features.
 
-- **Docs**  
-  This `README.md` can be modified by the workflow.
+- **Docs:**  
+  This `README.md` can be updated by the workflow.
 
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
@@ -40,9 +39,13 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
----
+## Should you use the `agentic‑lib` Coding System?
 
-# Ensure README.md begins like this:
+* Do you have access to an OpenAI account with necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how such a system can be built?
+* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 
 START_README_BEGINNING
 # `repository0`
@@ -58,7 +61,7 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -67,11 +70,10 @@ The repository is intended as a template that includes:
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains accurate and robust. The test file `tests/unit/main.test.js` can be modified by the workflow to address issues or update features.
 
-- **Docs**  
-  This `README.md` can be modified by the workflow.
+- **Docs:**  
+  This `README.md` can be updated by the workflow.
 
 ## Getting Started
 
@@ -95,10 +97,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 END_README_BEGINNING
-
----
-
-# Ensure README.md ends like this:
 
 START_README_END
 ### Contributing
