@@ -13,7 +13,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
@@ -34,7 +34,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
@@ -70,7 +70,11 @@ describe("CLI Behavior", () => {
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       10,
-      "  --modulo     : Compute the modulo of provided numbers (first % second % ...)"
+      "  --modulo     : Compute the modulo of provided numbers (first % second % ... )"
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      11,
+      "  --average    : Compute the arithmetic average of provided numbers"
     );
     consoleSpy.mockRestore();
   });
@@ -80,7 +84,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
@@ -212,6 +216,20 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--modulo", "10", "b", "3"]);
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes average when --average flag is provided with multiple numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--average", "4", "8", "12"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Average: 8");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles average with no numbers provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    await main(["--average"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Average: No numbers provided");
     consoleSpy.mockRestore();
   });
 });

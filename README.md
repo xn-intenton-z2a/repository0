@@ -14,13 +14,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file now includes a new feature to compute the average of provided numbers when using the `--average` flag.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies; it also defines some of the test and build scripts.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) may be updated by the automated workflows when necessary.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) has been updated to cover the new `--average` functionality.
 
 - **Docs:** 
   This `README.md` can be modified by the workflow.
@@ -60,22 +60,22 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and now includes a new feature for calculating the average of numbers.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. This test file (`tests/unit/main.test.js`) may be updated by the workflow if needed.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. This test file (`tests/unit/main.test.js`) has been updated to include tests for the new average functionality.
 
-- **Docs:** 
+- **Docs**  
   This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
-This repository is set up with the necessary workflows and scripts, but you need to supply the following secrets:
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set this secret in your repository settings under *Settings > Secrets and Variables > Actions*. It is essential for the automated workflows such as publishing packages and managing issues.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 

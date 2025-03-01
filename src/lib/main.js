@@ -6,7 +6,7 @@
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 
-const USAGE_MESSAGE = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]";
+const USAGE_MESSAGE = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]";
 
 export async function main(args) {
   let nonArrayInput = false;
@@ -29,6 +29,7 @@ export async function main(args) {
     console.log("  --subtract   : Subtract each subsequent number from the first provided number");
     console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
     console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ...)");
+    console.log("  --average    : Compute the arithmetic average of provided numbers");
     return;
   }
 
@@ -134,6 +135,22 @@ export async function main(args) {
     }
     const result = numArgs.slice(1).reduce((acc, curr) => acc % curr, numArgs[0]);
     console.log(`Modulo: ${result}`);
+    return;
+  }
+
+  if (args.includes("--average")) {
+    const averageIndex = args.indexOf("--average");
+    const numArgs = args.slice(averageIndex + 1)
+      .filter((arg) => !arg.startsWith("--"))
+      .map(Number)
+      .filter((num) => !isNaN(num));
+    if (numArgs.length === 0) {
+      console.log("Average: No numbers provided");
+    } else {
+      const total = numArgs.reduce((acc, curr) => acc + curr, 0);
+      const avg = total / numArgs.length;
+      console.log(`Average: ${avg}`);
+    }
     return;
   }
 
