@@ -97,8 +97,7 @@ function handleDivide(args) {
   } else if (nums.slice(1).some((n) => n === 0)) {
     console.log("Divide: Division by zero error");
   } else {
-    const validNums = nums.filter((n) => typeof n === "number" && !isNaN(n));
-    const result = validNums.slice(1).reduce((acc, curr) => acc / curr, validNums[0]);
+    const result = nums.slice(1).reduce((acc, curr) => acc / curr, nums[0]);
     console.log(`Divide: ${result}`);
   }
 }
@@ -116,7 +115,7 @@ function handleModulo(args) {
 }
 
 function handleAverage(args) {
-  let nums = getNumbers(args, "--average")
+  const nums = getNumbers(args, "--average")
     .map((num) => {
       try {
         return z.number().parse(num);
@@ -135,12 +134,14 @@ function handleAverage(args) {
 }
 
 export async function main(args = []) {
-  let nonArrayInput = false;
   if (!Array.isArray(args)) {
-    nonArrayInput = true;
-    args = [];
+    printUsage(true);
+    return;
   }
-
+  if (args.length === 0) {
+    printUsage(false);
+    return;
+  }
   const flagHandlers = {
     "--help": handleHelp,
     "--version": handleVersion,
@@ -153,19 +154,12 @@ export async function main(args = []) {
     "--modulo": () => handleModulo(args),
     "--average": () => handleAverage(args)
   };
-
-  for (const flag in flagHandlers) {
+  for (const flag of Object.keys(flagHandlers)) {
     if (args.includes(flag)) {
       flagHandlers[flag]();
       return;
     }
   }
-
-  if (args.length === 0) {
-    printUsage(nonArrayInput);
-    return;
-  }
-
   console.log("Run with: " + JSON.stringify(args));
 }
 

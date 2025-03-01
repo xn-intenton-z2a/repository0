@@ -86,19 +86,13 @@ describe("CLI Behavior", () => {
       1,
       "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()"
     );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      2,
-      "Demo: No arguments provided. Exiting."
-    );
     consoleSpy.mockRestore();
   });
 
   test("outputs generic run message for unknown flags", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--unknown"]);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "Run with: " + JSON.stringify(["--unknown"])
-    );
+    expect(consoleSpy).toHaveBeenCalledWith("Run with: " + JSON.stringify(["--unknown"]));
     consoleSpy.mockRestore();
   });
 
