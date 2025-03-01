@@ -20,10 +20,11 @@ The repository is intended as a template that includes:
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains accurate and robust. The test file `tests/unit/main.test.js` can be modified by the workflow to address issues or update features.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file (`tests/unit/main.test.js`) can be modified by the workflow to fix behavior if needed.
 
 - **Docs:**  
-  This `README.md` can be updated by the workflow.
+  This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
@@ -61,26 +62,26 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
   Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  This test file (`tests/unit/main.test.js`) can be modified by the workflow to fix behavior if needed.
 
-- **Docs**  
+- **Docs:**  
   This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
