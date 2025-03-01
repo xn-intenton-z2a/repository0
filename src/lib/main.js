@@ -168,6 +168,7 @@ export async function main(args) {
     }
     console.log(usage);
     console.log("Demo: No arguments provided. Exiting.");
+    // Terminate execution in CLI mode without waiting for user input
     return;
   }
 

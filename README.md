@@ -14,13 +14,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file now includes a new feature to calculate the arithmetic average of provided numbers with built-in input validation using zod.
+  The main functionality is in `src/lib/main.js`. This file now includes logic that defaults to displaying a usage message and demo output when no command-line arguments are provided, ensuring the execution terminates gracefully without waiting for user input.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) has been updated to include tests for the new average functionality.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) includes tests for all supported functionalities including the new behavior when no arguments are passed.
 
 - **Docs** 
   This `README.md` can be modified by the workflow.
@@ -57,16 +57,17 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and now includes a new feature for calculating the arithmetic average of numbers with input validation using zod.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn’t drift too far. The test file (`tests/unit/main.test.js`) has been updated to include tests for the new average functionality.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
 - **Docs**  
   This `README.md` can be modified by the workflow.
