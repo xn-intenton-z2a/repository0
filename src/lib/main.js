@@ -139,45 +139,24 @@ export async function main(args = []) {
     nonArrayInput = true;
     args = [];
   }
-  if (args.includes("--help")) {
-    handleHelp();
-    return;
-  }
-  if (args.includes("--version")) {
-    handleVersion();
-    return;
-  }
-  if (args.includes("--diagnostics")) {
-    handleDiagnostics();
-    return;
-  }
-  if (args.includes("--greet")) {
-    handleGreet();
-    return;
-  }
-  if (args.includes("--sum")) {
-    handleSum(args);
-    return;
-  }
-  if (args.includes("--multiply")) {
-    handleMultiply(args);
-    return;
-  }
-  if (args.includes("--subtract")) {
-    handleSubtract(args);
-    return;
-  }
-  if (args.includes("--divide")) {
-    handleDivide(args);
-    return;
-  }
-  if (args.includes("--modulo")) {
-    handleModulo(args);
-    return;
-  }
-  if (args.includes("--average")) {
-    handleAverage(args);
-    return;
+  const flagHandlers = {
+    "--help": handleHelp,
+    "--version": handleVersion,
+    "--diagnostics": handleDiagnostics,
+    "--greet": handleGreet,
+    "--sum": () => handleSum(args),
+    "--multiply": () => handleMultiply(args),
+    "--subtract": () => handleSubtract(args),
+    "--divide": () => handleDivide(args),
+    "--modulo": () => handleModulo(args),
+    "--average": () => handleAverage(args)
+  };
+
+  for (const flag in flagHandlers) {
+    if (args.includes(flag)) {
+      flagHandlers[flag]();
+      return;
+    }
   }
   if (args.length === 0) {
     printUsage(nonArrayInput);
