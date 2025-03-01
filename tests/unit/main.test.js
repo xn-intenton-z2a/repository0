@@ -96,7 +96,9 @@ describe("CLI Behavior", () => {
   test("outputs generic run message for unknown flags", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--unknown"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Run with: " + JSON.stringify(["--unknown"]));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "Run with: " + JSON.stringify(["--unknown"])
+    );
     consoleSpy.mockRestore();
   });
 
