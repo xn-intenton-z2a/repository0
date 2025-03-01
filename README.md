@@ -60,7 +60,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
@@ -69,7 +69,7 @@ The repository is intended as a template that includes:
   Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
   This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
-- **Docs:**  
+- **Docs**  
   This `README.md` can be modified by the workflow.
 
 ## Getting Started
@@ -108,3 +108,5 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
 END_README_END
+
+README_FILE_END
