@@ -97,7 +97,8 @@ function handleDivide(args) {
   } else if (nums.slice(1).some((n) => n === 0)) {
     console.log("Divide: Division by zero error");
   } else {
-    const result = nums.slice(1).reduce((acc, curr) => acc / curr, nums[0]);
+    const validNums = nums.filter((n) => typeof n === "number" && !isNaN(n));
+    const result = validNums.slice(1).reduce((acc, curr) => acc / curr, validNums[0]);
     console.log(`Divide: ${result}`);
   }
 }
@@ -139,6 +140,7 @@ export async function main(args = []) {
     nonArrayInput = true;
     args = [];
   }
+
   const flagHandlers = {
     "--help": handleHelp,
     "--version": handleVersion,
@@ -158,10 +160,12 @@ export async function main(args = []) {
       return;
     }
   }
+
   if (args.length === 0) {
     printUsage(nonArrayInput);
     return;
   }
+
   console.log("Run with: " + JSON.stringify(args));
 }
 
