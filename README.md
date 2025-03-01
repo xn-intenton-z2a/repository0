@@ -53,7 +53,7 @@ END_README_BEGINNING
 ---
 ---
 
-# Ensure README.md ends like follows:
+# Ensure README.md ends like this:
 
 START_README_END
 ### Contributing
