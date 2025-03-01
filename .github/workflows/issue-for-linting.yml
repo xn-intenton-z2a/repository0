@@ -22,8 +22,8 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.1.0'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
-      script: 'npm run linting'
-      sarifScript: 'npm run linting-json --silent'
+      script: 'npm run linting src/lib/main.js tests/unit/main.test.js'
+      sarifScript: 'npm run linting-json --silent src/lib/main.js tests/unit/main.test.js'
       testScript: 'npm test'
 
   create-issue:
