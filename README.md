@@ -61,19 +61,20 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains accurate and robust. The test file `tests/unit/main.test.js` can be modified by the workflow to address issues or update features.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
-- **Docs:**  
-  This `README.md` can be updated by the workflow.
+- **Docs**  
+  This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
@@ -97,6 +98,9 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 END_README_BEGINNING
+
+---
+---
 
 START_README_END
 ### Contributing
