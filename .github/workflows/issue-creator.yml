@@ -22,7 +22,7 @@ on:
         default: 'house choice'
   schedule:
     #- cron: '0 */4 * * *' # Every 4 hours at 0 minutes past
-        - cron: '0 */1 * * *' # Every hour
+        - cron: '0 */2 * * *' # Every 2 hours at 0 minutes past
     #- cron: '0,30 * * * *' # Every 30 minutes
 
 jobs:
