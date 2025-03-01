@@ -17,20 +17,19 @@ The repository is intended as a template that includes:
   The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
+  `package.json` can be modified by the workflow to add or update dependencies; it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) may be updated by the automated workflows when necessary.
 
-- **Docs**  
+- **Docs:** 
   This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+This repository is set up with the necessary workflows and scripts, but you need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+  Set this secret in your repository settings under *Settings > Secrets and Variables > Actions*. It is essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
@@ -41,7 +40,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
 ---
-
 
 # Ensure README.md begins like this:
 
@@ -59,26 +57,25 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. This test file (`tests/unit/main.test.js`) may be updated by the workflow if needed.
 
-- **Docs**  
+- **Docs:** 
   This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+This repository is set up with the necessary workflows and scripts, but you need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+  Set this secret in your repository settings under *Settings > Secrets and Variables > Actions*. It is essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
@@ -98,7 +95,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 END_README_BEGINNING
 
 ---
-
 
 # Ensure README.md ends like this:
 
