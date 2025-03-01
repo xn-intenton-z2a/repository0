@@ -20,8 +20,8 @@ on:
   schedule:
     #- cron: '*/10 * * * *' # Run every 10 minutes
     #- cron: '15 */2 * * *'  # Run every 2 hours at 15 minutes past
-    - cron: '45 */1 * * *' # Run every hour at 45 minutes past
-    #- cron: '*/5 * * * *' # Run every 20 minutes
+    #- cron: '45 */1 * * *' # Run every hour at 45 minutes past
+    - cron: '*/30 * * * *' # Run every 30 minutes
 
 jobs:
   pull-request-event:

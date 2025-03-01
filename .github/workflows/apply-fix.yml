@@ -43,8 +43,8 @@ on:
       - apply-update
   schedule:
     #- cron: '* * 0 * *' # Run every day at midnight
-    - cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
-    #- cron: '*/30 * * * *' # Run every 30 minutes
+    #- cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
+    - cron: '*/30 * * * *' # Run every 30 minutes
 
 jobs:
 
