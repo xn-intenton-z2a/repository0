@@ -11,14 +11,8 @@ describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main();
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      2,
-      "Demo: No arguments provided. Exiting."
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
@@ -32,60 +26,24 @@ describe("CLI Behavior", () => {
   test("displays help message when --help flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(["--help"]);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      2,
-      "  --diagnostics: Check system diagnostics"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      3,
-      "  --help       : Display this help message with flag descriptions"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      4,
-      "  --version    : Show current version of the application"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      5,
-      "  --greet      : Display a greeting message"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      6,
-      "  --sum        : Compute the sum of provided numbers"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      7,
-      "  --multiply   : Compute the product of provided numbers"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      8,
-      "  --subtract   : Subtract each subsequent number from the first provided number"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      9,
-      "  --divide     : Divide the first number by each of the subsequent numbers sequentially"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      10,
-      "  --modulo     : Compute the modulo of provided numbers (first % second % ... )"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      11,
-      "  --average    : Compute the arithmetic average of provided numbers"
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]");
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
+    expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
+    expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
+    expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
+    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers");
+    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number");
+    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially");
+    expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... )");
+    expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers");
     consoleSpy.mockRestore();
   });
 
   test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log");
     await main(null);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()"
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()");
     consoleSpy.mockRestore();
   });
 
