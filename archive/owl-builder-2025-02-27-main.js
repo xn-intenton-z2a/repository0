@@ -19,9 +19,7 @@ import { promisify } from "util"; // Added promisify for async figlet
 dayjs.extend(utc);
 
 // Use a no-op chalk when in test mode for consistent output during testing
-const chalk = process.env.NODE_ENV === "test"
-  ? { blue: s => s, green: s => s, red: s => s }
-  : chalkImport;
+const chalk = process.env.NODE_ENV === "test" ? { blue: (s) => s, green: (s) => s, red: (s) => s } : chalkImport;
 
 // Promisify figlet for async/await usage
 const figletAsync = promisify(figlet);
@@ -74,8 +72,8 @@ function safeExit(code) {
  * @param {string[]} messages - Array of messages to print.
  * @param {function} colorFunc - Optional function to color the message (default: chalk.green).
  */
-function printAndExit(messages, colorFunc = msg => chalk.green(msg)) {
-  messages.forEach(message => console.log(colorFunc(message)));
+function printAndExit(messages, colorFunc = (msg) => chalk.green(msg)) {
+  messages.forEach((message) => console.log(colorFunc(message)));
   safeExit(0);
 }
 
@@ -121,8 +119,8 @@ export async function main(args) {
         "--uuid",
         "--analyze-owl",
         "--extended",
-        "--ascii-version"
-      ]
+        "--ascii-version",
+      ],
     };
     console.log(chalk.green(`Help JSON:\n${JSON.stringify(helpJson, null, 2)}`));
     safeExit(0);
@@ -131,11 +129,7 @@ export async function main(args) {
 
   // Detailed version info
   if (args.includes("--version-full")) {
-    printAndExit([
-      `Name: ${pkg.name}`,
-      `Version: ${pkg.version}`,
-      `Description: ${pkg.description}`
-    ]);
+    printAndExit([`Name: ${pkg.name}`, `Version: ${pkg.version}`, `Description: ${pkg.description}`]);
     return;
   }
 
@@ -163,16 +157,11 @@ export async function main(args) {
   if (args.includes("--example-owl")) {
     const exampleOWL = {
       ontologyIRI: "http://example.org/tea.owl",
-      classes: [
-        { id: "Tea", label: "Tea" }
-      ],
+      classes: [{ id: "Tea", label: "Tea" }],
       properties: [],
-      individuals: []
+      individuals: [],
     };
-    printAndExit([
-      "Example OWL Ontology as JSON:",
-      JSON.stringify(exampleOWL, null, 2)
-    ]);
+    printAndExit(["Example OWL Ontology as JSON:", JSON.stringify(exampleOWL, null, 2)]);
     return;
   }
 
@@ -201,37 +190,34 @@ export async function main(args) {
     }
 
     if (endpoint === "https://restcountries.com/v3.1/all") {
-      const individuals = data.slice(0, 3).map(country => ({
+      const individuals = data.slice(0, 3).map((country) => ({
         id: country.name && country.name.common ? country.name.common : "Unknown",
-        label: country.region || "Unknown"
+        label: country.region || "Unknown",
       }));
       owlOntology = {
         ontologyIRI: "http://example.org/countries.owl",
         classes: [{ id: "Country", label: "Country" }],
         properties: [],
-        individuals
+        individuals,
       };
     } else {
-      const individuals = data.slice(0, 3).map(user => ({
+      const individuals = data.slice(0, 3).map((user) => ({
         id: user.username || "Unknown",
-        label: user.company && user.company.name ? user.company.name : "Unknown"
+        label: user.company && user.company.name ? user.company.name : "Unknown",
       }));
       owlOntology = {
         ontologyIRI: "http://example.org/users.owl",
         classes: [{ id: "User", label: "User" }],
         properties: [],
-        individuals
+        individuals,
       };
     }
     owlOntology.metadata = {
       fetchedAt: new Date().toISOString(),
       sourceEndpoint: endpoint,
-      recordCount: data.length
+      recordCount: data.length,
     };
-    printAndExit([
-      "Fetched OWL Ontology as JSON:",
-      JSON.stringify(owlOntology, null, 2)
-    ]);
+    printAndExit(["Fetched OWL Ontology as JSON:", JSON.stringify(owlOntology, null, 2)]);
     return;
   }
 
@@ -239,18 +225,11 @@ export async function main(args) {
   if (args.includes("--build-owl")) {
     const builtOntology = {
       ontologyIRI: "http://example.org/built.owl",
-      classes: [
-        { id: "Demo", label: "Demo Class" }
-      ],
+      classes: [{ id: "Demo", label: "Demo Class" }],
       properties: [],
-      individuals: [
-        { id: "SampleIndividual", label: "Sample Label" }
-      ]
+      individuals: [{ id: "SampleIndividual", label: "Sample Label" }],
     };
-    printAndExit([
-      "Built OWL Ontology as JSON:",
-      JSON.stringify(builtOntology, null, 2)
-    ]);
+    printAndExit(["Built OWL Ontology as JSON:", JSON.stringify(builtOntology, null, 2)]);
     return;
   }
 
@@ -262,7 +241,9 @@ export async function main(args) {
       let endpoint = "https://restcountries.com/v3.1/all";
       let response = await fetch(endpoint);
       if (!response.ok) {
-        console.error(chalk.red(`Diagnostics: Primary endpoint failed with status ${response.status}. Trying backup endpoint...`));
+        console.error(
+          chalk.red(`Diagnostics: Primary endpoint failed with status ${response.status}. Trying backup endpoint...`),
+        );
         endpoint = "https://jsonplaceholder.typicode.com/users";
         response = await fetch(endpoint);
         if (!response.ok) {
@@ -274,24 +255,27 @@ export async function main(args) {
       const data = await response.json();
       const latency = Date.now() - start;
       console.log(chalk.green(`Diagnostics: Fetched ${data.length} records in ${latency} ms.`));
-      const individuals = data.slice(0, 3).map(item => {
+      const individuals = data.slice(0, 3).map((item) => {
         if (item.name && item.name.common) {
           return { id: item.name.common, label: item.region || "Unknown" };
         } else {
-          return { id: item.username || "Unknown", label: item.company && item.company.name ? item.company.name : "Unknown" };
+          return {
+            id: item.username || "Unknown",
+            label: item.company && item.company.name ? item.company.name : "Unknown",
+          };
         }
       });
       const diagOwlOntology = {
         ontologyIRI: "http://example.org/diagnostics.owl",
         classes: [{ id: "Country", label: "Country" }],
         properties: [],
-        individuals
+        individuals,
       };
       diagOwlOntology.metadata = {
         fetchedAt: new Date().toISOString(),
         recordCount: data.length,
         latencyMs: latency,
-        sourceEndpoint: endpoint
+        sourceEndpoint: endpoint,
       };
       console.log(chalk.green(`Diagnostics: OWL Ontology JSON:\n${JSON.stringify(diagOwlOntology, null, 2)}`));
     } catch (error) {
@@ -307,20 +291,14 @@ export async function main(args) {
   if (args.includes("--extend")) {
     const extendedOntology = {
       ontologyIRI: "http://example.org/extended.owl",
-      classes: [
-        { id: "Extended", label: "Extended Class" }
-      ],
-      properties: [
-        { id: "hasExtension", label: "Has Extension" }
-      ],
-      individuals: [
-        { id: "ExtensionIndividual", label: "Extension Label" }
-      ],
+      classes: [{ id: "Extended", label: "Extended Class" }],
+      properties: [{ id: "hasExtension", label: "Has Extension" }],
+      individuals: [{ id: "ExtensionIndividual", label: "Extension Label" }],
       metadata: {
         applied: true,
         description: "This ontology includes extended functionality options.",
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     };
     console.log(chalk.green(`Extended OWL Ontology as JSON:\n${JSON.stringify(extendedOntology, null, 2)}`));
     safeExit(0);
@@ -331,22 +309,16 @@ export async function main(args) {
   if (args.includes("--full-extend")) {
     const fullExtendedOntology = {
       ontologyIRI: "http://example.org/full-extended.owl",
-      classes: [
-        { id: "FullExtended", label: "Full Extended Class" }
-      ],
-      properties: [
-        { id: "hasFullExtension", label: "Has Full Extension" }
-      ],
-      individuals: [
-        { id: "FullExtensionIndividual", label: "Full Extension Label" }
-      ],
+      classes: [{ id: "FullExtended", label: "Full Extended Class" }],
+      properties: [{ id: "hasFullExtension", label: "Has Full Extension" }],
+      individuals: [{ id: "FullExtensionIndividual", label: "Full Extension Label" }],
       metadata: {
         applied: true,
         description: "This ontology includes full extended functionality with environment details.",
         timestamp: new Date().toISOString(),
         nodeVersion: process.version,
-        platform: os.platform()
-      }
+        platform: os.platform(),
+      },
     };
     console.log(chalk.green(`Full Extended OWL Ontology as JSON:\n${JSON.stringify(fullExtendedOntology, null, 2)}`));
     safeExit(0);
@@ -360,34 +332,29 @@ export async function main(args) {
         ontologyIRI: "http://example.org/owl1",
         classes: [{ id: "Class1", label: "Class 1" }],
         properties: [],
-        individuals: [{ id: "Individual1", label: "Individual 1" }]
+        individuals: [{ id: "Individual1", label: "Individual 1" }],
       },
       {
         ontologyIRI: "http://example.org/owl2",
         classes: [{ id: "Class2", label: "Class 2" }],
         properties: [],
-        individuals: [{ id: "Individual2", label: "Individual 2" }]
-      }
+        individuals: [{ id: "Individual2", label: "Individual 2" }],
+      },
     ];
     const randomIndex = Math.floor(Math.random() * samples.length);
     const randomOWL = samples[randomIndex];
     randomOWL.metadata = {
       generatedAt: new Date().toISOString(),
-      randomSeed: Math.random().toString(36).substr(2, 5)
+      randomSeed: Math.random().toString(36).substr(2, 5),
     };
-    printAndExit([
-      "Random OWL Ontology as JSON:",
-      JSON.stringify(randomOWL, null, 2)
-    ]);
+    printAndExit(["Random OWL Ontology as JSON:", JSON.stringify(randomOWL, null, 2)]);
     return;
   }
 
   // New Feature: Generate a new UUID
   if (args.includes("--uuid")) {
     const newUuid = uuidv4();
-    printAndExit([
-      `Generated UUID: ${newUuid}`
-    ]);
+    printAndExit([`Generated UUID: ${newUuid}`]);
     return;
   }
 
@@ -396,20 +363,16 @@ export async function main(args) {
     // Using the built ontology as a sample for analysis
     const builtOntology = {
       ontologyIRI: "http://example.org/built.owl",
-      classes: [
-        { id: "Demo", label: "Demo Class" }
-      ],
+      classes: [{ id: "Demo", label: "Demo Class" }],
       properties: [],
-      individuals: [
-        { id: "SampleIndividual", label: "Sample Label" }
-      ]
+      individuals: [{ id: "SampleIndividual", label: "Sample Label" }],
     };
     const analysis = {
       ontologyIRI: builtOntology.ontologyIRI,
       classCount: builtOntology.classes.length,
       propertyCount: builtOntology.properties.length,
       individualCount: builtOntology.individuals.length,
-      analyzedAt: new Date().toISOString()
+      analyzedAt: new Date().toISOString(),
     };
     console.log(chalk.green("OWL Ontology Analysis:"));
     console.log(chalk.green(JSON.stringify(analysis, null, 2)));
@@ -423,20 +386,20 @@ export async function main(args) {
       platform: os.platform(),
       arch: os.arch(),
       nodeVersion: process.version,
-      cpu: os.cpus()[0].model
+      cpu: os.cpus()[0].model,
     };
     const detailedDiagnostics = {
       memory: {
         total: os.totalmem(),
-        free: os.freemem()
+        free: os.freemem(),
       },
       uptime: os.uptime(),
-      loadAverage: os.loadavg()
+      loadAverage: os.loadavg(),
     };
     const combinedInfo = {
       systemInfo,
       detailedDiagnostics,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
     console.log(chalk.green(`Extended Info as JSON:\n${JSON.stringify(combinedInfo, null, 2)}`));
     safeExit(0);
@@ -448,7 +411,7 @@ export async function main(args) {
     const logMessage = "Logging output to file 'owl-builder.log'";
     console.log(chalk.green(logMessage));
     try {
-      await appendFile('owl-builder.log', `${new Date().toISOString()} ${logMessage}\n`);
+      await appendFile("owl-builder.log", `${new Date().toISOString()} ${logMessage}\n`);
     } catch (error) {
       console.error(chalk.red("Error writing log file:"), error);
       safeExit(1);
@@ -471,7 +434,7 @@ export async function main(args) {
       platform: os.platform(),
       arch: os.arch(),
       nodeVersion: process.version,
-      cpu: os.cpus()[0].model
+      cpu: os.cpus()[0].model,
     };
     console.log(chalk.green(`System Information:\n${JSON.stringify(systemInfo, null, 2)}`));
     safeExit(0);
@@ -483,10 +446,10 @@ export async function main(args) {
     const detailedDiagnostics = {
       memory: {
         total: os.totalmem(),
-        free: os.freemem()
+        free: os.freemem(),
       },
       uptime: os.uptime(),
-      loadAverage: os.loadavg()
+      loadAverage: os.loadavg(),
     };
     console.log(chalk.green(`Detailed Diagnostics:\n${JSON.stringify(detailedDiagnostics, null, 2)}`));
     safeExit(0);

@@ -81,9 +81,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": [
-    "package.json"
-  ],
+  "files": ["package.json"],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
