@@ -8,21 +8,21 @@ run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_comm
 concurrency: branch-${{ github.ref_name }}
 
 on:
-  push:
-    branches:
-      # When publishing from a branch, add branch name here, e,g, 'beta'
-      - main
-    paths:
-      - '**/*.sh'
-      - '**/*.js'
-      - '**/*.json'
-      - '**/*.yml'
-      - '**/*.properties'
-      - '!intentions/**'
-      - '!conversations/**'
-      - '!exports/**'
-      - '!programs/**'
-      - '!results/**'
+  #push:
+  #  branches:
+  #    # When publishing from a branch, add branch name here, e,g, 'beta'
+  #    - main
+  #  paths:
+  #    - '**/*.sh'
+  #    - '**/*.js'
+  #    - '**/*.json'
+  #    - '**/*.yml'
+  #    - '**/*.properties'
+  #    - '!intentions/**'
+  #    - '!conversations/**'
+  #    - '!exports/**'
+  #    - '!programs/**'
+  #    - '!results/**'
   workflow_dispatch:
     inputs:
       versionIncrement:
@@ -67,7 +67,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.1.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       buildScript: 'npm run build'

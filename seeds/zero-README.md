@@ -4,7 +4,7 @@
 
 To create a self-evolving agentic coding system of your own based on this one see the [TEMPLATE-README.md](./TEMPLATE-README.md) for more details.
 
-This readme shall evolve into a based on of the seed CONTRIBUTING files in [./seeds](./seeds).
+This readme shall evolve into a JavaScript library based on of the seed CONTRIBUTING files in [./seeds](./seeds).
 
 ## Repository Template
 
