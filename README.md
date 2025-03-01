@@ -11,25 +11,26 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. Recent updates ensure that when no arguments are provided, a usage message and demo output are shown and the process terminates without waiting for user input.
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains reliable. The test file (`tests/unit/main.test.js`) covers all supported functionalities and can be updated by automated workflows if needed.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
-- **Docs:**
-  This `README.md` is maintained by automated workflows and provides information about the repository and its usage.
+- **Docs**  
+  This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for automated workflows such as publishing packages and managing issues.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
@@ -108,5 +109,3 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
 END_README_END
-
-README_FILE_END
