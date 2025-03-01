@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /* eslint-env node, es2022 */
 // src/lib/main.js
 
@@ -16,9 +17,7 @@ export async function main(args) {
   }
 
   if (args.includes("--help")) {
-    console.log(
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]"
-    );
+    console.log("Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [numbers...]");
     console.log("  --diagnostics: Check system diagnostics");
     console.log("  --help       : Display this help message with flag descriptions");
     console.log("  --version    : Show current version of the application");
@@ -55,8 +54,7 @@ export async function main(args) {
 
   if (args.includes("--sum")) {
     const sumIndex = args.indexOf("--sum");
-    const numArgs = args
-      .slice(sumIndex + 1)
+    const numArgs = args.slice(sumIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
       .filter(num => !isNaN(num));
@@ -67,8 +65,7 @@ export async function main(args) {
 
   if (args.includes("--multiply")) {
     const multiplyIndex = args.indexOf("--multiply");
-    const numArgs = args
-      .slice(multiplyIndex + 1)
+    const numArgs = args.slice(multiplyIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
       .filter(num => !isNaN(num));
@@ -79,8 +76,7 @@ export async function main(args) {
 
   if (args.includes("--subtract")) {
     const subtractIndex = args.indexOf("--subtract");
-    const numArgs = args
-      .slice(subtractIndex + 1)
+    const numArgs = args.slice(subtractIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
       .filter(num => !isNaN(num));
@@ -99,8 +95,7 @@ export async function main(args) {
 
   if (args.includes("--divide")) {
     const divideIndex = args.indexOf("--divide");
-    const numArgs = args
-      .slice(divideIndex + 1)
+    const numArgs = args.slice(divideIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
       .filter(num => !isNaN(num));
@@ -123,8 +118,7 @@ export async function main(args) {
 
   if (args.includes("--modulo")) {
     const moduloIndex = args.indexOf("--modulo");
-    const numArgs = args
-      .slice(moduloIndex + 1)
+    const numArgs = args.slice(moduloIndex + 1)
       .filter(arg => !arg.startsWith("--"))
       .map(Number)
       .filter(num => !isNaN(num));
