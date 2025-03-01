@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 /* eslint-env node, es2022 */
+
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
@@ -37,7 +38,7 @@ function getNumbers(args, flag) {
   return args
     .slice(index + 1)
     .filter((arg) => !arg.startsWith("--"))
-    .map(Number)
+    .map((arg) => Number(arg))
     .filter((num) => !isNaN(num));
 }
 
@@ -152,7 +153,7 @@ export async function main(args = []) {
     "--subtract": () => handleSubtract(args),
     "--divide": () => handleDivide(args),
     "--modulo": () => handleModulo(args),
-    "--average": () => handleAverage(args)
+    "--average": () => handleAverage(args),
   };
 
   for (const flag in flagHandlers) {
