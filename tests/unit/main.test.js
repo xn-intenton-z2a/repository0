@@ -1,12 +1,14 @@
 import { describe, test, expect, vi } from "vitest";
 import { main } from "../../src/lib/main.js";
 
+// Module existence test
 describe("Main Module", () => {
   test("should not be null", () => {
     expect(main).not.toBeNull();
   });
 });
 
+// CLI Behavior tests
 describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -39,22 +41,10 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
     expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers (demo arithmetic)");
     expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      8,
-      "  --subtract   : Subtract each subsequent number from the first provided number (demo arithmetic)"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      9,
-      "  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      10,
-      "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)"
-    );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      11,
-      "  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)"
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
     consoleSpy.mockRestore();
   });
 
@@ -71,7 +61,7 @@ describe("CLI Behavior", () => {
   test("outputs generic run message for unknown flags", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--unknown"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Run with: " + JSON.stringify(["--unknown"]))
+    expect(consoleSpy).toHaveBeenCalledWith("Run with: " + JSON.stringify(["--unknown"]));
     consoleSpy.mockRestore();
   });
 
@@ -222,6 +212,15 @@ describe("CLI Behavior", () => {
     const versionCall = calls.find(msg => msg.startsWith("Version:"));
     expect(versionCall).toBeDefined();
     consoleSpy.mockRestore();
+  });
+
+  test("handles version error when package.json cannot be loaded", async () => {
+    process.env.FORCE_VERSION_ERROR = "true";
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await main(["--version"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Could not retrieve version: unknown error");
+    delete process.env.FORCE_VERSION_ERROR;
+    consoleErrorSpy.mockRestore();
   });
 
   test("executes only the first recognized flag when multiple flags are provided", async () => {

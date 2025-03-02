@@ -11,23 +11,23 @@ The repository is intended as a template that includes:
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` to automate processes.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements a CLI demo with streamlined arithmetic operations and simple interactivity, aligned to our mission.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
-  The `package.json` file specifies scripts and dependencies needed for building, testing, and running the project. It is maintained automatically by workflows.
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI demo functions as expected. Recent updates have improved test coverage to nearly 100%, including tests for flag priority and external module mocks.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. Recent updates have improved test coverage to nearly 100%, including tests for flag priority, error handling in version retrieval, and mock scenarios.
 
-- **Documentation:**  
-  This `README.md` along with other docs are kept updated as per our contributing guidelines.
+- **Docs**  
+  This `README.md` can be modified by the workflow.
 
 ## Change Log
 - Mission Statement Reviewed: The CLI demonstration was reviewed and streamlined to focus on key arithmetic and utility commands.
-- Test Coverage Fully Improved: Additional tests were added to cover flag priority and external dependency mocks, achieving nearly 100% test coverage.
+- Test Coverage Fully Improved: Additional tests were added to cover flag priority, error handling (including version retrieval failures), and external dependency mocks.
 
 ## Getting Started
 
@@ -43,13 +43,11 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic‑lib` Coding System?
+---
+---
+---
 
-* Do you have access to an OpenAI account with necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how such a system can be built?
-* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+# Ensure README.md begins like this:
 
 START_README_BEGINNING
 # `repository0`
@@ -68,14 +66,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far. This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
 - **Docs**  
   This `README.md` can be modified by the workflow.
@@ -93,7 +90,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
-
 END_README_BEGINNING
 
 ---
