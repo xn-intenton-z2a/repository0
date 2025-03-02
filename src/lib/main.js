@@ -51,6 +51,10 @@ function handleHelp() {
 
 function handleVersion() {
   try {
+    // Added check to simulate error for testing version retrieval
+    if (process.env.FORCE_VERSION_ERROR === "true") {
+      throw new Error("Forced error for testing");
+    }
     const require = createRequire(import.meta.url);
     const pkg = require("../../package.json");
     const version = pkg.version;
