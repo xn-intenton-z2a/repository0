@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /* eslint-env node, es2022 */
-
 // src/lib/main.js
+// Reviewed Mission Statement: This CLI demo file demonstrates essential functionalities for repository0 in alignment with our mission.
+// All arithmetic and CLI features are retained as demonstration examples.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -26,12 +27,12 @@ function printHelp() {
   console.log("  --help       : Display this help message with flag descriptions");
   console.log("  --version    : Show current version of the application");
   console.log("  --greet      : Display a greeting message");
-  console.log("  --sum        : Compute the sum of provided numbers");
-  console.log("  --multiply   : Compute the product of provided numbers");
-  console.log("  --subtract   : Subtract each subsequent number from the first provided number");
-  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially");
-  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... )");
-  console.log("  --average    : Compute the arithmetic average of provided numbers");
+  console.log("  --sum        : Compute the sum of provided numbers (demo arithmetic)");
+  console.log("  --multiply   : Compute the product of provided numbers (demo arithmetic)");
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (demo arithmetic)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
+  console.log("  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
 }
 
 function getNumbers(args, flag) {

@@ -3,50 +3,57 @@ START_README_BEGINNING
 
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation demonstrating one way to use the template.
-* Automated Workflows: GitHub workflows imported from `agentic‑lib` that provide CI/CD automation.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository showcasing GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate automated CI/CD processes and serve as a reliable starting point for new projects.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Located in `.github/workflows/`, these workflows use reusable components from `agentic‑lib` to streamline operations.
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` to automate processes.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is central to the workflows and project goals.
+  The main functionality is in `src/lib/main.js`. This file implements a CLI demo with various commands which serve to demonstrate how the template handles input and automated operations.
 
 - **Dependencies:**  
-  The `package.json` file specifies scripts and dependencies needed for building, testing, and running the project.
+  The `package.json` file specifies scripts and dependencies needed for building, testing, and running the project. It may be updated automatically by workflows.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the core functionality remains intact. These tests guide future enhancements and bug fixes.
+  Unit tests in the `tests/unit/` folder ensure that the CLI demo functionality remains intact and correct.
 
 - **Documentation:**  
-  This `README.md` serves as an evolving guide to the project, reflecting current features and future plans.
+  This `README.md` outlines current features and future plans.
+
+## Change Log
+- Reviewed the Mission Statement to ensure alignment with repository0's purpose.
+- Confirmed that CLI functionalities, including arithmetic demo operations, remain consistent with the intended demonstration goals.
 
 ## Getting Started
 
-The repository is pre-configured with necessary scripts and workflows. Before running, ensure you have set the following secret:
-- `CHATGPT_API_SECRET_KEY` – required for GitHub workflows involving OpenAI chat completions.
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
 ## intentïon `agentic‑lib`
 
-The **intentïon `agentic‑lib`** provides reusable GitHub Actions workflows designed to empower your repository with automated code evolution and CI/CD functionalities. These workflows enable continuous integration, issue management, and code improvements.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
-*Warning:* Running these workflows may incur costs on your OpenAI account and utilize GitHub Actions minutes.
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This system is under active development and may not be suitable for production.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
 ## Should you use the `agentic‑lib` Coding System?
 
-* Do you have access to an OpenAI account with required API keys?
-* Are you ready to incur resource consumption costs?
-* Are you curious about or supportive of automated, self-evolving codebases?
-* Do you value integrated OpenAI and GitHub API capabilities in JavaScript?
-
+* Do you have access to an OpenAI account with necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how such a system can be built?
+* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
 END_README_BEGINNING
+
+---
 
 START_README_END
 ### Contributing
