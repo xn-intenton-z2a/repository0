@@ -4,14 +4,14 @@
 // src/lib/main.js
 // Reviewed Mission Statement: This CLI demo file demonstrates core arithmetic and utility commands in alignment with our mission.
 // Mission Statement Reviewed: The functionality has been streamlined to focus on core arithmetic operations, error handling, and CLI interactivity.
-// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, without altering core functionality.
+// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation feature (--power) inline with the mission statement.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -34,6 +34,7 @@ function printHelp() {
   console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
   console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
 }
 
 function getNumbers(args, flag) {
@@ -141,6 +142,20 @@ function handleAverage(args) {
   }
 }
 
+function handlePower(args) {
+  const nums = getNumbers(args, "--power");
+  if (nums.length < 2) {
+    console.log("Power: Provide at least two numbers (base and exponent)");
+    return;
+  }
+  // Compute chained exponentiation: (((base^exp1)^exp2) ...)
+  let result = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    result = Math.pow(result, nums[i]);
+  }
+  console.log(`Power: ${result}`);
+}
+
 export async function main(args = []) {
   if (!Array.isArray(args)) {
     printUsage(true);
@@ -161,6 +176,7 @@ export async function main(args = []) {
     "--divide": () => handleDivide(args),
     "--modulo": () => handleModulo(args),
     "--average": () => handleAverage(args),
+    "--power": () => handlePower(args)
   };
 
   for (const arg of args) {
