@@ -207,4 +207,21 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Average: No numbers provided");
     consoleSpy.mockRestore();
   });
+
+  test("handles average with non-numeric inputs while ignoring invalid ones", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--average", "5", "abc", "15"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Average: 10");
+    consoleSpy.mockRestore();
+  });
+
+  test("displays version when --version flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--version"]);
+    // We expect either a valid version string or an error message if package retrieval fails
+    const calls = consoleSpy.mock.calls.map(call => call[0]);
+    const versionCall = calls.find(msg => msg.startsWith("Version:"));
+    expect(versionCall).toBeDefined();
+    consoleSpy.mockRestore();
+  });
 });
