@@ -159,9 +159,9 @@ export async function main(args = []) {
     "--average": () => handleAverage(args),
   };
 
-  for (const flag in flagHandlers) {
-    if (args.includes(flag)) {
-      flagHandlers[flag]();
+  for (const arg of args) {
+    if (flagHandlers[arg]) {
+      flagHandlers[arg]();
       return;
     }
   }
