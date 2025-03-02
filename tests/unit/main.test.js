@@ -218,10 +218,18 @@ describe("CLI Behavior", () => {
   test("displays version when --version flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--version"]);
-    // We expect either a valid version string or an error message if package retrieval fails
     const calls = consoleSpy.mock.calls.map(call => call[0]);
     const versionCall = calls.find(msg => msg.startsWith("Version:"));
     expect(versionCall).toBeDefined();
+    consoleSpy.mockRestore();
+  });
+
+  test("executes only the first recognized flag when multiple flags are provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // Provide both --sum and --greet, expect only --sum to be executed
+    await main(["--sum", "2", "3", "--greet"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Sum: 5");
+    expect(consoleSpy).not.toHaveBeenCalledWith("Hello, welcome to repository0!");
     consoleSpy.mockRestore();
   });
 });

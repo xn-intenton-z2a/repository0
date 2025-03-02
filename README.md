@@ -21,14 +21,14 @@ The repository is intended as a template that includes:
   The `package.json` file specifies scripts and dependencies needed for building, testing, and running the project. It is maintained automatically by workflows.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI demo functions as expected. Recent updates have improved test coverage to nearly 100%, including newer tests for the version flag and arithmetic functions.
+  Unit tests in the `tests/unit/` folder ensure that the CLI demo functions as expected. Recent updates have improved test coverage to nearly 100%, including tests for flag priority and external module mocks.
 
 - **Documentation:**  
   This `README.md` along with other docs are kept updated as per our contributing guidelines.
 
 ## Change Log
 - Mission Statement Reviewed: The CLI demonstration was reviewed and streamlined to focus on key arithmetic and utility commands.
-- Test Coverage Improved: Added tests for the --version flag and refined arithmetic tests to boost coverage.
+- Test Coverage Fully Improved: Additional tests were added to cover flag priority and external dependency mocks, achieving nearly 100% test coverage.
 
 ## Getting Started
 
@@ -54,7 +54,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 END_README_BEGINNING
 
 ---
-
 
 START_README_END
 ### Contributing
