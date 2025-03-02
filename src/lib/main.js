@@ -60,7 +60,7 @@ function handleVersion() {
     const pkg = require("../../package.json");
     const version = pkg.version;
     console.log(`Version: ${version}`);
-  } catch {
+  } catch (error) {
     console.error("Could not retrieve version: unknown error");
   }
 }
@@ -188,6 +188,9 @@ export async function main(args = []) {
 
   console.log("Run with: " + JSON.stringify(args));
 }
+
+// Export internal helper functions for testing purposes
+export const __test = { getNumbers, printUsage };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async function run() {

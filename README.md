@@ -3,46 +3,51 @@ START_README_BEGINNING
 
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation demonstrating core CLI functionality with integrated automated workflows.
-* Workflows from `agentic‑lib` which reference reusable GitHub workflows for testing, building, and deployment.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository showcasing GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate automated CI/CD workflows alongside a minimal CLI that performs arithmetic operations, including a newly added exponentiation feature.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
-- **GitHub Workflows:**
-  Automated workflows in the `.github/workflows/` directory utilize reusable components from intentïon `agentic‑lib` for tasks including testing, linting, formatting, and deployment.
+- **GitHub Workflows:**  
+  Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
-- **Source Code:**
-  The main functionality is implemented in `src/lib/main.js`, which demonstrates robust CLI interactivity, error handling, and arithmetic operations.
+- **Source Code:**  
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
-- **Dependencies:**
-  The `package.json` file lists all necessary production and development dependencies, along with scripts for testing, building, formatting, and updating.
+- **Dependencies:**  
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
-- **Tests:**
-  Unit tests in the `tests/unit/` folder ensure the CLI behaves as expected, with near complete coverage of all scenarios.
+- **Tests:**  
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. Additional tests now also cover internal helper functions to achieve near 100% test coverage.
 
-- **Documentation:**
-  This `README.md` provides current usage information and outlines how to contribute, as described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+- **Docs:**  
+  This `README.md` can be modified by the workflow.
 
 ## Getting Started
 
-This repository is pre-configured with workflows and scripts. Before running, ensure you set the following secret:
-- `CHATGPT_API_SECRET_KEY` – Required for access to the OpenAI API for model `o3-mini`. Configure it in *Settings > Secrets and Variables > Actions*.
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic‑lib`
 
-The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate autonomously. These workflows are designed to continuously test, build, update, and evolve the code through automated processes.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
-*Warning:* Running these workflows might incur charges on your OpenAI account and consume GitHub Actions minutes.
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This system is under active development and may evolve over time.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
+
+END_README_BEGINNING
+
+---
 
 START_README_END
 ### Contributing
 
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on effective collaboration.
+We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
 
 ## License
 
