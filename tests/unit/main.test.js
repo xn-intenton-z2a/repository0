@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from "vitest";
-import { main } from "../../src/lib/main.js";
+import { main, __test } from "../../src/lib/main.js";
 
 // Module existence test
 describe("Main Module", () => {
@@ -244,6 +244,25 @@ describe("CLI Behavior", () => {
     // (2^3) = 8, then 8^2 = 64
     await main(["--power", "2", "3", "2"]);
     expect(consoleSpy).toHaveBeenCalledWith("Power: 64");
+    consoleSpy.mockRestore();
+  });
+});
+
+// Additional tests for internal helper functions to improve test coverage
+describe("Internal test helpers (__test)", () => {
+  test("getNumbers returns valid numbers", () => {
+    const { getNumbers } = __test;
+    const args = ["--sum", "3", "foo", "4", "--other"];
+    const result = getNumbers(args, "--sum");
+    expect(result).toEqual([3, 4]);
+  });
+  
+  test("printUsage prints usage message", () => {
+    const { printUsage } = __test;
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    printUsage(true);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    expect(consoleSpy).toHaveBeenCalledWith("Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 });
