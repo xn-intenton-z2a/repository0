@@ -67,7 +67,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.3.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       buildScript: 'npm run build'

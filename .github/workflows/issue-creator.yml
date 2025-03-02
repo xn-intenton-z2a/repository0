@@ -22,23 +22,65 @@ on:
         default: 'house choice'
   schedule:
     #- cron: '0 */4 * * *' # Every 4 hours at 0 minutes past
-        - cron: '0 */2 * * *' # Every 2 hours at 0 minutes past
+    - cron: '0 */2 * * *' # Every 2 hours at 0 minutes past
     #- cron: '0,30 * * * *' # Every 30 minutes
 
 jobs:
 
+  extract-options:
+    runs-on: ubuntu-latest
+    outputs:
+      houseChoiceOptions: ${{ steps.extract.outputs.houseChoiceOptions }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Parse Issue House Choice Options from CONTRIBUTING.md
+        id: extract
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let houseChoiceOptions = '';
+            const filePath = './CONTRIBUTING.md';
+            if (fs.existsSync(filePath)) {
+              const content = fs.readFileSync(filePath, 'utf8');
+              const lines = content.split('\n');
+              let capture = false;
+              let options = [];
+            
+              // Look for the section header; case-insensitive match for "Issue House Choice Options"
+              for (const line of lines) {
+                if (line.trim().match(/^##\s+Issue House Choice Options\s*$/i)) {
+                  capture = true;
+                  continue;
+                }
+                // Stop capturing if a new heading appears
+                if (capture && line.trim().match(/^##\s+/)) {
+                  break;
+                }
+                if (capture) {
+                  // Parse only bullet list items (lines starting with "- ")
+                  const bulletMatch = line.trim().match(/^-\s+(.*)$/);
+                  if (bulletMatch) {
+                    options.push(bulletMatch[1].trim());
+                  }
+                }
+              }
+              if (options.length > 0) {
+                houseChoiceOptions = options.join(' || ');
+              }
+            }
+            core.setOutput('houseChoiceOptions', houseChoiceOptions);
+            core.info(`houseChoiceOptions: ${houseChoiceOptions}`);
+
   create-issue:
+    needs:
+      - extract-options
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.3.0'
     with:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
-      houseChoiceOptions: |
-        Add a new feature to the source file pulling in at most 1 new dependency if you need to.
-        || Extend the functionality in the source file.
-        || Improve the consistency of the source file and test file.
-        || Improve test coverage of the source file by the test file and fix bugs the tests would highlight.
-        || Ensure that the main defaults to the usage and some demo output and ensure execution terminates without user input.
-        || Synchronise the README with current behaviour and call out future features that have not yet been implemented.
-        || Ensure that README.md is consistent with the guidance in the CONTRIBUTING.md.
+      houseChoiceOptions: ${{ needs.extract-options.outputs.houseChoiceOptions }}
