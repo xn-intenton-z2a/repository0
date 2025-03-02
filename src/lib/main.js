@@ -2,8 +2,8 @@
 
 /* eslint-env node, es2022 */
 // src/lib/main.js
-// Reviewed Mission Statement: This CLI demo file demonstrates essential functionalities for repository0 in alignment with our mission.
-// All arithmetic and CLI features are retained as demonstration examples.
+// Reviewed Mission Statement: This CLI demo file demonstrates core arithmetic and utility commands in alignment with our mission. 
+// Mission Statement Reviewed: The functionality has been streamlined to focus on core arithmetic operations and CLI interactivity.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
