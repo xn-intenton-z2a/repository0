@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -45,6 +45,7 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
     expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
     expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
     consoleSpy.mockRestore();
   });
 
@@ -53,7 +54,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -228,6 +229,21 @@ describe("CLI Behavior", () => {
     await main(["--sum", "2", "3", "--greet"]);
     expect(consoleSpy).toHaveBeenCalledWith("Sum: 5");
     expect(consoleSpy).not.toHaveBeenCalledWith("Hello, welcome to repository0!");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes exponentiation when --power flag is provided with two numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--power", "2", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Power: 8");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes chained exponentiation when --power flag is provided with multiple numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // (2^3) = 8, then 8^2 = 64
+    await main(["--power", "2", "3", "2"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Power: 64");
     consoleSpy.mockRestore();
   });
 });
