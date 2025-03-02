@@ -225,7 +225,6 @@ describe("CLI Behavior", () => {
 
   test("executes only the first recognized flag when multiple flags are provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // Provide both --sum and --greet, expect only --sum to be executed
     await main(["--sum", "2", "3", "--greet"]);
     expect(consoleSpy).toHaveBeenCalledWith("Sum: 5");
     expect(consoleSpy).not.toHaveBeenCalledWith("Hello, welcome to repository0!");
