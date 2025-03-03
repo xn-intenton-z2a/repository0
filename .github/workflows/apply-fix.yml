@@ -38,13 +38,12 @@ on:
     types:
       - completed
     branches:
-      - issue-*
-      - apply-formatting
-      - apply-update
+      - agentic-lib-issue-*
+      - agentic-lib-formatting
+      - agentic-lib-update
   schedule:
-    #- cron: '* * 0 * *' # Run every day at midnight
-    #- cron: '0 */1 * * *' # Run every 1 hour at 0 minutes past
-    - cron: '*/30 * * * *' # Run every 30 minutes
+    - cron: '0 0 1 * *' # schedule-1
+    #- cron: '*/30 * * * *' # schedule-2
 
 jobs:
 
@@ -73,7 +72,7 @@ jobs:
                 repo: context.repo.repo,
               });
               const matchingBranches = branchesResp.data
-                .filter(branch => branch.name.match(/^(issue-.*|apply-formatting|apply-update)$/))
+                .filter(branch => branch.name.match(/^(agentic-lib-issue-.*|agentic-lib-formatting|agentic-lib-update)$/))
                 .map(branch => branch.name);
               core.info(`Matching branches: ${matchingBranches}`);
               branch = matchingBranches.length > 0 ? matchingBranches[0] : context.payload.repository?.default_branch || "main";
@@ -177,7 +176,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.4.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -336,7 +335,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.4.0'
     with:
       branch: "${{ needs.select-branch.outputs.branch }}"
       baseBranch: 'main'

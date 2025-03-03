@@ -10,21 +10,47 @@ run-name: "Formatting [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '15 3 * * *' # Run every day at 3:15
+    - cron: '15 3 */7 * *' # schedule-1
+    #- cron: '15 3 * * *' # schedule-2
 
 jobs:
 
+  check-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
+
   formatting:
+    needs:
+      - check-branch
     permissions:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.4.0'
     with:
       script: 'npm run formatting-fix -- src/lib/main.js tests/unit/main.test.js ; npm run linting-fix src/lib/main.js tests/unit/main.test.js'
       sarifScript: ''
       testScript: 'npm test'
-      branch: 'apply-formatting'
+      branch: 'agentic-lib-formatting'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'Updated by `npm run formatting-fix -- "." ; npm run linting-fix "."`'
@@ -40,9 +66,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.4.0'
     with:
-      branch: 'apply-formatting'
+      branch: 'agentic-lib-formatting'
       baseBranch: 'main'
       gitCommitMessage: 'chore: formatting fixes'
       label: 'automerge'

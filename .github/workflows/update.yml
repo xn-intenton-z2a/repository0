@@ -11,7 +11,9 @@ on:
   repository_dispatch:
     types: [package-published]
   schedule:
-    - cron: '30 7 * * *'
+    - cron: '30 7 */7 * *' # schedule-1
+    #- cron: '30 7 * * *' # schedule-2
+
   workflow_dispatch:
     inputs:
       upgradeTarget:
@@ -28,19 +30,45 @@ on:
           - semver
 
 jobs:
+
+  check-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
+
   update:
+    needs:
+      - check-branch
     permissions:
       contents: write
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@2.4.0'
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
-      branch: 'apply-update'
+      branch: 'agentic-lib-update'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
@@ -56,9 +84,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.4.0'
     with:
-      branch: 'apply-update'
+      branch: 'agentic-lib-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'

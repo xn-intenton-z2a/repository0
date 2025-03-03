@@ -22,7 +22,8 @@ on:
     types:
       - completed
   schedule:
-    - cron: '45 */6 * * *'
+    - cron: '45 0 * * *' # schedule-1
+    #- cron: '45 */6 * * *' # schedule-2
 
 jobs:
 

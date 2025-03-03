@@ -21,9 +21,8 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    #- cron: '0 */4 * * *' # Every 4 hours at 0 minutes past
-    - cron: '0 */2 * * *' # Every 2 hours at 0 minutes past
-    #- cron: '0,30 * * * *' # Every 30 minutes
+    - cron: '0 4 * * *' # schedule-1
+    #- cron: '0 */2 * * *' # schedule-2
 
 jobs:
 
@@ -80,7 +79,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.3.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.4.0'
     with:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       houseChoiceOptions: ${{ needs.extract-options.outputs.houseChoiceOptions }}
