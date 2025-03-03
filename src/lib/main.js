@@ -4,14 +4,14 @@
 // src/lib/main.js
 // Reviewed Mission Statement: This CLI demo file demonstrates core arithmetic and utility commands in alignment with our mission.
 // Mission Statement Reviewed: The functionality has been streamlined to focus on core arithmetic operations, error handling, and CLI interactivity.
-// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation feature (--power) inline with the mission statement.
+// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation, factorial, and square root features inline with the mission statement.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -35,6 +35,8 @@ function printHelp() {
   console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
   console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
+  console.log("  --factorial  : Compute the factorial of a provided non-negative integer (demo arithmetic)");
+  console.log("  --sqrt       : Compute the square root of the provided number (demo arithmetic)");
 }
 
 function getNumbers(args, flag) {
@@ -156,6 +158,39 @@ function handlePower(args) {
   console.log(`Power: ${result}`);
 }
 
+function handleFactorial(args) {
+  const nums = getNumbers(args, "--factorial");
+  if (nums.length === 0) {
+    console.log("Factorial: Provide a number");
+    return;
+  }
+  const n = nums[0];
+  if (!Number.isInteger(n) || n < 0) {
+    console.log("Factorial: Input must be a non-negative integer");
+    return;
+  }
+  let result = 1;
+  for (let i = 2; i <= n; i++) {
+    result *= i;
+  }
+  console.log(`Factorial: ${result}`);
+}
+
+function handleSqrt(args) {
+  const nums = getNumbers(args, "--sqrt");
+  if (nums.length === 0) {
+    console.log("Square Root: Provide a number");
+    return;
+  }
+  const n = nums[0];
+  if (n < 0) {
+    console.log("Square Root: Negative input error");
+    return;
+  }
+  const result = Math.sqrt(n);
+  console.log(`Square Root: ${result}`);
+}
+
 export async function main(args = []) {
   if (!Array.isArray(args)) {
     printUsage(true);
@@ -176,7 +211,9 @@ export async function main(args = []) {
     "--divide": () => handleDivide(args),
     "--modulo": () => handleModulo(args),
     "--average": () => handleAverage(args),
-    "--power": () => handlePower(args)
+    "--power": () => handlePower(args),
+    "--factorial": () => handleFactorial(args),
+    "--sqrt": () => handleSqrt(args)
   };
 
   for (const arg of args) {
