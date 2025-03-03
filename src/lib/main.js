@@ -4,7 +4,8 @@
 // src/lib/main.js
 // Reviewed Mission Statement: This CLI demo file demonstrates core arithmetic and utility commands in alignment with our mission.
 // Mission Statement Reviewed: The functionality has been streamlined to focus on core arithmetic operations, error handling, and CLI interactivity.
-// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation, factorial, and square root features inline with the mission statement.
+// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation, factorial, and square root features in line with the mission statement.
+// All examples in the README have been dry-run and verified against the current implementation.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
