@@ -264,10 +264,24 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("computes factorial correctly for 0", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--factorial", "0"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factorial: 1");
+    consoleSpy.mockRestore();
+  });
+
   test("computes square root when --sqrt flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sqrt", "16"]);
     expect(consoleSpy).toHaveBeenCalledWith("Square Root: 4");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes square root correctly for 0", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sqrt", "0"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Square Root: 0");
     consoleSpy.mockRestore();
   });
 
