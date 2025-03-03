@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -46,6 +46,8 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
     expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
     expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(13, "  --factorial  : Compute the factorial of a provided non-negative integer (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(14, "  --sqrt       : Compute the square root of the provided number (demo arithmetic)");
     consoleSpy.mockRestore();
   });
 
@@ -54,7 +56,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -244,6 +246,35 @@ describe("CLI Behavior", () => {
     // (2^3) = 8, then 8^2 = 64
     await main(["--power", "2", "3", "2"]);
     expect(consoleSpy).toHaveBeenCalledWith("Power: 64");
+    consoleSpy.mockRestore();
+  });
+
+  // New tests for factorial and square root
+  test("computes factorial when --factorial flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--factorial", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factorial: 120");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles factorial with invalid input (negative number)", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--factorial", "-3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factorial: Input must be a non-negative integer");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes square root when --sqrt flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sqrt", "16"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Square Root: 4");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles square root with negative input", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sqrt", "-16"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Square Root: Negative input error");
     consoleSpy.mockRestore();
   });
 });
