@@ -15,16 +15,16 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals. It now includes extended arithmetic features such as exponentiation chaining, factorial, and square root operations.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and now includes extended arithmetic operations such as exponentiation chaining, factorial, and square root computations.
 
 - **Dependencies:**  
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. Recent updates have increased test coverage to near 100% by adding tests for edge cases including factorial(0), square root(0), factorial with negative input, and square root with negative input.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected, with near 100% coverage for various arithmetic operations and edge cases.
 
 - **Docs:**
-  This `README.md` is maintained to reflect current functionality and future improvements.
+  This `README.md` is maintained to reflect current functionality and planned improvements.
 
 ## Getting Started
 
@@ -44,19 +44,6 @@ Run the CLI application with different flags:
   - Power (chained exponentiation): `node src/lib/main.js --power 2 3 2`
   - Factorial: `node src/lib/main.js --factorial 5`
   - Square Root: `node src/lib/main.js --sqrt 16`
-
-## intentïon `agentic‑lib`
-
-The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
-
-*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
-
-*Warning:* Experimental. This coding system is still in development and may not suit production use.
-
-## Change Log
-- Extended arithmetic features: Added exponentiation chaining, factorial, and square root operations to align with the mission statement and enhance utility.
-- Increased test coverage to near 100% by adding tests for edge cases including factorial(0), square root(0), factorial with negative input, and square root with negative input.
-- Updated README examples to accurately reflect the supported CLI commands and usage.
 
 END_README_BEGINNING
 
