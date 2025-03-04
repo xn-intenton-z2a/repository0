@@ -21,7 +21,7 @@ The repository is intended as a template that includes:
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. Recent updates have increased test coverage to near 100% and now cover edge cases for arithmetic functions including factorial (with 0 and negative values) and square root (with negative values).
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. Recent updates have increased test coverage to near 100% by adding tests for edge cases including factorial(0), square root(0), factorial with negative input, and square root with negative input.
 
 - **Docs:**
   This `README.md` is maintained to reflect current functionality and future improvements.
@@ -55,12 +55,13 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 ## Change Log
 - Extended arithmetic features: Added exponentiation chaining, factorial, and square root operations to align with the mission statement and enhance utility.
-- Increased test coverage to near 100% by adding tests for edge cases including factorial(0), factorial with negative input, and square root with negative input.
+- Increased test coverage to near 100% by adding tests for edge cases including factorial(0), square root(0), factorial with negative input, and square root with negative input.
 - Updated README examples to accurately reflect the supported CLI commands and usage.
 
 END_README_BEGINNING
 
 ---
+
 ---
 
 # Ensure README.md ends like this:
