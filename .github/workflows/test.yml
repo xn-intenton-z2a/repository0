@@ -27,14 +27,60 @@ on:
 
 jobs:
 
+
   npm-test:
-    name: 'npm test with coverage'
+    name: 'npm test'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+
+      - run: npm install
+
       - run: npm test
+
+  npm-unit-test:
+    name: 'npm unit test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm install
+
+      - run: npm run test:unit
+
+  npm-build-test-and-run-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm install
+
+      - name: build
+        id: build
+        shell: bash
+        run: 'npm run build'
+
+      - name: test
+        id: test
+        shell: bash
+        run: 'npm test'
+
+      - name: main
+        id: main
+        shell: bash
+        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}

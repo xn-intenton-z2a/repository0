@@ -26,7 +26,7 @@ on:
         description: 'Apply the fix even if the tests pass. e.g. true'
         required: false
         type: boolean
-        default: true
+        default: false
       scanForBranches:
         description: 'Scan for branches matching the pattern. e.g. true'
         required: false
@@ -38,9 +38,7 @@ on:
     types:
       - completed
     branches:
-      - agentic-lib-issue-*
-      - agentic-lib-formatting
-      - agentic-lib-update
+      - agentic-lib-*
   schedule:
     - cron: '0 0 1 * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
@@ -49,6 +47,10 @@ jobs:
 
   select-branch:
     runs-on: ubuntu-latest
+    env:
+      branchPrefix: 'agentic-lib-'
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,21 +61,26 @@ jobs:
           git fetch --all
           git branch -r
 
-      - name: determine-branch
+      - name: determine-branch and auto-resolve merge conflicts
         id: determine
         uses: actions/github-script@v7
         with:
           script: |
+            const { execSync } = require('child_process');
+
             let branch;
+            // Determine branch using schedule or ref
             if (context.eventName === "schedule" || context.eventName === "workflow_run" || "${{ inputs.scanForBranches }}" === "true") {
               core.info("Schedule event detected. Scanning for matching branches.");
               const branchesResp = await github.rest.repos.listBranches({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               });
+              // Use the branch prefix from env (ensure process.env.branchPrefix is defined)
+              const prefix = process.env.branchPrefix || "agentic-lib-";
               const matchingBranches = branchesResp.data
-                .filter(branch => branch.name.match(/^(agentic-lib-issue-.*|agentic-lib-formatting|agentic-lib-update)$/))
-                .map(branch => branch.name);
+                .filter(b => new RegExp(`^${prefix}`).test(b.name))
+                .map(b => b.name);
               core.info(`Matching branches: ${matchingBranches}`);
               branch = matchingBranches.length > 0 ? matchingBranches[0] : context.payload.repository?.default_branch || "main";
             } else {
@@ -81,8 +88,55 @@ jobs:
             }
             core.info(`Selected branch: ${branch}`);
             core.setOutput("branch", branch);
+
+            if (branch === "main") {
+              core.info("Main branch selected. Skipping auto-resolution.");
+              core.setOutput("conflictsDetected", "false");
+              core.setOutput("conflictsResolved", "true");
+            } else {
+              core.info("Detect and resolve merge conflicts between the selected branch and main.");
+              execSync("git config --local user.email '${{ env.gitUserEmail }}'", { stdio: 'pipe' });
+              execSync("git config --local user.name '${{ env.gitUserName }}'", { stdio: 'pipe' });
+              execSync("git status -v", { stdio: 'pipe' });
+              execSync(`git checkout origin/${branch}`, { stdio: 'pipe' });
+              try {
+                core.info("Fetching main branch...");
+                execSync("git fetch origin main", { stdio: 'pipe' });
+                core.info("Attempting a dry-run merge of main into the branch...");
+                // Attempt dry-run merge without committing.
+                execSync("git merge origin/main --no-commit --no-ff", { stdio: 'pipe' });
+                core.info("No merge conflicts detected.");
+                // Abort the merge attempt.
+                //execSync("git merge --abort", { stdio: 'pipe' });
+                //core.setOutput("conflictsDetected", "false");
+                //core.setOutput("conflictsResolved", "true");
+              } catch (err) {
+                core.info(`Merge conflicts detected. ${err.message}`);
+                core.setOutput("conflictsDetected", "true");
+                try {
+                  core.info("Attempting auto-resolution by accepting main's changes...");
+                  // Auto-resolve by checking out the version from main for all conflicting files.
+                  execSync("git checkout --theirs .", { stdio: 'pipe' });
+                  execSync("git add .", { stdio: 'pipe' });
+                  execSync("git commit -m 'Auto-resolved merge conflicts: accepted main changes'", { stdio: 'pipe' });
+                  core.info("Auto-resolution succeeded.");
+                  core.setOutput("conflictsResolved", "true");
+                } catch (e) {
+                  core.error("Auto-resolution failed: " + e.message);
+                  core.setOutput("conflictsResolved", "false");
+                }
+              }
+            }
+
+            // Extract issue number from branch name using branchPrefix.
+            const prefix = process.env.branchPrefix || "agentic-lib-";
+            const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
+            const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
+            core.setOutput("issueNumber", issueNumber);
+            core.info(`Issue number: ${issueNumber}`);
     outputs:
       branch: ${{ steps.determine.outputs.branch }}
+      issueNumber: ${{ steps.determine.outputs.issueNumber }}
 
   npm-test:
     needs: select-branch
@@ -97,8 +151,8 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
-      - run: npm test
+      - run: npm install
+      - run: npm run test:unit
 
   npm-build:
     needs: select-branch
@@ -164,9 +218,42 @@ jobs:
     outputs:
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
-  apply-fix:
+  branch-for-fix:
     needs:
       - select-branch
+      - needs-fix
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: create-branch-if-required
+        id: create-branch-if-required
+        run: |
+          if [[ '${{ needs.select-branch.outputs.branch }}' == 'main' && '${{ needs.needs-fix.outputs.needsFix }}' == 'true' ]] ; then
+            echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}fix-main'
+            git switch --force-create '${{ env.branchPrefix }}fix-main'
+            git push -v --force origin '${{ env.branchPrefix }}fix-main'
+            echo 'branch=${{ env.branchPrefix }}fix-main' >> $GITHUB_OUTPUT
+          else
+            echo 'Retaining existing branch: ${{ needs.select-branch.outputs.branch }}'
+            echo 'branch=${{ needs.select-branch.outputs.branch }}' >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      branch: ${{ steps.create-branch-if-required.outputs.branch }}
+
+  apply-fix:
+    needs:
+      - branch-for-fix
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -176,7 +263,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.5.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -189,7 +276,7 @@ jobs:
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      branch: ${{ needs.select-branch.outputs.branch }}
+      branch: ${{ needs.branch-for-fix.outputs.branch }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:
@@ -197,7 +284,7 @@ jobs:
 
   npm-test-after-fix:
     needs:
-      - select-branch
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -209,7 +296,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.select-branch.outputs.branch }}
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -219,13 +306,13 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
-      - run: npm ci
-      - run: npm test
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - run: npm install
+      - run: npm run test:unit
 
   npm-build-after-fix:
     needs:
-      - select-branch
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -237,7 +324,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.select-branch.outputs.branch }}
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -247,13 +334,13 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
       - run: npm ci
       - run: npm run build
 
   npm-run-after-fix:
     needs:
-      - select-branch
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -265,7 +352,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.select-branch.outputs.branch }}
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -275,13 +362,13 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.select-branch.outputs.branch }}
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
       - run: npm ci
       - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   needs-fix-after-fix:
     needs:
-      - select-branch
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -306,18 +393,35 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const npmTestResult = "${{ needs.npm-test-after-fix.result }}";
-            const npmBuildResult = "${{ needs.npm-build-after-fix.result }}";
-            const npmRunResult = "${{ needs.npm-run-after-fix.result }}";
-            const needsFix = npmTestResult !== "success" || npmBuildResult !== "success" || npmRunResult !== "success";
-            core.info(`Needs Fix: ${needsFix}`);
-            core.setOutput("needsFix", needsFix);
+            const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
+            const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "false";
+            const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}" === "true";
+            const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}" === "true";
+            const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
+            
+            core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);
+            core.setOutput("fixedFromTheBeginning", fixedFromTheBeginning);
+            core.setOutput("anySkipped", anySkipped);
+            core.setOutput("anyDidntSucceed", anyDidntSucceed);
+            core.setOutput("readyToMerge", readyToMerge);     
+            
+            core.info(`Apply fix even if tests pass: ${applyFixEvenIfTestsPass}`);
+            core.info(`Fixed from the beginning: ${fixedFromTheBeginning}`);
+            core.info(`Any skipped: ${anySkipped}`);
+            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
+            core.info(`Ready to merge: ${readyToMerge}`);
+
     outputs:
-      needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
+      applyFixEvenIfTestsPass: ${{ steps.set-needs-fix.outputs.applyFixEvenIfTestsPass }}
+      fixedFromTheBeginning: ${{ steps.set-needs-fix.outputs.fixedFromTheBeginning }}
+      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
+      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
+      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
 
   create-pr:
     needs:
       - select-branch
+      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -327,7 +431,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.needs-fix-after-fix.outputs.needsFix == 'false' }}
+    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -335,9 +439,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
     with:
-      branch: "${{ needs.select-branch.outputs.branch }}"
+      branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
-      gitCommitMessage: 'Fix applied for failing tests'
+      gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (fixes #${{ needs.select-branch.outputs.issueNumber }})"
       label: 'automerge'

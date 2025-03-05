@@ -49,7 +49,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm ci
+      - run: npm install
 
       - name: test
         id: test
@@ -67,7 +67,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.5.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       buildScript: 'npm run build'

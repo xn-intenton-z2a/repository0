@@ -46,7 +46,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.5.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
@@ -88,7 +88,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@2.5.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -120,9 +120,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
     with:
       branch: 'agentic-lib-issue-${{ needs.select-issue.outputs.issueNumber }}'
       baseBranch: 'main'
-      gitCommitMessage: 'Fix ready for issue ${{ needs.select-issue.outputs.issueNumber }}'
+      gitCommitMessage: "${{ needs.start-issue.outputs.message }} (fixes #${{ needs.select-issue.outputs.issueNumber }})"
       label: 'automerge'
