@@ -4,14 +4,14 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Update
-concurrency: branch-${{ github.ref_name }}
+concurrency: agentic-lib
 run-name: "Update [${{ github.ref_name }}]"
 
 on:
   repository_dispatch:
     types: [package-published]
   schedule:
-    - cron: '30 7 */7 * *' # schedule-1
+    #- cron: '30 7 */7 * *' # schedule-1
     #- cron: '30 7 * * *' # schedule-2
 
   workflow_dispatch:
@@ -62,7 +62,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-update.yml@2.6.0'
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
@@ -84,7 +84,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.6.0'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'

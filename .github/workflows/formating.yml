@@ -4,13 +4,13 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ∞ Formatting
-concurrency: branch-${{ github.ref_name }}
+concurrency: agentic-lib
 run-name: "Formatting [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '15 3 */7 * *' # schedule-1
+    #- cron: '15 3 */7 * *' # schedule-1
     #- cron: '15 3 * * *' # schedule-2
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-run-script-and-commit-to-branch.yml@2.6.0'
     with:
       script: 'npm run formatting-fix -- src/lib/main.js tests/unit/main.test.js ; npm run linting-fix src/lib/main.js tests/unit/main.test.js'
       sarifScript: ''
@@ -66,7 +66,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.6.0'
     with:
       branch: 'agentic-lib-formatting'
       baseBranch: 'main'

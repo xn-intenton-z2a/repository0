@@ -4,9 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Apply Fix on Fail
-concurrency:
-  issue-worker
-  branch-main
+concurrency: agentic-lib
 run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
@@ -40,7 +38,7 @@ on:
     branches:
       - agentic-lib-*
   schedule:
-    - cron: '0 0 1 * *' # schedule-1
+    #- cron: '0 0 1 * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
 
 jobs:
@@ -263,7 +261,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.6.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -439,7 +437,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.6.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'

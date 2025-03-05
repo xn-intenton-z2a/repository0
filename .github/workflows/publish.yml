@@ -5,7 +5,7 @@
 
 name: Publish
 run-name: 'Publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
-concurrency: branch-${{ github.ref_name }}
+concurrency: agentic-lib
 
 on:
   #push:
@@ -67,7 +67,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish.yml@2.6.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       buildScript: 'npm run build'

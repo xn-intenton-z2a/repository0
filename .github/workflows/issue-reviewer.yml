@@ -35,7 +35,7 @@ on:
     types:
       - completed
   schedule:
-    - cron: '45 */6 * * *' # schedule-1
+    #- cron: '45 */6 * * *' # schedule-1
     #- cron: '*/15 * * * *' # schedule-2
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.6.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
@@ -59,7 +59,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@2.6.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}

@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Issue Worker
-concurrency: issue-worker
+concurrency: agentic-lib
 run-name: "Issue Worker [${{ github.ref_name }}]"
 
 on:
@@ -37,7 +37,7 @@ on:
     types:
       - completed
   schedule:
-    - cron: '30 */6 * * *' # schedule-1
+    #- cron: '30 */6 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
 
 jobs:
@@ -46,16 +46,73 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@2.6.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  needs-resolution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: todo
+        shell: bash
+        run: |
+          echo "TODO: Check if this issue has been resolved already by examining the current state and recent commits"
+
+  npm-test:
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm install
+      - run: npm run test:unit
+
+  npm-build:
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+
+  npm-run:
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
   check-branch:
     needs:
       - select-issue
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-resolution
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     runs-on: ubuntu-latest
     permissions:
@@ -79,16 +136,20 @@ jobs:
             echo "No existing branch with the prefix found."
           fi
 
-  start-issue:
+  apply-issue-resolution:
     needs:
       - select-issue
+      - needs-resolution
+      - npm-test
+      - npm-build
+      - npm-run
       - check-branch
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-start-issue.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@2.6.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -108,11 +169,133 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  npm-test-after-issue-resolution:
+    needs:
+      - needs-resolution
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-issue-resolution
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+      - run: npm install
+      - run: npm run test:unit
+
+  npm-build-after-issue-resolution:
+    needs:
+      - needs-resolution
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-issue-resolution
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+      - run: npm ci
+      - run: npm run build
+
+  npm-run-after-issue-resolution:
+    needs:
+      - needs-resolution
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-issue-resolution
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+      - run: npm ci
+      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  needs-fix-after-issue-resolution:
+    needs:
+      - needs-resolution
+      - npm-test
+      - npm-build
+      - npm-run
+      - apply-issue-resolution
+      - npm-test-after-issue-resolution
+      - npm-build-after-issue-resolution
+      - npm-run-after-issue-resolution
+    if: >
+      ${{ always() &&
+         (
+           needs.npm-test-after-issue-resolution.result != 'success' ||
+           needs.npm-build-after-issue-resolution.result != 'success' ||
+           needs.npm-run-after-issue-resolution.result != 'success'
+         )
+      }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const anySkipped = "${{ needs.npm-test-after-issue-resolution.result == 'skipped' || needs.npm-build-after-issue-resolution.result == 'skipped' || needs.npm-run-after-issue-resolution.result == 'skipped' }}" === "true";
+            const anyDidntSucceed = "${{ needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' }}" === "true";
+            const readyToMerge = !anySkipped && !anyDidntSucceed;
+            
+            core.setOutput("anySkipped", anySkipped);
+            core.setOutput("anyDidntSucceed", anyDidntSucceed);
+            core.setOutput("readyToMerge", readyToMerge);     
+            
+            core.info(`Any skipped: ${anySkipped}`);
+            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
+            core.info(`Ready to merge: ${readyToMerge}`);
+
+    outputs:
+      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
+      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
+      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
+
   create-pr:
     needs:
       - select-issue
-      - start-issue
-    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.start-issue.outputs.fixApplied == 'true' && needs.start-issue.outputs.allValidationStepsSuccessful == 'true' }}
+      - needs-resolution
+      - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -120,9 +303,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.6.0'
     with:
-      branch: 'agentic-lib-issue-${{ needs.select-issue.outputs.issueNumber }}'
+      branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'
-      gitCommitMessage: "${{ needs.start-issue.outputs.message }} (fixes #${{ needs.select-issue.outputs.issueNumber }})"
+      gitCommitMessage: "${{ needs.apply-issue-resolution.outputs.message }} (fixes #${{ needs.select-issue.outputs.issueNumber }})"
       label: 'automerge'
