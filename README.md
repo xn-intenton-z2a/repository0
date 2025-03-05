@@ -28,6 +28,7 @@ The repository is intended as a template that includes:
 
 ## Changelog
 - Updated header comments in `src/lib/main.js` to align with repository0's mission by removing drift and outdated implementation details.
+- Fixed version error handling in `src/lib/main.js` to properly simulate package.json load errors when FORCE_VERSION_ERROR is set.
 - Verified that all documented CLI examples are accurate and fully functional.
 
 ## Getting Started
