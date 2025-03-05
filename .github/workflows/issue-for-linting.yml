@@ -10,7 +10,7 @@ run-name: "Linting [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '15 4 */7 * *' # schedule-1
+    - cron: '15 4 */7 * *' # schedule-1
     #- cron: '15 4 * * *' # schedule-2
     #- cron: '15 4 * * *' # schedule-3
 

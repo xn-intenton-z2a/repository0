@@ -10,7 +10,7 @@ run-name: "Formatting [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '15 3 */7 * *' # schedule-1
+    - cron: '15 3 */7 * *' # schedule-1
     #- cron: '15 3 * * *' # schedule-2
     #- cron: '15 3 * * *' # schedule-3
 
