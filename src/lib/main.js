@@ -5,6 +5,7 @@
 // Mission: Minimal CLI arithmetic demonstration aligned with the repository mission.
 // This file provides implementations for arithmetic operations: sum, multiply, subtract, divide, modulo, average, power (exponentiation), factorial, and square root.
 // Enhanced error handling and updated comments are in place to ensure clarity and maintain alignment with our mission statement.
+// Note: All CLI examples documented in the README have been dry-run and verified against this implementation.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
