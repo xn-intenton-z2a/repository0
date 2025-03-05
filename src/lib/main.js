@@ -2,10 +2,9 @@
 
 /* eslint-env node, es2022 */
 // src/lib/main.js
-// Reviewed Mission Statement: This CLI demo file demonstrates core arithmetic and utility commands in alignment with our mission.
-// Mission Statement Reviewed: The functionality has been streamlined to focus on core arithmetic operations, error handling, and CLI interactivity.
-// NOTE: Updated for improved test coverage and enhanced error handling in version retrieval, and added exponentiation, factorial, and square root features in line with the mission statement.
-// All examples in the README have been dry-run and verified against the current implementation.
+// Mission: Minimal CLI arithmetic demonstration aligned with the repository mission.
+// This file provides implementations for arithmetic operations: sum, multiply, subtract, divide, modulo, average, power (exponentiation), factorial, and square root.
+// Enhanced error handling and updated comments are in place to ensure clarity and maintain alignment with our mission statement.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -29,15 +28,15 @@ function printHelp() {
   console.log("  --help       : Display this help message with flag descriptions");
   console.log("  --version    : Show current version of the application");
   console.log("  --greet      : Display a greeting message");
-  console.log("  --sum        : Compute the sum of provided numbers (demo arithmetic)");
-  console.log("  --multiply   : Compute the product of provided numbers (demo arithmetic)");
-  console.log("  --subtract   : Subtract each subsequent number from the first provided number (demo arithmetic)");
-  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
-  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
-  console.log("  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
-  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
-  console.log("  --factorial  : Compute the factorial of a provided non-negative integer (demo arithmetic)");
-  console.log("  --sqrt       : Compute the square root of the provided number (demo arithmetic)");
+  console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
+  console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
+  console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
+  console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
+  console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
 }
 
 function getNumbers(args, flag) {
@@ -55,7 +54,7 @@ function handleHelp() {
 
 function handleVersion() {
   try {
-    // Added check to simulate error for testing version retrieval
+    // Simulated error condition for testing version retrieval
     if (process.env.FORCE_VERSION_ERROR === "true") {
       throw new Error("Forced error for testing");
     }
@@ -151,7 +150,6 @@ function handlePower(args) {
     console.log("Power: Provide at least two numbers (base and exponent)");
     return;
   }
-  // Compute chained exponentiation: (((base^exp1)^exp2) ...)
   let result = nums[0];
   for (let i = 1; i < nums.length; i++) {
     result = Math.pow(result, nums[i]);

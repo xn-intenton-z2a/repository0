@@ -39,15 +39,15 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
     expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
     expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
-    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(13, "  --factorial  : Compute the factorial of a provided non-negative integer (demo arithmetic)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(14, "  --sqrt       : Compute the square root of the provided number (demo arithmetic)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(13, "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(14, "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
     consoleSpy.mockRestore();
   });
 
