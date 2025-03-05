@@ -2,10 +2,9 @@
 
 /* eslint-env node, es2022 */
 // src/lib/main.js
-// Mission: Minimal CLI arithmetic demonstration aligned with the repository mission.
-// This file provides implementations for arithmetic operations: sum, multiply, subtract, divide, modulo, average, power (exponentiation), factorial, and square root.
-// Enhanced error handling and updated comments are in place to ensure clarity and maintain alignment with our mission statement.
-// Note: All CLI examples documented in the README have been dry-run and verified against this implementation.
+// Mission: This CLI tool demonstrates arithmetic operations in alignment with repository0's mission of showcasing agentic‑lib workflows.
+// It implements fundamental arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
+// All CLI examples documented in the README have been verified through our continuous integration to prevent drift and ensure consistency with our mission statement.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -55,7 +54,7 @@ function handleHelp() {
 
 function handleVersion() {
   try {
-    // Simulated error condition for testing version retrieval
+    // Retained simulation for testing version retrieval
     if (process.env.FORCE_VERSION_ERROR === "true") {
       throw new Error("Forced error for testing");
     }
