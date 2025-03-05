@@ -24,6 +24,8 @@ on:
   schedule:
     #- cron: '45 0 * * *' # schedule-1
     #- cron: '45 */6 * * *' # schedule-2
+    #- cron: '0 * * * *' # schedule-3
+
 
 jobs:
 
