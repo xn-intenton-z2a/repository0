@@ -120,11 +120,12 @@ jobs:
               <title>${repo} stats</title>
               <style>
             body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
-            header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
-            h1 { font-size: 2em; }
+            header {  }
+            h1 { font-size: 1.5em; font-family: monospace; }
             section { margin-bottom: 1.5em; }
+            section.p { font-family: monospace; }
             ul { list-style: none; padding: 0; }
-            li { margin: 0.5em 0; }
+            li { margin: 0.25em 0; }
             .label { font-weight: bold; }
             footer { margin-top: 2em; font-size: 0.9em; color: #777; }
               </style>
@@ -132,33 +133,35 @@ jobs:
               <body>
               <header>
               <h1>${repo}</h1>
-              <p><a href="https://github.com/xn-intenton-z2a/${repo}">repository</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/index.html">site</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">stats</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all stats</a></p>
               </header>
               <section>
-              <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
-              </section>
-              <section>
-              <p><span class="label">Open Issues:</span> ${openIssues}</p>
+              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
               </section>
               <section>
               <p><span class="label">Branches (${branchCount}):</span> ${branchNames.join(', ')}</p>
               </section>
               <section>
-              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
+              <p><span class="label">Open Issues:</span> ${openIssues}</p>
               </section>
               <section>
-              <p><span class="label">Time since last push anywhere:</span> ${hoursSinceLastPush} hours</p>
-              <p><span class="label">Time since last push to main:</span> ${hoursSinceLastPushMain} hours</p>
+              <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
               </section>
               <section>
-              <p><span class="label">Commits in the last hour:</span> ${commitsLastHour}</p>
-              <p><span class="label">Commits in the last day:</span> ${commitsLastDay}</p>
+              <p><span class="label">Hours since push anywhere:</span> ${hoursSinceLastPush}</p>
+              <p><span class="label">Hours since push to main:</span> ${hoursSinceLastPushMain}</p>
               </section>
               <section>
-              <p><span class="label">Last 5 commit messages from main:</span></p>
+              <p><span class="label">Commits to main last hour:</span> ${commitsLastHour}</p>
+              <p><span class="label">Commits to main last day:</span> ${commitsLastDay}</p>
+              </section>
+              <section>
+              <p><span class="label">Last commits on main:</span></p>
               <ul>
               ${lastFiveCommitMessages.map(msg => `<li>${msg}</li>`).join('')}
               </ul>
+              </section>
+              <section>
+              <p><a href="https://github.com/xn-intenton-z2a/${repo}" target="_blank">repository 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/index.html" target="_blank">site 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html" target="_blank">stats 🔗</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/all.html" target="_blank">all stats 🔗</a></p>
               </section>
               <footer>
               <p>Generated on ${now.toISOString()}</p>
