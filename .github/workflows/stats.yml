@@ -125,8 +125,9 @@ jobs:
               <body>
               <header>
               <h1>Repository Statistics for ${repo}</h1>
-              <p>Owner: <a href="https://github.com/xn-intenton-z2a/">${owner}</a></p>
-              <p>Index: <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">index.html</a></p>
+              <p>Repository: <a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
+              <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest.html</a></p>
+              <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all.html</a></p>
               </header>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
@@ -159,7 +160,7 @@ jobs:
             `;
   
             // Ensure the output directory exists.
-            const outputDir = "site";
+            const outputDir = "public";
             if (!fs.existsSync(outputDir)) {
             fs.mkdirSync(outputDir);
             }
@@ -171,28 +172,29 @@ jobs:
       - name: Generate index page
         shell: bash
         run: |
-          ./scripts/md-to-html.js < README.md > site/index.html
+          ./scripts/md-to-html.js < README.md > public/index.agentic-lib.html
+          cat public/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > public/index.html
 
       - name: Generate unique filename for this version
         id: uniqueFile
         run: |
           echo "[INFO] Generating a unique filename..."
           unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
-          cp site/latest.html "site/${unique}"
+          cp public/latest.html "public/${unique}"
           echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
-          echo "[INFO] Unique file created: site/${unique}"
+          echo "[INFO] Unique file created: public/${unique}"
 
       - name: Upload generated site as artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
-          path: 'site'
+          path: 'public'
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: 'site'
+          publish_dir: 'public'
           # Optionally specify a custom cname if needed:
           # cname: your.custom.domain
           publish_branch: github-pages
@@ -210,13 +212,13 @@ jobs:
           uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
           uniqueUrl="${baseUrl}/${uniqueFile}"
           pwd
-          echo "site:"
-          ls -larth "site"
-          echo "site/latest.html:"
-          ls -larth "site/latest.html"
-          echo "site/${uniqueFile}:"
-          ls -larth "site/${uniqueFile}"
-          echo "[INFO] Latest page URL: ${latestUrl}"
-          echo "[INFO] Unique version URL: ${uniqueUrl}"
+          echo "public:"
+          ls -larth "public"
+          echo "public/latest.html:"
+          ls -larth "public/latest.html"
+          echo "public/${uniqueFile}:"
+          ls -larth "public/${uniqueFile}"
+          echo "::notice:: latestUrl: ${latestUrl}"
+          echo "::notice:: uniqueUrl: ${uniqueUrl}"
           echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
           echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
