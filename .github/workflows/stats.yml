@@ -125,9 +125,7 @@ jobs:
               <body>
               <header>
               <h1>${repo}</h1>
-              <p><a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
-              <p><a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest</a></p>
-              <p><a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all</a></p>
+              <p><a href="https://github.com/xn-intenton-z2a/${repo}">repository</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/index.html">site</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">stats</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all stats</a></p>
               </header>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
