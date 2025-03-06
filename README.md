@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root, with enhanced error handling. The file has been pruned to remove drift and align fully with repository0's mission.
+  The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root. The source file has been updated to prune drift and align fully with repository0's mission.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
@@ -27,9 +27,9 @@ The repository is intended as a template that includes:
   This `README.md` is maintained to reflect current functionality and planned improvements.
 
 ## Changelog
-- Updated header comments in `src/lib/main.js` to align with repository0's mission and remove drift from previous implementation details.
-- Verified and updated documentation examples in this README to cover arithmetic operations including chained exponentiation, factorial, and square root.
-- Enhanced error handling for version retrieval and arithmetic operations.
+- Updated header comments in `src/lib/main.js` to align with repository0's mission by removing drift and outdated implementation details.
+- Fixed version error handling in `src/lib/main.js` to properly simulate package.json load errors when FORCE_VERSION_ERROR is set.
+- Verified that all documented CLI examples are accurate and fully functional.
 
 ## Getting Started
 
