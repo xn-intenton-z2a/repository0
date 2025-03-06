@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -48,6 +48,8 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(13, "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(14, "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(15, "  --demo       : Run in demo mode to output sample data without making a network call");
+    expect(consoleSpy).toHaveBeenNthCalledWith(16, "  --real       : Run the real call simulation (feature not implemented over the wire)");
     consoleSpy.mockRestore();
   });
 
@@ -56,7 +58,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -289,6 +291,21 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sqrt", "-16"]);
     expect(consoleSpy).toHaveBeenCalledWith("Square Root: Negative input error");
+    consoleSpy.mockRestore();
+  });
+
+  // New tests for demo and real flags
+  test("displays demo output when --demo flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--demo"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Demo output: This is a demo execution without network calls.");
+    consoleSpy.mockRestore();
+  });
+
+  test("displays real call simulation output when --real flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--real"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Real call: This feature is not implemented over the wire yet.");
     consoleSpy.mockRestore();
   });
 });

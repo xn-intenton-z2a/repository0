@@ -2,16 +2,16 @@
 
 /* eslint-env node, es2022 */
 // src/lib/main.js
-// Mission: This CLI tool demonstrates arithmetic operations aligned with repository0's mission of showcasing agentic‑lib workflows. 
-// It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root. 
-// All CLI examples documented in the README have been verified through continuous integration to ensure consistency and to prune drift from previous implementations.
+// Mission: This CLI tool demonstrates arithmetic operations aligned with repository0's mission of showcasing agentic‑lib workflows.
+// It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
+// Updated to include a demo mode output (without network calls) and a placeholder for real call functionality.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -37,6 +37,8 @@ function printHelp() {
   console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
+  console.log("  --demo       : Run in demo mode to output sample data without making a network call");
+  console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
 }
 
 function getNumbers(args, flag) {
@@ -189,6 +191,15 @@ function handleSqrt(args) {
   console.log(`Square Root: ${result}`);
 }
 
+// New handlers for demo and real call modes
+function handleDemo() {
+  console.log("Demo output: This is a demo execution without network calls.");
+}
+
+function handleReal() {
+  console.log("Real call: This feature is not implemented over the wire yet.");
+}
+
 export async function main(args = []) {
   if (!Array.isArray(args)) {
     printUsage(true);
@@ -211,7 +222,9 @@ export async function main(args = []) {
     "--average": () => handleAverage(args),
     "--power": () => handlePower(args),
     "--factorial": () => handleFactorial(args),
-    "--sqrt": () => handleSqrt(args)
+    "--sqrt": () => handleSqrt(args),
+    "--demo": handleDemo,
+    "--real": handleReal
   };
 
   for (const arg of args) {
