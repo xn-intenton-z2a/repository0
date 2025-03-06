@@ -1,0 +1,222 @@
+name: ∞ Stats
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 */7 * *' # schedule-1
+    #- cron: '0 */2 * * *' # schedule-2
+    #- cron: '0,30 * * * *' # schedule-3
+
+jobs:
+  generate-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm install
+
+      - name: Generate statistics page
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Get repository owner and name from context.
+            const { owner, repo } = context.repo;
+            core.info(`Gathering stats for ${owner}/${repo}...`);
+
+            // Get open issues count.
+            const issuesResp = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: "open"
+            });
+            const openIssues = issuesResp.data.length;
+            core.info(`Open issues: ${openIssues}`);
+
+            // Get branches.
+            const branchesResp = await github.rest.repos.listBranches({
+              owner,
+              repo
+            });
+            const branchNames = branchesResp.data.map(branch => branch.name);
+            const branchCount = branchNames.length;
+            core.info(`Found ${branchCount} branches: ${branchNames.join(', ')}`);
+
+            // Get open pull requests.
+            const pullsResp = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: "open"
+            });
+            const openPRs = pullsResp.data.length;
+            const prTitles = pullsResp.data.map(pr => pr.title);
+            core.info(`Open PRs (${openPRs}): ${prTitles.join('; ')}`);
+
+            // Get repository details for last push.
+            const repoResp = await github.rest.repos.get({ owner, repo });
+            const pushedAt = new Date(repoResp.data.pushed_at);
+            const now = new Date();
+            const diffMillis = now - pushedAt;
+            const hoursSinceLastPush = (diffMillis / (1000 * 60 * 60)).toFixed(2);
+
+            // Get last push to main branch.
+            const mainBranchResp = await github.rest.repos.getBranch({ owner, repo, branch: "main" });
+            const mainPushedAt = new Date(mainBranchResp.data.commit.commit.author.date);
+            const diffMillisMain = now - mainPushedAt;
+            const hoursSinceLastPushMain = (diffMillisMain / (1000 * 60 * 60)).toFixed(2);
+
+            // Get commits in the last hour.
+            const sinceHour = new Date(now.getTime() - (60 * 60 * 1000)).toISOString();
+            const commitsLastHourResp = await github.rest.repos.listCommits({
+              owner,
+              repo,
+              since: sinceHour
+            });
+            const commitsLastHour = commitsLastHourResp.data.length;
+
+            // Get commits in the last day.
+            const sinceDay = new Date(now.getTime() - (24 * 60 * 60 * 1000)).toISOString();
+            const commitsLastDayResp = await github.rest.repos.listCommits({
+              owner,
+              repo,
+              since: sinceDay
+            });
+            const commitsLastDay = commitsLastDayResp.data.length;
+
+            // Get last 5 commit messages from main.
+            const lastFiveCommitsResp = await github.rest.repos.listCommits({
+              owner,
+              repo,
+              sha: "main",
+              per_page: 5
+            });
+            const lastFiveCommitMessages = lastFiveCommitsResp.data.map(commit => commit.commit.message);
+
+            // Generate a simple HTML page with inline CSS.
+            const html = `
+              <!DOCTYPE html>
+              <html lang="en">
+              <head>
+              <meta charset="UTF-8">
+              <title>${repo} Repository Statistics</title>
+              <style>
+            body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+            header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+            h1 { font-size: 2em; }
+            section { margin-bottom: 1.5em; }
+            ul { list-style: none; padding: 0; }
+            li { margin: 0.5em 0; }
+            .label { font-weight: bold; }
+            footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+              </style>
+              </head>
+              <body>
+              <header>
+              <h1>Repository Statistics for ${repo}</h1>
+              <p>Owner: <a href="https://github.com/xn-intenton-z2a/">${owner}</a></p>
+              <p>Index: <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">index.html</a></p>
+              </header>
+              <section>
+              <p><span class="label">Open Issues:</span> ${openIssues}</p>
+              </section>
+              <section>
+              <p><span class="label">Branches (${branchCount}):</span> ${branchNames.join(', ')}</p>
+              </section>
+              <section>
+              <p><span class="label">Open Pull Requests (${openPRs}):</span> ${prTitles.join('; ') || 'None'}</p>
+              </section>
+              <section>
+              <p><span class="label">Time since last push anywhere:</span> ${hoursSinceLastPush} hours</p>
+              <p><span class="label">Time since last push to main:</span> ${hoursSinceLastPushMain} hours</p>
+              </section>
+              <section>
+              <p><span class="label">Commits in the last hour:</span> ${commitsLastHour}</p>
+              <p><span class="label">Commits in the last day:</span> ${commitsLastDay}</p>
+              </section>
+              <section>
+              <p><span class="label">Last 5 commit messages from main:</span></p>
+              <ul>
+              ${lastFiveCommitMessages.map(msg => `<li>${msg}</li>`).join('')}
+              </ul>
+              </section>
+              <footer>
+              <p>Generated on ${now.toISOString()}</p>
+              </footer>
+              </body>
+              </html>
+            `;
+  
+            // Ensure the output directory exists.
+            const outputDir = "site";
+            if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir);
+            }
+            const outputPath = path.join(outputDir, "latest.html");
+            fs.writeFileSync(outputPath, html, "utf8");
+            core.info(`Static site generated at ${outputPath}.`);
+            core.setOutput("sitePath", outputPath);
+
+      - name: Generate index page
+        shell: bash
+        run: |
+          ./scripts/md-to-html.js < README.md > site/index.html
+
+      - name: Generate unique filename for this version
+        id: uniqueFile
+        run: |
+          echo "[INFO] Generating a unique filename..."
+          unique=$(date +%Y%m%d%H%M%S)-$(uuidgen).html
+          cp site/latest.html "site/${unique}"
+          echo "uniqueFile=${unique}" >> $GITHUB_OUTPUT
+          echo "[INFO] Unique file created: site/${unique}"
+
+      - name: Upload generated site as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: 'site'
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: 'site'
+          # Optionally specify a custom cname if needed:
+          # cname: your.custom.domain
+          publish_branch: github-pages
+          keep_files: true
+          enable_jekyll: 'true'
+
+      - name: Output published URLs
+        run: |
+          echo "[INFO] Determining GitHub Pages URL..."
+          # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
+          repoName=${{ github.event.repository.name }}
+          owner=${{ github.repository_owner }}
+          baseUrl="https://${owner}.github.io/${repoName}"
+          latestUrl="${baseUrl}/latest.html"
+          uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
+          uniqueUrl="${baseUrl}/${uniqueFile}"
+          pwd
+          echo "site:"
+          ls -larth "site"
+          echo "site/latest.html:"
+          ls -larth "site/latest.html"
+          echo "site/${uniqueFile}:"
+          ls -larth "site/${uniqueFile}"
+          echo "[INFO] Latest page URL: ${latestUrl}"
+          echo "[INFO] Unique version URL: ${uniqueUrl}"
+          echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
+          echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
