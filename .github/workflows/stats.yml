@@ -3,9 +3,9 @@ name: ∞ Stats
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 */7 * *' # schedule-1
-    #- cron: '0 */2 * * *' # schedule-2
-    #- cron: '0,30 * * * *' # schedule-3
+    - cron: '0 0/4 * * *' # schedule-1
+    #- cron: '0,30 * * * *' # schedule-2
+    #- cron: '0,10 * * * *' # schedule-3
 
 jobs:
   generate-site:
@@ -23,6 +23,14 @@ jobs:
           cache: 'npm'
 
       - run: npm install
+
+      - name: engine
+        id: engine
+        shell: bash
+        run: |
+          engine=$(grep '^[[:space:]]*- cron:.*#' .github/workflows/stats.yml | sed 's/^[[:space:]]*- cron:.*# //g')
+          echo "engine=${engine}"
+          echo "engine=${engine}" >> $GITHUB_OUTPUT
 
       - name: Generate statistics page
         uses: actions/github-script@v7
@@ -104,13 +112,12 @@ jobs:
             });
             const lastFiveCommitMessages = lastFiveCommitsResp.data.map(commit => commit.commit.message);
 
-            // Generate a simple HTML page with inline CSS.
             const html = `
               <!DOCTYPE html>
               <html lang="en">
               <head>
               <meta charset="UTF-8">
-              <title>${repo} Repository Statistics</title>
+              <title>${repo} stats</title>
               <style>
             body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
             header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
@@ -127,6 +134,9 @@ jobs:
               <h1>${repo}</h1>
               <p><a href="https://github.com/xn-intenton-z2a/${repo}">repository</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/index.html">site</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">stats</a> - <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all stats</a></p>
               </header>
+              <section>
+              <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
+              </section>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
               </section>
