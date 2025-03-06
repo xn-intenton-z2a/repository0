@@ -13,7 +13,7 @@ function generateHTML(content) {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Repository Statistics for agentic-lib</title>
+  <title>agentic-lib</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
     header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
@@ -29,7 +29,7 @@ function generateHTML(content) {
 </head>
 <body>
   <header>
-    <h1>Repository Statistics for agentic-lib</h1>
+    <h1>agentic-lib</h1>
     <p>Repository: <a href="https://github.com/xn-intenton-z2a/agentic-lib">xn-intenton-z2a</a></p>
     <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest.html</a></p>
     <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">latest.html</a></p>

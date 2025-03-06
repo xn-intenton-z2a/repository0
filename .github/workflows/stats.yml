@@ -124,10 +124,10 @@ jobs:
               </head>
               <body>
               <header>
-              <h1>Repository Statistics for ${repo}</h1>
-              <p>Repository: <a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
-              <p>Latest agentic-lib stats: <a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest.html</a></p>
-              <p>All repository stats: <a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all.html</a></p>
+              <h1>${repo}</h1>
+              <p><a href="https://github.com/xn-intenton-z2a/${repo}">${repo}</a></p>
+              <p><a href="https://xn-intenton-z2a.github.io/${repo}/latest.html">latest</a></p>
+              <p><a href="https://xn-intenton-z2a.github.io/${repo}/all.html">all</a></p>
               </header>
               <section>
               <p><span class="label">Open Issues:</span> ${openIssues}</p>
