@@ -15,20 +15,24 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root. The source file has been updated to prune drift and align fully with repository0's mission.
+  The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root.
+  
+  **New Features:**
+  - Added a demo mode that outputs sample data without any network call using the `--demo` flag.
+  - Introduced a placeholder flag `--real` which hints at a real API call that is not implemented over the wire.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected, with comprehensive coverage for arithmetic operations and edge cases.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected, with comprehensive coverage for arithmetic operations, edge cases, and the new demo/real mode.
 
 - **Docs:**
   This `README.md` is maintained to reflect current functionality and planned improvements.
 
 ## Changelog
 - Updated header comments in `src/lib/main.js` to align with repository0's mission by removing drift and outdated implementation details.
-- Fixed version error handling in `src/lib/main.js` to properly simulate package.json load errors when FORCE_VERSION_ERROR is set.
+- Added demo mode (`--demo`) output and a placeholder for real API call mode (`--real`).
 - Verified that all documented CLI examples are accurate and fully functional.
 
 ## Getting Started
@@ -49,6 +53,9 @@ Run the CLI application with different flags:
   - Power (chained exponentiation): `node src/lib/main.js --power 2 3 2`
   - Factorial: `node src/lib/main.js --factorial 5`
   - Square Root: `node src/lib/main.js --sqrt 16`
+- **New Flags:**
+  - Demo mode: `node src/lib/main.js --demo` (outputs sample data without network calls)
+  - Real call simulation: `node src/lib/main.js --real` (placeholder for live API call)
 
 END_README_BEGINNING
 
