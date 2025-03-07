@@ -49,11 +49,12 @@ jobs:
             const { owner, repo } = context.repo;
             core.info(`Gathering stats for ${owner}/${repo}...`);
 
-            // Open issues count.
+            // Open issues count (up to 256)
             const issuesResp = await github.rest.issues.listForRepo({
               owner,
               repo,
-              state: "open"
+              state: "open",
+              per_page: 256
             });
             const openIssues = issuesResp.data.length;
             core.info(`Open issues: ${openIssues}`);
@@ -64,7 +65,8 @@ jobs:
               owner,
               repo,
               state: "closed",
-              since: sinceOneHour
+              since: sinceOneHour,
+              per_page: 256
             });
             const issuesClosedLastHour = closedHourResp.data.length;
             const sinceOneDay = new Date(now.getTime() - (24 * 60 * 60 * 1000)).toISOString();
@@ -72,7 +74,8 @@ jobs:
               owner,
               repo,
               state: "closed",
-              since: sinceOneDay
+              since: sinceOneDay,
+              per_page: 256
             });
             const issuesClosedLastDay = closedDayResp.data.length;
 
@@ -80,7 +83,8 @@ jobs:
             const pullsResp = await github.rest.pulls.list({
               owner,
               repo,
-              state: "open"
+              state: "open",
+              per_page: 256
             });
             const prDetails = pullsResp.data.map(pr => {
               const createdAt = new Date(pr.created_at);
@@ -103,13 +107,15 @@ jobs:
             const commitsLastHourResp = await github.rest.repos.listCommits({
               owner,
               repo,
-              since: sinceOneHour
+              since: sinceOneHour,
+              per_page: 256
             });
             const commitsLastHour = commitsLastHourResp.data.length;
             const commitsLastDayResp = await github.rest.repos.listCommits({
               owner,
               repo,
-              since: sinceOneDay
+              since: sinceOneDay,
+              per_page: 256
             });
             const commitsLastDay = commitsLastDayResp.data.length;
 
@@ -129,7 +135,11 @@ jobs:
             });
 
             // Branches excluding "main" and "github-pages", with last commit time (in minutes).
-            const branchesResp = await github.rest.repos.listBranches({ owner, repo });
+            const branchesResp = await github.rest.repos.listBranches({
+              owner,
+              repo,
+              per_page: 256
+            });
             const branchData = branchesResp.data.filter(branch => branch.name !== "main" && branch.name !== "github-pages");
             const branchDetails = await Promise.all(branchData.map(async branch => {
               const branchResp = await github.rest.repos.getBranch({ owner, repo, branch: branch.name });
@@ -173,12 +183,6 @@ jobs:
                 </section>
                 <section>
                   <p><span class="label">Branches (${branchCount}):</span> ${branchDetails.join(', ') || 'None'}</p>
-                </section>
-                <section>
-                  <p><span class="label">Test status on main:</span> ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
-                </section>
-                <section>
-                  <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
                 </section>
                 <section>
                   <p><span class="label">Open Issues:</span> ${openIssues}</p>
@@ -251,25 +255,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: 'public'
           publish_branch: github-pages
-          keep_files: true
-          enable_jekyll: 'true'
 
-      - name: Output published URLs
-        run: |
-          echo "[INFO] Determining GitHub Pages URL..."
-          repoName=${{ github.event.repository.name }}
-          owner=${{ github.repository_owner }}
-          baseUrl="https://${owner}.github.io/${repoName}"
-          latestUrl="${baseUrl}/latest.html"
-          uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
-          uniqueUrl="${baseUrl}/${uniqueFile}"
-          echo "public:"
-          ls -larth "public"
-          echo "public/latest.html:"
-          ls -larth "public/latest.html"
-          echo "public/${uniqueFile}:"
-          ls -larth "public/${uniqueFile}"
-          echo "::notice:: [Latest page URL](${latestUrl})"
-          echo "::notice:: [Unique version URL](${uniqueUrl})"
-          echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
-          echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
