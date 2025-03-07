@@ -31,9 +31,9 @@ The repository is intended as a template that includes:
   This `README.md` is maintained to reflect current functionality and planned improvements.
 
 ## Changelog
-- Updated header comments in `src/lib/main.js` to align with repository0's mission by removing drift and outdated implementation details.
-- Added demo mode (`--demo`) output and a placeholder for real API call mode (`--real`).
-- Verified that all documented CLI examples are accurate and fully functional.
+- Updated header comments in `src/lib/main.js` to align with the mission statement and remove drift.
+- Added demo mode (`--demo`) output and a placeholder for a real API call mode (`--real`).
+- Refreshed documentation examples to match current CLI functionality.
 
 ## Getting Started
 
