@@ -4,7 +4,7 @@
 // src/lib/main.js
 // Mission: This CLI tool demonstrates arithmetic operations aligned with repository0's mission of showcasing agentic‑lib workflows.
 // It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
-// Updated to include a demo mode output (without network calls) and a placeholder for real call functionality.
+// Updated to include a demo mode output (without network calls), a placeholder for real call functionality, and refreshed documentation examples as per README updates.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
