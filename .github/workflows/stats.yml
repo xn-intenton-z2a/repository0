@@ -1,3 +1,8 @@
+# .github/workflows/stats.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
 name: ∞ Stats
 
 on:
@@ -188,6 +193,9 @@ jobs:
                   <p><span class="label">Open Issues:</span> ${openIssues}</p>
                   <p><span class="label">Issues closed in last hour:</span> ${issuesClosedLastHour}</p>
                   <p><span class="label">Issues closed in last 24 hours:</span> ${issuesClosedLastDay}</p>
+                </section>
+                <section>
+                  <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
                 </section>
                 <section>
                   <p><span class="label">Minutes since push anywhere:</span> ${diffMinutes}</p>
