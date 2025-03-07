@@ -2,7 +2,7 @@
 # scripts/initialise.sh
 # Usage: ./scripts/initialise.sh <intention>
 # Example: ./scripts/initialise.sh (randomly selects an intention)
-# Example: ./scripts/initialise.sh "plot-code-lib"
+# Example: ./scripts/initialise.sh "repository0-plot-code-lib"
 # Example: ./scripts/initialise.sh "owl-builder"
 #
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib

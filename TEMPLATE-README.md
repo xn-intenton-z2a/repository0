@@ -127,7 +127,7 @@ Yet, the journey was not linear. As the repository matured, the narrative shifte
 
 In a final act to secure its legacy, `repository0` embraced stability by adding a package-lock file. This strategic move locked in dependencies and promised reproducible builds, cementing the project’s foundation for the future.
 
-This has been story of [`plot-code-lib`](https://github.com/xn-intenton-z2a/plot-code-lib).
+This has been story of [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib).
 
 **Summary:**  
 `repository0`’s evolution is marked by distinct arcs of initiative. It began with the core plotting of quadratic and sine functions, then shifted into a series of documentation and formatting enhancements. The dramatic introduction of polar plotting expanded its visual vocabulary, while changes in demo output transformed user interaction. Throughout, iterative revisions—sometimes even undoing earlier stylistic choices—revealed a dynamic, evolving vision striving for clarity and excellence.
