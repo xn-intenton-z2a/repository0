@@ -4,11 +4,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     labels:
       - dependencies
       - automated
-      - automerge
     #ignore:
     #  - dependency-name: "some-dependency" # Example of ignoring a specific dependency
     #    versions: ["1.x", "2.x"]
