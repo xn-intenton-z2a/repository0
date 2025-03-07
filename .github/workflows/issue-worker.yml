@@ -37,7 +37,7 @@ on:
     types:
       - completed
   schedule:
-    - cron: '30 */6 * * *' # schedule-1
+    - cron: '15 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
     #- cron: '*/10 * * * *' # schedule-3
 
