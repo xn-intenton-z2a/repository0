@@ -178,6 +178,9 @@ jobs:
                   <p><span class="label">Test status on main:</span> ${testStatus} (last passed ${testsLastPassedMinutes} minutes ago)</p>
                 </section>
                 <section>
+                  <p><span class="label">Engine:</span> ${{ steps.engine.outputs.engine }}</p>
+                </section>
+                <section>
                   <p><span class="label">Open Issues:</span> ${openIssues}</p>
                   <p><span class="label">Issues closed in last hour:</span> ${issuesClosedLastHour}</p>
                   <p><span class="label">Issues closed in last 24 hours:</span> ${issuesClosedLastDay}</p>
