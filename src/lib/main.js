@@ -4,7 +4,8 @@
 // src/lib/main.js
 // Mission: This CLI tool demonstrates arithmetic operations aligned with repository0's mission of showcasing agentic‑lib workflows.
 // It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
-// Updated to include a demo mode output (without network calls), a placeholder for real call functionality, refreshed documentation examples, and linting/formatting fixes.
+// Updated to include a demo mode output (without network calls), a placeholder for real call functionality, refreshed documentation examples,
+// enhanced error handling, and linting/formatting fixes. Additional inline comments were added to facilitate improved test coverage.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -43,6 +44,7 @@ function printHelp() {
 
 function getNumbers(args, flag) {
   const index = args.indexOf(flag);
+  // Only parse numbers that do not start with "--"
   return args
     .slice(index + 1)
     .filter((arg) => !arg.startsWith("--"))
@@ -226,6 +228,7 @@ export async function main(args = []) {
     "--real": handleReal
   };
 
+  // Process only the first recognized flag and ignore the rest
   for (const arg of args) {
     if (flagHandlers[arg]) {
       flagHandlers[arg]();

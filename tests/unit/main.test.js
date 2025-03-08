@@ -233,6 +233,7 @@ describe("CLI Behavior", () => {
   test("handles non-numeric input for --modulo flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--modulo", "10", "b", "3"]);
+    // Only valid numbers: 10 and 3 => 10 % 3 = 1
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
     consoleSpy.mockRestore();
   });
