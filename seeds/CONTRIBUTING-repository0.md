@@ -58,24 +58,28 @@ Contributions come in many forms—whether you’re a developer, tester, or an a
 
 ## Issue House Choice Options
 
-repository specific activities:
-#- Create, vary or extend as many library functions as you can that deliver the spirit of this CONTRIBUTING.md Update the Change Log in README.md (or say what was checked).
-
 generic activities:
 - Update the source file by applying the Mission Statement to prune any "drift" from the source file. Update the Change Log in README.md (or say what was checked).
 - Create, vary or extend as many features in the source file as you can inline with the Mission Statement. Update the Change Log in README.md (or say what was checked).
-  #- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation. Update the Change Log in README.md (or say what was checked).
-  #- Consider alternate code paths that could be explicitly handled to improve the range of supported behaviours. Update the Change Log in README.md (or say what was checked).
-  #- Look for code that could be simplified using a library and introduce that library. Update the Change Log in README.md (or say what was checked).
 
 undocumented chores:
-#- Look for any duplicated code that could be usefully abstracted out to become shared code and implement that abstraction.
 - Refresh the README, consulting the guidance in CONTRIBUTING.md while retaining any relevant content and pruning irrelevant content.
-- Dry-run any examples in comments or the README against the current code and if they are not accurate or if they could cover more features, update the docs or code to be accurate.
 - Bring test coverage up as close to 100% as possible, have single layer mocked tests and deeper tests mocking at the external resource (e.g. file system or network).
-- Ensure the main function so that it generates some demo output without an over the wire call, and hint a CLI switch that will do the real call.
 
 ## Agentic contribution house choice options (programmatically parsed): END
+
+unused repository specific activities:
+#- Create, vary or extend as many library functions as you can that deliver the spirit of this CONTRIBUTING.md Update the Change Log in README.md (or say what was checked).
+
+unused generic activities:
+- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation. Update the Change Log in README.md (or say what was checked).
+- Consider alternate code paths that could be explicitly handled to improve the range of supported behaviours. Update the Change Log in README.md (or say what was checked).
+- Look for code that could be simplified using a library and introduce that library. Update the Change Log in README.md (or say what was checked).
+
+unused undocumented chores:
+- Look for any duplicated code that could be usefully abstracted out to become shared code and implement that abstraction.
+- Dry-run any examples in comments or the README against the current code and if they are not accurate or if they could cover more features, update the docs or code to be accurate.
+- Ensure the main function so that it generates some demo output without an over the wire call, and hint a CLI switch that will do the real call.
 
 ---
 ---
