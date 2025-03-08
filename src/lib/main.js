@@ -30,11 +30,19 @@ function printHelp() {
   console.log("  --greet      : Display a greeting message");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
-  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
-  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
+  console.log(
+    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
+  );
+  console.log(
+    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
+  );
+  console.log(
+    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
+  );
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
+  console.log(
+    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
+  );
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
@@ -224,7 +232,7 @@ export async function main(args = []) {
     "--factorial": () => handleFactorial(args),
     "--sqrt": () => handleSqrt(args),
     "--demo": handleDemo,
-    "--real": handleReal
+    "--real": handleReal,
   };
 
   for (const arg of args) {
