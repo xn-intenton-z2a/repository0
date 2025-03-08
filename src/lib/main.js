@@ -4,7 +4,7 @@
 // src/lib/main.js
 // Mission: This CLI tool demonstrates arithmetic operations aligned with repository0's mission of showcasing agentic‑lib workflows.
 // It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
-// Updated to include a demo mode output (without network calls), a placeholder for real call functionality, and refreshed documentation examples as per README updates.
+// Updated to include a demo mode output (without network calls), a placeholder for real call functionality, refreshed documentation examples, and linting/formatting fixes.
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
@@ -30,19 +30,11 @@ function printHelp() {
   console.log("  --greet      : Display a greeting message");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
-  );
-  console.log(
-    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
-  );
-  console.log(
-    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
-  );
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
-  );
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
@@ -71,7 +63,7 @@ function handleVersion() {
     const pkg = require("../../package.json");
     const version = pkg.version;
     console.log(`Version: ${version}`);
-  } catch (error) {
+  } catch (_error) {
     console.error("Could not retrieve version: unknown error");
   }
 }
@@ -199,7 +191,6 @@ function handleSqrt(args) {
   console.log(`Square Root: ${result}`);
 }
 
-// New handlers for demo and real call modes
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -232,7 +223,7 @@ export async function main(args = []) {
     "--factorial": () => handleFactorial(args),
     "--sqrt": () => handleSqrt(args),
     "--demo": handleDemo,
-    "--real": handleReal,
+    "--real": handleReal
   };
 
   for (const arg of args) {
@@ -245,7 +236,6 @@ export async function main(args = []) {
   console.log("Run with: " + JSON.stringify(args));
 }
 
-// Export internal helper functions for testing purposes
 export const __test = { getNumbers, printUsage };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

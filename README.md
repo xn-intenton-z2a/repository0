@@ -20,6 +20,7 @@ The repository is intended as a template that includes:
   **New Features:**
   - Added a demo mode that outputs sample data without any network call using the `--demo` flag.
   - Introduced a placeholder flag `--real` which hints at a real API call that is not implemented over the wire.
+  - Applied linting and formatting fixes to improve code quality.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
@@ -34,6 +35,7 @@ The repository is intended as a template that includes:
 - Updated header comments in `src/lib/main.js` to align with the mission statement and remove drift.
 - Added demo mode (`--demo`) output and a placeholder for a real API call mode (`--real`).
 - Refreshed documentation examples to match current CLI functionality.
+- Applied linting and formatting fixes to resolve ESLint and Prettier issues.
 
 ## Getting Started
 
