@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]",
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,23 +33,56 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]",
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
     expect(consoleSpy).toHaveBeenNthCalledWith(4, "  --version    : Show current version of the application");
     expect(consoleSpy).toHaveBeenNthCalledWith(5, "  --greet      : Display a greeting message");
-    expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(7, "  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(8, "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(9, "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(10, "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(11, "  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(12, "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(13, "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(14, "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(15, "  --demo       : Run in demo mode to output sample data without making a network call");
-    expect(consoleSpy).toHaveBeenNthCalledWith(16, "  --real       : Run the real call simulation (feature not implemented over the wire)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      6,
+      "  --sum        : Compute the sum of provided numbers (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      7,
+      "  --multiply   : Compute the product of provided numbers (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      8,
+      "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      9,
+      "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      10,
+      "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      11,
+      "  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      12,
+      "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      13,
+      "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      14,
+      "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      15,
+      "  --demo       : Run in demo mode to output sample data without making a network call",
+    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(
+      16,
+      "  --real       : Run the real call simulation (feature not implemented over the wire)",
+    );
     consoleSpy.mockRestore();
   });
 
@@ -58,7 +91,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]()",
     );
     consoleSpy.mockRestore();
   });
@@ -213,8 +246,8 @@ describe("CLI Behavior", () => {
   test("displays version when --version flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--version"]);
-    const calls = consoleSpy.mock.calls.map(call => call[0]);
-    const versionCall = calls.find(msg => msg.startsWith("Version:"));
+    const calls = consoleSpy.mock.calls.map((call) => call[0]);
+    const versionCall = calls.find((msg) => msg.startsWith("Version:"));
     expect(versionCall).toBeDefined();
     consoleSpy.mockRestore();
   });
@@ -318,7 +351,7 @@ describe("Internal test helpers (__test)", () => {
     const result = getNumbers(args, "--sum");
     expect(result).toEqual([3, 4]);
   });
-  
+
   test("printUsage prints usage message", () => {
     const { printUsage } = __test;
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
