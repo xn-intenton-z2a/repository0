@@ -6,6 +6,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 intention="$(head -1 CONTRIBUTING.md | sed 's/^# //')"
+mkdir -p 'archive/'
 cp -fv CONTRIBUTING.md "archive/${intention?}-$(date +%Y-%m-%d)-CONTRIBUTING.md"
 cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
 cp -fv package.json "archive/${intention?}-$(date +%Y-%m-%d)-package.json"

@@ -263,4 +263,27 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: 'public'
           publish_branch: github-pages
+          keep_files: true
+          enable_jekyll: 'true'
 
+      - name: Output published URLs
+        run: |
+          echo "[INFO] Determining GitHub Pages URL..."
+          # GitHub Pages URL typically: https://<owner>.github.io/<repo>/
+          repoName=${{ github.event.repository.name }}
+          owner=${{ github.repository_owner }}
+          baseUrl="https://${owner}.github.io/${repoName}"
+          latestUrl="${baseUrl}/latest.html"
+          uniqueFile=$(echo "${{ steps.uniqueFile.outputs.uniqueFile }}" | tr -d '\n')
+          uniqueUrl="${baseUrl}/${uniqueFile}"
+          pwd
+          echo "public:"
+          ls -larth "public"
+          echo "public/latest.html:"
+          ls -larth "public/latest.html"
+          echo "public/${uniqueFile}:"
+          ls -larth "public/${uniqueFile}"
+          echo "::notice:: latestUrl: ${latestUrl}"
+          echo "::notice:: uniqueUrl: ${uniqueUrl}"
+          echo "latestUrl=${latestUrl}" >> $GITHUB_OUTPUT
+          echo "uniqueUrl=${uniqueUrl}" >> $GITHUB_OUTPUT
