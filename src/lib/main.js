@@ -6,7 +6,7 @@
 // It implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
 // Updated to include a demo mode output (without network calls), a placeholder for real call functionality, refreshed documentation examples, and linting/formatting fixes.
 
-import { fileURLToPath } from "url";
+imp test_bug_to_fix ort { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { z } from "zod";
 
