@@ -1,6 +1,8 @@
 START_README_BEGINNING
 # `repository0`
 
+Hello Laura
+
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
