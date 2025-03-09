@@ -46,7 +46,7 @@ The main functionality is in <code class="md-github">src/lib/main.js</code>. Thi
 <li class="md-github">Added a demo mode that outputs sample data without any network call using the <code class="md-github">--demo</code> flag.</li>
 <li class="md-github">Introduced a placeholder flag <code class="md-github">--real</code> which hints at a real API call that is not implemented over the wire.</li>
 <li class="md-github">Enhanced error handling and updated inline documentation for improved test coverage.</li>
-<li class="md-github">Applied linting and formatting fixes to resolve ESLint and Prettier issues.</li>
+<li class="md-github">Applied linting and formatting fixes for improved code quality.</li>
 </ul>
 </li>
 <li class="md-github">
@@ -55,7 +55,7 @@ The main functionality is in <code class="md-github">src/lib/main.js</code>. Thi
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong><br>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the main script behaves as expected, with comprehensive coverage for arithmetic operations, edge cases, and the new demo/real mode. Test coverage has been increased to approach 100%.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the main script behaves as expected. Recent updates have increased test coverage to approach 100%, covering various arithmetic operations, edge cases, and CLI flag scenarios.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Docs:</strong>
@@ -67,7 +67,7 @@ This <code class="md-github">README.md</code> is maintained to reflect current f
 <li class="md-github">Updated header comments in <code class="md-github">src/lib/main.js</code> to align with the mission statement and enhance error handling.</li>
 <li class="md-github">Added demo mode (<code class="md-github">--demo</code>) output and a placeholder for a real API call mode (<code class="md-github">--real</code>).</li>
 <li class="md-github">Refreshed documentation examples to match current CLI functionality.</li>
-<li class="md-github">Improved test coverage by refining internal helper functions and CLI flag handling.</li>
+<li class="md-github">Enhanced unit testing to reach nearly 100% coverage by ensuring all code paths are exercised.</li>
 <li class="md-github">Applied linting and formatting fixes for improved code quality.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
@@ -76,28 +76,10 @@ This <code class="md-github">README.md</code> is maintained to reflect current f
 <li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> - This key must be for an account with access to the OpenAI chat completions API for model <code class="md-github">o3-mini</code>.
 Set these secrets in your repository settings under <em class="md-github">Settings &gt; Secrets and Variables &gt; Actions</em>. They are essential for automated workflows such as publishing packages and managing issues.</li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="usage-examples" href="#usage-examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage Examples</h3>
-<p class="md-github">Run the CLI application with different flags:</p>
-<ul class="md-github">
-<li class="md-github">Display help: <code class="md-github">node src/lib/main.js --help</code></li>
-<li class="md-github">Get version: <code class="md-github">node src/lib/main.js --version</code></li>
-<li class="md-github">Run diagnostics: <code class="md-github">node src/lib/main.js --diagnostics</code></li>
-<li class="md-github">Arithmetic operations examples:
-<ul class="md-github">
-<li class="md-github">Sum: <code class="md-github">node src/lib/main.js --sum 1 2 3</code></li>
-<li class="md-github">Multiply: <code class="md-github">node src/lib/main.js --multiply 2 3 4</code></li>
-<li class="md-github">Power (chained exponentiation): <code class="md-github">node src/lib/main.js --power 2 3 2</code></li>
-<li class="md-github">Factorial: <code class="md-github">node src/lib/main.js --factorial 5</code></li>
-<li class="md-github">Square Root: <code class="md-github">node src/lib/main.js --sqrt 16</code></li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">New Flags:</strong>
-<ul class="md-github">
-<li class="md-github">Demo mode: <code class="md-github">node src/lib/main.js --demo</code> (outputs sample data without network calls)</li>
-<li class="md-github">Real call simulation: <code class="md-github">node src/lib/main.js --real</code> (placeholder for live API call)</li>
-</ul>
-</li>
-</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="intentïon-agentic-lib" href="#intentïon-agentic-lib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic-lib</code></h2>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.</p>
+<p class="md-github"><em class="md-github">Warning:</em> Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.</p>
+<p class="md-github"><em class="md-github">Warning:</em> Experimental. This coding system is still in development and may not suit production use.</p>
 <p class="md-github">END_README_BEGINNING</p>
 <hr class="md-github">
 <hr class="md-github">
@@ -110,7 +92,7 @@ END_README_END</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-03-09T04:01:30.001Z</p>
+    <p>Generated on 2025-03-09T06:01:27.962Z</p>
   </footer>
 </body>
 </html>
