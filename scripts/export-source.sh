@@ -8,7 +8,7 @@
 #
 
 mkdir -p 'exports/'
-find "." -type f -not -path '*/build/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "exports/$(date +%Y-%m-%d)-files-list.txt"
+find "." -type f -not -path '*/build/*' -not -path '*/cdk/target/*' -not -path '*/cdk/cdk.out/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "exports/$(date +%Y-%m-%d)-files-list.txt"
 find "." -maxdepth 1 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'package.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'vitest.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
