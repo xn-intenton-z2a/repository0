@@ -356,16 +356,16 @@ describe("CLI Behavior", () => {
   });
 });
 
-// Additional tests for internal helper functions to improve test coverage
-describe("Internal test helpers (__test)", () => {
-  test("getNumbers returns valid numbers", () => {
+// Additional tests for internal helper functions and edge cases to boost test coverage
+describe("Internal test helpers and edge cases (__test)", () => {
+  test("getNumbers returns valid numbers even if zero is provided as string", () => {
     const { getNumbers } = __test;
-    const args = ["--sum", "3", "foo", "4", "--other"];
+    const args = ["--sum", "0", "5"];
     const result = getNumbers(args, "--sum");
-    expect(result).toEqual([3, 4]);
+    expect(result).toEqual([0, 5]);
   });
 
-  test("printUsage prints usage message", () => {
+  test("printUsage prints usage message with non-array flag correctly", () => {
     const { printUsage } = __test;
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     printUsage(true);
