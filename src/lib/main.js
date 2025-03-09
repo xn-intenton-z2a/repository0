@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { z } from "zod";
 
-const USAGE_MESSAGE =
+con  test-this-bug-fixing-tool st USAGE_MESSAGE =
   "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
