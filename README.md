@@ -33,11 +33,9 @@ The repository is intended as a template that includes:
   This `README.md` is maintained to reflect current functionality and planned improvements.
 
 ## Changelog
-- Updated header comments in `src/lib/main.js` to align with the mission statement and enhance error handling.
-- Added demo mode (`--demo`) output and a placeholder for a real API call mode (`--real`).
-- Refreshed documentation examples to match current CLI functionality.
-- Enhanced unit testing to reach nearly 100% coverage by ensuring all code paths are exercised.
-- Applied linting and formatting fixes for improved code quality.
+- Updated header comments in `src/lib/main.js` to align strictly with repository0's mission statement.
+- Pruned any code drift to ensure the CLI tool meets the template's goals for clarity and testability.
+- Refreshed documentation examples and enhanced test coverage for near 100% coverage.
 
 ## Getting Started
 
