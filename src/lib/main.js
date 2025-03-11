@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-/* eslint-env node, es2022 */
-// src/lib/main.js
-// Mission: This CLI tool serves as a demonstration of arithmetic operations aligned with repository0's mission of providing a robust template for agentic‑lib workflows.
-// The tool implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
-// It supports a demo mode that outputs sample data without network calls and includes a placeholder for real API call integration.
-// This update prunes any drift from the original mission by ensuring code clarity, enhanced error handling, and consistent documentation.
+/*
+  Repository0 CLI Tool: Aligned with repository0's mission of providing a robust, clear, and testable template for agentic‑lib workflows.
+  This tool implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
+  It supports both a demo mode (with the --demo flag) to output sample data without network calls and a simulated real call mode (--real).
+  Enhanced error handling, improved inline documentation, and pruned any code drift to remain true to the mission statement.
+*/
 
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
