@@ -17,25 +17,23 @@ The repository is intended as a template that includes:
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root.
   
-  **New Features:**
-  - Added a demo mode that outputs sample data without any network call using the `--demo` flag.
-  - Introduced a placeholder flag `--real` which hints at a real API call that is not implemented over the wire.
-  - Enhanced error handling and updated inline documentation for improved test coverage.
-  - Applied linting and formatting fixes for improved code quality.
+  **New Features & Updates:**
+  - Updated source file header and inline documentation to strictly align with repository0's mission statement.
+  - Pruned any code drift with enhanced error handling and improved clarity in arithmetic operations.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected. Recent updates have increased test coverage to approach 100%, covering various arithmetic operations, edge cases, and CLI flag scenarios.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected with improved test coverage including edge cases.
 
 - **Docs:**
-  This `README.md` is maintained to reflect current functionality and planned improvements.
+  This `README.md` reflects current functionality and planned improvements.
 
 ## Changelog
-- Updated header comments in `src/lib/main.js` to align strictly with repository0's mission statement.
-- Pruned any code drift to ensure the CLI tool meets the template's goals for clarity and testability.
-- Refreshed documentation examples and enhanced test coverage for near 100% coverage.
+- Updated header comments in `src/lib/main.js` to align with the mission statement by pruning any drift from the original template.
+- Enhanced error handling and improved inline documentation.
+- Refreshed test coverage and updated arithmetic operation handling.
 
 ## Getting Started
 
