@@ -5,6 +5,9 @@
   This tool implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
   It supports both a demo mode (with the --demo flag) to output sample data without network calls and a simulated real call mode (--real).
   Enhanced error handling, improved inline documentation, and pruned any code drift to remain true to the mission statement.
+  
+  Change Log:
+  - Refactored version retrieval into a separate getVersion function to improve testability.
 */
 
 import { fileURLToPath } from "url";
@@ -56,14 +59,18 @@ function handleHelp() {
   printHelp();
 }
 
+export function getVersion() {
+  const require = createRequire(import.meta.url);
+  const pkg = require("../../package.json");
+  return pkg.version;
+}
+
 function handleVersion() {
   try {
     if (process.env.FORCE_VERSION_ERROR === "true") {
       throw new Error("Forced error");
     }
-    const require = createRequire(import.meta.url);
-    const pkg = require("../../package.json");
-    const version = pkg.version;
+    const version = getVersion();
     console.log(`Version: ${version}`);
   } catch (_error) {
     console.error("Could not retrieve version: unknown error");
@@ -239,7 +246,7 @@ export async function main(args = []) {
   console.log("Run with: " + JSON.stringify(args));
 }
 
-export const __test = { getNumbers, printUsage };
+export const __test = { getNumbers, printUsage, getVersion };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async function run() {

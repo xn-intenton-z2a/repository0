@@ -20,12 +20,13 @@ The repository is intended as a template that includes:
   **New Features & Updates:**
   - Updated source file header and inline documentation to strictly align with repository0's mission statement.
   - Pruned any code drift with enhanced error handling and improved clarity in arithmetic operations.
+  - Refactored version retrieval into a separate getVersion function to aid in testability and external resource mocking.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected with improved test coverage including edge cases.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected with improved test coverage including edge cases and internal helper function checks.
 
 - **Docs:**
   This `README.md` reflects current functionality and planned improvements.
@@ -33,7 +34,8 @@ The repository is intended as a template that includes:
 ## Changelog
 - Updated header comments in `src/lib/main.js` to align with the mission statement by pruning any drift from the original template.
 - Enhanced error handling and improved inline documentation.
-- Refreshed test coverage and updated arithmetic operation handling.
+- Refactored version retrieval into a separate getVersion function to improve testability.
+- Expanded unit tests to cover all code paths and helper functions.
 
 ## Getting Started
 
