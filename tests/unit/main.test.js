@@ -356,7 +356,7 @@ describe("CLI Behavior", () => {
   });
 });
 
-// Additional tests for internal helper functions and edge cases to boost test coverage
+// Additional tests for internal helper functions and edge cases (__test)
 describe("Internal test helpers and edge cases (__test)", () => {
   test("getNumbers returns valid numbers even if zero is provided as string", () => {
     const { getNumbers } = __test;
@@ -372,5 +372,12 @@ describe("Internal test helpers and edge cases (__test)", () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenCalledWith("Demo: No arguments provided. Exiting.");
     consoleSpy.mockRestore();
+  });
+
+  test("getVersion returns the correct version", () => {
+    const { getVersion } = __test;
+    const version = getVersion();
+    // Assuming package.json version is as defined in the dependencies file
+    expect(version).toEqual("1.3.1-10");
   });
 });
