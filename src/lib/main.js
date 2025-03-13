@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 /*
-  Repository0 CLI Tool: Aligned with repository0's mission of providing a robust, clear, and testable template for agentic‑lib workflows.
-  This tool implements core arithmetic functions: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
-  It supports both a demo mode (with the --demo flag) to output sample data without network calls and a simulated real call mode (--real).
-  Enhanced error handling, improved inline documentation, and pruned any code drift to remain true to the mission statement.
+  Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
+  It serves as a demonstration artifact for agentic‑lib workflows with a focus on enhanced error handling, clear inline documentation, and high testability.
   
   Change Log:
-  - Refactored version retrieval into a separate getVersion function to improve testability.
+  - Updated header documentation to reflect repository0's mission and pruned any code drift.
+  - Refactored version retrieval into a standalone getVersion function for improved testability.
 */
 
 import { fileURLToPath } from "url";
@@ -23,7 +23,7 @@ function printUsage(nonArrayInput = false) {
     usage += "()";
   }
   console.log(usage);
-  console.log("Demo: No arguments provided. Exiting.");
+  console.log("No CLI arguments provided. Exiting.");
 }
 
 function printHelp() {
