@@ -18,24 +18,22 @@ The repository is intended as a template that includes:
   The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root.
   
   **New Features & Updates:**
-  - Updated source file header and inline documentation to strictly align with repository0's mission statement.
-  - Pruned any code drift with enhanced error handling and improved clarity in arithmetic operations.
-  - Refactored version retrieval into a separate getVersion function to aid in testability and external resource mocking.
+  - Updated source file header and inline documentation to strictly align with repository0's mission by pruning any drift.
+  - Enhanced error handling and improved clarity in arithmetic operations.
+  - Refactored version retrieval into a separate getVersion function for improved testability.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected with improved test coverage including edge cases and internal helper function checks.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected, covering both typical use cases and edge cases.
 
 - **Docs:**
   This `README.md` reflects current functionality and planned improvements.
 
 ## Changelog
-- Updated header comments in `src/lib/main.js` to align with the mission statement by pruning any drift from the original template.
-- Enhanced error handling and improved inline documentation.
-- Refactored version retrieval into a separate getVersion function to improve testability.
-- Expanded unit tests to cover all code paths and helper functions.
+- Updated header comments in `src/lib/main.js` to align with repository0's mission and remove any code drift.
+- Enhanced error handling, inline documentation, and refactored version retrieval for better testing support.
 
 ## Getting Started
 
@@ -54,9 +52,6 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 END_README_BEGINNING
 
 ---
----
-
-# Ensure README.md ends like this:
 
 START_README_END
 ### Contributing

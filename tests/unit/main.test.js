@@ -19,7 +19,7 @@ describe("CLI Behavior", () => {
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       2,
-      "Demo: No arguments provided. Exiting."
+      "No CLI arguments provided. Exiting."
     );
     consoleSpy.mockRestore();
   });
@@ -233,7 +233,6 @@ describe("CLI Behavior", () => {
   test("handles non-numeric input for --modulo flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--modulo", "10", "b", "3"]);
-    // Only valid numbers: 10 and 3 => 10 % 3 = 1
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
     consoleSpy.mockRestore();
   });
@@ -370,7 +369,7 @@ describe("Internal test helpers and edge cases (__test)", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     printUsage(true);
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("Demo: No arguments provided. Exiting.");
+    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
