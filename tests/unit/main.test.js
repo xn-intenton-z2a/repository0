@@ -356,6 +356,7 @@ describe("CLI Behavior", () => {
 });
 
 // Additional tests for internal helper functions and edge cases (__test)
+
 describe("Internal test helpers and edge cases (__test)", () => {
   test("getNumbers returns valid numbers even if zero is provided as string", () => {
     const { getNumbers } = __test;

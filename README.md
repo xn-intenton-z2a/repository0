@@ -15,39 +15,37 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file implements core arithmetic operations including sum, multiplication, subtraction, division, modulo, average, chained exponentiation (power), factorial, and square root.
-  
-  **New Features & Updates:**
-  - Updated source file header and inline documentation to strictly align with repository0's mission by pruning any drift.
-  - Enhanced error handling and improved clarity in arithmetic operations.
-  - Refactored version retrieval into a separate getVersion function for improved testability.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to deliver core arithmetic operations with enhanced error handling.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected, covering both typical use cases and edge cases.
+  Unit tests in the `tests/unit/` folder ensure that the main script behaves as expected and remains in line with repository goals.
 
 - **Docs:**
-  This `README.md` reflects current functionality and planned improvements.
-
-## Changelog
-- Updated header comments in `src/lib/main.js` to align with repository0's mission and remove any code drift.
-- Enhanced error handling, inline documentation, and refactored version retrieval for better testing support.
+  This `README.md` is updated to reflect the current functionality and best practices, aligning with our CONTRIBUTING guidelines.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for automated workflows such as publishing packages and managing issues.
+This repository is already set up with the necessary workflows and scripts but you need to supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - This key is required for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
 ## intentïon `agentic-lib`
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, allowing them to be composed together like an SDK. This project is evolving, and these workflows may eventually become bundled actions.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This coding system is still in development and may not suit production use.
+*Warning:* Experimental. This system is still in development and may not be suitable for production use.
+
+## Should you use the `agentic-lib` Coding System?
+
+* Do you have access to an OpenAI account with the necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how integrated OpenAI and GitHub API calls work in a JavaScript environment?
 
 END_README_BEGINNING
 
