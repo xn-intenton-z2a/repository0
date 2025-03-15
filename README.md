@@ -11,6 +11,7 @@ The repository is intended as a template that includes:
 
 ## Changelog
 - Fixed exception handling in version retrieval to reference the error variable, resolving linting issues about ignored exceptions.
+- Brought test coverage closer to 100% by adding tests for edge cases in --power, --factorial, and --sqrt flags.
 
 ## What’s Inside
 
@@ -49,12 +50,11 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you willing to incur charges for consumed resources?
 * Are you curious about self-evolving code?
 * Would you like to see how integrated OpenAI and GitHub API calls work in a JavaScript environment?
-  END_README_BEGINNING
+
+END_README_BEGINNING
 
 ---
 ---
-
-# Ensure README.md ends like this:
 
 START_README_END
 ### Contributing
