@@ -283,6 +283,13 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles --power flag with insufficient numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--power", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Power: Provide at least two numbers (base and exponent)");
+    consoleSpy.mockRestore();
+  });
+
   test("computes factorial when --factorial flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--factorial", "5"]);
@@ -304,6 +311,13 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles factorial with no input", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--factorial"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factorial: Provide a number");
+    consoleSpy.mockRestore();
+  });
+
   test("computes square root when --sqrt flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sqrt", "16"]);
@@ -322,6 +336,13 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sqrt", "-16"]);
     expect(consoleSpy).toHaveBeenCalledWith("Square Root: Negative input error");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles square root with no input", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sqrt"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Square Root: Provide a number");
     consoleSpy.mockRestore();
   });
 
