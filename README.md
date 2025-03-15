@@ -9,6 +9,9 @@ The repository is intended as a template that includes:
 ## Overview
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
+## Changelog
+- Fixed exception handling in version retrieval to reference the error variable, resolving linting issues about ignored exceptions.
+
 ## What’s Inside
 
 - **GitHub Workflows:**  
@@ -46,10 +49,12 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you willing to incur charges for consumed resources?
 * Are you curious about self-evolving code?
 * Would you like to see how integrated OpenAI and GitHub API calls work in a JavaScript environment?
-
-END_README_BEGINNING
+  END_README_BEGINNING
 
 ---
+---
+
+# Ensure README.md ends like this:
 
 START_README_END
 ### Contributing
