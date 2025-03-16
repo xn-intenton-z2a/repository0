@@ -2,15 +2,14 @@
 
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, and square root.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, and standard deviation.
   It serves as a demonstration artifact for agentic‑lib workflows with a focus on enhanced error handling, clear inline documentation, and high testability.
   
   Change Log:
   - Updated header documentation to reflect repository0's mission and pruned any code drift.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings (now using error variable reference).
-
-  Note: This file remains largely unchanged as additional test coverage was achieved via the test suite updates.
+  - Added extended arithmetic operations: median, mode, and standard deviation as per mission statement.
 */
 
 import { fileURLToPath } from "url";
@@ -18,7 +17,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -37,21 +36,16 @@ function printHelp() {
   console.log("  --greet      : Display a greeting message");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)"
-  );
-  console.log(
-    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)"
-  );
-  console.log(
-    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)"
-  );
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)"
-  );
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
+  console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
 }
@@ -213,6 +207,55 @@ function handleSqrt(args) {
   console.log(`Square Root: ${result}`);
 }
 
+function handleMedian(args) {
+  const nums = getNumbers(args, "--median").sort((a, b) => a - b);
+  if (nums.length === 0) {
+    console.log("Median: No numbers provided");
+    return;
+  }
+  let median;
+  const mid = Math.floor(nums.length / 2);
+  if (nums.length % 2 === 0) {
+    median = (nums[mid - 1] + nums[mid]) / 2;
+  } else {
+    median = nums[mid];
+  }
+  console.log(`Median: ${median}`);
+}
+
+function handleMode(args) {
+  const nums = getNumbers(args, "--mode");
+  if (nums.length === 0) {
+    console.log("Mode: No numbers provided");
+    return;
+  }
+  const frequency = {};
+  nums.forEach(num => {
+    frequency[num] = (frequency[num] || 0) + 1;
+  });
+  let mode = nums[0];
+  let maxCount = frequency[mode];
+  for (const num in frequency) {
+    if (frequency[num] > maxCount) {
+      mode = Number(num);
+      maxCount = frequency[num];
+    }
+  }
+  console.log(`Mode: ${mode}`);
+}
+
+function handleStddev(args) {
+  const nums = getNumbers(args, "--stddev");
+  if (nums.length === 0) {
+    console.log("Std Dev: No numbers provided");
+    return;
+  }
+  const mean = nums.reduce((acc, curr) => acc + curr, 0) / nums.length;
+  const variance = nums.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0) / nums.length;
+  const stddev = Math.sqrt(variance);
+  console.log(`Std Dev: ${stddev}`);
+}
+
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -244,6 +287,9 @@ export async function main(args = []) {
     "--power": () => handlePower(args),
     "--factorial": () => handleFactorial(args),
     "--sqrt": () => handleSqrt(args),
+    "--median": () => handleMedian(args),
+    "--mode": () => handleMode(args),
+    "--stddev": () => handleStddev(args),
     "--demo": handleDemo,
     "--real": handleReal,
   };
