@@ -9,17 +9,13 @@ The repository is intended as a template that includes:
 ## Overview
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
-## Changelog
-- Fixed exception handling in version retrieval to reference the error variable, resolving linting issues about ignored exceptions.
-- Brought test coverage closer to 100% by adding tests for edge cases in --power, --factorial, and --sqrt flags.
-
 ## What’s Inside
 
 - **GitHub Workflows:**  
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to deliver core arithmetic operations with enhanced error handling.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to deliver core arithmetic operations with enhanced error handling. Recently, extended arithmetic operations (median, mode, and standard deviation) were added inline with the mission statement.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
@@ -38,18 +34,16 @@ This repository is already set up with the necessary workflows and scripts but y
 
 ## intentïon `agentic-lib`
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, allowing them to be composed together like an SDK. This project is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
 
 *Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
 
-*Warning:* Experimental. This system is still in development and may not be suitable for production use.
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic-lib` Coding System?
-
-* Do you have access to an OpenAI account with the necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how integrated OpenAI and GitHub API calls work in a JavaScript environment?
+## Changelog
+- Fixed exception handling in version retrieval and ensured compliance with linting rules.
+- Extended arithmetic operations by adding median, mode, and standard deviation calculations inline with the mission statement.
+- Improved inline documentation to maintain clarity and testability.
 
 END_README_BEGINNING
 
