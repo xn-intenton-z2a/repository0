@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.3.1-10",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to align with the mission statement, enhance error handling, streamline arithmetic operations, improve test coverage for CLI commands, and add extended operations (median, mode, stddev).",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to align with the mission statement, enhance error handling, streamline arithmetic operations, improve test coverage for CLI commands, and add extended operations (median, mode, stddev, range).",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

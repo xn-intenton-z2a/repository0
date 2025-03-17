@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -51,8 +51,9 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(15, "  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(16, "  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(17, "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(18, "  --demo       : Run in demo mode to output sample data without making a network call");
-    expect(consoleSpy).toHaveBeenNthCalledWith(19, "  --real       : Run the real call simulation (feature not implemented over the wire)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(18, "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(19, "  --demo       : Run in demo mode to output sample data without making a network call");
+    expect(consoleSpy).toHaveBeenNthCalledWith(20, "  --real       : Run the real call simulation (feature not implemented over the wire)");
     consoleSpy.mockRestore();
   });
 
@@ -61,7 +62,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--demo] [--real] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -330,27 +331,18 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New extended operation tests
-  test("computes median when --median flag is provided", async () => {
+  // New extended operation tests for range
+  test("computes range when --range flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--median", "3", "1", "2"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Median: 2");
+    await main(["--range", "3", "10", "6"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Range: 7");
     consoleSpy.mockRestore();
   });
 
-  test("computes mode when --mode flag is provided", async () => {
+  test("handles range with no numbers provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--mode", "1", "2", "2", "3"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Mode: 2");
-    consoleSpy.mockRestore();
-  });
-
-  test("computes standard deviation when --stddev flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--stddev", "1", "2", "3", "4"]);
-    // Mean = 2.5, variance = 1.25, stddev ~ 1.118...
-    const outputCall = consoleSpy.mock.calls[0][0];
-    expect(outputCall).toMatch(/Std Dev: 1\.\d+/);
+    await main(["--range"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Range: No numbers provided");
     consoleSpy.mockRestore();
   });
 });

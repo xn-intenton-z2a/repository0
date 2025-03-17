@@ -3,6 +3,7 @@
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
   This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, and standard deviation.
+  Extended Feature: Added a new arithmetic operation for computing the range (difference between maximum and minimum).
   It serves as a demonstration artifact for agentic‑lib workflows with a focus on enhanced error handling, clear inline documentation, and high testability.
   
   Change Log:
@@ -10,6 +11,7 @@
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings (now using error variable reference).
   - Added extended arithmetic operations: median, mode, and standard deviation as per mission statement.
+  - Extended arithmetic operation: Added range calculation (--range flag) inline with extended feature set.
 */
 
 import { fileURLToPath } from "url";
@@ -17,7 +19,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -46,6 +48,7 @@ function printHelp() {
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
   console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
 }
@@ -256,6 +259,17 @@ function handleStddev(args) {
   console.log(`Std Dev: ${stddev}`);
 }
 
+function handleRange(args) {
+  const nums = getNumbers(args, "--range");
+  if (nums.length === 0) {
+    console.log("Range: No numbers provided");
+    return;
+  }
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  console.log(`Range: ${max - min}`);
+}
+
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -290,8 +304,9 @@ export async function main(args = []) {
     "--median": () => handleMedian(args),
     "--mode": () => handleMode(args),
     "--stddev": () => handleStddev(args),
+    "--range": () => handleRange(args),
     "--demo": handleDemo,
-    "--real": handleReal,
+    "--real": handleReal
   };
 
   // Process only the first recognized flag and ignore the rest

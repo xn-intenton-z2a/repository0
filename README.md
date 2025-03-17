@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to deliver core arithmetic operations with enhanced error handling. Recently, extended arithmetic operations (median, mode, and standard deviation) were added inline with the mission statement.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to deliver core arithmetic operations with enhanced error handling. Recently, extended arithmetic operations (median, mode, standard deviation, and range) were added inline with the mission statement.
 
 - **Dependencies:**  
   `package.json` defines dependencies and scripts for build, test, and workflow operations.
@@ -43,6 +43,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 ## Changelog
 - Fixed exception handling in version retrieval and ensured compliance with linting rules.
 - Extended arithmetic operations by adding median, mode, and standard deviation calculations inline with the mission statement.
+- Extended arithmetic operation: Added range calculation (--range flag) to compute the difference between maximum and minimum values.
 - Improved inline documentation to maintain clarity and testability.
 
 END_README_BEGINNING
