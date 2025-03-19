@@ -3,15 +3,17 @@
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
   This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, and standard deviation.
-  Extended Feature: Added a new arithmetic operation for computing the range (difference between maximum and minimum).
-  It serves as a demonstration artifact for agentic‑lib workflows with a focus on enhanced error handling, clear inline documentation, and high testability.
-  
+  Extended Features:
+  - Added range calculation (--range flag): difference between maximum and minimum.
+  - Added info output (--info flag): displays the tool version and current date/time.
+
   Change Log:
   - Updated header documentation to reflect repository0's mission and pruned any code drift.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings (now using error variable reference).
-  - Added extended arithmetic operations: median, mode, and standard deviation as per mission statement.
+  - Added extended arithmetic operations: median, mode, stddev, and range.
   - Extended arithmetic operation: Added range calculation (--range flag) inline with extended feature set.
+  - Extended CLI feature: Added info command (--info flag) to display tool version and current timestamp.
 */
 
 import { fileURLToPath } from "url";
@@ -19,7 +21,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -36,6 +38,7 @@ function printHelp() {
   console.log("  --help       : Display this help message with flag descriptions");
   console.log("  --version    : Show current version of the application");
   console.log("  --greet      : Display a greeting message");
+  console.log("  --info       : Display tool version and current date/time");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
   console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
@@ -93,6 +96,11 @@ function handleDiagnostics() {
 
 function handleGreet() {
   console.log("Hello, welcome to repository0!");
+}
+
+function handleInfo() {
+  const version = getVersion();
+  console.log(`Repository0 CLI Tool version ${version} - ${new Date().toISOString()}`);
 }
 
 function handleSum(args) {
@@ -292,6 +300,7 @@ export async function main(args = []) {
     "--version": handleVersion,
     "--diagnostics": handleDiagnostics,
     "--greet": handleGreet,
+    "--info": handleInfo,
     "--sum": () => handleSum(args),
     "--multiply": () => handleMultiply(args),
     "--subtract": () => handleSubtract(args),
