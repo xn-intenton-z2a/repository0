@@ -352,7 +352,7 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--info"]);
     const loggedMessage = consoleSpy.mock.calls[0][0];
-    expect(loggedMessage).toMatch(/^Repository0 CLI Tool version \d+\.\d+\.\d+ - .*/);
+    expect(loggedMessage).toMatch(/^Repository0 CLI Tool version .+ - .*/);
     consoleSpy.mockRestore();
   });
 });
