@@ -26,6 +26,13 @@ The repository is intended as a template that includes:
 - **Docs:**  
   This `README.md` is maintained to reflect the current functionality and best practices, ensuring clarity per the CONTRIBUTING guidelines.
 
+## Change Log
+- Updated header documentation to reflect repository0's mission and pruned any code drift.
+- Refactored version retrieval into a standalone function for improved testability.
+- Fixed error handling in version retrieval per lint warnings.
+- Added extended arithmetic operations: median, mode, stddev, and range.
+- Added new CLI feature: --info flag to display the tool version and current timestamp.
+
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
@@ -47,7 +54,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-END_README_BEGINNING
+  END_README_BEGINNING
 
 ---
 ---
