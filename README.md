@@ -27,11 +27,10 @@ The repository is intended as a template that includes:
   This `README.md` is maintained to reflect the current functionality and best practices, ensuring clarity per the CONTRIBUTING guidelines.
 
 ## Change Log
-- Updated header documentation to reflect repository0's mission and pruned any code drift.
-- Refactored version retrieval into a standalone function for improved testability.
-- Fixed error handling in version retrieval per lint warnings.
+- Updated header documentation in `src/lib/main.js` to reflect repository0's mission and prune code drift.
+- Refactored version retrieval for better testability and fixed error handling per lint warnings.
 - Added extended arithmetic operations: median, mode, stddev, and range.
-- Added new CLI feature: --info flag to display the tool version and current timestamp.
+- Extended CLI features: Added --info command for diagnostic output and new --factors command to list factors of a non-negative integer.
 
 ## Getting Started
 
