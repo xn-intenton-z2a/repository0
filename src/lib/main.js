@@ -2,18 +2,18 @@
 
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, and standard deviation.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, and factors.
   Extended Features:
   - Added range calculation (--range flag): difference between maximum and minimum.
   - Added info output (--info flag): displays the tool version and current date/time.
+  - Added factors calculation (--factors flag): lists all factors of a provided non-negative integer.
 
   Change Log:
-  - Updated header documentation to reflect repository0's mission and pruned any code drift.
+  - Updated header documentation and pruned any code drift in line with repository0's mission.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
-  - Fixed exception handling in version retrieval to address lint warnings (now using error variable reference).
+  - Fixed exception handling in version retrieval to address lint warnings.
   - Added extended arithmetic operations: median, mode, stddev, and range.
-  - Extended arithmetic operation: Added range calculation (--range flag) inline with extended feature set.
-  - Extended CLI feature: Added info command (--info flag) to display tool version and current timestamp.
+  - Extended CLI features: Added --info command for diagnostic output and --factors command for listing factors.
 */
 
 import { fileURLToPath } from "url";
@@ -21,7 +21,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -52,6 +52,7 @@ function printHelp() {
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
   console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
   console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
 }
@@ -278,6 +279,27 @@ function handleRange(args) {
   console.log(`Range: ${max - min}`);
 }
 
+// New function: handleFactors
+function handleFactors(args) {
+  const nums = getNumbers(args, "--factors");
+  if (nums.length === 0) {
+    console.log("Factors: Provide a non-negative integer");
+    return;
+  }
+  const n = nums[0];
+  if (!Number.isInteger(n) || n < 0) {
+    console.log("Factors: Input must be a non-negative integer");
+    return;
+  }
+  let factors = [];
+  for (let i = 1; i <= n; i++) {
+    if (n % i === 0) {
+      factors.push(i);
+    }
+  }
+  console.log(`Factors: ${factors.join(",")}`);
+}
+
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -314,6 +336,7 @@ export async function main(args = []) {
     "--mode": () => handleMode(args),
     "--stddev": () => handleStddev(args),
     "--range": () => handleRange(args),
+    "--factors": () => handleFactors(args),
     "--demo": handleDemo,
     "--real": handleReal
   };

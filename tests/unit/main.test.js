@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -53,8 +53,9 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(17, "  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(18, "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
     expect(consoleSpy).toHaveBeenNthCalledWith(19, "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
-    expect(consoleSpy).toHaveBeenNthCalledWith(20, "  --demo       : Run in demo mode to output sample data without making a network call");
-    expect(consoleSpy).toHaveBeenNthCalledWith(21, "  --real       : Run the real call simulation (feature not implemented over the wire)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(20, "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
+    expect(consoleSpy).toHaveBeenNthCalledWith(21, "  --demo       : Run in demo mode to output sample data without making a network call");
+    expect(consoleSpy).toHaveBeenNthCalledWith(22, "  --real       : Run the real call simulation (feature not implemented over the wire)");
     consoleSpy.mockRestore();
   });
 
@@ -63,7 +64,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--demo] [--real] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--demo] [--real] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -355,6 +356,22 @@ describe("CLI Behavior", () => {
     expect(loggedMessage).toMatch(/^Repository0 CLI Tool version .+ - .*/);
     consoleSpy.mockRestore();
   });
+
+  // New extended operation tests for factors
+  test("computes factors when --factors flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // For number 12, factors should be 1,2,3,4,6,12
+    await main(["--factors", "12"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factors: 1,2,3,4,6,12");
+    consoleSpy.mockRestore();
+  });
+
+  test("handles factors with no numbers provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--factors"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Factors: Provide a non-negative integer");
+    consoleSpy.mockRestore();
+  });
 });
 
 // Additional tests for internal helper functions and edge cases (__test)
@@ -380,6 +397,6 @@ describe("Internal test helpers and edge cases (__test)", () => {
     const { getVersion } = __test;
     const version = getVersion();
     // Assuming package.json version is as defined in the dependencies file
-    expect(version).toEqual("1.3.1-10");
+    expect(version).toEqual("1.3.1-11");
   });
 });
