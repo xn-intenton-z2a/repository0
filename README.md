@@ -29,8 +29,8 @@ The repository is intended as a template that includes:
 ## Change Log
 - Updated header documentation in `src/lib/main.js` to reflect repository0's mission and prune code drift.
 - Refactored version retrieval for better testability and fixed error handling per lint warnings.
-- Added extended arithmetic operations: median, mode, stddev, and range.
-- Extended CLI features: Added --info command for diagnostic output and new --factors command to list factors of a non-negative integer.
+- Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
+- Extended CLI features: Added --info command for diagnostic output and new --variance command to compute variance.
 
 ## Getting Started
 
