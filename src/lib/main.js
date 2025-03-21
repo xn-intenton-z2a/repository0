@@ -2,18 +2,19 @@
 
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, and factors.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, and variance.
   Extended Features:
   - Added range calculation (--range flag): difference between maximum and minimum.
   - Added info output (--info flag): displays the tool version and current date/time.
   - Added factors calculation (--factors flag): lists all factors of a provided non-negative integer.
+  - Added variance calculation (--variance flag): computes the variance of provided numbers.
 
   Change Log:
   - Updated header documentation and pruned any code drift in line with repository0's mission.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings.
-  - Added extended arithmetic operations: median, mode, stddev, and range.
-  - Extended CLI features: Added --info command for diagnostic output and --factors command for listing factors.
+  - Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
+  - Extended CLI features: Added --info command for diagnostic output and new --variance command to compute variance.
 */
 
 import { fileURLToPath } from "url";
@@ -21,7 +22,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -53,6 +54,7 @@ function printHelp() {
   console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
   console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
   console.log("  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
+  console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
 }
@@ -300,6 +302,18 @@ function handleFactors(args) {
   console.log(`Factors: ${factors.join(",")}`);
 }
 
+// New function: handleVariance
+function handleVariance(args) {
+  const nums = getNumbers(args, "--variance");
+  if (nums.length === 0) {
+    console.log("Variance: No numbers provided");
+    return;
+  }
+  const mean = nums.reduce((acc, curr) => acc + curr, 0) / nums.length;
+  const variance = nums.reduce((acc, curr) => acc + Math.pow(curr - mean, 2), 0) / nums.length;
+  console.log(`Variance: ${variance}`);
+}
+
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -337,6 +351,7 @@ export async function main(args = []) {
     "--stddev": () => handleStddev(args),
     "--range": () => handleRange(args),
     "--factors": () => handleFactors(args),
+    "--variance": () => handleVariance(args),
     "--demo": handleDemo,
     "--real": handleReal
   };
