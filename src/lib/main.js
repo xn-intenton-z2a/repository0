@@ -2,19 +2,20 @@
 
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, and variance.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, and variance, with a new Fibonacci computation feature.
   Extended Features:
   - Added range calculation (--range flag): difference between maximum and minimum.
   - Added info output (--info flag): displays the tool version and current date/time.
   - Added factors calculation (--factors flag): lists all factors of a provided non-negative integer.
   - Added variance calculation (--variance flag): computes the variance of provided numbers.
+  - Added Fibonacci calculation (--fibonacci flag): computes the nth Fibonacci number for a non-negative integer input.
 
   Change Log:
   - Updated header documentation and pruned any code drift in line with repository0's mission.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings by removing the use of the 'void' operator.
   - Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
-  - Extended CLI features: Added --info command for diagnostic output and new --variance command to compute variance.
+  - Extended CLI features: Added --info command for diagnostic output, new --variance command to compute variance, and added new --fibonacci command for Fibonacci sequence computation.
 */
 
 import { fileURLToPath } from "url";
@@ -22,7 +23,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -42,35 +43,22 @@ function printHelp() {
   console.log("  --info       : Display tool version and current date/time");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)"
-  );
-  console.log(
-    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)"
-  );
-  console.log(
-    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)"
-  );
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)"
-  );
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
-  console.log(
-    "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)"
-  );
-  console.log(
-    "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)"
-  );
-  console.log(
-    "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)"
-  );
+  console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
   console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
+  console.log("  --fibonacci  : Compute the nth Fibonacci number (demonstrates sequence generation)");
 }
 
 function getNumbers(args, flag) {
@@ -326,6 +314,35 @@ function handleVariance(args) {
   console.log(`Variance: ${variance}`);
 }
 
+// New function: handleFibonacci
+function handleFibonacci(args) {
+  const nums = getNumbers(args, "--fibonacci");
+  if (nums.length === 0) {
+    console.log("Fibonacci: Provide a non-negative integer");
+    return;
+  }
+  const n = nums[0];
+  if (!Number.isInteger(n) || n < 0) {
+    console.log("Fibonacci: Input must be a non-negative integer");
+    return;
+  }
+  // Compute Fibonacci: F(0) = 0, F(1) = 1, then subsequent numbers.
+  if(n === 0) {
+    console.log("Fibonacci: 0");
+    return;
+  } else if(n === 1) {
+    console.log("Fibonacci: 1");
+    return;
+  }
+  let a = 0, b = 1, temp;
+  for(let i = 2; i <= n; i++) {
+    temp = a + b;
+    a = b;
+    b = temp;
+  }
+  console.log(`Fibonacci: ${b}`);
+}
+
 function handleDemo() {
   console.log("Demo output: This is a demo execution without network calls.");
 }
@@ -365,7 +382,8 @@ export async function main(args = []) {
     "--factors": () => handleFactors(args),
     "--variance": () => handleVariance(args),
     "--demo": handleDemo,
-    "--real": handleReal
+    "--real": handleReal,
+    "--fibonacci": () => handleFibonacci(args)
   };
 
   // Process only the first recognized flag and ignore the rest
