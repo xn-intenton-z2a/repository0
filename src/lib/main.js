@@ -12,7 +12,7 @@
   Change Log:
   - Updated header documentation and pruned any code drift in line with repository0's mission.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
-  - Fixed exception handling in version retrieval to address lint warnings.
+  - Fixed exception handling in version retrieval to address lint warnings by removing the use of the 'void' operator.
   - Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
   - Extended CLI features: Added --info command for diagnostic output and new --variance command to compute variance.
 */
@@ -43,30 +43,30 @@ function printHelp() {
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
   console.log(
-    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
+    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)"
   );
   console.log(
-    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
+    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)"
   );
   console.log(
-    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
+    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)"
   );
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
   console.log(
-    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
+    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)"
   );
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
   console.log(
-    "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)",
+    "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)"
   );
   console.log(
-    "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)",
+    "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)"
   );
   console.log(
-    "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)",
+    "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)"
   );
   console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
@@ -101,8 +101,6 @@ function handleVersion() {
     const version = getVersion();
     console.log(`Version: ${version}`);
   } catch (error) {
-    // Reference error to satisfy linting rules without altering expected output
-    void error;
     console.error("Could not retrieve version: unknown error");
   }
 }
@@ -367,7 +365,7 @@ export async function main(args = []) {
     "--factors": () => handleFactors(args),
     "--variance": () => handleVariance(args),
     "--demo": handleDemo,
-    "--real": handleReal,
+    "--real": handleReal
   };
 
   // Process only the first recognized flag and ignore the rest
@@ -383,6 +381,7 @@ export async function main(args = []) {
 
 export const __test = { getNumbers, printUsage, getVersion };
 
+import { fileURLToPath } from "url";
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async function run() {
     await main(process.argv.slice(2));

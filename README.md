@@ -29,6 +29,7 @@ The repository is intended as a template that includes:
 ## Change Log
 - Updated header documentation in `src/lib/main.js` to reflect repository0's mission and prune code drift.
 - Refactored version retrieval for better testability and fixed error handling per lint warnings.
+- Removed usage of the `void` operator in version retrieval to resolve sonarjs lint error.
 - Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
 - Extended CLI features: Added --info command for diagnostic output and new --variance command to compute variance.
 

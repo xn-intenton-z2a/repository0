@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
     expect(consoleSpy).toHaveBeenNthCalledWith(3, "  --help       : Display this help message with flag descriptions");
@@ -42,71 +42,71 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenNthCalledWith(6, "  --info       : Display tool version and current date/time");
     expect(consoleSpy).toHaveBeenNthCalledWith(
       7,
-      "  --sum        : Compute the sum of provided numbers (arithmetic demonstration)",
+      "  --sum        : Compute the sum of provided numbers (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       8,
-      "  --multiply   : Compute the product of provided numbers (arithmetic demonstration)",
+      "  --multiply   : Compute the product of provided numbers (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       9,
-      "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
+      "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       10,
-      "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
+      "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       11,
-      "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
+      "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       12,
-      "  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)",
+      "  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       13,
-      "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
+      "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       14,
-      "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)",
+      "  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       15,
-      "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)",
+      "  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       16,
-      "  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)",
+      "  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       17,
-      "  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)",
+      "  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       18,
-      "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)",
+      "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       19,
-      "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)",
+      "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       20,
-      "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)",
+      "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       21,
-      "  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)",
+      "  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       22,
-      "  --demo       : Run in demo mode to output sample data without making a network call",
+      "  --demo       : Run in demo mode to output sample data without making a network call"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(
       23,
-      "  --real       : Run the real call simulation (feature not implemented over the wire)",
+      "  --real       : Run the real call simulation (feature not implemented over the wire)"
     );
     consoleSpy.mockRestore();
   });
@@ -116,7 +116,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]()",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
