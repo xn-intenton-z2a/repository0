@@ -381,7 +381,6 @@ export async function main(args = []) {
 
 export const __test = { getNumbers, printUsage, getVersion };
 
-import { fileURLToPath } from "url";
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async function run() {
     await main(process.argv.slice(2));
