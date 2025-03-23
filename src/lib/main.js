@@ -2,20 +2,23 @@
 
 /*
   Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, and variance, with a new Fibonacci computation feature.
+  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, variance, as well as new computations: Fibonacci, GCD, and LCM.
+
   Extended Features:
   - Added range calculation (--range flag): difference between maximum and minimum.
   - Added info output (--info flag): displays the tool version and current date/time.
   - Added factors calculation (--factors flag): lists all factors of a provided non-negative integer.
   - Added variance calculation (--variance flag): computes the variance of provided numbers.
   - Added Fibonacci calculation (--fibonacci flag): computes the nth Fibonacci number for a non-negative integer input.
+  - Added GCD calculation (--gcd flag): computes the greatest common divisor of provided integers.
+  - Added LCM calculation (--lcm flag): computes the least common multiple of provided integers.
 
   Change Log:
-  - Updated header documentation and pruned any code drift in line with repository0's mission.
+  - Updated header documentation to align with repository0's mission.
   - Refactored version retrieval into a standalone getVersion function for improved testability.
   - Fixed exception handling in version retrieval to address lint warnings by removing the use of the 'void' operator.
-  - Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
-  - Extended CLI features: Added --info command for diagnostic output, new --variance command to compute variance, and added new --fibonacci command for Fibonacci sequence computation.
+  - Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.
+  - Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for enhanced diagnostics and computations.
 */
 
 import { fileURLToPath } from "url";
@@ -23,7 +26,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -59,6 +62,8 @@ function printHelp() {
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
   console.log("  --fibonacci  : Compute the nth Fibonacci number (demonstrates sequence generation)");
+  console.log("  --gcd        : Compute the greatest common divisor of provided integers");
+  console.log("  --lcm        : Compute the least common multiple of provided integers");
 }
 
 function getNumbers(args, flag) {
@@ -326,7 +331,6 @@ function handleFibonacci(args) {
     console.log("Fibonacci: Input must be a non-negative integer");
     return;
   }
-  // Compute Fibonacci: F(0) = 0, F(1) = 1, then subsequent numbers.
   if(n === 0) {
     console.log("Fibonacci: 0");
     return;
@@ -341,6 +345,61 @@ function handleFibonacci(args) {
     b = temp;
   }
   console.log(`Fibonacci: ${b}`);
+}
+
+// New function: handleGCD
+function gcd(a, b) {
+  while (b !== 0) {
+    let temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}
+
+function handleGcd(args) {
+  const nums = getNumbers(args, "--gcd");
+  if (nums.length === 0) {
+    console.log("GCD: No numbers provided");
+    return;
+  }
+  // Ensure we are working with integers
+  for (let num of nums) {
+    if (!Number.isInteger(num)) {
+      console.log("GCD: All inputs must be integers");
+      return;
+    }
+  }
+  let result = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    result = gcd(result, nums[i]);
+  }
+  console.log(`GCD: ${result}`);
+}
+
+// New function: handleLCM
+function lcm(a, b) {
+  return Math.abs(a * b) / gcd(a, b);
+}
+
+function handleLcm(args) {
+  const nums = getNumbers(args, "--lcm");
+  if (nums.length === 0) {
+    console.log("LCM: No numbers provided");
+    return;
+  }
+  // Ensure we are working with integers
+  for (let num of nums) {
+    if (!Number.isInteger(num)) {
+      console.log("LCM: All inputs must be integers");
+      return;
+    }
+  }
+  let result = nums[0];
+  for (let i = 1; i < nums.length; i++) {
+    result = lcm(result, nums[i]);
+  }
+  console.log(`LCM: ${result}`);
 }
 
 function handleDemo() {
@@ -383,7 +442,9 @@ export async function main(args = []) {
     "--variance": () => handleVariance(args),
     "--demo": handleDemo,
     "--real": handleReal,
-    "--fibonacci": () => handleFibonacci(args)
+    "--fibonacci": () => handleFibonacci(args),
+    "--gcd": () => handleGcd(args),
+    "--lcm": () => handleLcm(args)
   };
 
   // Process only the first recognized flag and ignore the rest

@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the automated workflows to meet project goals. It now includes extended arithmetic operations and a new Fibonacci computation feature aligned with repository0's mission.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the automated workflows to meet project goals. Recently, it has been extended with additional arithmetic operations including GCD and LCM to further align with repository0's mission.
 
 - **Dependencies:**  
   `package.json` is used to manage dependencies and scripts for build, test, and workflow operations.
@@ -30,8 +30,8 @@ The repository is intended as a template that includes:
 - Updated header documentation in `src/lib/main.js` to reflect repository0's mission and prune code drift.
 - Refactored version retrieval for better testability and fixed error handling per lint warnings.
 - Removed usage of the `void` operator in version retrieval to resolve sonarjs lint error.
-- Added extended arithmetic operations: median, mode, stddev, range, factors, and variance.
-- Extended CLI features: Added --info command for diagnostic output, new --variance command to compute variance, and added new --fibonacci command for Fibonacci computation.
+- Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.
+- Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for diagnostic output and additional computations.
 
 ## Getting Started
 
