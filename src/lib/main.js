@@ -19,6 +19,7 @@
   - Fixed exception handling in version retrieval to address lint warnings by removing the use of the 'void' operator.
   - Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.
   - Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for enhanced diagnostics and computations.
+  - Exported additional internal helper functions for improved testing coverage.
 */
 
 import { fileURLToPath } from "url";
@@ -458,7 +459,7 @@ export async function main(args = []) {
   console.log("Run with: " + JSON.stringify(args));
 }
 
-export const __test = { getNumbers, printUsage, getVersion };
+export const __test = { getNumbers, printUsage, getVersion, printHelp, gcd, lcm };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   (async function run() {

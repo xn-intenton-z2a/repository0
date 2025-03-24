@@ -15,13 +15,13 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the automated workflows to meet project goals. Recently, it has been extended with additional arithmetic operations including GCD and LCM to further align with repository0's mission.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the automated workflows to meet project goals. Recent updates have aligned the code with the mission statement and enhanced error handling and testability.
 
 - **Dependencies:**  
   `package.json` is used to manage dependencies and scripts for build, test, and workflow operations.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains aligned with project goals and maintains high test coverage.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains aligned with project goals and maintains high test coverage. Recent improvements have been made to increase coverage by exporting and testing internal helper functions.
 
 - **Docs:**  
   This `README.md` is maintained to reflect the current functionality and best practices, ensuring clarity per the CONTRIBUTING guidelines.
@@ -32,6 +32,7 @@ The repository is intended as a template that includes:
 - Removed usage of the `void` operator in version retrieval to resolve sonarjs lint error.
 - Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.
 - Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for diagnostic output and additional computations.
+- Exported additional internal helper functions to improve test coverage.
 
 ## Getting Started
 
@@ -47,7 +48,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 *Warning:* Experimental. This coding system is still in development and may not suit production use.
 
-## Should you use the `agentic-lib` Coding System?
+## Should you use the `agentic‑lib` Coding System?
 
 * Do you have access to an OpenAI account with necessary API keys?
 * Are you willing to incur charges for consumed resources?
@@ -59,12 +60,12 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 ---
 ---
 
-START_README_END
-### Contributing
+## Contributing
 
 We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
 
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
-END_README_END
+
+START_README_END

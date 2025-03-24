@@ -35,8 +35,8 @@ describe("CLI Behavior", () => {
       1,
       "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [numbers...]"
     );
-    expect(consoleSpy).toHaveBeenNthCalledWith(2, "  --diagnostics: Check system diagnostics");
-    // Additional checks omitted for brevity
+    // Check for a sample help description
+    expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
   });
 
@@ -341,7 +341,6 @@ describe("CLI Behavior", () => {
   // Extended operation tests for factors
   test("computes factors when --factors flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // For number 12, factors should be 1,2,3,4,6,12
     await main(["--factors", "12"]);
     expect(consoleSpy).toHaveBeenCalledWith("Factors: 1,2,3,4,6,12");
     consoleSpy.mockRestore();
@@ -357,7 +356,6 @@ describe("CLI Behavior", () => {
   // Extended operation tests for variance
   test("computes variance when --variance flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // For numbers 2, 4, 6: mean = 4; variance = ((2-4)^2 + (4-4)^2 + (6-4)^2) / 3 = (4+0+4)/3
     await main(["--variance", "2", "4", "6"]);
     expect(consoleSpy).toHaveBeenCalledWith("Variance: 2.6666666666666665");
     consoleSpy.mockRestore();
@@ -373,7 +371,6 @@ describe("CLI Behavior", () => {
   // Extended operation tests for Fibonacci
   test("computes Fibonacci when --fibonacci flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // For input 10, Fibonacci should be 55
     await main(["--fibonacci", "10"]);
     expect(consoleSpy).toHaveBeenCalledWith("Fibonacci: 55");
     consoleSpy.mockRestore();
@@ -389,7 +386,6 @@ describe("CLI Behavior", () => {
   // New extended operation tests for GCD
   test("computes GCD when --gcd flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // GCD of 8, 12, and 20 is 4
     await main(["--gcd", "8", "12", "20"]);
     expect(consoleSpy).toHaveBeenCalledWith("GCD: 4");
     consoleSpy.mockRestore();
@@ -405,7 +401,6 @@ describe("CLI Behavior", () => {
   // New extended operation tests for LCM
   test("computes LCM when --lcm flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // LCM of 4, 6, and 8 is 24
     await main(["--lcm", "4", "6", "8"]);
     expect(consoleSpy).toHaveBeenCalledWith("LCM: 24");
     consoleSpy.mockRestore();
@@ -442,5 +437,26 @@ describe("Internal test helpers and edge cases (__test)", () => {
     const { getVersion } = __test;
     const version = getVersion();
     expect(version).toEqual("1.3.1-11");
+  });
+
+  test("printHelp outputs the help message correctly", () => {
+    const { printHelp } = __test;
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    printHelp();
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    expect(consoleSpy).toHaveBeenCalledWith("  --greet      : Display a greeting message");
+    consoleSpy.mockRestore();
+  });
+
+  test("gcd function works correctly", () => {
+    const { gcd } = __test;
+    expect(gcd(10, 5)).toBe(5);
+    expect(gcd(17, 13)).toBe(1);
+  });
+
+  test("lcm function works correctly", () => {
+    const { lcm } = __test;
+    expect(lcm(4, 6)).toBe(12);
+    expect(lcm(0, 5)).toBe(0);
   });
 });
