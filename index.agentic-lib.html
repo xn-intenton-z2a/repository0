@@ -36,64 +36,49 @@
 <ul class="md-github">
 <li class="md-github">
 <p class="md-github"><strong class="md-github">GitHub Workflows:</strong><br>
-Workflows in the <code class="md-github">.github/workflows/</code> directory consume reusable workflows from intentïon <code class="md-github">agentic‑lib</code>.</p>
+Workflows in the <code class="md-github">.github/workflows/</code> directory consume reusable workflows from intentïon <code class="md-github">agentic‑lib</code> to perform automated CI/CD tasks.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong><br>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. This file is the focus of the workflow and is modified by the automated workflows to meet project goals. Recent updates have aligned the code with the mission statement and enhanced error handling and testability.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. This file is the cornerstone of the CLI tool and is maintained to align with the mission of clarity and robust functionality.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong><br>
-<code class="md-github">package.json</code> is used to manage dependencies and scripts for build, test, and workflow operations.</p>
+The <code class="md-github">package.json</code> file manages dependencies, scripts for build, test, and deployment, and is updated by automated workflows when needed.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong><br>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the main script remains aligned with project goals and maintains high test coverage. Recent improvements have been made to increase coverage by exporting and testing internal helper functions.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder verify that the CLI commands and internal functions perform as expected, ensuring that the code remains robust and testable.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Docs:</strong><br>
-This <code class="md-github">README.md</code> is maintained to reflect the current functionality and best practices, ensuring clarity per the CONTRIBUTING guidelines.</p>
+This <code class="md-github">README.md</code> provides essential information about the repository, its usage, and the contribution guidelines.</p>
 </li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="change-log" href="#change-log"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Change Log</h2>
 <ul class="md-github">
-<li class="md-github">Updated header documentation in <code class="md-github">src/lib/main.js</code> to reflect repository0's mission and prune code drift.</li>
-<li class="md-github">Refactored version retrieval for better testability and fixed error handling per lint warnings.</li>
-<li class="md-github">Removed usage of the <code class="md-github">void</code> operator in version retrieval to resolve sonarjs lint error.</li>
-<li class="md-github">Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.</li>
-<li class="md-github">Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for diagnostic output and additional computations.</li>
-<li class="md-github">Exported additional internal helper functions to improve test coverage.</li>
+<li class="md-github">Refreshed README to align with CONTRIBUTING guidelines.</li>
+<li class="md-github">Updated documentation to prune irrelevant content and highlight current project goals.</li>
+<li class="md-github">No changes to source code functionality.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
-<p class="md-github">This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:</p>
+<p class="md-github">This repository is already set up with the necessary workflows and scripts. You need to supply the following secret for running workflows:</p>
 <ul class="md-github">
-<li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> - This key must be for an account with access to the OpenAI chat completions API for model <code class="md-github">o3-mini</code>.
-Set these secrets in your repository settings under <em class="md-github">Settings &gt; Secrets and Variables &gt; Actions</em>.</li>
+<li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> - This key must be for an account with access to the OpenAI chat completions API for model <code class="md-github">o3-mini</code>. Set this secret in your repository settings under <em class="md-github">Settings &gt; Secrets and Variables &gt; Actions</em>.</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="intentïon-agentic-lib" href="#intentïon-agentic-lib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic-lib</code></h2>
-<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic-lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="intentïon-agenticlib" href="#intentïon-agenticlib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic‑lib</code></h2>
+<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic‑lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed like an SDK. This project itself is evolving, and the workflows may eventually become bundled actions.</p>
 <p class="md-github"><em class="md-github">Warning:</em> Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.</p>
 <p class="md-github"><em class="md-github">Warning:</em> Experimental. This coding system is still in development and may not suit production use.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="should-you-use-the-agenticlib-coding-system" href="#should-you-use-the-agenticlib-coding-system"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Should you use the <code class="md-github">agentic‑lib</code> Coding System?</h2>
-<ul class="md-github">
-<li class="md-github">Do you have access to an OpenAI account with necessary API keys?</li>
-<li class="md-github">Are you willing to incur charges for consumed resources?</li>
-<li class="md-github">Are you curious about self-evolving code?</li>
-<li class="md-github">Would you like to see how such a system can be built?</li>
-<li class="md-github">Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-END_README_BEGINNING</li>
-</ul>
-<hr class="md-github">
-<hr class="md-github">
-<h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
+<p class="md-github">START_README_END</p>
+<h3 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h3>
 <p class="md-github">We welcome contributions! Please review our <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines on how to contribute effectively.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
-<p class="md-github">START_README_END</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-03-25T08:01:39.203Z</p>
+    <p>Generated on 2025-03-25T10:01:37.298Z</p>
   </footer>
 </body>
 </html>
