@@ -35,7 +35,6 @@ describe("CLI Behavior", () => {
       1,
       "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [numbers...]"
     );
-    // Check for a sample help description
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
   });
