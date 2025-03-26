@@ -1,25 +1,18 @@
 #!/usr/bin/env node
 
 /*
-  Repository0 CLI Tool: A minimalist, robust, and clear CLI tool designed in accordance with repository0's mission.
-  This tool implements essential arithmetic operations: sum, multiply, subtract, divide, modulo, average, chained exponentiation (power), factorial, square root, and extended operations: median, mode, standard deviation, range, factors, variance, as well as new computations: Fibonacci, GCD, and LCM.
+  Repository0 CLI Tool: A minimalist CLI demonstration showcasing the power of automated GitHub workflows (agentic‑lib).
 
-  Extended Features:
-  - Added range calculation (--range flag): difference between maximum and minimum.
-  - Added info output (--info flag): displays the tool version and current date/time.
-  - Added factors calculation (--factors flag): lists all factors of a provided non-negative integer.
-  - Added variance calculation (--variance flag): computes the variance of provided numbers.
-  - Added Fibonacci calculation (--fibonacci flag): computes the nth Fibonacci number for a non-negative integer input.
-  - Added GCD calculation (--gcd flag): computes the greatest common divisor of provided integers.
-  - Added LCM calculation (--lcm flag): computes the least common multiple of provided integers.
+  Mission:
+  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, robust CLI.
+  This tool implements essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root)
+  and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM) to serve as a clear and testable example.
 
   Change Log:
-  - Updated header documentation to align with repository0's mission.
-  - Refactored version retrieval into a standalone getVersion function for improved testability.
-  - Fixed exception handling in version retrieval to address lint warnings by removing the use of the 'void' operator.
-  - Added extended arithmetic operations: median, mode, stddev, range, factors, variance, Fibonacci, GCD, and LCM.
-  - Extended CLI features: Added --info, --variance, --fibonacci, --gcd, and --lcm commands for enhanced diagnostics and computations.
-  - Exported additional internal helper functions for improved testing coverage.
+  - Updated header documentation to align with repository0's mission and prune drift.
+  - Refactored version retrieval for improved testability.
+  - Enhanced error handling and input validation across arithmetic operations.
+  - Maintained extended operations for demonstration and diagnostic consistency.
 */
 
 import { fileURLToPath } from "url";
