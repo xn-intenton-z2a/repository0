@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` to perform automated CI/CD tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the repository and is maintained to align with the repository0 mission of clarity and robust demonstration.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the repository and is maintained to align with the repository0 mission of clarity and robust demonstration. Recent updates have pruned drift and applied a cohesive mission statement.
 
 - **Dependencies:**  
   The `package.json` file manages dependencies and scripts for building, testing, and deployment. It is updated automatically by workflows as needed.
@@ -27,12 +27,12 @@ The repository is intended as a template that includes:
   This `README.md` provides essential information about the repository, its usage, and contribution guidelines.
 
 ## Change Log
-- Updated header documentation in `src/lib/main.js` to align with repository0's mission and remove any drift.
-- Enhanced error handling and input validations across arithmetic and diagnostic operations.
+- Updated header documentation in `src/lib/main.js` to apply the mission statement and remove drift.
+- Enhanced error handling and input validations across arithmetic and extended operations.
 
 ## Getting Started
 
-This repository is already set up with the necessary workflows and scripts but you do need to supply the following secret:
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
 - `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
@@ -46,6 +46,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 END_README_BEGINNING
 
+---
 ---
 
 START_README_END
