@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 
 /*
-  Repository0 CLI Tool: A minimalist CLI demonstration showcasing the power of automated GitHub workflows (agentic‑lib).
+  repository0 CLI Demo: A template repository showcasing minimal CLI demonstration and automated workflows.
 
   Mission:
-  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, robust CLI.
-  This tool implements essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root)
-  and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM) to serve as a clear and testable example.
+  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, clear, and robust CLI. Leveraging agentic‑lib workflows, this tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM) to exemplify the repository's commitment to clarity and maintainability. This update prunes implementation drift to stay aligned with our mission.
 
   Change Log:
-  - Updated header documentation to align with repository0's mission and prune drift.
-  - Refactored version retrieval for improved testability.
+  - Updated header documentation to apply the mission statement and remove drift.
   - Enhanced error handling and input validation across arithmetic operations.
   - Maintained extended operations for demonstration and diagnostic consistency.
 */

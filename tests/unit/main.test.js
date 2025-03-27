@@ -313,7 +313,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extended operation tests for range
   test("computes range when --range flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--range", "3", "10", "6"]);
@@ -328,7 +327,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extended operation test for info command
   test("displays info message when --info flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--info"]);
@@ -337,7 +335,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extended operation tests for factors
   test("computes factors when --factors flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--factors", "12"]);
@@ -352,7 +349,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extended operation tests for variance
   test("computes variance when --variance flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--variance", "2", "4", "6"]);
@@ -367,7 +363,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extended operation tests for Fibonacci
   test("computes Fibonacci when --fibonacci flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--fibonacci", "10"]);
@@ -382,7 +377,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New extended operation tests for GCD
   test("computes GCD when --gcd flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--gcd", "8", "12", "20"]);
@@ -397,7 +391,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New extended operation tests for LCM
   test("computes LCM when --lcm flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--lcm", "4", "6", "8"]);
