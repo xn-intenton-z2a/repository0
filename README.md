@@ -21,7 +21,7 @@ The repository is intended as a template that includes:
   The `package.json` file manages dependencies and scripts for building, testing, and deployment. It is updated automatically by workflows as needed.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands and internal functions remain robust and aligned with project goals.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands and internal functions remain robust and aligned with project goals. Recent enhancements have increased test coverage to nearly 100%, including additional edge case tests for Fibonacci and other operations.
 
 - **Docs:**  
   This `README.md` provides essential information about the repository, its usage, and contribution guidelines.
@@ -29,6 +29,7 @@ The repository is intended as a template that includes:
 ## Change Log
 - Updated header documentation in `src/lib/main.js` to apply the mission statement and remove drift.
 - Enhanced error handling and input validations across arithmetic and extended operations.
+- Added additional edge case tests (e.g., Fibonacci for 0 and 1) to improve overall test coverage.
 
 ## Getting Started
 
