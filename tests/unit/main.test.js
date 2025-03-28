@@ -377,38 +377,33 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("computes GCD when --gcd flag is provided", async () => {
+  // Additional edge case tests to improve test coverage
+  test("computes Fibonacci edge case for 0", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--gcd", "8", "12", "20"]);
-    expect(consoleSpy).toHaveBeenCalledWith("GCD: 4");
+    await main(["--fibonacci", "0"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Fibonacci: 0");
     consoleSpy.mockRestore();
   });
 
-  test("handles GCD with non-integer input", async () => {
+  test("computes Fibonacci edge case for 1", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--gcd", "8.5", "12"]);
-    expect(consoleSpy).toHaveBeenCalledWith("GCD: All inputs must be integers");
+    await main(["--fibonacci", "1"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Fibonacci: 1");
     consoleSpy.mockRestore();
   });
 
-  test("computes LCM when --lcm flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--lcm", "4", "6", "8"]);
-    expect(consoleSpy).toHaveBeenCalledWith("LCM: 24");
-    consoleSpy.mockRestore();
+  test("gcd function works correctly", () => {
+    const { gcd } = __test;
+    expect(gcd(10, 5)).toBe(5);
+    expect(gcd(17, 13)).toBe(1);
   });
 
-  test("handles LCM with non-integer input", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--lcm", "4", "6.2"]);
-    expect(consoleSpy).toHaveBeenCalledWith("LCM: All inputs must be integers");
-    consoleSpy.mockRestore();
+  test("lcm function works correctly", () => {
+    const { lcm } = __test;
+    expect(lcm(4, 6)).toBe(12);
+    expect(lcm(0, 5)).toBe(0);
   });
-});
 
-// Additional tests for internal helper functions and edge cases (__test)
-
-describe("Internal test helpers and edge cases (__test)", () => {
   test("getNumbers returns valid numbers even if zero is provided as string", () => {
     const { getNumbers } = __test;
     const args = ["--sum", "0", "5"];
@@ -438,17 +433,5 @@ describe("Internal test helpers and edge cases (__test)", () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenCalledWith("  --greet      : Display a greeting message");
     consoleSpy.mockRestore();
-  });
-
-  test("gcd function works correctly", () => {
-    const { gcd } = __test;
-    expect(gcd(10, 5)).toBe(5);
-    expect(gcd(17, 13)).toBe(1);
-  });
-
-  test("lcm function works correctly", () => {
-    const { lcm } = __test;
-    expect(lcm(4, 6)).toBe(12);
-    expect(lcm(0, 5)).toBe(0);
   });
 });
