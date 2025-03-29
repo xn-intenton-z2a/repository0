@@ -9,6 +9,7 @@
   Change Log:
   - Updated header documentation to apply the mission statement and remove drift.
   - Enhanced error handling and input validation across arithmetic operations.
+  - Fixed linting warnings in handleVersion by removing the unused error parameter in the catch block.
   - Maintained extended operations for demonstration and diagnostic consistency.
   - (No changes in functionality; test coverage improvements are handled in the test suite.)
 */
@@ -99,7 +100,7 @@ function handleVersion() {
     }
     const version = getVersion();
     console.log(`Version: ${version}`);
-  } catch (error) {
+  } catch {
     console.error("Could not retrieve version: unknown error");
   }
 }
