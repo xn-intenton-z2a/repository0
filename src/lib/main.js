@@ -38,18 +38,32 @@ function printHelp() {
   console.log("  --info       : Display tool version and current date/time");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
-  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
-  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
+  console.log(
+    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
+  );
+  console.log(
+    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
+  );
+  console.log(
+    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
+  );
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
+  console.log(
+    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)",
+  );
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
-  console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
-  console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
-  console.log("  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
+  console.log(
+    "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)",
+  );
+  console.log(
+    "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)",
+  );
+  console.log(
+    "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)",
+  );
   console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
@@ -323,15 +337,17 @@ function handleFibonacci(args) {
     console.log("Fibonacci: Input must be a non-negative integer");
     return;
   }
-  if(n === 0) {
+  if (n === 0) {
     console.log("Fibonacci: 0");
     return;
-  } else if(n === 1) {
+  } else if (n === 1) {
     console.log("Fibonacci: 1");
     return;
   }
-  let a = 0, b = 1, temp;
-  for(let i = 2; i <= n; i++) {
+  let a = 0;
+  let b = 1;
+  let temp;
+  for (let i = 2; i <= n; i++) {
     temp = a + b;
     a = b;
     b = temp;
@@ -342,7 +358,7 @@ function handleFibonacci(args) {
 // New function: handleGCD
 function gcd(a, b) {
   while (b !== 0) {
-    let temp = b;
+    const temp = b;
     b = a % b;
     a = temp;
   }
@@ -356,7 +372,7 @@ function handleGcd(args) {
     return;
   }
   // Ensure we are working with integers
-  for (let num of nums) {
+  for (const num of nums) {
     if (!Number.isInteger(num)) {
       console.log("GCD: All inputs must be integers");
       return;
@@ -381,7 +397,7 @@ function handleLcm(args) {
     return;
   }
   // Ensure we are working with integers
-  for (let num of nums) {
+  for (const num of nums) {
     if (!Number.isInteger(num)) {
       console.log("LCM: All inputs must be integers");
       return;
@@ -436,7 +452,7 @@ export async function main(args = []) {
     "--real": handleReal,
     "--fibonacci": () => handleFibonacci(args),
     "--gcd": () => handleGcd(args),
-    "--lcm": () => handleLcm(args)
+    "--lcm": () => handleLcm(args),
   };
 
   // Process only the first recognized flag and ignore the rest
