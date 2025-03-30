@@ -4,12 +4,13 @@
   repository0 CLI Demo: A template repository showcasing minimal CLI demonstration and automated workflows.
 
   Mission:
-  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, clear, and robust CLI. Leveraging agentic‑lib workflows, this tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM) to exemplify the repository's commitment to clarity and maintainability. This update prunes implementation drift to stay aligned with our mission.
+  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, clear, and robust CLI. Leveraging agentic‑lib workflows, this tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime) to exemplify the repository's commitment to clarity and maintainability. This update prunes implementation drift to stay aligned with our mission.
 
   Change Log:
   - Updated header documentation to apply the mission statement and remove drift.
   - Enhanced error handling and input validation across arithmetic operations.
   - Fixed linting warnings in handleVersion by removing the unused error parameter in the catch block.
+  - Added new operation: prime number check (--prime flag) to list prime numbers among inputs.
   - Maintained extended operations for demonstration and diagnostic consistency.
   - (No changes in functionality; test coverage improvements are handled in the test suite.)
 */
@@ -19,7 +20,7 @@ import { createRequire } from "module";
 import { z } from "zod";
 
 const USAGE_MESSAGE =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
 function printUsage(nonArrayInput = false) {
   let usage = USAGE_MESSAGE;
@@ -57,6 +58,7 @@ function printHelp() {
   console.log("  --fibonacci  : Compute the nth Fibonacci number (demonstrates sequence generation)");
   console.log("  --gcd        : Compute the greatest common divisor of provided integers");
   console.log("  --lcm        : Compute the least common multiple of provided integers");
+  console.log("  --prime      : List prime numbers from the provided inputs (new extended operation)");
 }
 
 function getNumbers(args, flag) {
@@ -342,7 +344,7 @@ function handleFibonacci(args) {
   console.log(`Fibonacci: ${b}`);
 }
 
-// New function: handleGCD
+// New function: handleGCD and its helper
 function gcd(a, b) {
   while (b !== 0) {
     const temp = b;
@@ -372,7 +374,7 @@ function handleGcd(args) {
   console.log(`GCD: ${result}`);
 }
 
-// New function: handleLCM
+// New function: handleLCM and its helper
 function lcm(a, b) {
   return Math.abs(a * b) / gcd(a, b);
 }
@@ -395,6 +397,25 @@ function handleLcm(args) {
     result = lcm(result, nums[i]);
   }
   console.log(`LCM: ${result}`);
+}
+
+// New function: handlePrime
+function isPrime(n) {
+  if (n < 2) return false;
+  for (let i = 2, sqrt = Math.sqrt(n); i <= sqrt; i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+function handlePrime(args) {
+  const nums = getNumbers(args, "--prime");
+  if (nums.length === 0) {
+    console.log("Prime: Provide at least one number");
+    return;
+  }
+  const primes = nums.filter(isPrime);
+  console.log(`Prime: ${primes.join(",")}`);
 }
 
 function handleDemo() {
@@ -439,7 +460,8 @@ export async function main(args = []) {
     "--real": handleReal,
     "--fibonacci": () => handleFibonacci(args),
     "--gcd": () => handleGcd(args),
-    "--lcm": () => handleLcm(args)
+    "--lcm": () => handleLcm(args),
+    "--prime": () => handlePrime(args)
   };
 
   // Process only the first recognized flag and ignore the rest

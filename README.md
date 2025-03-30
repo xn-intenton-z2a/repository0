@@ -15,7 +15,7 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` to perform automated CI/CD tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the repository and is maintained to align with the repository0 mission of clarity and robust demonstration.
+  The main functionality is in `src/lib/main.js`. This file is the focus of the repository and is maintained to align with the repository0 mission of clarity and robust demonstration. Recent updates include extended operations such as the new prime number check.
 
 - **Dependencies:**  
   The `package.json` file manages dependencies and scripts for building, testing, and deployment.
@@ -30,7 +30,7 @@ The repository is intended as a template that includes:
 - Header documentation in `src/lib/main.js` updated to reflect the current mission.
 - README refreshed to align with CONTRIBUTING guidelines and project mission.
 - Enhanced test coverage with additional edge case tests.
-- Underlying source functionality remains demonstrative and consistent with repository goals.
+- Added new operation: prime number check via the --prime flag to list prime numbers among provided inputs.
 
 ## Getting Started
 
