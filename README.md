@@ -7,7 +7,7 @@ The repository is intended as a template that includes:
 * Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate automated CI/CD workflows and clear CLI interactions. The code is maintained to align with our mission of clarity, maintainability, and robust demonstration of extended operations including the new prime number check.
 
 ## What’s Inside
 
@@ -15,22 +15,21 @@ The repository is intended as a template that includes:
   Workflows in the `.github/workflows/` directory consume reusable workflows from intentïon `agentic‑lib` to perform automated CI/CD tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the repository and is maintained to align with the repository0 mission of clarity and robust demonstration. Recent updates include extended operations such as the new prime number check.
+  The main functionality is in `src/lib/main.js`. This file embodies our mission by providing clear arithmetic and extended operations with enhanced error handling and process automation.
 
 - **Dependencies:**  
   The `package.json` file manages dependencies and scripts for building, testing, and deployment.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands and internal functions remain robust and aligned with project goals.
+  Unit tests in the `tests/unit/` folder ensure that CLI commands and internal functions remain robust and aligned with our project goals.
 
 - **Docs:**
-  This `README.md` provides essential information about the repository, its usage, and contribution guidelines.
+  This `README.md` provides essential information about the repository, usage, and contribution guidelines.
 
 ## Change Log
-- Header documentation in `src/lib/main.js` updated to reflect the current mission.
-- README refreshed to align with CONTRIBUTING guidelines and project mission.
-- Enhanced test coverage with additional edge case tests.
-- Added new operation: prime number check via the --prime flag to list prime numbers among provided inputs.
+- Updated header in `src/lib/main.js` to enforce the mission statement and remove drift from earlier versions.
+- Enhanced error handling, input validations, and extended operations including the new prime number check.
+- README refreshed to align with the current contributing guidelines.
 
 ## Getting Started
 

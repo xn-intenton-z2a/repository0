@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
 /*
-  repository0 CLI Demo: A template repository showcasing minimal CLI demonstration and automated workflows.
+  repository0 CLI Tool: A Template for Automated Workflows
 
   Mission:
-  repository0 is a demo repository that demonstrates automated workflows and CI/CD integration through a concise, clear, and robust CLI. Leveraging agentic‑lib workflows, this tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime) to exemplify the repository's commitment to clarity and maintainability. This update prunes implementation drift to stay aligned with our mission.
+  repository0 is a demonstration repository designed to showcase automated CI/CD workflows and clear, robust command line interactions. This tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime) aligned with our mission of clarity, maintainability, and process automation in software development.
 
   Change Log:
-  - Updated header documentation to apply the mission statement and remove drift.
-  - Enhanced error handling and input validation across arithmetic operations.
-  - Fixed linting warnings in handleVersion by removing the unused error parameter in the catch block.
+  - Updated header documentation to reflect the mission statement and removed any drift from previous implementations.
+  - Enhanced error handling and input validation across all arithmetic operations.
+  - Fixed linting warnings in handleVersion by removing the unused error parameter.
   - Added new operation: prime number check (--prime flag) to list prime numbers among inputs.
   - Maintained extended operations for demonstration and diagnostic consistency.
-  - (No changes in functionality; test coverage improvements are handled in the test suite.)
+  
+  (Functionality remains unchanged; test coverage improvements are handled in the test suite.)
 */
 
 import { fileURLToPath } from "url";
@@ -44,7 +45,7 @@ function printHelp() {
   console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
   console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more numbers provided (arithmetic demonstration)");
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
@@ -55,7 +56,7 @@ function printHelp() {
   console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
-  console.log("  --fibonacci  : Compute the nth Fibonacci number (demonstrates sequence generation)");
+  console.log("  --fibonacci  : Compute the nth Fibonacci number (sequence demonstration)");
   console.log("  --gcd        : Compute the greatest common divisor of provided integers");
   console.log("  --lcm        : Compute the least common multiple of provided integers");
   console.log("  --prime      : List prime numbers from the provided inputs (new extended operation)");
@@ -360,7 +361,6 @@ function handleGcd(args) {
     console.log("GCD: No numbers provided");
     return;
   }
-  // Ensure we are working with integers
   for (const num of nums) {
     if (!Number.isInteger(num)) {
       console.log("GCD: All inputs must be integers");
@@ -385,7 +385,6 @@ function handleLcm(args) {
     console.log("LCM: No numbers provided");
     return;
   }
-  // Ensure we are working with integers
   for (const num of nums) {
     if (!Number.isInteger(num)) {
       console.log("LCM: All inputs must be integers");
