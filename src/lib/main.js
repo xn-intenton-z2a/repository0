@@ -11,8 +11,9 @@
   - Enhanced error handling and input validation across all arithmetic operations.
   - Fixed linting warnings in handleVersion by removing the unused error parameter.
   - Added new operation: prime number check (--prime flag) to list prime numbers among inputs.
+  - Increased unit test coverage by adding direct function invocation tests and deeper mocks on external dependencies.
   - Maintained extended operations for demonstration and diagnostic consistency.
-  
+
   (Functionality remains unchanged; test coverage improvements are handled in the test suite.)
 */
 
@@ -41,32 +42,18 @@ function printHelp() {
   console.log("  --info       : Display tool version and current date/time");
   console.log("  --sum        : Compute the sum of provided numbers (arithmetic demonstration)");
   console.log("  --multiply   : Compute the product of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)",
-  );
-  console.log(
-    "  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)",
-  );
-  console.log(
-    "  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)",
-  );
+  console.log("  --subtract   : Subtract each subsequent number from the first provided number (arithmetic demonstration)");
+  console.log("  --divide     : Divide the first number by each of the subsequent numbers sequentially (arithmetic demonstration)");
+  console.log("  --modulo     : Compute the modulo of provided numbers (first % second % ... ) (arithmetic demonstration)");
   console.log("  --average    : Compute the arithmetic average of provided numbers (arithmetic demonstration)");
-  console.log(
-    "  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more provided (arithmetic demonstration)",
-  );
+  console.log("  --power      : Compute exponentiation; first number raised to the power of the second, and chain if more provided (arithmetic demonstration)");
   console.log("  --factorial  : Compute the factorial of a provided non-negative integer (arithmetic demonstration)");
   console.log("  --sqrt       : Compute the square root of the provided number (arithmetic demonstration)");
   console.log("  --median     : Compute the median of the provided numbers (extended arithmetic demonstration)");
   console.log("  --mode       : Compute the mode of the provided numbers (extended arithmetic demonstration)");
-  console.log(
-    "  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)",
-  );
-  console.log(
-    "  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)",
-  );
-  console.log(
-    "  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)",
-  );
+  console.log("  --stddev     : Compute the standard deviation of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --range      : Compute the range (max - min) of the provided numbers (extended arithmetic demonstration)");
+  console.log("  --factors    : List all factors of a provided non-negative integer (extended arithmetic demonstration)");
   console.log("  --variance   : Compute the variance of provided numbers (extended arithmetic demonstration)");
   console.log("  --demo       : Run in demo mode to output sample data without making a network call");
   console.log("  --real       : Run the real call simulation (feature not implemented over the wire)");
