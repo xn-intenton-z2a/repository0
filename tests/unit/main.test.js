@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
     );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
@@ -44,7 +44,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]()",
     );
     consoleSpy.mockRestore();
   });
@@ -431,7 +431,9 @@ describe("CLI Behavior", () => {
     printHelp();
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenCalledWith("  --greet      : Display a greeting message");
-    expect(consoleSpy).toHaveBeenCalledWith("  --prime      : List prime numbers from the provided inputs (new extended operation)");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "  --prime      : List prime numbers from the provided inputs (new extended operation)",
+    );
     consoleSpy.mockRestore();
   });
 
