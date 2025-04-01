@@ -15,7 +15,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -33,7 +33,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
@@ -44,7 +44,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]()",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -432,7 +432,7 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenCalledWith("  --greet      : Display a greeting message");
     expect(consoleSpy).toHaveBeenCalledWith(
-      "  --prime      : List prime numbers from the provided inputs (new extended operation)",
+      "  --prime      : List prime numbers from the provided inputs (new extended operation)"
     );
     consoleSpy.mockRestore();
   });
@@ -442,5 +442,32 @@ describe("CLI Behavior", () => {
     await main(["--prime", "2", "3", "4", "5", "8"]);
     expect(consoleSpy).toHaveBeenCalledWith("Prime: 2,3,5");
     consoleSpy.mockRestore();
+  });
+});
+
+// Direct Function Invocation Tests to further increase coverage
+describe("Direct Function Invocation", () => {
+  test("printUsage should output usage message", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    __test.printUsage(false);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    consoleSpy.mockRestore();
+  });
+
+  test("printHelp should output help message", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    __test.printHelp();
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    consoleSpy.mockRestore();
+  });
+
+  test("gcd helper function from __test works as expected", () => {
+    const { gcd } = __test;
+    expect(gcd(21, 7)).toBe(7);
+  });
+
+  test("lcm helper function from __test works as expected", () => {
+    const { lcm } = __test;
+    expect(lcm(3, 4)).toBe(12);
   });
 });

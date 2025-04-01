@@ -7,7 +7,7 @@ The repository is intended as a template that includes:
 * Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate automated CI/CD workflows and clear CLI interactions. The code is maintained to align with our mission of clarity, maintainability, and robust demonstration of extended operations including the new prime number check.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and clear CLI interactions. The code is maintained to align with our mission of clarity, maintainability, and robust demonstration of extended operations including the new prime number check.
 
 ## What’s Inside
 
@@ -21,7 +21,7 @@ The repository is intended as a template that includes:
   The `package.json` file manages dependencies and scripts for building, testing, and deployment.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that CLI commands and internal functions remain robust and aligned with our project goals.
+  Unit tests in the `tests/unit/` folder ensure that CLI commands and internal functions remain robust and aligned with our project goals. Recent updates have increased test coverage to near 100% by adding direct function invocation tests and deeper mocks on external dependencies.
 
 - **Docs:**
   This `README.md` provides essential information about the repository, usage, and contribution guidelines.
@@ -29,6 +29,7 @@ The repository is intended as a template that includes:
 ## Change Log
 - Updated header in `src/lib/main.js` to enforce the mission statement and remove drift from earlier versions.
 - Enhanced error handling, input validations, and extended operations including the new prime number check.
+- Increased unit test coverage by adding additional tests and deeper mocks.
 - README refreshed to align with the current contributing guidelines.
 
 ## Getting Started

@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.3.2",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to align with the mission statement, enhance error handling, streamline arithmetic operations, improve test coverage for CLI commands, add extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime), and extended diagnostic output.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to align with the mission statement, enhance error handling, streamline arithmetic operations, improve test coverage for CLI commands and external dependencies, and extended diagnostic output.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -15,6 +15,7 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest",
     "test:unit": "vitest --coverage",
+    "coverage": "vitest --coverage",
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js --diagnostics",
     "version": "node src/lib/main.js --version"
