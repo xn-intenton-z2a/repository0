@@ -4,17 +4,14 @@
   repository0 CLI Tool: A Template for Automated Workflows
 
   Mission:
-  repository0 is a demonstration repository designed to showcase automated CI/CD workflows and clear, robust command line interactions. This tool performs essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime) aligned with our mission of clarity, maintainability, and process automation in software development.
+  repository0 exemplifies our mission to provide a clear, maintainable CLI tool that demonstrates automated CI/CD workflows. It offers essential arithmetic operations (sum, multiply, subtract, divide, modulo, average, power, factorial, square root) and extended operations (median, mode, stddev, range, factors, variance, Fibonacci, GCD, LCM, prime) with robust error handling and input validation.
 
   Change Log:
-  - Updated header documentation to reflect the mission statement and removed any drift from previous implementations.
-  - Enhanced error handling and input validation across all arithmetic operations.
+  - Enforced the mission statement to remove drift from previous implementations.
+  - Enhanced error handling and input validation across all operations.
   - Fixed linting warnings in handleVersion by removing the unused error parameter.
-  - Added new operation: prime number check (--prime flag) to list prime numbers among inputs.
-  - Increased unit test coverage by adding direct function invocation tests and deeper mocks on external dependencies.
-  - Maintained extended operations for demonstration and diagnostic consistency.
-
-  (Functionality remains unchanged; test coverage improvements are handled in the test suite.)
+  - Added new operation: prime number check (--prime flag).
+  - Expanded unit test coverage with direct function tests and comprehensive mocks on external dependencies.
 */
 
 import { fileURLToPath } from "url";
