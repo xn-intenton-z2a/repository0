@@ -26,6 +26,11 @@ The repository is intended as a template that includes:
 - **Docs:**  
   This `README.md` is maintained to provide essential information about the repository, usage, and contribution guidelines.
 
+## Change Log
+- Pruned drift from previous implementations to strictly adhere to the mission statement.
+- Enhanced error handling and input validations in CLI operations.
+- Updated documentation and test coverage to match source file functionality.
+
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts, but you do need to supply the following secrets:
@@ -48,7 +53,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 * Are you curious about self-evolving code?
 * Would you like to see how such a system can be built?
 * Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-END_README_BEGINNING
+  END_README_BEGINNING
 
 ---
 
