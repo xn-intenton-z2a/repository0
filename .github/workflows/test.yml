@@ -117,6 +117,8 @@ jobs:
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   mvn-package-cdk-synth:
+    # Only run if the file pom.xml exists in the root directory
+    if: exist('pom.xml')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -124,18 +126,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            mavenPomXmlExists='true'
+          else
+            mavenPomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
       - uses: actions/setup-node@v4
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         with:
           node-version: 20
           cache: 'npm'
 
       - name: Set up ~/.npmrc
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         run: |
           echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
       - uses: actions/setup-java@v4
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
@@ -146,11 +162,14 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - run: cat ~/.m2/settings.xml
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
 
       - run: npm ci
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
 
       - name: package
         id: package
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         shell: bash
         run: ./mvnw clean package
         env:
@@ -159,6 +178,7 @@ jobs:
 
       - name: synth
         id: synth
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         shell: bash
         run: npx cdk synth --strict --validation --no-staging --trace
         env:
