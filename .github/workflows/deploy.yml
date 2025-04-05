@@ -188,6 +188,7 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws s3 ls --region eu-west-2
+        if: steps.mvn.outputs.pomXmlExists == 'true'
 
       - uses: actions/setup-java@v4
         if: steps.mvn.outputs.pomXmlExists == 'true'
