@@ -422,7 +422,7 @@ describe("CLI Behavior", () => {
   test("getVersion returns the correct version", () => {
     const { getVersion } = __test;
     const version = getVersion();
-    expect(version).toEqual("1.3.2");
+    expect(version).toEqual("1.3.3-0");
   });
 
   test("printHelp outputs the help message correctly", () => {
