@@ -135,8 +135,6 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: cat ~/.m2/settings.xml
-
       - run: npm ci
 
       - name: mvn
@@ -150,6 +148,9 @@ jobs:
             pomXmlExists='false'
           fi
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - run: cat ~/.m2/settings.xml
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
 
       - uses: actions/setup-java@v4
         if: steps.maven.outputs.mavenPomXmlExists == 'true'
