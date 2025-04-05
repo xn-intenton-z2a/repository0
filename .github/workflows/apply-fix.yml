@@ -150,7 +150,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build:
@@ -262,7 +262,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.6.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-fix.yml@2.14.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -306,7 +306,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
-      - run: npm install
+      - run: npm ci
       - run: npm run test:unit
 
   npm-build-after-fix:
@@ -438,7 +438,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.6.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@2.14.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'

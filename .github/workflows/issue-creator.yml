@@ -33,7 +33,7 @@ jobs:
       houseChoiceOptions: ${{ steps.extract.outputs.houseChoiceOptions }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Parse Issue House Choice Options from CONTRIBUTING.md
         id: extract
@@ -80,7 +80,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.6.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.14.0'
     with:
       issueTitle: ${{ inputs.issueTitle || 'house choice' }}
       houseChoiceOptions: ${{ needs.extract-options.outputs.houseChoiceOptions }}

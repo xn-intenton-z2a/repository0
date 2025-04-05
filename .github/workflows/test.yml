@@ -10,9 +10,11 @@ on:
   push:
     paths:
       - '**/*.sh'
+      - '**/*.java'
       - '**/*.js'
       - '**/*.json'
       - '**/*.yml'
+      - '**/pom.xml'
       - '**/*.properties'
       - '!exports/**'
   workflow_dispatch:
@@ -29,10 +31,13 @@ on:
 
 jobs:
 
-
   npm-test:
     name: 'npm test'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -41,13 +46,22 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - run: npm install
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
 
       - run: npm test
 
   npm-unit-test:
     name: 'npm unit test with coverage'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -56,12 +70,21 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - run: npm install
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
 
       - run: npm run test:unit
 
   npm-build-test-and-run-main:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -70,7 +93,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - run: npm install
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
 
       - name: build
         id: build
@@ -86,3 +115,52 @@ jobs:
         id: main
         shell: bash
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  mvn-package-cdk-synth:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - run: cat ~/.m2/settings.xml
+
+      - run: npm ci
+
+      - name: package
+        id: package
+        shell: bash
+        run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: synth
+        id: synth
+        shell: bash
+        run: npx cdk synth --strict --validation --no-staging --trace
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

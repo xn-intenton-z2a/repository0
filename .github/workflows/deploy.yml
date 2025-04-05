@@ -1,0 +1,203 @@
+# .github/workflows/deploy.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: Deploy
+run-name: 'Deploy to AWS [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: agentic-lib
+
+on:
+  #push:
+  #  branches:
+  #    # When publishing from a branch, add branch name here, e,g, 'beta'
+  #    - main
+  #  paths:
+  #    - '**/*.sh'
+  #    - '**/*.js'
+  #    - '**/*.json'
+  #    - '**/*.yml'
+  #    - '**/*.properties'
+  #    - '!intentions/**'
+  #    - '!conversations/**'
+  #    - '!exports/**'
+  #    - '!programs/**'
+  #    - '!results/**'
+  workflow_dispatch:
+
+jobs:
+
+  npm-test-and-run-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - name: test
+        id: test
+        shell: bash
+        run: 'npm test'
+
+      - name: main
+        id: main
+        shell: bash
+        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+
+  mvn-packge-cdk-synth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: package
+        id: package
+        shell: bash
+        run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: synth
+        id: synth
+        shell: bash
+        run: npx cdk synth --strict --validation --no-staging
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  deploy:
+    needs:
+      - npm-test-and-run-main
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - run: npm ci
+
+      - name: test
+        id: test
+        shell: bash
+        run: npm test
+
+      #- run: npm install -g aws-cdk
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-github-actions-role
+          role-chaining: false
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - run: aws sts get-caller-identity --region eu-west-2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
+          role-chaining: true
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+          role-skip-session-tagging: true
+          output-credentials: true
+          retry-max-attempts: 3
+
+      - run: aws s3 ls --region eu-west-2
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: package
+        id: package
+        shell: bash
+        run: ./mvnw clean package
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: stacks
+        id: stacks
+        shell: bash
+        run: |
+          synth=$(jq -r '.deployStacks' cdk.json)
+          deploy=$(jq -r '.deployStacks' cdk.json)
+          echo "deploy=${deploy?}" | tee -a "${GITHUB_OUTPUT?}"
+          echo "synth=${synth?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - name: synth
+        id: synth
+        shell: bash
+        run: ${{ steps.stacks.outputs.synth }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: deploy
+        id: deploy
+        shell: bash
+        run: ${{ steps.stacks.outputs.deploy }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

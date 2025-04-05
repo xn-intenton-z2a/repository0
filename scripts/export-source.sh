@@ -8,7 +8,7 @@
 #
 
 mkdir -p 'exports/'
-find "." -type f -not -path '*/build/*' -not -path '*/cdk/target/*' -not -path '*/cdk/cdk.out/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "exports/$(date +%Y-%m-%d)-files-list.txt"
+find "." -type f -not -path '*/build/*' -not -path '*/target/*' -not -path '*/cdk.out/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "exports/$(date +%Y-%m-%d)-files-list.txt"
 find "." -maxdepth 1 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'package.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'vitest.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
@@ -17,8 +17,11 @@ find "." -maxdepth 1 -type f -name 'eslint.config.js' -print -exec echo "==== Co
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
-if [[ -e "Dockerfile" ]] ; then echo "==== Content of Dockerfile ====" \; -exec cat Dockerfile \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt" ; fi
-if [[ -e "cdk" ]] ; then find "cdk/src" -type f -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-cdk-cat.txt" ; fi
+if [[ -e "Dockerfile" ]] ; then echo "==== Content of Dockerfile ====" > "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat Dockerfile >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
+if [[ -e "compose.yml" ]] ; then echo "==== Content of compose.yml ====" >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat compose.yml >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
+if [[ -e "pom.xml" ]] ; then echo "==== Content of pom.xml ====" > "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; cat pom.xml >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
+if [[ -e "cdk.json" ]] ; then echo "==== Content of cdk.json ====" >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; cat cdk.json >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
+if [[ -e "aws" ]] ; then find "aws" -type f -name '*.java' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
 find "src" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-src-cat.txt"
 find "tests" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-test-cat.txt"
 find ".github" -type f -name '*.yml' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-github-workflow-cat.txt"
