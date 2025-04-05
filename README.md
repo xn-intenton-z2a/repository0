@@ -58,7 +58,6 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 ---
 ---
----
 
 # Ensure README.md ends like this:
 
