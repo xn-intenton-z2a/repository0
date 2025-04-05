@@ -138,7 +138,6 @@ jobs:
       - run: npm ci
 
       - name: mvn
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         id: mvn
         shell: bash
         run: |
@@ -150,10 +149,10 @@ jobs:
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
       - run: cat ~/.m2/settings.xml
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
+        if: steps.mvn.outputs.pomXmlExists == 'true'
 
       - uses: actions/setup-java@v4
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
@@ -165,7 +164,7 @@ jobs:
 
       - name: package
         id: package
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: ./mvnw clean package
         env:
@@ -174,7 +173,7 @@ jobs:
 
       - name: synth
         id: synth
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: npx cdk synth --strict --validation --no-staging --trace
         env:

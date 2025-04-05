@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
-  mvn-packge-cdk-synth:
+  mvn-package-cdk-synth:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,7 +73,20 @@ jobs:
 
       - run: npm ci
 
+      - name: mvn
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
       - uses: actions/setup-java@v4
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
@@ -85,6 +98,7 @@ jobs:
 
       - name: package
         id: package
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: ./mvnw clean package
         env:
@@ -93,6 +107,7 @@ jobs:
 
       - name: synth
         id: synth
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: npx cdk synth --strict --validation --no-staging
         env:
@@ -102,6 +117,7 @@ jobs:
   deploy:
     needs:
       - npm-test-and-run-main
+      - mvn-package-cdk-synth
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -159,7 +175,19 @@ jobs:
 
       - run: aws s3 ls --region eu-west-2
 
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
       - uses: actions/setup-java@v4
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
@@ -171,6 +199,7 @@ jobs:
 
       - name: package
         id: package
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: ./mvnw clean package
         env:
@@ -179,6 +208,7 @@ jobs:
 
       - name: stacks
         id: stacks
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: |
           synth=$(jq -r '.deployStacks' cdk.json)
@@ -188,6 +218,7 @@ jobs:
 
       - name: synth
         id: synth
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: ${{ steps.stacks.outputs.synth }}
         env:
@@ -196,6 +227,7 @@ jobs:
 
       - name: deploy
         id: deploy
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: ${{ steps.stacks.outputs.deploy }}
         env:
