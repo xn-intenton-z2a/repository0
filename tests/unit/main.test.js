@@ -356,10 +356,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles variance with no numbers provided", async () => {
+  test("computes variance correctly with a single number (zero variance)", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--variance"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Variance: No numbers provided");
+    await main(["--variance", "5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Variance: 0");
     consoleSpy.mockRestore();
   });
 
@@ -422,7 +422,7 @@ describe("CLI Behavior", () => {
   test("getVersion returns the correct version", () => {
     const { getVersion } = __test;
     const version = getVersion();
-    expect(version).toEqual("1.3.3-0");
+    expect(version).toEqual("1.3.3-1");
   });
 
   test("printHelp outputs the help message correctly", () => {
@@ -443,14 +443,23 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Prime: 2,3,5");
     consoleSpy.mockRestore();
   });
+
+  test("computes prime numbers when no primes are present", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // 1, 4, 6 are not prime
+    await main(["--prime", "1", "4", "6"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Prime: ");
+    consoleSpy.mockRestore();
+  });
 });
 
-// Direct Function Invocation Tests to further increase coverage
+// Direct Function Invocation Tests
 describe("Direct Function Invocation", () => {
   test("printUsage should output usage message", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     __test.printUsage(false);
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 

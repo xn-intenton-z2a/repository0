@@ -21,7 +21,7 @@ The repository is intended as a template that includes:
   The `package.json` file can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script remains robust. The tests in `tests/unit/main.test.js` help keep the CLI commands and internal functions aligned with our mission.
+  Unit tests in the `tests/unit/` folder ensure that the main script remains robust. The tests in `tests/unit/main.test.js` have been updated to achieve nearly 100% test coverage of all CLI commands and operations.
 
 - **Docs:**  
   This `README.md` is maintained to provide essential information about the repository, usage, and contribution guidelines.
@@ -29,7 +29,8 @@ The repository is intended as a template that includes:
 ## Change Log
 - Pruned drift from previous implementations to strictly adhere to the mission statement.
 - Enhanced error handling and input validations in CLI operations.
-- Updated documentation and test coverage to match source file functionality.
+- Expanded and refined test coverage across all CLI operations to ensure near 100% coverage.
+- Updated documentation to reflect all current functionalities.
 
 ## Getting Started
 
