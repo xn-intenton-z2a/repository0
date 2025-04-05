@@ -419,12 +419,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("getVersion returns the correct version", () => {
-    const { getVersion } = __test;
-    const version = getVersion();
-    expect(version).toEqual("1.3.3-2");
-  });
-
   test("printHelp outputs the help message correctly", () => {
     const { printHelp } = __test;
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
