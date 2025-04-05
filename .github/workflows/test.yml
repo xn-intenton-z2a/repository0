@@ -117,8 +117,6 @@ jobs:
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   mvn-package-cdk-synth:
-    # Only run if the file pom.xml exists in the root directory
-    if: exist('pom.xml')
     runs-on: ubuntu-latest
     permissions:
       contents: read
