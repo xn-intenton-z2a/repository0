@@ -135,21 +135,12 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: 21
-          cache: 'maven'
-          server-password: PERSONAL_ACCESS_TOKEN
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
       - run: cat ~/.m2/settings.xml
 
       - run: npm ci
 
       - name: mvn
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         id: mvn
         shell: bash
         run: |
@@ -159,6 +150,16 @@ jobs:
             pomXmlExists='false'
           fi
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: package
         id: package
