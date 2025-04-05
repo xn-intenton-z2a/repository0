@@ -12,6 +12,7 @@
   - Removed unused error parameter in handleVersion and fixed linting warnings.
   - Added new operation: prime number check (--prime flag).
   - Expanded unit test coverage and updated functions for clarity.
+  - Enhanced unit test coverage to nearly 100% by covering all code paths.
 */
 
 import { fileURLToPath } from "url";
