@@ -147,9 +147,21 @@ jobs:
         shell: bash
         run: npm test
 
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
       #- run: npm install -g aws-cdk
 
       - name: Configure AWS Credentials
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-github-actions-role
@@ -161,8 +173,10 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws sts get-caller-identity --region eu-west-2
+        if: steps.mvn.outputs.pomXmlExists == 'true'
 
       - name: Configure AWS Credentials
+        if: steps.mvn.outputs.pomXmlExists == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
@@ -174,17 +188,6 @@ jobs:
           retry-max-attempts: 3
 
       - run: aws s3 ls --region eu-west-2
-
-      - name: mvn
-        id: mvn
-        shell: bash
-        run: |
-          if [ -f pom.xml ]; then
-            pomXmlExists='true'
-          else
-            pomXmlExists='false'
-          fi
-          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
       - uses: actions/setup-java@v4
         if: steps.mvn.outputs.pomXmlExists == 'true'
