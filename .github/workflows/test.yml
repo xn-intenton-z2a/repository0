@@ -124,32 +124,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: mvn
-        id: mvn
-        shell: bash
-        run: |
-          if [ -f pom.xml ]; then
-            pomXmlExists='true'
-          else
-            pomXmlExists='false'
-          fi
-          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
-
       - uses: actions/setup-node@v4
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         with:
           node-version: 20
           cache: 'npm'
 
       - name: Set up ~/.npmrc
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         run: |
           echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
       - uses: actions/setup-java@v4
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
@@ -160,10 +146,19 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - run: cat ~/.m2/settings.xml
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
 
       - run: npm ci
-        if: steps.maven.outputs.mavenPomXmlExists == 'true'
+
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
       - name: package
         id: package
