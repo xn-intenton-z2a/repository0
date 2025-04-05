@@ -152,6 +152,7 @@ jobs:
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
       - uses: actions/setup-java@v4
+        if: steps.maven.outputs.mavenPomXmlExists == 'true'
         with:
           distribution: 'corretto'
           java-version: 21
