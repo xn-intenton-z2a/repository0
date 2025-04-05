@@ -129,9 +129,9 @@ jobs:
         shell: bash
         run: |
           if [ -f pom.xml ]; then
-            mavenPomXmlExists='true'
+            pomXmlExists='true'
           else
-            mavenPomXmlExists='false'
+            pomXmlExists='false'
           fi
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
