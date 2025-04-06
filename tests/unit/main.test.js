@@ -64,17 +64,20 @@ describe("CLI Behavior", () => {
   });
 
   test("computes sum when --sum flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sum", "3", "4", "5"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Sum: 12");
-    consoleSpy.mockRestore();
+    expect(logSpy).toHaveBeenCalledWith("Sum: 12");
+    logSpy.mockRestore();
   });
 
   test("handles non-numeric inputs for --sum flag", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "a", "5", "hello"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Sum: 5");
-    consoleSpy.mockRestore();
+    expect(logSpy).toHaveBeenCalledWith("Sum: 5");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: a,hello");
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   test("computes multiplication when --multiply flag is provided", async () => {
@@ -128,9 +131,12 @@ describe("CLI Behavior", () => {
 
   test("handles non-numeric input for --divide flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--divide", "10", "b", "2"]);
     expect(consoleSpy).toHaveBeenCalledWith("Divide: 5");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: b");
     consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   test("handles division by zero with --divide flag", async () => {
@@ -170,9 +176,12 @@ describe("CLI Behavior", () => {
 
   test("handles non-numeric input for --modulo flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--modulo", "10", "b", "3"]);
     expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: b");
     consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   test("computes average when --average flag is provided with multiple numbers", async () => {
@@ -191,9 +200,12 @@ describe("CLI Behavior", () => {
 
   test("handles average with non-numeric inputs while ignoring invalid ones", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--average", "5", "abc", "15"]);
     expect(consoleSpy).toHaveBeenCalledWith("Average: 10");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: abc");
     consoleSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   test("displays version when --version flag is provided", async () => {
