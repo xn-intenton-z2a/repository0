@@ -1,0 +1,315 @@
+scripts/truncate-git-history.sh
+==== Content of scripts/truncate-git-history.sh ====
+#!/usr/bin/env bash
+# scripts/truncate-git-history.sh
+# Purpose: Truncate the history so that future revisions don't follow a past trend.
+# Usage: ./scripts/truncate-git-history.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+#
+git checkout --orphan temp-branch
+git add --verbose --all
+git commit --verbose --message "Prepare release"
+git push --verbose --force origin temp-branch:main
+git checkout main
+git pull --verbose
+git branch --verbose --delete temp-branch
+git pull --verbose
+git push --verbose origin main
+git log
+git status
+scripts/archive.sh
+==== Content of scripts/archive.sh ====
+#!/usr/bin/env bash
+# scripts/archive.sh
+# Usage: ./scripts/archive.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+intention="$(head -1 CONTRIBUTING.md | sed 's/^# //')"
+mkdir -p 'archive/'
+cp -fv CONTRIBUTING.md "archive/${intention?}-$(date +%Y-%m-%d)-CONTRIBUTING.md"
+cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
+cp -fv package.json "archive/${intention?}-$(date +%Y-%m-%d)-package.json"
+cp -fv src/lib/main.js "archive/${intention?}-$(date +%Y-%m-%d)-main.js"
+cp -fv tests/unit/main.test.js "archive/${intention?}-$(date +%Y-%m-%d)-main.test.js"
+#rm -rfv node_modules
+#rm -rfv package-lock.json
+#npm install
+#npm run build
+#npm link
+scripts/accept-release.sh
+==== Content of scripts/accept-release.sh ====
+#!/usr/bin/env bash
+# scripts/accept-release.sh
+# Usage: ./scripts/accept-release.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+schedule=$(grep '^schedule:' .github/schedule.yml | awk '{print $2}' | sed 's/schedule-//')
+if [ -z "${schedule}" ]; then
+  echo "No schedule found in .github/schedule.yml, looking for line of the form 'schedule: schedule-<number>', using schedule-1"
+  schedule=1
+fi
+echo "Workflow schedule: schedule-${schedule?}"
+./scripts/activate-schedule.sh "${schedule?}"
+git add .github/workflows/*
+git add scripts/*
+git add public/*
+git commit -m 'Update from agentic-lib'
+git pull
+git push
+scripts/export-source.sh
+==== Content of scripts/export-source.sh ====
+#!/usr/bin/env bash
+# scripts/export-source.sh
+# Purpose: Export the source code to date stamped files.
+# Usage: ./scripts/export-source.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+#
+
+mkdir -p 'exports/'
+find "." -type f -not -path '*/build/*' -not -path '*/target/*' -not -path '*/cdk.out/*' -not -path '*/dist/*' -not -path '*/exports/*' -not -path '*/coverage/*' -not -path '*/node_modules/*' -not -path '*/\.git/*' -not -path '*/\.idea/*' -print | grep -v '.DS_Store' > "exports/$(date +%Y-%m-%d)-files-list.txt"
+find "." -maxdepth 1 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'package.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'vitest.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'jsconfig.json' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'eslint.config.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+if [[ -e "Dockerfile" ]] ; then echo "==== Content of Dockerfile ====" > "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat Dockerfile >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
+if [[ -e "compose.yml" ]] ; then echo "==== Content of compose.yml ====" >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat compose.yml >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
+if [[ -e "pom.xml" ]] ; then echo "==== Content of pom.xml ====" > "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; cat pom.xml >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
+if [[ -e "cdk.json" ]] ; then echo "==== Content of cdk.json ====" >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; cat cdk.json >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
+if [[ -e "aws" ]] ; then find "aws" -type f -name '*.java' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi
+find "src" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-src-cat.txt"
+find "tests" -type f -name '*.js' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-test-cat.txt"
+find ".github" -type f -name '*.yml' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-github-workflow-cat.txt"
+find "scripts" -type f -name '*.sh' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-scripts-cat.txt"
+git log --follow -p src/lib/main.js > "exports/$(date +%Y-%m-%d)-main.js-history.txt"
+git log --since="12 hours ago" --follow -p src/lib/main.js > "exports/$(date +%Y-%m-%d)-main.js-history-last-12-hours.txt"
+scripts/generate-settings-xml.sh
+==== Content of scripts/generate-settings-xml.sh ====
+#!/usr/bin/env bash
+# Purpose: Generate an ~/.m2/settings.xml file with the PERSONAL_ACCESS_TOKEN secret.
+# Usage: ./scripts/generate-settings-xml.sh
+rm -f ~/.npmrc
+source secrets.env
+echo "<settings>" > ~/.m2/settings.xml
+echo "  <servers>" >> ~/.m2/settings.xml
+echo "    <server>" >> ~/.m2/settings.xml
+echo "      <id>github</id>" >> ~/.m2/settings.xml
+echo "      <username>Antony-at-Polycode</username>" >> ~/.m2/settings.xml
+echo "      <password>${PERSONAL_ACCESS_TOKEN?}</password>" >> ~/.m2/settings.xml
+echo "    </server>" >> ~/.m2/settings.xml
+echo "  </servers>" >> ~/.m2/settings.xml
+echo "</settings>" >> ~/.m2/settings.xml
+scripts/initialise.sh
+==== Content of scripts/initialise.sh ====
+#!/usr/bin/env bash
+# scripts/initialise.sh
+# Usage: ./scripts/initialise.sh <intention>
+# Example: ./scripts/initialise.sh (randomly selects an intention)
+# Example: ./scripts/initialise.sh "repository0-plot-code-lib"
+# Example: ./scripts/initialise.sh "owl-builder"
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+defaultIntention=$(find seeds -maxdepth 1 -type f -name 'CONTRIBUTING-*.md' | shuf -n 1 | sed -E 's/.*CONTRIBUTING-(.*)\.md/\1/')
+
+intention="${1-$defaultIntention}"
+
+cp -fv "seeds/CONTRIBUTING-${intention?}.md" CONTRIBUTING.md
+cp -fv "seeds/zero-README.md"  README.md
+cp -fv "seeds/zero-package.json"  package.json
+cp -fv "seeds/zero-main.js" src/lib/main.js
+cp -fv "seeds/zero-main.test.js" tests/unit/main.test.js
+#rm -rfv node_modules
+#rm -rfv package-lock.json
+#npm install
+#npm run build
+#npm link
+scripts/activate-schedule.sh
+==== Content of scripts/activate-schedule.sh ====
+#!/usr/bin/env bash
+# scripts/activate-schedule.sh
+#
+# Usage: ./scripts/activate-schedule.sh <schedule-number>
+# Example: ./scripts/activate-schedule.sh 1
+# (activates schedule-1 by uncommenting lines ending with "# schedule-1".)
+#
+# This script processes all .yml files in the .github/workflows directory.
+# It looks for lines with cron schedule definitions ending with a comment like "# schedule-N"
+# and, if N matches the given parameter, removes the leading "#" and any extra spaces.
+#
+# Tested on macOS (zsh).
+
+set -euo pipefail
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <schedule-number>"
+  exit 1
+fi
+
+active="$1"
+workflow_dir=".github/workflows"
+
+if [ ! -d "$workflow_dir" ]; then
+  echo "Error: Directory $workflow_dir not found."
+  exit 1
+fi
+
+echo "Activating schedule-$active in all YAML workflow files in $workflow_dir..."
+
+for file in "$workflow_dir"/*.yml; do
+  echo "Processing $file..."
+  # This sed command matches lines that start with whitespace, then a "#"
+  # followed by optional whitespace, then "cron:" … and ending with "# schedule-<active>"
+  sed -i.bak -E "s/^([[:space:]]*)#(- cron:.*# schedule-$active)/\1\2/" "$file"
+  rm -f "$file.bak"
+done
+
+echo "Schedule-$active activated in workflows."
+scripts/aws-assume-agentic-lib-deployment-role.sh
+==== Content of scripts/aws-assume-agentic-lib-deployment-role.sh ====
+#!/usr/bin/env bash
+# scripts/aws-assume-agentic-lib-deployment-role.sh
+# Usage: . ./scripts/aws-assume-agentic-lib-deployment-role.sh
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SESSION_TOKEN
+roleArn="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
+sessionName="agentic-lib-deployment-session-local"
+assumeRoleOutput=$(aws sts assume-role --role-arn "${roleArn?}" --role-session-name "${sessionName?}" --output json)
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to assume role."
+  exit 1
+fi
+export AWS_ACCESS_KEY_ID=$(echo "${assumeRoleOutput?}" | jq -r '.Credentials.AccessKeyId')
+export AWS_SECRET_ACCESS_KEY=$(echo "${assumeRoleOutput?}" | jq -r '.Credentials.SecretAccessKey')
+export AWS_SESSION_TOKEN=$(echo "${assumeRoleOutput?}" | jq -r '.Credentials.SessionToken')
+expirationTimestamp=$(echo "${assumeRoleOutput?}" | jq -r '.Credentials.Expiration')
+echo "Assumed ${roleArn?} successfully, expires: ${expirationTimestamp?}. Identity is now:"
+aws sts get-caller-identity
+scripts/deactivate-schedule.sh
+==== Content of scripts/deactivate-schedule.sh ====
+#!/usr/bin/env bash
+# scripts/deactivate-schedule.sh
+#
+# Usage: ./scripts/deactivate-schedule.sh <schedule-number>
+# Example: ./scripts/deactivate-schedule.sh 1
+# (deactivates schedule-1 by commenting out lines ending with "# schedule-1".)
+#
+# This script processes all .yml files in the .github/workflows directory.
+# It looks for lines with cron schedule definitions ending with a comment like "# schedule-N"
+# and, if N matches the given parameter, adds a leading "#" (if not already present) to comment out the line.
+#
+# Tested on macOS (zsh).
+
+set -euo pipefail
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <schedule-number>"
+  exit 1
+fi
+
+active="$1"
+workflow_dir=".github/workflows"
+
+if [ ! -d "$workflow_dir" ]; then
+  echo "Error: Directory $workflow_dir not found."
+  exit 1
+fi
+
+echo "Deactivating schedule-$active in all YAML workflow files in $workflow_dir..."
+
+for file in "$workflow_dir"/*.yml; do
+  echo "Processing $file..."
+  # This sed command matches lines that start with whitespace, then a dash,
+  # and ending with "# schedule-<active>".
+  # It prepends a '#' to comment out that line.
+  sed -i.bak -E "s/^([[:space:]]*)(- cron:.*# schedule-$active)/\1#\2/" "$file"
+  rm -f "$file.bak"
+done
+
+echo "Schedule-$active deactivated in workflows."
+scripts/update.sh
+==== Content of scripts/update.sh ====
+#!/usr/bin/env bash
+# scripts/update.sh
+# Usage: ./scripts/update.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+#
+
+rm -f package-lock.json
+rm -f node-modules
+npm install
+npm run update-to-minor
+npm update
+npm upgrade
+npm install
+npm run build
+npm link
+scripts/generate-npmrc.sh
+==== Content of scripts/generate-npmrc.sh ====
+#!/usr/bin/env bash
+# Purpose: Generate an ~/.npmrc file with the PERSONAL_ACCESS_TOKEN secret.
+# Usage: ./scripts/generate-npmrc.sh
+rm -f ~/.npmrc
+source secrets.env
+echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+echo "//npm.pkg.github.com/:_authToken=${PERSONAL_ACCESS_TOKEN?}" >> ~/.npmrc
+echo "always-auth=true" >> ~/.npmrc
+scripts/clean.sh
+==== Content of scripts/clean.sh ====
+#!/usr/bin/env bash
+# scripts/clean.sh
+# Usage: ./scripts/clean.sh
+#
+# This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+#
+
+# Node clean and build
+if [[ -e 'package.json' ]]; then
+  rm -rf build
+  rm -rf coverage
+  rm -rf dist
+  rm -rf node_modules
+  rm -rf package-lock.json
+  npm install
+  npm run build
+  npm link
+fi
+
+# Docker clean
+if [[ -e 'Dockerfile' ]]; then
+  docker system prune --all --force --volumes
+fi
+
+# Java/CDK clean
+if [[ -e 'pom.xml' ]]; then
+  rm -rf target
+  rm -rf cdk.out
+  rm -rf ~/.m2/repository
+  mvn clean
+fi
+scripts/aws-unset-iam-session.sh
+==== Content of scripts/aws-unset-iam-session.sh ====
+#!/usr/bin/env bash
+# scripts/aws-unset-iam-session.sh
+# Usage: ./scripts/aws-unset-iam-session.sh
+unset AWS_ACCESS_KEY_ID
+unset AWS_SECRET_ACCESS_KEY
+unset AWS_SESSION_TOKEN
+echo "Assumed role unset, identity is now:"
+aws sts get-caller-identity

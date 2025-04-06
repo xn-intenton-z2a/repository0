@@ -42,7 +42,7 @@ The guidelines below apply to human or automated contributions:
     - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
 
 - **README:**
-    - The README should begin with something inspired by the mission statement, and describing the current state of the repository (rather than the journey)
-    - The README should include a link to TEMPLATE-README.md at the beginning because this is the guide for using the repository template (rather than the product of an experiment in this one).
-    - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
-    - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+  - The README should begin with something inspired by the mission statement, and describing the current state of the repository (rather than the journey)
+  - The README should include a link to TEMPLATE-README.md at the beginning because this is the guide for using the repository template (rather than the product of an experiment in this one).
+  - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+  - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
