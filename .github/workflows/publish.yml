@@ -138,13 +138,13 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-npm.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-npm.yml@2.15.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       #githubRelease: true
       buildScript: 'npm run build'
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
-      npmAuthOrganisation: 'xn-intenton-z2a'
+      npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     secrets:
@@ -159,7 +159,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-mvn.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-publish-mvn.yml@2.15.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}

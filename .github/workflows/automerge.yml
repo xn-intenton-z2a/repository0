@@ -80,11 +80,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@2.15.0'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@2.15.0'
 
   ls:
     needs: label
@@ -171,7 +171,7 @@ jobs:
       contents: write
       pull-requests: read
       issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@2.15.0'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'agentic-lib-issue-'
@@ -183,7 +183,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@2.15.0'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -196,7 +196,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@2.15.0'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'agentic-lib-issue-'

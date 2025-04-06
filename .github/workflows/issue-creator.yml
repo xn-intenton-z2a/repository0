@@ -10,13 +10,8 @@ run-name: "Create Issue"
 on:
   workflow_dispatch:
     inputs:
-      target:
-        description: 'An asset (e.g. source file) to reference in the issue. e.g. "src/lib/main.js"'
-        required: false
-        type: string
-        default: 'src/lib/main.js'
-      issueTitle:
-        description: 'Text to drive the issue title (if "house choice", a currently random prompt will be selected). e.g. "Make a small improvement."'
+      prompt:
+        description: 'Text to drive the issue creation (if "house choice", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
         required: false
         type: string
         default: 'house choice'
@@ -27,60 +22,79 @@ on:
 
 jobs:
 
-  extract-options:
+  # If the issue title is "house choice", a random prompt will be selected from the prompt library otherwise the supplied title will be used.
+  select-prompt:
     runs-on: ubuntu-latest
     outputs:
-      houseChoiceOptions: ${{ steps.extract.outputs.houseChoiceOptions }}
+      prompt: ${{ steps.extract.outputs.prompt }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Parse Issue House Choice Options from CONTRIBUTING.md
-        id: extract
+      - name: Select prompt from ./prompts
+        id: select
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            let houseChoiceOptions = '';
-            const filePath = './CONTRIBUTING.md';
-            if (fs.existsSync(filePath)) {
-              const content = fs.readFileSync(filePath, 'utf8');
-              const lines = content.split('\n');
-              let capture = false;
-              let options = [];
+            const path = require('path');
+            let prompt = '${{ github.event.inputs.prompt }}';
+            if (prompt === 'house choice') {
+              const promptsDir = './prompts';
+              // Get all items in the directory
+              const items = fs.readdirSync(promptsDir);
+              // Filter only the files (exclude directories)
+              const files = items.filter(item => {
+                const filePath = path.join(promptsDir, item);
+                return fs.lstatSync(filePath).isFile();
+              });
             
-              // Look for the section header; case-insensitive match for "Issue House Choice Options"
-              for (const line of lines) {
-                if (line.trim().match(/^##\s+Issue House Choice Options\s*$/i)) {
-                  capture = true;
-                  continue;
-                }
-                // Stop capturing if a new heading appears
-                if (capture && line.trim().match(/^##\s+/)) {
-                  break;
-                }
-                if (capture) {
-                  // Parse only bullet list items (lines starting with "- ")
-                  const bulletMatch = line.trim().match(/^-\s+(.*)$/);
-                  if (bulletMatch) {
-                    options.push(bulletMatch[1].trim());
-                  }
-                }
-              }
-              if (options.length > 0) {
-                houseChoiceOptions = options.join(' || ');
+              if (files.length === 0) {
+                core.setFailed('No prompt files found in the prompts directory.');
+              } else {
+                // Select a random file
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                const filePath = path.join(promptsDir, randomFile);
+                prompt = fs.readFileSync(filePath, 'utf8');
               }
             }
-            core.setOutput('houseChoiceOptions', houseChoiceOptions);
-            core.info(`houseChoiceOptions: ${houseChoiceOptions}`);
+              
+            core.setOutput('prompt', prompt);
+            core.info(`prompt: ${prompt}`);
+
+  generate-issue:
+    needs:
+      - select-prompt
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-generate-issue.yml@2.15.0'
+    with:
+      prompt: ${{ needs.select-prompt.outputs.prompt }}
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: 'README.md'
+      missionFile: 'MISSION.md'
+      contributingFile: 'CONTRIBUTING.md'
+      dependenciesFile: 'package.json'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation: '@xn-intenton-z2a'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   create-issue:
     needs:
-      - extract-options
+      - select-prompt
+      - generate-issue
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.14.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.15.0'
     with:
-      issueTitle: ${{ inputs.issueTitle || 'house choice' }}
-      houseChoiceOptions: ${{ needs.extract-options.outputs.houseChoiceOptions }}
+      issueTitle: ${{ needs.generate-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-issue.outputs.issueDescription }}

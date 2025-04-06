@@ -148,9 +148,6 @@ jobs:
           fi
           echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
 
-      - run: cat ~/.m2/settings.xml
-        if: steps.mvn.outputs.pomXmlExists == 'true'
-
       - uses: actions/setup-java@v4
         if: steps.mvn.outputs.pomXmlExists == 'true'
         with:
@@ -161,6 +158,11 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: check
+        id: check
+        run: cat ~/.m2/settings.xml
+        if: steps.mvn.outputs.pomXmlExists == 'true'
 
       - name: package
         id: package
