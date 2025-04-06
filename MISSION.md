@@ -5,3 +5,8 @@ primary purpose is to demonstrate these automated CI/CD workflows and provide a 
 The source file, test file, README.md and package.json are maintained by the repository's workflows.
 
 The mission of the contributors is to help people who clone this repository and promote healthy collaboration.
+
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
