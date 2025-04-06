@@ -1,6 +1,6 @@
 # `repository0`
 
-The repository is intended as a template that includes:
+This repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
 * Workflows from `agentic‑lib` which reference reusable workflows.
@@ -16,7 +16,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file has been enhanced to provide clear warnings when non-numeric inputs are provided to arithmetic operations.
+  The main functionality is in `src/lib/main.js`. In this refactoring, all CLI command handlers have been modularized and moved to the `src/commands/cliHandlers.js` module (and related submodules), improving maintainability and scalability.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
@@ -49,3 +49,7 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
+## Note
+
+The CLI command handlers have been refactored into a modular structure. The main file now delegates processing to modules under `src/commands/`. This change adheres to our recent push for cleaner, maintainable code and should not affect the CLI usage as described above.
