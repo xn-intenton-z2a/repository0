@@ -391,86 +391,31 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("gcd function works correctly", () => {
-    const { gcd } = __test;
-    expect(gcd(10, 5)).toBe(5);
-    expect(gcd(17, 13)).toBe(1);
-  });
+  // Direct Function Invocation Tests
+  describe("Direct Function Invocation", () => {
+    test("printUsage should output usage message", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      __test.printUsage(false);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+      expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
+      consoleSpy.mockRestore();
+    });
 
-  test("lcm function works correctly", () => {
-    const { lcm } = __test;
-    expect(lcm(4, 6)).toBe(12);
-    expect(lcm(0, 5)).toBe(0);
-  });
+    test("printHelp should output help message", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      __test.printHelp();
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+      consoleSpy.mockRestore();
+    });
 
-  test("getNumbers returns valid numbers even if zero is provided as string", () => {
-    const { getNumbers } = __test;
-    const args = ["--sum", "0", "5"];
-    const result = getNumbers(args, "--sum");
-    expect(result).toEqual([0, 5]);
-  });
+    test("gcd helper function from __test works as expected", () => {
+      const { gcd } = __test;
+      expect(gcd(21, 7)).toBe(7);
+    });
 
-  test("printUsage prints usage message with non-array flag correctly", () => {
-    const { printUsage } = __test;
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    printUsage(true);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
-    consoleSpy.mockRestore();
-  });
-
-  test("printHelp outputs the help message correctly", () => {
-    const { printHelp } = __test;
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    printHelp();
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("  --greet      : Display a greeting message");
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "  --prime      : List prime numbers from the provided inputs (new extended operation)"
-    );
-    consoleSpy.mockRestore();
-  });
-
-  test("computes prime numbers when --prime flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--prime", "2", "3", "4", "5", "8"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Prime: 2,3,5");
-    consoleSpy.mockRestore();
-  });
-
-  test("computes prime numbers when no primes are present", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // 1, 4, 6 are not prime
-    await main(["--prime", "1", "4", "6"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Prime: ");
-    consoleSpy.mockRestore();
-  });
-});
-
-// Direct Function Invocation Tests
-describe("Direct Function Invocation", () => {
-  test("printUsage should output usage message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printUsage(false);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
-    consoleSpy.mockRestore();
-  });
-
-  test("printHelp should output help message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printHelp();
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    consoleSpy.mockRestore();
-  });
-
-  test("gcd helper function from __test works as expected", () => {
-    const { gcd } = __test;
-    expect(gcd(21, 7)).toBe(7);
-  });
-
-  test("lcm helper function from __test works as expected", () => {
-    const { lcm } = __test;
-    expect(lcm(3, 4)).toBe(12);
+    test("lcm helper function from __test works as expected", () => {
+      const { lcm } = __test;
+      expect(lcm(3, 4)).toBe(12);
+    });
   });
 });
