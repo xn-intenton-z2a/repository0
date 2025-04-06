@@ -1,160 +1,48 @@
 # repository0
 
-Thank you for your interest in contributing to **agentic‑lib**! This document outlines our guidelines for human and
-automated contributions, ensuring that our core library remains robust, testable, and efficient in powering our reusable
-GitHub workflows.
-
-## Mission Statement
-
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
-primary purpose is to demonstrate these automated CI/CD workflows. The source file, test file, README.md and package.json
-are maintained by the repository's workflows.
-
-The mission of the contributors is to help people who clone this repository and promote healthy collaboration.
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+The source file, test file, README.md and package.json are maintained by the repository's workflows.
 
 ## How to Contribute
 
-Contributions come in many forms—whether you’re a developer, tester, or an advocate for process improvements. Here’s how you can help:
+The guidelines below apply to human or automated contributions:
 
-1. **Report Issues or Ideas:**  
-   Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision. Clear descriptions and reproducible steps are highly appreciated.
+1. **Report Issues or Ideas:**
+    - Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision.
+    - Clear descriptions and reproducible steps are highly appreciated.
 
 2. **Submit Pull Requests:**
     - Fork the repository and create a feature branch.
-    - Implement your changes, ensuring you follow our coding style and standards.
+    - Implement your changes, ensuring you follow the existing coding style and standards.
     - Add tests to cover any new functionality.
-    - Update documentation and this file if your changes affect usage or workflow behavior.
+    - Update documentation if your changes affect usage or workflow behavior.
     - Submit your pull request for review.
-
-3. **Enhance Automated Workflows:**  
-   Contributions might include adjustments to:
-    - The AI-based fix verification logic.
-    - File update routines responding to build, test, or main output.
-    - Logic for extracting issue numbers from branch names.
-    - Automated pull request merging or listing mechanisms.
-
-4. **Run and Test the Library:**  
-   To explore the capabilities of **agentic‑lib**, run the demo function with:
-   ```bash
-   npm run start [--help]
-   ```
-   This command prints a detailed help message, including available functions and parameters.
 
 ## Guidelines
 
-- **Code Quality:**  
-  Write modular, clean, and fully testable code. Our design intentionally decouples functionality from GitHub Actions globals to enhance testability and reuse.
+- **Code Quality:**
+    - Ensure there are tests that cover your changes and any likely new cases they introduce.
+    - When making a change remain consistent with the existing code style and structure.
+    - When adding new functionality, consider if some unused or superseded code should be removed.
 
-- **Documentation:**  
-  Keep inline comments and this Contributing.md up-to-date as you introduce changes. Clear documentation ensures the project stays accessible to both human and AI collaborators.
+- **Compatibility:**
+    - Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
+    - Tests use vitest and competing test frameworks should not be added.
+    - Mocks in tests must not interfere with other tests.
 
-- **Compatibility:**  
-  Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
+- **Testing:**
+    - The command `npm test` should invoke the tests added for the new functionality (and pass).
+    - If you add new functionality, ensure it is covered by tests.
 
-- **Feedback & Collaboration:**  
-  We welcome constructive feedback. Engage with maintainers and peers through GitHub issues and pull request discussions to improve our collective workflow.
+- **Documentation:**
+    - When making a change to the main source file, review the readme to see if it needs to be updated and if so, update it.
+    - Where the source exports a function, consider that part of the API of the library and document it in the readme.
+    - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
+    - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
 
-## Agentic contribution house choice options (programmatically parsed): START
-
-## Issue House Choice Options
-
-generic activities:
-- Update the source file by applying the Mission Statement to prune any "drift" from the source file. Update the Change Log in README.md (or say what was checked).
-- Create, vary or extend as many features in the source file as you can inline with the Mission Statement. Update the Change Log in README.md (or say what was checked).
-
-undocumented chores:
-- Refresh the README, consulting the guidance in CONTRIBUTING.md while retaining any relevant content and pruning irrelevant content.
-- Bring test coverage up as close to 100% as possible, have single layer mocked tests and deeper tests mocking at the external resource (e.g. file system or network).
-
-## Agentic contribution house choice options (programmatically parsed): END
-
-unused repository specific activities:
-#- Create, vary or extend as many library functions as you can that deliver the spirit of this CONTRIBUTING.md Update the Change Log in README.md (or say what was checked).
-
-unused generic activities:
-- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation. Update the Change Log in README.md (or say what was checked).
-- Consider alternate code paths that could be explicitly handled to improve the range of supported behaviours. Update the Change Log in README.md (or say what was checked).
-- Look for code that could be simplified using a library and introduce that library. Update the Change Log in README.md (or say what was checked).
-
-unused undocumented chores:
-- Look for any duplicated code that could be usefully abstracted out to become shared code and implement that abstraction.
-- Dry-run any examples in comments or the README against the current code and if they are not accurate or if they could cover more features, update the docs or code to be accurate.
-- Ensure the main function so that it generates some demo output without an over the wire call, and hint a CLI switch that will do the real call.
-
----
----
----
-
-# Ensure README.md begins like this:
-
-START_README_BEGINNING
-# `repository0`
-
-The repository is intended as a template that includes:
-* A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic‑lib` which reference reusable workflows.
-
-## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
-
-## What’s Inside
-
-- **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
-
-- **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
-
-- **Dependencies:**  
-  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
-
-- **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
-
-- **Docs**  
-  This `README.md` can be modified by the workflow.
-
-## Getting Started
-
-This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
-  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
-
-## intentïon `agentic-lib`
-
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
-
-*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
-
-*Warning:* Experimental. This coding system is still in development and may not suit production use.
-
-## Should you use the `agentic-lib` Coding System?
-
-* Do you have access to an OpenAI account with necessary API keys?
-* Are you willing to incur charges for consumed resources?
-* Are you curious about self-evolving code?
-* Would you like to see how such a system can be built?
-* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
-  END_README_BEGINNING
-
----
----
----
-
-# Ensure README.md ends like this:
-
-START_README_END
-### Contributing
-
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
-
-## License
-
-Released under the MIT License (see [LICENSE](./LICENSE)).
-END_README_END
-
----
----
----
+- **README:**
+  - The README should begin with something inspired by the mission statement, and describing the current state of the repository (rather than the journey)
+  - The README should include a link to TEMPLATE-README.md at the beginning because this is the guide for using the repository template (rather than the product of an experiment in this one).
+  - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+  - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.

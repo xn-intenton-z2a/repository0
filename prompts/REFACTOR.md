@@ -1,0 +1,4 @@
+- Look for code that could be simplified and simplify it.
+- Look for code that could be simplified using a library and introduce that library.
+- Find anything that might be a "simulated" or "demo" implementation and switch to a real implementation.
+- Consider alternate code paths that could be explicitly handled to improve clarity of purpose.
