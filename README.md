@@ -16,7 +16,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. In this refactoring, all CLI command handlers have been modularized and moved to the `src/commands/cliHandlers.js` module (and related submodules), improving maintainability and scalability.
+  The main functionality is in `src/lib/main.js`. In this refactoring, CLI command handling has been inlined into the main file to simplify execution and eliminate external module dependencies.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
@@ -52,4 +52,8 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI command handlers have been refactored into a modular structure. The main file now delegates processing to modules under `src/commands/`. This change adheres to our recent push for cleaner, maintainable code and should not affect the CLI usage as described above.
+The CLI command handling has been refactored to be inline within `src/lib/main.js` to ensure ease of use and eliminate external dependency issues. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
+
+For more information about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic-lib.

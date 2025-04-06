@@ -1,8 +1,7 @@
 import { describe, test, expect, vi } from "vitest";
 import { main, __test } from "../../src/lib/main.js";
 
-// Note: The tests remain unchanged; the internal CLI handlers have been modularized, but the CLI behavior and exports
-// remain consistent with previous versions.
+// Note: The tests remain unchanged; the internal CLI handlers have been inlined in the main file.
 
 describe("Main Module", () => {
   test("should not be null", () => {
