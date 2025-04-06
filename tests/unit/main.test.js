@@ -391,31 +391,53 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Direct Function Invocation Tests
-  describe("Direct Function Invocation", () => {
-    test("printUsage should output usage message", () => {
-      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      __test.printUsage(false);
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-      expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
-      consoleSpy.mockRestore();
-    });
+  // Extra tests for additional flags to boost coverage
+  test("computes GCD when --gcd flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--gcd", "24", "36"]);
+    expect(consoleSpy).toHaveBeenCalledWith("GCD: 12");
+    consoleSpy.mockRestore();
+  });
 
-    test("printHelp should output help message", () => {
-      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      __test.printHelp();
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-      consoleSpy.mockRestore();
-    });
+  test("computes LCM when --lcm flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--lcm", "4", "6"]);
+    expect(consoleSpy).toHaveBeenCalledWith("LCM: 12");
+    consoleSpy.mockRestore();
+  });
 
-    test("gcd helper function from __test works as expected", () => {
-      const { gcd } = __test;
-      expect(gcd(21, 7)).toBe(7);
-    });
+  test("computes prime numbers when --prime flag is provided", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--prime", "4", "5", "6", "7"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Prime: 5,7");
+    consoleSpy.mockRestore();
+  });
+});
 
-    test("lcm helper function from __test works as expected", () => {
-      const { lcm } = __test;
-      expect(lcm(3, 4)).toBe(12);
-    });
+// Direct Function Invocation Tests
+describe("Direct Function Invocation", () => {
+  test("printUsage should output usage message", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    __test.printUsage(false);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
+    consoleSpy.mockRestore();
+  });
+
+  test("printHelp should output help message", () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    __test.printHelp();
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+    consoleSpy.mockRestore();
+  });
+
+  test("gcd helper function from __test works as expected", () => {
+    const { gcd } = __test;
+    expect(gcd(21, 7)).toBe(7);
+  });
+
+  test("lcm helper function from __test works as expected", () => {
+    const { lcm } = __test;
+    expect(lcm(3, 4)).toBe(12);
   });
 });
