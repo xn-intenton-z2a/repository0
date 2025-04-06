@@ -14,6 +14,7 @@
   - Expanded unit test coverage and updated functions for clarity.
   - Enhanced unit test coverage to nearly 100% by covering all code paths.
   - Extended test coverage to include --gcd, --lcm, and --prime functionalities.
+  - Improved handling of non-numeric inputs by warning the user about ignored values.
 */
 
 import { fileURLToPath } from "url";
@@ -64,12 +65,21 @@ function printHelp() {
 
 function getNumbers(args, flag) {
   const index = args.indexOf(flag);
-  // Only parse numbers that do not start with "--"
-  return args
-    .slice(index + 1)
-    .filter((arg) => !arg.startsWith("--"))
-    .map((arg) => Number(arg))
-    .filter((num) => !isNaN(num));
+  const candidates = args.slice(index + 1).filter((arg) => !arg.startsWith("--"));
+  const validNumbers = [];
+  const invalidInputs = [];
+  candidates.forEach((candidate) => {
+    const num = Number(candidate);
+    if (!isNaN(num)) {
+      validNumbers.push(num);
+    } else {
+      invalidInputs.push(candidate);
+    }
+  });
+  if (invalidInputs.length > 0) {
+    console.warn(`Warning: These inputs were not valid numbers and have been ignored: ${invalidInputs.join(",")}`);
+  }
+  return validNumbers;
 }
 
 function handleHelp() {
