@@ -13,6 +13,7 @@
   - Added new operation: prime number check (--prime flag).
   - Expanded unit test coverage and updated functions for clarity.
   - Enhanced unit test coverage to nearly 100% by covering all code paths.
+  - Extended test coverage to include --gcd, --lcm, and --prime functionalities.
 */
 
 import { fileURLToPath } from "url";
