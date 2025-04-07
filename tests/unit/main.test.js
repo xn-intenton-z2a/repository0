@@ -1,7 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 import { main, __test } from "../../src/lib/main.js";
 
-// Module existence test
+// Note: The tests remain unchanged; the internal CLI handlers have been inlined in the main file.
+
 describe("Main Module", () => {
   test("should not be null", () => {
     expect(main).not.toBeNull();
@@ -427,6 +428,7 @@ describe("CLI Behavior", () => {
 });
 
 // Direct Function Invocation Tests
+
 describe("Direct Function Invocation", () => {
   test("printUsage should output usage message", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});

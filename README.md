@@ -1,6 +1,6 @@
 # `repository0`
 
-The repository is intended as a template that includes:
+This repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
 * Workflows from `agentic‑lib` which reference reusable workflows.
@@ -16,7 +16,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file has been enhanced to provide clear warnings when non-numeric inputs are provided to arithmetic operations.
+  The main functionality is in `src/lib/main.js`. In this refactoring, CLI command handling has been inlined into the main file to simplify execution and eliminate external module dependencies.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
@@ -49,3 +49,11 @@ We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## License
 
 Released under the MIT License (see [LICENSE](./LICENSE)).
+
+## Note
+
+The CLI command handling has been refactored to be inline within `src/lib/main.js` to ensure ease of use and eliminate external dependency issues. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
+
+For more information about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic-lib.
