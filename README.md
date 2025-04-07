@@ -16,13 +16,13 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. In this refactoring, CLI command handling has been refactored to inline arithmetic operations, now providing clear error messages when invalid numeric inputs (including explicit 'NaN') are provided.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to inline arithmetic operations. All arithmetic commands now uniformly return the error message "Error: No valid numeric inputs provided." when invalid or missing numeric inputs are encountered.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. The tests now include scenarios verifying that arithmetic commands output an error message when no valid numbers are provided.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic commands output the standardized error message when no valid numbers are provided.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -52,7 +52,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI command handling in `src/lib/main.js` has been updated to provide explicit error messages when encountering non-numeric inputs (including 'NaN'). For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI command handling in `src/lib/main.js` has been updated to standardize error messaging for arithmetic operations. All arithmetic commands now uniformly return "Error: No valid numeric inputs provided." when invalid or missing numeric inputs are encountered. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

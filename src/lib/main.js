@@ -10,6 +10,13 @@
 
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
+// Helper function to parse numeric inputs uniformly
+function parseNumbers(raw) {
+  const valid = raw.map(x => Number(x)).filter(n => !isNaN(n));
+  const invalid = raw.filter(x => isNaN(Number(x)));
+  return { valid, invalid };
+}
+
 async function cliMain(args) {
   // If no argument is provided, default to an empty array so that usage is printed without trailing parentheses
   if (args === undefined) {
@@ -47,9 +54,7 @@ async function cliMain(args) {
       console.log(`Repository0 CLI Tool version 1.4.1-0 - This repository demonstrates automated workflows and modular CLI command handling.`);
       break;
     case "--sum": {
-      const raw = args.slice(1);
-      const numbers = raw.map(x => Number(x)).filter(n => !isNaN(n));
-      const invalid = raw.filter(x => isNaN(Number(x)));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -62,19 +67,20 @@ async function cliMain(args) {
       break;
     }
     case "--multiply": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
       }
       const result = numbers.reduce((acc, val) => acc * val, 1);
       console.log("Multiply: " + result);
+      if (invalid.length > 0) {
+        console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
+      }
       break;
     }
     case "--subtract": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -90,9 +96,7 @@ async function cliMain(args) {
       break;
     }
     case "--divide": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
-      const invalid = raw.filter(x => isNaN(Number(x)));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -113,9 +117,7 @@ async function cliMain(args) {
       break;
     }
     case "--modulo": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
-      const invalid = raw.filter(x => isNaN(Number(x)));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length < 2) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -136,9 +138,7 @@ async function cliMain(args) {
       break;
     }
     case "--average": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
-      const invalid = raw.filter(x => isNaN(Number(x)));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -166,8 +166,7 @@ async function cliMain(args) {
       console.log("Hello, welcome to repository0!");
       break;
     case "--power": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length < 2) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -219,8 +218,7 @@ async function cliMain(args) {
       console.log("Real call: This feature is not implemented over the wire yet.");
       break;
     case "--range": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -249,8 +247,7 @@ async function cliMain(args) {
       break;
     }
     case "--variance": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -285,8 +282,7 @@ async function cliMain(args) {
       break;
     }
     case "--gcd": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length < 2) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -297,8 +293,7 @@ async function cliMain(args) {
       break;
     }
     case "--lcm": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length < 2) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -310,8 +305,7 @@ async function cliMain(args) {
       break;
     }
     case "--prime": {
-      const raw = args.slice(1);
-      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      const { valid: numbers } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
