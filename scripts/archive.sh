@@ -7,8 +7,8 @@
 
 intention="$(head -1 CONTRIBUTING.md | sed 's/^# //')"
 mkdir -p 'archive/'
-find "features" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-features.txt"
-find "prompts" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-prompts.txt"
+find "features" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-FEATURES.md"
+find "prompts" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-PROMPTS.md"
 cp -fv MISSION.md "archive/${intention?}-$(date +%Y-%m-%d)-MISSION.md"
 cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
 cp -fv package.json "archive/${intention?}-$(date +%Y-%m-%d)-package.json"
