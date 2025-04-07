@@ -5,9 +5,11 @@
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-intention="$(head -1 CONTRIBUTING.md | sed 's/^# //')"
+intention="$(head -1 MISSION.md | sed 's/^# //')"
 mkdir -p 'archive/'
-cp -fv CONTRIBUTING.md "archive/${intention?}-$(date +%Y-%m-%d)-CONTRIBUTING.md"
+find "features" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-features.txt"
+find "prompts" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-prompts.txt"
+cp -fv MISSION.md "archive/${intention?}-$(date +%Y-%m-%d)-MISSION.md"
 cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
 cp -fv package.json "archive/${intention?}-$(date +%Y-%m-%d)-package.json"
 cp -fv src/lib/main.js "archive/${intention?}-$(date +%Y-%m-%d)-main.js"
