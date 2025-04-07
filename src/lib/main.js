@@ -11,9 +11,21 @@
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
 async function cliMain(args) {
-  // If args is not an array, default to usage with trailing parentheses as expected in tests
+  // If no argument is provided, default to an empty array so that usage is printed without trailing parentheses
+  if (args === undefined) {
+    args = [];
+  }
+
+  // If args is not an array, treat as non-array input and print usage with extra parentheses
   if (!Array.isArray(args)) {
     console.log(usage + "()");
+    console.log("No CLI arguments provided. Exiting.");
+    return;
+  }
+
+  // If an empty array is passed, print usage without trailing parentheses
+  if (args.length === 0) {
+    console.log(usage);
     console.log("No CLI arguments provided. Exiting.");
     return;
   }
