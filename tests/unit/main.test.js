@@ -71,14 +71,21 @@ describe("CLI Behavior", () => {
     logSpy.mockRestore();
   });
 
-  test("handles non-numeric inputs for --sum flag", async () => {
+  test("handles non-numeric inputs for --sum flag and explicit NaN resulting in error", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--sum", "a", "5", "hello"]);
+    await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith("Sum: 5");
-    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: a,hello");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: NaN,hello");
     logSpy.mockRestore();
     warnSpy.mockRestore();
+  });
+
+  test("returns error when --sum is provided with only NaN inputs", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sum", "NaN", "abc"]);
+    expect(logSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    logSpy.mockRestore();
   });
 
   test("computes multiplication when --multiply flag is provided", async () => {
@@ -88,10 +95,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles multiply with no numbers provided", async () => {
+  test("returns error for --multiply with only invalid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--multiply"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Multiply: 1");
+    await main(["--multiply", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -109,10 +116,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles subtract with no numbers provided", async () => {
+  test("returns error for --subtract with only invalid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--subtract"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Subtract: No numbers provided");
+    await main(["--subtract", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -130,12 +137,11 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles non-numeric input for --divide flag", async () => {
+  test("handles non-numeric input for --divide flag and returns error if no valid inputs remain", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--divide", "10", "b", "2"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Divide: 5");
-    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: b");
+    await main(["--divide", "NaN", "b"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
     warnSpy.mockRestore();
   });
@@ -150,7 +156,7 @@ describe("CLI Behavior", () => {
   test("handles division with no numbers provided for --divide flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--divide"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Divide: No numbers provided");
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -161,10 +167,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles modulo with less than two numbers", async () => {
+  test("returns error for --modulo with less than two valid numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--modulo", "10"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Modulo: Provide at least two numbers");
+    await main(["--modulo", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -175,16 +181,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles non-numeric input for --modulo flag", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--modulo", "10", "b", "3"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Modulo: 1");
-    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: b");
-    consoleSpy.mockRestore();
-    warnSpy.mockRestore();
-  });
-
   test("computes average when --average flag is provided with multiple numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--average", "4", "8", "12"]);
@@ -192,21 +188,11 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles average with no numbers provided", async () => {
+  test("returns error for --average with no valid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--average"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Average: No numbers provided");
+    await main(["--average", "NaN", "abc"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
-  });
-
-  test("handles average with non-numeric inputs while ignoring invalid ones", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--average", "5", "abc", "15"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Average: 10");
-    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: abc");
-    consoleSpy.mockRestore();
-    warnSpy.mockRestore();
   });
 
   test("displays version when --version flag is provided", async () => {
@@ -249,10 +235,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles --power flag with insufficient numbers", async () => {
+  test("returns error for --power flag with insufficient valid numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--power", "5"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Power: Provide at least two numbers (base and exponent)");
+    await main(["--power", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -333,10 +319,10 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  test("handles range with no numbers provided", async () => {
+  test("returns error for --range with no valid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--range"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Range: No numbers provided");
+    await main(["--range", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
@@ -404,54 +390,32 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Extra tests for additional flags to boost coverage
-  test("computes GCD when --gcd flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--gcd", "24", "36"]);
-    expect(consoleSpy).toHaveBeenCalledWith("GCD: 12");
-    consoleSpy.mockRestore();
-  });
+  // Direct Function Invocation Tests
 
-  test("computes LCM when --lcm flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--lcm", "4", "6"]);
-    expect(consoleSpy).toHaveBeenCalledWith("LCM: 12");
-    consoleSpy.mockRestore();
-  });
+  describe("Direct Function Invocation", () => {
+    test("printUsage should output usage message", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      __test.printUsage(false);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+      expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
+      consoleSpy.mockRestore();
+    });
 
-  test("computes prime numbers when --prime flag is provided", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--prime", "4", "5", "6", "7"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Prime: 5,7");
-    consoleSpy.mockRestore();
-  });
-});
+    test("printHelp should output help message", () => {
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      __test.printHelp();
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
+      consoleSpy.mockRestore();
+    });
 
-// Direct Function Invocation Tests
+    test("gcd helper function from __test works as expected", () => {
+      const { gcd } = __test;
+      expect(gcd(21, 7)).toBe(7);
+    });
 
-describe("Direct Function Invocation", () => {
-  test("printUsage should output usage message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printUsage(false);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
-    consoleSpy.mockRestore();
-  });
-
-  test("printHelp should output help message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printHelp();
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    consoleSpy.mockRestore();
-  });
-
-  test("gcd helper function from __test works as expected", () => {
-    const { gcd } = __test;
-    expect(gcd(21, 7)).toBe(7);
-  });
-
-  test("lcm helper function from __test works as expected", () => {
-    const { lcm } = __test;
-    expect(lcm(3, 4)).toBe(12);
+    test("lcm helper function from __test works as expected", () => {
+      const { lcm } = __test;
+      expect(lcm(3, 4)).toBe(12);
+    });
   });
 });

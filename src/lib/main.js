@@ -50,6 +50,10 @@ async function cliMain(args) {
       const raw = args.slice(1);
       const numbers = raw.map(x => Number(x)).filter(n => !isNaN(n));
       const invalid = raw.filter(x => isNaN(Number(x)));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
       const result = numbers.reduce((acc, val) => acc + val, 0);
       console.log("Sum: " + result);
       if (invalid.length > 0) {
@@ -58,15 +62,22 @@ async function cliMain(args) {
       break;
     }
     case "--multiply": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
-      const result = numbers.length === 0 ? 1 : numbers.reduce((acc, val) => acc * val, 1);
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const result = numbers.reduce((acc, val) => acc * val, 1);
       console.log("Multiply: " + result);
       break;
     }
     case "--subtract": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length === 0) {
-        console.log("Subtract: No numbers provided");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else if (numbers.length === 1) {
         console.log("Subtract: " + numbers[0]);
       } else {
@@ -83,7 +94,8 @@ async function cliMain(args) {
       const numbers = raw.map(Number).filter(n => !isNaN(n));
       const invalid = raw.filter(x => isNaN(Number(x)));
       if (numbers.length === 0) {
-        console.log("Divide: No numbers provided");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         let result = numbers[0];
         for (let i = 1; i < numbers.length; i++) {
@@ -105,7 +117,8 @@ async function cliMain(args) {
       const numbers = raw.map(Number).filter(n => !isNaN(n));
       const invalid = raw.filter(x => isNaN(Number(x)));
       if (numbers.length < 2) {
-        console.log("Modulo: Provide at least two numbers");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         const dividend = numbers[0];
         for (let i = 1; i < numbers.length; i++) {
@@ -127,7 +140,8 @@ async function cliMain(args) {
       const numbers = raw.map(Number).filter(n => !isNaN(n));
       const invalid = raw.filter(x => isNaN(Number(x)));
       if (numbers.length === 0) {
-        console.log("Average: No numbers provided");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         const avg = numbers.reduce((acc, v) => acc + v, 0) / numbers.length;
         console.log("Average: " + avg);
@@ -152,9 +166,11 @@ async function cliMain(args) {
       console.log("Hello, welcome to repository0!");
       break;
     case "--power": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length < 2) {
-        console.log("Power: Provide at least two numbers (base and exponent)");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         let result = numbers[0];
         for (let i = 1; i < numbers.length; i++) {
@@ -203,9 +219,11 @@ async function cliMain(args) {
       console.log("Real call: This feature is not implemented over the wire yet.");
       break;
     case "--range": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length === 0) {
-        console.log("Range: No numbers provided");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         const min = Math.min(...numbers);
         const max = Math.max(...numbers);
@@ -231,9 +249,11 @@ async function cliMain(args) {
       break;
     }
     case "--variance": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length === 0) {
-        console.log("Variance: No numbers provided");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else if (numbers.length === 1) {
         console.log("Variance: 0");
       } else {
@@ -265,9 +285,11 @@ async function cliMain(args) {
       break;
     }
     case "--gcd": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length < 2) {
-        console.log("GCD: Provide at least two numbers");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         const computeGcd = (a, b) => b === 0 ? a : computeGcd(b, a % b);
         console.log("GCD: " + numbers.reduce((a, b) => computeGcd(a, b)));
@@ -275,9 +297,11 @@ async function cliMain(args) {
       break;
     }
     case "--lcm": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
       if (numbers.length < 2) {
-        console.log("LCM: Provide at least two numbers");
+        console.log("Error: No valid numeric inputs provided.");
+        return;
       } else {
         const computeGcd = (a, b) => b === 0 ? a : computeGcd(b, a % b);
         const computeLcm = (a, b) => Math.abs(a * b) / computeGcd(a, b);
@@ -286,7 +310,12 @@ async function cliMain(args) {
       break;
     }
     case "--prime": {
-      const numbers = args.slice(1).map(Number).filter(n => !isNaN(n));
+      const raw = args.slice(1);
+      const numbers = raw.map(Number).filter(n => !isNaN(n));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
       const isPrime = (num) => {
         if (num < 2) return false;
         for (let i = 2; i <= Math.sqrt(num); i++) {

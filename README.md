@@ -8,7 +8,7 @@ This repository is intended as a template that includes:
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. 
 
 ## What’s Inside
 
@@ -16,13 +16,13 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. In this refactoring, CLI command handling has been inlined into the main file to simplify execution and eliminate external module dependencies.
+  The main functionality is in `src/lib/main.js`. In this refactoring, CLI command handling has been refactored to inline arithmetic operations, now providing clear error messages when invalid numeric inputs (including explicit 'NaN') are provided.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities, as well as warning users about ignored non-numeric inputs.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. The tests now include scenarios verifying that arithmetic commands output an error message when no valid numbers are provided.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -52,7 +52,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI command handling has been refactored to be inline within `src/lib/main.js` to ensure ease of use and eliminate external dependency issues. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
+The CLI command handling in `src/lib/main.js` has been updated to provide explicit error messages when encountering non-numeric inputs (including 'NaN'). For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
