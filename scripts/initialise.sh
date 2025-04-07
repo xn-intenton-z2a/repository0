@@ -18,8 +18,6 @@ cp -fv "seeds/zero-package.json"  package.json
 cp -fv "seeds/zero-main.js" src/lib/main.js
 cp -fv "seeds/zero-main.test.js" tests/unit/main.test.js
 rm -f features/*.md
-rm -f features/develop/*.md
-rm -f features/refine/*.md
 rm -f prompts/*.md
 cp -fv seeds/prompts/*.md prompts/
 #rm -rfv node_modules
