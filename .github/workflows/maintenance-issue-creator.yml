@@ -1,11 +1,11 @@
-# .github/workflows/issue-creator.yml
+# .github/workflows/maintenance-issue-creator.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Create Issue
-concurrency: create-issue
-run-name: "Create Issue"
+name: Create Maintenance Issue
+concurrency: create-maintenance-issue
+run-name: "Create Maintenance Issue"
 
 on:
   workflow_dispatch:
@@ -16,13 +16,13 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    - cron: '0 4 * * *' # schedule-1
+    #- cron: '0 4 * * *' # schedule-1
     - cron: '0 */2 * * *' # schedule-2
     #- cron: '*/15 * * * *' # schedule-3
 
 jobs:
 
-  # If the issue title is "house choice", a random prompt will be selected from the prompt library otherwise the supplied title will be used.
+  # If the prompt is "house choice", a random prompt will be selected from the prompt library otherwise the supplied title will be used.
   select-prompt:
     runs-on: ubuntu-latest
     outputs:
@@ -38,7 +38,7 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            let prompt = '${{ github.event.inputs.prompt }}';
+            let prompt = '${{ inputs.prompt }}';
             if (prompt === 'house choice') {
               const promptsDir = './prompts';
               // Get all items in the directory
@@ -62,14 +62,14 @@ jobs:
             core.setOutput('prompt', prompt);
             core.info(`prompt: ${prompt}`);
 
-  generate-issue:
+  generate-maintenance-issue:
     needs:
       - select-prompt
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-generate-issue.yml@2.15.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.0.0'
     with:
       prompt: ${{ needs.select-prompt.outputs.prompt }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -90,11 +90,11 @@ jobs:
   create-issue:
     needs:
       - select-prompt
-      - generate-issue
+      - generate-maintenance-issue
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.15.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.0.0'
     with:
-      issueTitle: ${{ needs.generate-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-issue.outputs.issueDescription }}
+      issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}

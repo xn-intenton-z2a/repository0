@@ -1,29 +1,29 @@
-# .github/workflows/issue-creator.yml
+# .github/workflows/feature-development-issue-creator.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Create Issue
-concurrency: create-issue
-run-name: "Create Issue"
+name: Create Feature Development Issue
+concurrency: create-feature-development-issue
+run-name: "Create Feature Development Issue"
 
 on:
   workflow_dispatch:
     inputs:
-      prompt:
-        description: 'Text to drive the issue creation (if "house choice", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
+      featureName:
+        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
         required: false
         type: string
         default: 'house choice'
   schedule:
-    - cron: '0 4 * * *' # schedule-1
+    #- cron: '0 4 * * *' # schedule-1
     - cron: '0 */2 * * *' # schedule-2
     #- cron: '*/15 * * * *' # schedule-3
 
 jobs:
 
-  # If the issue title is "house choice", a random prompt will be selected from the prompt library otherwise the supplied title will be used.
-  select-prompt:
+  # If the prompt is "house choice", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
+  select-feature:
     runs-on: ubuntu-latest
     outputs:
       prompt: ${{ steps.extract.outputs.prompt }}
@@ -31,16 +31,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Select prompt from ./prompts
+      - name: Select feature from ./features
         id: select
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            let prompt = '${{ github.event.inputs.prompt }}';
-            if (prompt === 'house choice') {
-              const promptsDir = './prompts';
+            let featureName = '${{ inputs.featureName }}';
+            if (featureName === 'house choice') {
+              const promptsDir = './features';
               // Get all items in the directory
               const items = fs.readdirSync(promptsDir);
               // Filter only the files (exclude directories)
@@ -54,24 +54,24 @@ jobs:
               } else {
                 // Select a random file
                 const randomFile = files[Math.floor(Math.random() * files.length)];
-                const filePath = path.join(promptsDir, randomFile);
-                prompt = fs.readFileSync(filePath, 'utf8');
+                featureName = randomFile.replace('.md', '');
               }
             }
               
-            core.setOutput('prompt', prompt);
-            core.info(`prompt: ${prompt}`);
+            core.setOutput('featureName', featureName);
+            core.info(`featureName: ${featureName}`);
 
-  generate-issue:
+  generate-feature-development-issue:
     needs:
-      - select-prompt
+      - select-feature
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-generate-issue.yml@2.15.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@3.0.0'
     with:
-      prompt: ${{ needs.select-prompt.outputs.prompt }}
+      featureName: ${{ needs.select-prompt.outputs.featureName }}
+      featuresDir: './features'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
@@ -89,12 +89,12 @@ jobs:
 
   create-issue:
     needs:
-      - select-prompt
-      - generate-issue
+      - select-feature
+      - generate-feature-development-issue
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@2.15.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.0.0'
     with:
-      issueTitle: ${{ needs.generate-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-issue.outputs.issueDescription }}
+      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}

@@ -1,4 +1,4 @@
-# .github/workflows/issue-creator.yml
+# .github/workflows/maintenance-issue-creator.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -9,8 +9,8 @@ concurrency: truncate-workflow-runs
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 */7 * *' # schedule-1
-    #- cron: '0 0 * * *' # schedule-2
+    #- cron: '0 0 */7 * *' # schedule-1
+    - cron: '0 0 * * *' # schedule-2
     #- cron: '0 0 * * *' # schedule-3
 
 jobs:
