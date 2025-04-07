@@ -5,7 +5,7 @@
 # This file is part of the Example Suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-intention="$(head -1 MISSION.md | sed 's/^# //')"
+intention="$(head -1 CONTRIBUTING.md | sed 's/^# //')"
 mkdir -p 'archive/'
 find "features" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-features.txt"
 find "prompts" -maxdepth 1 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-prompts.txt"

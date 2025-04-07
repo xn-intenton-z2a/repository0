@@ -27,3 +27,6 @@ cp -fv seeds/prompts/*.md prompts/
 #npm install
 #npm run build
 #npm link
+
+# Update the first line of CONTRIBUTING.md with the intention so it works on macOS or Linux
+sed -i.bak "1s/.*/# ${intention?}/" CONTRIBUTING.md
