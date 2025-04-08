@@ -463,14 +463,19 @@ async function cliMain(args) {
     sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
     return;
   }
-  if (args.length === 0) {
-    sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
-    return;
-  }
   // Check for global --json flag and remove it from arguments
   if (args.includes("--json")) {
     jsonMode = true;
     args = args.filter(arg => arg !== "--json");
+  }
+  if (args.length === 0) {
+    if (jsonMode) {
+      sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
+    } else {
+      console.log(usage);
+      console.log("No CLI arguments provided. Exiting.");
+    }
+    return;
   }
   const flag = args[0];
   const rest = args.slice(1);
