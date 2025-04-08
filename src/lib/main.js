@@ -107,11 +107,16 @@ function parseNumbers(raw) {
       continue;
     }
     const num = Number(str);
-    if (!isNaN(num)) {
-      valid.push(num);
+    if (isNaN(num)) {
+      // Allow 'NaN' as a valid input if not configured as invalid
+      if (tokenLower === 'nan') {
+        valid.push(num);
+      } else {
+        invalid.push(generateWarning(posValid, token));
+      }
       posValid++;
     } else {
-      invalid.push(generateWarning(posValid, token));
+      valid.push(num);
       posValid++;
     }
   }
