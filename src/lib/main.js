@@ -77,9 +77,9 @@ function sendSuccess(command, result, warnings) {
   } else {
     console.log(String(result));
     if (finalWarnings && finalWarnings.length > 0) {
-      for (const warning of finalWarnings) {
+      finalWarnings.forEach(warning => {
         console.warn(warning);
-      }
+      });
     }
   }
 }
@@ -103,9 +103,9 @@ function sendError(command, errorMessage, warnings) {
   } else {
     console.log(String(errorMessage));
     if (finalWarnings && finalWarnings.length > 0) {
-      for (const warning of finalWarnings) {
+      finalWarnings.forEach(warning => {
         console.warn(warning);
-      }
+      });
     }
   }
 }
