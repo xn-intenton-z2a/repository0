@@ -22,8 +22,8 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
-- By default, any input matching configured invalid tokens is explicitly rejected. Tokens matching 'NaN' (in any letter casing) are rejected unless you override this behavior.
-- You can customize the rejected tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list. If **INVALID_TOKENS** is defined but empty, then no tokens (including 'NaN') will be rejected, and they will be processed as valid (though they may result in a NaN value in computations).
+- By default, any input matching configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable **INVALID_TOKENS** to an empty string.
+- You can customize the rejected tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
 - **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index. Detailed warnings include the token and its reported positional index.
 
 ### Global JSON Output Mode
