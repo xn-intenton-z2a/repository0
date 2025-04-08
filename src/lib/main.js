@@ -45,6 +45,7 @@ function sendError(command, errorMessage, warnings) {
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
+  let pos = 0; // position index for non-flag tokens
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
     const str = String(token).trim();
@@ -54,15 +55,17 @@ function parseNumbers(raw) {
     }
     // Uniformly reject any variation of 'NaN'
     if (str.toLowerCase() === "nan") {
-      invalid.push(`(position ${i}): ${token}`);
+      invalid.push(`(position ${pos}): ${token}`);
+      pos++;
       continue;
     }
     const num = Number(str);
     if (!isNaN(num)) {
       valid.push(num);
     } else {
-      invalid.push(`(position ${i}): ${token}`);
+      invalid.push(`(position ${pos}): ${token}`);
     }
+    pos++;
   }
   return { valid, invalid };
 }
