@@ -1,14 +1,18 @@
 {
-  "openIssues": 1,
+  "openIssues": 0,
   "issuesClosedLastHour": 4,
-  "issuesClosedLastDay": 32,
+  "issuesClosedLastDay": 34,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 13,
-  "diffMinutesMain": 17,
+  "diffMinutes": 10,
+  "diffMinutesMain": 10,
   "commitsLastHour": 2,
-  "commitsLastDay": 27,
+  "commitsLastDay": 28,
   "lastFiveCommitMessages": [
+    {
+      "time": "07:11",
+      "message": "Refactor parseNumbers to uniformly reject NaN in any case and ad..."
+    },
     {
       "time": "06:46",
       "message": "Added CLI alias support -s -m -a -d -h and updated tests and doc..."
@@ -24,10 +28,6 @@
     {
       "time": "04:43",
       "message": "Standardized NaN handling and uniform error messaging for all CL..."
-    },
-    {
-      "time": "04:36",
-      "message": "Refactored CLI command processing to reduce cognitive complexity..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T07:04:00.934Z"
+  "generatedAt": "2025-04-08T07:22:17.316Z"
 }
