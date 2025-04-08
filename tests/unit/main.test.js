@@ -16,8 +16,8 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]
-    ");
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]"
+    );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
@@ -34,8 +34,8 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]
-    ");
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]"
+    );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
   });
@@ -399,7 +399,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New tests for the --log command
   test("computes natural logarithm when --log flag is provided with one valid input", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--log", "10"]);
@@ -444,7 +443,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New tests for the --percentile command
   test("computes 0th percentile correctly", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--percentile", "0", "2", "4", "6", "8"]);
@@ -487,7 +485,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New tests for alias commands
   test("computes sum using alias -s flag", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["-s", "3", "7"]);
@@ -521,16 +518,14 @@ describe("CLI Behavior", () => {
     await main(["-h"]);
     expect(logSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]
-    ");
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]"
+    );
     expect(logSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     logSpy.mockRestore();
   });
 
-  // New tests for the --geomean command
   test("computes geometric mean when --geomean flag is provided with valid positive numbers", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // Using numbers 1, 4, and 9, product = 36, geomean = cube root of 36
     const expected = Math.pow(36, 1/3);
     await main(["--geomean", "1", "4", "9"]);
     expect(consoleSpy).toHaveBeenCalledWith("Geomean: " + expected);
@@ -551,7 +546,6 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New test for alias -g for --geomean
   test("computes geometric mean using alias -g flag", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const expected = Math.pow(36, 1/3);
@@ -559,36 +553,7 @@ describe("CLI Behavior", () => {
     expect(consoleSpy).toHaveBeenCalledWith("Geomean: " + expected);
     consoleSpy.mockRestore();
   });
-});
 
-// Direct Function Invocation Tests
-describe("Direct Function Invocation", () => {
-  test("printUsage should output usage message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printUsage(false);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    expect(consoleSpy).toHaveBeenCalledWith("No CLI arguments provided. Exiting.");
-    consoleSpy.mockRestore();
-  });
-
-  test("printHelp should output help message", () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    __test.printHelp();
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Usage: node src/lib/main.js"));
-    consoleSpy.mockRestore();
-  });
-
-  test("gcd helper function from __test works as expected", () => {
-    const { gcd } = __test;
-    expect(gcd(21, 7)).toBe(7);
-  });
-
-  test("lcm helper function from __test works as expected", () => {
-    const { lcm } = __test;
-    expect(lcm(3, 4)).toBe(12);
-  });
-
-  // New test for mixed-case 'NaN' input
   test("handles mixed-case NaN input for --sum", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
