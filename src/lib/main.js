@@ -11,28 +11,28 @@
 const usage =
   "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
 
-// Helper function to parse numeric inputs uniformly
+// Helper function to parse numeric inputs uniformly with detailed error reporting
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
-  for (const token of raw) {
+  raw.forEach((token, index) => {
     const str = token.toString().trim();
     // Reject any input that equals 'nan' (case insensitive)
     if (str.toLowerCase() === "nan") {
-      invalid.push(token);
-      continue;
+      invalid.push(`(position ${index}): ${token}`);
+      return;
     }
     // Stop processing if a flag is encountered
     if (str.startsWith("--")) {
-      break;
+      return;
     }
     const num = Number(str);
     if (!isNaN(num)) {
       valid.push(num);
     } else {
-      invalid.push(token);
+      invalid.push(`(position ${index}): ${token}`);
     }
-  }
+  });
   return { valid, invalid };
 }
 

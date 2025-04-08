@@ -77,7 +77,7 @@ describe("CLI Behavior", () => {
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith("Sum: 5");
     expect(warnSpy).toHaveBeenCalledWith(
-      "Warning: These inputs were not valid numbers and have been ignored: NaN,hello"
+      "Warning: These inputs were not valid numbers and have been ignored: (position 0): NaN,(position 2): hello"
     );
     logSpy.mockRestore();
     warnSpy.mockRestore();
@@ -560,7 +560,7 @@ describe("CLI Behavior", () => {
     await main(["--sum", "nAn", "5"]);
     expect(logSpy).toHaveBeenCalledWith("Sum: 5");
     expect(warnSpy).toHaveBeenCalledWith(
-      "Warning: These inputs were not valid numbers and have been ignored: nAn"
+      "Warning: These inputs were not valid numbers and have been ignored: (position 0): nAn"
     );
     logSpy.mockRestore();
     warnSpy.mockRestore();
