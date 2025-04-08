@@ -17,6 +17,8 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
 
+In addition, the input parsing mechanism has been refactored to optimize the detection of invalid numeric inputs. Any input matching 'NaN' (in any casing) is uniformly rejected with detailed positional error reporting.
+
 Additionally, a new global flag has been added:
 
 - **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects rather than plain text. This facilitates easier integration with automated systems and agentic workflows.
@@ -37,13 +39,13 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode enhances integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing improve integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output detailed error messages including positional information when encountering invalid inputs. Additional tests verify that alias commands produce identical outputs to their full command counterparts, and that the JSON output mode returns the expected structured data.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages including positional information for invalid inputs, such as various casings of "NaN".
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

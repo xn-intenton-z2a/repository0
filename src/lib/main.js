@@ -41,28 +41,29 @@ function sendError(command, errorMessage, warnings) {
   }
 }
 
-// Helper function to parse numeric inputs uniformly with detailed error reporting
+// Optimized helper function to parse numeric inputs with detailed error reporting
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
-  raw.forEach((token, index) => {
-    const str = token.toString().trim();
-    // Reject any input that equals 'nan' (case insensitive)
-    if (str.toLowerCase() === "nan") {
-      invalid.push(`(position ${index}): ${token}`);
-      return;
-    }
-    // Stop processing if a flag is encountered
+  for (let i = 0; i < raw.length; i++) {
+    const token = raw[i];
+    const str = String(token).trim();
+    // Skip if a flag is encountered
     if (str.startsWith("--")) {
-      return;
+      continue;
+    }
+    // Uniformly reject any variation of 'NaN'
+    if (str.toLowerCase() === "nan") {
+      invalid.push(`(position ${i}): ${token}`);
+      continue;
     }
     const num = Number(str);
     if (!isNaN(num)) {
       valid.push(num);
     } else {
-      invalid.push(`(position ${index}): ${token}`);
+      invalid.push(`(position ${i}): ${token}`);
     }
-  });
+  }
   return { valid, invalid };
 }
 

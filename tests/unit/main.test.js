@@ -121,4 +121,17 @@ describe("CLI Behavior", () => {
       logSpy.mockRestore();
     });
   });
+
+  // New test for various casings of 'NaN'
+  test("handles various casings of 'NaN' inputs", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "nAn", "NaN", "NAN", "10"]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("10"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): nAn"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): NaN"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 2): NAN"));
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
 });
