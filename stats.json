@@ -1,14 +1,18 @@
 {
-  "openIssues": 2,
-  "issuesClosedLastHour": 2,
-  "issuesClosedLastDay": 30,
+  "openIssues": 1,
+  "issuesClosedLastHour": 4,
+  "issuesClosedLastDay": 32,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 15,
-  "diffMinutesMain": 26,
-  "commitsLastHour": 1,
-  "commitsLastDay": 26,
+  "diffMinutes": 3,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 2,
+  "commitsLastDay": 27,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:46",
+      "message": "Added CLI alias support -s -m -a -d -h and updated tests and doc..."
+    },
     {
       "time": "06:13",
       "message": "Enforced consistent case-insensitive rejection of NaN inputs and..."
@@ -24,10 +28,6 @@
     {
       "time": "04:36",
       "message": "Refactored CLI command processing to reduce cognitive complexity..."
-    },
-    {
-      "time": "04:13",
-      "message": "Add --percentile CLI command to compute statistical percentiles ..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T06:39:27.791Z"
+  "generatedAt": "2025-04-08T06:50:39.742Z"
 }
