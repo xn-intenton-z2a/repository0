@@ -1,14 +1,22 @@
 {
-  "openIssues": 1,
-  "issuesClosedLastHour": 5,
-  "issuesClosedLastDay": 22,
+  "openIssues": 2,
+  "issuesClosedLastHour": 9,
+  "issuesClosedLastDay": 24,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 12,
-  "diffMinutesMain": 17,
-  "commitsLastHour": 3,
-  "commitsLastDay": 22,
+  "diffMinutes": 9,
+  "diffMinutesMain": 9,
+  "commitsLastHour": 5,
+  "commitsLastDay": 23,
   "lastFiveCommitMessages": [
+    {
+      "time": "04:13",
+      "message": "Add --percentile CLI command to compute statistical percentiles ..."
+    },
+    {
+      "time": "04:05",
+      "message": "Refactored parseNumbers to explicitly handle literal NaN inputs ..."
+    },
     {
       "time": "03:46",
       "message": "Added --log command with optional base support and updated tests..."
@@ -20,14 +28,6 @@
     {
       "time": "03:23",
       "message": "Enhanced warning messages for literal NaN inputs case insensitiv..."
-    },
-    {
-      "time": "02:35",
-      "message": "Refactored numeric input parsing to ignore additional flag token..."
-    },
-    {
-      "time": "00:54",
-      "message": "Add --median --mode and --stddev commands to CLI update usage st..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T04:04:13.725Z"
+  "generatedAt": "2025-04-08T04:22:56.102Z"
 }
