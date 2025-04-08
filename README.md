@@ -30,9 +30,11 @@ A new global flag has been added:
 - **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects in minified form for machine integration.
 - **--json-pretty:** When provided, all command outputs are returned as well-formatted JSON objects with 2-space indentation for easier human readability. If both flags are specified, --json-pretty takes precedence.
 
-Additionally, the JSON responses now include the following metadata fields for enhanced integration:
+Additionally, the JSON responses now include the following metadata for enhanced diagnostics and traceability:
 - **timestamp:** The ISO formatted time when the command was executed.
 - **version:** The current tool version.
+- **executionDuration:** The time taken in milliseconds to execute the command.
+- **inputEcho:** The cleansed input parameters after filtering out global flags.
 
 ### Shorthand Aliases
 Shorthand aliases have been added for frequently used commands to improve usability:
@@ -74,7 +76,7 @@ Set these secrets in your repository settings under *Settings > Secrets and Vari
 
 ## intentïon `agentic‑lib`
 
-The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow itself may eventually become bundled actions.
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
@@ -90,7 +92,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, the JSON responses now include metadata fields: **timestamp** (ISO formatted execution time) and **version** (the current tool version). For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g) and a new global flag --json (or --json-pretty) for structured JSON outputs. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

@@ -12,6 +12,8 @@
  * Enhancement: Extended Global JSON Output Mode now includes additional metadata fields:
  *   - timestamp: The ISO formatted time of command execution
  *   - version: The current tool version
+ *   - executionDuration: The time taken in milliseconds to execute the command
+ *   - inputEcho: The cleansed input parameters after filtering global flags
  *
  * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject.
  *
@@ -27,6 +29,10 @@ const usage =
 let jsonMode = false;
 let jsonPretty = false;
 
+// Global variables to hold start time and cleansed input for JSON metadata
+let __startTime = 0;
+let __inputEcho = [];
+
 // Helper functions to output success or error messages based on JSON mode
 function sendSuccess(command, result, warnings) {
   if (jsonMode) {
@@ -35,7 +41,9 @@ function sendSuccess(command, result, warnings) {
       result,
       warnings: warnings ? warnings : [],
       timestamp: new Date().toISOString(),
-      version: TOOL_VERSION
+      version: TOOL_VERSION,
+      executionDuration: Date.now() - __startTime,
+      inputEcho: __inputEcho
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
@@ -53,7 +61,9 @@ function sendError(command, errorMessage, warnings) {
       error: errorMessage,
       warnings: warnings ? warnings : [],
       timestamp: new Date().toISOString(),
-      version: TOOL_VERSION
+      version: TOOL_VERSION,
+      executionDuration: Date.now() - __startTime,
+      inputEcho: __inputEcho
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
@@ -508,6 +518,11 @@ async function cliMain(args) {
     jsonMode = true;
     args = args.filter(arg => arg !== "--json");
   }
+  // Set global inputEcho as the cleansed input
+  __inputEcho = args;
+  // Record start time for execution duration
+  __startTime = Date.now();
+
   if (args.length === 0) {
     if (jsonMode) {
       sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");

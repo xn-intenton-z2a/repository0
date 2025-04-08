@@ -107,6 +107,10 @@ describe("CLI Behavior", () => {
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
       expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("executionDuration");
+      expect(typeof output.executionDuration).toBe('number');
+      expect(output).toHaveProperty("inputEcho");
+      expect(output.inputEcho).toEqual(["--sum", "3", "4", "5"]);
       logSpy.mockRestore();
     });
 
@@ -120,6 +124,10 @@ describe("CLI Behavior", () => {
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
       expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("executionDuration");
+      expect(typeof output.executionDuration).toBe('number');
+      expect(output).toHaveProperty("inputEcho");
+      expect(output.inputEcho).toEqual(["--sum", "NaN", "abc"]);
       logSpy.mockRestore();
     });
 
@@ -138,6 +146,10 @@ describe("CLI Behavior", () => {
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
       expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("executionDuration");
+      expect(typeof output.executionDuration).toBe('number');
+      expect(output).toHaveProperty("inputEcho");
+      expect(output.inputEcho).toEqual(["--sum", "3", "4", "5"]);
       logSpy.mockRestore();
     });
   });
