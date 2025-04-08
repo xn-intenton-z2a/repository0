@@ -15,13 +15,15 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN'.
+ * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN'.
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
+ *
+ * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -86,7 +88,9 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For any token that is either in the invalid tokens list or results in NaN, a warning is generated with a fixed index (0) by default, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index (plus one) is used.
+// For tokens matching 'nan' (case-insensitive), the parser explicitly checks and, if configured as invalid, issues a warning.
+// Otherwise, if the token is not in the invalid list, it attempts to parse the token to a number.
+// If the result of parsing is NaN and the token did not match an allowed 'NaN', a warning is issued.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -104,7 +108,7 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
-    // Special handling for 'NaN'
+    // Special handling for 'NaN': check explicitly if token is 'nan'
     if (tokenLower === 'nan') {
       if (configInvalid.includes('nan')) {
         invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
