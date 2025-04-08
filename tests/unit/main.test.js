@@ -79,7 +79,7 @@ describe("CLI Behavior", () => {
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): hello"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): hello"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
   });
@@ -183,7 +183,8 @@ describe("CLI Behavior", () => {
       const output = logSpy.mock.calls[0][0];
       expect(output).toContain("Configuration Settings:");
       expect(output).toContain("TOOL_VERSION: 1.4.1-1");
-      expect(output).toContain("INVALID_TOKENS: ");
+      expect(output).toContain("INVALID_TOKENS:");
+      expect(output).toContain("DYNAMIC_WARNING_INDEX:");
       logSpy.mockRestore();
     });
 
@@ -195,6 +196,7 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("config");
       expect(output.config).toHaveProperty("TOOL_VERSION", "1.4.1-1");
       expect(output.config).toHaveProperty("INVALID_TOKENS");
+      expect(output.config).toHaveProperty("DYNAMIC_WARNING_INDEX");
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
@@ -204,6 +206,28 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("inputEcho");
       expect(output.inputEcho).toEqual(["--config"]);
       logSpy.mockRestore();
+    });
+  });
+
+  // New tests for Dynamic Warning Index Option
+  describe("Dynamic Warning Index Option", () => {
+    test("uses dynamic index when enabled", async () => {
+      process.env.DYNAMIC_WARNING_INDEX = "true";
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      await main(["--sum", "foo", "bar", "5"]);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): foo"));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 2): bar"));
+      warnSpy.mockRestore();
+      delete process.env.DYNAMIC_WARNING_INDEX;
+    });
+
+    test("uses fixed index when dynamic flag is disabled", async () => {
+      delete process.env.DYNAMIC_WARNING_INDEX;
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      await main(["--sum", "foo", "bar", "5"]);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): foo"));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): bar"));
+      warnSpy.mockRestore();
     });
   });
 });

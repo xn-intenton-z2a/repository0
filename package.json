@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-1",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to standardize error messaging for arithmetic operations, add JSON output mode (including pretty printing) with metadata, and improve test coverage for CLI commands.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to standardize error messaging for arithmetic operations, add JSON output mode with metadata, and include a configurable warning index mode (DYNAMIC_WARNING_INDEX) for numeric input parsing.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

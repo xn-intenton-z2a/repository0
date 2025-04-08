@@ -18,13 +18,14 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base, with detailed error messages on invalid inputs.
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
-- **--config:** Outputs the current configuration of the CLI tool including the tool version and invalid tokens configuration.
+- **--config:** Outputs the current configuration of the CLI tool including the tool version, invalid tokens, and the state of the DYNAMIC_WARNING_INDEX option.
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
 - Any input matching configured invalid tokens is explicitly rejected. By default, tokens matching 'NaN' (in any letter casing) are rejected.
 - A new configuration option via the environment variable **INVALID_TOKENS** allows you to customize the list of rejected tokens (provide a comma-separated list). If you wish to allow tokens such as 'NaN', remove them from the configuration.
-- Detailed warnings include the token and its reported positional index. For tokens matching the configured disallowed list, a fixed positional index (0) is used intentionally to indicate their grouped rejection.
+- **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index. This allows for more precise feedback on the location of invalid tokens.
+- Detailed warnings include the token and its reported positional index.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -54,16 +55,16 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing, and the new **--config** command improve integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing, and the new **--config** command, along with the configurable warning index mode, improve integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of "NaN", and now also cover the new **--config** command.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of "NaN", and now also cover the new **--config** command and the dynamic warning index mode.
 
 - **Configuration:**
-  You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
+  You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing. Additionally, setting **DYNAMIC_WARNING_INDEX** to true will use actual input positions in warning messages.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -93,7 +94,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g) and global JSON flags (--json, --json-pretty). The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), and a configurable warning index mode via the DYNAMIC_WARNING_INDEX option. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

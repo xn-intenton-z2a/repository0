@@ -17,9 +17,11 @@
  *
  * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject.
  *
+ * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
+ *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that match the configured disallowed list, a fixed positional index (0) is used intentionally to indicate their collective rejection; this design choice is documented here for consistency in warning messages.
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -84,12 +86,11 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For tokens in the disallowed list, a fixed positional index (0) is used intentionally to indicate their grouped rejection. This design is maintained for consistency in warning messages.
+// For any token that is either in the invalid tokens list or results in NaN, a warning is generated with a fixed index (0) by default, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index (plus one) is used.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
-  let posValid = 0;
-  const fixedInvalidPos = 0; // Fixed index for disallowed tokens to denote consistent rejection
+  const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
   // Get the list of tokens to reject from environment variable; if not set, default to ['nan'].
   const configInvalid = (process.env.INVALID_TOKENS !== undefined)
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
@@ -103,23 +104,25 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
-    // If token is in the configured invalid tokens, use fixed index for warning
+    // Special handling for 'NaN'
+    if (tokenLower === 'nan') {
+      if (configInvalid.includes('nan')) {
+        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+      } else {
+        valid.push(NaN);
+      }
+      continue;
+    }
+    // If token is in the configured invalid tokens, use dynamic or fixed index
     if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(fixedInvalidPos, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
       continue;
     }
     const num = Number(str);
     if (isNaN(num)) {
-      // Allow 'NaN' as a valid input if not configured as invalid
-      if (tokenLower === 'nan') {
-        valid.push(num);
-      } else {
-        invalid.push(generateWarning(posValid, token));
-      }
-      posValid++;
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
     } else {
       valid.push(num);
-      posValid++;
     }
   }
   return { valid, invalid };
@@ -495,9 +498,11 @@ const commands = {
   "--config": async (args) => {
     // Gather configuration details
     const invalidTokensValue = process.env.INVALID_TOKENS ? process.env.INVALID_TOKENS : 'nan';
+    const dynamicWarning = process.env.DYNAMIC_WARNING_INDEX === 'true' ? 'enabled' : 'disabled';
     const configDetails = {
       TOOL_VERSION,
-      INVALID_TOKENS: invalidTokensValue
+      INVALID_TOKENS: invalidTokensValue,
+      DYNAMIC_WARNING_INDEX: dynamicWarning
     };
     if (jsonMode) {
       const output = {
@@ -513,6 +518,7 @@ const commands = {
       let output = "Configuration Settings:\n";
       output += `TOOL_VERSION: ${TOOL_VERSION}\n`;
       output += `INVALID_TOKENS: ${invalidTokensValue}\n`;
+      output += `DYNAMIC_WARNING_INDEX: ${dynamicWarning}\n`;
       sendSuccess("config", output);
     }
   }
