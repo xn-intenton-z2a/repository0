@@ -6,6 +6,11 @@
  * This main file now handles all CLI command processing inline, removing the dependency on an external
  * module that was causing build/test issues. The arithmetic commands (e.g., --sum, --multiply, --subtract, --divide, --modulo, --average, --power, --variance, --range) have been updated to uniformly return the error message "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Other commands such as --factorial, --sqrt, and --fibonacci retain their specialized error messaging.
  *
+ * New statistical commands have been added:
+ *    --median: Computes the median of the provided list of numbers (average of two middles for even numbers).
+ *    --mode: Computes the mode(s) of the provided list of numbers and returns the most frequent value(s).
+ *    --stddev: Computes the population standard deviation of the provided list of numbers.
+ *
  * Note: The handling of literal 'NaN' inputs has been standardized across all arithmetic operations. When only 'NaN' or other non-numeric values are provided, the CLI will return the error message without any additional warnings.
  */
 
@@ -214,6 +219,52 @@ async function cliMain(args) {
           console.log("Square Root: " + Math.sqrt(n));
         }
       }
+      break;
+    }
+    case "--median": {
+      const { valid: numbers } = parseNumbers(args.slice(1));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const sorted = numbers.slice().sort((a, b) => a - b);
+      const len = sorted.length;
+      let median;
+      if (len % 2 === 1) {
+        median = sorted[Math.floor(len / 2)];
+      } else {
+        median = (sorted[len / 2 - 1] + sorted[len / 2]) / 2;
+      }
+      console.log("Median: " + median);
+      break;
+    }
+    case "--mode": {
+      const { valid: numbers } = parseNumbers(args.slice(1));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const frequency = {};
+      numbers.forEach(num => {
+        frequency[num] = (frequency[num] || 0) + 1;
+      });
+      const maxFreq = Math.max(...Object.values(frequency));
+      const modes = Object.keys(frequency)
+        .filter(num => frequency[num] === maxFreq)
+        .map(Number);
+      console.log("Mode: " + modes.join(","));
+      break;
+    }
+    case "--stddev": {
+      const { valid: numbers } = parseNumbers(args.slice(1));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const mean = numbers.reduce((acc, v) => acc + v, 0) / numbers.length;
+      const variance = numbers.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / numbers.length;
+      const stddev = Math.sqrt(variance);
+      console.log("Stddev: " + stddev);
       break;
     }
     case "--demo":

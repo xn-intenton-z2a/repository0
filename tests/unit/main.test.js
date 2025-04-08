@@ -390,8 +390,68 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // Direct Function Invocation Tests
+  // New tests for statistical commands
+  test("computes median for odd number of elements", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--median", "3", "5", "7"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Median: 5");
+    consoleSpy.mockRestore();
+  });
 
+  test("computes median for even number of elements", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--median", "3", "5", "7", "9"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Median: 6");
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error for --median with no valid inputs", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--median", "NaN", "abc"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes mode for a single mode", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--mode", "1", "2", "2", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Mode: 2");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes mode for multiple modes (tie)", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--mode", "1", "1", "2", "2", "3"]);
+    // Order of modes might differ, so we check for both 1 and 2
+    const output = consoleSpy.mock.calls[0][0];
+    expect(output).toMatch(/1/);
+    expect(output).toMatch(/2/);
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error for --mode with no valid inputs", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--mode", "NaN", "abc"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes stddev for given numbers", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // For numbers [2,4,4,4,5,5,7,9], stddev should be 2
+    await main(["--stddev", "2", "4", "4", "4", "5", "5", "7", "9"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Stddev: 2");
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error for --stddev with no valid inputs", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--stddev", "NaN", "xyz"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    consoleSpy.mockRestore();
+  });
+
+  // Direct Function Invocation Tests
   describe("Direct Function Invocation", () => {
     test("printUsage should output usage message", () => {
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
