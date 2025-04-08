@@ -11,7 +11,7 @@
  *    --mode: Computes the mode(s) of the provided list of numbers and returns the most frequent value(s).
  *    --stddev: Computes the population standard deviation of the provided list of numbers.
  *
- * Note: The handling of literal 'NaN' inputs, as well as any tokens that appear to be additional flags (starting with "--"), has been standardized across all arithmetic operations. When only 'NaN', other non-numeric values, or flag tokens are provided, the CLI will return the error message without any additional warnings.
+ * Note: The handling of literal 'NaN' inputs (in any case) as well as any tokens that appear to be additional flags (starting with "--") has been standardized across all arithmetic operations. When only 'NaN', other non-numeric values, or flag tokens are provided, the CLI will return the error message without any additional warnings.
  */
 
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
@@ -24,6 +24,11 @@ function parseNumbers(raw) {
   for (const token of raw) {
     if (typeof token === 'string' && token.startsWith('--')) {
       break;
+    }
+    // Explicitly treat literal 'NaN' (case insensitive) as invalid
+    if (typeof token === 'string' && token.toLowerCase() === 'nan') {
+      invalid.push(token);
+      continue;
     }
     const num = Number(token);
     if (!isNaN(num)) {

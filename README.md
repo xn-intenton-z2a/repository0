@@ -14,7 +14,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--mode:** Compute the mode(s) (the most frequently occurring number(s)) of a list of numbers.
 - **--stddev:** Compute the population standard deviation of a list of numbers.
 
-All arithmetic and statistical commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or flag inputs are encountered. Note that tokens beginning with `--` encountered in numeric input positions are ignored to prevent misinterpretation of additional flags.
+All arithmetic and statistical commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. The CLI now explicitly treats literal 'NaN' (in any case) as an invalid input, providing a clear warning message listing the ignored inputs.
 
 ## What’s Inside
 
@@ -58,7 +58,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, and --stddev. All arithmetic and statistical functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, and --stddev. All arithmetic and statistical functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

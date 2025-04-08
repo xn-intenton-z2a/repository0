@@ -450,6 +450,17 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  // Additional test to ensure lowercase 'nan' is correctly identified as invalid
+  test("handles lowercase 'nan' as invalid input", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "nan", "10"]);
+    expect(logSpy).toHaveBeenCalledWith("Sum: 10");
+    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: nan");
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
+
   // Direct Function Invocation Tests
   describe("Direct Function Invocation", () => {
     test("printUsage should output usage message", () => {
