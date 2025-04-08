@@ -22,7 +22,7 @@ function sendSuccess(command, result, warnings) {
     const output = { command, result, warnings: warnings ? warnings : [] };
     console.log(JSON.stringify(output));
   } else {
-    console.log(result);
+    console.log(String(result));
     if (warnings && warnings.length > 0) {
       console.warn("Warning: " + warnings.join(","));
     }
@@ -34,7 +34,7 @@ function sendError(command, errorMessage, warnings) {
     const output = { command, error: errorMessage, warnings: warnings ? warnings : [] };
     console.log(JSON.stringify(output));
   } else {
-    console.log(errorMessage);
+    console.log(String(errorMessage));
     if (warnings && warnings.length > 0) {
       console.warn("Warning: " + warnings.join(","));
     }
@@ -84,7 +84,13 @@ const commands = {
       return;
     }
     const result = numbers.reduce((acc, val) => acc + val, 0);
-    sendSuccess("sum", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess(
+      "sum",
+      result,
+      invalid.length > 0
+        ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")]
+        : []
+    );
   },
   "--multiply": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
@@ -93,7 +99,13 @@ const commands = {
       return;
     }
     const result = numbers.reduce((acc, val) => acc * val, 1);
-    sendSuccess("multiply", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess(
+      "multiply",
+      result,
+      invalid.length > 0
+        ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")]
+        : []
+    );
   },
   "--subtract": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
