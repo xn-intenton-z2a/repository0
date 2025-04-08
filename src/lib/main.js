@@ -17,13 +17,15 @@
  *
  * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject.
  *
+ * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
+ *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that match the configured disallowed list, a fixed positional index (0) is used intentionally to indicate their collective rejection; this design choice is documented here for consistency in warning messages.
  */
 
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers...]";
 
 // Global flags for JSON output mode
 let jsonMode = false;
@@ -80,7 +82,7 @@ function generateWarning(pos, token) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'NaN')
+// This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
 // For tokens in the disallowed list, a fixed positional index (0) is used intentionally to indicate their grouped rejection. This design is maintained for consistency in warning messages.
 function parseNumbers(raw) {
@@ -489,6 +491,30 @@ const commands = {
     const product = numbers.reduce((acc, val) => acc * val, 1);
     const result = Math.pow(product, 1 / numbers.length);
     sendSuccess("geomean", result, invalid);
+  },
+  "--config": async (args) => {
+    // Gather configuration details
+    const invalidTokensValue = process.env.INVALID_TOKENS ? process.env.INVALID_TOKENS : 'nan';
+    const configDetails = {
+      TOOL_VERSION,
+      INVALID_TOKENS: invalidTokensValue
+    };
+    if (jsonMode) {
+      const output = {
+        command: "config",
+        config: configDetails,
+        timestamp: new Date().toISOString(),
+        version: TOOL_VERSION,
+        executionDuration: Date.now() - __startTime,
+        inputEcho: __inputEcho
+      };
+      console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
+    } else {
+      let output = "Configuration Settings:\n";
+      output += `TOOL_VERSION: ${TOOL_VERSION}\n`;
+      output += `INVALID_TOKENS: ${invalidTokensValue}\n`;
+      sendSuccess("config", output);
+    }
   }
 };
 

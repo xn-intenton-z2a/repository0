@@ -13,8 +13,6 @@ function tryParseJSON(output) {
 // Regular expression to validate ISO timestamp format
 const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
-// Note: The tests remain largely unchanged; the internal CLI handlers have been inlined in the main file.
-
 describe("Main Module", () => {
   test("should not be null", () => {
     expect(main).not.toBeNull();
@@ -135,7 +133,6 @@ describe("CLI Behavior", () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--json-pretty", "--sum", "3", "4", "5"]);
       const outputStr = logSpy.mock.calls[0][0];
-      // Check that output is pretty printed (contains newlines)
       expect(outputStr).toContain("\n");
       const output = JSON.parse(outputStr);
       expect(output).toHaveProperty("command", "sum");
@@ -169,14 +166,44 @@ describe("CLI Behavior", () => {
 
   // New test to verify configurable invalid tokens
   test("allows 'NaN' as valid input when not configured as invalid", async () => {
-    // Temporarily override the INVALID_TOKENS env variable
     const originalInvalid = process.env.INVALID_TOKENS;
     process.env.INVALID_TOKENS = "";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
-    // In this case, 'NaN' is allowed and parsed as NaN, so the sum of [NaN, 5] results in NaN
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
     logSpy.mockRestore();
     process.env.INVALID_TOKENS = originalInvalid;
+  });
+
+  // Tests for the new --config command
+  describe("CLI Config Command", () => {
+    test("outputs configuration in plain text mode", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--config"]);
+      const output = logSpy.mock.calls[0][0];
+      expect(output).toContain("Configuration Settings:");
+      expect(output).toContain("TOOL_VERSION: 1.4.1-1");
+      expect(output).toContain("INVALID_TOKENS: ");
+      logSpy.mockRestore();
+    });
+
+    test("outputs configuration in JSON mode", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--json", "--config"]);
+      const output = tryParseJSON(logSpy.mock.calls[0][0]);
+      expect(output).toHaveProperty("command", "config");
+      expect(output).toHaveProperty("config");
+      expect(output.config).toHaveProperty("TOOL_VERSION", "1.4.1-1");
+      expect(output.config).toHaveProperty("INVALID_TOKENS");
+      expect(output).toHaveProperty("timestamp");
+      expect(typeof output.timestamp).toBe('string');
+      expect(isoRegex.test(output.timestamp)).toBe(true);
+      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("executionDuration");
+      expect(typeof output.executionDuration).toBe('number');
+      expect(output).toHaveProperty("inputEcho");
+      expect(output.inputEcho).toEqual(["--config"]);
+      logSpy.mockRestore();
+    });
   });
 });
