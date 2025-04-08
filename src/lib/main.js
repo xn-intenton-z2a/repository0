@@ -82,11 +82,12 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'NaN')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// Tokens in the disallowed list are rejected without incrementing the positional index for consistency.
+// Tokens in the disallowed list are rejected using a fixed positional index for consistency, while other invalid tokens use the current valid token index.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
-  let pos = 0;
+  let posValid = 0;
+  const fixedInvalidPos = 0;
   // Get the list of tokens to reject from environment variable; if not set, default to ['nan'].
   const configInvalid = (process.env.INVALID_TOKENS !== undefined)
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
@@ -100,23 +101,24 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
-    // If token is in the configured invalid list, reject it without incrementing positional index
+    // If token is in the configured invalid tokens, use fixed index
     if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(pos, token));
+      invalid.push(generateWarning(fixedInvalidPos, token));
       continue;
     }
-    // Special case: if token is 'nan' but not in invalid list, allow it as NaN
-    if (tokenLower === 'nan') {
-      valid.push(NaN);
-    } else {
-      const num = Number(str);
-      if (!isNaN(num)) {
+    const num = Number(str);
+    if (isNaN(num)) {
+      // Allow 'NaN' as a valid input if not configured as invalid
+      if (tokenLower === 'nan') {
         valid.push(num);
       } else {
-        invalid.push(generateWarning(pos, token));
+        invalid.push(generateWarning(posValid, token));
       }
+      posValid++;
+    } else {
+      valid.push(num);
+      posValid++;
     }
-    pos++;
   }
   return { valid, invalid };
 }
