@@ -1,19 +1,22 @@
 {
   "openIssues": 21,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 69,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Fixed parseNumbers to allow NaN as valid input when not configured and adjusted dynamic warning index to be one-based. (fixes #771)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 0,
-  "diffMinutesMain": 7,
-  "commitsLastHour": 5,
+  "issuesClosedLastHour": 4,
+  "issuesClosedLastDay": 73,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 1,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 6,
   "commitsLastDay": 57,
   "lastFiveCommitMessages": [
+    {
+      "time": "20:51",
+      "message": "Ensure consistent and configurable NaN handling and update docs ..."
+    },
+    {
+      "time": "20:47",
+      "message": "Fixed parseNumbers to allow NaN as valid input when not configur..."
+    },
     {
       "time": "20:38",
       "message": "Maintain EXPRESSION"
@@ -25,27 +28,14 @@
     {
       "time": "20:13",
       "message": "Maintain METRICS"
-    },
-    {
-      "time": "20:02",
-      "message": "Maintain INTERACTIVE"
-    },
-    {
-      "time": "19:53",
-      "message": "Maintain INTERACTIVE"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-771",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T20:46:10.808Z"
+  "generatedAt": "2025-04-08T20:53:23.719Z"
 }
