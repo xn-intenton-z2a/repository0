@@ -547,4 +547,17 @@ describe("CLI Behavior", () => {
       expect(lcm(3, 4)).toBe(12);
     });
   });
+
+  // New test for mixed-case 'NaN' input
+  test("handles mixed-case NaN input for --sum", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "nAn", "5"]);
+    expect(logSpy).toHaveBeenCalledWith("Sum: 5");
+    expect(warnSpy).toHaveBeenCalledWith(
+      "Warning: These inputs were not valid numbers and have been ignored: nAn"
+    );
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
 });
