@@ -86,7 +86,7 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For any token that is either in the invalid tokens list or results in NaN, a warning is generated with a fixed index (0) by default, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used.
+// For any token that is either in the invalid tokens list or results in NaN, a warning is generated with a fixed index (0) by default, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index (plus one) is used.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -104,14 +104,23 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
+    // Special handling for 'NaN'
+    if (tokenLower === 'nan') {
+      if (configInvalid.includes('nan')) {
+        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+      } else {
+        valid.push(NaN);
+      }
+      continue;
+    }
     // If token is in the configured invalid tokens, use dynamic or fixed index
     if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(useDynamicIndex ? i : 0, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
       continue;
     }
     const num = Number(str);
     if (isNaN(num)) {
-      invalid.push(generateWarning(useDynamicIndex ? i : 0, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
     } else {
       valid.push(num);
     }
