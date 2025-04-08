@@ -46,10 +46,10 @@ let __inputEcho = [];
 function aggregateWarnings(warnings) {
   const counts = {};
   warnings.forEach(warning => {
-    // Use regex to extract the token part from a warning in the format "(position X): token"
-    const match = warning.match(/\):\s*(.*)$/);
-    if (match) {
-      const token = match[1];
+    // Extract the token part by splitting on ':' and trimming
+    const parts = warning.split(':');
+    const token = parts.slice(1).join(':').trim();
+    if (token) {
       counts[token] = (counts[token] || 0) + 1;
     }
   });
