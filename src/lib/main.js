@@ -5,12 +5,15 @@
  *
  * This main file now handles all CLI command processing inline, removing the dependency on an external
  * module that was causing build/test issues. The arithmetic commands (e.g., --sum, --multiply, --subtract, --divide, --modulo, --average, --power, --variance, --range) have been updated to uniformly return the error message "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Other commands such as --factorial, --sqrt, and --fibonacci retain their specialized error messaging.
+ *
+ * Note: The handling of literal 'NaN' inputs has been standardized across all arithmetic operations. When only 'NaN' or other non-numeric values are provided, the CLI will return the error message without any additional warnings.
  */
 
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
+  // Explicitly treat literal 'NaN' (as well as any non-numeric string) as invalid input
   const valid = raw.map(x => Number(x)).filter(n => !isNaN(n));
   const invalid = raw.filter(x => isNaN(Number(x)));
   return { valid, invalid };
@@ -50,7 +53,7 @@ async function cliMain(args) {
       console.log("  --diagnostics: Check system diagnostics");
       break;
     case "--info":
-      console.log(`Repository0 CLI Tool version 1.4.1-0 - This repository demonstrates automated workflows and modular CLI command handling.`);
+      console.log(`Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.`);
       break;
     case "--sum": {
       const { valid: numbers, invalid } = parseNumbers(args.slice(1));
@@ -79,7 +82,7 @@ async function cliMain(args) {
       break;
     }
     case "--subtract": {
-      const { valid: numbers } = parseNumbers(args.slice(1));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
@@ -91,6 +94,9 @@ async function cliMain(args) {
           result -= numbers[i];
         }
         console.log("Subtract: " + result);
+      }
+      if (invalid.length > 0) {
+        console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
       }
       break;
     }
@@ -155,7 +161,7 @@ async function cliMain(args) {
         if (process.env.FORCE_VERSION_ERROR === "true") {
           throw new Error("unknown error");
         }
-        console.log("Version: 1.4.1-0");
+        console.log("Version: 1.4.1-1");
       } catch (e) {
         console.error("Could not retrieve version: " + e.message);
       }
@@ -217,7 +223,7 @@ async function cliMain(args) {
       console.log("Real call: This feature is not implemented over the wire yet.");
       break;
     case "--range": {
-      const { valid: numbers } = parseNumbers(args.slice(1));
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
       if (numbers.length === 0) {
         console.log("Error: No valid numeric inputs provided.");
         return;
