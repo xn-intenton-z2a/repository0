@@ -98,4 +98,4 @@ The CLI in `src/lib/main.js` has been updated to include new statistical command
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
-For more information about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic‑lib.
+For more information about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic-lib.
