@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
   schedule:
     #- cron: '15 4 */7 * *' # schedule-1
-    - cron: '15 4 * * *' # schedule-2
-    #- cron: '15 4 * * *' # schedule-3
+    #- cron: '15 4 * * *' # schedule-2
+    - cron: '15 4 * * *' # schedule-3
 
 jobs:
 
@@ -21,7 +21,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@3.0.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@3.1.0'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
       script: 'npm run linting src/lib/main.js tests/unit/main.test.js'
@@ -35,7 +35,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.0.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.1.0'
     with:
       issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
       issueBody: ${{ needs.linting.outputs.scriptOutput }}

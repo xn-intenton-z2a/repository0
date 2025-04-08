@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
   schedule:
     #- cron: '0 */2 * * *' # schedule-1
-    - cron: '*/15 * * * *' # schedule-2
-    #- cron: '*/5 * * * *' # schedule-3
+    #- cron: '*/15 * * * *' # schedule-2
+    - cron: '*/5 * * * *' # schedule-3
 
 jobs:
   generate-site:
@@ -43,7 +43,7 @@ jobs:
         id: engine
         shell: bash
         run: |
-          engine=$(grep '^schedule:' .github/schedule.yml | awk '{print $2}')
+          engine=$(grep '^schedule:' .github/agentic-lib.yml | awk '{print $2}')
           echo "engine=${engine}"
           echo "engine=${engine}" >> $GITHUB_OUTPUT
 

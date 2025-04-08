@@ -17,8 +17,8 @@ on:
         default: 'house choice'
   schedule:
     #- cron: '0 4 * * *' # schedule-1
-    - cron: '0 */2 * * *' # schedule-2
-    #- cron: '*/15 * * * *' # schedule-3
+    #- cron: '0 */2 * * *' # schedule-2
+    - cron: '*/15 * * * *' # schedule-3
 
 jobs:
 
@@ -69,7 +69,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.0.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.1.0'
     with:
       prompt: ${{ needs.select-prompt.outputs.prompt }}
       target: ${{ inputs.target || 'src/lib/main.js' }}
@@ -94,7 +94,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.0.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.1.0'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}

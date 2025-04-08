@@ -17,21 +17,40 @@ on:
         default: 'house choice'
   schedule:
     #- cron: '0 0 */28 * *' # schedule-1
-    - cron: '0 0 */7 * *' # schedule-2
-    #- cron: '0 */4 * * *' # schedule-3
+    #- cron: '0 0 */7 * *' # schedule-2
+    - cron: '*/5 * * * *' # schedule-3
 
 jobs:
 
+  agentic-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: agentic-lib
+        id: agentic-lib
+        shell: bash
+        run: |
+          featuresMaximum=$(grep '^featuresMaximum:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "featuresMaximum=${featuresMaximum}"
+          echo "featuresMaximum=${featuresMaximum}" >> $GITHUB_OUTPUT
+    outputs:
+      featuresMaximum: ${{ steps.agentic-lib.outputs.featuresMaximum }}
+
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-features:
+    needs:
+      - agentic-lib
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.0.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.1.0'
     with:
       feature: ${{ inputs.feature }}
       featuresDir: 'features/'
+      featuresMaximum: '${{ needs.agentic-lib.outputs.featuresMaximum }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
