@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-1",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to standardize error messaging for arithmetic operations and improve test coverage for CLI commands.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to standardize error messaging for arithmetic operations, add JSON output mode, and improve test coverage for CLI commands.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

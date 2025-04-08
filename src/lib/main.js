@@ -6,10 +6,40 @@
  * This main file handles CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
  *
  * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input.
+ *
+ * New Feature: Global JSON Output Mode. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration.
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
+
+// Global flag for JSON output mode
+let jsonMode = false;
+
+// Helper functions to output success or error messages based on JSON mode
+function sendSuccess(command, result, warnings) {
+  if (jsonMode) {
+    const output = { command, result, warnings: warnings ? warnings : [] };
+    console.log(JSON.stringify(output));
+  } else {
+    console.log(result);
+    if (warnings && warnings.length > 0) {
+      console.warn("Warning: " + warnings.join(","));
+    }
+  }
+}
+
+function sendError(command, errorMessage, warnings) {
+  if (jsonMode) {
+    const output = { command, error: errorMessage, warnings: warnings ? warnings : [] };
+    console.log(JSON.stringify(output));
+  } else {
+    console.log(errorMessage);
+    if (warnings && warnings.length > 0) {
+      console.warn("Warning: " + warnings.join(","));
+    }
+  }
+}
 
 // Helper function to parse numeric inputs uniformly with detailed error reporting
 function parseNumbers(raw) {
@@ -38,171 +68,151 @@ function parseNumbers(raw) {
 
 const commands = {
   "--diagnostics": async (_args) => {
-    console.log("Diagnostics: All systems operational.");
+    sendSuccess("diagnostics", "Diagnostics: All systems operational.");
   },
   "--help": async (_args) => {
-    console.log(usage);
-    console.log("  --diagnostics: Check system diagnostics");
+    const message = usage + "\n  --diagnostics: Check system diagnostics";
+    sendSuccess("help", message);
   },
   "--info": async (_args) => {
-    console.log(
-      "Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling."
-    );
+    sendSuccess("info", "Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.");
   },
   "--sum": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("sum", "Error: No valid numeric inputs provided.");
       return;
     }
     const result = numbers.reduce((acc, val) => acc + val, 0);
-    console.log("Sum: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("sum", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--multiply": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("multiply", "Error: No valid numeric inputs provided.");
       return;
     }
     const result = numbers.reduce((acc, val) => acc * val, 1);
-    console.log("Multiply: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("multiply", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--subtract": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("subtract", "Error: No valid numeric inputs provided.");
       return;
     } else if (numbers.length === 1) {
-      console.log("Subtract: " + numbers[0]);
+      sendSuccess("subtract", numbers[0], invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
       return;
     }
     let result = numbers[0];
     for (let i = 1; i < numbers.length; i++) {
       result -= numbers[i];
     }
-    console.log("Subtract: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("subtract", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--divide": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("divide", "Error: No valid numeric inputs provided.");
       return;
     }
     let result = numbers[0];
     for (let i = 1; i < numbers.length; i++) {
       if (numbers[i] === 0) {
-        console.log("Divide: Division by zero error");
+        sendError("divide", "Divide: Division by zero error");
         return;
       }
       result /= numbers[i];
     }
-    console.log("Divide: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("divide", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--modulo": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length < 2) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("modulo", "Error: No valid numeric inputs provided.");
       return;
     }
     const dividend = numbers[0];
     for (let i = 1; i < numbers.length; i++) {
       if (numbers[i] === 0) {
-        console.log("Modulo: Division by zero error");
+        sendError("modulo", "Modulo: Division by zero error");
         return;
       }
     }
     const result = numbers.slice(1).reduce((acc, val) => acc % val, dividend);
-    console.log("Modulo: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("modulo", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--average": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("average", "Error: No valid numeric inputs provided.");
       return;
     }
     const sum = numbers.reduce((acc, val) => acc + val, 0);
     const avg = sum / numbers.length;
-    console.log("Average: " + avg);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("average", avg, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   },
   "--version": async (_args) => {
     try {
       if (process.env.FORCE_VERSION_ERROR === "true") {
         throw new Error("unknown error");
       }
-      console.log("Version: 1.4.1-1");
+      sendSuccess("version", "Version: 1.4.1-1");
     } catch (e) {
-      console.error("Could not retrieve version: " + e.message);
+      sendError("version", "Could not retrieve version: " + e.message);
     }
   },
   "--greet": async (_args) => {
-    console.log("Hello, welcome to repository0!");
+    sendSuccess("greet", "Hello, welcome to repository0!");
   },
   "--power": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length < 2) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("power", "Error: No valid numeric inputs provided.");
       return;
     }
     let result = numbers[0];
     for (let i = 1; i < numbers.length; i++) {
       result = Math.pow(result, numbers[i]);
     }
-    console.log("Power: " + result);
+    sendSuccess("power", result);
   },
   "--factorial": async (args) => {
     if (args.length < 1) {
-      console.log("Factorial: Provide a number");
+      sendError("factorial", "Factorial: Provide a number");
       return;
     }
     const n = parseInt(args[0], 10);
     if (isNaN(n) || n < 0) {
-      console.log("Factorial: Input must be a non-negative integer");
+      sendError("factorial", "Factorial: Input must be a non-negative integer");
       return;
     }
     let fact = 1;
     for (let i = 2; i <= n; i++) {
       fact *= i;
     }
-    console.log("Factorial: " + fact);
+    sendSuccess("factorial", fact);
   },
   "--sqrt": async (args) => {
     if (args.length < 1) {
-      console.log("Square Root: Provide a number");
+      sendError("sqrt", "Square Root: Provide a number");
       return;
     }
     const n = Number(args[0]);
     if (isNaN(n)) {
-      console.log("Square Root: Provide a number");
+      sendError("sqrt", "Square Root: Provide a number");
       return;
     }
     if (n < 0) {
-      console.log("Square Root: Negative input error");
+      sendError("sqrt", "Square Root: Negative input error");
       return;
     }
-    console.log("Square Root: " + Math.sqrt(n));
+    sendSuccess("sqrt", Math.sqrt(n));
   },
   "--median": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("median", "Error: No valid numeric inputs provided.");
       return;
     }
     const sorted = numbers.slice().sort((a, b) => a - b);
@@ -213,12 +223,12 @@ const commands = {
     } else {
       median = (sorted[len / 2 - 1] + sorted[len / 2]) / 2;
     }
-    console.log("Median: " + median);
+    sendSuccess("median", median);
   },
   "--mode": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("mode", "Error: No valid numeric inputs provided.");
       return;
     }
     const frequency = {};
@@ -229,43 +239,43 @@ const commands = {
     const modes = Object.keys(frequency)
       .filter((num) => frequency[num] === maxFreq)
       .map(Number);
-    console.log("Mode: " + modes.join(","));
+    sendSuccess("mode", modes.join(","));
   },
   "--stddev": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("stddev", "Error: No valid numeric inputs provided.");
       return;
     }
     const mean = numbers.reduce((acc, v) => acc + v, 0) / numbers.length;
     const variance = numbers.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / numbers.length;
     const stddev = Math.sqrt(variance);
-    console.log("Stddev: " + stddev);
+    sendSuccess("stddev", stddev);
   },
   "--demo": async (_args) => {
-    console.log("Demo output: This is a demo execution without network calls.");
+    sendSuccess("demo", "Demo output: This is a demo execution without network calls.");
   },
   "--real": async (_args) => {
-    console.log("Real call: This feature is not implemented over the wire yet.");
+    sendSuccess("real", "Real call: This feature is not implemented over the wire yet.");
   },
   "--range": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("range", "Error: No valid numeric inputs provided.");
       return;
     }
     const min = Math.min(...numbers);
     const max = Math.max(...numbers);
-    console.log("Range: " + (max - min));
+    sendSuccess("range", max - min);
   },
   "--factors": async (args) => {
     if (args.length < 1) {
-      console.log("Factors: Provide a non-negative integer");
+      sendError("factors", "Factors: Provide a non-negative integer");
       return;
     }
     const n = parseInt(args[0], 10);
     if (isNaN(n) || n < 0) {
-      console.log("Factors: Provide a non-negative integer");
+      sendError("factors", "Factors: Provide a non-negative integer");
       return;
     }
     const factors = [];
@@ -274,38 +284,38 @@ const commands = {
         factors.push(i);
       }
     }
-    console.log("Factors: " + factors.join(","));
+    sendSuccess("factors", factors.join(","));
   },
   "--variance": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("variance", "Error: No valid numeric inputs provided.");
       return;
     }
     if (numbers.length === 1) {
-      console.log("Variance: 0");
+      sendSuccess("variance", 0);
       return;
     }
     const mean = numbers.reduce((acc, v) => acc + v, 0) / numbers.length;
     const variance = numbers.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / numbers.length;
-    console.log("Variance: " + variance);
+    sendSuccess("variance", variance);
   },
   "--fibonacci": async (args) => {
     if (args.length < 1) {
-      console.log("Fibonacci: Provide a non-negative integer");
+      sendError("fibonacci", "Fibonacci: Provide a non-negative integer");
       return;
     }
     const n = parseInt(args[0], 10);
     if (isNaN(n) || n < 0) {
-      console.log("Fibonacci: Provide a non-negative integer");
+      sendError("fibonacci", "Fibonacci: Provide a non-negative integer");
       return;
     }
     if (n === 0) {
-      console.log("Fibonacci: 0");
+      sendSuccess("fibonacci", 0);
       return;
     }
     if (n === 1) {
-      console.log("Fibonacci: 1");
+      sendSuccess("fibonacci", 1);
       return;
     }
     let a = 0;
@@ -313,31 +323,31 @@ const commands = {
     for (let i = 2; i <= n; i++) {
       [a, b] = [b, a + b];
     }
-    console.log("Fibonacci: " + b);
+    sendSuccess("fibonacci", b);
   },
   "--gcd": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length < 2) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("gcd", "Error: No valid numeric inputs provided.");
       return;
     }
     const computeGcd = (a, b) => (b === 0 ? a : computeGcd(b, a % b));
-    console.log("GCD: " + numbers.reduce((a, b) => computeGcd(a, b)));
+    sendSuccess("gcd", numbers.reduce((a, b) => computeGcd(a, b)));
   },
   "--lcm": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length < 2) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("lcm", "Error: No valid numeric inputs provided.");
       return;
     }
     const computeGcd = (a, b) => (b === 0 ? a : computeGcd(b, a % b));
     const computeLcm = (a, b) => Math.abs(a * b) / computeGcd(a, b);
-    console.log("LCM: " + numbers.reduce((a, b) => computeLcm(a, b)));
+    sendSuccess("lcm", numbers.reduce((a, b) => computeLcm(a, b)));
   },
   "--prime": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("prime", "Error: No valid numeric inputs provided.");
       return;
     }
     const isPrime = (num) => {
@@ -348,54 +358,50 @@ const commands = {
       return true;
     };
     const result = numbers.filter(isPrime);
-    console.log("Prime: " + result.join(","));
+    sendSuccess("prime", result.join(","));
   },
   "--log": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("log", "Error: No valid numeric inputs provided.");
       return;
     }
     if (numbers.length === 1) {
       const x = numbers[0];
       if (x <= 0) {
-        console.log("Log: Input must be greater than 0");
+        sendError("log", "Log: Input must be greater than 0");
         return;
       }
       const result = Math.log(x);
-      console.log("Log: " + result);
+      sendSuccess("log", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
     } else {
       const x = numbers[0], base = numbers[1];
       if (x <= 0) {
-        console.log("Log: Input must be greater than 0");
+        sendError("log", "Log: Input must be greater than 0");
         return;
       }
       if (base <= 0 || base === 1) {
-        console.log("Log: Base must be greater than 0 and not equal to 1");
+        sendError("log", "Log: Base must be greater than 0 and not equal to 1");
         return;
       }
       const result = Math.log(x) / Math.log(base);
-      console.log("Log: " + result);
-    }
-    if (invalid.length > 0) {
-      // In case there were invalid inputs mixed in, they are ignored after warning
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
+      sendSuccess("log", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
     }
   },
   "--percentile": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length < 2) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("percentile", "Error: No valid numeric inputs provided.");
       return;
     }
     const p = numbers[0];
     if (p < 0 || p > 100) {
-      console.log("Error: Percentile must be between 0 and 100.");
+      sendError("percentile", "Error: Percentile must be between 0 and 100.");
       return;
     }
     const data = numbers.slice(1);
     if (data.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("percentile", "Error: No valid numeric inputs provided.");
       return;
     }
     const sorted = data.slice().sort((a, b) => a - b);
@@ -409,26 +415,23 @@ const commands = {
     } else {
       percentileValue = sorted[lower] + (index - lower) * (sorted[upper] - sorted[lower]);
     }
-    console.log("Percentile: " + percentileValue);
+    sendSuccess("percentile", percentileValue);
   },
   "--geomean": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      console.log("Error: No valid numeric inputs provided.");
+      sendError("geomean", "Error: No valid numeric inputs provided.");
       return;
     }
     for (const num of numbers) {
       if (num <= 0) {
-        console.log("Error: All inputs must be positive for geometric mean.");
+        sendError("geomean", "Error: All inputs must be positive for geometric mean.");
         return;
       }
     }
     const product = numbers.reduce((acc, val) => acc * val, 1);
     const result = Math.pow(product, 1 / numbers.length);
-    console.log("Geomean: " + result);
-    if (invalid.length > 0) {
-      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
-    }
+    sendSuccess("geomean", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
   }
 };
 
@@ -445,32 +448,33 @@ async function cliMain(args) {
     args = [];
   }
   if (!Array.isArray(args)) {
-    console.log(usage + "()");
-    console.log("No CLI arguments provided. Exiting.");
+    sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
     return;
   }
   if (args.length === 0) {
-    console.log(usage);
-    console.log("No CLI arguments provided. Exiting.");
+    sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
     return;
+  }
+  // Check for global --json flag and remove it from arguments
+  if (args.includes("--json")) {
+    jsonMode = true;
+    args = args.filter(arg => arg !== "--json");
   }
   const flag = args[0];
   const rest = args.slice(1);
   if (commands[flag]) {
     await commands[flag](rest);
   } else {
-    console.log("Run with: " + JSON.stringify(args));
+    sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
   }
 }
 
 const __test = {
   printUsage: (_verbose) => {
-    console.log(usage);
-    console.log("No CLI arguments provided. Exiting.");
+    sendSuccess("printUsage", usage + "\nNo CLI arguments provided. Exiting.");
   },
   printHelp: () => {
-    console.log(usage);
-    console.log("  --diagnostics: Check system diagnostics");
+    sendSuccess("printHelp", usage + "\n  --diagnostics: Check system diagnostics");
   },
   gcd: (a, b) => (b === 0 ? a : __test.gcd(b, a % b)),
   lcm: (a, b) => Math.abs(a * b) / __test.gcd(a, b)
