@@ -40,6 +40,7 @@
 <li class="md-github"><strong class="md-github">--log:</strong> Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base, with detailed error messages on invalid inputs.</li>
 <li class="md-github"><strong class="md-github">--percentile:</strong> Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.</li>
 <li class="md-github"><strong class="md-github">--geomean:</strong> Compute the geometric mean of a list of positive numbers.</li>
+<li class="md-github"><strong class="md-github">--config:</strong> Outputs the current configuration of the CLI tool including the tool version and invalid tokens configuration.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="enhanced-input-parsing-details" href="#enhanced-input-parsing-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enhanced Input Parsing Details</h3>
 <p class="md-github">The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:</p>
@@ -80,7 +81,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory uti
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing (including fixed positional indices for disallowed tokens) improve integration with automated systems.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing, and the new <strong class="md-github">--config</strong> command improve integration with automated systems.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -88,7 +89,7 @@ The <code class="md-github">package.json</code> file defines dependencies and sc
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of &quot;NaN&quot;.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of &quot;NaN&quot;, and now also cover the new <strong class="md-github">--config</strong> command.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Configuration:</strong>
@@ -114,13 +115,13 @@ This README provides essential project information. For contribution guidelines,
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g) and a new global flag --json (or --json-pretty) for structured JSON outputs. The JSON responses include metadata fields: <strong class="md-github">timestamp</strong>, <strong class="md-github">version</strong>, <strong class="md-github">executionDuration</strong>, and <strong class="md-github">inputEcho</strong>. For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new <strong class="md-github">--config</strong> command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g) and global JSON flags (--json, --json-pretty). The JSON responses include metadata fields: <strong class="md-github">timestamp</strong>, <strong class="md-github">version</strong>, <strong class="md-github">executionDuration</strong>, and <strong class="md-github">inputEcho</strong>. For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using the repository template, see <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <p class="md-github">For more information about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic-lib.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-08T19:34:16.252Z</p>
+    <p>Generated on 2025-04-08T19:41:25.871Z</p>
   </footer>
 </body>
 </html>
