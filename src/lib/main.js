@@ -14,7 +14,8 @@
  * Note: The handling of literal 'NaN' inputs (in any case) as well as any tokens that appear to be additional flags (starting with "--") has been standardized across all arithmetic operations. When only 'NaN', other non-numeric values, or flag tokens are provided, the CLI will return the error message without any additional warnings.
  */
 
-const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
+const usage =
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
@@ -22,11 +23,11 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   for (const token of raw) {
-    if (typeof token === 'string' && token.startsWith('--')) {
+    if (typeof token === "string" && token.startsWith("--")) {
       break;
     }
     // Explicitly treat literal 'NaN' (case insensitive) as invalid
-    if (typeof token === 'string' && token.toLowerCase() === 'nan') {
+    if (typeof token === "string" && token.toLowerCase() === "nan") {
       invalid.push(token);
       continue;
     }
@@ -74,7 +75,9 @@ async function cliMain(args) {
       console.log("  --diagnostics: Check system diagnostics");
       break;
     case "--info":
-      console.log(`Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.`);
+      console.log(
+        `Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.`,
+      );
       break;
     case "--sum": {
       const { valid: numbers, invalid } = parseNumbers(args.slice(1));
@@ -261,12 +264,12 @@ async function cliMain(args) {
         return;
       }
       const frequency = {};
-      numbers.forEach(num => {
+      numbers.forEach((num) => {
         frequency[num] = (frequency[num] || 0) + 1;
       });
       const maxFreq = Math.max(...Object.values(frequency));
       const modes = Object.keys(frequency)
-        .filter(num => frequency[num] === maxFreq)
+        .filter((num) => frequency[num] === maxFreq)
         .map(Number);
       console.log("Mode: " + modes.join(","));
       break;
@@ -344,7 +347,8 @@ async function cliMain(args) {
         } else if (n === 1) {
           console.log("Fibonacci: 1");
         } else {
-          let a = 0, b = 1;
+          let a = 0;
+          let b = 1;
           for (let i = 2; i <= n; i++) {
             [a, b] = [b, a + b];
           }
@@ -359,7 +363,7 @@ async function cliMain(args) {
         console.log("Error: No valid numeric inputs provided.");
         return;
       } else {
-        const computeGcd = (a, b) => b === 0 ? a : computeGcd(b, a % b);
+        const computeGcd = (a, b) => (b === 0 ? a : computeGcd(b, a % b));
         console.log("GCD: " + numbers.reduce((a, b) => computeGcd(a, b)));
       }
       break;
@@ -370,7 +374,7 @@ async function cliMain(args) {
         console.log("Error: No valid numeric inputs provided.");
         return;
       } else {
-        const computeGcd = (a, b) => b === 0 ? a : computeGcd(b, a % b);
+        const computeGcd = (a, b) => (b === 0 ? a : computeGcd(b, a % b));
         const computeLcm = (a, b) => Math.abs(a * b) / computeGcd(a, b);
         console.log("LCM: " + numbers.reduce((a, b) => computeLcm(a, b)));
       }
@@ -413,7 +417,7 @@ const __test = {
   },
   lcm: (a, b) => {
     return Math.abs(a * b) / __test.gcd(a, b);
-  }
+  },
 };
 
 if (process.argv[1] === new URL(import.meta.url).pathname) {
