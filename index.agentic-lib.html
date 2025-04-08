@@ -52,6 +52,11 @@
 <li class="md-github"><strong class="md-github">--json:</strong> When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects in minified form for machine integration.</li>
 <li class="md-github"><strong class="md-github">--json-pretty:</strong> When provided, all command outputs are returned as well-formatted JSON objects with 2-space indentation for easier human readability. If both flags are specified, --json-pretty takes precedence.</li>
 </ul>
+<p class="md-github">Additionally, the JSON responses now include the following metadata fields for enhanced integration:</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">timestamp:</strong> The ISO formatted time when the command was executed.</li>
+<li class="md-github"><strong class="md-github">version:</strong> The current tool version.</li>
+</ul>
 <h3 class="md-github"><a class="md-github__anchor" name="shorthand-aliases" href="#shorthand-aliases"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Shorthand Aliases</h3>
 <p class="md-github">Shorthand aliases have been added for frequently used commands to improve usability:</p>
 <ul class="md-github">
@@ -101,13 +106,13 @@ This README provides essential project information. For contribution guidelines,
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, a new flag --json-pretty has been added to provide well-formatted, pretty-printed JSON output for improved readability. For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, the JSON responses now include metadata fields: <strong class="md-github">timestamp</strong> (ISO formatted execution time) and <strong class="md-github">version</strong> (the current tool version). For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using the repository template, see <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <p class="md-github">For more information about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic-lib.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-08T15:36:26.442Z</p>
+    <p>Generated on 2025-04-08T15:48:10.783Z</p>
   </footer>
 </body>
 </html>
