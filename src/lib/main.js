@@ -21,7 +21,7 @@
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that match the configured disallowed list, a fixed positional index (0) is used by default to indicate their collective rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -86,12 +86,10 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For tokens in the disallowed list, a fixed positional index (0) is used by default to denote their grouped rejection,
-// unless the DYNAMIC_WARNING_INDEX environment variable is set to true, in which case the actual token index is used.
+// For any token that is either in the invalid tokens list or results in NaN, a warning is generated with a fixed index (0) by default, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
-  let posValid = 0;
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
   // Get the list of tokens to reject from environment variable; if not set, default to ['nan'].
   const configInvalid = (process.env.INVALID_TOKENS !== undefined)
@@ -113,16 +111,9 @@ function parseNumbers(raw) {
     }
     const num = Number(str);
     if (isNaN(num)) {
-      // Allow 'NaN' as a valid input if not configured as invalid
-      if (tokenLower === 'nan') {
-        valid.push(num);
-      } else {
-        invalid.push(generateWarning(useDynamicIndex ? i : posValid, token));
-      }
-      posValid++;
+      invalid.push(generateWarning(useDynamicIndex ? i : 0, token));
     } else {
       valid.push(num);
-      posValid++;
     }
   }
   return { valid, invalid };

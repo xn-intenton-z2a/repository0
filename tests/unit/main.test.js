@@ -79,7 +79,7 @@ describe("CLI Behavior", () => {
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): hello"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): hello"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
   });
@@ -215,8 +215,8 @@ describe("CLI Behavior", () => {
       process.env.DYNAMIC_WARNING_INDEX = "true";
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       await main(["--sum", "foo", "bar", "5"]);
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): foo"));
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): bar"));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): foo"));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 2): bar"));
       warnSpy.mockRestore();
       delete process.env.DYNAMIC_WARNING_INDEX;
     });
