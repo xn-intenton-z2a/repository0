@@ -10,6 +10,7 @@
  *    --median: Computes the median of the provided list of numbers (average of two middles for even numbers).
  *    --mode: Computes the mode(s) of the provided list of numbers and returns the most frequent value(s).
  *    --stddev: Computes the population standard deviation of the provided list of numbers.
+ *    --percentile: Computes the desired percentile of a dataset. The first argument is the percentile (0-100) and the rest form the dataset. Uses linear interpolation if needed.
  *
  * New logarithm command added:
  *    --log: Computes the logarithm of a given number. With one argument, computes the natural logarithm (base e); with two arguments, computes the logarithm with the second argument as the base.
@@ -18,7 +19,7 @@
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
@@ -426,6 +427,36 @@ async function cliMain(args) {
         const result = Math.log(x) / Math.log(base);
         console.log("Log: " + result);
       }
+      break;
+    }
+    case "--percentile": {
+      const { valid: numbers } = parseNumbers(args.slice(1));
+      if (numbers.length < 2) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const p = numbers[0];
+      if (p < 0 || p > 100) {
+        console.log("Error: Percentile must be between 0 and 100.");
+        return;
+      }
+      const data = numbers.slice(1);
+      if (data.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      }
+      const sorted = data.slice().sort((a, b) => a - b);
+      const n = sorted.length;
+      const index = (p / 100) * (n - 1);
+      const lower = Math.floor(index);
+      const upper = Math.ceil(index);
+      let percentileValue;
+      if (lower === upper) {
+        percentileValue = sorted[lower];
+      } else {
+        percentileValue = sorted[lower] + (index - lower) * (sorted[upper] - sorted[lower]);
+      }
+      console.log("Percentile: " + percentileValue);
       break;
     }
     default:
