@@ -16,12 +16,9 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
     );
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      2,
-      "No CLI arguments provided. Exiting."
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
   });
 
@@ -37,7 +34,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
@@ -48,7 +45,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -481,6 +478,46 @@ describe("CLI Behavior", () => {
     await main(["--percentile", "110", "1", "2", "3"]);
     expect(consoleSpy).toHaveBeenCalledWith("Error: Percentile must be between 0 and 100.");
     consoleSpy.mockRestore();
+  });
+
+  // New tests for alias commands
+  test("computes sum using alias -s flag", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["-s", "3", "7"]);
+    expect(logSpy).toHaveBeenCalledWith("Sum: 10");
+    logSpy.mockRestore();
+  });
+
+  test("computes multiplication using alias -m flag", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["-m", "4", "5"]);
+    expect(logSpy).toHaveBeenCalledWith("Multiply: 20");
+    logSpy.mockRestore();
+  });
+
+  test("computes average using alias -a flag", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["-a", "10", "20", "30"]);
+    expect(logSpy).toHaveBeenCalledWith("Average: 20");
+    logSpy.mockRestore();
+  });
+
+  test("computes division using alias -d flag", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["-d", "100", "2"]);
+    expect(logSpy).toHaveBeenCalledWith("Divide: 50");
+    logSpy.mockRestore();
+  });
+
+  test("displays help using alias -h flag", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["-h"]);
+    expect(logSpy).toHaveBeenNthCalledWith(
+      1,
+      "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
+    );
+    expect(logSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
+    logSpy.mockRestore();
   });
 
   // Direct Function Invocation Tests

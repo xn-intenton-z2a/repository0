@@ -9,7 +9,7 @@
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
@@ -410,6 +410,13 @@ const commands = {
     console.log("Percentile: " + percentileValue);
   }
 };
+
+// Add alias support for frequently used commands
+commands["-s"] = commands["--sum"];
+commands["-m"] = commands["--multiply"];
+commands["-a"] = commands["--average"];
+commands["-d"] = commands["--divide"];
+commands["-h"] = commands["--help"];
 
 async function cliMain(args) {
   if (args === undefined) {
