@@ -46,11 +46,12 @@ let __inputEcho = [];
 function aggregateWarnings(warnings) {
   const counts = {};
   warnings.forEach(warning => {
-    // Extract token part from the warning message
-    const parts = warning.split(': ');
-    // Use trimmed token for accurate aggregation
-    const token = parts.slice(1).join(': ').trim();
-    counts[token] = (counts[token] || 0) + 1;
+    // Use regex to extract the token part from a warning in the format "(position X): token"
+    const match = warning.match(/\):\s*(.*)$/);
+    if (match) {
+      const token = match[1];
+      counts[token] = (counts[token] || 0) + 1;
+    }
   });
   // Generate aggregated messages for each distinct token
   return Object.keys(counts).map(token => `Token '${token}' occurred ${counts[token]} time${counts[token] > 1 ? 's' : ''}`);
