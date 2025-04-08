@@ -16,7 +16,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -34,7 +34,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
@@ -45,7 +45,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]()"
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -434,6 +434,52 @@ describe("CLI Behavior", () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--log", "10", "-2"]);
     expect(consoleSpy).toHaveBeenCalledWith("Log: Base must be greater than 0 and not equal to 1");
+    consoleSpy.mockRestore();
+  });
+
+  // New tests for the --percentile command
+  test("computes 0th percentile correctly", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // 0th percentile should return the smallest value
+    await main(["--percentile", "0", "2", "4", "6", "8"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Percentile: 2");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes 50th percentile with interpolation correctly", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // For dataset [1,2,3,4] and 50th percentile index = 0.5*(3)=1.5, interpolation between 2 and 3
+    await main(["--percentile", "50", "1", "2", "3", "4"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Percentile: 2.5");
+    consoleSpy.mockRestore();
+  });
+
+  test("computes 100th percentile correctly", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    // 100th percentile should return the largest value
+    await main(["--percentile", "100", "5", "7", "9"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Percentile: 9");
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error when --percentile is provided with insufficient inputs", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--percentile", "50"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error when percentile value is out of range (negative)", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--percentile", "-10", "1", "2", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: Percentile must be between 0 and 100.");
+    consoleSpy.mockRestore();
+  });
+
+  test("returns error when percentile value is out of range (>100)", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--percentile", "110", "1", "2", "3"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Error: Percentile must be between 0 and 100.");
     consoleSpy.mockRestore();
   });
 
