@@ -30,7 +30,7 @@ All arithmetic, statistical, logarithmic, and percentile commands standardize er
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithm, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

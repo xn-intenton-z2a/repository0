@@ -19,6 +19,7 @@ function parseNumbers(raw) {
     if (typeof token === "string" && token.startsWith("--")) {
       break;
     }
+    // Check for literal 'NaN' in any case
     if (String(token).toLowerCase() === "nan") {
       invalid.push(token);
       continue;
