@@ -24,7 +24,7 @@ function sendSuccess(command, result, warnings) {
   } else {
     console.log(String(result));
     if (warnings && warnings.length > 0) {
-      console.warn("Warning: " + warnings.join(","));
+      warnings.forEach(msg => console.warn(msg));
     }
   }
 }
@@ -36,7 +36,7 @@ function sendError(command, errorMessage, warnings) {
   } else {
     console.log(String(errorMessage));
     if (warnings && warnings.length > 0) {
-      console.warn("Warning: " + warnings.join(","));
+      warnings.forEach(msg => console.warn(msg));
     }
   }
 }
@@ -81,52 +81,48 @@ const commands = {
   "--sum": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("sum", "Error: No valid numeric inputs provided.");
+      sendError("sum", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     const result = numbers.reduce((acc, val) => acc + val, 0);
     sendSuccess(
       "sum",
       result,
-      invalid.length > 0
-        ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")]
-        : []
+      invalid
     );
   },
   "--multiply": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("multiply", "Error: No valid numeric inputs provided.");
+      sendError("multiply", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     const result = numbers.reduce((acc, val) => acc * val, 1);
     sendSuccess(
       "multiply",
       result,
-      invalid.length > 0
-        ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")]
-        : []
+      invalid
     );
   },
   "--subtract": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("subtract", "Error: No valid numeric inputs provided.");
+      sendError("subtract", "Error: No valid numeric inputs provided.", invalid);
       return;
     } else if (numbers.length === 1) {
-      sendSuccess("subtract", numbers[0], invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+      sendSuccess("subtract", numbers[0], invalid);
       return;
     }
     let result = numbers[0];
     for (let i = 1; i < numbers.length; i++) {
       result -= numbers[i];
     }
-    sendSuccess("subtract", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess("subtract", result, invalid);
   },
   "--divide": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("divide", "Error: No valid numeric inputs provided.");
+      sendError("divide", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     let result = numbers[0];
@@ -137,12 +133,12 @@ const commands = {
       }
       result /= numbers[i];
     }
-    sendSuccess("divide", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess("divide", result, invalid);
   },
   "--modulo": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length < 2) {
-      sendError("modulo", "Error: No valid numeric inputs provided.");
+      sendError("modulo", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     const dividend = numbers[0];
@@ -153,17 +149,17 @@ const commands = {
       }
     }
     const result = numbers.slice(1).reduce((acc, val) => acc % val, dividend);
-    sendSuccess("modulo", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess("modulo", result, invalid);
   },
   "--average": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("average", "Error: No valid numeric inputs provided.");
+      sendError("average", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     const sum = numbers.reduce((acc, val) => acc + val, 0);
     const avg = sum / numbers.length;
-    sendSuccess("average", avg, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess("average", avg, invalid);
   },
   "--version": async (_args) => {
     try {
@@ -376,7 +372,7 @@ const commands = {
   "--log": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("log", "Error: No valid numeric inputs provided.");
+      sendError("log", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     if (numbers.length === 1) {
@@ -386,7 +382,7 @@ const commands = {
         return;
       }
       const result = Math.log(x);
-      sendSuccess("log", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+      sendSuccess("log", result, invalid);
     } else {
       const x = numbers[0], base = numbers[1];
       if (x <= 0) {
@@ -398,7 +394,7 @@ const commands = {
         return;
       }
       const result = Math.log(x) / Math.log(base);
-      sendSuccess("log", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+      sendSuccess("log", result, invalid);
     }
   },
   "--percentile": async (args) => {
@@ -433,7 +429,7 @@ const commands = {
   "--geomean": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("geomean", "Error: No valid numeric inputs provided.");
+      sendError("geomean", "Error: No valid numeric inputs provided.", invalid);
       return;
     }
     for (const num of numbers) {
@@ -444,7 +440,7 @@ const commands = {
     }
     const product = numbers.reduce((acc, val) => acc * val, 1);
     const result = Math.pow(product, 1 / numbers.length);
-    sendSuccess("geomean", result, invalid.length > 0 ? ["These inputs were not valid numbers and have been ignored: " + invalid.join(",")] : []);
+    sendSuccess("geomean", result, invalid);
   }
 };
 
@@ -498,7 +494,7 @@ const __test = {
   lcm: (a, b) => Math.abs(a * b) / __test.gcd(a, b)
 };
 
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (process.env.NODE_ENV !== "test" && process.argv[1] === new URL(import.meta.url).pathname) {
   (async function run() {
     await cliMain(process.argv.slice(2));
     process.exit(0);
