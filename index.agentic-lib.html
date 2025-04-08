@@ -40,6 +40,7 @@
 <li class="md-github"><strong class="md-github">--percentile:</strong> Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.</li>
 <li class="md-github"><strong class="md-github">--geomean:</strong> Compute the geometric mean of a list of positive numbers.</li>
 </ul>
+<p class="md-github">In addition, the input parsing mechanism has been refactored to optimize the detection of invalid numeric inputs. Any input matching 'NaN' (in any casing) is explicitly rejected with detailed positional error reporting, and warnings for each invalid input are now issued individually. Note that the positional numbers for warnings are computed based on the sequence of valid numeric tokens processed.</p>
 <p class="md-github">Additionally, a new global flag has been added:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">--json:</strong> When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects rather than plain text. This facilitates easier integration with automated systems and agentic workflows.</li>
@@ -62,7 +63,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory uti
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode enhances integration with automated systems.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing improve integration with automated systems.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -70,7 +71,7 @@ The <code class="md-github">package.json</code> file defines dependencies and sc
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output detailed error messages including positional information when encountering invalid inputs. Additional tests verify that alias commands produce identical outputs to their full command counterparts, and that the JSON output mode returns the expected structured data.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify detailed error messages including positional information for invalid inputs, such as various casings of &quot;NaN&quot;.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -98,7 +99,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-08T13:38:55.631Z</p>
+    <p>Generated on 2025-04-08T13:48:41.372Z</p>
   </footer>
 </body>
 </html>

@@ -1,14 +1,18 @@
 {
-  "openIssues": 5,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 42,
+  "openIssues": 4,
+  "issuesClosedLastHour": 2,
+  "issuesClosedLastDay": 44,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 13,
-  "diffMinutesMain": 150,
-  "commitsLastHour": 0,
-  "commitsLastDay": 32,
+  "diffMinutes": 4,
+  "diffMinutesMain": 4,
+  "commitsLastHour": 1,
+  "commitsLastDay": 33,
   "lastFiveCommitMessages": [
+    {
+      "time": "13:43",
+      "message": "Reset global jsonMode for each CLI invocation to ensure proper w..."
+    },
     {
       "time": "11:08",
       "message": "Fixed CLI behavior for no arguments to output usage and exit mes..."
@@ -24,23 +28,14 @@
     {
       "time": "08:08",
       "message": "Refined parseNumbers for robust NaN rejection and added tests to..."
-    },
-    {
-      "time": "07:11",
-      "message": "Refactor parseNumbers to uniformly reject NaN in any case and ad..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-738",
-        "minutesSinceLastCommit": 24
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T13:38:37.140Z"
+  "generatedAt": "2025-04-08T13:48:25.868Z"
 }
