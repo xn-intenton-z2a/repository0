@@ -300,6 +300,13 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
+  test("handles 'NaN' input for --sqrt", async () => {
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sqrt", "NaN"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Square Root: Provide a number");
+    consoleSpy.mockRestore();
+  });
+
   test("displays demo output when --demo flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--demo"]);

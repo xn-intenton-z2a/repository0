@@ -16,15 +16,17 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   for (const token of raw) {
-    if (typeof token === "string" && token.startsWith("--")) {
-      break;
-    }
-    // Trim and convert token to string then compare in lower case to 'nan'
-    if (String(token).trim().toLowerCase() === "nan") {
+    const str = token.toString().trim();
+    // Reject any input that equals 'nan' (case insensitive)
+    if (str.toLowerCase() === "nan") {
       invalid.push(token);
       continue;
     }
-    const num = Number(token);
+    // Stop processing if a flag is encountered
+    if (str.startsWith("--")) {
+      break;
+    }
+    const num = Number(str);
     if (!isNaN(num)) {
       valid.push(num);
     } else {
