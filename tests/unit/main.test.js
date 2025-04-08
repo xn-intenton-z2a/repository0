@@ -230,4 +230,20 @@ describe("CLI Behavior", () => {
       warnSpy.mockRestore();
     });
   });
+
+  // New test for aggregated warnings using --summarize-warnings flag
+  test("aggregates warnings when --summarize-warnings flag is provided", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
+    // In summarized mode, warnings should be aggregated into two summary messages: one for NaN and one for abc
+    // As default invalid tokens are configured to include 'nan', both NaN warnings occur.
+    // Since dynamic warning index is false by default, the warning message text isn't used for grouping except the token part.
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+    const calls = warnSpy.mock.calls.map(call => call[0]);
+    expect(calls.some(msg => msg.includes("Token 'NaN' occurred 2 times"))).toBe(true);
+    expect(calls.some(msg => msg.includes("Token 'abc' occurred 3 times"))).toBe(true);
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
+  });
 });
