@@ -10,6 +10,9 @@ function tryParseJSON(output) {
   }
 }
 
+// Regular expression to validate ISO timestamp format
+const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
 // Note: The tests remain largely unchanged; the internal CLI handlers have been inlined in the main file.
 
 describe("Main Module", () => {
@@ -100,6 +103,10 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("result", 12);
       expect(output).toHaveProperty("warnings");
       expect(output.warnings).toEqual([]);
+      expect(output).toHaveProperty("timestamp");
+      expect(typeof output.timestamp).toBe('string');
+      expect(isoRegex.test(output.timestamp)).toBe(true);
+      expect(output).toHaveProperty("version", "1.4.1-1");
       logSpy.mockRestore();
     });
 
@@ -109,20 +116,28 @@ describe("CLI Behavior", () => {
       const output = tryParseJSON(logSpy.mock.calls[0][0]);
       expect(output).toHaveProperty("command", "sum");
       expect(output).toHaveProperty("error", "Error: No valid numeric inputs provided.");
+      expect(output).toHaveProperty("timestamp");
+      expect(typeof output.timestamp).toBe('string');
+      expect(isoRegex.test(output.timestamp)).toBe(true);
+      expect(output).toHaveProperty("version", "1.4.1-1");
       logSpy.mockRestore();
     });
 
     test("outputs sum in pretty JSON format when --json-pretty is used", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--json-pretty", "--sum", "3", "4", "5"]);
-      const output = logSpy.mock.calls[0][0];
+      const outputStr = logSpy.mock.calls[0][0];
       // Check that output is pretty printed (contains newlines)
-      expect(output).toContain("\n");
-      const parsed = JSON.parse(output);
-      expect(parsed).toHaveProperty("command", "sum");
-      expect(parsed).toHaveProperty("result", 12);
-      expect(parsed).toHaveProperty("warnings");
-      expect(parsed.warnings).toEqual([]);
+      expect(outputStr).toContain("\n");
+      const output = JSON.parse(outputStr);
+      expect(output).toHaveProperty("command", "sum");
+      expect(output).toHaveProperty("result", 12);
+      expect(output).toHaveProperty("warnings");
+      expect(output.warnings).toEqual([]);
+      expect(output).toHaveProperty("timestamp");
+      expect(typeof output.timestamp).toBe('string');
+      expect(isoRegex.test(output.timestamp)).toBe(true);
+      expect(output).toHaveProperty("version", "1.4.1-1");
       logSpy.mockRestore();
     });
   });
@@ -133,7 +148,6 @@ describe("CLI Behavior", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "nAn", "NaN", "NAN", "10"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("10"));
-    // All variations of NaN should be reported with the same positional index (position 0)
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): nAn"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NAN"));

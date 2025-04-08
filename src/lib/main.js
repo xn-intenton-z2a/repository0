@@ -9,8 +9,14 @@
  *
  * New Feature: Global JSON Output Mode with optional pretty-printing. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration. Supplying --json-pretty outputs formatted JSON with 2-space indentation for improved readability.
  *
+ * Enhancement: Extended Global JSON Output Mode now includes additional metadata fields:
+ *   - timestamp: The ISO formatted time of command execution
+ *   - version: The current tool version
+ *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs.
  */
+
+const TOOL_VERSION = '1.4.1-1';
 
 const usage =
   "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
@@ -22,7 +28,13 @@ let jsonPretty = false;
 // Helper functions to output success or error messages based on JSON mode
 function sendSuccess(command, result, warnings) {
   if (jsonMode) {
-    const output = { command, result, warnings: warnings ? warnings : [] };
+    const output = {
+      command,
+      result,
+      warnings: warnings ? warnings : [],
+      timestamp: new Date().toISOString(),
+      version: TOOL_VERSION
+    };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(result));
@@ -34,7 +46,13 @@ function sendSuccess(command, result, warnings) {
 
 function sendError(command, errorMessage, warnings) {
   if (jsonMode) {
-    const output = { command, error: errorMessage, warnings: warnings ? warnings : [] };
+    const output = {
+      command,
+      error: errorMessage,
+      warnings: warnings ? warnings : [],
+      timestamp: new Date().toISOString(),
+      version: TOOL_VERSION
+    };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(errorMessage));
@@ -89,7 +107,7 @@ const commands = {
     sendSuccess("help", message);
   },
   "--info": async (_args) => {
-    sendSuccess("info", "Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.");
+    sendSuccess("info", "Repository0 CLI Tool version " + TOOL_VERSION + " - This repository demonstrates automated workflows and modular CLI command handling.");
   },
   "--sum": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
@@ -179,7 +197,7 @@ const commands = {
       if (process.env.FORCE_VERSION_ERROR === "true") {
         throw new Error("unknown error");
       }
-      sendSuccess("version", "Version: 1.4.1-1");
+      sendSuccess("version", "Version: " + TOOL_VERSION);
     } catch (e) {
       sendError("version", "Could not retrieve version: " + e.message);
     }
