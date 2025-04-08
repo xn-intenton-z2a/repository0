@@ -18,9 +18,9 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs. In particular:
-- Any input matching 'NaN' (in any letter casing) is explicitly rejected and reported as an invalid input.
-- The positional index for invalid tokens is computed only for tokens that are candidates for valid numeric conversion. This means that inputs which are explicit variations of 'NaN' will not increment the positional index. As a result, consecutive 'NaN' inputs may share the same positional index, clearly indicating their order among valid tokens.
+The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
+- Any input matching 'NaN' (in any letter casing) is explicitly rejected and reported with a consistent warning message. Consecutive 'NaN' inputs share the same positional index to clarify their order relative to valid tokens.
+- Detailed warnings include the token and its reported positional index, aiding users in identifying which inputs were rejected.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -79,7 +79,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects, providing enhanced integration with automated workflows. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects, providing enhanced integration with automated workflows. The input parsing logic has been refactored to ensure consistent handling and reporting of invalid inputs such as different casings of "NaN". For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

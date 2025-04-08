@@ -8,6 +8,8 @@
  * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input.
  *
  * New Feature: Global JSON Output Mode. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration.
+ *
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs.
  */
 
 const usage =
@@ -41,11 +43,14 @@ function sendError(command, errorMessage, warnings) {
   }
 }
 
+// Helper function to generate a standardized warning message
+function generateWarning(pos, token) {
+  return `(position ${pos}): ${token}`;
+}
+
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// Revised to calculate positions by incrementing only for tokens that can potentially be a valid number.
-// Special Note: Any input matching any variation of 'NaN' (case-insensitive) is explicitly rejected. 
-// The positional index is not incremented for such tokens, which may lead to identical positional indices for consecutive 'NaN' inputs. 
-// This design choice allows multiple warnings for invalid tokens to reference the same position, clarifying their order relative to valid numeric tokens.
+// Revised to use a helper for warning messages. Explicit variations of 'NaN' are rejected with a consistent warning message.
+// Tokens that exactly match any form of 'NaN' do not increment the positional index, ensuring consecutive invalid tokens share the same index for clarity.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -59,15 +64,15 @@ function parseNumbers(raw) {
     }
     // Uniformly reject any variation of 'NaN'
     if (str.toLowerCase() === "nan") {
-      invalid.push(`(position ${pos}): ${token}`);
-      // Do not increment pos for a token that is exactly NaN to allow clear reporting of consecutive invalid tokens
+      invalid.push(generateWarning(pos, token));
+      // Do not increment pos for tokens explicitly matching 'NaN'
       continue;
     }
     const num = Number(str);
     if (!isNaN(num)) {
       valid.push(num);
     } else {
-      invalid.push(`(position ${pos}): ${token}`);
+      invalid.push(generateWarning(pos, token));
     }
     pos++;
   }
