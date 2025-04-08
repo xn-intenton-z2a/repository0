@@ -9,7 +9,7 @@
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
@@ -410,6 +410,25 @@ const commands = {
       percentileValue = sorted[lower] + (index - lower) * (sorted[upper] - sorted[lower]);
     }
     console.log("Percentile: " + percentileValue);
+  },
+  "--geomean": async (args) => {
+    const { valid: numbers, invalid } = parseNumbers(args);
+    if (numbers.length === 0) {
+      console.log("Error: No valid numeric inputs provided.");
+      return;
+    }
+    for (const num of numbers) {
+      if (num <= 0) {
+        console.log("Error: All inputs must be positive for geometric mean.");
+        return;
+      }
+    }
+    const product = numbers.reduce((acc, val) => acc * val, 1);
+    const result = Math.pow(product, 1 / numbers.length);
+    console.log("Geomean: " + result);
+    if (invalid.length > 0) {
+      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
+    }
   }
 };
 
@@ -419,6 +438,7 @@ commands["-m"] = commands["--multiply"];
 commands["-a"] = commands["--average"];
 commands["-d"] = commands["--divide"];
 commands["-h"] = commands["--help"];
+commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
   if (args === undefined) {

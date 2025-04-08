@@ -15,6 +15,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--stddev:** Compute the population standard deviation of a list of numbers.
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
+- **--geomean:** Compute the geometric mean of a list of positive numbers. When provided valid positive numbers, it multiplies all inputs and takes the nth root (where n is the number of inputs). An alias **-g** is available for this command.
 
 Additionally, shorthand aliases have been added for frequently used commands to improve usability:
 - **-s:** Alias for `--sum`
@@ -22,6 +23,7 @@ Additionally, shorthand aliases have been added for frequently used commands to 
 - **-a:** Alias for `--average`
 - **-d:** Alias for `--divide`
 - **-h:** Alias for `--help`
+- **-g:** Alias for `--geomean`
 
 All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that literally matches 'NaN' (regardless of its letter casing) is explicitly treated as invalid with a clear warning or error, ensuring consistent behavior across all CLI commands.
 
@@ -67,7 +69,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile, and now supports shorthand aliases (-s, -m, -a, -d, -h) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter case) is explicitly rejected to ensure robust and consistent behavior. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter case) is explicitly rejected to ensure robust and consistent behavior. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
