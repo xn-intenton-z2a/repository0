@@ -422,7 +422,6 @@ describe("CLI Behavior", () => {
   test("computes mode for multiple modes (tie)", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--mode", "1", "1", "2", "2", "3"]);
-    // Order of modes might differ, so we check for both 1 and 2
     const output = consoleSpy.mock.calls[0][0];
     expect(output).toMatch(/1/);
     expect(output).toMatch(/2/);
