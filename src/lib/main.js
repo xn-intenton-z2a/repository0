@@ -77,8 +77,8 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   let pos = 0;
-  // Get the list of tokens to reject from environment variable; if not set, default to ['nan']
-  const configInvalid = process.env.INVALID_TOKENS
+  // Get the list of tokens to reject from environment variable; if not set, default to ['nan'].
+  const configInvalid = (process.env.INVALID_TOKENS !== undefined)
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
     : ['nan'];
 
