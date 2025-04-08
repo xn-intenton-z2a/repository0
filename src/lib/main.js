@@ -48,14 +48,12 @@ function aggregateWarnings(warnings) {
   warnings.forEach(warning => {
     // Extract token part from the warning message
     const parts = warning.split(': ');
-    const token = parts.slice(1).join(': ');
+    // Use trimmed token for accurate aggregation
+    const token = parts.slice(1).join(': ').trim();
     counts[token] = (counts[token] || 0) + 1;
   });
-  const aggregated = [];
-  for (const token in counts) {
-    aggregated.push(`Token '${token}' occurred ${counts[token]} time${counts[token] > 1 ? 's' : ''}`);
-  }
-  return aggregated;
+  // Generate aggregated messages for each distinct token
+  return Object.keys(counts).map(token => `Token '${token}' occurred ${counts[token]} time${counts[token] > 1 ? 's' : ''}`);
 }
 
 // Helper functions to output success or error messages based on JSON mode
