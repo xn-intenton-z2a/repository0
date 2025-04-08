@@ -30,7 +30,7 @@ function parseNumbers(raw) {
       break;
     }
     // Explicitly treat literal 'NaN' (case insensitive) as invalid
-    if (typeof token === "string" && token.toLowerCase() === "nan") {
+    if (String(token).toLowerCase() === "nan") {
       invalid.push(token);
       continue;
     }
@@ -79,7 +79,7 @@ async function cliMain(args) {
       break;
     case "--info":
       console.log(
-        `Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.`,
+        `Repository0 CLI Tool version 1.4.1-1 - This repository demonstrates automated workflows and modular CLI command handling.`
       );
       break;
     case "--sum": {
