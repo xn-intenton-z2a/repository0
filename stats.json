@@ -1,14 +1,18 @@
 {
-  "openIssues": 4,
+  "openIssues": 5,
   "issuesClosedLastHour": 4,
-  "issuesClosedLastDay": 52,
+  "issuesClosedLastDay": 54,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 23,
+  "diffMinutes": 12,
+  "diffMinutesMain": 16,
   "commitsLastHour": 2,
-  "commitsLastDay": 37,
+  "commitsLastDay": 38,
   "lastFiveCommitMessages": [
+    {
+      "time": "16:07",
+      "message": "Refactored parseNumbers for consolidated NaN warnings and remove..."
+    },
     {
       "time": "15:41",
       "message": "Extend Global JSON output with metadata fields timestamp and ver..."
@@ -24,23 +28,19 @@
     {
       "time": "14:08",
       "message": "Clarified NaN input handling and positional indexing in inline c..."
-    },
-    {
-      "time": "13:43",
-      "message": "Reset global jsonMode for each CLI invocation to ensure proper w..."
     }
   ],
   "branches": {
     "count": 1,
     "details": [
       {
-        "branch": "agentic-lib-issue-752",
-        "minutesSinceLastCommit": 0
+        "branch": "agentic-lib-issue-755",
+        "minutesSinceLastCommit": 12
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T16:04:23.819Z"
+  "generatedAt": "2025-04-08T16:23:16.074Z"
 }
