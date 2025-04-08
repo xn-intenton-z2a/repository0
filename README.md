@@ -17,12 +17,16 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
 
-In addition, the input parsing mechanism has been refactored to optimize the detection of invalid numeric inputs. Any input matching 'NaN' (in any casing) is explicitly rejected with detailed positional error reporting, and warnings for each invalid input are now issued individually. Note that the positional numbers for warnings are computed based on the sequence of valid numeric tokens processed.
+### Enhanced Input Parsing Details
+The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs. In particular:
+- Any input matching 'NaN' (in any letter casing) is explicitly rejected and reported as an invalid input.
+- The positional index for invalid tokens is computed only for tokens that are candidates for valid numeric conversion. This means that inputs which are explicit variations of 'NaN' will not increment the positional index. As a result, consecutive 'NaN' inputs may share the same positional index, clearly indicating their order among valid tokens.
 
-Additionally, a new global flag has been added:
+### Global JSON Output Mode
+A new global flag has been added:
+- **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects instead of plain text. This facilitates easier integration with automated systems.
 
-- **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects rather than plain text. This facilitates easier integration with automated systems and agentic workflows.
-
+### Shorthand Aliases
 Shorthand aliases have been added for frequently used commands to improve usability:
 - **-s:** Alias for `--sum`
 - **-m:** Alias for `--multiply`
@@ -31,7 +35,7 @@ Shorthand aliases have been added for frequently used commands to improve usabil
 - **-h:** Alias for `--help`
 - **-g:** Alias for `--geomean`
 
-All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter casing) is explicitly rejected with detailed error feedback that includes the input's position.
+All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or flag inputs are encountered. Detailed warnings (with positional indices) are issued to help users understand which inputs were rejected and why.
 
 ## What’s Inside
 
@@ -39,13 +43,13 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing improve integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing improve integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages including positional information for invalid inputs, such as various casings of "NaN".
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of "NaN".
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

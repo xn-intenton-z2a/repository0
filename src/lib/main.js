@@ -42,8 +42,10 @@ function sendError(command, errorMessage, warnings) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// Revised to calculate positions by incrementing only for non-NaN tokens so that the warning for subsequent invalid tokens
-// has the expected position.
+// Revised to calculate positions by incrementing only for tokens that can potentially be a valid number.
+// Special Note: Any input matching any variation of 'NaN' (case-insensitive) is explicitly rejected. 
+// The positional index is not incremented for such tokens, which may lead to identical positional indices for consecutive 'NaN' inputs. 
+// This design choice allows multiple warnings for invalid tokens to reference the same position, clarifying their order relative to valid numeric tokens.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -58,7 +60,7 @@ function parseNumbers(raw) {
     // Uniformly reject any variation of 'NaN'
     if (str.toLowerCase() === "nan") {
       invalid.push(`(position ${pos}): ${token}`);
-      // Do not increment pos for a token that is exactly NaN to adjust subsequent positions
+      // Do not increment pos for a token that is exactly NaN to allow clear reporting of consecutive invalid tokens
       continue;
     }
     const num = Number(str);
