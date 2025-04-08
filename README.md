@@ -23,7 +23,7 @@ Additionally, shorthand aliases have been added for frequently used commands to 
 - **-d:** Alias for `--divide`
 - **-h:** Alias for `--help`
 
-All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Additionally, any literal input of 'NaN' (in any case) is explicitly treated as invalid with a clear warning or error message.
+All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case, e.g. 'NaN', 'nan', 'nAn', etc.) are explicitly treated as invalid with clear warnings or errors, ensuring consistent behavior across all commands.
 
 ## What’s Inside
 
@@ -37,7 +37,7 @@ All arithmetic, statistical, logarithmic, and percentile commands standardize er
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs. Additional tests now verify that alias commands produce identical outputs to their full command counterparts.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs. Additional tests now verify that alias commands produce identical outputs to their full command counterparts and that any input matching 'NaN' in any case is consistently rejected.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -67,7 +67,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile, and now supports shorthand aliases (-s, -m, -a, -d, -h) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case) are explicitly treated as invalid. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile, and now supports shorthand aliases (-s, -m, -a, -d, -h) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case, e.g. "NaN", "nan", "nAn") are explicitly treated as invalid. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

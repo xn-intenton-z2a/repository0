@@ -19,8 +19,8 @@ function parseNumbers(raw) {
     if (typeof token === "string" && token.startsWith("--")) {
       break;
     }
-    // Uniform rejection: literal 'NaN' in any case is considered invalid
-    if (String(token).toLowerCase() === "nan") {
+    // Trim and convert token to string then compare in lower case to 'nan'
+    if (String(token).trim().toLowerCase() === "nan") {
       invalid.push(token);
       continue;
     }
