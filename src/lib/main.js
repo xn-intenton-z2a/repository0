@@ -5,7 +5,7 @@
  *
  * This main file handles CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
  *
- * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input.
+ * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input by default unless allowed via configuration.
  *
  * New Feature: Global JSON Output Mode with optional pretty-printing. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration. Supplying --json-pretty outputs formatted JSON with 2-space indentation for improved readability.
  *
@@ -13,13 +13,15 @@
  *   - timestamp: The ISO formatted time of command execution
  *   - version: The current tool version
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs. Multiple 'NaN' tokens now share the same positional index in warnings.
+ * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject.
+ *
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of configured invalid tokens and consistent positional indexing for invalid inputs. Multiple invalid tokens designated by the configuration now share the same positional index in warnings.
  */
 
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...];
 
 // Global flags for JSON output mode
 let jsonMode = false;
@@ -68,29 +70,41 @@ function generateWarning(pos, token) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// This implementation uniformly rejects any variation of 'NaN' without incrementing the positional index,
-// ensuring that consecutive 'NaN' tokens share the same index. Other tokens increment the index as expected.
+// This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'NaN')
+// Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
+// Tokens in the disallowed list are rejected without incrementing the positional index for consistency.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   let pos = 0;
+  // Get the list of tokens to reject from environment variable; if not set, default to ['nan']
+  const configInvalid = process.env.INVALID_TOKENS
+    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
+    : ['nan'];
+
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
     const str = String(token).trim();
     // Skip if a flag is encountered
-    if (str.startsWith("--")) {
+    if (str.startsWith('--')) {
       continue;
     }
-    // Uniformly reject any variation of 'NaN' without increasing the positional index
-    if (str.toLowerCase() === "nan") {
+    const tokenLower = str.toLowerCase();
+    // If token is in the configured invalid list, reject it without incrementing positional index
+    if (configInvalid.includes(tokenLower)) {
       invalid.push(generateWarning(pos, token));
       continue;
     }
-    const num = Number(str);
-    if (!isNaN(num)) {
-      valid.push(num);
+    // Special case: if token is 'nan' but not in invalid list, allow it as NaN
+    if (tokenLower === 'nan') {
+      valid.push(NaN);
     } else {
-      invalid.push(generateWarning(pos, token));
+      const num = Number(str);
+      if (!isNaN(num)) {
+        valid.push(num);
+      } else {
+        invalid.push(generateWarning(pos, token));
+      }
     }
     pos++;
   }

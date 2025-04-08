@@ -8,7 +8,9 @@ This repository is intended as a template that includes:
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, logarithmic, and percentile commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+
+The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, logarithmic, and percentile commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
 
 - **--median:** Compute the median of a list of numbers (average of two middles for even counts).
 - **--mode:** Compute the mode(s) (the most frequently occurring number(s)) of a list of numbers.
@@ -19,7 +21,8 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
-- Any input matching 'NaN' (in any letter casing) is explicitly rejected and reported with a consistent warning message. Consecutive 'NaN' inputs share the same positional index to clarify their order relative to valid tokens.
+- Any input matching configured invalid tokens is explicitly rejected. By default, tokens matching 'NaN' (in any letter casing) are rejected. 
+- A new configuration option via the environment variable **INVALID_TOKENS** allows you to customize the list of rejected tokens (provide a comma-separated list). If you wish to allow tokens such as 'NaN', remove them from the configuration.
 - Detailed warnings include the token and its reported positional index, aiding users in identifying which inputs were rejected.
 
 ### Global JSON Output Mode
@@ -55,6 +58,9 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
 
 - **Tests:**
   Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of "NaN".
+
+- **Configuration:**
+  You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

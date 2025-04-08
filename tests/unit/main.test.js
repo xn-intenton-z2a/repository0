@@ -142,7 +142,7 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New test for various casings of 'NaN'
+  // New test for various casings of 'NaN' inputs
   test("handles various casings of 'NaN' inputs", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -153,5 +153,18 @@ describe("CLI Behavior", () => {
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NAN"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
+  });
+
+  // New test to verify configurable invalid tokens
+  test("allows 'NaN' as valid input when not configured as invalid", async () => {
+    // Temporarily override the INVALID_TOKENS env variable
+    const originalInvalid = process.env.INVALID_TOKENS;
+    process.env.INVALID_TOKENS = "";
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--sum", "NaN", "5"]);
+    // In this case, 'NaN' is allowed and parsed as NaN, so the sum of [NaN, 5] results in NaN
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
+    logSpy.mockRestore();
+    process.env.INVALID_TOKENS = originalInvalid;
   });
 });
