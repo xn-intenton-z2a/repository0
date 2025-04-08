@@ -1,31 +1,42 @@
 # EXPRESSION
 
 ## Overview
-This feature adds a new CLI command `--expression` to evaluate complete mathematical expressions. Unlike the individual arithmetic commands (such as `--sum` or `--multiply`), this command allows users to input a full expression (e.g., `2 + 3 * (4 - 1)`) and receive the calculated result. This enhances the usability of the CLI tool by offering a flexible, single-command evaluation of arithmetic expressions.
+This feature enhances the CLI's mathematical capabilities by unifying the evaluation of arithmetic expressions and operations on complex numbers. Users can input full mathematical expressions (e.g. `2 + 3 * (4 - 1)`) to get real-number results, or specify complex numbers in the form `a+bi` (or `a-bi`) to perform arithmetic operations such as addition, subtraction, multiplication, and division. This consolidated approach simplifies the interface by providing a single command to handle both real and complex calculations while aligning with the repository's mission of promoting modular, self-contained automation.
 
 ## Implementation Details
+### Real Expression Evaluation
 - **Command Integration:**
-  - Add a new flag `--expression` to the CLI command mapping in `src/lib/main.js`.
-  - When invoked, the command will combine all provided arguments into a single expression string.
+  - Add a CLI flag `--expression` that accepts one or more parameters. All provided arguments are concatenated to form a single expression string.
+  - Validate the expression to ensure only numbers, allowed arithmetic operators (`+`, `-`, `*`, `/`, `%`), whitespace, and parentheses are present.
 
-- **Expression Parsing and Evaluation:**
-  - Validate the expression to ensure it contains only numbers, whitespace, and allowed arithmetic operators (`+`, `-`, `*`, `/`, `%`) as well as parentheses.
-  - Use a safe evaluation mechanism (for example, via a carefully constructed Function constructor after sanitizing input) to compute the result. Avoid using `eval` directly without proper validation to prevent security risks.
-  - If the expression is invalid or contains disallowed characters, return a clear error message: "Error: Invalid expression provided.".
+- **Evaluation Logic:**
+  - Use a safe evaluation mechanism (e.g. via a sanitized Function constructor) to compute the result of the expression.
+  - If the expression is invalid or contains disallowed characters, return an error: "Error: Invalid expression provided.".
 
-- **Error Handling & Validation:**
-  - If no expression is provided, output an error message indicating that an expression is required.
-  - Ensure that any exceptions during expression evaluation (such as division by zero) are caught and relayed as standardized error messages.
+### Complex Number Operations
+- **Unified Mode:**
+  - Extend the `--expression` command to detect complex number inputs using regular expressions matching the format `a+bi` or `a-bi`.
+  - When the expression includes complex numbers, support operations such as:
+    - **Addition & Subtraction:** Separately process real and imaginary parts.
+    - **Multiplication:** Use the formula: (a+bi)*(c+di) = (ac - bd) + (ad+bc)i.
+    - **Division:** Compute using the conjugate, ensuring division by zero is handled by returning a clear error message.
+
+- **Input Parsing & Validation:**
+  - Parse complex number strings using regular expressions to extract the real and imaginary components.
+  - If the format is incorrect, output a standardized error message: "Error: Invalid complex number format. Expected format a+bi or a-bi.".
+
+## Error Handling & Validation
+- Use standardized error messages when inputs are missing or invalid.
+- Ensure exceptions (such as division by zero or syntax errors) are caught and relayed with clear error messages.
 
 ## Testing & Documentation
 - **Unit Tests:**
-  - Create tests that pass valid expressions to verify that the correct result is computed.
-  - Include tests for invalid inputs (e.g., containing letters or disallowed symbols) to confirm that appropriate error messages are returned.
-  - Test edge cases, such as expressions with extra whitespace or nested parentheses.
-
+  - Add tests for valid real expressions, complex arithmetic operations, and error conditions (e.g. invalid syntax, malformed complex numbers).
 - **Documentation:**
-  - Update the README and CLI usage documentation to include examples and usage instructions for the new `--expression` command.
-  - Include inline code comments in the source file to document the parsing, validation, and evaluation logic.
+  - Update the README and CLI usage docs with usage examples, for instance:
+    - Real Expression: `node src/lib/main.js --expression "2 + 3 * (4 - 1)"`
+    - Complex Addition: `node src/lib/main.js --expression "3+2i + 1-4i"`
+  - Inline comments in the source file should document the enhanced parsing logic for distinguishing real and complex expressions.
 
 ## Alignment with Repository Mission
-This feature contributes to the repository's mission by expanding the toolset available in a modular, single-source file. It promotes healthy collaboration by enabling quick and effective computational evaluations directly from the command line, reinforcing the focus on practical automation and diagnostics.
+By merging real expression evaluation with complex arithmetic into a single, versatile command, this feature reinforces the repository’s mission of providing streamlined, modular CLI utilities that enable healthy collaboration and practical automation in a single-source file environment.
