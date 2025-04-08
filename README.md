@@ -24,7 +24,8 @@ The input parsing mechanism has been refined to optimize the detection of invali
 
 ### Global JSON Output Mode
 A new global flag has been added:
-- **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects instead of plain text. This facilitates easier integration with automated systems.
+- **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects in minified form for machine integration.
+- **--json-pretty:** When provided, all command outputs are returned as well-formatted JSON objects with 2-space indentation for easier human readability. If both flags are specified, --json-pretty takes precedence.
 
 ### Shorthand Aliases
 Shorthand aliases have been added for frequently used commands to improve usability:
@@ -79,7 +80,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects, providing enhanced integration with automated workflows. The input parsing logic has been refactored to ensure consistent handling and reporting of invalid inputs such as different casings of "NaN". For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, a new flag --json-pretty has been added to provide well-formatted, pretty-printed JSON output for improved readability. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

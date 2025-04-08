@@ -24,10 +24,7 @@ describe("CLI Behavior", () => {
   test("displays usage and demo output when no args provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main();
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining("Usage: node src/lib/main.js")
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenNthCalledWith(2, expect.stringContaining("No CLI arguments provided. Exiting."));
     consoleSpy.mockRestore();
   });
@@ -42,10 +39,7 @@ describe("CLI Behavior", () => {
   test("displays help message when --help flag is provided", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--help"]);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining("Usage: node src/lib/main.js")
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("Usage: node src/lib/main.js"));
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("--diagnostics: Check system diagnostics"));
     consoleSpy.mockRestore();
   });
@@ -53,10 +47,7 @@ describe("CLI Behavior", () => {
   test("defaults to usage output when non-array argument is passed", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(null);
-    expect(consoleSpy).toHaveBeenNthCalledWith(
-      1,
-      expect.stringContaining("Usage: node src/lib/main.js")
-    );
+    expect(consoleSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("Usage: node src/lib/main.js"));
     consoleSpy.mockRestore();
   });
 
@@ -118,6 +109,20 @@ describe("CLI Behavior", () => {
       const output = tryParseJSON(logSpy.mock.calls[0][0]);
       expect(output).toHaveProperty("command", "sum");
       expect(output).toHaveProperty("error", "Error: No valid numeric inputs provided.");
+      logSpy.mockRestore();
+    });
+
+    test("outputs sum in pretty JSON format when --json-pretty is used", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--json-pretty", "--sum", "3", "4", "5"]);
+      const output = logSpy.mock.calls[0][0];
+      // Check that output is pretty printed (contains newlines)
+      expect(output).toContain("\n");
+      const parsed = JSON.parse(output);
+      expect(parsed).toHaveProperty("command", "sum");
+      expect(parsed).toHaveProperty("result", 12);
+      expect(parsed).toHaveProperty("warnings");
+      expect(parsed.warnings).toEqual([]);
       logSpy.mockRestore();
     });
   });

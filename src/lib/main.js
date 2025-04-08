@@ -7,22 +7,23 @@
  *
  * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input.
  *
- * New Feature: Global JSON Output Mode. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration.
+ * New Feature: Global JSON Output Mode with optional pretty-printing. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration. Supplying --json-pretty outputs formatted JSON with 2-space indentation for improved readability.
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs.
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [numbers...]";
 
-// Global flag for JSON output mode
+// Global flags for JSON output mode
 let jsonMode = false;
+let jsonPretty = false;
 
 // Helper functions to output success or error messages based on JSON mode
 function sendSuccess(command, result, warnings) {
   if (jsonMode) {
     const output = { command, result, warnings: warnings ? warnings : [] };
-    console.log(JSON.stringify(output));
+    console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(result));
     if (warnings && warnings.length > 0) {
@@ -34,7 +35,7 @@ function sendSuccess(command, result, warnings) {
 function sendError(command, errorMessage, warnings) {
   if (jsonMode) {
     const output = { command, error: errorMessage, warnings: warnings ? warnings : [] };
-    console.log(JSON.stringify(output));
+    console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(errorMessage));
     if (warnings && warnings.length > 0) {
@@ -465,8 +466,9 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Reset jsonMode for every invocation to avoid state carryover between calls
+  // Reset json mode for every invocation to avoid state carryover between calls
   jsonMode = false;
+  jsonPretty = false;
   if (args === undefined) {
     args = [];
   }
@@ -474,8 +476,12 @@ async function cliMain(args) {
     sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
     return;
   }
-  // Check for global --json flag and remove it from arguments
-  if (args.includes("--json")) {
+  // Check for global --json-pretty flag and remove it (takes precedence over --json)
+  if (args.includes("--json-pretty")) {
+    jsonMode = true;
+    jsonPretty = true;
+    args = args.filter(arg => arg !== "--json-pretty" && arg !== "--json");
+  } else if (args.includes("--json")) {
     jsonMode = true;
     args = args.filter(arg => arg !== "--json");
   }
