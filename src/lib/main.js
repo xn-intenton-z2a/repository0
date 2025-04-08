@@ -17,7 +17,7 @@
  *
  * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching 'NaN' (in any casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject.
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of configured invalid tokens and consistent positional indexing for invalid inputs. Multiple invalid tokens designated by the configuration now share the same positional index in warnings.
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that match the configured disallowed list, a fixed positional index (0) is used intentionally to indicate their collective rejection; this design choice is documented here for consistency in warning messages.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -82,12 +82,12 @@ function generateWarning(pos, token) {
 // Optimized helper function to parse numeric inputs with detailed error reporting
 // This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'NaN')
 // Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// Tokens in the disallowed list are rejected using a fixed positional index for consistency, while other invalid tokens use the current valid token index.
+// For tokens in the disallowed list, a fixed positional index (0) is used intentionally to indicate their grouped rejection. This design is maintained for consistency in warning messages.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   let posValid = 0;
-  const fixedInvalidPos = 0;
+  const fixedInvalidPos = 0; // Fixed index for disallowed tokens to denote consistent rejection
   // Get the list of tokens to reject from environment variable; if not set, default to ['nan'].
   const configInvalid = (process.env.INVALID_TOKENS !== undefined)
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
@@ -101,7 +101,7 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
-    // If token is in the configured invalid tokens, use fixed index
+    // If token is in the configured invalid tokens, use fixed index for warning
     if (configInvalid.includes(tokenLower)) {
       invalid.push(generateWarning(fixedInvalidPos, token));
       continue;
