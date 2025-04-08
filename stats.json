@@ -1,14 +1,18 @@
 {
-  "openIssues": 5,
+  "openIssues": 4,
   "issuesClosedLastHour": 4,
-  "issuesClosedLastDay": 48,
+  "issuesClosedLastDay": 50,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 14,
-  "diffMinutesMain": 21,
+  "diffMinutes": 12,
+  "diffMinutesMain": 12,
   "commitsLastHour": 2,
-  "commitsLastDay": 35,
+  "commitsLastDay": 36,
   "lastFiveCommitMessages": [
+    {
+      "time": "15:10",
+      "message": "Added --json-pretty flag to support pretty-printed JSON output a..."
+    },
     {
       "time": "14:42",
       "message": "Refactored parseNumbers to use a helper for warning messages ens..."
@@ -24,10 +28,6 @@
     {
       "time": "11:08",
       "message": "Fixed CLI behavior for no arguments to output usage and exit mes..."
-    },
-    {
-      "time": "09:11",
-      "message": "Enhanced error reporting in parseNumbers to show invalid tokens ..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T15:03:48.130Z"
+  "generatedAt": "2025-04-08T15:22:42.810Z"
 }
