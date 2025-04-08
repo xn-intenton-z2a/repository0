@@ -13,7 +13,7 @@
  *   - timestamp: The ISO formatted time of command execution
  *   - version: The current tool version
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs.
+ * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages, ensuring uniform rejection of any case variant of 'NaN' and consistent positional indexing for invalid inputs. Multiple 'NaN' tokens now share the same positional index in warnings.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -68,8 +68,8 @@ function generateWarning(pos, token) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// Revised to use a helper for warning messages. Explicit variations of 'NaN' are rejected with a consistent warning message.
-// Tokens that exactly match any form of 'NaN' do not increment the positional index, ensuring consecutive invalid tokens share the same index for clarity.
+// This implementation uniformly rejects any variation of 'NaN' without incrementing the positional index,
+// ensuring that consecutive 'NaN' tokens share the same index. Other tokens increment the index as expected.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -81,10 +81,9 @@ function parseNumbers(raw) {
     if (str.startsWith("--")) {
       continue;
     }
-    // Uniformly reject any variation of 'NaN'
+    // Uniformly reject any variation of 'NaN' without increasing the positional index
     if (str.toLowerCase() === "nan") {
       invalid.push(generateWarning(pos, token));
-      // Do not increment pos for tokens explicitly matching 'NaN'
       continue;
     }
     const num = Number(str);
@@ -116,11 +115,7 @@ const commands = {
       return;
     }
     const result = numbers.reduce((acc, val) => acc + val, 0);
-    sendSuccess(
-      "sum",
-      result,
-      invalid
-    );
+    sendSuccess("sum", result, invalid);
   },
   "--multiply": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
@@ -129,11 +124,7 @@ const commands = {
       return;
     }
     const result = numbers.reduce((acc, val) => acc * val, 1);
-    sendSuccess(
-      "multiply",
-      result,
-      invalid
-    );
+    sendSuccess("multiply", result, invalid);
   },
   "--subtract": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
