@@ -18,7 +18,7 @@ on:
   schedule:
     #- cron: '0 0 */28 * *' # schedule-1
     #- cron: '0 0 */7 * *' # schedule-2
-    - cron: '*/5 * * * *' # schedule-3
+    - cron: '*/2 * * * *' # schedule-3
 
 jobs:
 
