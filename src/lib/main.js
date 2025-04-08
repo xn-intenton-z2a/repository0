@@ -11,16 +11,27 @@
  *    --mode: Computes the mode(s) of the provided list of numbers and returns the most frequent value(s).
  *    --stddev: Computes the population standard deviation of the provided list of numbers.
  *
- * Note: The handling of literal 'NaN' inputs has been standardized across all arithmetic operations. When only 'NaN' or other non-numeric values are provided, the CLI will return the error message without any additional warnings.
+ * Note: The handling of literal 'NaN' inputs, as well as any tokens that appear to be additional flags (starting with "--"), has been standardized across all arithmetic operations. When only 'NaN', other non-numeric values, or flag tokens are provided, the CLI will return the error message without any additional warnings.
  */
 
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
-  // Explicitly treat literal 'NaN' (as well as any non-numeric string) as invalid input
-  const valid = raw.map(x => Number(x)).filter(n => !isNaN(n));
-  const invalid = raw.filter(x => isNaN(Number(x)));
+  // Process tokens sequentially and stop if a token that looks like a flag is encountered
+  const valid = [];
+  const invalid = [];
+  for (const token of raw) {
+    if (typeof token === 'string' && token.startsWith('--')) {
+      break;
+    }
+    const num = Number(token);
+    if (!isNaN(num)) {
+      valid.push(num);
+    } else {
+      invalid.push(token);
+    }
+  }
   return { valid, invalid };
 }
 
