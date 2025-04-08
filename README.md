@@ -23,7 +23,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 The input parsing mechanism has been refined to optimize the detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
 - Any input matching configured invalid tokens is explicitly rejected. By default, tokens matching 'NaN' (in any letter casing) are rejected.
 - A new configuration option via the environment variable **INVALID_TOKENS** allows you to customize the list of rejected tokens (provide a comma-separated list). If you wish to allow tokens such as 'NaN', remove them from the configuration.
-- Detailed warnings include the token and its reported positional index, aiding users in identifying which inputs were rejected.
+- Detailed warnings include the token and its reported positional index. For tokens matching the configured disallowed list, a fixed positional index (0) is used intentionally to indicate their grouped rejection.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -53,7 +53,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing improve integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode and enhanced input parsing (including fixed positional indices for disallowed tokens) improve integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
