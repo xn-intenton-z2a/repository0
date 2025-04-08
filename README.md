@@ -27,6 +27,10 @@ A new global flag has been added:
 - **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects in minified form for machine integration.
 - **--json-pretty:** When provided, all command outputs are returned as well-formatted JSON objects with 2-space indentation for easier human readability. If both flags are specified, --json-pretty takes precedence.
 
+Additionally, the JSON responses now include the following metadata fields for enhanced integration:
+- **timestamp:** The ISO formatted time when the command was executed.
+- **version:** The current tool version.
+
 ### Shorthand Aliases
 Shorthand aliases have been added for frequently used commands to improve usability:
 - **-s:** Alias for `--sum`
@@ -80,7 +84,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, a new flag --json-pretty has been added to provide well-formatted, pretty-printed JSON output for improved readability. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects. In addition, the JSON responses now include metadata fields: **timestamp** (ISO formatted execution time) and **version** (the current tool version). For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
