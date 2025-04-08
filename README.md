@@ -8,16 +8,20 @@ This repository is intended as a template that includes:
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, and logarithmic commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, logarithmic, and percentile commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
 
 - **--median:** Compute the median of a list of numbers (average of two middles for even counts).
 - **--mode:** Compute the mode(s) (the most frequently occurring number(s)) of a list of numbers.
 - **--stddev:** Compute the population standard deviation of a list of numbers.
-- **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Detailed error messages are provided if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1), including the position of any invalid tokens.
+- **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base, with detailed error messages on invalid inputs.
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
-- **--geomean:** Compute the geometric mean of a list of positive numbers. When provided valid positive numbers, it multiplies all inputs and takes the nth root (where n is the number of inputs).
+- **--geomean:** Compute the geometric mean of a list of positive numbers.
 
-Additionally, shorthand aliases have been added for frequently used commands to improve usability:
+Additionally, a new global flag has been added:
+
+- **--json:** When provided, all command outputs (results, errors, and warnings) are returned as structured JSON objects rather than plain text. This facilitates easier integration with automated systems and agentic workflows.
+
+Shorthand aliases have been added for frequently used commands to improve usability:
 - **-s:** Alias for `--sum`
 - **-m:** Alias for `--multiply`
 - **-a:** Alias for `--average`
@@ -25,7 +29,7 @@ Additionally, shorthand aliases have been added for frequently used commands to 
 - **-h:** Alias for `--help`
 - **-g:** Alias for `--geomean`
 
-All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter case) is explicitly rejected. Detailed error messages now include the index position of any invalid input token to help users quickly identify and correct input mistakes.
+All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter casing) is explicitly rejected with detailed error feedback that includes the input's position.
 
 ## What’s Inside
 
@@ -33,13 +37,13 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability. The new JSON output mode enhances integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output detailed error messages including positional information when encountering invalid inputs as well as correct results for valid inputs. Additional tests verify that alias commands produce identical outputs to their full command counterparts.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithmic, and percentile commands output detailed error messages including positional information when encountering invalid inputs. Additional tests verify that alias commands produce identical outputs to their full command counterparts, and that the JSON output mode returns the expected structured data.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -69,7 +73,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter casing) is explicitly rejected with detailed error feedback that includes the input's position. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, and --geomean, and now supports shorthand aliases (-s, -m, -a, -d, -h, -g) for frequently used commands. A new global flag --json has been introduced to allow all outputs to be returned as structured JSON objects, providing enhanced integration with automated workflows. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
