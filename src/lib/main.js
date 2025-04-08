@@ -4,8 +4,7 @@
  * repository0 CLI Tool: A Template for Automated Workflows
  *
  * This main file now handles all CLI command processing inline, removing the dependency on an external
- * module that was causing build/test issues. The functionality has been retained to support CLI commands
- * including diagnostics, help, arithmetic operations, and more.
+ * module that was causing build/test issues. The arithmetic commands (e.g., --sum, --multiply, --subtract, --divide, --modulo, --average, --power, --variance, --range) have been updated to uniformly return the error message "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Other commands such as --factorial, --sqrt, and --fibonacci retain their specialized error messaging.
  */
 
 const usage = "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
