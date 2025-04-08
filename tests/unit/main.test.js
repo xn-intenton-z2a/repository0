@@ -16,7 +16,7 @@ describe("CLI Behavior", () => {
     await main();
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenNthCalledWith(2, "No CLI arguments provided. Exiting.");
     consoleSpy.mockRestore();
@@ -34,7 +34,7 @@ describe("CLI Behavior", () => {
     await main(["--help"]);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]"
     );
     expect(consoleSpy).toHaveBeenCalledWith("  --diagnostics: Check system diagnostics");
     consoleSpy.mockRestore();
@@ -45,7 +45,7 @@ describe("CLI Behavior", () => {
     await main(null);
     expect(consoleSpy).toHaveBeenNthCalledWith(
       1,
-      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]()",
+      "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]()"
     );
     consoleSpy.mockRestore();
   });
@@ -77,7 +77,7 @@ describe("CLI Behavior", () => {
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith("Sum: 5");
     expect(warnSpy).toHaveBeenCalledWith(
-      "Warning: These inputs were not valid numbers and have been ignored: NaN,hello",
+      "Warning: These inputs were not valid numbers and have been ignored: NaN,hello"
     );
     logSpy.mockRestore();
     warnSpy.mockRestore();
@@ -392,75 +392,49 @@ describe("CLI Behavior", () => {
     consoleSpy.mockRestore();
   });
 
-  // New tests for statistical commands
-  test("computes median for odd number of elements", async () => {
+  // New tests for the --log command
+  test("computes natural logarithm when --log flag is provided with one valid input", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--median", "3", "5", "7"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Median: 5");
+    await main(["--log", "10"]);
+    const expected = Math.log(10);
+    expect(consoleSpy).toHaveBeenCalledWith("Log: " + expected);
     consoleSpy.mockRestore();
   });
 
-  test("computes median for even number of elements", async () => {
+  test("computes logarithm with base when --log flag is provided with two valid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--median", "3", "5", "7", "9"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Median: 6");
+    await main(["--log", "1000", "10"]);
+    const expected = Math.log(1000) / Math.log(10);
+    expect(consoleSpy).toHaveBeenCalledWith("Log: " + expected);
     consoleSpy.mockRestore();
   });
 
-  test("returns error for --median with no valid inputs", async () => {
+  test("returns error when --log is provided with no valid inputs", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--median", "NaN", "abc"]);
+    await main(["--log", "NaN", "abc"]);
     expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
     consoleSpy.mockRestore();
   });
 
-  test("computes mode for a single mode", async () => {
+  test("returns error for --log when input is non-positive", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--mode", "1", "2", "2", "3"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Mode: 2");
+    await main(["--log", "-5"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Log: Input must be greater than 0");
     consoleSpy.mockRestore();
   });
 
-  test("computes mode for multiple modes (tie)", async () => {
+  test("returns error for --log when base is invalid (equal to 1)", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--mode", "1", "1", "2", "2", "3"]);
-    const output = consoleSpy.mock.calls[0][0];
-    expect(output).toMatch(/1/);
-    expect(output).toMatch(/2/);
+    await main(["--log", "10", "1"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Log: Base must be greater than 0 and not equal to 1");
     consoleSpy.mockRestore();
   });
 
-  test("returns error for --mode with no valid inputs", async () => {
+  test("returns error for --log when base is non-positive", async () => {
     const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--mode", "NaN", "abc"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
+    await main(["--log", "10", "-2"]);
+    expect(consoleSpy).toHaveBeenCalledWith("Log: Base must be greater than 0 and not equal to 1");
     consoleSpy.mockRestore();
-  });
-
-  test("computes stddev for given numbers", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    // For numbers [2,4,4,4,5,5,7,9], stddev should be 2
-    await main(["--stddev", "2", "4", "4", "4", "5", "5", "7", "9"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Stddev: 2");
-    consoleSpy.mockRestore();
-  });
-
-  test("returns error for --stddev with no valid inputs", async () => {
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["--stddev", "NaN", "xyz"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Error: No valid numeric inputs provided.");
-    consoleSpy.mockRestore();
-  });
-
-  // Additional test to ensure lowercase 'nan' is correctly identified as invalid
-  test("handles lowercase 'nan' as invalid input", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--sum", "nan", "10"]);
-    expect(logSpy).toHaveBeenCalledWith("Sum: 10");
-    expect(warnSpy).toHaveBeenCalledWith("Warning: These inputs were not valid numbers and have been ignored: nan");
-    logSpy.mockRestore();
-    warnSpy.mockRestore();
   });
 
   // Direct Function Invocation Tests

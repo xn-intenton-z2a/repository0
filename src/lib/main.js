@@ -11,11 +11,14 @@
  *    --mode: Computes the mode(s) of the provided list of numbers and returns the most frequent value(s).
  *    --stddev: Computes the population standard deviation of the provided list of numbers.
  *
+ * New logarithm command added:
+ *    --log: Computes the logarithm of a given number. With one argument, computes the natural logarithm (base e); with two arguments, computes the logarithm with the second argument as the base.
+ *
  * Note: The handling of literal 'NaN' inputs (in any case) as well as any tokens that appear to be additional flags (starting with "--") has been standardized across all arithmetic operations. When only 'NaN', other non-numeric values, or flag tokens are provided, the CLI will return the error message without any additional warnings.
  */
 
 const usage =
-  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [numbers...]";
+  "Usage: node src/lib/main.js [--diagnostics] [--help] [--version] [--greet] [--info] [--sum] [--multiply] [--subtract] [--divide] [--modulo] [--average] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [numbers...]";
 
 // Helper function to parse numeric inputs uniformly
 function parseNumbers(raw) {
@@ -395,6 +398,34 @@ async function cliMain(args) {
       };
       const result = numbers.filter(isPrime);
       console.log("Prime: " + result.join(","));
+      break;
+    }
+    case "--log": {
+      const { valid: numbers, invalid } = parseNumbers(args.slice(1));
+      if (numbers.length === 0) {
+        console.log("Error: No valid numeric inputs provided.");
+        return;
+      } else if (numbers.length === 1) {
+        const x = numbers[0];
+        if (x <= 0) {
+          console.log("Log: Input must be greater than 0");
+          return;
+        }
+        const result = Math.log(x);
+        console.log("Log: " + result);
+      } else {
+        const x = numbers[0], base = numbers[1];
+        if (x <= 0) {
+          console.log("Log: Input must be greater than 0");
+          return;
+        }
+        if (base <= 0 || base === 1) {
+          console.log("Log: Base must be greater than 0 and not equal to 1");
+          return;
+        }
+        const result = Math.log(x) / Math.log(base);
+        console.log("Log: " + result);
+      }
       break;
     }
     default:
