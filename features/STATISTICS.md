@@ -1,46 +1,37 @@
-# STATISTICS Feature
+# STATISTICS
 
-This feature adds implementations for missing statistical commands in the CLI tool. The commands to be implemented are: `--median`, `--mode`, and `--stddev` (standard deviation). These commands extend the arithmetic functionality while keeping consistent error messaging and behavior observed in the existing commands.
+## Overview
+The STATISTICS feature is updated to not only compute measures such as median, mode, and standard deviation but also to support the sorting of numeric inputs. The new sub-command `--sort` will allow users to arrange a sequence of numbers in ascending or descending order. This extension leverages existing numeric parsing and error handling logic while maintaining the minimalist, modular approach of the repository.
 
-# Overview
+## Implementation Details
+- **Command Integration:**
+  - Extend the STATISTICS feature to include a new flag `--sort` alongside the existing calculations for median (`--median`), mode (`--mode`), and standard deviation (`--stddev`).
+  - The `--sort` command will accept a list of numeric inputs. By default, the sorting will be in ascending order. If an optional additional flag (e.g., `--desc`) is provided among the inputs, the command will sort the numbers in descending order.
 
-The CLI currently lists `--median`, `--mode`, and `--stddev` in its usage string, but these flags are not implemented. This feature will add robust implementations for these statistics functionalities. It is aligned with the repository mission by enhancing the automation utilities available in the CLI and promoting healthy collaboration through expanded functionality.
+- **Input Handling & Validation:**
+  - Use the existing `parseNumbers` helper function for cleansing and validating inputs.
+  - If no valid numeric inputs are provided, return a standardized error: "Error: No valid numeric inputs provided.".
+  - If the `--desc` flag is detected among the input tokens, remove it from the numeric inputs and set the sorting order to descending.
 
-# Implementation Details
+- **Sorting Logic:**
+  - For ascending order, sort the numbers in increasing order.
+  - For descending order, sort in decreasing order.
+  - Return the sorted list as a comma-separated string.
 
-- **Input Handling**: 
-  - Validate numeric inputs in the same manner as other arithmetic commands using the `parseNumbers` helper.
-  - If no valid numeric input is provided, output "Error: No valid numeric inputs provided.".
+- **Error Handling & Warnings:**
+  - Consistently issue warnings for any invalid tokens using the existing dynamic/fixed positional index mechanism.
+  - Ensure that if invalid inputs are encountered, the overall command follows the repository's standard error reporting.
 
-- **Median (`--median`)**:
-  - Sort the valid numbers.
-  - If the count is odd, the median is the middle number.
-  - If even, compute the average of the two middle numbers.
+## Testing & Documentation
+- **Unit Tests:**
+  - Add tests simulating various valid and invalid scenarios for the `--sort` command:
+    - Example: `node src/lib/main.js --sort 5 2 9` should output `2,5,9`.
+    - Example with descending order: `node src/lib/main.js --sort 5 2 9 --desc` should output `9,5,2`.
+  - Test error cases when no valid numbers are supplied.
 
-- **Mode (`--mode`)**:
-  - Count the frequency of each numeric value.
-  - Return the number or numbers (if tie) that occur most frequently. The output should be a comma-separated list.
-  - If all numbers are unique, the mode could be the set of all numbers or a specific message indicating no mode, as defined by the design decision.
+- **Documentation:**
+  - Update the README and CLI usage guides to include examples and explanations for the new sorting functionality.
+  - Add inline code comments in `src/lib/main.js` where the branch logic for `--sort` is implemented, documenting the detection of the `--desc` flag and the sorting algorithm.
 
-- **Standard Deviation (`--stddev`)**:
-  - Compute the mean (average) of the valid numbers.
-  - Calculate the variance as the average of the squared differences from the mean.
-  - Take the square root of the variance to obtain the standard deviation.
-
-- **Error Handling & Warnings**: 
-  - Follow the same error message protocol as other arithmetic operations (i.e., print a uniform error when there are no valid inputs).
-  - If non-numeric values are detected, report them with a warning as seen in other commands.
-
-# Testing & Documentation
-
-- **Unit Tests**: 
-  - Create tests for each new flag to verify correct outputs for both even and odd numbers for median.
-  - Verify mode calculation for single mode, multiple modes, and cases with no repeated numbers.
-  - Ensure standard deviation calculation is correct using known datasets.
-  - Test error cases (e.g., no valid numbers provided).
-
-- **Documentation**: 
-  - Update the README and CLI usage documentation to include examples of `--median`, `--mode`, and `--stddev` usage.
-  - Provide inline code documentation in the source file (`src/lib/main.js`) to explain the implementation details.
-
-This feature enhances the CLI tool by providing users more comprehensive statistical computations and aligns with the repository's mission to offer a robust template for automation and development workflows.
+## Alignment with Repository Mission
+By expanding the STATISTICS feature to include numeric sorting, this update reinforces the repository's mission of promoting healthy collaboration and practical automation. It provides users with a more comprehensive suite of numerical utilities in a modular, single-source file that supports both immediate results and further diagnostics.
