@@ -5,7 +5,7 @@
  *
  * This main file handles CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
  *
- * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form) is explicitly rejected as an invalid input.
+ * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input.
  */
 
 const usage =
@@ -374,6 +374,10 @@ const commands = {
       }
       const result = Math.log(x) / Math.log(base);
       console.log("Log: " + result);
+    }
+    if (invalid.length > 0) {
+      // In case there were invalid inputs mixed in, they are ignored after warning
+      console.warn("Warning: These inputs were not valid numbers and have been ignored: " + invalid.join(","));
     }
   },
   "--percentile": async (args) => {

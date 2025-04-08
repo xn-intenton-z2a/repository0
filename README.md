@@ -16,7 +16,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 
-All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings.
+All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Additionally, any literal input of 'NaN' (in any case) is uniformly rejected with a clear warning or error message.
 
 ## What’s Inside
 
