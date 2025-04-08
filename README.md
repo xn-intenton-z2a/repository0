@@ -23,7 +23,7 @@ Additionally, shorthand aliases have been added for frequently used commands to 
 - **-d:** Alias for `--divide`
 - **-h:** Alias for `--help`
 
-All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case, e.g. 'NaN', 'nan', 'nAn', etc.) are explicitly treated as invalid with clear warnings or errors, ensuring consistent behavior across all commands.
+All arithmetic, statistical, logarithmic, and percentile commands now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that literally matches 'NaN' (regardless of its letter casing) is explicitly treated as invalid with a clear warning or error, ensuring consistent behavior across all CLI commands.
 
 ## What’s Inside
 
@@ -67,7 +67,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile, and now supports shorthand aliases (-s, -m, -a, -d, -h) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case, e.g. "NaN", "nan", "nAn") are explicitly treated as invalid. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile, and now supports shorthand aliases (-s, -m, -a, -d, -h) for frequently used commands. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. In particular, any input that matches 'NaN' (in any letter case) is explicitly rejected to ensure robust and consistent behavior. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
