@@ -1,14 +1,18 @@
 {
-  "openIssues": 3,
-  "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 40,
+  "openIssues": 2,
+  "issuesClosedLastHour": 2,
+  "issuesClosedLastDay": 42,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 14,
-  "diffMinutesMain": 112,
-  "commitsLastHour": 0,
-  "commitsLastDay": 31,
+  "diffMinutes": 13,
+  "diffMinutesMain": 13,
+  "commitsLastHour": 1,
+  "commitsLastDay": 32,
   "lastFiveCommitMessages": [
+    {
+      "time": "11:08",
+      "message": "Fixed CLI behavior for no arguments to output usage and exit mes..."
+    },
     {
       "time": "09:11",
       "message": "Enhanced error reporting in parseNumbers to show invalid tokens ..."
@@ -24,23 +28,14 @@
     {
       "time": "07:11",
       "message": "Refactor parseNumbers to uniformly reject NaN in any case and ad..."
-    },
-    {
-      "time": "06:46",
-      "message": "Added CLI alias support -s -m -a -d -h and updated tests and doc..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-739",
-        "minutesSinceLastCommit": 21
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T11:03:25.455Z"
+  "generatedAt": "2025-04-08T11:21:33.719Z"
 }
