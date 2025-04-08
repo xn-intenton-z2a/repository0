@@ -16,23 +16,23 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 
-All arithmetic, statistical, and logarithmic commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. 
+All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. 
 
 ## What’s Inside
 
-- **GitHub Workflows:**  
+- **GitHub Workflows:**
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
-- **Source Code:**  
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to inline arithmetic, statistical, logarithmic, and percentile operations.
+- **Source Code:**
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability.
 
-- **Dependencies:**  
+- **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
-- **Tests:**  
+- **Tests:**
   Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithm, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.
 
-- **Documentation:**  
+- **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
@@ -60,7 +60,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and now --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
