@@ -17,7 +17,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
 
-In addition, the input parsing mechanism has been refactored to optimize the detection of invalid numeric inputs. Any input matching 'NaN' (in any casing) is uniformly rejected with detailed positional error reporting, and warnings for each invalid input are now issued individually.
+In addition, the input parsing mechanism has been refactored to optimize the detection of invalid numeric inputs. Any input matching 'NaN' (in any casing) is explicitly rejected with detailed positional error reporting, and warnings for each invalid input are now issued individually. Note that the positional numbers for warnings are computed based on the sequence of valid numeric tokens processed.
 
 Additionally, a new global flag has been added:
 

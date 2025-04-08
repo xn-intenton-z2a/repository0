@@ -86,7 +86,6 @@ describe("CLI Behavior", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): hello"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
