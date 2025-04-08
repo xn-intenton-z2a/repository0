@@ -39,27 +39,27 @@
 <li class="md-github"><strong class="md-github">--log:</strong> Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).</li>
 <li class="md-github"><strong class="md-github">--percentile:</strong> Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.</li>
 </ul>
-<p class="md-github">All arithmetic, statistical, and logarithmic commands standardize error messaging to &quot;Error: No valid numeric inputs provided.&quot; when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings.</p>
+<p class="md-github">All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to &quot;Error: No valid numeric inputs provided.&quot; when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
-<p class="md-github"><strong class="md-github">GitHub Workflows:</strong><br>
+<p class="md-github"><strong class="md-github">GitHub Workflows:</strong>
 Workflows in the <code class="md-github">.github/workflows/</code> directory utilize reusable workflows from intentïon <code class="md-github">agentic‑lib</code> to automate project tasks.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Source Code:</strong><br>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored to inline arithmetic, statistical, logarithmic, and percentile operations.</p>
+<p class="md-github"><strong class="md-github">Source Code:</strong>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored to use a command mapping to reduce complexity and improve maintainability.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Dependencies:</strong><br>
+<p class="md-github"><strong class="md-github">Dependencies:</strong>
 The <code class="md-github">package.json</code> file defines dependencies and scripts for testing, formatting, linting, and running the CLI.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Tests:</strong><br>
+<p class="md-github"><strong class="md-github">Tests:</strong>
 Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, logarithm, and percentile commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Documentation:</strong><br>
+<p class="md-github"><strong class="md-github">Documentation:</strong>
 This README provides essential project information. For contribution guidelines, please see <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a>.</p>
 </li>
 </ul>
@@ -78,13 +78,13 @@ This README provides essential project information. For contribution guidelines,
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, and now --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return &quot;Error: No valid numeric inputs provided.&quot; when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return &quot;Error: No valid numeric inputs provided.&quot; when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using the repository template, see <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <p class="md-github">For more information about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/repository0.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-08T04:23:04.897Z</p>
+    <p>Generated on 2025-04-08T04:37:33.890Z</p>
   </footer>
 </body>
 </html>

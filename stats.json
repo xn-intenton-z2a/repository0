@@ -4,11 +4,15 @@
   "issuesClosedLastDay": 24,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 9,
-  "diffMinutesMain": 9,
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
   "commitsLastHour": 5,
   "commitsLastDay": 23,
   "lastFiveCommitMessages": [
+    {
+      "time": "04:36",
+      "message": "Refactored CLI command processing to reduce cognitive complexity..."
+    },
     {
       "time": "04:13",
       "message": "Add --percentile CLI command to compute statistical percentiles ..."
@@ -24,10 +28,6 @@
     {
       "time": "03:40",
       "message": "Updated by `npm run formatting-fix -- \".\" ; npm run linting-fix ..."
-    },
-    {
-      "time": "03:23",
-      "message": "Enhanced warning messages for literal NaN inputs case insensitiv..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-08T04:22:56.102Z"
+  "generatedAt": "2025-04-08T04:37:17.643Z"
 }
