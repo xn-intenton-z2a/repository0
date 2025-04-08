@@ -16,7 +16,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 
-All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. 
+All arithmetic, statistical, logarithmic, and percentile commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings.
 
 ## What’s Inside
 
@@ -60,7 +60,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, and --percentile. All arithmetic, statistical, logarithmic, and percentile functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (in any case) are explicitly treated as invalid. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 

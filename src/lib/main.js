@@ -3,9 +3,9 @@
 /**
  * repository0 CLI Tool: A Template for Automated Workflows
  *
- * This main file now handles all CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
+ * This main file handles CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
  *
- * All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected, with specialized error messages where appropriate.
+ * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form) is explicitly rejected as an invalid input.
  */
 
 const usage =
@@ -19,7 +19,7 @@ function parseNumbers(raw) {
     if (typeof token === "string" && token.startsWith("--")) {
       break;
     }
-    // Check for literal 'NaN' in any case
+    // Uniform rejection: literal 'NaN' in any case is considered invalid
     if (String(token).toLowerCase() === "nan") {
       invalid.push(token);
       continue;
