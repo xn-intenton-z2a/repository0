@@ -86,8 +86,7 @@ describe("CLI Behavior", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5", "hello"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 2): hello"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): hello"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
   });
@@ -120,5 +119,18 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("error", "Error: No valid numeric inputs provided.");
       logSpy.mockRestore();
     });
+  });
+
+  // New test for various casings of 'NaN'
+  test("handles various casings of 'NaN' inputs", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "nAn", "NaN", "NAN", "10"]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("10"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): nAn"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NAN"));
+    logSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 });
