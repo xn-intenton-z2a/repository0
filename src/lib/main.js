@@ -100,21 +100,27 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = str.toLowerCase();
-    // If token is in the configured invalid list, reject it without incrementing positional index
-    if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(pos, token));
+    // Special handling for 'nan'
+    if (tokenLower === 'nan') {
+      if (configInvalid.includes('nan')) {
+        invalid.push(generateWarning(pos, token));
+      } else {
+        valid.push(NaN);
+      }
+      pos++;
       continue;
     }
-    // Special case: if token is 'nan' but not in invalid list, allow it as NaN
-    if (tokenLower === 'nan') {
-      valid.push(NaN);
+    // Check if token is in the configured invalid list (for tokens other than 'nan')
+    if (configInvalid.includes(tokenLower)) {
+      invalid.push(generateWarning(pos, token));
+      pos++;
+      continue;
+    }
+    const num = Number(str);
+    if (!isNaN(num)) {
+      valid.push(num);
     } else {
-      const num = Number(str);
-      if (!isNaN(num)) {
-        valid.push(num);
-      } else {
-        invalid.push(generateWarning(pos, token));
-      }
+      invalid.push(generateWarning(pos, token));
     }
     pos++;
   }
