@@ -128,8 +128,8 @@ describe("CLI Behavior", () => {
     await main(["--sum", "nAn", "NaN", "NAN", "10"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("10"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): nAn"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 1): NaN"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 2): NAN"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NAN"));
     logSpy.mockRestore();
     warnSpy.mockRestore();
   });

@@ -458,6 +458,8 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
+  // Reset jsonMode for every invocation to avoid state carryover between calls
+  jsonMode = false;
   if (args === undefined) {
     args = [];
   }
