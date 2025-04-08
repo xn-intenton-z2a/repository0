@@ -8,13 +8,14 @@ This repository is intended as a template that includes:
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. The CLI functionality in `src/lib/main.js` now includes arithmetic and new statistical commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows. The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, and logarithmic commands. In addition to operations like sum, multiply, subtract, and divide, the tool now provides:
 
 - **--median:** Compute the median of a list of numbers (average of two middles for even counts).
 - **--mode:** Compute the mode(s) (the most frequently occurring number(s)) of a list of numbers.
 - **--stddev:** Compute the population standard deviation of a list of numbers.
+- **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base. Error messages are displayed if the input is non-positive or if the base is invalid (not greater than 0 and not equal to 1).
 
-All arithmetic and statistical commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. The CLI now explicitly treats literal 'NaN' (in any case) as an invalid input, providing a clear warning message listing the ignored inputs.
+All arithmetic, statistical, and logarithmic commands standardize error messaging to "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. 
 
 ## What’s Inside
 
@@ -22,13 +23,13 @@ All arithmetic and statistical commands standardize error messaging to "Error: N
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to inline arithmetic and statistical operations. New commands add the ability to perform median, mode, and standard deviation calculations.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored to inline arithmetic, statistical, and new logarithm operations.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that both arithmetic and statistical commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify that arithmetic, statistical, and logarithm commands output the standardized error message when no valid numbers are provided and compute the correct results for valid inputs.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -58,7 +59,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, and --stddev. All arithmetic and statistical functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, and a new logarithm command --log. All arithmetic, statistical, and logarithmic functions now uniformly return "Error: No valid numeric inputs provided." when invalid, missing, or additional flag inputs are encountered. Literal 'NaN' inputs (regardless of case) are explicitly considered invalid with clear warnings. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
