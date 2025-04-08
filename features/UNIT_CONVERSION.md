@@ -1,45 +1,48 @@
-# UNIT_CONVERSION Feature
+# UNIT_CONVERSION Enhancement
 
-This feature introduces a new CLI command `--convert` to perform unit conversions, starting with temperature conversions between Celsius, Fahrenheit, and Kelvin. The goal is to extend the repository’s arithmetic and statistical capabilities with practical conversion utilities, aligned with the mission of offering a robust template for automation and development workflows.
+This update extends the existing UNIT_CONVERSION feature beyond temperature conversions. In addition to Celsius, Fahrenheit, and Kelvin conversions, this enhancement introduces support for distance conversions (and leaves room for future categories).
 
 ## Overview
 
-- **Purpose:** Allow users to convert temperature values between Celsius (C), Fahrenheit (F), and Kelvin (K) using a simple CLI command.
-- **Scope:** Initially supports temperature conversion with clear error messages and guidance on correct input usage. Future expansions could include other unit categories (e.g., distance, weight).
-- **Alignment:** Supports the repository’s mission by providing additional utility through a lightweight, single-file library feature.
+- **Purpose:** Enhance the CLI's unit conversion capabilities by supporting multiple types of conversions within a single command. In addition to temperature (C, F, K), users can now convert distances between meters (m), kilometers (km), and miles (mi).
+- **Scope:** The feature will implement a unified CLI command (e.g., `--convert`) with a conversion category argument. For the temperature category, the existing formulas remain intact. For the new distance category:
+  - **Meters to Kilometers:** km = m / 1000
+  - **Meters to Miles:** mi = m / 1609.34
+  - **Kilometers to Meters:** m = km * 1000
+  - **Kilometers to Miles:** mi = km / 1.60934
+  - **Miles to Meters:** m = mi * 1609.34
+  - **Miles to Kilometers:** km = mi * 1.60934
+- **Alignment:** This enhancement builds on the repository’s mission by providing practical utility functions in a single source file. It adheres to the principles outlined in CONTRIBUTING.md by being self-contained and testable.
 
 ## Implementation Details
 
 - **Command Syntax:**
-  - The command is invoked using `--convert` followed by the type of conversion and numeric value(s).
-  - Example: `node src/lib/main.js --convert temp C F 100` would convert 100 degrees Celsius to Fahrenheit.
+  - The command is invoked using `--convert` followed by the conversion category, the source unit, the target unit, and the numeric value.
+  - Example for temperature: `node src/lib/main.js --convert temp C F 100`
+  - Example for distance: `node src/lib/main.js --convert distance m km 5000`
 
-- **Temperature Conversion Logic:**
-  - **Celsius to Fahrenheit:** F = (C × 9/5) + 32
-  - **Celsius to Kelvin:** K = C + 273.15
-  - **Fahrenheit to Celsius:** C = (F - 32) × 5/9
-  - **Fahrenheit to Kelvin:** Convert F to C then to K
-  - **Kelvin to Celsius:** C = K - 273.15
-  - **Kelvin to Fahrenheit:** Convert K to C then to F
+- **Conversion Logic:**
+  - **Temperature Conversions:** Use the existing formulas (e.g., Celsius to Fahrenheit: F = (C × 9/5) + 32)
+  - **Distance Conversions:** Utilize the defined formulas to convert between meters, kilometers, and miles. Implement error checking to ensure valid unit abbreviations are provided.
 
 - **Input Validation:**
-  - Validate that exactly three parameters are provided after `--convert`: the conversion category (e.g., `temp` for temperature), the source unit and target unit, and the numeric value to be converted.
-  - Ensure that the source and target units are one of the supported abbreviations (`C`, `F`, `K`).
-  - Provide useful error messaging if the inputs fail validation or the conversion type is unsupported.
+  - Ensure the command receives exactly four parameters following `--convert`: a conversion category (e.g., `temp` or `distance`), a source unit, a target unit, and a numeric value.
+  - Validate that the source and target units are part of the supported abbreviations for the given category.
+  - Provide clear error messages if the input does not meet specifications.
 
 - **Error Handling:**
-  - Use consistent error messages as observed in existing commands (e.g., "Error: No valid numeric inputs provided.") when validation fails.
-  - Support numeric conversion warnings in similar fashion to existing arithmetic and statistical commands.
+  - Consistently reject invalid numeric inputs or unsupported conversion types with error messages similar to other commands (e.g., "Error: No valid numeric inputs provided.").
+  - For unknown conversion categories, output a message indicating that the category is not supported.
 
 ## Testing & Documentation
 
 - **Unit Tests:**
-  - Add tests to verify correct conversions for each temperature conversion path (e.g., C to F, F to K, etc.).
-  - Include tests using both valid numeric inputs and invalid inputs (e.g., non-numeric values or unsupported units).
-  - Validate error output and warning messages for incorrect input format.
+  - Create tests to verify correct conversions for both temperature and distance. 
+  - Include tests with valid numeric inputs as well as tests for erroneous input cases.
+  - Validate that correct error messages are returned for invalid source/target units or missing inputs.
 
 - **Documentation:**
-  - Update the README and command usage documentation to include examples of the `--convert` command for temperature conversion.
-  - Provide inline code comments in the source file for clarity on conversion formulas and input validation logic.
+  - Update the README and CLI usage documentation to include examples for both temperature and distance conversions.
+  - Add inline code comments in the source file to explain the extended logic for handling multiple conversion categories.
 
-This feature is self-contained in a single source file update and enhances the CLI tool without introducing unnecessary complexity, adhering to both the mission and the contribution guidelines of the repository.
+This enhancement maintains the single-file library approach while significantly broadening the practical utility of the conversion feature within the repository.
