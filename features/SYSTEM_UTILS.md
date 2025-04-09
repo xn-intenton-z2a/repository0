@@ -1,39 +1,46 @@
-# SYSTEM_UTILS
+# SYSTEM_UTILS & DEBUGGING
 
 ## Overview
-This feature consolidates persistent configuration management and file logging into a single module. Users can view and modify CLI settings via a persistent JSON configuration file while simultaneously enabling an audit trail of command outputs to a local log file. By merging the functionality of the former CONFIG and FILE_LOG features, the repository is streamlined and easier to maintain, reinforcing its mission of fostering healthy collaboration and streamlined automation.
+This updated feature consolidates persistent configuration management, file logging, and now robust debugging tools into a single module. Users can view and modify CLI settings with a persistent JSON configuration file, log every command’s output, and trigger an extended debug mode to inspect internal state. This unification streamlines system introspection and auditability, reinforcing our mission of healthy collaboration and practical automation.
 
 ## CLI Integration
-- **Configuration Management:**
-  - Introduce the `--config` flag with subcommands:
-    - `get [key]`: Display a specific configuration value or all settings if no key is provided.
-    - `set <key> <value>`: Update and persist configuration settings in the JSON file (e.g., `config.json`).
-    - `reset`: Reinitialize settings to their default values.
-- **Persistent Logging:**
-  - Introduce a global flag `--log-file <filename>`. When provided, every command’s output (success or error) along with metadata is appended to the specified file in JSON format (one entry per line).
-  - Both configuration details (like TOOL_VERSION, INVALID_TOKENS, DYNAMIC_WARNING_INDEX) and command audit trails are integrated to provide consistency across the system.
+
+### Configuration Management & Persistent Logging
+- **Configuration Commands:** Utilize the `--config` flag with subcommands:
+  - `get [key]`: Retrieve specific or all configuration values from a persistent JSON file.
+  - `set <key> <value>`: Update and save configuration settings.
+  - `reset`: Reinitialize settings to default values.
+- **File Logging:** With the global flag `--log-file <filename>`, every command’s output is appended in a JSON structured format to the specified file.
+
+### Debugging Mode
+- **Activation:** Introduce a new global flag `--debug` that can be used alongside other commands.
+- **Behavior:** When the `--debug` flag is active, the system outputs extended diagnostic information including:
+  - Current environment variables relevant to the CLI (e.g., `INVALID_TOKENS`, `ALLOW_NAN`, `TOKEN_PUNCTUATION_CONFIG`, and `DYNAMIC_WARNING_INDEX`).
+  - Active configuration settings and their loaded state.
+  - A summary of recent command audit logs (number of commands executed, execution durations, and any error counts).
+  - Optional cache and performance metrics if available.
+- **Output Modes:** Debug information is integrated into the normal output format:
+  - In plain text mode, debug details are appended at the end of the command output in a clearly delimited section.
+  - In JSON mode (with `--json` or `--json-pretty`), a dedicated `debug` field is added containing the diagnostic data.
 
 ## Implementation Details
-- **Configuration File Management:**
-  - On first run, if `config.json` does not exist, it is created with default settings.
-  - Read/write operations are performed synchronously with proper error checks. Updates to configuration are reflected in runtime behavior (e.g., numeric parsing or warning indices).
-- **File Logging Mechanism:**
-  - Leveraging Node’s `fs` module, after each CLI command execution the output (including command name, result or error, warnings, timestamp, version, execution duration, and input echo) is logged to the specified file.
-  - Log entries are maintained in a structured JSON format, facilitating later analysis and debugging.
-- **Integration:**
-  - Both configuration access and file logging share similar metadata, ensuring consistent output whether viewed on the console or read from persisted logs.
 
-## Error Handling & Validation
-- Invalid keys or incorrect file operations trigger clear error messages without disrupting command execution.
-- If the log file cannot be written to (e.g., due to permission issues), the CLI notifies the user but continues to operate normally.
-- Input validations for configuration commands remain as defined previously, including proper handling of environment variables and dynamic warning indices.
+- **File Operations:** On first run, a configuration file (e.g., `config.json`) is created if missing. All read/write operations include error checks and fallbacks.
+- **Logging:** Every CLI command is logged with metadata including timestamp, version, execution duration, and cleansed input parameters. Logs are written using Node’s `fs` module.
+- **Debug Data Collection:** When `--debug` is provided, internal state is collected:
+  - Environment configurations
+  - Current settings from the persistent configuration file
+  - Aggregated audit log statistics
+  - Any cached computation data (if caching is enabled in related modules)
+- **Error Handling:** Errors in configuration or file operations trigger clear messages without halting the debug output. If the debug mode encounters issues, warnings are issued but core configuration data is still returned.
 
 ## Testing & Documentation
-- **Unit Tests:** Tests will simulate configuration gets/sets/resets and file logging operations to verify that changes are correctly persisted and logged entries are correctly formatted.
-- **Documentation:** README and CLI usage guides will be updated with examples:
-  - Configuration: `node src/lib/main.js --config get`, `--config set KEY VALUE`, `--config reset`
-  - Logging: `node src/lib/main.js --log-file history.log --sum 3 4 5`
-  - Inline comments in the source clarify the merged logic and error handling for both aspects.
+
+- **Unit Tests:** Tests will simulate configuration gets/sets/resets, file logging operations, and debug command invocations to verify that state data and environment details are correctly output in both plain text and JSON formats.
+- **Documentation:** Update the README and CLI usage guides with examples:
+  - Without Debug: `node src/lib/main.js --config get`
+  - With Debug: `node src/lib/main.js --debug --config get`
+  - Logging Example: `node src/lib/main.js --log-file history.log --sum 3 4 5 --debug`
 
 ## Alignment with Repository Mission
-By merging persistent configuration and file logging into a unified SYSTEM_UTILS feature, this update reinforces the repository’s commitment to modular, self-contained CLI utilities. It enhances traceability, transparency, and configurability—key to fostering healthy collaboration and efficient automated workflows.
+By merging persistent configuration, file logging, and an enhanced debugging mode into SYSTEM_UTILS, this feature provides comprehensive system introspection. It enhances transparency and traceability, streamlines troubleshooting, and solidifies the repository’s commitment to modular, self-contained CLI utilities that promote healthy collaboration and efficient automation.
