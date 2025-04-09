@@ -59,33 +59,49 @@ function parseNumbers(args) {
   if (tokenPunctuationConfig === undefined) {
     tokenPunctuationConfig = ",.;?!";
   }
+  
+  // Create a cache to store processed tokens to avoid redundant regex operations
+  const tokenCache = new Map();
+
+  // Precompile regex patterns if punctuation stripping is enabled
+  let leadingRegex = null, trailingRegex = null;
+  if (tokenPunctuationConfig !== "") {
+    leadingRegex = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
+    trailingRegex = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
+  }
+
   args.forEach((token, index) => {
-    // Always trim outer whitespace
-    let trimmed = token.trim();
-    if (tokenPunctuationConfig !== undefined) {
-      if (tokenPunctuationConfig !== "") {
-        // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
-        const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
-        const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
-        trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
-      }
-      // If empty string, no punctuation stripping is performed beyond whitespace
+    let processed;
+    if (tokenCache.has(token)) {
+      processed = tokenCache.get(token);
     } else {
-      // default punctuation trimming: comma, period, semicolon, question mark, exclamation
-      trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
+      // Always trim outer whitespace
+      let trimmed = token.trim();
+      if (tokenPunctuationConfig !== undefined) {
+        if (tokenPunctuationConfig !== "") {
+          trimmed = trimmed.replace(leadingRegex, '').replace(trailingRegex, '');
+        }
+        // If empty string, no punctuation stripping is performed beyond whitespace
+      } else {
+        // default punctuation trimming: comma, period, semicolon, question mark, exclamation
+        trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
+      }
+      processed = trimmed;
+      tokenCache.set(token, processed);
     }
+    
     // If token becomes empty after trimming, consider it invalid
-    if (trimmed === "") {
+    if (processed === "") {
       invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
       return;
     }
     // Reject if token has internal whitespace.
-    if (/\s/.test(trimmed)) {
+    if (/\s/.test(processed)) {
       invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
       return;
     }
     // Check if token resembles 'NaN'
-    if (trimmed.toLowerCase() === "nan") {
+    if (processed.toLowerCase() === "nan") {
       if ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") || inlineAllowNan) {
         valid.push(NaN);
       } else {
@@ -93,7 +109,7 @@ function parseNumbers(args) {
       }
       return;
     }
-    const num = Number(trimmed);
+    const num = Number(processed);
     if (isNaN(num)) {
       invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
     } else {
