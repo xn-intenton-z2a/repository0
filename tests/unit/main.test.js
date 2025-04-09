@@ -251,7 +251,7 @@ describe("CLI Behavior", () => {
       process.env.TOKEN_PUNCTUATION_CONFIG = originalTokenPunctuation;
     });
     test("trims using custom punctuation when TOKEN_PUNCTUATION_CONFIG is set", async () => {
-      process.env.TOKEN_PUNCTUATION_CONFIG = "!,?,"; // trim !, ?, and comma
+      process.env.TOKEN_PUNCTUATION_CONFIG = "!,?,"; // trim !, ? and comma
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--sum", "!!10??", "5"]);
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("15"));

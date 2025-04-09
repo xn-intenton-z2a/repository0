@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.4.1-5",
+  "version": "1.4.1-6",
   "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to standardize error messaging for arithmetic operations, add JSON output mode with metadata, include a configurable warning index mode, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG, suppression of NaN correction suggestions, added --toggle-allow-nan for runtime NaN configuration, and new --allow-nan-inline flag for per-command NaN acceptance.",
   "type": "module",
   "main": "src/lib/main.js",

@@ -635,7 +635,7 @@ async function cliMain(args) {
     args = [];
   }
   if (!Array.isArray(args)) {
-    sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
+    sendError("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
     return;
   }
   // Check for global flags
@@ -661,24 +661,27 @@ async function cliMain(args) {
   // Record start time for execution duration
   __startTime = Date.now();
 
-  if (args.length === 0) {
-    if (jsonMode) {
-      sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
-    } else {
-      console.log(usage);
-      console.log("No CLI arguments provided. Exiting.");
+  try {
+    if (args.length === 0) {
+      if (jsonMode) {
+        sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
+      } else {
+        console.log(usage);
+        console.log("No CLI arguments provided. Exiting.");
+      }
+      return;
     }
-    return;
+    const flag = args[0];
+    const rest = args.slice(1);
+    if (commands[flag]) {
+      await commands[flag](rest);
+    } else {
+      sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
+    }
+  } finally {
+    // Ensure the inline flag is reset after each command invocation
+    inlineAllowNan = false;
   }
-  const flag = args[0];
-  const rest = args.slice(1);
-  if (commands[flag]) {
-    await commands[flag](rest);
-  } else {
-    sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
-  }
-  // Reset inline flag after command execution
-  inlineAllowNan = false;
 }
 
 const __test = {
