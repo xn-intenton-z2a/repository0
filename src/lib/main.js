@@ -31,7 +31,7 @@
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers..."];
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -126,14 +126,9 @@ function parseNumbers(raw) {
   const allowNan = (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') ? true : false;
 
   // Determine the list of tokens to reject based on ALLOW_NAN and INVALID_TOKENS env variable
-  let envInvalid;
-  if (allowNan) {
-    envInvalid = [];
-  } else {
-    envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
-      ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
-      : ['nan'];
-  }
+  let envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
+    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
+    : ['nan'];
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
@@ -145,16 +140,16 @@ function parseNumbers(raw) {
       continue;
     }
     const tokenLower = normalized.toLowerCase();
-    // Special handling for 'NaN'
-    if (tokenLower === 'nan') {
-      if (envInvalid.includes('nan')) {
-        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
-      } else {
+    // Special handling for 'NaN' with case-insensitive check
+    if (/^nan$/i.test(normalized)) {
+      if (allowNan) {
         valid.push(NaN);
+      } else {
+        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       }
       continue;
     }
-    // If token is in the configured invalid tokens, use dynamic or fixed index
+    // If token is in the configured invalid tokens
     if (envInvalid.includes(tokenLower)) {
       invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       continue;
@@ -578,62 +573,50 @@ async function cliMain(args) {
   if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
     process.env.ALLOW_NAN = "false";
   }
-  // Save the current environment variables for INVALID_TOKENS and ALLOW_NAN to avoid test interference
-  const savedInvalidTokens = process.env.INVALID_TOKENS;
-  const savedAllowNan = process.env.ALLOW_NAN;
   // Set INVALID_TOKENS if not already defined
   if (process.env.INVALID_TOKENS === undefined) {
     process.env.INVALID_TOKENS = (process.env.ALLOW_NAN === "true" ? "" : "nan");
   }
-  try {
-    // Reset modes for every invocation to avoid state carryover between calls
-    jsonMode = false;
-    jsonPretty = false;
-    summarizeWarnings = false;
-    if (args === undefined) {
-      args = [];
-    }
-    if (!Array.isArray(args)) {
-      sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
-      return;
-    }
-    // Check for global flags
-    if (args.includes("--json-pretty")) {
-      jsonMode = true;
-      jsonPretty = true;
-      args = args.filter(arg => arg !== "--json-pretty" && arg !== "--json");
-    } else if (args.includes("--json")) {
-      jsonMode = true;
-      args = args.filter(arg => arg !== "--json");
-    }
-    if (args.includes("--summarize-warnings")) {
-      summarizeWarnings = true;
-      args = args.filter(arg => arg !== "--summarize-warnings");
-    }
-    // Set global inputEcho as the cleansed input
-    __inputEcho = args;
-    // Record start time for execution duration
-    __startTime = Date.now();
+  if (args === undefined) {
+    args = [];
+  }
+  if (!Array.isArray(args)) {
+    sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
+    return;
+  }
+  // Check for global flags
+  if (args.includes("--json-pretty")) {
+    jsonMode = true;
+    jsonPretty = true;
+    args = args.filter(arg => arg !== "--json-pretty" && arg !== "--json");
+  } else if (args.includes("--json")) {
+    jsonMode = true;
+    args = args.filter(arg => arg !== "--json");
+  }
+  if (args.includes("--summarize-warnings")) {
+    summarizeWarnings = true;
+    args = args.filter(arg => arg !== "--summarize-warnings");
+  }
+  // Set global inputEcho as the cleansed input
+  __inputEcho = args;
+  // Record start time for execution duration
+  __startTime = Date.now();
 
-    if (args.length === 0) {
-      if (jsonMode) {
-        sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
-      } else {
-        console.log(usage);
-        console.log("No CLI arguments provided. Exiting.");
-      }
-      return;
-    }
-    const flag = args[0];
-    const rest = args.slice(1);
-    if (commands[flag]) {
-      await commands[flag](rest);
+  if (args.length === 0) {
+    if (jsonMode) {
+      sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
     } else {
-      sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
+      console.log(usage);
+      console.log("No CLI arguments provided. Exiting.");
     }
-  } finally {
-    process.env.INVALID_TOKENS = savedInvalidTokens;
-    process.env.ALLOW_NAN = savedAllowNan;
+    return;
+  }
+  const flag = args[0];
+  const rest = args.slice(1);
+  if (commands[flag]) {
+    await commands[flag](rest);
+  } else {
+    sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
   }
 }
 
