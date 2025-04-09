@@ -28,6 +28,8 @@
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
  * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized in a consistent manner before evaluation. Tokens that contain internal whitespace (e.g., 'N aN') are now consistently rejected, irrespective of configuration, ensuring a clearer distinction between valid and malformed inputs. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
+ *
+ * NEW: Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -46,7 +48,7 @@ let __inputEcho = [];
 
 // Helper function to escape regex special characters
 function escapeRegex(str) {
-  return str.replace(/[-\[\]\/{}()*+?.\\^$|]/g, '\\$&');
+  return str.replace(/[-\[\]/{}()*+?.\\^$|]/g, '\\$&');
 }
 
 // Helper function to aggregate duplicate warnings
@@ -120,7 +122,14 @@ function sendError(command, errorMessage, warnings) {
 
 // Helper function to generate a standardized warning message
 function generateWarning(pos, token) {
-  return `(position ${pos}): ${token}`;
+  let warning = `(position ${pos}): ${token}`;
+  if (token.trim().toLowerCase() === 'nan') {
+    // Append suggestion only if ALLOW_NAN is not enabled and INVALID_TOKENS is non-empty
+    if (!(process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') && process.env.INVALID_TOKENS !== "") {
+      warning += " Did you mean to allow NaN values? Consider setting ALLOW_NAN to 'true' and INVALID_TOKENS to an empty string.";
+    }
+  }
+  return warning;
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
