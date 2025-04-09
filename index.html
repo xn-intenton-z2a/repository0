@@ -45,10 +45,11 @@
 <h3 class="md-github"><a class="md-github__anchor" name="enhanced-input-parsing-details" href="#enhanced-input-parsing-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enhanced Input Parsing Details</h3>
 <p class="md-github">The input parsing mechanism has been refined to optimize detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:</p>
 <ul class="md-github">
-<li class="md-github">By default, any input matching configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable <strong class="md-github">INVALID_TOKENS</strong> to an empty string.</li>
+<li class="md-github">By default, any input matching the configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token by default unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable <strong class="md-github">INVALID_TOKENS</strong> to an empty string and <strong class="md-github">ALLOW_NAN</strong> to <code class="md-github">true</code>.</li>
 <li class="md-github">You can customize the rejected tokens by setting the environment variable <strong class="md-github">INVALID_TOKENS</strong> to a comma-separated list of tokens that should be rejected during numeric parsing.</li>
 <li class="md-github"><strong class="md-github">DYNAMIC_WARNING_INDEX:</strong> When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index.</li>
 <li class="md-github"><strong class="md-github">--summarize-warnings:</strong> When provided, the CLI aggregates duplicate warning messages into a summary indicating the number of occurrences for each invalid token.</li>
+<li class="md-github"><strong class="md-github">Edge-case Normalization:</strong> Inputs with extra punctuation or irregular spacing (e.g., ' NaN', 'NaN,', 'NaN?') are normalized by stripping extraneous characters and trimming before evaluation.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="global-json-output-mode" href="#global-json-output-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global JSON Output Mode</h3>
 <p class="md-github">A new global flag has been added:</p>
@@ -82,7 +83,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory uti
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing, the new <strong class="md-github">--config</strong> command, and the <strong class="md-github">--summarize-warnings</strong> option improve integration with automated systems.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing (including edge-case normalization), the new <strong class="md-github">--config</strong> command, and the <strong class="md-github">--summarize-warnings</strong> option improve integration with automated systems.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -90,11 +91,11 @@ The <code class="md-github">package.json</code> file defines dependencies and sc
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of &quot;NaN&quot;, and now also cover the new <strong class="md-github">--config</strong> and <strong class="md-github">--summarize-warnings</strong> commands and options.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected, including detailed error messages and robust handling of irregular 'NaN' inputs.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Configuration:</strong>
-You can customize the set of invalid tokens by setting the environment variable <strong class="md-github">INVALID_TOKENS</strong> to a comma-separated list of tokens that should be rejected during numeric parsing. Additionally, setting <strong class="md-github">DYNAMIC_WARNING_INDEX</strong> to true will use actual input positions in warning messages.</p>
+You can customize the set of invalid tokens by setting the environment variable <strong class="md-github">INVALID_TOKENS</strong> to a comma-separated list of tokens that should be rejected during numeric parsing. Additionally, setting <strong class="md-github">DYNAMIC_WARNING_INDEX</strong> to true will use actual input positions in warning messages. To allow 'NaN' as a valid input, set <strong class="md-github">INVALID_TOKENS</strong> to an empty string and <strong class="md-github">ALLOW_NAN</strong> to <code class="md-github">true</code>.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -122,7 +123,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-09T06:48:03.926Z</p>
+    <p>Generated on 2025-04-09T06:55:57.872Z</p>
   </footer>
 </body>
 </html>
