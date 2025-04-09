@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { main, __test } from "../../src/lib/main.js";
 
 // Helper function to parse JSON from output
@@ -147,7 +147,6 @@ describe("CLI Behavior", () => {
   test("allows 'NaN' as valid input when not configured as invalid", async () => {
     const originalInvalid = process.env.INVALID_TOKENS;
     const originalAllowNan = process.env.ALLOW_NAN;
-    // Explicitly allow NaN by setting ALLOW_NAN to true
     process.env.ALLOW_NAN = "true";
     process.env.INVALID_TOKENS = "";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -168,6 +167,7 @@ describe("CLI Behavior", () => {
       expect(output).toContain("TOOL_VERSION: 1.4.1-1");
       expect(output).toContain("INVALID_TOKENS:");
       expect(output).toContain("DYNAMIC_WARNING_INDEX:");
+      expect(output).toContain("TOKEN_PUNCTUATION_CONFIG:");
       logSpy.mockRestore();
     });
 
@@ -180,6 +180,7 @@ describe("CLI Behavior", () => {
       expect(output.config).toHaveProperty("TOOL_VERSION", "1.4.1-1");
       expect(output.config).toHaveProperty("INVALID_TOKENS");
       expect(output.config).toHaveProperty("DYNAMIC_WARNING_INDEX");
+      expect(output.config).toHaveProperty("TOKEN_PUNCTUATION_CONFIG");
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
@@ -217,23 +218,52 @@ describe("CLI Behavior", () => {
   // New test for aggregated warnings using --summarize-warnings flag
   describe("Aggregated Warnings", () => {
     let originalInvalid;
-    beforeAll(() => {
+    beforeEach(() => {
       originalInvalid = process.env.INVALID_TOKENS;
-      // Ensure that 'NaN' is considered invalid
       process.env.INVALID_TOKENS = "nan";
     });
-    afterAll(() => {
+    afterEach(() => {
       process.env.INVALID_TOKENS = originalInvalid;
     });
     test("aggregates warnings when --summarize-warnings flag is provided", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
-      // In summarized mode, warnings should be aggregated into two summary messages: one for NaN and one for abc
       expect(warnSpy).toHaveBeenCalledTimes(2);
       const calls = warnSpy.mock.calls.map(call => call[0]);
       expect(calls.some(msg => msg.includes("Token 'NaN' occurred 2 times"))).toBe(true);
       expect(calls.some(msg => msg.includes("Token 'abc' occurred 3 times"))).toBe(true);
+      logSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
+  });
+
+  // New tests for configurable punctuation stripping
+  describe("Configurable Punctuation Stripping", () => {
+    let originalTokenPunctuation;
+    beforeEach(() => {
+      originalTokenPunctuation = process.env.TOKEN_PUNCTUATION_CONFIG;
+    });
+    afterEach(() => {
+      process.env.TOKEN_PUNCTUATION_CONFIG = originalTokenPunctuation;
+    });
+    test("trims using custom punctuation when TOKEN_PUNCTUATION_CONFIG is set", async () => {
+      process.env.TOKEN_PUNCTUATION_CONFIG = "!?,"; // trim !, ?, and comma
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--sum", "!!10??", "5"]);
+      // Should remove leading ! and trailing ? leaving "10" and "5" => sum = 15
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("15"));
+      logSpy.mockRestore();
+    });
+    test("applies no trimming when TOKEN_PUNCTUATION_CONFIG is empty string", async () => {
+      process.env.TOKEN_PUNCTUATION_CONFIG = ""; // no trimming
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      // Here, extra punctuation remains so conversion fails and input becomes invalid.
+      await main(["--sum", "  5, ", "5"]);
+      // Since "5," is not trimmed, Number("5,") is NaN, so sum becomes only 5 and error warning.
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+      expect(warnSpy).toHaveBeenCalled();
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
@@ -245,7 +275,6 @@ describe("CLI Behavior", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", " NaN ", "NaN,", "NaN?", "5"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
-    // Expect three warnings for each variant normalized to 'NaN'
     expect(warnSpy).toHaveBeenCalledTimes(3);
     warnSpy.mockRestore();
     logSpy.mockRestore();
