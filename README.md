@@ -60,13 +60,13 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The updated 'NaN' input handling, including rejection of inputs with internal whitespace, configurable punctuation stripping, and now a correction suggestion for NaN values, are consistent across all commands.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. This update provides consistent handling of various forms of 'NaN' inputs, including rejection of internal whitespace and edge-case punctuation issues, along with clear correction suggestions.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including detailed error messages and robust handling of irregular 'NaN' inputs and punctuation.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, with detailed error messages and robust handling of irregular 'NaN' inputs and punctuation.
 
 - **Configuration:**
   You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS**. Additionally, setting **DYNAMIC_WARNING_INDEX** to true will use actual input positions in warning messages. To allow 'NaN' as a valid input, set **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
@@ -100,7 +100,9 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG, and a new correction suggestion for NaN inputs. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG, and a new correction suggestion for NaN inputs. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**.
+
+For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
