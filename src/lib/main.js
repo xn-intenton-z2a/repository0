@@ -565,8 +565,9 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Save the current environment variable for INVALID_TOKENS to avoid test interference
+  // Save the current environment variables for INVALID_TOKENS and ALLOW_NAN to avoid test interference
   const savedInvalidTokens = process.env.INVALID_TOKENS;
+  const savedAllowNan = process.env.ALLOW_NAN;
   // By default, if INVALID_TOKENS is not explicitly set to allow NaN, then default to rejecting 'nan'
   if (process.env.INVALID_TOKENS === undefined || process.env.INVALID_TOKENS === "") {
     if (process.env.ALLOW_NAN !== "true") {
@@ -621,6 +622,7 @@ async function cliMain(args) {
     }
   } finally {
     process.env.INVALID_TOKENS = savedInvalidTokens;
+    process.env.ALLOW_NAN = savedAllowNan;
   }
 }
 
