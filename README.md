@@ -27,10 +27,12 @@ The input parsing mechanism has been refactored for improved modularity. Utility
 
 Configuration via environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
-- **INVALID_TOKENS:** A comma-separated list of tokens to reject (default rejects variants of "NaN").
+- **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
 - **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. An empty string disables trimming.
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
+
+**Note:** In non-JSON mode, warnings for invalid tokens are now output to stderr via `console.warn`.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -52,7 +54,7 @@ Aliases have been added for user convenience:
 - **-h:** Alias for `--help`
 - **-g:** Alias for `--geomean`
 
-All commands uniformly return "Error: No valid numeric inputs provided." when invalid inputs are encountered, accompanied by detailed warnings.
+All commands uniformly return "Error: No valid numeric inputs provided." when invalid inputs are encountered, accompanied by detailed warnings (printed to stderr in non-JSON mode).
 
 ## What’s Inside
 
@@ -60,7 +62,7 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   CI/CD workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**
-  The main functionality resides in `src/lib/main.js`. The numeric parsing utilities are integrated into this file for a streamlined structure.
+  The main functionality resides in `src/lib/main.js`. The numeric parsing utilities are integrated for a streamlined structure.
 
 - **Tests:**
   Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
@@ -96,7 +98,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, and the **--toggle-allow-nan** command for runtime NaN configuration. The utility functions for numeric parsing are now integrated within the main file. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, and the **--toggle-allow-nan** command for runtime NaN configuration. In addition, warnings for invalid inputs are now output via `console.warn` in non-JSON mode. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 

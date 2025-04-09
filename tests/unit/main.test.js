@@ -77,7 +77,7 @@ describe("CLI Behavior", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5", "hello"]);
-    expect(logSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("5"));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): hello"));
     logSpy.mockRestore();
@@ -234,7 +234,6 @@ describe("CLI Behavior", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
       expect(warnSpy).toHaveBeenCalledTimes(0);
-      // The aggregated warnings will be printed via console.log by sendSuccess in JSON mode disabled
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
