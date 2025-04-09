@@ -22,10 +22,10 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--config:** Display the current CLI configuration including tool version and environment settings.
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
 - **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. **This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.**
-- **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and now also the character range (trimStart and trimEnd) within the original token that was preserved after trimming. This additional information helps identify exactly which characters were removed during processing.
+- **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and now also the token character range (trimStart and trimEnd) within the original token that was preserved after trimming. This additional information helps identify exactly which characters were removed during processing.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN,", or "NaN?" are consistently processed based on the environment variables:
+The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN," or "NaN?" are consistently processed based on the environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
 - **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
 - **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables punctuation stripping but still trims outer whitespace.

@@ -66,7 +66,7 @@ function parseNumbers(args) {
       if (tokenPunctuationConfig !== "") {
         // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
         const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
-        const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
+        const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$");
         trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
       }
       // If empty string, no punctuation stripping is performed beyond whitespace
@@ -731,7 +731,7 @@ const commands = {
     } else {
       let output = "NaN Diagnostic Report:\n";
       diagnostics.forEach(d => {
-        output += `Original: ${d.original}, Trimmed: ${d.trimmed}, TrimStart: ${d.trimStart}, TrimEnd: ${d.trimEnd}, Accepted: ${d.accepted}, Value: ${d.value}, WarningIndex: ${d.warningIndex}, Suggestion: ${d.suggestion}\n`;
+        output += `Original: ${d.original.replace(/\s+/g, ' ')}, Trimmed: ${d.trimmed}, TrimStart: ${d.trimStart}, TrimEnd: ${d.trimEnd}, Accepted: ${d.accepted}, Value: ${d.value}, WarningIndex: ${d.warningIndex}, Suggestion: ${d.suggestion}\n`;
       });
       sendSuccess("diagnose-nan", output);
     }
