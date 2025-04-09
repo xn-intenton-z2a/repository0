@@ -23,11 +23,11 @@
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
- * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are stripped from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
+ * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
- * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined or is empty and ALLOW_NAN is not 'true'), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
+ * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized in a consistent manner before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined or is empty and ALLOW_NAN is not 'true'), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -156,13 +156,12 @@ function parseNumbers(raw) {
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
-    let str = String(token);
-    let normalized = str;
-    if (trimmingRegex) {
-      normalized = str.replace(trimmingRegex, '').trim();
-    } else {
-      normalized = str.trim();
-    }
+    const str = String(token);
+    // First trim whitespace, then remove punctuation per configured regex
+    let trimmed = str.trim();
+    let normalized = trimmingRegex ? trimmed.replace(trimmingRegex, '') : trimmed;
+    normalized = normalized.trim();
+
     // Skip if a flag is encountered
     if (normalized.startsWith('--')) {
       continue;
