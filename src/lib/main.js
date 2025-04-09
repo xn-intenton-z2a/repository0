@@ -121,24 +121,30 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
-  // Determine the list of tokens to reject based on environment variable
-  const configInvalid = (typeof process.env.INVALID_TOKENS === 'string')
-    ? (process.env.INVALID_TOKENS === "" ? [] : process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== ""))
-    : ['nan'];
+
+  // Determine the list of tokens to reject based on ALLOW_NAN and INVALID_TOKENS env variable
+  let envInvalid;
+  if (process.env.ALLOW_NAN === 'true') {
+    envInvalid = [];
+  } else {
+    envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
+      ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
+      : ['nan'];
+  }
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
     let str = String(token).trim();
     // Normalize token by stripping leading/trailing punctuation and whitespace, then trim again
-    let normalized = str.replace(new RegExp('^[,.;?!\s]+|[,.;?!\s]+$', 'g'), '').trim();
+    let normalized = str.replace(/^[,.;?!\s]+|[,.;?!\s]+$/g, '').trim();
     // Skip if a flag is encountered
     if (normalized.startsWith('--')) {
       continue;
     }
     const tokenLower = normalized.toLowerCase();
-    // Special handling for 'NaN': check explicitly if token is 'nan'
+    // Special handling for 'NaN'
     if (tokenLower === 'nan') {
-      if (configInvalid.includes('nan')) {
+      if (envInvalid.includes('nan')) {
         invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       } else {
         valid.push(NaN);
@@ -146,7 +152,7 @@ function parseNumbers(raw) {
       continue;
     }
     // If token is in the configured invalid tokens, use dynamic or fixed index
-    if (configInvalid.includes(tokenLower)) {
+    if (envInvalid.includes(tokenLower)) {
       invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       continue;
     }
