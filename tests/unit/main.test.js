@@ -363,6 +363,9 @@ describe("CLI Behavior", () => {
     });
 
     test("inline flag does not persist across commands", async () => {
+      // Ensure ALLOW_NAN is false for this test
+      process.env.ALLOW_NAN = "false";
+      process.env.INVALID_TOKENS = "nan";
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       // First, use inline flag to allow NaN
       await main(["--allow-nan-inline", "--sum", "NaN", "5"]);
