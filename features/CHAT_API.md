@@ -1,28 +1,34 @@
 # CHAT_API
 
 ## Overview
-This feature integrates a Chat Completions API (such as OpenAI's ChatGPT) into the CLI tool. The new command enables users to supply a textual prompt and receive generated content, such as GitHub issue templates or suggestions, directly from the CLI. This tool provides modular automation support and assists in generating actionable feedback for repository improvements, aligning with the repository’s mission of promoting healthy collaboration.
+This feature integrates a Chat Completions API (e.g., OpenAI's ChatGPT) into the CLI tool to enable users to supply textual prompts and receive generated content, such as GitHub issue templates or suggestions, directly from the command line. In this update, we've enhanced the original specification by adding conversation history caching and contextual continuity. This allows the CLI to remember previous interactions during a session, improving the relevance of successive prompts. 
 
 ## CLI Integration
-- **Command Flag:** Introduce a new flag `--chat` that triggers the Chat API functionality.
-- **Input Parsing:** The command accepts a prompt message as its argument. Optional flags may be added for custom configurations (e.g., `--max-tokens`, `--temperature`).
-- **Output Modes:** Support plain text output along with the existing JSON output mode (`--json`, `--json-pretty`).
+- **Command Flag:** The global flag `--chat` triggers the Chat API functionality.
+- **Input Parsing:** Accepts a text prompt and optional parameters (e.g., `--max-tokens`, `--temperature`). An optional flag `--chat-session` activates conversation history caching for ongoing interactions.
+- **Output Modes:** Supports plain text and JSON outputs (`--json`, `--json-pretty`). The CLI also displays conversation context when in session mode.
 
 ## Implementation Details
-- The module leverages the OpenAI Chat Completions API to process the supplied prompt. It requires the secret `CHATGPT_API_SECRET_KEY` for authentication, as noted in the README.
-- **Processing Flow:**
-  - Read the user prompt from the CLI arguments.
-  - Call the Chat Completions API with parameters (prompt, max tokens, temperature, etc.).
-  - Capture the API response and format the result for display.
-- **Error Handling:** Provide clear error messages in case of network issues, missing API keys, or invalid prompt inputs.
-- **Integration:** This feature is designed to operate within a single source file (e.g., as an additional module in `src/lib/main.js`), keeping the repository self-contained and aligned with modular CLI design.
+- **API Integration:**
+  - Reads the user prompt from the CLI arguments and, if session mode is active, retrieves recent conversation history to prepend context.
+  - Calls the Chat Completions API with provided parameters including prompt, max tokens, and temperature.
+  - For session mode, caches the conversation (both prompt and response) into an in-memory store that persists throughout the CLI invocation session.
+- **Error Handling:**
+  - Provides clear error messages for network issues, missing API keys, or invalid inputs.
+  - If the API call fails, the tool returns a fallback error message and includes any cached conversation context for troubleshooting.
+- **Conversation History Caching:**
+  - When `--chat-session` is active, recent interactions are stored temporarily (e.g., the last 5 exchanges) to enable context continuity.
+  - The cached history is included in subsequent API calls to provide context and improve answer relevance.
 
 ## Testing & Documentation
-- **Unit Tests:** Add tests that simulate API calls (using mocks) to verify that valid prompts return the expected output and that errors are handled gracefully.
-- **Documentation:** Update the README and CLI help documentation to include usage examples such as:
-  - `node src/lib/main.js --chat "Generate an issue template for a bug report"`
-  - JSON examples with `--json`.
-- **Inline Comments:** Ensure thorough commenting in the source file to assist contributors in understanding integration steps and configuration requirements.
+- **Unit Tests:** 
+  - Simulate API calls using mocks to verify functionality in both standard and session modes.
+  - Tests cover error handling, correct integration of conversation history, and proper JSON formatting.
+- **Documentation:**
+  - The README and CLI usage guides are updated with examples such as:
+    - `node src/lib/main.js --chat "Generate an issue template for a bug report"`
+    - `node src/lib/main.js --chat --chat-session "How do I fix a null pointer error?"`
+  - Inline comments in `src/lib/main.js` clarify the integration of conversation caching and session handling.
 
 ## Alignment with Repository Mission
-The CHAT_API feature leverages advanced AI capabilities to assist in automation tasks (e.g., generating GitHub issues and suggestions) directly from the CLI. By streamlining content generation and enabling rapid iteration, this module supports healthy collaboration and enhances productivity in a single, self-contained repository.
+By integrating advanced AI capabilities with added session awareness and conversation history caching, the CHAT_API feature empowers users to generate actionable content with improved relevance and context. This enhancement supports the repository’s mission of fostering healthy collaboration and streamlined automation through modular, self-contained CLI utilities.
