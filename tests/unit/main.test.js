@@ -279,4 +279,16 @@ describe("CLI Behavior", () => {
     warnSpy.mockRestore();
     logSpy.mockRestore();
   });
+
+  // New test for internal whitespace in NaN-like input
+  test("rejects 'N aN' with internal whitespace", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "N aN", "5"]);
+    // 'N aN' is not a valid trimmed 'NaN', so it should be rejected, resulting in sum = 5
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("N aN"));
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
+  });
 });

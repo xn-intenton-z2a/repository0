@@ -146,7 +146,7 @@ function parseNumbers(raw) {
     if (process.env.TOKEN_PUNCTUATION_CONFIG === '') {
       trimmingRegex = null;
     } else {
-      const customChars = escapeRegex(process.env.TOKEN_PUNCTUATION_CONFIG) + "\\s";
+      const customChars = escapeRegex(process.env.TOKEN_PUNCTUATION_CONFIG) + "\s";
       trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
     }
   } else {
