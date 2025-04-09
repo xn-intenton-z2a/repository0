@@ -32,6 +32,7 @@ The input parsing mechanism has been refined to optimize detection of invalid nu
 - **Internal Whitespace Rejection:** Inputs that contain internal whitespace, even if they partially resemble valid tokens (e.g., 'N aN'), are now consistently rejected with an appropriate warning.
 - **Correction Suggestion:** When a token equal to 'NaN' is rejected due to configuration, a correction suggestion is appended to the warning message to help users enable NaN processing if intended. This suggestion can be suppressed by setting the environment variable **DISABLE_NAN_SUGGESTION** to `true`.
 - **Consolidated NaN Handling:** The logic for processing tokens resembling 'NaN' has been unified to ensure robust, consistent behavior irrespective of casing, surrounding punctuation, or extra whitespace.
+- **Regex Caching:** To improve performance during numeric parsing, the regular expressions used for punctuation stripping are now cached based on the **TOKEN_PUNCTUATION_CONFIG** value. This reduces redundant compilation of identical regex patterns when processing large arrays of inputs.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -61,7 +62,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. This update provides consistent handling of various forms of 'NaN' inputs, including unified normalization and robust rejection of malformed tokens.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. This update provides consistent handling of various forms of 'NaN' inputs, including unified normalization and robust rejection of malformed tokens, along with optimized regex caching for performance.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
@@ -102,7 +103,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG, and a new correction suggestion for NaN inputs (which can be disabled with DISABLE_NAN_SUGGESTION). The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG (now optimized with regex caching), and a new correction suggestion for NaN inputs (which can be disabled with DISABLE_NAN_SUGGESTION). The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
