@@ -28,7 +28,7 @@ The input parsing mechanism has been refactored for improved modularity. Utility
 Configuration via environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
 - **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
-- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. An empty string disables trimming.
+- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables trimming.
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
 

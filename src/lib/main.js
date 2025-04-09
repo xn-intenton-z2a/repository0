@@ -49,7 +49,11 @@ function generateWarning(pos, originalToken) {
 function parseNumbers(args) {
   let valid = [];
   let invalid = [];
-  const tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+  let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+  // If TOKEN_PUNCTUATION_CONFIG is undefined, use default punctuation stripping characters
+  if (tokenPunctuationConfig === undefined) {
+    tokenPunctuationConfig = ",.;?!";
+  }
   args.forEach((token, index) => {
     let trimmed = token;
     if (tokenPunctuationConfig !== undefined) {
