@@ -23,11 +23,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refactored for improved modularity. Functions to handle token normalization, punctuation stripping, and 'NaN' handling have been extracted into a new module: **src/lib/numberUtils.js**. This module exports the following utilities for reuse:
-
-- **escapeRegex(str):** Escapes special characters in a string for regex use.
-- **generateWarning(pos, originalToken):** Generates a standardized warning message for an invalid token, including a correction suggestion if applicable.
-- **parseNumbers(args):** Parses an array of input tokens, applying configurable punctuation stripping and NaN handling rules. 
+The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization, punctuation stripping, and 'NaN' handling are now integrated directly into the main CLI file (`src/lib/main.js`).
 
 Configuration via environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
@@ -64,10 +60,10 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   CI/CD workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**
-  The main functionality resides in `src/lib/main.js`. The extracted numeric parsing utilities in `src/lib/numberUtils.js` enhance modularity and reusability. 
+  The main functionality resides in `src/lib/main.js`. The numeric parsing utilities are integrated into this file for a streamlined structure.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder cover both CLI behavior and the new number utilities.
+  Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
 
 - **Configuration:**
   Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool.
@@ -100,7 +96,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, and the **--toggle-allow-nan** command for runtime NaN configuration. The utility functions for numeric parsing and NaN handling have been extracted into **src/lib/numberUtils.js** for reusability. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, and the **--toggle-allow-nan** command for runtime NaN configuration. The utility functions for numeric parsing are now integrated within the main file. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 

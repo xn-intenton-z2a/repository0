@@ -1,6 +1,5 @@
 import { describe, test, expect, vi } from "vitest";
-import { main } from "../../src/lib/main.js";
-import { escapeRegex, generateWarning, parseNumbers } from "../../src/lib/numberUtils.js";
+import { main, escapeRegex, generateWarning, parseNumbers } from "../../src/lib/main.js";
 
 // Helper function to parse JSON from output
 function tryParseJSON(output) {
@@ -354,12 +353,10 @@ describe("Number Utilities", () => {
   test("escapeRegex escapes special characters", () => {
     const input = "[test]*.?";
     const escaped = escapeRegex(input);
-    expect(escaped).toBe("\\[test\\]\\*\\.\\?"
-    );
+    expect(escaped).toBe("\\[test\\]\\*\\.\\?");
   });
 
   test("generateWarning returns expected warning for NaN token with suggestion", () => {
-    // Ensure environment variables are set to default behavior
     process.env.DISABLE_NAN_SUGGESTION = "false";
     process.env.ALLOW_NAN = "false";
     const warning = generateWarning(1, "NaN");
@@ -368,7 +365,6 @@ describe("Number Utilities", () => {
   });
 
   test("parseNumbers handles punctuation and NaN input correctly", () => {
-    // Setup environment for rejecting NaN
     process.env.ALLOW_NAN = "false";
     process.env.INVALID_TOKENS = "nan";
     const input = ["  ,10, ", "!!NaN??", "abc"];

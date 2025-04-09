@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides in a dedicated module (numberUtils.js) and is exported for reuse across the repository. This module handles token normalization (trimming punctuation and whitespace) and rejects any token resembling 'NaN' unless allowed via configuration. It also applies dynamic or fixed warning indices and conditionally appends a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming punctuation and whitespace) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -32,7 +32,59 @@
  * Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting DISABLE_NAN_SUGGESTION to 'true'.
  */
 
-import { escapeRegex, generateWarning, parseNumbers } from "./numberUtils.js";
+// Integrated Number Utilities
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function generateWarning(pos, originalToken) {
+  let suggestion = "";
+  if (!(process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === "true")) {
+    suggestion = " Did you mean to allow NaN values?";
+  }
+  const indexText = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? `(position ${pos})` : "(position 0)";
+  return `${indexText}: ${originalToken}${suggestion}`;
+}
+
+function parseNumbers(args) {
+  let valid = [];
+  let invalid = [];
+  const tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+  for (let token of args) {
+    let trimmed = token;
+    if (tokenPunctuationConfig !== undefined) {
+      if (tokenPunctuationConfig !== "") {
+        const re = new RegExp(`^[\\s${escapeRegex(tokenPunctuationConfig)}]+|[\\s${escapeRegex(tokenPunctuationConfig)}]+$`, 'g');
+        trimmed = token.replace(re, '');
+      }
+      // If TOKEN_PUNCTUATION_CONFIG is empty string, no trimming is performed
+    } else {
+      // default punctuation trimming: comma, period, semicolon, question mark, exclamation
+      trimmed = token.replace(/^[\s,.;?!]+|[\s,.;?!]+$/g, '');
+    }
+    // Reject if token has internal whitespace.
+    if (/\s/.test(trimmed)) {
+      invalid.push(token);
+      continue;
+    }
+    // Check if token resembles 'NaN'
+    if (trimmed.toLowerCase() === "nan") {
+      if (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") {
+        valid.push(NaN);
+      } else {
+        invalid.push(token);
+      }
+      continue;
+    }
+    const num = Number(trimmed);
+    if (isNaN(num)) {
+      invalid.push(token);
+    } else {
+      valid.push(num);
+    }
+  }
+  return { valid, invalid };
+}
 
 const TOOL_VERSION = '1.4.1-1';
 
@@ -612,4 +664,4 @@ if (process.env.NODE_ENV !== "test" && process.argv[1] === new URL(import.meta.u
   })();
 }
 
-export { cliMain as main, __test };
+export { cliMain as main, __test, escapeRegex, generateWarning, parseNumbers };
