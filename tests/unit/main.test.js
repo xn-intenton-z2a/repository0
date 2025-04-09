@@ -256,7 +256,7 @@ describe("CLI Behavior", () => {
       logSpy.mockRestore();
     });
     test("applies no trimming when TOKEN_PUNCTUATION_CONFIG is empty string", async () => {
-      process.env.TOKEN_PUNCTUATION_CONFIG = ""; // no trimming
+      process.env.TOKEN_PUNCTUATION_CONFIG = ""; // no punctuation stripping
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--sum", "  5, ", "5"]);

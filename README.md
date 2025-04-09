@@ -23,16 +23,14 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization, punctuation stripping, and 'NaN' handling are now integrated directly into the main CLI file (`src/lib/main.js`).
-
-Configuration via environment variables:
+The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN,", or "NaN?" are consistently processed based on the environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
 - **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
-- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables trimming.
+- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables punctuation stripping but still trims outer whitespace.
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
 
-**Note:** In non-JSON mode, warnings for invalid tokens are now output to stderr via `console.warn`.
+**Note:** In non-JSON mode, warnings for invalid tokens are output via `console.warn`.
 
 ### Global JSON Output Mode
 A new global flag has been added:
