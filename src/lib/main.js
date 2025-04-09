@@ -19,6 +19,8 @@
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
+ * New Option: --summarize-warnings - When provided, aggregates duplicate warning messages into a summarized message instead of printing each individual warning.
+ *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
@@ -29,23 +31,44 @@
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers...]";
 
-// Global flags for JSON output mode
+// Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
 let jsonPretty = false;
+let summarizeWarnings = false;
 
 // Global variables to hold start time and cleansed input for JSON metadata
 let __startTime = 0;
 let __inputEcho = [];
 
+// Helper function to aggregate duplicate warnings
+function aggregateWarnings(warnings) {
+  const tokenCounts = {};
+  warnings.forEach(warning => {
+    // Extract token using a regex to capture the text after "):" 
+    const match = warning.match(/\):\s*(.*)/);
+    if (match) {
+      const token = match[1];
+      tokenCounts[token] = (tokenCounts[token] || 0) + 1;
+    }
+  });
+  return Object.entries(tokenCounts).map(
+    ([token, count]) => `Token '${token}' occurred ${count} ${count > 1 ? 'times' : 'time'}`
+  );
+}
+
 // Helper functions to output success or error messages based on JSON mode
 function sendSuccess(command, result, warnings) {
+  let finalWarnings = warnings;
+  if (summarizeWarnings && warnings && warnings.length > 0) {
+    finalWarnings = aggregateWarnings(warnings);
+  }
   if (jsonMode) {
     const output = {
       command,
       result,
-      warnings: warnings ? warnings : [],
+      warnings: finalWarnings ? finalWarnings : [],
       timestamp: new Date().toISOString(),
       version: TOOL_VERSION,
       executionDuration: Date.now() - __startTime,
@@ -54,18 +77,24 @@ function sendSuccess(command, result, warnings) {
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(result));
-    if (warnings && warnings.length > 0) {
-      warnings.forEach(msg => console.warn(msg));
+    if (finalWarnings && finalWarnings.length > 0) {
+      finalWarnings.forEach(warning => {
+        console.warn(warning);
+      });
     }
   }
 }
 
 function sendError(command, errorMessage, warnings) {
+  let finalWarnings = warnings;
+  if (summarizeWarnings && warnings && warnings.length > 0) {
+    finalWarnings = aggregateWarnings(warnings);
+  }
   if (jsonMode) {
     const output = {
       command,
       error: errorMessage,
-      warnings: warnings ? warnings : [],
+      warnings: finalWarnings ? finalWarnings : [],
       timestamp: new Date().toISOString(),
       version: TOOL_VERSION,
       executionDuration: Date.now() - __startTime,
@@ -74,8 +103,10 @@ function sendError(command, errorMessage, warnings) {
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
     console.log(String(errorMessage));
-    if (warnings && warnings.length > 0) {
-      warnings.forEach(msg => console.warn(msg));
+    if (finalWarnings && finalWarnings.length > 0) {
+      finalWarnings.forEach(warning => {
+        console.warn(warning);
+      });
     }
   }
 }
@@ -86,11 +117,6 @@ function generateWarning(pos, token) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
-// Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For tokens matching 'nan' (case-insensitive), the parser explicitly checks and, if configured as invalid, issues a warning.
-// Otherwise, if the token is not in the invalid list, it attempts to parse the token to a number.
-// If the result of parsing is NaN and the token did not match an allowed 'NaN', a warning is issued.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
@@ -537,9 +563,10 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Reset json mode for every invocation to avoid state carryover between calls
+  // Reset modes for every invocation to avoid state carryover between calls
   jsonMode = false;
   jsonPretty = false;
+  summarizeWarnings = false;
   if (args === undefined) {
     args = [];
   }
@@ -547,7 +574,7 @@ async function cliMain(args) {
     sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
     return;
   }
-  // Check for global --json-pretty flag and remove it (takes precedence over --json)
+  // Check for global flags
   if (args.includes("--json-pretty")) {
     jsonMode = true;
     jsonPretty = true;
@@ -555,6 +582,10 @@ async function cliMain(args) {
   } else if (args.includes("--json")) {
     jsonMode = true;
     args = args.filter(arg => arg !== "--json");
+  }
+  if (args.includes("--summarize-warnings")) {
+    summarizeWarnings = true;
+    args = args.filter(arg => arg !== "--summarize-warnings");
   }
   // Set global inputEcho as the cleansed input
   __inputEcho = args;
