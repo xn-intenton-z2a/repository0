@@ -26,7 +26,7 @@ The input parsing mechanism has been refined to optimize detection of invalid nu
 - You can customize the rejected tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
 - **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index.
 - **--summarize-warnings:** When provided, the CLI aggregates duplicate warning messages into a summary indicating the number of occurrences for each invalid token.
-- **Edge-case Normalization:** Inputs with extra punctuation or irregular spacing (e.g., ' NaN', 'NaN,', 'NaN?') are normalized by stripping extraneous characters before evaluation.
+- **Edge-case Normalization:** Inputs with extra punctuation or irregular spacing (e.g., ' NaN', 'NaN,', 'NaN?') are normalized by stripping extraneous characters and trimming before evaluation.
 
 ### Global JSON Output Mode
 A new global flag has been added:
