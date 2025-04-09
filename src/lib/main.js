@@ -122,9 +122,12 @@ function parseNumbers(raw) {
   const invalid = [];
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
 
+  // Determine ALLOW_NAN in a case-insensitive manner
+  const allowNan = (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') ? true : false;
+
   // Determine the list of tokens to reject based on ALLOW_NAN and INVALID_TOKENS env variable
   let envInvalid;
-  if (process.env.ALLOW_NAN === 'true') {
+  if (allowNan) {
     envInvalid = [];
   } else {
     envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
@@ -571,8 +574,8 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Ensure ALLOW_NAN is explicitly set to "false" if not defined, to avoid treating 'NaN' as valid
-  if (process.env.ALLOW_NAN === undefined) {
+  // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive) to avoid treating 'NaN' as valid
+  if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
     process.env.ALLOW_NAN = "false";
   }
   // Save the current environment variables for INVALID_TOKENS and ALLOW_NAN to avoid test interference

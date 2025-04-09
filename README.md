@@ -95,7 +95,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), and a configurable warning index mode via the DYNAMIC_WARNING_INDEX option. A new flag **--summarize-warnings** has been added to aggregate duplicate warning messages. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), and a configurable warning index mode via the DYNAMIC_WARNING_INDEX option. A new flag **--summarize-warnings** has been added to aggregate duplicate warning messages. The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**. For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md).
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
