@@ -164,6 +164,9 @@ jobs:
           name: stats-json
           path: ${{ steps.generate-json.outputs.jsonStatsPath }}
 
+        # TODO: Generate a pre-signed URL for the all the stats.json files and inject this into public/all.html
+
+        # TODO: Remove latest.html publication steps.
       - name: Generate statistics page
         uses: actions/github-script@v7
         with:
@@ -369,6 +372,7 @@ jobs:
           ./scripts/md-to-html.js < README.md > public/index.agentic-lib.html
           cat public/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > public/index.html
 
+        # TODO: Remove latest.html publication steps.
       - name: Generate unique filename for this version
         id: uniqueFile
         run: |
@@ -393,6 +397,7 @@ jobs:
           name: site
           path: 'public'
 
+        # TODO: Remove latest.html publication steps.
       - name: Output published URLs
         run: |
           echo "[INFO] Determining GitHub Pages URL..."
