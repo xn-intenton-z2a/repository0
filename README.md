@@ -29,8 +29,7 @@ The input parsing mechanism has been refined to optimize detection of invalid nu
 - **Configurable Punctuation Stripping:** A new environment variable **TOKEN_PUNCTUATION_CONFIG** allows you to define custom punctuation and whitespace trimming rules for numeric inputs.
   - If **TOKEN_PUNCTUATION_CONFIG** is defined and non-empty, only the characters specified (plus whitespace) are trimmed from the beginning and end of tokens.
   - If **TOKEN_PUNCTUATION_CONFIG** is defined as an empty string, no punctuation stripping is performed.
-
-*Note:* The normalization of numeric inputs has been updated to consistently trim whitespace and punctuation (as configured) from both ends of each token, ensuring predictable handling of variants like ' NaN ', 'NaN,', and 'NaN?'.
+- **Internal Whitespace Rejection:** Inputs that contain internal whitespace, even if they partially resemble valid tokens (e.g., 'N aN'), are now consistently rejected with an appropriate warning.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -60,7 +59,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The updated 'NaN' input handling and configurable punctuation stripping are consistent across all commands.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The updated 'NaN' input handling, including rejection of inputs with internal whitespace, and configurable punctuation stripping are consistent across all commands.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
