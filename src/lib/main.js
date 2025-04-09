@@ -25,7 +25,7 @@
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
- * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string.
+ * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -128,16 +128,18 @@ function parseNumbers(raw) {
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
-    const str = String(token).trim();
+    let str = String(token).trim();
+    // Normalize token by stripping leading/trailing punctuation and whitespace
+    let normalized = str.replace(/^[,.;?!\s]+|[,.;?!\s]+$/g, '');
     // Skip if a flag is encountered
-    if (str.startsWith('--')) {
+    if (normalized.startsWith('--')) {
       continue;
     }
-    const tokenLower = str.toLowerCase();
+    const tokenLower = normalized.toLowerCase();
     // Special handling for 'NaN': check explicitly if token is 'nan'
     if (tokenLower === 'nan') {
       if (configInvalid.includes('nan')) {
-        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       } else {
         valid.push(NaN);
       }
@@ -145,12 +147,12 @@ function parseNumbers(raw) {
     }
     // If token is in the configured invalid tokens, use dynamic or fixed index
     if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       continue;
     }
-    const num = Number(str);
+    const num = Number(normalized);
     if (isNaN(num)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
     } else {
       valid.push(num);
     }

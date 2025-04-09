@@ -255,4 +255,16 @@ describe("CLI Behavior", () => {
       warnSpy.mockRestore();
     });
   });
+
+  // New test for edge-case 'NaN' variants with punctuation and whitespace
+  test("handles edge-case variants of 'NaN' with punctuation and whitespace", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", " NaN ", "NaN,", "NaN?", "5"]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+    // Expect three warnings for each variant normalized to 'NaN'
+    expect(warnSpy).toHaveBeenCalledTimes(3);
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
+  });
 });
