@@ -1,35 +1,37 @@
 # CORRELATION
 
 ## Overview
-This feature introduces a Pearson correlation coefficient calculator into the CLI tool. It computes the linear correlation (r) between two datasets provided by the user. The calculation is useful in statistical analysis to determine the relationship between two numeric variables.
+This feature now enhances the existing Pearson correlation coefficient calculator by also supporting linear regression analysis. In addition to computing the linear correlation (r) between two datasets, a new option enables the computation of linear regression parameters including slope, intercept, and the coefficient of determination (R²). This extension further improves the repository’s capacity for statistical analysis, aligning with the mission of promoting streamlined automation and healthy collaboration.
 
 ## CLI Integration
-- **Command Flag:** Introduce a new flag `--correlation` to invoke the correlation calculator.
-- **Usage Example:
-  - Provide an even number of numeric inputs so that the first half forms the first dataset (X) and the second half forms the second dataset (Y).
-  - For example, `node src/lib/main.js --correlation 1 2 3 4 5 6` calculates the Pearson correlation between X = [1,2,3] and Y = [4,5,6].
-  - If the number of numeric inputs is not even, the tool returns a clear error message specifying the expected format.
+- **Command Flag:** The primary flag remains `--correlation`.
+- **Input Format:** The tool expects an even number of numeric inputs. The first half of numbers represent dataset X and the second half represent dataset Y.
+- **Optional Regression Mode:** An additional flag, `--regression`, may be provided alongside `--correlation` to trigger regression analysis. For example:
+  - `node src/lib/main.js --correlation --regression 1 2 3 4 5 6`
+  In this mode, the tool computes both the Pearson correlation coefficient and the regression parameters.
+- **Output Modes:** Supports both plain text and JSON outputs (with `--json` or `--json-pretty`). In JSON mode, the response will include metadata and a structured object containing both the correlation coefficient and regression parameters if requested.
 
 ## Implementation Details
-- **Input Parsing & Validation:**
-  - The feature expects a sequence of numeric tokens. It verifies that the total count of tokens is even and at least 2 (i.e. at least one paired observation).
-  - The first half of the tokens are treated as values for dataset X, and the second half as dataset Y.
-  - If the number of inputs is odd or either dataset is empty, an error is returned with a uniform error message consistent with other features.
+### Correlation Calculation
+- **Validation & Parsing:** The feature verifies that an even number of numeric inputs are provided, splitting them into two equal-length datasets X and Y.
+- **Computation:** The Pearson correlation coefficient is computed by determining the means, differences, and using standard formulas.
 
-- **Operation Logic:**
-  - Compute the mean of both datasets.
-  - Calculate the numerator: sum((xi - mean_X) * (yi - mean_Y)) for each pair (xi, yi).
-  - Compute denominator: product of the square root of the sum of squares for each dataset: sqrt(sum((xi - mean_X)^2) * sum((yi - mean_Y)^2)).
-  - The Pearson correlation coefficient is the numerator divided by the denominator.
-  - If the denominator evaluates to zero (indicating no variability in one or both datasets), a clear error message is provided.
-
-## Error Handling & Output
-- If validation fails (e.g., odd number of tokens), the feature outputs a message like "Error: Provide an even number of numeric inputs to form two equal-length datasets.".
-- The output supports both plain text and JSON modes (activatable with `--json` or `--json-pretty`), including metadata such as timestamp, version, execution duration, and input echo.
+### Regression Analysis (When `--regression` is Specified)
+- **Calculation:**
+  - **Slope:** Computed as `slope = covariance(X, Y) / variance(X)`.
+  - **Intercept:** Calculated using `intercept = mean(Y) - slope * mean(X)`.
+  - **Coefficient of Determination (R²):** Obtained by squaring the Pearson correlation coefficient.
+- **Error Handling:** In cases where variance in dataset X is zero (i.e. all X values are identical), the tool returns a clear error message regarding the inability to compute regression parameters.
+- **Output:** The result, when in regression mode, includes both:
+  - `correlation`: The Pearson correlation coefficient
+  - `regression`: An object containing the `slope`, `intercept`, and `r_squared` values
 
 ## Testing & Documentation
-- **Unit Tests:** Add tests covering cases with valid paired datasets, cases with non-even numbers of inputs, and edge cases (e.g., constant datasets leading to zero variance).
-- **Documentation:** Update usage guides and the README to include examples of correlation calculations, along with inline code comments explaining the statistical computation.
+- **Unit Tests:** New tests will verify correct splitting of input datasets, accurate regression calculations, and robust error handling for edge cases (e.g., zero variance in X).
+- **Documentation:** The README and user guide will be updated with examples demonstrating both modes:
+  - Without regression: `node src/lib/main.js --correlation 1 2 3 4 5 6`
+  - With regression: `node src/lib/main.js --correlation --regression 1 2 3 4 5 6`
+- **Inline Comments:** The source file will include detailed comments explaining the new regression calculations.
 
 ## Alignment with Repository Mission
-The CORRELATION feature enhances the repository’s statistical toolset by providing users with an easy-to-use utility for measuring linear relationships between two sets of numbers. It continues the mission of promoting streamlined automation and healthy collaboration by offering a self-contained, modular utility that can be maintained within a single source file.
+By integrating linear regression analysis into the existing correlation module, this update enhances the repository’s statistical toolkit within a single, self-contained feature. It supports enhanced analytical capabilities and streamlines workflow automation, staying true to the repository’s mission of facilitating healthy collaboration and modular tooling.
