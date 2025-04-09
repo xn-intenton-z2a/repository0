@@ -286,7 +286,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.1.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.3.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -411,15 +411,6 @@ jobs:
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
-    if: >
-      ${{ always() &&
-         (
-           needs.npm-test-after-fix.result != 'success' ||
-           needs.npm-build-after-fix.result != 'success' ||
-           needs.npm-run-after-fix.result != 'success' ||
-           inputs.applyFixEvenIfTestsPass == true
-         )
-      }}
     runs-on: ubuntu-latest
     steps:
       - name: set-needs-fix
@@ -473,7 +464,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.1.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.3.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
