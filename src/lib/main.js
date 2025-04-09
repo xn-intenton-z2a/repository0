@@ -55,10 +55,10 @@ function escapeRegex(str) {
 function aggregateWarnings(warnings) {
   const tokenCounts = {};
   warnings.forEach(warning => {
-    // Extract token using a regex to capture the text after "):" 
-    const match = warning.match(/\):\s*(.*)/);
+    // Extract token using a regex and split to remove correction suggestion if present
+    const match = warning.match(/\):\s*(.*?)(\s+Did you mean|$)/);
     if (match) {
-      const token = match[1];
+      const token = match[1].trim();
       tokenCounts[token] = (tokenCounts[token] || 0) + 1;
     }
   });
