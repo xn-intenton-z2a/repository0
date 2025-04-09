@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { main, escapeRegex, generateWarning, parseNumbers } from "../../src/lib/main.js";
 
 // Helper function to parse JSON from output
