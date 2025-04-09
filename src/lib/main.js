@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming punctuation and whitespace) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming whitespace, punctuation based on configuration) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position (1-indexed) in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -25,7 +25,7 @@
  *
  * New Command: --toggle-allow-nan dynamically toggles the ALLOW_NAN setting for numeric parsing at runtime.
  *
- * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
+ * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. All tokens are first trimmed of outer whitespace. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters are additionally trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed (although outer whitespace is still removed).
  *
  * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
  *
@@ -55,17 +55,19 @@ function parseNumbers(args) {
     tokenPunctuationConfig = ",.;?!";
   }
   args.forEach((token, index) => {
-    let trimmed = token;
+    // Always trim outer whitespace
+    let trimmed = token.trim();
     if (tokenPunctuationConfig !== undefined) {
       if (tokenPunctuationConfig !== "") {
         // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
-        const leadingRe = new RegExp(`^[\\s${escapeRegex(tokenPunctuationConfig)}]+`);
-        const trailingRe = new RegExp(`[\\s${escapeRegex(tokenPunctuationConfig)}]+$`);
-        trimmed = token.replace(leadingRe, '').replace(trailingRe, '');
-      } // if empty string, no trimming is performed
+        const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
+        const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
+        trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
+      }
+      // If empty string, no punctuation stripping is performed
     } else {
       // default punctuation trimming: comma, period, semicolon, question mark, exclamation
-      trimmed = token.replace(/^[\s,.;?!]+|[\s,.;?!]+$/g, '');
+      trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
     }
     // Reject if token has internal whitespace.
     if (/\s/.test(trimmed)) {
