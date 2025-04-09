@@ -574,11 +574,9 @@ async function cliMain(args) {
   // Save the current environment variables for INVALID_TOKENS and ALLOW_NAN to avoid test interference
   const savedInvalidTokens = process.env.INVALID_TOKENS;
   const savedAllowNan = process.env.ALLOW_NAN;
-  // By default, if INVALID_TOKENS is not explicitly set to allow NaN, then default to rejecting 'nan'
-  if (process.env.INVALID_TOKENS === undefined || process.env.INVALID_TOKENS === "") {
-    if (process.env.ALLOW_NAN !== "true") {
-      process.env.INVALID_TOKENS = "nan";
-    }
+  // Set INVALID_TOKENS if not already defined
+  if (process.env.INVALID_TOKENS === undefined) {
+    process.env.INVALID_TOKENS = (process.env.ALLOW_NAN === "true" ? "" : "nan");
   }
   try {
     // Reset modes for every invocation to avoid state carryover between calls
