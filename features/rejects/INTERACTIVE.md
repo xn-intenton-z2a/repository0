@@ -1,30 +1,26 @@
-# INTERACTIVE Mode Enhancement
+# INTERACTIVE & TUTORIAL
 
 ## Overview
-This update expands the existing INTERACTIVE mode by introducing a new batch processing capability. In addition to its current REPL functionality with dynamic auto-completion, in-memory command history, and inline suggestions, the CLI now supports execution of a list of commands from a file in batch mode. This enhancement allows users to automate a series of CLI instructions without waiting for interactive input, further streamlining automation and diagnostics.
+In addition to the existing interactive REPL and batch processing modes, this update integrates a new **tutorial sub-mode** within the INTERACTIVE feature. The tutorial mode provides a guided, step-by-step walkthrough of the CLI tool’s functionality, offering new users an engaging introduction and practical examples of available commands. This extension streamlines onboarding and empowers users to learn the tool’s capabilities quickly, in line with the repository’s mission of fostering healthy collaboration.
 
 ## CLI Integration
-- **Activation:** In addition to the `--interactive` flag, a new flag `--batch <filepath>` is introduced. When the `--batch` flag is provided with a valid file path, the CLI reads the file line-by-line and executes each command sequentially in non-interactive mode.
-- **Mode Selection:** If both `--interactive` and `--batch` are provided, batch mode takes precedence. The output of each command from the file is displayed in the same format as interactive results, supporting both plain text and JSON output modes.
-- **Auto-completion & Suggestions:** The REPL auto-completion remains available during interactive sessions, while in batch mode commands are executed without prompting, and errors are reported using the existing error handling functions.
+- **Invocation:** The tutorial mode can be activated by adding a new sub-command (e.g., `tutorial`) to the interactive flag. For example:
+  - `node src/lib/main.js --interactive tutorial`
+- **Mode Selection:** When the `tutorial` sub-mode is detected, the CLI will present a series of guided screens with instructions, example commands, and tips on using various sub-commands (such as arithmetic operations, configuration, and security utilities).
+- **Fallback Behavior:** If users input an unknown command within the interactive session, the tutorial mode can offer contextual help and suggest usage examples.
 
 ## Implementation Details
-- **Batch Processing Logic:**
-  - Read the specified file and split its content into individual commands.
-  - For each non-empty line, parse global flags and execute the corresponding command using the same logic as the interactive mode.
-  - Support inline comments in the batch file (lines starting with `#`) that are ignored during processing.
-- **Error Handling:**
-  - If the file cannot be located or read, the CLI outputs an appropriate error message.
-  - Each command's execution in batch mode inherits the standard error and warning reporting (including positional warnings and JSON metadata when enabled).
-- **User Feedback:**
-  - After processing, a summary message is provided highlighting the number of commands executed and any errors encountered during batch processing.
+- **Guided Walkthrough:** The tutorial will run in a text-based format, displaying instructions sequentially. It may include prompts for user input to simulate command execution and provide immediate feedback.
+- **Incremental Learning:** The tutorial is structured in sections, each focusing on a set of related commands (e.g., basic math commands, configuration management, and advanced utilities) with a brief description, example commands, and expected output.
+- **Integration with REPL:** Users can switch between the guided tutorial and regular REPL mode or exit the tutorial to return to standard interactive sessions.
+
+## Error Handling & Validation
+- Robust parsing of sub-commands ensures that users invoking the tutorial mode receive the proper instructional content.
+- Any invalid or unsupported inputs during the tutorial sequence trigger informative error messages, directing users back to the main tutorial navigation.
 
 ## Testing & Documentation
-- **Unit Tests:** New tests should simulate batch file processing, ensuring that valid command sequences in a file produce the expected output and that error scenarios (such as missing file or invalid commands) are handled gracefully.
-- **Documentation:** Update the README and CLI usage documentation to include examples:
-  - Interactive Mode: `node src/lib/main.js --interactive`
-  - Batch Mode: `node src/lib/main.js --batch commands.txt`
-  - Inline comments in batch files using `#` for better readability.
+- **Unit Tests:** New tests will simulate tutorial mode interactions, verifying that each tutorial screen displays the correct information and that navigation commands work as expected.
+- **Documentation:** The README and CLI usage guides will be updated to include examples of launching the tutorial. Inline comments in the source code explain the instructional logic and navigation flow.
 
 ## Alignment with Repository Mission
-Enhancing the INTERACTIVE feature with batch processing capabilities further promotes healthy collaboration and streamlined automation. Users can now automate repetitive tasks by preloading command sequences, aligning with the repository’s mission of providing modular, self-contained CLI utilities for practical automation.
+By embedding an interactive tutorial within the existing INTERACTIVE feature, this update enhances user onboarding and helps maintain streamlined automation workflows. It fosters healthy collaboration by reducing the learning curve for new users and ensuring that the tool's powerful functionalities are accessible and well-documented.
