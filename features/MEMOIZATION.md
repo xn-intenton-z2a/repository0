@@ -1,24 +1,35 @@
 # MEMOIZATION
 
 ## Overview
-This feature introduces a simple in-memory caching mechanism to the CLI tool. It is designed to store and retrieve the results of expensive computations (for example, factorials, large Fibonacci numbers, and matrix operations) within a session. By caching these results, repeated invocations with identical inputs can return results instantly, reducing computation time and improving responsiveness.
+The MEMOIZATION feature has been enhanced to not only provide in-memory caching for expensive computations (e.g., factorials, Fibonacci numbers, matrix operations) within a single CLI session, but also to support persistent caching across sessions. With this enhancement, users can optionally store cache results on disk, allowing repeated invocations over different sessions to retrieve previously computed values, significantly improving performance.
 
 ## CLI Integration
-- **Global Flag:** Introduce a new flag `--cache` that when enabled, uses cached results if available. 
-- **Sub-Commands:**
-  - **--cache-show:** Display all currently cached entries and their corresponding results.
-  - **--cache-clear:** Clear the cache to reset stored computation results.
+- **Global Flag:** `--cache` continues to enable caching.
+- **Sub-Commands & Options:**
+  - **--cache-show:** Displays all currently cached entries from both the in-memory and persistent store.
+  - **--cache-clear:** Clears both the in-memory and the persistent cache (i.e., deletes the stored cache file).
+  - **New Flag:** `--cache-persist` when provided along with `--cache` activates the persistent caching mode. When enabled, the cache is automatically saved to a designated file (e.g., `cache.json`) in the repository root at the end of a session, and loaded at startup if available.
 
 ## Implementation Details
-- **Cache Storage:** Utilize an in-memory JavaScript object to store results keyed by a normalized representation of the command and its arguments. 
-- **Usage Trigger:** When a command is executed, check if caching is enabled via the `--cache` flag and if the result for the given inputs exists; if so, return the cached result. Otherwise, compute the result, store it in the cache, and output the result.
-- **Session Scope:** The cache will persist for the duration of the CLI session and reset once the process terminates, ensuring simplicity in management.
-- **Error Handling:** Ensure that failing computations do not populate the cache and that cache lookup failures fall back to a fresh computation seamlessly.
+- **Cache Storage:**
+  - **In-Memory Cache:** Continues to use a JavaScript object to store computation results during a session.
+  - **Persistent Cache:** Utilizes Node’s `fs` module to write and read a JSON file (`cache.json`) that holds cached results. On tool startup, if persistent caching is enabled and the file exists, its contents are merged with the in-memory cache.
+- **Operation Logic:**
+  - When a command is executed with caching enabled, the tool first checks the in-memory cache for a matching key (a normalized representation of the command and its arguments).
+  - If not found in memory, and if persistent caching is active, the tool loads the cache from disk to check for a stored result.
+  - After computing a new result, the result is stored in both caches (in-memory and updated in the persistent file asynchronously). 
+- **Error Handling:**
+  - Robust error handling is implemented to manage potential file I/O errors during read/write operations. If a persistent cache file cannot be read or written, the tool falls back to in-memory caching and logs a warning.
 
 ## Testing & Documentation
-- **Unit Tests:** Develop tests to validate caching behavior, ensuring that repeated commands with identical inputs retrieve cached values and that commands producing new results correctly update the cache.
-- **Documentation:** Update the CLI help documentation and README with examples demonstrating how to use `--cache`, `--cache-show`, and `--cache-clear`.
-- **Inline Comments:** Include detailed comments in the source code to explain cache storage, lookup, and update logic.
+- **Unit Tests:** Tests will be added to verify:
+  - Retrieval of cached results from both the in-memory and persistent layers.
+  - Proper saving of cache results to disk when `--cache-persist` is enabled.
+  - Correct behavior of the `--cache-show` and `--cache-clear` commands.
+  - Graceful handling of file I/O errors.
+- **Documentation:**
+  - Update the README and CLI usage guides to include examples on how to use the persistent caching functionality, along with instructions on clearing the persistent cache.
+  - Inline comments in the source code will document the persistent caching logic and file I/O operations.
 
 ## Alignment with Repository Mission
-By implementing MEMOIZATION, this feature supports streamlined automation and healthy collaboration by improving the efficiency of the CLI tool. It ensures that frequently requested computations are handled quickly, enhancing user experience and operational performance—all within a single, self-contained repository module.
+By extending MEMOIZATION to support persistent caching, this enhancement further streamlines automation by reducing redundant computations across sessions. This improvement leads to a more responsive CLI tool and aligns with the repository’s mission of promoting healthy collaboration through efficient and self-contained utilities.
