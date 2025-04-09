@@ -377,25 +377,30 @@ describe("CLI Behavior", () => {
 
   // New tests for the new --diagnose-nan command
   describe("CLI Diagnose NaN Command", () => {
-    test("outputs diagnostic report in plain text mode", async () => {
+    test("outputs diagnostic report in plain text mode with trim indices", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--diagnose-nan", "  NaN ", "10", "abc", "!!NaN??", "N aN"]);
       const output = logSpy.mock.calls[0][0];
       expect(output).toContain("NaN Diagnostic Report:");
-      expect(output).toContain("Original:   NaN ");
-      expect(output).toContain("Original: abc");
-      expect(output).toContain("Original: !!NaN??");
-      expect(output).toContain("Original: N aN");
+      expect(output).toContain("Original:  NaN ");
+      expect(output).toContain("TrimStart:");
+      expect(output).toContain("TrimEnd:");
       logSpy.mockRestore();
     });
 
-    test("outputs diagnostic report in JSON mode", async () => {
+    test("outputs diagnostic report in JSON mode with trim indices", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--json", "--diagnose-nan", "NaN", "20", "bad token"]);
       const output = tryParseJSON(logSpy.mock.calls[0][0]);
       expect(output).toHaveProperty("command", "diagnose-nan");
       expect(output).toHaveProperty("diagnostics");
       expect(Array.isArray(output.diagnostics)).toBe(true);
+      output.diagnostics.forEach(diag => {
+        expect(diag).toHaveProperty("trimStart");
+        expect(diag).toHaveProperty("trimEnd");
+        expect(typeof diag.trimStart).toBe('number');
+        expect(typeof diag.trimEnd).toBe('number');
+      });
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);

@@ -27,7 +27,7 @@
  *
  * New Command: --toggle-allow-nan dynamically toggles the ALLOW_NAN setting for numeric parsing at runtime.
  *
- * New Command: --diagnose-nan provides a detailed diagnostic report for NaN token handling. It analyzes each input token, showing its original and trimmed forms, whether it was accepted as a valid number or rejected, the warning index, and any correction suggestions based on the current configuration. The output is available in both standard and JSON modes, and respects the --allow-nan-inline flag on a per-invocation basis.
+ * New Command: --diagnose-nan provides a detailed diagnostic report for NaN token handling. It analyzes each input token, showing its original and trimmed forms, whether it was accepted, the warning index, the character range (trimStart and trimEnd) of the trimmed portion in the original token, and any correction suggestions based on the current configuration. The output is available in both standard and JSON modes, and respects the --allow-nan-inline flag on a per-invocation basis.
  *
  * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string, ALLOW_NAN to 'true', or supply the --allow-nan-inline flag.
  *
@@ -605,21 +605,38 @@ const commands = {
     sendSuccess("toggle-allow-nan", "ALLOW_NAN toggled to " + process.env.ALLOW_NAN);
   },
   "--diagnose-nan": async (args) => {
-    // New command to provide detailed diagnostics on NaN token handling
-    let diagnostics = [];
+    // New command to provide detailed diagnostics on NaN token handling including character range information for trimmed parts
+    const diagnostics = [];
     let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
     if (tokenPunctuationConfig === undefined) {
       tokenPunctuationConfig = ",.;?!";
     }
-    args.forEach((token, index) => {
-      let trimmed = token.trim();
-      if (tokenPunctuationConfig !== undefined) {
-        if (tokenPunctuationConfig !== "") {
-          const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
-          const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
-          trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
+    // Helper function to compute trim indices
+    function computeTrimIndices(token, punctuationConfig) {
+      let start = 0;
+      let end = token.length - 1;
+      while(start < token.length && /\s/.test(token[start])) {
+        start++;
+      }
+      while(end >= start && /\s/.test(token[end])) {
+        end--;
+      }
+      let innerStart = start;
+      let innerEnd = end;
+      if (punctuationConfig && punctuationConfig !== "") {
+        while(innerStart <= innerEnd && punctuationConfig.includes(token[innerStart])) {
+          innerStart++;
+        }
+        while(innerEnd >= innerStart && punctuationConfig.includes(token[innerEnd])) {
+          innerEnd--;
         }
       }
+      const trimmed = token.slice(innerStart, innerEnd + 1);
+      return { trimmed, trimStart: innerStart, trimEnd: innerEnd + 1 };
+    }
+    
+    args.forEach((token, index) => {
+      const { trimmed, trimStart, trimEnd } = computeTrimIndices(token, tokenPunctuationConfig);
       let accepted = true;
       let value = null;
       let warning = "";
@@ -630,6 +647,8 @@ const commands = {
         diagnostics.push({
           original: token,
           trimmed,
+          trimStart,
+          trimEnd,
           accepted,
           value,
           warningIndex,
@@ -643,6 +662,8 @@ const commands = {
         diagnostics.push({
           original: token,
           trimmed,
+          trimStart,
+          trimEnd,
           accepted,
           value,
           warningIndex,
@@ -660,6 +681,8 @@ const commands = {
         diagnostics.push({
           original: token,
           trimmed,
+          trimStart,
+          trimEnd,
           accepted,
           value,
           warningIndex,
@@ -674,6 +697,8 @@ const commands = {
         diagnostics.push({
           original: token,
           trimmed,
+          trimStart,
+          trimEnd,
           accepted,
           value,
           warningIndex,
@@ -684,6 +709,8 @@ const commands = {
         diagnostics.push({
           original: token,
           trimmed,
+          trimStart,
+          trimEnd,
           accepted,
           value,
           warningIndex,
@@ -704,7 +731,7 @@ const commands = {
     } else {
       let output = "NaN Diagnostic Report:\n";
       diagnostics.forEach(d => {
-        output += `Original: ${d.original}, Trimmed: ${d.trimmed}, Accepted: ${d.accepted}, Value: ${d.value}, WarningIndex: ${d.warningIndex}, Suggestion: ${d.suggestion}\n`;
+        output += `Original: ${d.original}, Trimmed: ${d.trimmed}, TrimStart: ${d.trimStart}, TrimEnd: ${d.trimEnd}, Accepted: ${d.accepted}, Value: ${d.value}, WarningIndex: ${d.warningIndex}, Suggestion: ${d.suggestion}\n`;
       });
       sendSuccess("diagnose-nan", output);
     }
