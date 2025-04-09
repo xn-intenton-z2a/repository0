@@ -1,27 +1,35 @@
-# CONFIG with SYSTEM_INFO
+# CONFIG with SYSTEM_INFO & PERSISTENCE
 
 ## Overview
-This update enhances the existing CONFIG feature by not only reporting the CLI tool’s current settings (such as TOOL_VERSION, INVALID_TOKENS, and DYNAMIC_WARNING_INDEX) but also by including detailed system information. In addition to configuration settings, this updated feature retrieves and displays host environment details such as the operating system type, Node.js version, process ID, system uptime, and memory usage. This enriched output provides greater transparency and diagnostic insight, aligning with our mission of promoting healthy collaboration and streamlined automation.
+This enhanced CONFIG feature continues to report the current CLI tool settings (e.g., TOOL_VERSION, INVALID_TOKENS, DYNAMIC_WARNING_INDEX) and detailed system information, while adding persistent configuration management. Users can now view and modify default settings in a persistent JSON file (e.g., config.json) directly via the CLI. This unified module not only displays configuration and system diagnostics but also supports read and write operations for user-specific settings, reinforcing the repository’s mission of transparency, streamlined automation, and healthy collaboration.
 
-## Implementation Details
-- **Command Integration:**
-  - Update the `--config` flag handling in `src/lib/main.js` to gather additional system information.
-  - Leverage Node’s built-in `process` and `os` modules to obtain details:
-    - **OS Type:** Using `os.type()` and `os.platform()`.
-    - **Node Version:** Using `process.version`.
-    - **Process ID:** Using `process.pid`.
-    - **Uptime:** Using `process.uptime()`.
-    - **Memory Usage:** Using `process.memoryUsage()` (e.g. heapUsed, heapTotal).
-  - Structure the output so that when in plain text mode, the configuration and system information are clearly separated, and when in JSON mode, both configuration and system details are included as structured fields.
+## CLI Integration
+- **Command Flag:** The `--config` flag remains in use. In addition to outputting current information, it now supports subcommands:
+  - `get [key]`: Displays the value of a specific configuration key. If no key is provided, it displays all current settings.
+  - `set <key> <value>`: Updates the configuration persistently in the configuration file (e.g., config.json).
+  - `reset`: Resets the configuration file to default settings.
+- **System Information:** As before, the command gathers system details using Node’s `os` and `process` modules (OS type, Node version, process ID, uptime, and memory usage) and includes them in the output.
 
-- **Error Handling & Validation:**
-  - Ensure that the retrieval of system information does not introduce new failure modes; if any component (e.g., memory usage) fails, default to a safe message.
-  - Validate the environment variables and fallback defaults remain consistent with previous behavior.
+## Persistent Configuration Management
+- **Configuration File:** A file named `config.json` will be used to store persistent settings. On first run, if the file does not exist, it will be created with default values (e.g., `INVALID_TOKENS: "nan"`, `DYNAMIC_WARNING_INDEX: "false"`, etc.).
+- **Read/Write Operations:**
+  - **Get Mode:** When invoked with `--config get [key]`, the tool reads the configuration file and outputs the requested setting(s).
+  - **Set Mode:** With `--config set <key> <value>`, the CLI validates the key and updates the configuration file accordingly, providing confirmation to the user. Supported keys include, but are not limited to, `INVALID_TOKENS`, `DYNAMIC_WARNING_INDEX`, and other future configurable options.
+  - **Reset Mode:** The `--config reset` option reinitializes the configuration file to its default settings.
+- **Integration with Global Flags:** Updates to configuration affect behavior such as numeric parsing, warning index reporting, and JSON output formatting.
 
-- **Testing & Documentation:**
-  - Extend unit tests (in tests/unit/main.test.js) to check that the `--config` command now outputs additional system information fields both in plain text and JSON modes.
-  - Update the README and CLI usage documentation to include examples of the extended configuration output, highlighting the new system details.
-  - Add inline comments in `src/lib/main.js` to document the new retrieval calls (e.g., `os.type()`, `process.uptime()`).
+## Error Handling & Validation
+- Invalid keys or values will result in clear error messages. For example, attempting to set `DYNAMIC_WARNING_INDEX` to an invalid value will prompt a standardized error message.
+- File I/O issues (e.g., inability to create or update `config.json`) will be caught and an error message will be displayed without terminating the CLI unexpectedly.
+
+## Testing & Documentation
+- **Unit Tests:** Extend existing tests to cover the new persistent configuration commands. Tests should simulate file creation, get/set operations, and resetting to default values.
+- **Documentation:** Update the README and CLI usage documentation to include examples such as:
+  - `node src/lib/main.js --config` (to display current settings and system info)
+  - `node src/lib/main.js --config get DYNAMIC_WARNING_INDEX`
+  - `node src/lib/main.js --config set INVALID_TOKENS "NaN,undefined"`
+  - `node src/lib/main.js --config reset`
+- **Inline Comments:** In `src/lib/main.js`, document the new persistent configuration management logic and file I/O operations for clarity.
 
 ## Alignment with Repository Mission
-By enriching the CONFIG feature with comprehensive system information, this update furthers the repository’s mission of transparency and healthy collaboration. Users can now quickly assess not only the tool’s configuration but also the environment in which it is running, facilitating smoother integration into automated workflows and enhanced troubleshooting.
+By merging detailed system reporting with persistent configuration management, this feature furthers our mission of promoting healthy collaboration and streamlined automation. Users gain transparency not only into the current state of the CLI tool but also into how its behavior can be customized persistently, enhancing both diagnostics and user experience in a modular, single-source environment.
