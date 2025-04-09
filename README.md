@@ -22,7 +22,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
-- By default, any input matching the configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token by default unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
+- By default, any input matching the configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing, e.g., 'NaN', 'nAn', 'NAN') is treated as an invalid token by default unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
 - You can customize the rejected tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
 - **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index.
 - **--summarize-warnings:** When provided, the CLI aggregates duplicate warning messages into a summary indicating the number of occurrences for each invalid token.
@@ -56,7 +56,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing (including edge-case normalization), the new **--config** command, and the **--summarize-warnings** option improve integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The updated 'NaN' input handling is consistent across all commands, adhering to the configuration options described above.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
