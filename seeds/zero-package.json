@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.4.1-0",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to align with the mission statement, enhance error handling, streamline arithmetic operations, improve test coverage for CLI commands and external dependencies, and extended diagnostic output.",
+  "version": "1.4.1-13",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to centralize environment configuration for consistent NaN handling, add JSON output mode with metadata, include a configurable warning index mode, configurable punctuation stripping, suppression of NaN correction suggestions, added --toggle-allow-nan for runtime NaN configuration, new --allow-nan-inline flag for per-command NaN acceptance, an enhanced --diagnose-nan command, and the new --ignore-invalid flag to bypass invalid tokens.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -25,24 +25,25 @@
   "license": "Apache-2.0",
   "dependencies": {
     "dotenv": "^16.4.7",
-    "openai": "^4.91.0",
+    "openai": "^4.93.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@vitest/coverage-v8": "^3.1.1",
-    "eslint": "^9.23.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.2.5",
+    "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-sonarjs": "^3.0.2",
-    "npm-check-updates": "^17.1.16",
+    "eslint": "^9.24.0",
     "markdown-it": "^14.1.0",
     "markdown-it-github": "^0.5.0",
+    "npm-check-updates": "^17.1.16",
+    "openai": "^4.93.0",
     "prettier": "^3.5.3",
     "vitest": "^3.0.9"
   },
@@ -55,8 +56,17 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": ["package.json"],
-  "eslintIgnore": ["archive/**", "exports/**", "build/**", "coverage/**", "dist/**", "node_modules/**"],
+  "files": [
+    "package.json"
+  ],
+  "eslintIgnore": [
+    "archive/**",
+    "exports/**",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**"
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
