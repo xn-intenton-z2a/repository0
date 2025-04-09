@@ -42,6 +42,7 @@
 <li class="md-github"><strong class="md-github">--geomean:</strong> Compute the geometric mean of positive numbers.</li>
 <li class="md-github"><strong class="md-github">--config:</strong> Display the current CLI configuration including tool version and environment settings.</li>
 <li class="md-github"><strong class="md-github">--toggle-allow-nan:</strong> Dynamically toggle the ALLOW_NAN setting for numeric parsing.</li>
+<li class="md-github"><strong class="md-github">--allow-nan-inline:</strong> <em class="md-github">New!</em> Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="enhanced-input-parsing-details" href="#enhanced-input-parsing-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enhanced Input Parsing Details</h3>
 <p class="md-github">The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like &quot; NaN &quot;, &quot;NaN,&quot;, or &quot;NaN?&quot; are consistently processed based on the environment variables:</p>
@@ -93,7 +94,7 @@ Unit tests in the <code class="md-github">tests/unit/</code> folder cover both C
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Configuration:</strong>
-Customize behavior via environment variables like <strong class="md-github">INVALID_TOKENS</strong>, <strong class="md-github">ALLOW_NAN</strong>, <strong class="md-github">TOKEN_PUNCTUATION_CONFIG</strong>, etc. The <strong class="md-github">--toggle-allow-nan</strong> command allows runtime changes without restarting the tool.</p>
+Customize behavior via environment variables like <strong class="md-github">INVALID_TOKENS</strong>, <strong class="md-github">ALLOW_NAN</strong>, <strong class="md-github">TOKEN_PUNCTUATION_CONFIG</strong>, etc. The <strong class="md-github">--toggle-allow-nan</strong> command allows runtime changes without restarting the tool. The new <strong class="md-github">--allow-nan-inline</strong> flag provides per-command control.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -115,14 +116,14 @@ This README, along with <a href="./MISSION.md" class="md-github">MISSION.md</a>,
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands, the <strong class="md-github">--config</strong> command, and the <strong class="md-github">--toggle-allow-nan</strong> command for runtime NaN configuration. In addition, warnings for invalid inputs are now output via <code class="md-github">console.warn</code> in non-JSON mode. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands, the <strong class="md-github">--config</strong> command, the <strong class="md-github">--toggle-allow-nan</strong> command, and the new <strong class="md-github">--allow-nan-inline</strong> flag for per-command NaN acceptance. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.</p>
 <p class="md-github">For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using the repository template, see <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <p class="md-github">For more information about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic-lib.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-09T14:05:24.481Z</p>
+    <p>Generated on 2025-04-09T14:16:39.684Z</p>
   </footer>
 </body>
 </html>
