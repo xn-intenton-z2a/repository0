@@ -1,42 +1,37 @@
 # NUMERIC
 
 ## Overview
-This feature consolidates various arithmetic, statistical, combinatorial, and complex number operations into a unified numerical utilities module within the CLI tool. Building on existing capabilities such as basic arithmetic (addition, subtraction, multiplication, division, modulo), advanced statistical computations (median, mode, standard deviation, percentile, geometric mean, variance, Fibonacci, GCD, LCM, and prime detection), and complex number arithmetic, the module is now extended to include basic calculus operations. These additions enable users to perform numerical differentiation and integration directly from the CLI.
+
+This feature consolidates various arithmetic, statistical, combinatorial, and complex number operations into a unified numerical utilities module within the CLI tool. In addition to the original capabilities such as basic arithmetic (addition, subtraction, multiplication, division, modulo), advanced statistics (median, mode, standard deviation, percentile, geometric mean, variance, Fibonacci, GCD, LCM, and prime detection), complex number arithmetic, and basic calculus operations (numerical differentiation and integration), this update extends the module to include **financial calculations**. This integration enriches the module with practical tools for computing simple and compound interest as well as EMI (Equated Monthly Installments) for loan evaluations.
 
 ## CLI Integration
-- **Basic Operations**
-  - Commands such as `--sum`, `--subtract`, `--multiply`, `--divide`, and `--modulo` continue to handle standard arithmetic operations on real numbers.
-- **Advanced Mathematical Commands**
-  - Existing commands like `--power`, `--factorial`, `--sqrt`, `--median`, `--mode`, `--stddev`, `--percentile`, and `--geomean` remain available.
-- **Complex Number Operations**
-  - New sub-commands, such as `--cadd`, `--csubtract`, `--cmultiply`, `--cdivide`, `--cabs`, and `--cconj`, allow algebraic operations on complex numbers provided in standard form (e.g., `3+4i`).
-- **Calculus Operations (New Additions)**
-  - **Numerical Differentiation (`--derivative`):**
-    - **Usage:** `node src/lib/main.js --derivative "f(x)" x [h]`
-    - **Description:** Computes the derivative of a mathematical function at a point using finite difference methods. The function expression is evaluated at the specified point `x` with an optional small step `h` (default set to a small constant if omitted).
-  - **Numerical Integration (`--integrate`):**
-    - **Usage:** `node src/lib/main.js --integrate "f(x)" a b [n]`
-    - **Description:** Approximates the definite integral of the function `f(x)` over the interval `[a, b]` using Simpson's rule. An optional parameter `n` specifies the number of sub-intervals (default provided when omitted).
+
+In addition to the existing commands, three new sub-commands are introduced:
+
+- **Simple Interest (`--simple-interest`):**
+  - **Usage:** `node src/lib/main.js --simple-interest <principal> <rate> <time>`
+  - **Description:** Calculates the simple interest using the formula: _SI = (principal × rate × time) / 100_.
+
+- **Compound Interest (`--compound-interest`):**
+  - **Usage:** `node src/lib/main.js --compound-interest <principal> <rate> <time>`
+  - **Description:** Computes the compound interest where the total amount is calculated as _Amount = principal * (1 + rate/100)^time_ and then the compound interest is _Amount - principal_.
+
+- **EMI Calculator (`--emi`):**
+  - **Usage:** `node src/lib/main.js --emi <principal> <annual_rate> <tenure_in_months>`
+  - **Description:** Estimates the monthly installment using the formula: _EMI = [principal * monthlyRate * (1+monthlyRate)^n] / [(1+monthlyRate)^n - 1]_, where _monthlyRate = annual_rate / (12*100)_ and _n_ is the number of months.
 
 ## Implementation Details
-- **Operation Logic:**
-  - **Arithmetic & Statistics:** All existing operations continue as previously defined, ensuring backward compatibility.
-  - **Complex Number Parsing:** The module includes a dedicated parser to identify and separate the real and imaginary components of inputs formatted as `a+bi` or `a-bi`.
-  - **Calculus Functions:**
-    - For **differentiation**, the module uses a finite difference formula (e.g., `(f(x+h) - f(x-h)) / (2*h)`) to estimate the derivative at point `x`.
-    - For **integration**, Simpson's rule is applied to calculate the approximate area under the curve over the interval `[a, b]`, with `n` sub-intervals ensuring accuracy.
-- **Input Validation & Error Handling:**
-  - For standard numeric, complex, and calculus operations, the module validates input formats, provides clear error messages if parsing fails, and ensures safe handling (e.g., division by zero, invalid function expressions, or non-numeric tokens).
-  - In calculus operations, the function expression is limited to simple arithmetic expressions (using a safe evaluation method) to avoid security risks normally associated with dynamic evaluation.
 
-## Testing & Documentation
-- **Unit Tests:**
-  - New tests will verify correct parsing and computation for numerical differentiation and integration. Test cases include typical functions (e.g., polynomial, trigonometric functions) along with edge cases and error conditions.
-  - Existing tests for arithmetic, complex number operations, and statistical functions ensure backward compatibility.
-- **Documentation:**
-  - The README, CLI usage guides, and inline code comments will be updated to include examples for the new calculus operations. Usage examples include:
-    - Derivative: `node src/lib/main.js --derivative "x^2 + 3*x - 5" 2 0.001`
-    - Integral: `node src/lib/main.js --integrate "sin(x)" 0 3.14 100`
+- **Financial Computations:**
+  - These calculations are implemented as additional command branches within the NUMERIC module. They perform input validation, ensuring that the provided parameters are numeric and positive where required.
+  - The functions will provide clear error messages if inputs are missing or invalid.
+
+- **CLI Output Modes:**
+  - As with all commands, these new financial functions support both plain text and JSON output modes. In JSON mode (activated via the `--json` or `--json-pretty` flags), responses include metadata such as timestamp, version, execution duration, and input echo.
+
+- **Error Handling & Testing:**
+  - Each new command includes unit tests for both typical and edge-case scenarios to ensure reliable operation. The documentation and README will be updated to include usage examples.
 
 ## Alignment with Repository Mission
-By extending the NUMERIC module to include calculus operations, this update broadens the repository’s mathematical toolkit without introducing excessive complexity. It supports streamlined automation and healthy collaboration by providing a self-contained, modular approach to numerical analysis, consistent with the repository’s mission of offering practical, easy-to-integrate CLI utilities.
+
+By updating the NUMERIC module to include financial calculations, this enhancement provides users with practical tools for common financial computations. This practical addition supports the repository’s mission of promoting streamlined automation and healthy collaboration through a self-contained, modular CLI utility that addresses a broader range of everyday computational needs.
