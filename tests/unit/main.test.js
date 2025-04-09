@@ -369,9 +369,12 @@ describe("Number Utilities", () => {
   test("parseNumbers handles punctuation and NaN input correctly", () => {
     process.env.ALLOW_NAN = "false";
     process.env.INVALID_TOKENS = "nan";
+    const originalTokenPunctuation = process.env.TOKEN_PUNCTUATION_CONFIG;
+    process.env.TOKEN_PUNCTUATION_CONFIG = ",.;?!";
     const input = ["  ,10, ", "!!NaN??", "abc"];
     const result = parseNumbers(input);
     expect(result.valid).toEqual([10]);
     expect(result.invalid.length).toBeGreaterThan(0);
+    process.env.TOKEN_PUNCTUATION_CONFIG = originalTokenPunctuation;
   });
 });
