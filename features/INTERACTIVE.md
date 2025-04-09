@@ -1,39 +1,30 @@
 # INTERACTIVE Mode Enhancement
 
 ## Overview
-This update enhances the existing interactive REPL mode of the CLI tool by adding command auto-completion and inline suggestion features. Users not only benefit from a persistent session to execute commands in real-time but now also receive dynamic command suggestions based on the available CLI commands. This improvement makes the system more user-friendly and promotes exploration of the tool's capabilities in accordance with our mission of fostering healthy collaboration.
+This update expands the existing INTERACTIVE mode by introducing a new batch processing capability. In addition to its current REPL functionality with dynamic auto-completion, in-memory command history, and inline suggestions, the CLI now supports execution of a list of commands from a file in batch mode. This enhancement allows users to automate a series of CLI instructions without waiting for interactive input, further streamlining automation and diagnostics.
+
+## CLI Integration
+- **Activation:** In addition to the `--interactive` flag, a new flag `--batch <filepath>` is introduced. When the `--batch` flag is provided with a valid file path, the CLI reads the file line-by-line and executes each command sequentially in non-interactive mode.
+- **Mode Selection:** If both `--interactive` and `--batch` are provided, batch mode takes precedence. The output of each command from the file is displayed in the same format as interactive results, supporting both plain text and JSON output modes.
+- **Auto-completion & Suggestions:** The REPL auto-completion remains available during interactive sessions, while in batch mode commands are executed without prompting, and errors are reported using the existing error handling functions.
 
 ## Implementation Details
-- **Activation:**
-  - The interactive mode is triggered via the `--interactive` flag. When activated, the CLI enters a REPL loop, displaying a prompt (e.g., `repository0> `) where users can input commands.
-  
-- **Command Parsing and Execution:**
-  - Reuse the existing command parsing logic from `src/lib/main.js` to support all available arithmetic, statistical, and configuration commands.
-  - In addition to processing commands, the interactive mode now integrates an auto-completion feature. As users type, the system suggests command names and available flags based on the current input context.
-
-- **Auto-Completion & Suggestions:**
-  - Leverage Node's built-in `readline` module to set up an auto-completion callback.
-  - The auto-completion function scans the complete list of commands (both long and alias forms such as `--sum`, `-s`, etc.) and provides suggestions in real-time.
-  - Display inline hints or a drop-down list of possible commands for quick selection.
-
-- **User Experience:**
-  - Provide clear visual feedback in the prompt with possible completions when the Tab key is pressed.
-  - Maintain a session history (in-memory) that records all successfully executed commands and can be navigated via up/down arrow keys.
-  - Support commands like `exit` or `quit` to gracefully end the session.
-
-## Error Handling & Validation
-- Validate user inputs in real-time and highlight errors if the input does not match known commands.
-- If an invalid command is entered, the system suggests similar valid commands.
-- Ensure that errors in the auto-completion logic do not interrupt the REPL session; fallback to basic input if needed.
+- **Batch Processing Logic:**
+  - Read the specified file and split its content into individual commands.
+  - For each non-empty line, parse global flags and execute the corresponding command using the same logic as the interactive mode.
+  - Support inline comments in the batch file (lines starting with `#`) that are ignored during processing.
+- **Error Handling:**
+  - If the file cannot be located or read, the CLI outputs an appropriate error message.
+  - Each command's execution in batch mode inherits the standard error and warning reporting (including positional warnings and JSON metadata when enabled).
+- **User Feedback:**
+  - After processing, a summary message is provided highlighting the number of commands executed and any errors encountered during batch processing.
 
 ## Testing & Documentation
-- **Unit Tests:**
-  - Create tests that simulate the interactive session, including tests for auto-completion and suggestion functionality.
-  - Validate that suggestions are accurate and that the REPL mode remains stable under various input scenarios.
-
-- **Documentation:**
-  - Update the README and interactive mode documentation to include examples of how auto-completion works (e.g., pressing Tab to view available commands).
-  - Inline comments in `src/lib/main.js` should document changes to the interactive loop and auto-completion logic.
+- **Unit Tests:** New tests should simulate batch file processing, ensuring that valid command sequences in a file produce the expected output and that error scenarios (such as missing file or invalid commands) are handled gracefully.
+- **Documentation:** Update the README and CLI usage documentation to include examples:
+  - Interactive Mode: `node src/lib/main.js --interactive`
+  - Batch Mode: `node src/lib/main.js --batch commands.txt`
+  - Inline comments in batch files using `#` for better readability.
 
 ## Alignment with Repository Mission
-This enhancement improves usability and accessibility of the CLI tool. By incorporating dynamic command suggestions into the interactive REPL mode, users can more easily discover and understand the wide range of CLI functionalities, reinforcing the repository’s mission of promoting healthy collaboration and streamlined workflows.
+Enhancing the INTERACTIVE feature with batch processing capabilities further promotes healthy collaboration and streamlined automation. Users can now automate repetitive tasks by preloading command sequences, aligning with the repository’s mission of providing modular, self-contained CLI utilities for practical automation.
