@@ -1,31 +1,26 @@
-# HTTP_API
+# HTTP_API & NETWORK Unification
 
 ## Overview
-This feature introduces an HTTP API endpoint for the repository0 CLI tool. In addition to the current command-line functionality, users can now interact with the tool via RESTful HTTP calls. The API exposes a subset of core CLI operations (e.g., arithmetic, statistical computations, diagnostics, configuration) and returns responses in JSON format with full metadata. This extension facilitates integration with web services, automated workflows, and remote monitoring.
+This feature unifies the previously separate HTTP_API and NETWORK functionalities into a single, cohesive module. The updated HTTP_API not only provides RESTful endpoints for core CLI operations (such as performing arithmetic, diagnostics, and command execution) but also integrates simple network diagnostics. This consolidation streamlines the tool’s capabilities, reducing redundancy while enhancing the integration with remote monitoring and automation workflows.
 
-## API Endpoints
-- **GET /health**: Returns a basic healthcheck message (e.g., "All systems operational.") along with metadata.
-- **POST /command**: Accepts a JSON payload containing a command (e.g., "--sum") and its arguments. The server processes the request as if it were passed to the CLI and returns the result with metadata (timestamp, executionDuration, inputEcho, version, warnings, etc.).
-- **GET /config** and **GET /diagnostics**: Mirror the respective CLI commands.
+## API Endpoints & Network Diagnostics
+- **GET /health**: Returns a basic health check message (e.g., "All systems operational.") along with metadata. This endpoint is designed for quick diagnostics similar to the original NETWORK feature.
+- **POST /command**: Accepts a JSON payload containing a command and its arguments. The server processes the request as if it were supplied on the CLI and returns the result with metadata.
+- **GET /config** and **GET /diagnostics**: Mirror the CLI commands, providing system configuration and diagnostic information.
+- **GET /network**: (Integrated) Performs HTTP(S) GET requests to provided URLs. It returns key metadata including response status code, response time, and content length. This endpoint encapsulates the original NETWORK functionality within the unified API.
 
-## Session History & Audit Logging (New Extension)
-To enhance traceability and support auditing of CLI interactions, this update extends the HTTP_API feature with session history capabilities. All CLI commands executed through the API (and optionally through the CLI directly when using JSON mode) will be logged in an in-memory audit trail. Optionally, this session history can be persisted to a local file for later inspection.
+## Session History & Audit Logging
+The feature extends the original HTTP_API by including session history and audit logging. Every CLI command executed via the API (or CLI in JSON mode) is logged in an in-memory audit trail, with an optional persistence mechanism to a local file. An endpoint **GET /history** is provided to retrieve this audit log, offering enhanced traceability and debugging support.
 
-### New Endpoints & CLI Flag
-- **GET /history**: Returns a list of recently executed commands with their metadata including timestamp, command name, input arguments, result, and any warnings. This endpoint allows users and monitoring tools to review the audit log of CLI interactions.
-- **CLI Flag --history**: When invoked in CLI mode, this flag outputs the current session's command history. The output respects the global JSON mode settings (plain text or JSON with metadata).
-
-### Implementation Details
-- **Audit Logging Mechanism**: Each time a CLI command is executed (either via an HTTP POST to /command or direct CLI invocation), the command details along with its result (or error), warnings, and execution metadata are appended to an in-memory log structure. Optional persistence can be achieved by writing this log to a file (e.g., `history.log`) when the session ends or on demand.
-- **Response Handling**: The new /history endpoint aggregates and returns the log entries in JSON format. In CLI mode, the --history flag triggers a retrieval and display of these log entries.
-- **Error Management & Data Retention**: In case of failures in writing or reading the history log, the system gracefully falls back to in-memory logging without impacting primary functionality. The log retains entries for the duration of the session and may be configured to rollover or clear after a defined threshold.
+## Implementation & Error Handling
+- **Dynamic Command Processing:** Commands are processed in a unified manner regardless of whether they are invoked via HTTP or CLI. Global JSON modes and output metadata are maintained consistently.
+- **Network Diagnostics:** Leveraging Node’s built-in HTTP/HTTPS modules, the API performs health checks and simple network requests, handling timeouts and network errors gracefully.
+- **Audit Trail:** All API and CLI interactions are logged with metadata (timestamp, execution duration, version, and command input), enhancing traceability.
+- **Error Handling:** Robust error reporting for both command processing and network diagnostics is ensured, with fallback mechanisms in place to maintain primary functionality even when non-critical operations (e.g., logging) fail.
 
 ## Testing & Documentation
-- **Unit Tests**: Extend tests to simulate API calls to the /history endpoint and CLI invocations with the --history flag. Verify that all executed commands are correctly logged and the audit trail returns the expected metadata.
-- **Documentation**: Update the README and API usage instructions to include examples for retrieving session history:
-  - Example CLI: `node src/lib/main.js --history`
-  - Example API: `curl http://localhost:3000/history`
-- **Inline Comments**: In `src/lib/main.js`, document the audit logging logic and how command history is maintained and retrieved.
+- **Unit Tests:** Expanded tests now cover both RESTful command execution and network diagnostics, ensuring that the integrated endpoints function as expected.
+- **Documentation:** Updated README and CLI usage guides include examples demonstrating both API interactions and network health checks. Inline comments provide clarity regarding dynamic command execution and audit logging.
 
 ## Alignment with Repository Mission
-By extending the HTTP_API feature with session history and audit logging capabilities, this update reinforces the mission of promoting healthy collaboration and streamlined automation. Users gain enhanced visibility over CLI interactions, facilitating debugging, monitoring, and integration into broader automation workflows.
+By unifying HTTP_API and NETWORK functionalities, this feature reinforces the repository’s mission of promoting streamlined, modular CLI utilities that empower automated workflows. The enhancement simplifies the overall system design and improves user experience in both local and remote (HTTP-based) interactions.
