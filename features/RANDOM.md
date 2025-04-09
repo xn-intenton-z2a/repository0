@@ -1,45 +1,46 @@
 # RANDOM
 
 ## Overview
-This feature introduces a suite of randomization utilities to the CLI tool. The RANDOM feature provides methods to generate random numbers within specified ranges, random strings of a specified length and character set, universally unique identifiers (UUIDs), and a new random boolean value. The boolean sub-command returns a random true or false value, optionally allowing users to specify a probability bias. It is designed as a standalone module and integrates with the CLI via a new flag, offering both simple one-off random values and more complex random sequences for scripting or prototyping.
+This feature provides a suite of randomization utilities to the CLI tool. It currently supports generating random numbers, strings, UUIDs, and booleans. In this update, we extend the RANDOM feature by adding a new sub-command for generating random passwords. This new sub-command allows users to generate secure, customizable passwords with options to set length, include uppercase letters, numbers, and optional symbols. This enhancement keeps the tool self-contained and aligns with the repository’s mission to support streamlined automation and healthy collaboration.
 
 ## CLI Integration
-- **Command Flag:** Introduce a new global flag `--random` to invoke random generation utilities.
-- **Sub-Commands:**
-  - **number:** Generate a random number. Accepts optional parameters for minimum and maximum values, and an option to choose between integer or decimal outputs.
-    - Example: `node src/lib/main.js --random number 1 100` or `node src/lib/main.js --random number 0 1 --decimal`
-  - **string:** Generate a random string. Accepts parameters for the length of the string and an optional character set (default to alphanumeric).
-    - Example: `node src/lib/main.js --random string 16` or `node src/lib/main.js --random string 12 abcdef`
+- **Global Flag:** `--random` remains the global flag to invoke the randomization module.
+- **Existing Sub-Commands:**
+  - **number:** Generate a random number within a configurable range.
+  - **string:** Generate a random string from an alphanumeric set (or a provided character set).
   - **uuid:** Generate a random UUID (version 4).
-    - Example: `node src/lib/main.js --random uuid`
-  - **boolean:** **New!** Generate a random boolean value. Optionally, users can specify a probability parameter to favor `true` or `false`. 
-    - Usage Examples:
-      - Basic boolean: `node src/lib/main.js --random boolean`
-      - With probability bias: `node src/lib/main.js --random boolean 0.7` (Approximately 70% chance of returning `true`)
+  - **boolean:** Generate random boolean values, with an optional probability bias.
+- **New Sub-Command - password:**
+  - **Description:** Generates a secure random password.
+  - **Usage Examples:**
+    - Basic: `node src/lib/main.js --random password 12`
+      - Generates a 12-character password using alphanumeric characters.
+    - Advanced: `node src/lib/main.js --random password 16 --symbols --uppercase`
+      - Generates a 16-character password including symbols and ensuring uppercase letters are incorporated.
 
 ## Implementation Details
-- **Random Number Generation:**
-  - Use JavaScript’s built-in `Math.random()` to generate random floating-point numbers. If integer output is required, scale and floor the value appropriately.
-- **Random String Generation:**
-  - Construct a function that randomly selects characters from a defined pool (default alphanumeric) to form a string of desired length.
-- **UUID Generation:**
-  - Implement a lightweight function to generate a version 4 UUID compliant with RFC 4122.
-- **Random Boolean Generation:**
-  - If no probability is specified, the function employs `Math.random()` to return either `true` or `false` with equal likelihood.
-  - If a probability parameter (between 0 and 1) is provided, the function returns `true` if a generated random number is less than the provided probability; otherwise, it returns `false`.
-  - Input validation ensures that any provided probability is numeric and within the range [0, 1].
+- **Input Parsing & Validation:**
+  - The new sub-command will treat the first parameter as the desired password length, which must be a positive integer.
+  - Optional flags `--symbols` and `--uppercase` (and possibly `--numbers`) can be provided to include special characters and force inclusion of uppercase letters, respectively.
+  - If no flags are provided, the default password will consist of lowercase alphanumeric characters.
 
-## Error Handling & Validation
-- Validate that proper parameters are provided for each sub-command. For instance, check numeric bounds for random number generation and ensure the length parameter for random strings is a positive integer.
-- For the boolean sub-command, return clear error messages if the probability parameter, when provided, is not a valid number between 0 and 1.
+- **Operation Logic:**
+  - A secure random generation function will construct the password by selecting random characters from the allowed character set.
+  - The character set is built based on the provided flags. For example, if `--symbols` is supplied, a set of punctuation characters will be appended. If `--uppercase` is provided, uppercase letters will be added and at least one uppercase letter will be ensured.
+  - The final password is assembled and returned in plain text mode or in JSON mode (if global JSON flags are set) along with additional metadata such as timestamp and executionDuration.
+
+- **Error Handling:**
+  - If an invalid length is provided (non-positive or non-numeric), a clear error message is returned.
+  - Missing parameters or unrecognized flags produce informative error messages guiding the user toward correct usage.
 
 ## Testing & Documentation
-- **Unit Tests:** Add tests to cover various cases for each sub-command, including valid ranges, edge cases, and invalid inputs. Specific tests should verify:
-  - That random number generation falls within specified bounds.
-  - That random string generation yields a string of the correct length using the appropriate character set.
-  - That UUID generation produces valid version 4 UUIDs.
-  - That random boolean generation returns boolean values, and when a probability is provided, returns `true` and `false` in approximately the expected ratio.
-- **Documentation:** Update the README and CLI usage guides. Provide usage examples for each type of random generation operation within the in-code comments and documentation.
+- **Unit Tests:**
+  - Tests will cover valid password generation for various lengths and flag combinations.
+  - Edge cases (such as zero or negative lengths, very long lengths, and invalid flag usage) will be included.
+
+- **Documentation:**
+  - The README and CLI usage guides will be updated with examples illustrating the use of the new password sub-command.
+  - Inline code comments will explain the random password generation logic and character set construction.
 
 ## Alignment with Repository Mission
-By extending the RANDOM feature to include random boolean generation, the tool provides users with enhanced randomization capabilities. This update supports rapid prototyping and testing workflows, fitting into the repository's mission of promoting healthy collaboration and streamlined, self-contained CLI tooling.
+Enhancing the RANDOM feature with password generation capabilities provides an additional, practical utility that supports secure automation. It enriches the tool's randomization suite while adhering to the repository’s goal of offering self-contained, modular, and useful CLI utilities.
