@@ -21,7 +21,7 @@
  *
  * New Option: --summarize-warnings - When provided, aggregates duplicate warning messages into a summarized message instead of printing each individual warning.
  *
- * New Flag: --allow-nan-inline - Allows NaN tokens to be accepted as valid numeric inputs for the current command only without modifying the global ALLOW_NAN setting.
+ * New Flag: --allow-nan-inline - Allows NaN tokens to be accepted as valid numeric inputs for the current command only without modifying the global ALLOW_NAN setting. This inline flag is transient and resets automatically after each command invocation.
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
@@ -48,7 +48,7 @@ function generateWarning(pos, originalToken) {
   return `${indexText}: ${originalToken}${suggestion}`;
 }
 
-// Global flag for inline NaN acceptance
+// Global flag for inline NaN acceptance; resets after each command invocation
 let inlineAllowNan = false;
 
 function parseNumbers(args) {
@@ -679,7 +679,7 @@ async function cliMain(args) {
       sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
     }
   } finally {
-    // Ensure the inline flag is reset after each command invocation
+    // Reset inlineAllowNan flag to ensure it does not persist across command invocations
     inlineAllowNan = false;
   }
 }
