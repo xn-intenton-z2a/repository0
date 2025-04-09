@@ -1,14 +1,23 @@
 {
   "openIssues": 100,
-  "issuesClosedLastHour": 10,
-  "issuesClosedLastDay": 69,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 3,
-  "diffMinutesMain": 3,
-  "commitsLastHour": 11,
+  "issuesClosedLastHour": 8,
+  "issuesClosedLastDay": 67,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored the inline --allow-nan flag reset mechanism to ensure it resets immediately after each command invocation for predictable behavior. (fixes #1022)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 9,
+  "commitsLastHour": 10,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "15:13",
+      "message": "Maintain NUMERIC"
+    },
     {
       "time": "15:05",
       "message": "Added the new --diagnose-nan command for detailed NaN diagnostic..."
@@ -24,18 +33,19 @@
     {
       "time": "14:51",
       "message": "Maintain GEOMETRY"
-    },
-    {
-      "time": "14:43",
-      "message": "Finalize inline --allow-nan-inline flag scope and behavior to en..."
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1022",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-09T15:09:39.887Z"
+  "generatedAt": "2025-04-09T15:22:49.972Z"
 }
