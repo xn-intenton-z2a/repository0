@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN'.
+ * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN', provided ALLOW_NAN is set to 'true'.
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -25,7 +25,7 @@
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
- * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string.
+ * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined or is empty and ALLOW_NAN is not 'true'), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -567,9 +567,11 @@ commands["-g"] = commands["--geomean"];
 async function cliMain(args) {
   // Save the current environment variable for INVALID_TOKENS to avoid test interference
   const savedInvalidTokens = process.env.INVALID_TOKENS;
-  // Ensure default behavior: if INVALID_TOKENS is undefined, default to rejecting 'nan'
-  if (process.env.INVALID_TOKENS === undefined) {
-    process.env.INVALID_TOKENS = "nan";
+  // By default, if INVALID_TOKENS is not explicitly set to allow NaN, then default to rejecting 'nan'
+  if (process.env.INVALID_TOKENS === undefined || process.env.INVALID_TOKENS === "") {
+    if (process.env.ALLOW_NAN !== "true") {
+      process.env.INVALID_TOKENS = "nan";
+    }
   }
   try {
     // Reset modes for every invocation to avoid state carryover between calls

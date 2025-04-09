@@ -146,12 +146,16 @@ describe("CLI Behavior", () => {
   // New test to verify configurable invalid tokens
   test("allows 'NaN' as valid input when not configured as invalid", async () => {
     const originalInvalid = process.env.INVALID_TOKENS;
+    const originalAllowNan = process.env.ALLOW_NAN;
+    // Explicitly allow NaN by setting ALLOW_NAN to true
+    process.env.ALLOW_NAN = "true";
     process.env.INVALID_TOKENS = "";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
     logSpy.mockRestore();
     process.env.INVALID_TOKENS = originalInvalid;
+    process.env.ALLOW_NAN = originalAllowNan;
   });
 
   // Tests for the new --config command
