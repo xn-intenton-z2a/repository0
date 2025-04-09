@@ -1,35 +1,32 @@
 # DATE_UTILS
 
 ## Overview
-Date Utilities (DATE_UTILS) is a new feature module designed to handle date and time operations within the CLI tool. This feature offers basic date formatting, difference calculations, and simple date arithmetic (addition and subtraction of days, months, or years). It seamlessly integrates with the existing CLI architecture and supports both plain text and global JSON output mode.
+This feature module handles date and time operations in the CLI tool. In addition to basic date formatting, difference calculation, and simple date arithmetic (addition and subtraction), the module has been enhanced to include timezone conversion. Users can now convert a provided date from one timezone to another using IANA timezone names. This update further empowers the repository by offering comprehensive date utilities in a single, self-contained module.
 
 ## CLI Integration
-- **Command Flag:** Introduce a new global flag `--date` which routes date utilities commands.
-- **Sub-Commands:**
-  - **format:** Format a provided date string into a specified output format. Example: `node src/lib/main.js --date format "2023-10-15" "MMM D, YYYY"`.
-  - **diff:** Calculate the difference in days between two dates. Example: `node src/lib/main.js --date diff "2023-10-15" "2023-11-01"`.
-  - **add:** Add a specified number of days to a given date. Example: `node src/lib/main.js --date add "2023-10-15" 10`.
-  - **subtract:** Subtract a specified number of days from a given date. Example: `node src/lib/main.js --date subtract "2023-10-15" 5`.
+- **Global Flag:** `--date` continues to route all date-related commands.
+- **Sub-Commands (Existing):**
+  - **format:** Format a provided date string into a specified output format (e.g., `node src/lib/main.js --date format "2023-10-15" "MMM D, YYYY"`).
+  - **diff:** Calculate the difference in days between two dates (`node src/lib/main.js --date diff "2023-10-15" "2023-11-01"`).
+  - **add/subtract:** Modify the date by adding or subtracting a specified number of days (`node src/lib/main.js --date add "2023-10-15" 10`).
+- **New Sub-Command - timezone:**
+  - **Usage:** `node src/lib/main.js --date timezone "2023-10-15T12:00:00" "America/New_York" "Europe/London"`
+  - **Description:** Converts the input date/time from the source timezone to the target timezone. Appropriate error messages are returned if invalid timezones or date formats are provided.
 
 ## Implementation Details
 - **Parsing & Validation:**
-  - Leverage JavaScript’s built-in `Date` object for parsing input date strings. Validate that the date input is in an acceptable format (e.g., YYYY-MM-DD).
-  - Ensure sub-command arguments are correctly provided and numeric inputs (for days to add/subtract) are valid.
-- **Operation Logic:**
-  - **format:** Use a simple formatting logic (or lightweight date formatting library if necessary) to output dates in the desired format.
-  - **diff:** Compute the absolute difference in days between two dates using timestamp comparisons.
-  - **add/subtract:** Modify the date by converting it to a timestamp and adding or subtracting the number of milliseconds corresponding to the specified days.
-- **Error Handling:**
-  - Return clear error messages if the date is invalid, missing, or if the required parameters are not provided.
-  - Maintain uniform error messaging and JSON output format in line with existing commands.
+  - The module leverages JavaScript’s built-in `Date` object and the `Intl.DateTimeFormat` API to parse and format dates. Input validation ensures that the provided date string is in an acceptable format and that the source and target timezone identifiers are valid IANA names.
+- **Timezone Conversion Logic:**
+  - Convert the date from the source timezone to UTC, then format it into the target timezone.
+  - Provide clear error handling for unknown timezones, invalid date formats, or missing parameters.
 
 ## Testing & Documentation
 - **Unit Tests:**
-  - Add tests to cover valid date inputs and edge cases (e.g., leap years, month boundaries).
-  - Validate error conditions when inputs are missing or malformed.
+  - New tests will verify correct conversion across common timezones (e.g., converting from "America/New_York" to "Europe/London").
+  - Edge cases such as daylight saving time transitions and invalid timezone inputs are covered.
 - **Documentation:**
-  - Update the README and CLI usage guide with examples for each sub-command.
-  - Include inline code comments in the source file detailing the date parsing, arithmetic, and formatting logic.
+  - The README and CLI usage guide will be updated with examples for the `timezone` sub-command, including sample inputs and expected outputs.
+  - Inline code comments will explain the conversion logic and error handling actions.
 
 ## Alignment with Repository Mission
-The DATE_UTILS feature enriches the repository by extending its utility set to include time-based operations. This addition aligns with the mission of promoting healthy collaboration and streamlined automation through modular, self-contained utilities.
+By extending DATE_UTILS to include timezone conversion, this update deepens the repository’s time-handling capabilities. It continues the mission of promoting healthy collaboration and streamlined automation by delivering a self-contained, modular utility that meets real-world user needs without adding unnecessary complexity.
