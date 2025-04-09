@@ -141,7 +141,6 @@ function parseNumbers(raw) {
       if (configInvalid.includes('nan')) {
         invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       } else {
-        // Even if allowed, NaN is not a useful numeric value; push as NaN to allow test to detect it
         valid.push(NaN);
       }
       continue;
@@ -568,6 +567,10 @@ commands["-g"] = commands["--geomean"];
 async function cliMain(args) {
   // Save the current environment variable for INVALID_TOKENS to avoid test interference
   const savedInvalidTokens = process.env.INVALID_TOKENS;
+  // Ensure default behavior: if INVALID_TOKENS is undefined, default to rejecting 'nan'
+  if (process.env.INVALID_TOKENS === undefined) {
+    process.env.INVALID_TOKENS = "nan";
+  }
   try {
     // Reset modes for every invocation to avoid state carryover between calls
     jsonMode = false;
