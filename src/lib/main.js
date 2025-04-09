@@ -44,17 +44,18 @@ let __inputEcho = [];
 
 // Helper function to aggregate duplicate warnings
 function aggregateWarnings(warnings) {
-  const counts = {};
+  const tokenCounts = {};
   warnings.forEach(warning => {
-    // Extract the token part by splitting on ':' and trimming
-    const parts = warning.split(':');
-    const token = parts.slice(1).join(':').trim();
-    if (token) {
-      counts[token] = (counts[token] || 0) + 1;
+    // Extract token using a regex to capture the text after "):" 
+    const match = warning.match(/\):\s*(.*)/);
+    if (match) {
+      const token = match[1];
+      tokenCounts[token] = (tokenCounts[token] || 0) + 1;
     }
   });
-  // Generate aggregated messages for each distinct token
-  return Object.keys(counts).map(token => `Token '${token}' occurred ${counts[token]} time${counts[token] > 1 ? 's' : ''}`);
+  return Object.entries(tokenCounts).map(
+    ([token, count]) => `Token '${token}' occurred ${count} ${count > 1 ? 'times' : 'time'}`
+  );
 }
 
 // Helper functions to output success or error messages based on JSON mode
@@ -116,11 +117,6 @@ function generateWarning(pos, token) {
 }
 
 // Optimized helper function to parse numeric inputs with detailed error reporting
-// This implementation uses a configurable list of disallowed tokens (defaulting to variations of 'nan')
-// Users can override the disallowed tokens by setting the environment variable INVALID_TOKENS as a comma-separated list.
-// For tokens matching 'nan' (case-insensitive), the parser explicitly checks and, if configured as invalid, issues a warning.
-// Otherwise, if the token is not in the invalid list, it attempts to parse the token to a number.
-// If the result of parsing is NaN and the token did not match an allowed 'NaN', a warning is issued.
 function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
