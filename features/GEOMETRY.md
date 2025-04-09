@@ -1,51 +1,30 @@
 # GEOMETRY
 
 ## Overview
-This feature provides a suite of geometric calculations for common shapes. It enables users to compute areas, perimeters, and other basic properties for shapes such as circles, rectangles, triangles, and optionally extend to volumes for 3D shapes. The GEOMETRY module is designed to be a lightweight, self-contained CLI utility that complements the existing numerical and statistical operations by addressing geometric computations.
+The GEOMETRY feature provides a suite of geometric calculations for common shapes. In addition to computing areas, perimeters, and other basic properties for circles, rectangles, triangles, and spheres, this updated module introduces support for regular polygons. Users can now compute the area and perimeter of a regular polygon given the number of sides and the side length.
 
 ## CLI Integration
-- **Command Flag:** Introduce a new global flag `--geometry` to route geometric calculations.
+- **Global Flag:** `--geometry`
 - **Sub-Commands:**
-  - **circle:** Calculate the area and circumference of a circle given the radius.
-    - Example: `node src/lib/main.js --geometry circle 5`
-  - **rectangle:** Compute the area and perimeter of a rectangle given the width and height.
-    - Example: `node src/lib/main.js --geometry rectangle 4 6`
-  - **triangle:** Compute the area (using Heron’s formula) and perimeter of a triangle provided the lengths of its three sides.
-    - Example: `node src/lib/main.js --geometry triangle 3 4 5`
-  - **sphere:** Optionally, compute the volume and surface area of a sphere given the radius.
-    - Example: `node src/lib/main.js --geometry sphere 5`
+  - **circle:** Calculate area (π * r²) and circumference (2 * π * r) for a circle. Example: `node src/lib/main.js --geometry circle 5`
+  - **rectangle:** Compute area (width * height) and perimeter (2 * (width + height)). Example: `node src/lib/main.js --geometry rectangle 4 6`
+  - **triangle:** Calculate area using Heron’s formula and perimeter given three side lengths. Example: `node src/lib/main.js --geometry triangle 3 4 5`
+  - **sphere:** Optionally, compute volume ((4/3) * π * r³) and surface area (4 * π * r²) for a sphere. Example: `node src/lib/main.js --geometry sphere 5`
+  - **polygon:** **New!** Compute the area and perimeter of a regular polygon using the formula:
+    - **Area:** (n * s²) / (4 * tan(π/n))
+    - **Perimeter:** n * s
+
+    Example: `node src/lib/main.js --geometry polygon 6 3` calculates the area and perimeter for a regular hexagon with side length 3.
 
 ## Implementation Details
-- **Input Parsing:**
-  - The module will parse numeric arguments following the `--geometry` flag and determine which sub-command is requested.
-  - Validate the required number of numeric parameters for each shape and ensure they are positive.
-
+- **Input Parsing:** The module will parse numeric inputs following the `--geometry` flag and determine which sub-command is requested. For the new polygon sub-command, exactly two numbers are required: the number of sides (an integer greater than 2) and the side length (a positive number).
 - **Operation Logic:**
-  - **Circle:**
-    - Area = π * radius²
-    - Circumference = 2 * π * radius
-  - **Rectangle:**
-    - Area = width * height
-    - Perimeter = 2 * (width + height)
-  - **Triangle:**
-    - Perimeter = sum of the three sides.
-    - Area computed by Heron’s formula: Calculate semi-perimeter s = (a + b + c) / 2, then area = √[s(s-a)(s-b)(s-c)].
-    - Validate triangle inequality for inputs.
-  - **Sphere (Optional):**
-    - Volume = (4/3) * π * radius³
-    - Surface Area = 4 * π * radius²
-
-- **Error Handling & Validation:**
-  - Return clear error messages if inputs are missing, non-numeric, or violate geometric constraints (e.g., triangle inequality).
-  - Integrate seamlessly with the tool's global JSON output mode and common output structure.
+  - **Polygon Calculation:** The program validates that the number of sides is at least 3. It then calculates the area using the formula: Area = (n * s²) / (4 * tan(π/n)), and the perimeter as: Perimeter = n * s.
+  - Existing geometric commands continue to operate as previously defined.
 
 ## Testing & Documentation
-- **Unit Tests:**
-  - Add tests for each sub-command to verify correct computations for valid inputs and appropriate error messages for invalid cases.
-  - Tests should cover both plain text and JSON output modes (using global flags `--json` and `--json-pretty`).
-- **Documentation:**
-  - Update the README and CLI usage guides with examples and detailed explanations of each geometric calculation.
-  - Include inline code documentation to explain formulas and input validation.
+- **Unit Tests:** New tests will be added to verify correct computations of the area and perimeter for various regular polygons, including edge cases (e.g., minimum valid number of sides, typical side lengths).
+- **Documentation:** The README, CLI usage guides, and inline code comments will be updated to include examples and detailed explanations for the new polygon sub-command.
 
 ## Alignment with Repository Mission
-The GEOMETRY feature extends the repository’s modular CLI tool by addressing a common need for geometric calculations. This addition supports the mission of promoting healthy collaboration and streamlined automation by providing users with an easily accessible, self-contained utility for solving everyday geometric problems without adding unnecessary complexity.
+By extending the GEOMETRY feature to include regular polygon calculations, this update broadens the mathematical capabilities of the CLI tool while staying true to the repository's mission of promoting streamlined automation and healthy collaboration with self-contained, modular utilities. The new sub-command enhances value without adding excessive complexity.
