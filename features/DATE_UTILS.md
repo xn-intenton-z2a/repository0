@@ -1,32 +1,41 @@
 # DATE_UTILS
 
 ## Overview
-This feature module handles date and time operations in the CLI tool. In addition to basic date formatting, difference calculation, and simple date arithmetic (addition and subtraction), the module has been enhanced to include timezone conversion. Users can now convert a provided date from one timezone to another using IANA timezone names. This update further empowers the repository by offering comprehensive date utilities in a single, self-contained module.
+This feature module handles date and time operations in the CLI tool. In addition to basic date formatting, difference calculation, and simple date arithmetic (addition and subtraction), the module has been enhanced to include timezone conversion. In this update, a new sub-command has been added to compute the weekday for a given date, thereby extending the date utilities without adding unnecessary complexity.
 
 ## CLI Integration
 - **Global Flag:** `--date` continues to route all date-related commands.
-- **Sub-Commands (Existing):**
-  - **format:** Format a provided date string into a specified output format (e.g., `node src/lib/main.js --date format "2023-10-15" "MMM D, YYYY"`).
-  - **diff:** Calculate the difference in days between two dates (`node src/lib/main.js --date diff "2023-10-15" "2023-11-01"`).
-  - **add/subtract:** Modify the date by adding or subtracting a specified number of days (`node src/lib/main.js --date add "2023-10-15" 10`).
-- **New Sub-Command - timezone:**
-  - **Usage:** `node src/lib/main.js --date timezone "2023-10-15T12:00:00" "America/New_York" "Europe/London"`
-  - **Description:** Converts the input date/time from the source timezone to the target timezone. Appropriate error messages are returned if invalid timezones or date formats are provided.
+- **Existing Sub-Commands:**
+  - **format:** Format a provided date string into a specified output format.
+  - **diff:** Calculate the difference in days between two dates.
+  - **add/subtract:** Modify the date by adding or subtracting a specified number of days.
+  - **timezone:** Converts the input date/time from a source timezone to a target timezone.
+
+- **New Sub-Command - weekday:**
+  - **Usage:** `node src/lib/main.js --date weekday "2023-10-15"`
+  - **Description:** This command computes and returns the day of the week (e.g., Monday, Tuesday, etc.) for the provided date string. It leverages the JavaScript Date object to parse the date and extract the weekday information.
 
 ## Implementation Details
 - **Parsing & Validation:**
-  - The module leverages JavaScript’s built-in `Date` object and the `Intl.DateTimeFormat` API to parse and format dates. Input validation ensures that the provided date string is in an acceptable format and that the source and target timezone identifiers are valid IANA names.
-- **Timezone Conversion Logic:**
-  - Convert the date from the source timezone to UTC, then format it into the target timezone.
-  - Provide clear error handling for unknown timezones, invalid date formats, or missing parameters.
+  - The module validates the provided date string ensuring it is in an acceptable format.
+  - If the input is invalid, a clear error message is returned, consistent with other date sub-commands.
+
+- **Weekday Calculation Logic:**
+  - The command parses the date string using built-in Date functions.
+  - It then uses methods such as `getDay()` in combination with a predefined array of weekday names to determine the corresponding weekday.
+
+- **Error Handling:**
+  - If the date format is invalid or the date cannot be parsed, the command returns an appropriate error message in both plain text and JSON output modes.
+  - The feature honors the global JSON output mode, which includes metadata such as timestamp, tool version, execution duration, and input echo.
 
 ## Testing & Documentation
 - **Unit Tests:**
-  - New tests will verify correct conversion across common timezones (e.g., converting from "America/New_York" to "Europe/London").
-  - Edge cases such as daylight saving time transitions and invalid timezone inputs are covered.
+  - New tests will verify that the weekday sub-command returns the correct weekday for a variety of valid date inputs.
+  - Edge cases, such as invalid date strings or ambiguous inputs, will be tested to guarantee robust error handling.
+
 - **Documentation:**
-  - The README and CLI usage guide will be updated with examples for the `timezone` sub-command, including sample inputs and expected outputs.
-  - Inline code comments will explain the conversion logic and error handling actions.
+  - The README and CLI usage guides will be updated to include examples for the new `--date weekday` command.
+  - Inline comments within the source code provide clarity on the date parsing logic and the mapping from numerical day indices to weekday names.
 
 ## Alignment with Repository Mission
-By extending DATE_UTILS to include timezone conversion, this update deepens the repository’s time-handling capabilities. It continues the mission of promoting healthy collaboration and streamlined automation by delivering a self-contained, modular utility that meets real-world user needs without adding unnecessary complexity.
+By extending DATE_UTILS with a new weekday sub-command, this update enhances the repository’s time-handling capabilities while maintaining the focus on self-contained, modular utilities. It supports the mission of promoting healthy collaboration through precise and user-friendly CLI tools, delivering meaningful automation without added complexity.
