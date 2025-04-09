@@ -1,50 +1,33 @@
 # HISTORY
 
 ## Overview
-This updated HISTORY feature not only logs every executed command with its metadata (timestamp, command name, input arguments, execution result, and execution duration) but also aggregates performance metrics across all command executions. In addition to the existing history log, this enhancement reports summary statistics such as the total number of commands executed, average, minimum, and maximum execution durations, and success/error rates. This integrated performance monitoring empowers users to analyze the efficiency of command execution over time and supports debugging and optimization in a collaborative environment.
+The HISTORY feature not only logs every executed command with rich metadata (timestamp, version, execution duration, input echo, etc.) and aggregates performance metrics, but now it is enhanced to include an export capability. This update enables users to export the complete command history in CSV format for further analysis, sharing, or archival purposes. This additional sub-command supports both human-readable and machine-consumable outputs.
 
 ## CLI Integration
-- **Primary Flags:**
-  - `--history` to display the full log of previously executed commands.
-  - `--clear-history` to reset the command history.
-  - **New Option:** An optional sub-flag `--metrics` that, when combined with `--history`, outputs aggregated performance metrics including:
-    - Total number of commands executed
-    - Average execution duration
-    - Minimum (fastest) and maximum (slowest) execution durations
-    - Count of successful and error executions
-
-- **Output Modes:**
-  - In standard text mode, the output displays a human-readable list of historical commands along with a summary performance report.
-  - In JSON mode (via `--json` or `--json-pretty`), the report returns a structured JSON object with both the detailed command history and the aggregated performance metrics, ensuring consistency with the global JSON output mode.
+- **Primary Commands:**
+  - `--history`: Displays the full log of previously executed commands along with detailed metadata.
+  - `--clear-history`: Clears the command history log.
+  - **New Sub-command:** `--export-history`: Exports the history log to a CSV file. Users can optionally specify a filename and choose between standard output or file write. For example:
+    - `node src/lib/main.js --export-history` (exports to default filename, e.g., `history_export.csv`)
+    - `node src/lib/main.js --export-history my_history.csv` (exports to specified file)
 
 ## Implementation Details
-- **Logging Mechanism:**
-  - The system continues using Node’s `fs` module to append each command execution to a log file (e.g., `history.log`).
-  - Each log entry includes command name, input parameters (after filtering global flags), execution timestamp, execution duration, and the result or error message.
+- **Logging and Aggregation:**
+  - Continues to log command executions with metadata in a persistent log file (e.g., `history.log`).
+  - Aggregates performance metrics including total command count, average, minimum, and maximum execution durations, as well as success and error counts.
 
-- **Performance Aggregation:**
-  - On invoking the `--history --metrics` mode, the module reads the history log and computes statistics:
-    - **Total Commands:** Count all executed commands.
-    - **Average Duration:** Compute the mean of all execution durations.
-    - **Min/Max Duration:** Identify the fastest and slowest command executions.
-    - **Success/Error Count:** Tally successes versus errors.
-  - The module handles cases where the history file is empty by returning a message indicating insufficient data for performance reporting.
-
-- **Error Handling:**
-  - If the history file is inaccessible or corrupted, a clear error message is returned.
-  - Input validation routines ensure that all numeric data for performance metrics are correctly parsed, with robust handling of any anomalies.
+- **Export Functionality:**
+  - The export module reads the existing log file and converts each entry into CSV format.
+  - Columns in the CSV include: Command, Input Echo, Timestamp, Version, Execution Duration, and Result/Error.
+  - The export operation can either output the CSV to stdout (when no filename is provided) or write directly to a file specified by the user.
+  - Error handling is implemented to manage issues such as file access permissions and empty log states.
 
 ## Testing & Documentation
 - **Unit Tests:**
-  - Tests verify that each command execution is correctly logged with accurate metadata.
-  - Additional tests ensure that aggregated performance metrics (total count, average, min, max durations, success/error counts) are accurately computed from the history log.
-  - Edge cases—such as an empty history log or malformed log entries—are handled gracefully.
-
+  - New tests will verify that the export functionality correctly converts log entries to CSV format.
+  - Tests cover edge cases such as an empty history log and file write errors.
 - **Documentation:**
-  - The README, CLI usage guides, and inline code comments have been updated to include usage examples for the new performance metrics report mode. For example:
-    - Display full history: `node src/lib/main.js --history`
-    - Display history with performance metrics: `node src/lib/main.js --history --metrics`
-  - Detailed internal documentation explains the aggregation logic and integration with the overall command logging system.
+  - The README, CLI usage guides, and inline comments will be updated to include examples and instructions for using the new `--export-history` sub-command.
 
 ## Alignment with Repository Mission
-By integrating performance metrics with historical command logging, the updated HISTORY feature enhances traceability and system insight. This improvement supports the repository’s mission of promoting healthy collaboration and streamlined automation by enabling users to monitor and optimize command execution in a self-contained, robust CLI utility.
+By enabling history export, the updated HISTORY feature enhances traceability and facilitates deeper analysis of command execution patterns over time. This improvement supports the repository’s mission of promoting healthy collaboration and streamlined automation by providing a self-contained tool for monitoring, analyzing, and sharing execution data without adding unnecessary complexity.
