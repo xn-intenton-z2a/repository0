@@ -5,7 +5,7 @@
  *
  * This main file handles CLI command processing inline via a command mapping. It supports arithmetic commands: --sum, --multiply, --subtract, --divide, --modulo, --average, and additional commands: --factorial, --sqrt, --median, --mode, --stddev, --percentile, --log, among others.
  *
- * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input by default unless allowed via configuration.
+ * Note: All commands uniformly return "Error: No valid numeric inputs provided." when no valid numeric inputs are detected. Literal 'NaN' (in any form or capitalization) is explicitly rejected as an invalid input by default unless allowed via configuration or inline flag.
  *
  * New Feature: Global JSON Output Mode with optional pretty-printing. When the global flag --json is provided, all command outputs are returned as structured JSON objects for easier machine integration. Supplying --json-pretty outputs formatted JSON with 2-space indentation for improved readability.
  *
@@ -15,11 +15,13 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming whitespace, punctuation based on configuration) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming whitespace, punctuation based on configuration) and reject any token resembling 'NaN' unless allowed via configuration, the --toggle-allow-nan command, or the new --allow-nan-inline flag. When none of these are enabled, a literal 'NaN' is rejected.
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position (1-indexed) in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
  * New Option: --summarize-warnings - When provided, aggregates duplicate warning messages into a summarized message instead of printing each individual warning.
+ *
+ * New Flag: --allow-nan-inline - Allows NaN tokens to be accepted as valid numeric inputs for the current command only without modifying the global ALLOW_NAN setting.
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
@@ -27,14 +29,14 @@
  *
  * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. All tokens are first trimmed of outer whitespace. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters are additionally trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed (although outer whitespace is still removed).
  *
- * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
+ * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string, ALLOW_NAN to 'true', or supply the --allow-nan-inline flag.
  *
  * Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting DISABLE_NAN_SUGGESTION to 'true'.
  */
 
 // Integrated Number Utilities
 function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\\\]]/g, '\\$&');
 }
 
 function generateWarning(pos, originalToken) {
@@ -45,6 +47,9 @@ function generateWarning(pos, originalToken) {
   const indexText = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? `(position ${pos})` : "(position 0)";
   return `${indexText}: ${originalToken}${suggestion}`;
 }
+
+// Global flag for inline NaN acceptance
+let inlineAllowNan = false;
 
 function parseNumbers(args) {
   let valid = [];
@@ -63,7 +68,7 @@ function parseNumbers(args) {
         const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
         const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
         trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
-      }
+      } 
       // If empty string, no punctuation stripping is performed
     } else {
       // default punctuation trimming: comma, period, semicolon, question mark, exclamation
@@ -76,7 +81,7 @@ function parseNumbers(args) {
     }
     // Check if token resembles 'NaN'
     if (trimmed.toLowerCase() === "nan") {
-      if (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") {
+      if ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") || inlineAllowNan) {
         valid.push(NaN);
       } else {
         invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
@@ -96,7 +101,7 @@ function parseNumbers(args) {
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] numbers...";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] [--allow-nan-inline] numbers...";
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -609,6 +614,7 @@ async function cliMain(args) {
   summarizeWarnings = false;
   __inputEcho = [];
   __startTime = 0;
+  inlineAllowNan = false;
 
   // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive)
   if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
@@ -638,6 +644,11 @@ async function cliMain(args) {
     summarizeWarnings = true;
     args = args.filter(arg => arg !== "--summarize-warnings");
   }
+  // Check for inline flag for allowing NaN
+  if (args.includes("--allow-nan-inline")) {
+    inlineAllowNan = true;
+    args = args.filter(arg => arg !== "--allow-nan-inline");
+  }
   // Set global inputEcho as the cleansed input
   __inputEcho = args;
   // Record start time for execution duration
@@ -659,6 +670,8 @@ async function cliMain(args) {
   } else {
     sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
   }
+  // Reset inline flag after command execution
+  inlineAllowNan = false;
 }
 
 const __test = {
