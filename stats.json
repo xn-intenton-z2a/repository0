@@ -2,13 +2,22 @@
   "openIssues": 100,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 67,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 10,
-  "diffMinutesMain": 10,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Optimized NaN token parsing with caching to improve high-volume input performance. (fixes #1040)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 9,
   "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "16:38",
+      "message": "Maintain CLI_HELP"
+    },
     {
       "time": "16:26",
       "message": "Maintain NUMERIC"
@@ -24,18 +33,19 @@
     {
       "time": "15:56",
       "message": "Maintain CLI_HELP"
-    },
-    {
-      "time": "15:51",
-      "message": "Maintain HISTORY"
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1040",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-09T16:36:31.544Z"
+  "generatedAt": "2025-04-09T16:48:08.685Z"
 }
