@@ -169,6 +169,7 @@ describe("CLI Behavior", () => {
       expect(output).toContain("DYNAMIC_WARNING_INDEX:");
       expect(output).toContain("TOKEN_PUNCTUATION_CONFIG:");
       expect(output).toContain("DISABLE_NAN_SUGGESTION:");
+      expect(output).toContain("ALLOW_NAN:");
       logSpy.mockRestore();
     });
 
@@ -183,6 +184,7 @@ describe("CLI Behavior", () => {
       expect(output.config).toHaveProperty("DYNAMIC_WARNING_INDEX");
       expect(output.config).toHaveProperty("TOKEN_PUNCTUATION_CONFIG");
       expect(output.config).toHaveProperty("DISABLE_NAN_SUGGESTION");
+      expect(output.config).toHaveProperty("ALLOW_NAN");
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
@@ -250,7 +252,7 @@ describe("CLI Behavior", () => {
       process.env.TOKEN_PUNCTUATION_CONFIG = originalTokenPunctuation;
     });
     test("trims using custom punctuation when TOKEN_PUNCTUATION_CONFIG is set", async () => {
-      process.env.TOKEN_PUNCTUATION_CONFIG = "!?,"; // trim !, ?, and comma
+      process.env.TOKEN_PUNCTUATION_CONFIG = "!,?,"; // trim !, ?, and comma
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--sum", "!!10??", "5"]);
       // Should remove leading ! and trailing ? leaving "10" and "5" => sum = 15
@@ -321,5 +323,38 @@ describe("CLI Behavior", () => {
     expect(warnings.some(w => w.includes("Did you mean to allow NaN"))).toBe(false);
     process.env.DISABLE_NAN_SUGGESTION = original;
     warnSpy.mockRestore();
+  });
+
+  // New test for the new --toggle-allow-nan command
+  describe("Toggle ALLOW_NAN Command", () => {
+    test("toggles ALLOW_NAN from false to true and back", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      // Ensure initial state is false
+      process.env.ALLOW_NAN = "false";
+      await main(["--toggle-allow-nan"]);
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("ALLOW_NAN toggled to true"));
+
+      // Toggle again
+      await main(["--toggle-allow-nan"]);
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("ALLOW_NAN toggled to false"));
+      logSpy.mockRestore();
+    });
+
+    test("affects numeric parsing for NaN tokens appropriately", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      // Set ALLOW_NAN to false and test behavior
+      process.env.ALLOW_NAN = "false";
+      await main(["--sum", "NaN", "5"]);
+      expect(warnSpy).toHaveBeenCalled();
+      // Now toggle to allow NaN
+      await main(["--toggle-allow-nan"]);
+      // The next call should treat NaN as valid and include it in the sum (NaN + 5 yields NaN, but here we assume numeric conversion results in NaN, so special handling may be needed)
+      // For testing purpose, we assume that if ALLOW_NAN is true, the token becomes NaN, so the sum becomes NaN, so output string "NaN" should be present.
+      await main(["--sum", "NaN", "5"]);
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
+      logSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
   });
 });
