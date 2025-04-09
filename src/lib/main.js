@@ -569,6 +569,13 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
+  // Reset global state to avoid side-effects between invocations
+  jsonMode = false;
+  jsonPretty = false;
+  summarizeWarnings = false;
+  __inputEcho = [];
+  __startTime = 0;
+
   // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive) to avoid treating 'NaN' as valid
   if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
     process.env.ALLOW_NAN = "false";
