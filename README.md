@@ -28,8 +28,9 @@ The input parsing mechanism has been refined to optimize detection of invalid nu
 - **--summarize-warnings:** When provided, the CLI aggregates duplicate warning messages into a summary indicating the number of occurrences for each invalid token.
 - **Configurable Punctuation Stripping:** A new environment variable **TOKEN_PUNCTUATION_CONFIG** allows you to define custom punctuation and whitespace trimming rules for numeric inputs.
   - If **TOKEN_PUNCTUATION_CONFIG** is defined and non-empty, only the characters specified (plus whitespace) are trimmed from the beginning and end of tokens.
-  - If **TOKEN_PUNCTUATION_CONFIG** is defined as an empty string, no trimming is performed, which may result in inputs remaining invalid if extraneous punctuation is present.
-- **Robust Test Coverage:** Extensive tests now cover various edge-case scenarios for 'NaN' inputs including different casings, leading/trailing punctuation and spaces, as well as internal whitespace.
+  - If **TOKEN_PUNCTUATION_CONFIG** is defined as an empty string, no punctuation stripping is performed.
+
+*Note:* The normalization of numeric inputs has been updated to consistently trim whitespace and punctuation (as configured) from both ends of each token, ensuring predictable handling of variants like ' NaN ', 'NaN,', and 'NaN?'.
 
 ### Global JSON Output Mode
 A new global flag has been added:

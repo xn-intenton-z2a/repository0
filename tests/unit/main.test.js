@@ -267,6 +267,15 @@ describe("CLI Behavior", () => {
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
+    test("handles multiple punctuation marks around 'NaN'", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--sum", "!!NaN??", "5"]);
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
+      logSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
   });
 
   // New test for edge-case 'NaN' variants with punctuation and whitespace
