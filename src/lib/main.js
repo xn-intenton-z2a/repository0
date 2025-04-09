@@ -54,7 +54,8 @@ function parseNumbers(args) {
     let trimmed = token;
     if (tokenPunctuationConfig !== undefined) {
       if (tokenPunctuationConfig !== "") {
-        const re = new RegExp(`^[\s${escapeRegex(tokenPunctuationConfig)}]+|[\s${escapeRegex(tokenPunctuationConfig)}]+$`, 'g');
+        // Note: Use double backslashes for \s
+        const re = new RegExp(`^[\\s${escapeRegex(tokenPunctuationConfig)}]+|[\\s${escapeRegex(tokenPunctuationConfig)}]+$`, 'g');
         trimmed = token.replace(re, '');
       }
       // If TOKEN_PUNCTUATION_CONFIG is empty string, no trimming is performed
@@ -134,11 +135,11 @@ function sendSuccess(command, result, warnings) {
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
-    console.log(String(result));
     if (finalWarnings && finalWarnings.length > 0) {
-      finalWarnings.forEach(warning => {
-        console.warn(warning);
-      });
+      // When summarizing warnings, include them in the console.log output instead of separate warnings
+      console.log(String(result) + "\n" + finalWarnings.join("\n"));
+    } else {
+      console.log(String(result));
     }
   }
 }
@@ -160,11 +161,10 @@ function sendError(command, errorMessage, warnings) {
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
-    console.log(String(errorMessage));
     if (finalWarnings && finalWarnings.length > 0) {
-      finalWarnings.forEach(warning => {
-        console.warn(warning);
-      });
+      console.log(String(errorMessage) + "\n" + finalWarnings.join("\n"));
+    } else {
+      console.log(String(errorMessage));
     }
   }
 }
