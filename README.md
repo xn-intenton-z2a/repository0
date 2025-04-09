@@ -20,35 +20,31 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--percentile:** Compute a specified percentile of a dataset using linear interpolation.
 - **--geomean:** Compute the geometric mean of positive numbers.
 - **--config:** Display the current CLI configuration including tool version and environment settings.
-- **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
-- **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. **This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.**
-- **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and now also the token character range (trimStart and trimEnd) within the original token that was preserved after trimming. This additional information helps identify exactly which characters were removed during processing.
+- **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing at runtime.
+- **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.
+- **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and token character range information (trimStart and trimEnd) to aid in debugging.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refactored for improved modularity and performance. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN," or "NaN?" are consistently processed based on the environment variables:
+The input parsing mechanism has been refactored for improved modularity and performance. A dedicated configuration function now centralizes environment variable initialization for:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
 - **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
-- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables punctuation stripping but still trims outer whitespace.
+- **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables punctuation stripping (beyond trimming whitespace).
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
-- **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
+- **DYNAMIC_WARNING_INDEX:** If `true`, warning messages use the token's actual position (1-indexed); otherwise, a fixed index (0) is used.
 
-**Performance Optimization:** The NaN token parsing now employs a caching mechanism to store results of repetitive regex operations. This significantly improves performance when processing high-volume input (e.g., over 100,000 tokens) without changing the functional behavior.
+**Performance Optimization:** The NaN token parsing now employs caching of regex operations to significantly improve performance in high-volume scenarios.
 
-**Note:** In non-JSON mode, warnings for invalid tokens are output via `console.warn`. Tokens that become empty after trimming are now considered invalid.
-
-### Global JSON Output Mode
-A new global flag has been added:
+**Global JSON Output Mode:**
 - **--json:** Outputs command results as minified JSON for machine integration.
-- **--json-pretty:** Outputs formatted JSON with 2-space indentation. (Takes precedence over --json if both are provided.)
+- **--json-pretty:** Outputs formatted JSON with 2-space indentation (overrides --json if both are provided).
 
-JSON responses now include metadata:
+JSON responses include metadata:
 - **timestamp:** ISO formatted execution timestamp.
 - **version:** Tool version.
 - **executionDuration:** Duration of execution in milliseconds.
 - **inputEcho:** The cleaned input parameters after global flag filtering.
 
 ### Shorthand Aliases
-Aliases have been added for user convenience:
 - **-s:** Alias for `--sum`
 - **-m:** Alias for `--multiply`
 - **-a:** Alias for `--average`
@@ -56,7 +52,7 @@ Aliases have been added for user convenience:
 - **-h:** Alias for `--help`
 - **-g:** Alias for `--geomean`
 
-All commands uniformly return "Error: No valid numeric inputs provided." when invalid inputs are encountered, accompanied by detailed warnings (printed to stderr in non-JSON mode).
+All commands uniformly return "Error: No valid numeric inputs provided." when invalid inputs are encountered, and detailed warnings are provided (via stderr in non-JSON mode).
 
 ## What’s Inside
 
@@ -64,19 +60,19 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   CI/CD workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**
-  The main functionality resides in `src/lib/main.js`. The numeric parsing utilities are integrated for a streamlined structure.
+  The main functionality resides in `src/lib/main.js`. The numeric parsing and environment configuration are centralized to ensure consistent behavior.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
+  Unit tests in the `tests/unit/` folder cover both CLI behavior and number utilities.
 
 - **Configuration:**
-  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control and resets immediately after each invocation.
+  Customize behavior via environment variables. The new configuration function in the CLI centralizes settings like **ALLOW_NAN**, **INVALID_TOKENS**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes, while the **--allow-nan-inline** flag enables per-command control.
 
 - **Diagnostic Tools:**
-  The new **--diagnose-nan** command offers an in-depth diagnostic report of how tokens are processed, now including token character range information (trimStart and trimEnd) to aid debugging.
+  The **--diagnose-nan** command offers an in-depth diagnostic report, now including token character range details to assist in debugging.
 
 - **Documentation:**
-  This README, along with [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE), provide guidelines and details for effective use and contribution.
+  Refer to [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE) for more details.
 
 ## Getting Started
 
@@ -103,10 +99,10 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, improved handling of NaN tokens, enhanced diagnostics with token character range information, and performance optimizations via caching for high-volume token processing are all supported.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, configuration consolidation for consistent NaN handling, a dedicated environment configuration function, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag, and the **--diagnose-nan** command for detailed diagnostics. Global JSON output, dynamic warning indices, custom punctuation stripping, and performance optimizations via regex caching are also supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
 For guidance on using the repository template, see [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md).
 
-For more information about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic-lib.
+For more about intentïon `agentic‑lib`, visit https://github.com/xn-intenton-z2a/agentic‑lib.

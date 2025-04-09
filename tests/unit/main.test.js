@@ -91,7 +91,6 @@ describe("CLI Behavior", () => {
     logSpy.mockRestore();
   });
 
-  // Additional tests for JSON output mode
   describe("CLI JSON Output Mode", () => {
     test("outputs sum in JSON format", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -130,7 +129,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New test for various casings of 'NaN' inputs
   test("handles various casings of 'NaN' inputs", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -143,7 +141,6 @@ describe("CLI Behavior", () => {
     warnSpy.mockRestore();
   });
 
-  // New test to verify configurable invalid tokens
   test("allows 'NaN' as valid input when not configured as invalid", async () => {
     const originalInvalid = process.env.INVALID_TOKENS;
     const originalAllowNan = process.env.ALLOW_NAN;
@@ -157,7 +154,6 @@ describe("CLI Behavior", () => {
     process.env.ALLOW_NAN = originalAllowNan;
   });
 
-  // New test for the new --config command
   describe("CLI Config Command", () => {
     test("outputs configuration in plain text mode", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -199,7 +195,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New tests for Dynamic Warning Index Option
   describe("Dynamic Warning Index Option", () => {
     test("uses dynamic index when enabled", async () => {
       process.env.DYNAMIC_WARNING_INDEX = "true";
@@ -221,7 +216,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New test for aggregated warnings using --summarize-warnings flag
   describe("Aggregated Warnings", () => {
     let originalInvalid;
     beforeEach(() => {
@@ -241,7 +235,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New tests for configurable punctuation stripping
   describe("Configurable Punctuation Stripping", () => {
     let originalTokenPunctuation;
     beforeEach(() => {
@@ -251,14 +244,14 @@ describe("CLI Behavior", () => {
       process.env.TOKEN_PUNCTUATION_CONFIG = originalTokenPunctuation;
     });
     test("trims using custom punctuation when TOKEN_PUNCTUATION_CONFIG is set", async () => {
-      process.env.TOKEN_PUNCTUATION_CONFIG = "!,?,"; // trim !, ? and comma
+      process.env.TOKEN_PUNCTUATION_CONFIG = "!,?,";
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--sum", "!!10??", "5"]);
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("15"));
       logSpy.mockRestore();
     });
     test("applies no trimming when TOKEN_PUNCTUATION_CONFIG is empty string", async () => {
-      process.env.TOKEN_PUNCTUATION_CONFIG = ""; // no punctuation stripping
+      process.env.TOKEN_PUNCTUATION_CONFIG = "";
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       await main(["--sum", "  5, ", "5"]);
@@ -278,7 +271,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New test for edge-case 'NaN' variants with punctuation and whitespace
   test("handles edge-case variants of 'NaN' with punctuation and whitespace", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -289,7 +281,6 @@ describe("CLI Behavior", () => {
     logSpy.mockRestore();
   });
 
-  // New test for internal whitespace in NaN-like input
   test("rejects 'N aN' with internal whitespace", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
@@ -300,10 +291,9 @@ describe("CLI Behavior", () => {
     logSpy.mockRestore();
   });
 
-  // New test to verify that correction suggestion is included for NaN tokens
   test("includes correction suggestion in warning for NaN tokens", async () => {
     const originalDynamic = process.env.DYNAMIC_WARNING_INDEX;
-    process.env.DYNAMIC_WARNING_INDEX = "true"; // enable dynamic to check index as provided
+    process.env.DYNAMIC_WARNING_INDEX = "true";
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
     const warningCall = warnSpy.mock.calls.find(call => call[0].includes("Did you mean to allow NaN values?"));
@@ -312,7 +302,6 @@ describe("CLI Behavior", () => {
     warnSpy.mockRestore();
   });
 
-  // New test to verify suppression of correction suggestion when DISABLE_NAN_SUGGESTION is true
   test("suppresses correction suggestion with DISABLE_NAN_SUGGESTION true", async () => {
     const original = process.env.DISABLE_NAN_SUGGESTION;
     process.env.DISABLE_NAN_SUGGESTION = "true";
@@ -324,7 +313,6 @@ describe("CLI Behavior", () => {
     warnSpy.mockRestore();
   });
 
-  // New test for the new --toggle-allow-nan command
   describe("Toggle ALLOW_NAN Command", () => {
     test("toggles ALLOW_NAN from false to true and back", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -350,15 +338,12 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // NEW tests for inline --allow-nan-inline flag
   describe("Inline Allow NaN Flag", () => {
     test("allows NaN tokens when --allow-nan-inline flag is provided", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       await main(["--allow-nan-inline", "--sum", "NaN", "5"]);
-      // In JavaScript, arithmetic with NaN results in NaN
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
-      // Since inline flag is used, warnings for NaN should be suppressed
       expect(warnSpy).not.toHaveBeenCalled();
       logSpy.mockRestore();
       warnSpy.mockRestore();
@@ -375,7 +360,6 @@ describe("CLI Behavior", () => {
     });
   });
 
-  // New tests for the new --diagnose-nan command
   describe("CLI Diagnose NaN Command", () => {
     test("outputs diagnostic report in plain text mode with trim indices", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
