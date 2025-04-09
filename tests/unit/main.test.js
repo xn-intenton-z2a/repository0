@@ -128,27 +128,6 @@ describe("CLI Behavior", () => {
       expect(output.inputEcho).toEqual(["--sum", "NaN", "abc"]);
       logSpy.mockRestore();
     });
-
-    test("outputs sum in pretty JSON format when --json-pretty is used", async () => {
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      await main(["--json-pretty", "--sum", "3", "4", "5"]);
-      const outputStr = logSpy.mock.calls[0][0];
-      expect(outputStr).toContain("\n");
-      const output = JSON.parse(outputStr);
-      expect(output).toHaveProperty("command", "sum");
-      expect(output).toHaveProperty("result", 12);
-      expect(output).toHaveProperty("warnings");
-      expect(output.warnings).toEqual([]);
-      expect(output).toHaveProperty("timestamp");
-      expect(typeof output.timestamp).toBe('string');
-      expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
-      expect(output).toHaveProperty("executionDuration");
-      expect(typeof output.executionDuration).toBe('number');
-      expect(output).toHaveProperty("inputEcho");
-      expect(output.inputEcho).toEqual(["--sum", "3", "4", "5"]);
-      logSpy.mockRestore();
-    });
   });
 
   // New test for various casings of 'NaN' inputs

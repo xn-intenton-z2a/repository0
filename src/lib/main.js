@@ -122,10 +122,9 @@ function parseNumbers(raw) {
   const invalid = [];
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
   // Determine the list of tokens to reject based on environment variable
-  const invalidEnv = process.env.INVALID_TOKENS;
-  const configInvalid = (invalidEnv === undefined || invalidEnv === null)
-    ? ['nan']
-    : (invalidEnv === "" ? [] : invalidEnv.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== ""));
+  const configInvalid = Object.prototype.hasOwnProperty.call(process.env, "INVALID_TOKENS")
+    ? (process.env.INVALID_TOKENS === "" ? [] : process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== ""))
+    : ['nan'];
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
@@ -531,7 +530,7 @@ const commands = {
   },
   "--config": async (args) => {
     // Gather configuration details
-    const invalidTokensValue = process.env.INVALID_TOKENS ? process.env.INVALID_TOKENS : 'nan';
+    const invalidTokensValue = Object.prototype.hasOwnProperty.call(process.env, "INVALID_TOKENS") ? process.env.INVALID_TOKENS : 'nan';
     const dynamicWarning = process.env.DYNAMIC_WARNING_INDEX === 'true' ? 'enabled' : 'disabled';
     const configDetails = {
       TOOL_VERSION,
