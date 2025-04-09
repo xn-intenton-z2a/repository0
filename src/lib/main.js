@@ -17,7 +17,7 @@
  *
  * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming punctuation and whitespace) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
  *
- * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
+ * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position (1-indexed) in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
  * New Option: --summarize-warnings - When provided, aggregates duplicate warning messages into a summarized message instead of printing each individual warning.
  *
@@ -50,7 +50,7 @@ function parseNumbers(args) {
   let valid = [];
   let invalid = [];
   const tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
-  for (let token of args) {
+  args.forEach((token, index) => {
     let trimmed = token;
     if (tokenPunctuationConfig !== undefined) {
       if (tokenPunctuationConfig !== "") {
@@ -64,25 +64,25 @@ function parseNumbers(args) {
     }
     // Reject if token has internal whitespace.
     if (/\s/.test(trimmed)) {
-      invalid.push(token);
-      continue;
+      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      return;
     }
     // Check if token resembles 'NaN'
     if (trimmed.toLowerCase() === "nan") {
       if (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") {
         valid.push(NaN);
       } else {
-        invalid.push(token);
+        invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
       }
-      continue;
+      return;
     }
     const num = Number(trimmed);
     if (isNaN(num)) {
-      invalid.push(token);
+      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
     } else {
       valid.push(num);
     }
-  }
+  });
   return { valid, invalid };
 }
 

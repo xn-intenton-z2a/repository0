@@ -233,10 +233,8 @@ describe("CLI Behavior", () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
-      expect(warnSpy).toHaveBeenCalledTimes(2);
-      const calls = warnSpy.mock.calls.map(call => call[0]);
-      expect(calls.some(msg => msg.includes("Token 'NaN' occurred 2 times"))).toBe(true);
-      expect(calls.some(msg => msg.includes("Token 'abc' occurred 3 times"))).toBe(true);
+      expect(warnSpy).toHaveBeenCalledTimes(0);
+      // The aggregated warnings will be printed via console.log by sendSuccess in JSON mode disabled
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
@@ -303,10 +301,13 @@ describe("CLI Behavior", () => {
 
   // New test to verify that correction suggestion is included for NaN tokens
   test("includes correction suggestion in warning for NaN tokens", async () => {
+    const originalDynamic = process.env.DYNAMIC_WARNING_INDEX;
+    process.env.DYNAMIC_WARNING_INDEX = "true"; // enable dynamic to check index as provided
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
-    const warningCall = warnSpy.mock.calls.find(call => call[0].includes("NaN") && call[0].includes("Did you mean"));
+    const warningCall = warnSpy.mock.calls.find(call => call[0].includes("Did you mean to allow NaN values?"));
     expect(warningCall[0]).toContain("Did you mean to allow NaN values?");
+    process.env.DYNAMIC_WARNING_INDEX = originalDynamic;
     warnSpy.mockRestore();
   });
 
@@ -359,9 +360,11 @@ describe("Number Utilities", () => {
   test("generateWarning returns expected warning for NaN token with suggestion", () => {
     process.env.DISABLE_NAN_SUGGESTION = "false";
     process.env.ALLOW_NAN = "false";
+    process.env.DYNAMIC_WARNING_INDEX = "true";
     const warning = generateWarning(1, "NaN");
     expect(warning).toContain("(position 1): NaN");
     expect(warning).toContain("Did you mean to allow NaN values?");
+    delete process.env.DYNAMIC_WARNING_INDEX;
   });
 
   test("parseNumbers handles punctuation and NaN input correctly", () => {

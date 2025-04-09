@@ -30,7 +30,7 @@ Configuration via environment variables:
 - **INVALID_TOKENS:** A comma-separated list of tokens to reject (default rejects variants of "NaN").
 - **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. An empty string disables trimming.
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
-- **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position; otherwise, a fixed index is used.
+- **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
 
 ### Global JSON Output Mode
 A new global flag has been added:
