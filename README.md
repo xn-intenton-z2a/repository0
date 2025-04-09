@@ -31,6 +31,7 @@ The input parsing mechanism has been refined to optimize detection of invalid nu
   - If **TOKEN_PUNCTUATION_CONFIG** is defined as an empty string, no punctuation stripping is performed.
 - **Internal Whitespace Rejection:** Inputs that contain internal whitespace, even if they partially resemble valid tokens (e.g., 'N aN'), are now consistently rejected with an appropriate warning.
 - **Correction Suggestion:** When a token equal to 'NaN' is rejected due to configuration, a correction suggestion is appended to the warning message to help users enable NaN processing if intended. This suggestion can be suppressed by setting the environment variable **DISABLE_NAN_SUGGESTION** to `true`.
+- **Consolidated NaN Handling:** The logic for processing tokens resembling 'NaN' has been unified to ensure robust, consistent behavior irrespective of casing, surrounding punctuation, or extra whitespace.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -60,7 +61,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. This update provides consistent handling of various forms of 'NaN' inputs, including rejection of internal whitespace and edge-case punctuation issues, along with clear correction suggestions.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. This update provides consistent handling of various forms of 'NaN' inputs, including unified normalization and robust rejection of malformed tokens.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
