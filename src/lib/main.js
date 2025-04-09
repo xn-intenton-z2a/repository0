@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN', provided ALLOW_NAN is set to 'true'.
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing function now consistently normalizes tokens (trimming punctuation and whitespace) and rejects any token resembling 'NaN' unless explicitly allowed via configuration. This logic also properly applies dynamic or fixed warning indices and conditionally appends a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -25,11 +25,9 @@
  *
  * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
  *
- * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
+ * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
  *
- * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized in a consistent manner before evaluation. Tokens that contain internal whitespace (e.g., 'N aN') are now consistently rejected, irrespective of configuration, ensuring a clearer distinction between valid and malformed inputs. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
- *
- * NEW: Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting the DISABLE_NAN_SUGGESTION environment variable to 'true'.
+ * Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting DISABLE_NAN_SUGGESTION to 'true'.
  */
 
 const TOOL_VERSION = '1.4.1-1';
@@ -120,10 +118,13 @@ function sendError(command, errorMessage, warnings) {
   }
 }
 
-// Helper function to generate a standardized warning message
-function generateWarning(pos, token) {
+// Helper function to generate a standardized warning message for invalid tokens
+function generateWarning(pos, originalToken) {
+  // Normalize the token for comparison purposes
+  const token = originalToken.trim();
+  const normalizedToken = token.toLowerCase();
   let warning = `(position ${pos}): ${token}`;
-  if (token.trim().toLowerCase() === 'nan') {
+  if (normalizedToken === 'nan') {
     if (!(process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === 'true')) {
       if (!(process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') && process.env.INVALID_TOKENS !== "") {
         warning += " Did you mean to allow NaN values? Consider setting ALLOW_NAN to 'true' and INVALID_TOKENS to an empty string.";
