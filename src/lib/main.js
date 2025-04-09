@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN'.
+ * Enhancement: Introduced a configurable mechanism for disallowed tokens in numeric parsing. By default, any token matching variations of 'nan' (in any letter casing) is rejected. Users can override this behavior by setting the environment variable INVALID_TOKENS (as a comma-separated list), which determines the tokens to reject. Note: If INVALID_TOKENS is defined but empty, no tokens will be rejected, including 'NaN', provided ALLOW_NAN is set to 'true'.
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -25,13 +25,13 @@
  *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
- * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string.
+ * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined or is empty and ALLOW_NAN is not 'true'), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
  */
 
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [numbers...]";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] numbers...";
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -121,36 +121,42 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
-  // Get the list of tokens to reject from environment variable; if set but empty, no tokens will be rejected.
-  const configInvalid = (process.env.INVALID_TOKENS !== undefined)
-    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
+
+  // Determine ALLOW_NAN in a case-insensitive manner
+  const allowNan = (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') ? true : false;
+
+  // Determine the list of tokens to reject based on ALLOW_NAN and INVALID_TOKENS env variable
+  let envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
+    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
     : ['nan'];
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
-    const str = String(token).trim();
+    let str = String(token).trim();
+    // Normalize token by stripping leading/trailing punctuation and whitespace, then trim again
+    let normalized = str.replace(/^[,.;?!\s]+|[,.;?!\s]+$/g, '').trim();
     // Skip if a flag is encountered
-    if (str.startsWith('--')) {
+    if (normalized.startsWith('--')) {
       continue;
     }
-    const tokenLower = str.toLowerCase();
-    // Special handling for 'NaN': check explicitly if token is 'nan'
-    if (tokenLower === 'nan') {
-      if (configInvalid.includes('nan')) {
-        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
-      } else {
+    const tokenLower = normalized.toLowerCase();
+    // Special handling for 'NaN' with case-insensitive check
+    if (/^nan$/i.test(normalized)) {
+      if (allowNan) {
         valid.push(NaN);
+      } else {
+        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       }
       continue;
     }
-    // If token is in the configured invalid tokens, use dynamic or fixed index
-    if (configInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+    // If token is in the configured invalid tokens
+    if (envInvalid.includes(tokenLower)) {
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       continue;
     }
-    const num = Number(str);
+    const num = Number(normalized);
     if (isNaN(num)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, token));
+      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
     } else {
       valid.push(num);
     }
@@ -527,7 +533,7 @@ const commands = {
   },
   "--config": async (args) => {
     // Gather configuration details
-    const invalidTokensValue = process.env.INVALID_TOKENS ? process.env.INVALID_TOKENS : 'nan';
+    const invalidTokensValue = typeof process.env.INVALID_TOKENS === 'string' ? process.env.INVALID_TOKENS : 'nan';
     const dynamicWarning = process.env.DYNAMIC_WARNING_INDEX === 'true' ? 'enabled' : 'disabled';
     const configDetails = {
       TOOL_VERSION,
@@ -563,10 +569,21 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Reset modes for every invocation to avoid state carryover between calls
+  // Reset global state to avoid side-effects between invocations
   jsonMode = false;
   jsonPretty = false;
   summarizeWarnings = false;
+  __inputEcho = [];
+  __startTime = 0;
+
+  // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive) to avoid treating 'NaN' as valid
+  if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
+    process.env.ALLOW_NAN = "false";
+  }
+  // Set INVALID_TOKENS if not already defined
+  if (process.env.INVALID_TOKENS === undefined) {
+    process.env.INVALID_TOKENS = (process.env.ALLOW_NAN === "true" ? "" : "nan");
+  }
   if (args === undefined) {
     args = [];
   }

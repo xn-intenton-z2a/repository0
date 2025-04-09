@@ -22,10 +22,11 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
-- By default, any input matching configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable **INVALID_TOKENS** to an empty string.
+- By default, any input matching the configured invalid tokens is explicitly rejected. This means the string literal 'NaN' (in any casing) is treated as an invalid token by default unless you override this behavior. To allow 'NaN' as a valid input, set the environment variable **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
 - You can customize the rejected tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing.
-- **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index. 
+- **DYNAMIC_WARNING_INDEX:** When set to true, the parser reports the actual input position for invalid token warnings rather than using a fixed index.
 - **--summarize-warnings:** When provided, the CLI aggregates duplicate warning messages into a summary indicating the number of occurrences for each invalid token.
+- **Edge-case Normalization:** Inputs with extra punctuation or irregular spacing (e.g., ' NaN', 'NaN,', 'NaN?') are normalized by stripping extraneous characters and trimming before evaluation.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -55,16 +56,16 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing, the new **--config** command, and the **--summarize-warnings** option improve integration with automated systems.
+  The main functionality is in `src/lib/main.js`. CLI command handling has been refactored via a command mapping to reduce complexity and improve maintainability. The new JSON output mode, enhanced input parsing (including edge-case normalization), the new **--config** command, and the **--summarize-warnings** option improve integration with automated systems.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests verify detailed error messages with positional information for invalid inputs, including various casings of "NaN", and now also cover the new **--config** and **--summarize-warnings** commands and options.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including detailed error messages and robust handling of irregular 'NaN' inputs.
 
 - **Configuration:**
-  You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing. Additionally, setting **DYNAMIC_WARNING_INDEX** to true will use actual input positions in warning messages.
+  You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS** to a comma-separated list of tokens that should be rejected during numeric parsing. Additionally, setting **DYNAMIC_WARNING_INDEX** to true will use actual input positions in warning messages. To allow 'NaN' as a valid input, set **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

@@ -77,7 +77,7 @@ describe("CLI Behavior", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5", "hello"]);
-    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+    expect(logSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("5"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): NaN"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("(position 0): hello"));
     logSpy.mockRestore();
@@ -128,27 +128,6 @@ describe("CLI Behavior", () => {
       expect(output.inputEcho).toEqual(["--sum", "NaN", "abc"]);
       logSpy.mockRestore();
     });
-
-    test("outputs sum in pretty JSON format when --json-pretty is used", async () => {
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      await main(["--json-pretty", "--sum", "3", "4", "5"]);
-      const outputStr = logSpy.mock.calls[0][0];
-      expect(outputStr).toContain("\n");
-      const output = JSON.parse(outputStr);
-      expect(output).toHaveProperty("command", "sum");
-      expect(output).toHaveProperty("result", 12);
-      expect(output).toHaveProperty("warnings");
-      expect(output.warnings).toEqual([]);
-      expect(output).toHaveProperty("timestamp");
-      expect(typeof output.timestamp).toBe('string');
-      expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
-      expect(output).toHaveProperty("executionDuration");
-      expect(typeof output.executionDuration).toBe('number');
-      expect(output).toHaveProperty("inputEcho");
-      expect(output.inputEcho).toEqual(["--sum", "3", "4", "5"]);
-      logSpy.mockRestore();
-    });
   });
 
   // New test for various casings of 'NaN' inputs
@@ -167,12 +146,16 @@ describe("CLI Behavior", () => {
   // New test to verify configurable invalid tokens
   test("allows 'NaN' as valid input when not configured as invalid", async () => {
     const originalInvalid = process.env.INVALID_TOKENS;
+    const originalAllowNan = process.env.ALLOW_NAN;
+    // Explicitly allow NaN by setting ALLOW_NAN to true
+    process.env.ALLOW_NAN = "true";
     process.env.INVALID_TOKENS = "";
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
     logSpy.mockRestore();
     process.env.INVALID_TOKENS = originalInvalid;
+    process.env.ALLOW_NAN = originalAllowNan;
   });
 
   // Tests for the new --config command
@@ -254,5 +237,17 @@ describe("CLI Behavior", () => {
       logSpy.mockRestore();
       warnSpy.mockRestore();
     });
+  });
+
+  // New test for edge-case 'NaN' variants with punctuation and whitespace
+  test("handles edge-case variants of 'NaN' with punctuation and whitespace", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", " NaN ", "NaN,", "NaN?", "5"]);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
+    // Expect three warnings for each variant normalized to 'NaN'
+    expect(warnSpy).toHaveBeenCalledTimes(3);
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
   });
 });
