@@ -23,6 +23,8 @@
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
+ * New Command: --toggle-allow-nan dynamically toggles the ALLOW_NAN setting for numeric parsing at runtime.
+ *
  * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
  *
  * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
@@ -33,7 +35,7 @@
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] numbers...";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] numbers...";
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -161,7 +163,7 @@ function parseNumbers(raw) {
       if (tokenPunctuationConfig === '') {
         trimmingRegex = null;
       } else {
-        const customChars = escapeRegex(tokenPunctuationConfig) + "\\s";
+        const customChars = escapeRegex(tokenPunctuationConfig) + "\s";
         trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
       }
     } else {
@@ -591,7 +593,8 @@ const commands = {
       INVALID_TOKENS: invalidTokensValue,
       DYNAMIC_WARNING_INDEX: dynamicWarning,
       TOKEN_PUNCTUATION_CONFIG: punctuationConfig,
-      DISABLE_NAN_SUGGESTION: process.env.DISABLE_NAN_SUGGESTION || 'false'
+      DISABLE_NAN_SUGGESTION: process.env.DISABLE_NAN_SUGGESTION || 'false',
+      ALLOW_NAN: process.env.ALLOW_NAN || 'false'
     };
     if (jsonMode) {
       const output = {
@@ -610,8 +613,16 @@ const commands = {
       output += `DYNAMIC_WARNING_INDEX: ${dynamicWarning}\n`;
       output += `TOKEN_PUNCTUATION_CONFIG: ${punctuationConfig}\n`;
       output += `DISABLE_NAN_SUGGESTION: ${process.env.DISABLE_NAN_SUGGESTION || 'false'}\n`;
+      output += `ALLOW_NAN: ${process.env.ALLOW_NAN || 'false'}\n`;
       sendSuccess("config", output);
     }
+  },
+  "--toggle-allow-nan": async (_args) => {
+    // Toggle the ALLOW_NAN setting at runtime
+    let current = process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true';
+    const newValue = !current;
+    process.env.ALLOW_NAN = newValue ? 'true' : 'false';
+    sendSuccess("toggle-allow-nan", "ALLOW_NAN toggled to " + process.env.ALLOW_NAN);
   }
 };
 

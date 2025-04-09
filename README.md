@@ -18,7 +18,8 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--log:** Compute the logarithm of a given number. When provided a single argument, it computes the natural logarithm (base e). When provided two arguments, it computes the logarithm with the second number as the base, with detailed error messages on invalid inputs.
 - **--percentile:** Compute the desired percentile of a dataset. The first argument must be a percentile between 0 and 100, and the remaining arguments form the dataset. Linear interpolation is applied when the computed index is fractional.
 - **--geomean:** Compute the geometric mean of a list of positive numbers.
-- **--config:** Outputs the current configuration of the CLI tool including the tool version, invalid tokens, the state of the DYNAMIC_WARNING_INDEX option, the custom TOKEN_PUNCTUATION_CONFIG value, and the state of DISABLE_NAN_SUGGESTION.
+- **--config:** Outputs the current configuration of the CLI tool including the tool version, invalid tokens, the state of the DYNAMIC_WARNING_INDEX option, the custom TOKEN_PUNCTUATION_CONFIG value, the state of DISABLE_NAN_SUGGESTION, and the current ALLOW_NAN setting.
+- **--toggle-allow-nan:** Dynamically toggles the ALLOW_NAN setting at runtime. This allows users to change how 'NaN' inputs are handled without modifying environment variables manually.
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refined to optimize detection of invalid numeric inputs and now employs a helper function to generate standardized warning messages. Notably:
@@ -74,6 +75,7 @@ All arithmetic, statistical, logarithmic, and percentile commands now uniformly 
   You can customize the set of invalid tokens by setting the environment variable **INVALID_TOKENS**. Additionally, setting **DYNAMIC_WARNING_INDEX** to true will use actual input positions in warning messages. To allow 'NaN' as a valid input, set **INVALID_TOKENS** to an empty string and **ALLOW_NAN** to `true`.
   For custom punctuation trimming, set **TOKEN_PUNCTUATION_CONFIG** to a string of punctuation characters to be trimmed (e.g., "!,?"). Setting it to an empty string disables any trimming.
   To suppress correction suggestions in warnings for 'NaN', set **DISABLE_NAN_SUGGESTION** to `true`.
+  The new **--toggle-allow-nan** command allows you to change the ALLOW_NAN setting at runtime without restarting the tool.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -103,7 +105,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, and the new **--config** command. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG (now optimized with regex caching), and a new correction suggestion for NaN inputs (which can be disabled with DISABLE_NAN_SUGGESTION). The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands --median, --mode, --stddev, --log, --percentile, --geomean, the new **--config** command, and the new **--toggle-allow-nan** command for runtime NaN parsing configuration. It now supports shorthand aliases (-s, -m, -a, -d, -h, -g), global JSON flags (--json, --json-pretty), a configurable warning index mode via DYNAMIC_WARNING_INDEX, configurable punctuation stripping via TOKEN_PUNCTUATION_CONFIG (now optimized with regex caching), and a new correction suggestion for NaN inputs (which can be disabled with DISABLE_NAN_SUGGESTION). The JSON responses include metadata fields: **timestamp**, **version**, **executionDuration**, and **inputEcho**.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
