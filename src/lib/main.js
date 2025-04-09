@@ -27,7 +27,7 @@
  *
  * New Command: --toggle-allow-nan dynamically toggles the ALLOW_NAN setting for numeric parsing at runtime.
  *
- * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. All tokens are first trimmed of outer whitespace. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters are additionally trimmed from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed (although outer whitespace is still removed).
+ * New Command: --diagnose-nan provides a detailed diagnostic report for NaN token handling. It analyzes each input token, showing its original and trimmed forms, whether it was accepted as a valid number or rejected, the warning index, and any correction suggestions based on the current configuration. The output is available in both standard and JSON modes, and respects the --allow-nan-inline flag on a per-invocation basis.
  *
  * Note on 'NaN' Handling: The parser explicitly checks for tokens resembling 'NaN' in a case-insensitive manner, even if they are surrounded by extra punctuation or whitespace. Tokens with internal whitespace (e.g., 'N aN') are rejected. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string, ALLOW_NAN to 'true', or supply the --allow-nan-inline flag.
  *
@@ -68,7 +68,7 @@ function parseNumbers(args) {
         const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
         const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
         trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
-      } 
+      }
       // If empty string, no punctuation stripping is performed beyond whitespace
     } else {
       // default punctuation trimming: comma, period, semicolon, question mark, exclamation
@@ -106,7 +106,7 @@ function parseNumbers(args) {
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] [--allow-nan-inline] numbers...";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] [--allow-nan-inline] [--diagnose-nan] numbers...";
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -603,6 +603,112 @@ const commands = {
     const newValue = !current;
     process.env.ALLOW_NAN = newValue ? 'true' : 'false';
     sendSuccess("toggle-allow-nan", "ALLOW_NAN toggled to " + process.env.ALLOW_NAN);
+  },
+  "--diagnose-nan": async (args) => {
+    // New command to provide detailed diagnostics on NaN token handling
+    let diagnostics = [];
+    let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+    if (tokenPunctuationConfig === undefined) {
+      tokenPunctuationConfig = ",.;?!";
+    }
+    args.forEach((token, index) => {
+      let trimmed = token.trim();
+      if (tokenPunctuationConfig !== undefined) {
+        if (tokenPunctuationConfig !== "") {
+          const leadingRe = new RegExp(`^[${escapeRegex(tokenPunctuationConfig)}]+`);
+          const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
+          trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
+        }
+      }
+      let accepted = true;
+      let value = null;
+      let warning = "";
+      const warningIndex = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0;
+      if (trimmed === "") {
+        accepted = false;
+        warning = generateWarning(warningIndex, token);
+        diagnostics.push({
+          original: token,
+          trimmed,
+          accepted,
+          value,
+          warningIndex,
+          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+        });
+        return;
+      }
+      if (/\s/.test(trimmed)) {
+        accepted = false;
+        warning = generateWarning(warningIndex, token);
+        diagnostics.push({
+          original: token,
+          trimmed,
+          accepted,
+          value,
+          warningIndex,
+          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+        });
+        return;
+      }
+      if (trimmed.toLowerCase() === "nan") {
+        if ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") || inlineAllowNan) {
+          value = NaN;
+        } else {
+          accepted = false;
+          warning = generateWarning(warningIndex, token);
+        }
+        diagnostics.push({
+          original: token,
+          trimmed,
+          accepted,
+          value,
+          warningIndex,
+          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+        });
+        return;
+      }
+      const num = Number(trimmed);
+      if (isNaN(num)) {
+        accepted = false;
+        warning = generateWarning(warningIndex, token);
+        diagnostics.push({
+          original: token,
+          trimmed,
+          accepted,
+          value,
+          warningIndex,
+          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+        });
+      } else {
+        value = num;
+        diagnostics.push({
+          original: token,
+          trimmed,
+          accepted,
+          value,
+          warningIndex,
+          suggestion: ""
+        });
+      }
+    });
+    if (jsonMode) {
+      const output = {
+        command: "diagnose-nan",
+        diagnostics,
+        timestamp: new Date().toISOString(),
+        version: TOOL_VERSION,
+        executionDuration: Date.now() - __startTime,
+        inputEcho: __inputEcho
+      };
+      console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
+    } else {
+      let output = "NaN Diagnostic Report:\n";
+      diagnostics.forEach(d => {
+        output += `Original: ${d.original}, Trimmed: ${d.trimmed}, Accepted: ${d.accepted}, Value: ${d.value}, WarningIndex: ${d.warningIndex}, Suggestion: ${d.suggestion}\n`;
+      });
+      sendSuccess("diagnose-nan", output);
+    }
+    inlineAllowNan = false;
   }
 };
 

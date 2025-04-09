@@ -365,19 +365,50 @@ describe("CLI Behavior", () => {
     });
 
     test("inline flag does not persist across commands", async () => {
-      // Ensure ALLOW_NAN is false for this test
       process.env.ALLOW_NAN = "false";
       process.env.INVALID_TOKENS = "nan";
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      // First, use inline flag to allow NaN
       await main(["--allow-nan-inline", "--sum", "NaN", "5"]);
-      // Next command without inline flag should reject NaN
       await main(["--sum", "NaN", "5"]);
       expect(warnSpy).toHaveBeenCalled();
       warnSpy.mockRestore();
     });
   });
+
+  // New tests for the new --diagnose-nan command
+  describe("CLI Diagnose NaN Command", () => {
+    test("outputs diagnostic report in plain text mode", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--diagnose-nan", "  NaN ", "10", "abc", "!!NaN??", "N aN"]);
+      const output = logSpy.mock.calls[0][0];
+      expect(output).toContain("NaN Diagnostic Report:");
+      expect(output).toContain("Original:   NaN ");
+      expect(output).toContain("Original: abc");
+      expect(output).toContain("Original: !!NaN??");
+      expect(output).toContain("Original: N aN");
+      logSpy.mockRestore();
+    });
+
+    test("outputs diagnostic report in JSON mode", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--json", "--diagnose-nan", "NaN", "20", "bad token"]);
+      const output = tryParseJSON(logSpy.mock.calls[0][0]);
+      expect(output).toHaveProperty("command", "diagnose-nan");
+      expect(output).toHaveProperty("diagnostics");
+      expect(Array.isArray(output.diagnostics)).toBe(true);
+      expect(output).toHaveProperty("timestamp");
+      expect(typeof output.timestamp).toBe('string');
+      expect(isoRegex.test(output.timestamp)).toBe(true);
+      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("executionDuration");
+      expect(typeof output.executionDuration).toBe('number');
+      expect(output).toHaveProperty("inputEcho");
+      expect(output.inputEcho).toEqual(["--diagnose-nan", "NaN", "20", "bad token"]);
+      logSpy.mockRestore();
+    });
+  });
 });
+
 
 describe("Number Utilities", () => {
   test("escapeRegex escapes special characters", () => {
