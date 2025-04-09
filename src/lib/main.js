@@ -571,6 +571,10 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
+  // Ensure ALLOW_NAN is explicitly set to "false" if not defined, to avoid treating 'NaN' as valid
+  if (process.env.ALLOW_NAN === undefined) {
+    process.env.ALLOW_NAN = "false";
+  }
   // Save the current environment variables for INVALID_TOKENS and ALLOW_NAN to avoid test interference
   const savedInvalidTokens = process.env.INVALID_TOKENS;
   const savedAllowNan = process.env.ALLOW_NAN;
