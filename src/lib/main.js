@@ -15,9 +15,9 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing function now consistently normalizes tokens (trimming punctuation and whitespace) and rejects any token resembling 'NaN' unless explicitly allowed via configuration. This logic also properly applies dynamic or fixed warning indices and conditionally appends a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming punctuation and whitespace) and reject any token resembling 'NaN' unless allowed via configuration. They also apply dynamic or fixed warning indices and conditionally append a correction suggestion for NaN tokens based on configuration settings (ALLOW_NAN, INVALID_TOKENS, DISABLE_NAN_SUGGESTION).
  *
- * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position in the input as the warning index for invalid tokens, instead of using a fixed index.
+ * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position (1-indexed) in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
  * New Option: --summarize-warnings - When provided, aggregates duplicate warning messages into a summarized message instead of printing each individual warning.
  *
@@ -32,6 +32,65 @@
  * Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting DISABLE_NAN_SUGGESTION to 'true'.
  */
 
+// Integrated Number Utilities
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function generateWarning(pos, originalToken) {
+  let suggestion = "";
+  if (!(process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === "true")) {
+    suggestion = " Did you mean to allow NaN values?";
+  }
+  const indexText = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? `(position ${pos})` : "(position 0)";
+  return `${indexText}: ${originalToken}${suggestion}`;
+}
+
+function parseNumbers(args) {
+  let valid = [];
+  let invalid = [];
+  let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+  // If TOKEN_PUNCTUATION_CONFIG is undefined, use default punctuation stripping characters
+  if (tokenPunctuationConfig === undefined) {
+    tokenPunctuationConfig = ",.;?!";
+  }
+  args.forEach((token, index) => {
+    let trimmed = token;
+    if (tokenPunctuationConfig !== undefined) {
+      if (tokenPunctuationConfig !== "") {
+        // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
+        const leadingRe = new RegExp(`^[\\s${escapeRegex(tokenPunctuationConfig)}]+`);
+        const trailingRe = new RegExp(`[\\s${escapeRegex(tokenPunctuationConfig)}]+$`);
+        trimmed = token.replace(leadingRe, '').replace(trailingRe, '');
+      } // if empty string, no trimming is performed
+    } else {
+      // default punctuation trimming: comma, period, semicolon, question mark, exclamation
+      trimmed = token.replace(/^[\s,.;?!]+|[\s,.;?!]+$/g, '');
+    }
+    // Reject if token has internal whitespace.
+    if (/\s/.test(trimmed)) {
+      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      return;
+    }
+    // Check if token resembles 'NaN'
+    if (trimmed.toLowerCase() === "nan") {
+      if (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") {
+        valid.push(NaN);
+      } else {
+        invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      }
+      return;
+    }
+    const num = Number(trimmed);
+    if (isNaN(num)) {
+      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+    } else {
+      valid.push(num);
+    }
+  });
+  return { valid, invalid };
+}
+
 const TOOL_VERSION = '1.4.1-1';
 
 const usage =
@@ -45,14 +104,6 @@ let summarizeWarnings = false;
 // Global variables to hold start time and cleansed input for JSON metadata
 let __startTime = 0;
 let __inputEcho = [];
-
-// Cache for compiled regex patterns based on TOKEN_PUNCTUATION_CONFIG
-const regexCache = new Map();
-
-// Helper function to escape regex special characters
-function escapeRegex(str) {
-  return str.replace(/[-\[\]/{}()*+?.\\^$|]/g, '\\$&');
-}
 
 // Helper function to aggregate duplicate warnings
 function aggregateWarnings(warnings) {
@@ -88,11 +139,15 @@ function sendSuccess(command, result, warnings) {
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
-    console.log(String(result));
     if (finalWarnings && finalWarnings.length > 0) {
-      finalWarnings.forEach(warning => {
-        console.warn(warning);
-      });
+      if (!summarizeWarnings) {
+        finalWarnings.forEach(w => console.warn(w));
+        console.log(String(result));
+      } else {
+        console.log(String(result) + "\n" + finalWarnings.join("\n"));
+      }
+    } else {
+      console.log(String(result));
     }
   }
 }
@@ -114,106 +169,17 @@ function sendError(command, errorMessage, warnings) {
     };
     console.log(jsonPretty ? JSON.stringify(output, null, 2) : JSON.stringify(output));
   } else {
-    console.log(String(errorMessage));
     if (finalWarnings && finalWarnings.length > 0) {
-      finalWarnings.forEach(warning => {
-        console.warn(warning);
-      });
-    }
-  }
-}
-
-// Helper function to generate a standardized warning message for invalid tokens
-function generateWarning(pos, originalToken) {
-  // Normalize the token for comparison purposes
-  const token = originalToken.trim();
-  const normalizedToken = token.toLowerCase();
-  let warning = `(position ${pos}): ${token}`;
-  if (normalizedToken === 'nan') {
-    if (!(process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === 'true')) {
-      if (!(process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') && process.env.INVALID_TOKENS !== "") {
-        warning += " Did you mean to allow NaN values? Consider setting ALLOW_NAN to 'true' and INVALID_TOKENS to an empty string.";
-      }
-    }
-  }
-  return warning;
-}
-
-// Optimized helper function to parse numeric inputs with detailed error reporting
-function parseNumbers(raw) {
-  const valid = [];
-  const invalid = [];
-  const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
-
-  // Determine ALLOW_NAN in a case-insensitive manner
-  const allowNan = (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') ? true : false;
-
-  // Determine the list of tokens to reject based on ALLOW_NAN and INVALID_TOKENS env variable
-  let envInvalid = (typeof process.env.INVALID_TOKENS === 'string' && process.env.INVALID_TOKENS !== "")
-    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
-    : ['nan'];
-
-  // Retrieve or compile the punctuation trimming regex based on TOKEN_PUNCTUATION_CONFIG
-  const tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
-  let trimmingRegex = null;
-  if (regexCache.has(tokenPunctuationConfig)) {
-    trimmingRegex = regexCache.get(tokenPunctuationConfig);
-  } else {
-    if (tokenPunctuationConfig !== undefined) {
-      if (tokenPunctuationConfig === '') {
-        trimmingRegex = null;
+      if (!summarizeWarnings) {
+        finalWarnings.forEach(w => console.warn(w));
+        console.log(String(errorMessage));
       } else {
-        const customChars = escapeRegex(tokenPunctuationConfig) + "\s";
-        trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
+        console.log(String(errorMessage) + "\n" + finalWarnings.join("\n"));
       }
     } else {
-      trimmingRegex = /^[,.;?!\s]+|[,.;?!\s]+$/g;
-    }
-    regexCache.set(tokenPunctuationConfig, trimmingRegex);
-  }
-
-  // Updated consistent NaN handling: all variants are normalized and tokens with internal whitespace are rejected.
-  for (let i = 0; i < raw.length; i++) {
-    const token = raw[i];
-    const str = String(token);
-    // First trim whitespace, then remove punctuation per configured regex
-    let trimmed = str.trim();
-    let normalized = trimmingRegex ? trimmed.replace(trimmingRegex, '') : trimmed;
-    normalized = normalized.trim();
-
-    // Reject tokens with internal whitespace (e.g., 'N aN')
-    if (normalized && /\s/.test(normalized)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
-      continue;
-    }
-
-    // Skip if a flag is encountered
-    if (normalized.startsWith('--')) {
-      continue;
-    }
-    const tokenLower = normalized.toLowerCase();
-    // Special handling for 'NaN' with case-insensitive check
-    if (/^nan$/i.test(normalized)) {
-      if (allowNan) {
-        valid.push(NaN);
-      } else {
-        invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
-      }
-      continue;
-    }
-    // If token is in the configured invalid tokens
-    if (envInvalid.includes(tokenLower)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
-      continue;
-    }
-    const num = Number(normalized);
-    if (isNaN(num)) {
-      invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
-    } else {
-      valid.push(num);
+      console.log(String(errorMessage));
     }
   }
-  return { valid, invalid };
 }
 
 const commands = {
@@ -642,7 +608,7 @@ async function cliMain(args) {
   __inputEcho = [];
   __startTime = 0;
 
-  // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive) to avoid treating 'NaN' as valid
+  // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive)
   if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
     process.env.ALLOW_NAN = "false";
   }
@@ -711,4 +677,4 @@ if (process.env.NODE_ENV !== "test" && process.argv[1] === new URL(import.meta.u
   })();
 }
 
-export { cliMain as main, __test };
+export { cliMain as main, __test, escapeRegex, generateWarning, parseNumbers };
