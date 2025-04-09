@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeAll, afterAll } from "vitest";
 import { main, __test } from "../../src/lib/main.js";
 
 // Helper function to parse JSON from output
@@ -232,16 +232,27 @@ describe("CLI Behavior", () => {
   });
 
   // New test for aggregated warnings using --summarize-warnings flag
-  test("aggregates warnings when --summarize-warnings flag is provided", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
-    // In summarized mode, warnings should be aggregated into two summary messages: one for NaN and one for abc
-    expect(warnSpy).toHaveBeenCalledTimes(2);
-    const calls = warnSpy.mock.calls.map(call => call[0]);
-    expect(calls.some(msg => msg.includes("Token 'NaN' occurred 2 times"))).toBe(true);
-    expect(calls.some(msg => msg.includes("Token 'abc' occurred 3 times"))).toBe(true);
-    logSpy.mockRestore();
-    warnSpy.mockRestore();
+  describe("Aggregated Warnings", () => {
+    let originalInvalid;
+    beforeAll(() => {
+      originalInvalid = process.env.INVALID_TOKENS;
+      // Ensure that 'NaN' is considered invalid
+      process.env.INVALID_TOKENS = "nan";
+    });
+    afterAll(() => {
+      process.env.INVALID_TOKENS = originalInvalid;
+    });
+    test("aggregates warnings when --summarize-warnings flag is provided", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      await main(["--summarize-warnings", "--sum", "NaN", "NaN", "abc", "abc", "abc", "5"]);
+      // In summarized mode, warnings should be aggregated into two summary messages: one for NaN and one for abc
+      expect(warnSpy).toHaveBeenCalledTimes(2);
+      const calls = warnSpy.mock.calls.map(call => call[0]);
+      expect(calls.some(msg => msg.includes("Token 'NaN' occurred 2 times"))).toBe(true);
+      expect(calls.some(msg => msg.includes("Token 'abc' occurred 3 times"))).toBe(true);
+      logSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
   });
 });
