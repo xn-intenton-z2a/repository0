@@ -23,6 +23,8 @@
  *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
+ * New Enhancement: Configurable Punctuation Stripping. The parser now uses a configurable environment variable TOKEN_PUNCTUATION_CONFIG to define custom punctuation and whitespace trimming rules for numeric inputs. If TOKEN_PUNCTUATION_CONFIG is defined and non-empty, only the specified characters (plus whitespace) are stripped from the beginning and end of tokens. If TOKEN_PUNCTUATION_CONFIG is defined as an empty string, no punctuation stripping is performed.
+ *
  * Refactor: The input parsing function has been refactored to use a helper function for generating warning messages. For tokens that are invalid (either matching the configured disallowed tokens or resulting in NaN), a fixed positional index (0) is used by default to indicate their rejection, unless the DYNAMIC_WARNING_INDEX environment variable is set to true; in that case, the actual token index is used for the warning message.
  *
  * Note on 'NaN' Handling: The parser explicitly checks for the token 'nan' in a case-insensitive manner. In this update, inputs with extra surrounding punctuation or whitespace (e.g., ' NaN', 'NaN,', 'NaN?') are normalized before evaluation. If the token 'nan' is present and is configured as invalid (which is the default behavior when INVALID_TOKENS is not defined or is empty and ALLOW_NAN is not 'true'), it is rejected with an appropriate warning. To allow 'NaN' as a valid numeric value, set INVALID_TOKENS to an empty string and ALLOW_NAN to 'true'.
@@ -41,6 +43,11 @@ let summarizeWarnings = false;
 // Global variables to hold start time and cleansed input for JSON metadata
 let __startTime = 0;
 let __inputEcho = [];
+
+// Helper function to escape regex special characters
+function escapeRegex(str) {
+  return str.replace(/[-\[\]\/{}()*+?.\\^$|]/g, '\\$&');
+}
 
 // Helper function to aggregate duplicate warnings
 function aggregateWarnings(warnings) {
@@ -130,12 +137,32 @@ function parseNumbers(raw) {
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
     : ['nan'];
 
+  // Determine punctuation trimming pattern
+  // If TOKEN_PUNCTUATION_CONFIG is defined:
+  //   - If empty string, no trimming is applied.
+  //   - Otherwise, only characters in the provided set (plus whitespace) are trimmed from both ends.
+  let trimmingRegex = null;
+  if (process.env.TOKEN_PUNCTUATION_CONFIG !== undefined) {
+    if (process.env.TOKEN_PUNCTUATION_CONFIG === '') {
+      trimmingRegex = null;
+    } else {
+      const customChars = escapeRegex(process.env.TOKEN_PUNCTUATION_CONFIG) + "\\s";
+      trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
+    }
+  } else {
+    // Default punctuation characters
+    trimmingRegex = /^[,.;?!\s]+|[,.;?!\s]+$/g;
+  }
+
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
-    let str = String(token).trim();
-    // Normalize token by stripping leading/trailing punctuation and whitespace
-    // This ensures consistent handling of inputs such as ' NaN', 'NaN,', or 'NaN?' across all commands
-    let normalized = str.replace(/^[,.;?!\s]+|[,.;?!\s]+$/g, '').trim();
+    let str = String(token);
+    let normalized = str;
+    if (trimmingRegex) {
+      normalized = str.replace(trimmingRegex, '').trim();
+    } else {
+      normalized = str.trim();
+    }
     // Skip if a flag is encountered
     if (normalized.startsWith('--')) {
       continue;
@@ -536,10 +563,12 @@ const commands = {
     // Gather configuration details
     const invalidTokensValue = typeof process.env.INVALID_TOKENS === 'string' ? process.env.INVALID_TOKENS : 'nan';
     const dynamicWarning = process.env.DYNAMIC_WARNING_INDEX === 'true' ? 'enabled' : 'disabled';
+    const punctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG !== undefined ? process.env.TOKEN_PUNCTUATION_CONFIG : ',.;?!';
     const configDetails = {
       TOOL_VERSION,
       INVALID_TOKENS: invalidTokensValue,
-      DYNAMIC_WARNING_INDEX: dynamicWarning
+      DYNAMIC_WARNING_INDEX: dynamicWarning,
+      TOKEN_PUNCTUATION_CONFIG: punctuationConfig
     };
     if (jsonMode) {
       const output = {
@@ -556,6 +585,7 @@ const commands = {
       output += `TOOL_VERSION: ${TOOL_VERSION}\n`;
       output += `INVALID_TOKENS: ${invalidTokensValue}\n`;
       output += `DYNAMIC_WARNING_INDEX: ${dynamicWarning}\n`;
+      output += `TOKEN_PUNCTUATION_CONFIG: ${punctuationConfig}\n`;
       sendSuccess("config", output);
     }
   }
