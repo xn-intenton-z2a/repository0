@@ -21,6 +21,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--geomean:** Compute the geometric mean of positive numbers.
 - **--config:** Display the current CLI configuration including tool version and environment settings.
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
+- **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings.
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN,", or "NaN?" are consistently processed based on the environment variables:
@@ -66,7 +67,7 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
 
 - **Configuration:**
-  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool.
+  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control.
 
 - **Documentation:**
   This README, along with [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE), provide guidelines and details for effective use and contribution.
@@ -96,7 +97,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, and the **--toggle-allow-nan** command for runtime NaN configuration. In addition, warnings for invalid inputs are now output via `console.warn` in non-JSON mode. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, and the new **--allow-nan-inline** flag for per-command NaN acceptance. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 

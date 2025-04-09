@@ -347,6 +347,34 @@ describe("CLI Behavior", () => {
       warnSpy.mockRestore();
     });
   });
+
+  // NEW tests for inline --allow-nan-inline flag
+  describe("Inline Allow NaN Flag", () => {
+    test("allows NaN tokens when --allow-nan-inline flag is provided", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      await main(["--allow-nan-inline", "--sum", "NaN", "5"]);
+      // In JavaScript, arithmetic with NaN results in NaN
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("NaN"));
+      // Since inline flag is used, warnings for NaN should be suppressed
+      expect(warnSpy).not.toHaveBeenCalled();
+      logSpy.mockRestore();
+      warnSpy.mockRestore();
+    });
+
+    test("inline flag does not persist across commands", async () => {
+      // Ensure ALLOW_NAN is false for this test
+      process.env.ALLOW_NAN = "false";
+      process.env.INVALID_TOKENS = "nan";
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      // First, use inline flag to allow NaN
+      await main(["--allow-nan-inline", "--sum", "NaN", "5"]);
+      // Next command without inline flag should reject NaN
+      await main(["--sum", "NaN", "5"]);
+      expect(warnSpy).toHaveBeenCalled();
+      warnSpy.mockRestore();
+    });
+  });
 });
 
 describe("Number Utilities", () => {
