@@ -59,8 +59,8 @@ function parseNumbers(args) {
     if (tokenPunctuationConfig !== undefined) {
       if (tokenPunctuationConfig !== "") {
         // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
-        const leadingRe = new RegExp(`^[\s${escapeRegex(tokenPunctuationConfig)}]+`);
-        const trailingRe = new RegExp(`[\s${escapeRegex(tokenPunctuationConfig)}]+$`);
+        const leadingRe = new RegExp(`^[\\s${escapeRegex(tokenPunctuationConfig)}]+`);
+        const trailingRe = new RegExp(`[\\s${escapeRegex(tokenPunctuationConfig)}]+$`);
         trimmed = token.replace(leadingRe, '').replace(trailingRe, '');
       } // if empty string, no trimming is performed
     } else {

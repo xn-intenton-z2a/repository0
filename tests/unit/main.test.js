@@ -353,7 +353,7 @@ describe("Number Utilities", () => {
   test("escapeRegex escapes special characters", () => {
     const input = "[test]*.?";
     const escaped = escapeRegex(input);
-    expect(escaped).toBe("\\[test\\]\\*\.\\?");
+    expect(escaped).toBe("\\[test\\]\\*\\.\\?");
   });
 
   test("generateWarning returns expected warning for NaN token with suggestion", () => {
