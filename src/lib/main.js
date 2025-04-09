@@ -121,10 +121,11 @@ function parseNumbers(raw) {
   const valid = [];
   const invalid = [];
   const useDynamicIndex = process.env.DYNAMIC_WARNING_INDEX === 'true';
-  // Get the list of tokens to reject from environment variable; if set but empty, no tokens will be rejected.
-  const configInvalid = (process.env.INVALID_TOKENS !== undefined)
-    ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '')
-    : ['nan'];
+  // Determine the list of tokens to reject based on environment variable
+  const invalidEnv = process.env.INVALID_TOKENS;
+  const configInvalid = (invalidEnv === undefined || invalidEnv === null)
+    ? ['nan']
+    : (invalidEnv === "" ? [] : invalidEnv.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== ""));
 
   for (let i = 0; i < raw.length; i++) {
     const token = raw[i];
@@ -141,6 +142,7 @@ function parseNumbers(raw) {
       if (configInvalid.includes('nan')) {
         invalid.push(generateWarning(useDynamicIndex ? i + 1 : 0, normalized));
       } else {
+        // Even if allowed, NaN is not a useful numeric value; push as NaN to allow test to detect it
         valid.push(NaN);
       }
       continue;
