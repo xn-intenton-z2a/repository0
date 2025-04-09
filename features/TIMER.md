@@ -1,33 +1,40 @@
-# TIMER with NOTIFICATION
+# TIMER with NOTIFICATION & SCHEDULING
 
 ## Overview
-This update enhances the existing TIMER feature by adding an optional notification mechanism. In addition to its primary function of executing a countdown timer, the timer now supports a new flag `--notify` which, when enabled, triggers a desktop notification (or audible alert) to inform the user when the countdown has completed. This improvement is designed to help users engage in multitasking workflows where they can be alerted upon timer completion without needing to continuously monitor the CLI.
+This update enhances the existing TIMER feature by not only providing a countdown timer with an optional desktop notification, but also by incorporating a scheduled command execution capability. In addition to its primary role of notifying users when a timer expires, the TIMER feature can now be used to trigger subsequent CLI commands automatically. This streamlines workflows by allowing users to schedule follow-up actions without manual intervention, thereby reinforcing the repository’s mission of promoting healthy collaboration and practical automation.
 
 ## CLI Integration
-- **Command Addition:** The `--timer` CLI flag remains available as before. Now, users can append an optional `--notify` flag to their command:
-  - Example: `node src/lib/main.js --timer 10 --notify`
-- **Notification Flag:** The `--notify` flag is optional and can be combined with existing modes (plain text or JSON output). When enabled, the system will attempt to trigger a desktop notification as well as the usual CLI output.
+- **Command Flags:** The existing `--timer` flag is retained for setting the countdown duration. The `--notify` flag remains available to trigger a desktop notification (or audible alert) when the countdown ends.
+- **New Scheduling Option:** A new optional flag `--schedule` can be appended along with a command string. When provided, the CLI will execute the specified command automatically after the timer reaches zero. For example:
+  - `node src/lib/main.js --timer 10 --notify --schedule "--greet"`
+    - This command starts a 10-second timer, sends a notification upon expiration, and then automatically runs the `--greet` command.
 
-## Timer Logic & Notification Integration
-- **Timer Countdown:** The timer accepts a single numeric argument representing the duration in seconds. The countdown function will wait for the specified duration before completing.
-- **Notification Mechanism:** Upon completion, if the `--notify` flag is set, the following actions are performed:
-  - **Desktop Notification:** The CLI will invoke a notification function that leverages system capabilities (or an optional library such as `node-notifier` if available) to display a system-level message (e.g., using native OS notifications or a beep sound).
-  - **Fallback:** In environments where desktop notifications are unsupported, the CLI will display an additional alert message in the console (e.g., prepending the message with a sound emoji or text indicating an alert).
-- **Output Modes:** In non-JSON mode, the notification is shown as a native desktop alert (if possible) and a console message saying "Timer finished!". In JSON mode, the response will include an extra field, e.g., "notified": true, to indicate that a notification was dispatched.
+## Timer Logic, Notification, and Scheduled Execution
+- **Timer Countdown:** The CLI accepts a numeric duration (in seconds) and initiates a countdown. It then waits for the specified duration before proceeding.
+- **Notification Mechanism:** Upon completion of the countdown:
+  - If `--notify` is enabled, the system attempts to trigger a native desktop notification or, if unsupported, displays an alert message in the console (e.g., "Timer finished!").
+  - Output modes are supported both in plain text and JSON with metadata updates.
+- **Scheduled Command Execution:**
+  - **Activation:** When the `--schedule` flag is provided along with a valid CLI command (as a string), after the timer completes and any notification is dispatched, the tool automatically processes the scheduled command using the same CLI logic.
+  - **Execution:** The scheduled command is executed in the same runtime environment, and its output is displayed immediately following the timer’s output. If JSON mode is active, the scheduled command’s output is also returned with the usual metadata fields.
+  - **Fallback:** If execution of the scheduled command fails or yields an error, an error message is displayed or logged appropriately.
 
 ## Error Handling & Validation
-- **Input Validation:** As before, the command validates that the provided duration is a positive numeric value. If the input is missing or invalid, the command returns a standardized error: "Error: Invalid timer duration provided.".
-- **Notification Errors:** If the notification mechanism fails (e.g., due to missing system support or library issues), the error is caught and a warning message is appended to the output without impacting the timer’s core functionality.
+- **Input Validation:**
+  - The timer duration must be a positive numeric value. If the input is missing or invalid, a standardized error message is generated (e.g., "Error: Invalid timer duration provided.").
+  - If the scheduled command string is provided, it is validated to ensure it is not empty.
+- **Notification & Scheduling Errors:**
+  - Notification failures are caught and reported as warnings without halting the timer’s functionality.
+  - Any errors during the execution of the scheduled command are captured, and an error message is displayed, ensuring the tool remains robust.
 
 ## Testing & Documentation
-- **Unit Tests:** New tests should simulate timer completion with and without the `--notify` flag, verifying that:
-  - The timer completes as expected.
-  - In notification mode, a notification is triggered or an appropriate fallback message is displayed.
-  - Both plain text and JSON outputs include the intended notification indicator.
-- **Documentation:** Update the README and CLI usage docs to include new examples:
-  - Example: `node src/lib/main.js --timer 10 --notify` (non-JSON output)
-  - Example with JSON: `node src/lib/main.js --json --timer 10 --notify`
-  - Inline comments in `src/lib/main.js` should detail the new notification logic and any platform-specific considerations.
+- **Unit Tests:** Tests will simulate timer completion with and without the `--notify` flag, as well as with the new `--schedule` option. Scenarios include successful command execution, failures in scheduled command execution, and proper error handling when inputs are invalid.
+- **Documentation:**
+  - Update the README to include examples demonstrating the new scheduling functionality.
+  - For instance, document usage patterns such as:
+    - `node src/lib/main.js --timer 10 --notify --schedule "--greet"`
+    - `node src/lib/main.js --timer 5 --schedule "--sum 4 5"`
+  - Inline comments in `src/lib/main.js` are updated to explain the scheduling logic and its integration with existing timer functions.
 
 ## Alignment with Repository Mission
-Integrating desktop notifications enhances user experience by reducing the need for constant manual monitoring, thus promoting proactive workflow management. This update aligns with the repository’s mission of fostering healthy collaboration and streamlined automation by enhancing the modular, single-source CLI utility with practical usability improvements.
+By integrating scheduled command execution into the TIMER feature, this enhancement further supports automation workflows and reduces the need for manual intervention. It enables users to chain commands in a predictable manner and optimizes the utility of the CLI tool for proactive task management, thus aligning well with the repository’s mission of fostering healthy collaboration and streamlined automation in a modular, self-contained environment.
