@@ -25,12 +25,14 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and now also the token character range (trimStart and trimEnd) within the original token that was preserved after trimming. This additional information helps identify exactly which characters were removed during processing.
 
 ### Enhanced Input Parsing Details
-The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN," or "NaN?" are consistently processed based on the environment variables:
+The input parsing mechanism has been refactored for improved modularity and performance. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN," or "NaN?" are consistently processed based on the environment variables:
 - **ALLOW_NAN:** When set to `true`, allows 'NaN' as a valid numeric input.
 - **INVALID_TOKENS:** A list of tokens to reject (default rejects variants of "NaN").
 - **TOKEN_PUNCTUATION_CONFIG:** Specifies custom punctuation characters to trim from tokens. If undefined, defaults to ",.;?!". An empty string disables punctuation stripping but still trims outer whitespace.
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
+
+**Performance Optimization:** The NaN token parsing now employs a caching mechanism to store results of repetitive regex operations. This significantly improves performance when processing high-volume input (e.g., over 100,000 tokens) without changing the functional behavior.
 
 **Note:** In non-JSON mode, warnings for invalid tokens are output via `console.warn`. Tokens that become empty after trimming are now considered invalid.
 
@@ -101,7 +103,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, improved handling of NaN tokens, and enhanced diagnostics with token character range information are all supported. The inline NaN flag now resets immediately after each command invocation to ensure predictable behavior.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, improved handling of NaN tokens, enhanced diagnostics with token character range information, and performance optimizations via caching for high-volume token processing are all supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
