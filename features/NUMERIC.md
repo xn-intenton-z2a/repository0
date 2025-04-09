@@ -1,37 +1,23 @@
 # NUMERIC
 
 ## Overview
-
-This feature consolidates various arithmetic, statistical, combinatorial, and complex number operations into a unified numerical utilities module within the CLI tool. In addition to the original capabilities such as basic arithmetic (addition, subtraction, multiplication, division, modulo), advanced statistics (median, mode, standard deviation, percentile, geometric mean, variance, Fibonacci, GCD, LCM, and prime detection), complex number arithmetic, and basic calculus operations (numerical differentiation and integration), this update extends the module to include **financial calculations**. This integration enriches the module with practical tools for computing simple and compound interest as well as EMI (Equated Monthly Installments) for loan evaluations.
+This feature consolidates arithmetic, statistical, combinatorial, and complex number operations into a unified numerical utilities module within the CLI tool. In addition to basic arithmetic (addition, subtraction, multiplication, division, modulo), advanced statistics (median, mode, standard deviation, percentile, geometric mean, variance, Fibonacci, GCD, LCM, and prime detection), complex number arithmetic, and basic calculus operations (numerical differentiation and integration), this update integrates a comprehensive NaN diagnostics submodule. The diagnostics component analyzes and reports input token issues—especially those resembling 'NaN'—including trimmed values, warning indices, and the preserved character range (trimStart and trimEnd).
 
 ## CLI Integration
-
-In addition to the existing commands, three new sub-commands are introduced:
-
-- **Simple Interest (`--simple-interest`):**
-  - **Usage:** `node src/lib/main.js --simple-interest <principal> <rate> <time>`
-  - **Description:** Calculates the simple interest using the formula: _SI = (principal × rate × time) / 100_.
-
-- **Compound Interest (`--compound-interest`):**
-  - **Usage:** `node src/lib/main.js --compound-interest <principal> <rate> <time>`
-  - **Description:** Computes the compound interest where the total amount is calculated as _Amount = principal * (1 + rate/100)^time_ and then the compound interest is _Amount - principal_.
-
-- **EMI Calculator (`--emi`):**
-  - **Usage:** `node src/lib/main.js --emi <principal> <annual_rate> <tenure_in_months>`
-  - **Description:** Estimates the monthly installment using the formula: _EMI = [principal * monthlyRate * (1+monthlyRate)^n] / [(1+monthlyRate)^n - 1]_, where _monthlyRate = annual_rate / (12*100)_ and _n_ is the number of months.
+- **Primary Commands:** Commands such as `--sum`, `--subtract`, `--average`, etc., continue to operate as before.
+- **New Diagnostic Sub-Command:**
+  - **Command Flag:** `--diagnose-nan`
+  - **Usage:** `node src/lib/main.js --diagnose-nan <token1> <token2> ...`
+  - **Description:** Analyzes input tokens for numeric parsing issues. Reports the original token, its trimmed form, the indices of the characters that were preserved (trimStart and trimEnd), whether the token was accepted, and provides suggestions when tokens resembling 'NaN' are rejected.
 
 ## Implementation Details
+- **Unified Parsing:** The parsing mechanism now trims outer whitespace and applies configurable punctuation stripping based on `TOKEN_PUNCTUATION_CONFIG`. A caching mechanism improves performance when processing high volumes of tokens.
+- **NaN Handling:** Integration of environment variables (e.g., `ALLOW_NAN`, `INVALID_TOKENS`, `DISABLE_NAN_SUGGESTION`, `DYNAMIC_WARNING_INDEX`) ensures flexible treatment of tokens. The module rejects or accepts tokens resembling 'NaN' based on configuration, with appropriate warnings.
+- **Diagnostics Integration:** The `--diagnose-nan` command has been merged into the NUMERIC feature. It provides detailed diagnostics, including the exact character ranges (trimStart and trimEnd) from the original tokens, offering users clear insights to resolve input issues.
 
-- **Financial Computations:**
-  - These calculations are implemented as additional command branches within the NUMERIC module. They perform input validation, ensuring that the provided parameters are numeric and positive where required.
-  - The functions will provide clear error messages if inputs are missing or invalid.
-
-- **CLI Output Modes:**
-  - As with all commands, these new financial functions support both plain text and JSON output modes. In JSON mode (activated via the `--json` or `--json-pretty` flags), responses include metadata such as timestamp, version, execution duration, and input echo.
-
-- **Error Handling & Testing:**
-  - Each new command includes unit tests for both typical and edge-case scenarios to ensure reliable operation. The documentation and README will be updated to include usage examples.
+## Testing & Documentation
+- Comprehensive unit tests validate standard arithmetic operations and the enhanced NaN diagnostics functionality. Tests cover edge cases such as varied punctuations and internal whitespace in tokens.
+- Documentation in the README and CLI guides has been updated to include examples of how to invoke and interpret the diagnostic output.
 
 ## Alignment with Repository Mission
-
-By updating the NUMERIC module to include financial calculations, this enhancement provides users with practical tools for common financial computations. This practical addition supports the repository’s mission of promoting streamlined automation and healthy collaboration through a self-contained, modular CLI utility that addresses a broader range of everyday computational needs.
+By merging the dedicated NaN diagnostics functionality into the NUMERIC feature, this update enhances error transparency in numerical processing while keeping the repository streamlined. This integration supports the repository’s mission of promoting healthy collaboration and delivering robust, self-contained CLI utilities without adding unnecessary complexity.
