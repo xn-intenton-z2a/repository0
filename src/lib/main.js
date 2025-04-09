@@ -130,7 +130,7 @@ function parseNumbers(raw) {
     const token = raw[i];
     let str = String(token).trim();
     // Normalize token by stripping leading/trailing punctuation and whitespace, then trim again
-    let normalized = str.replace(/^[,.;?!\s]+|[,.;?!\s]+$/g, '').trim();
+    let normalized = str.replace(new RegExp('^[,.;?!\\s]+|[,.;?!\\s]+$', 'g'), '').trim();
     // Skip if a flag is encountered
     if (normalized.startsWith('--')) {
       continue;
