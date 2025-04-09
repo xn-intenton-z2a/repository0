@@ -1,19 +1,22 @@
 {
   "openIssues": 100,
-  "issuesClosedLastHour": 8,
-  "issuesClosedLastDay": 67,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Added the new --diagnose-nan command for detailed NaN diagnostics and updated tests README and package version. (fixes #1018)",
-      "ageMinutes": 2
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 1,
+  "issuesClosedLastHour": 10,
+  "issuesClosedLastDay": 69,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 3,
+  "diffMinutesMain": 3,
   "commitsLastHour": 11,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "15:05",
+      "message": "Added the new --diagnose-nan command for detailed NaN diagnostic..."
+    },
+    {
+      "time": "15:03",
+      "message": "Maintain CONFIG_AUDIT"
+    },
     {
       "time": "14:56",
       "message": "Maintain AUDIT"
@@ -25,27 +28,14 @@
     {
       "time": "14:43",
       "message": "Finalize inline --allow-nan-inline flag scope and behavior to en..."
-    },
-    {
-      "time": "14:42",
-      "message": "Maintain CONVERSION"
-    },
-    {
-      "time": "14:34",
-      "message": "Refactored the NaN handling logic to use a tryfinally block in c..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1018",
-        "minutesSinceLastCommit": 3
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 2,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-09T14:57:36.391Z"
+  "generatedAt": "2025-04-09T15:09:39.887Z"
 }
