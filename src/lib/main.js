@@ -69,10 +69,15 @@ function parseNumbers(args) {
         const trailingRe = new RegExp(`[${escapeRegex(tokenPunctuationConfig)}]+$`);
         trimmed = trimmed.replace(leadingRe, '').replace(trailingRe, '');
       } 
-      // If empty string, no punctuation stripping is performed
+      // If empty string, no punctuation stripping is performed beyond whitespace
     } else {
       // default punctuation trimming: comma, period, semicolon, question mark, exclamation
       trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
+    }
+    // If token becomes empty after trimming, consider it invalid
+    if (trimmed === "") {
+      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      return;
     }
     // Reject if token has internal whitespace.
     if (/\s/.test(trimmed)) {
@@ -567,7 +572,8 @@ const commands = {
       DYNAMIC_WARNING_INDEX: dynamicWarning,
       TOKEN_PUNCTUATION_CONFIG: punctuationConfig,
       DISABLE_NAN_SUGGESTION: process.env.DISABLE_NAN_SUGGESTION || 'false',
-      ALLOW_NAN: process.env.ALLOW_NAN || 'false'
+      ALLOW_NAN: process.env.ALLOW_NAN || 'false',
+      inlineAllowNan: inlineAllowNan.toString()
     };
     if (jsonMode) {
       const output = {
@@ -587,6 +593,7 @@ const commands = {
       output += `TOKEN_PUNCTUATION_CONFIG: ${punctuationConfig}\n`;
       output += `DISABLE_NAN_SUGGESTION: ${process.env.DISABLE_NAN_SUGGESTION || 'false'}\n`;
       output += `ALLOW_NAN: ${process.env.ALLOW_NAN || 'false'}\n`;
+      output += `inlineAllowNan: ${inlineAllowNan}\n`;
       sendSuccess("config", output);
     }
   },

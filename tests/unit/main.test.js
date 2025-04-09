@@ -170,6 +170,7 @@ describe("CLI Behavior", () => {
       expect(output).toContain("TOKEN_PUNCTUATION_CONFIG:");
       expect(output).toContain("DISABLE_NAN_SUGGESTION:");
       expect(output).toContain("ALLOW_NAN:");
+      expect(output).toContain("inlineAllowNan:");
       logSpy.mockRestore();
     });
 
@@ -185,6 +186,7 @@ describe("CLI Behavior", () => {
       expect(output.config).toHaveProperty("TOKEN_PUNCTUATION_CONFIG");
       expect(output.config).toHaveProperty("DISABLE_NAN_SUGGESTION");
       expect(output.config).toHaveProperty("ALLOW_NAN");
+      expect(output.config).toHaveProperty("inlineAllowNan");
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
