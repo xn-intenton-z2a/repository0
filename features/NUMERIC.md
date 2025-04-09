@@ -1,32 +1,31 @@
 # NUMERIC
 
 ## Overview
-This feature consolidates all arithmetic and statistical operations in the CLI tool into a cohesive numerical utilities module. This module includes basic arithmetic (addition, subtraction, multiplication, division, modulo) as well as advanced computations (power, factorial, square root, median, mode, standard deviation, percentile, geometric mean, range, factors, variance, Fibonacci, GCD, LCM, and prime detection). It also leverages the enhanced input parsing mechanism with configurable NaN handling, punctuation stripping, and aggregated warning summaries.
+This feature consolidates all arithmetic, statistical, and combinatorial operations into a cohesive numerical utilities module within the CLI tool. In addition to basic arithmetic (addition, subtraction, multiplication, division, modulo) and advanced computations (power, factorial, square root, median, mode, standard deviation, percentile, geometric mean, range, factors, variance, Fibonacci, GCD, LCM, prime detection), this updated module now includes combinatorial functions. These new functions compute permutations (nPr) and combinations (nCr) using factorial-based formulas, providing users with a broader toolkit for mathematical operations.
 
 ## CLI Integration
-- **Command Flags and Aliases:** 
+- **Command Flags and Aliases:**
   - Basic operations are invoked via flags such as `--sum` (alias `-s`), `--subtract`, `--multiply` (alias `-m`), `--divide` (alias `-d`), and `--modulo`.
-  - Advanced operations include flags like `--power`, `--factorial`, `--sqrt`, `--median`, `--mode`, `--stddev`, `--percentile`, `--geomean`, `--range`, `--factors`, `--variance`, `--fibonacci`, `--gcd`, `--lcm`, `--prime`, and `--log`.
-- **Global JSON Output Mode:** The feature supports both standard and JSON output (with optional pretty-printing), ensuring consistent output formatting across all numeric commands.
-- **Enhanced Input Parsing:** Utilizes the centralized numeric parser that handles dynamic punctuation stripping, configurable invalid token recognition, robust 'NaN' management, and dynamic warning index reporting.
+  - Advanced operations include flags like `--power`, `--factorial`, `--sqrt`, `--median`, `--mode`, `--stddev`, `--percentile`, `--geomean`, `--range`, `--factors`, `--variance`, `--fibonacci`, `--gcd`, `--lcm`, and `--prime`.
+  - **New Combinatorial Operations:**
+    - `--npr`: Computes permutations (nPr) given two non-negative integers n and r using the formula nPr = n! / (n-r)! with input validation ensuring n ≥ r.
+    - `--ncr`: Computes combinations (nCr) given two non-negative integers n and r using the formula nCr = n! / (r! * (n-r)!) with proper validation of inputs.
+- **Global JSON Output Mode:** Supports both standard and JSON outputs (with optional pretty-printing) that include metadata such as timestamp, version, execution duration, and echo of cleaned input values.
 
 ## Implementation Details
 - **Operation Logic:**
-  - Arithmetic commands process a list of numeric inputs and return the computed result along with metadata (timestamp, version, execution duration, and input echo).
-  - Advanced statistical commands compute values based on standard mathematical formulas. For example, median calculates the middle value (or average of two middle numbers) and standard deviation uses the population variance formula.
-  - Error conditions (such as invalid or insufficient numeric inputs) trigger uniform error messages with detailed warnings.
-
-- **Input Validation & Error Handling:**
-  - The parser ensures numeric inputs are clean and valid, with specific checks for tokens resembling 'NaN'.
-  - Configuration options, like `ALLOW_NAN`, `INVALID_TOKENS`, and `TOKEN_PUNCTUATION_CONFIG`, are used to tailor input processing.
-  - In cases of division by zero or improperly formatted inputs, clear error messages are returned.
+  - **Arithmetic & Statistical Commands:** Process lists of numeric inputs using standard mathematical formulas with consistent error messaging for invalid or insufficient inputs.
+  - **Combinatorial Functions:**
+    - **Permutation (`--npr`):** Validates that inputs are non-negative integers and that n is greater than or equal to r. Computes nPr using the factorial formula.
+    - **Combination (`--ncr`):** Performs similar validations and computes nCr using the standard formula.
+  - **Input Validation & Parsing:** Utilizes an enhanced parser that trims whitespace and configurable punctuation, handles tokens resembling "NaN" according to the environment configuration, and aggregates warning messages.
 
 ## Testing & Documentation
-- **Unit Tests:** A suite of tests ensures each computation (both basic and advanced) works as expected. Tests verify proper fallback when invalid inputs arise, and validate JSON output mode alongside aggregated warnings.
-- **Documentation:** The README and CLI usage guides are updated to include examples such as:
-  - Basic: `node src/lib/main.js --sum 3 4 5`
-  - Advanced: `node src/lib/main.js --percentile 75 10 20 30 40 50 60`
-  - Error Handling: Detailed warning messages for invalid tokens including NaN and punctuation cases.
+- **Unit Tests:** Expanded tests will cover the new `--npr` and `--ncr` commands to ensure accurate computations and proper error handling under various edge cases.
+- **Documentation:** The README and CLI usage guides will be updated with examples such as:
+  - `node src/lib/main.js --npr 5 3`
+  - `node src/lib/main.js --ncr 5 3`
+  Detailed inline comments and a dedicated section in the user guide will explain the combinatorial formulas and input requirements.
 
 ## Alignment with Repository Mission
-The NUMERIC feature enhances the repository’s role as a modular CLI tool by consolidating key mathematical operations into a single feature. It supports the mission of promoting healthy collaboration and streamlined automation through self-contained, well-documented, and easily extendable utilities.
+Enhancing the NUMERIC module to include combinatorial functions aligns with the repository’s mission of promoting streamlined automation and healthy collaboration. This update broadens the scope of mathematical operations available in a single, self-contained module while maintaining clear, consistent documentation and error handling mechanisms.
