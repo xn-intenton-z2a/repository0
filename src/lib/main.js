@@ -59,8 +59,9 @@ function parseNumbers(args) {
     if (tokenPunctuationConfig !== undefined) {
       if (tokenPunctuationConfig !== "") {
         // Use custom punctuation trimming based on TOKEN_PUNCTUATION_CONFIG
-        const re = new RegExp(`^[\s${escapeRegex(tokenPunctuationConfig)}]+|[\s${escapeRegex(tokenPunctuationConfig)}]+$`, 'g');
-        trimmed = token.replace(re, '');
+        const leadingRe = new RegExp(`^[\s${escapeRegex(tokenPunctuationConfig)}]+`);
+        const trailingRe = new RegExp(`[\s${escapeRegex(tokenPunctuationConfig)}]+$`);
+        trimmed = token.replace(leadingRe, '').replace(trailingRe, '');
       } // if empty string, no trimming is performed
     } else {
       // default punctuation trimming: comma, period, semicolon, question mark, exclamation
