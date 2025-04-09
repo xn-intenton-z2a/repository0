@@ -44,6 +44,9 @@ let summarizeWarnings = false;
 let __startTime = 0;
 let __inputEcho = [];
 
+// Cache for compiled regex patterns based on TOKEN_PUNCTUATION_CONFIG
+const regexCache = new Map();
+
 // Helper function to escape regex special characters
 function escapeRegex(str) {
   return str.replace(/[-\[\]/{}()*+?.\\^$|]/g, '\\$&');
@@ -148,21 +151,23 @@ function parseNumbers(raw) {
     ? process.env.INVALID_TOKENS.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== "")
     : ['nan'];
 
-  // Determine punctuation trimming pattern
-  // If TOKEN_PUNCTUATION_CONFIG is defined:
-  //   - If empty string, no trimming is applied.
-  //   - Otherwise, only characters in the provided set (plus whitespace) are trimmed from both ends.
+  // Retrieve or compile the punctuation trimming regex based on TOKEN_PUNCTUATION_CONFIG
+  const tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
   let trimmingRegex = null;
-  if (process.env.TOKEN_PUNCTUATION_CONFIG !== undefined) {
-    if (process.env.TOKEN_PUNCTUATION_CONFIG === '') {
-      trimmingRegex = null;
-    } else {
-      const customChars = escapeRegex(process.env.TOKEN_PUNCTUATION_CONFIG) + "\s";
-      trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
-    }
+  if (regexCache.has(tokenPunctuationConfig)) {
+    trimmingRegex = regexCache.get(tokenPunctuationConfig);
   } else {
-    // Default punctuation characters
-    trimmingRegex = /^[,.;?!\s]+|[,.;?!\s]+$/g;
+    if (tokenPunctuationConfig !== undefined) {
+      if (tokenPunctuationConfig === '') {
+        trimmingRegex = null;
+      } else {
+        const customChars = escapeRegex(tokenPunctuationConfig) + "\\s";
+        trimmingRegex = new RegExp(`^[${customChars}]+|[${customChars}]+$`, 'g');
+      }
+    } else {
+      trimmingRegex = /^[,.;?!\s]+|[,.;?!\s]+$/g;
+    }
+    regexCache.set(tokenPunctuationConfig, trimmingRegex);
   }
 
   // Updated consistent NaN handling: all variants are normalized and tokens with internal whitespace are rejected.
