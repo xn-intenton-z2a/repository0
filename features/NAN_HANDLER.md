@@ -1,30 +1,25 @@
 # NAN_HANDLER Feature Specification
 
 ## Overview
-This feature introduces robust handling for NaN (Not a Number) values throughout the CLI operations of the repository. It centralizes environment configuration to ensure consistent behavior while managing NaN values. Users can dynamically enable, configure, and diagnose NaN handling using dedicated command-line flags.
+This update enhances the existing NAN_HANDLER functionality to support a broader range of configurable behaviors for improved CLI interactions. In addition to robust handling of NaN (Not a Number) values, this update introduces new capabilities including JSON output mode with metadata, configurable warning index settings, punctuation stripping, and suppression of NaN correction suggestions. This centralized approach ensures consistent behavior across the repository while maintaining easy runtime configuration via dedicated CLI flags.
 
-## Implementation
-- **CLI Flags:**
-  - `--toggle-allow-nan`: Enables or disables runtime configuration of NaN handling.
-  - `--allow-nan-inline`: Allows per-command inline acceptance of NaN values.
-  - `--diagnose-nan`: Provides detailed diagnostic output related to NaN occurrences and configurations.
-  - `--ignore-invalid`: Bypasses invalid tokens during command parsing.
-- **Centralized Configuration:**
-  - Integrate a central module to manage and expose the NaN configuration to relevant parts of the application.
-  - Ensure that NaN handling logic is accessible across the repository, especially within the main CLI entry point (`src/lib/main.js`).
-- **Integration with Existing Structure:**
-  - Update the main execution logic to parse and apply these flags appropriately.
-  - Ensure that existing workflows can benefit from enhanced NaN handling without disruption.
+## CLI Flags and Configuration
+- **--toggle-allow-nan:** Enables or disables runtime configuration of NaN handling.
+- **--allow-nan-inline:** Allows per-command inline acceptance of NaN values.
+- **--diagnose-nan:** Provides detailed diagnostic output regarding NaN occurrences and configuration states.
+- **--ignore-invalid:** Bypasses invalid input tokens during command parsing.
+- **--json-output:** Activates JSON formatted output mode, which includes additional metadata for enhanced logging and integration purposes.
+- **--warning-index:** Configures a warning index mode, allowing users to set custom thresholds for CLI warnings.
+- **--strip-punctuation:** Enables the removal of unnecessary punctuation from input commands for cleaner data processing.
+- **--suppress-nan-suggestions:** Disables automated correction suggestions related to NaN handling, giving users full control over their data processing logic.
 
-## Testing
-- **Unit Tests:**
-  - Develop unit tests to verify that each CLI flag triggers the appropriate behavior.
-  - Simulate environments with various NaN settings to ensure consistency and accuracy.
-- **Integration Tests:**
-  - Validate that the CLI output (including diagnostic messages) is reliable and informative when NaN flags are used.
+## Implementation Details
+- **Centralized Configuration:** Integrate all configuration options into a central module that is accessible across the application, ensuring consistent state management.
+- **CLI Integration:** Update the main CLI entry point (src/lib/main.js) to parse and apply these new flags while preserving existing behavior.
+- **Output Handling:** Enhance output routines to support both standard text and JSON outputs, ensuring metadata is appended when in JSON mode.
+- **Validation and Diagnostics:** Implement robust validation routines and diagnostic logging to help troubleshoot configuration issues, especially when multiple flags are used concurrently.
 
-## Documentation
-- Update the README.md and CONTRIBUTING.md to include usage examples for the new NaN handling flags.
-- Provide inline code documentation and usage scenarios, including command-line examples demonstrating enabling/disabling NaN handling and diagnosing issues.
-
-This feature aligns with the mission of repository0 by enhancing the template’s utility as a showcase for robust, configurable CLI behavior and automated workflows.
+## Testing and Documentation
+- **Unit Tests:** Develop comprehensive tests to cover new flag behaviors, ensuring that each CLI flag triggers its expected functionality without interfering with others.
+- **Integration Tests:** Validate consistency and reliability of the overall CLI behavior, particularly when multiple new flags are active simultaneously.
+- **Documentation:** Update README.md, CONTRIBUTING.md, and inline code comments to reflect new capabilities and provide usage examples. Detailed CLI usage examples should illustrate how to combine new flags for advanced configuration.
