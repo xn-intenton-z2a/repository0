@@ -15,7 +15,7 @@
  *   - executionDuration: The time taken in milliseconds to execute the command
  *   - inputEcho: The cleansed input parameters after filtering global flags
  *
- * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides as integrated utility functions within this file. These functions handle token normalization (trimming whitespace, punctuation based on configuration) and reject any token resembling 'NaN' unless allowed via configuration, the --toggle-allow-nan command, or the new --allow-nan-inline flag. When none of these are enabled, a literal 'NaN' is rejected.
+ * Enhancement: Consolidated and refined NaN handling logic for numeric parsing. The parsing logic now resides in integrated utility functions within this file. A dedicated configuration function centralizes environment variable initializations for NaN handling, punctuation stripping, and warning index mode. This ensures predictable behavior and easier maintenance.
  *
  * New Option: DYNAMIC_WARNING_INDEX - When set to true, the parser will use the token's actual position (1-indexed) in the input as the warning index for invalid tokens, instead of using a fixed index.
  *
@@ -34,17 +34,29 @@
  * Correction Suggestion: When a token equal to 'NaN' is rejected due to configuration, a suggestion is appended to help users enable NaN processing if intended. This suggestion can be disabled by setting DISABLE_NAN_SUGGESTION to 'true'.
  */
 
+// Consolidated Environment Configuration
+function getConfig() {
+  return {
+    ALLOW_NAN: (process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') || false,
+    INVALID_TOKENS: process.env.INVALID_TOKENS !== undefined ? process.env.INVALID_TOKENS : ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true') ? "" : "nan"),
+    TOKEN_PUNCTUATION_CONFIG: process.env.TOKEN_PUNCTUATION_CONFIG !== undefined ? process.env.TOKEN_PUNCTUATION_CONFIG : ",.;?!",
+    DISABLE_NAN_SUGGESTION: (process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === 'true') || false,
+    DYNAMIC_WARNING_INDEX: (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === 'true') || false
+  };
+}
+
 // Integrated Number Utilities
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\\\]]/g, '\\$&');
 }
 
 function generateWarning(pos, originalToken) {
+  const config = getConfig();
   let suggestion = "";
-  if (!(process.env.DISABLE_NAN_SUGGESTION && process.env.DISABLE_NAN_SUGGESTION.toLowerCase() === "true")) {
+  if (!config.DISABLE_NAN_SUGGESTION) {
     suggestion = " Did you mean to allow NaN values?";
   }
-  const indexText = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? `(position ${pos})` : "(position 0)";
+  const indexText = config.DYNAMIC_WARNING_INDEX ? `(position ${pos})` : "(position 0)";
   return `${indexText}: ${originalToken}${suggestion}`;
 }
 
@@ -52,14 +64,10 @@ function generateWarning(pos, originalToken) {
 let inlineAllowNan = false;
 
 function parseNumbers(args) {
+  const config = getConfig();
   let valid = [];
   let invalid = [];
-  let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
-  // If TOKEN_PUNCTUATION_CONFIG is undefined, use default punctuation stripping characters
-  if (tokenPunctuationConfig === undefined) {
-    tokenPunctuationConfig = ",.;?!";
-  }
-  
+  let tokenPunctuationConfig = config.TOKEN_PUNCTUATION_CONFIG;
   // Create a cache to store processed tokens to avoid redundant regex operations
   const tokenCache = new Map();
 
@@ -81,37 +89,32 @@ function parseNumbers(args) {
         if (tokenPunctuationConfig !== "") {
           trimmed = trimmed.replace(leadingRegex, '').replace(trailingRegex, '');
         }
-        // If empty string, no punctuation stripping is performed beyond whitespace
       } else {
-        // default punctuation trimming: comma, period, semicolon, question mark, exclamation
         trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
       }
       processed = trimmed;
       tokenCache.set(token, processed);
     }
-    
-    // If token becomes empty after trimming, consider it invalid
+
     if (processed === "") {
-      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      invalid.push(generateWarning(config.DYNAMIC_WARNING_INDEX ? index + 1 : 0, token));
       return;
     }
-    // Reject if token has internal whitespace.
     if (/\s/.test(processed)) {
-      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      invalid.push(generateWarning(config.DYNAMIC_WARNING_INDEX ? index + 1 : 0, token));
       return;
     }
-    // Check if token resembles 'NaN'
     if (processed.toLowerCase() === "nan") {
-      if ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") || inlineAllowNan) {
+      if (config.ALLOW_NAN || inlineAllowNan) {
         valid.push(NaN);
       } else {
-        invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+        invalid.push(generateWarning(config.DYNAMIC_WARNING_INDEX ? index + 1 : 0, token));
       }
       return;
     }
     const num = Number(processed);
     if (isNaN(num)) {
-      invalid.push(generateWarning((process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0, token));
+      invalid.push(generateWarning(config.DYNAMIC_WARNING_INDEX ? index + 1 : 0, token));
     } else {
       valid.push(num);
     }
@@ -137,7 +140,6 @@ let __inputEcho = [];
 function aggregateWarnings(warnings) {
   const tokenCounts = {};
   warnings.forEach(warning => {
-    // Extract token using a regex and split to remove correction suggestion if present
     const match = warning.match(/\):\s*(.*?)(\s+Did you mean|$)/);
     if (match) {
       const token = match[1].trim();
@@ -578,17 +580,14 @@ const commands = {
     sendSuccess("geomean", result, invalid);
   },
   "--config": async (args) => {
-    // Gather configuration details
-    const invalidTokensValue = typeof process.env.INVALID_TOKENS === 'string' ? process.env.INVALID_TOKENS : 'nan';
-    const dynamicWarning = process.env.DYNAMIC_WARNING_INDEX === 'true' ? 'enabled' : 'disabled';
-    const punctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG !== undefined ? process.env.TOKEN_PUNCTUATION_CONFIG : ',.;?!';
+    const config = getConfig();
     const configDetails = {
       TOOL_VERSION,
-      INVALID_TOKENS: invalidTokensValue,
-      DYNAMIC_WARNING_INDEX: dynamicWarning,
-      TOKEN_PUNCTUATION_CONFIG: punctuationConfig,
-      DISABLE_NAN_SUGGESTION: process.env.DISABLE_NAN_SUGGESTION || 'false',
-      ALLOW_NAN: process.env.ALLOW_NAN || 'false',
+      INVALID_TOKENS: config.INVALID_TOKENS,
+      DYNAMIC_WARNING_INDEX: config.DYNAMIC_WARNING_INDEX ? 'enabled' : 'disabled',
+      TOKEN_PUNCTUATION_CONFIG: config.TOKEN_PUNCTUATION_CONFIG,
+      DISABLE_NAN_SUGGESTION: config.DISABLE_NAN_SUGGESTION.toString(),
+      ALLOW_NAN: config.ALLOW_NAN.toString(),
       inlineAllowNan: inlineAllowNan.toString()
     };
     if (jsonMode) {
@@ -604,30 +603,28 @@ const commands = {
     } else {
       let output = "Configuration Settings:\n";
       output += `TOOL_VERSION: ${TOOL_VERSION}\n`;
-      output += `INVALID_TOKENS: ${invalidTokensValue}\n`;
-      output += `DYNAMIC_WARNING_INDEX: ${dynamicWarning}\n`;
-      output += `TOKEN_PUNCTUATION_CONFIG: ${punctuationConfig}\n`;
-      output += `DISABLE_NAN_SUGGESTION: ${process.env.DISABLE_NAN_SUGGESTION || 'false'}\n`;
-      output += `ALLOW_NAN: ${process.env.ALLOW_NAN || 'false'}\n`;
+      output += `INVALID_TOKENS: ${config.INVALID_TOKENS}\n`;
+      output += `DYNAMIC_WARNING_INDEX: ${config.DYNAMIC_WARNING_INDEX ? 'enabled' : 'disabled'}\n`;
+      output += `TOKEN_PUNCTUATION_CONFIG: ${config.TOKEN_PUNCTUATION_CONFIG}\n`;
+      output += `DISABLE_NAN_SUGGESTION: ${config.DISABLE_NAN_SUGGESTION}\n`;
+      output += `ALLOW_NAN: ${config.ALLOW_NAN}\n`;
       output += `inlineAllowNan: ${inlineAllowNan}\n`;
       sendSuccess("config", output);
     }
   },
   "--toggle-allow-nan": async (_args) => {
-    // Toggle the ALLOW_NAN setting at runtime
-    let current = process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === 'true';
+    let current = (getConfig().ALLOW_NAN);
     const newValue = !current;
     process.env.ALLOW_NAN = newValue ? 'true' : 'false';
     sendSuccess("toggle-allow-nan", "ALLOW_NAN toggled to " + process.env.ALLOW_NAN);
   },
   "--diagnose-nan": async (args) => {
-    // New command to provide detailed diagnostics on NaN token handling including character range information for trimmed parts
     const diagnostics = [];
-    let tokenPunctuationConfig = process.env.TOKEN_PUNCTUATION_CONFIG;
+    const config = getConfig();
+    let tokenPunctuationConfig = config.TOKEN_PUNCTUATION_CONFIG;
     if (tokenPunctuationConfig === undefined) {
       tokenPunctuationConfig = ",.;?!";
     }
-    // Helper function to compute trim indices
     function computeTrimIndices(token, punctuationConfig) {
       let start = 0;
       let end = token.length - 1;
@@ -656,7 +653,7 @@ const commands = {
       let accepted = true;
       let value = null;
       let warning = "";
-      const warningIndex = (process.env.DYNAMIC_WARNING_INDEX && process.env.DYNAMIC_WARNING_INDEX.toLowerCase() === "true") ? index + 1 : 0;
+      const warningIndex = config.DYNAMIC_WARNING_INDEX ? index + 1 : 0;
       if (trimmed === "") {
         accepted = false;
         warning = generateWarning(warningIndex, token);
@@ -668,7 +665,7 @@ const commands = {
           accepted,
           value,
           warningIndex,
-          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+          suggestion: (!config.DISABLE_NAN_SUGGESTION && warning.includes("Did you mean")) ? "Did you mean to allow NaN values?" : ""
         });
         return;
       }
@@ -683,12 +680,12 @@ const commands = {
           accepted,
           value,
           warningIndex,
-          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+          suggestion: (!config.DISABLE_NAN_SUGGESTION && warning.includes("Did you mean")) ? "Did you mean to allow NaN values?" : ""
         });
         return;
       }
       if (trimmed.toLowerCase() === "nan") {
-        if ((process.env.ALLOW_NAN && process.env.ALLOW_NAN.toLowerCase() === "true") || inlineAllowNan) {
+        if (config.ALLOW_NAN || inlineAllowNan) {
           value = NaN;
         } else {
           accepted = false;
@@ -702,7 +699,7 @@ const commands = {
           accepted,
           value,
           warningIndex,
-          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+          suggestion: (!config.DISABLE_NAN_SUGGESTION && warning.includes("Did you mean")) ? "Did you mean to allow NaN values?" : ""
         });
         return;
       }
@@ -718,7 +715,7 @@ const commands = {
           accepted,
           value,
           warningIndex,
-          suggestion: (!process.env.DISABLE_NAN_SUGGESTION || process.env.DISABLE_NAN_SUGGESTION.toLowerCase() !== "true") && warning.includes("Did you mean") ? "Did you mean to allow NaN values?" : ""
+          suggestion: (!config.DISABLE_NAN_SUGGESTION && warning.includes("Did you mean")) ? "Did you mean to allow NaN values?" : ""
         });
       } else {
         value = num;
@@ -751,7 +748,6 @@ const commands = {
       });
       sendSuccess("diagnose-nan", output);
     }
-    // Explicitly reset inline flag after execution of diagnose-nan command
     inlineAllowNan = false;
   }
 };
@@ -765,14 +761,12 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Reset global state to avoid side-effects between invocations
   jsonMode = false;
   jsonPretty = false;
   summarizeWarnings = false;
   __inputEcho = [];
   __startTime = 0;
-  
-  // Process inline flag for allowing NaN tokens
+
   let allowNanFlag = false;
   if (args && args.includes("--allow-nan-inline")) {
     allowNanFlag = true;
@@ -780,13 +774,11 @@ async function cliMain(args) {
   }
   inlineAllowNan = allowNanFlag;
 
-  // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive)
-  if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
-    process.env.ALLOW_NAN = "false";
-  }
-  // Set INVALID_TOKENS if not already defined
+  // Force initialization of ALLOW_NAN and INVALID_TOKENS via config
+  const config = getConfig();
+  process.env.ALLOW_NAN = config.ALLOW_NAN ? 'true' : 'false';
   if (process.env.INVALID_TOKENS === undefined) {
-    process.env.INVALID_TOKENS = (process.env.ALLOW_NAN === "true" ? "" : "nan");
+    process.env.INVALID_TOKENS = config.INVALID_TOKENS;
   }
   if (args === undefined) {
     args = [];
@@ -795,7 +787,6 @@ async function cliMain(args) {
     sendError("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
     return;
   }
-  // Check for global flags
   if (args.includes("--json-pretty")) {
     jsonMode = true;
     jsonPretty = true;
@@ -808,9 +799,7 @@ async function cliMain(args) {
     summarizeWarnings = true;
     args = args.filter(arg => arg !== "--summarize-warnings");
   }
-  // Set global inputEcho as the cleansed input
   __inputEcho = args;
-  // Record start time for execution duration
   __startTime = Date.now();
 
   try {
@@ -833,7 +822,6 @@ async function cliMain(args) {
   } catch (error) {
     sendError("cliMain", error.message);
   }
-  // Explicitly reset inlineAllowNan immediately after command execution
   inlineAllowNan = false;
 }
 
