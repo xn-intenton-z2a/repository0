@@ -19,7 +19,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--log:** Compute logarithms with detailed error messages.
 - **--percentile:** Compute a specified percentile of a dataset using linear interpolation.
 - **--geomean:** Compute the geometric mean of positive numbers.
-- **--config:** Display the current CLI configuration including tool version and environment settings.
+- **--config:** Display the current CLI configuration including tool version and environment settings. The configuration output now also includes the state of the inline NaN flag.
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
 - **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings.
 
@@ -31,7 +31,7 @@ The input parsing mechanism has been refactored for improved modularity. Utility
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses the correction suggestion in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.
 
-**Note:** In non-JSON mode, warnings for invalid tokens are output via `console.warn`.
+**Note:** In non-JSON mode, warnings for invalid tokens are output via `console.warn`. Tokens that become empty after trimming are now considered invalid.
 
 ### Global JSON Output Mode
 A new global flag has been added:
@@ -42,7 +42,7 @@ JSON responses now include metadata:
 - **timestamp:** ISO formatted execution timestamp.
 - **version:** Tool version.
 - **executionDuration:** Duration of execution in milliseconds.
-- **inputEcho:** The cleaned input parameters post global flag filtering.
+- **inputEcho:** The cleaned input parameters after global flag filtering.
 
 ### Shorthand Aliases
 Aliases have been added for user convenience:
@@ -67,7 +67,7 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
 
 - **Configuration:**
-  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control.
+  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control and its status is now reflected in the configuration output.
 
 - **Documentation:**
   This README, along with [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE), provide guidelines and details for effective use and contribution.
@@ -97,7 +97,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, and the new **--allow-nan-inline** flag for per-command NaN acceptance. Global JSON flags, a configurable warning index mode, and customizable punctuation stripping are all supported.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, and the new **--allow-nan-inline** flag for per-command NaN acceptance. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, and improved handling of NaN tokens (including rejecting empty tokens post-trimming) are all supported.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
