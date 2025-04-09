@@ -708,6 +708,7 @@ const commands = {
       });
       sendSuccess("diagnose-nan", output);
     }
+    // Explicitly reset inline flag after execution of diagnose-nan command
     inlineAllowNan = false;
   }
 };
@@ -727,7 +728,14 @@ async function cliMain(args) {
   summarizeWarnings = false;
   __inputEcho = [];
   __startTime = 0;
-  inlineAllowNan = false;
+  
+  // Process inline flag for allowing NaN tokens
+  let allowNanFlag = false;
+  if (args && args.includes("--allow-nan-inline")) {
+    allowNanFlag = true;
+    args = args.filter(arg => arg !== "--allow-nan-inline");
+  }
+  inlineAllowNan = allowNanFlag;
 
   // Ensure ALLOW_NAN is explicitly set to "false" if not true (case-insensitive)
   if (!process.env.ALLOW_NAN || process.env.ALLOW_NAN.toLowerCase() !== "true") {
@@ -757,11 +765,6 @@ async function cliMain(args) {
     summarizeWarnings = true;
     args = args.filter(arg => arg !== "--summarize-warnings");
   }
-  // Check for inline flag for allowing NaN
-  if (args.includes("--allow-nan-inline")) {
-    inlineAllowNan = true;
-    args = args.filter(arg => arg !== "--allow-nan-inline");
-  }
   // Set global inputEcho as the cleansed input
   __inputEcho = args;
   // Record start time for execution duration
@@ -784,10 +787,11 @@ async function cliMain(args) {
     } else {
       sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
     }
-  } finally {
-    // Reset inlineAllowNan flag to ensure it does not persist across command invocations
-    inlineAllowNan = false;
+  } catch (error) {
+    sendError("cliMain", error.message);
   }
+  // Explicitly reset inlineAllowNan immediately after command execution
+  inlineAllowNan = false;
 }
 
 const __test = {

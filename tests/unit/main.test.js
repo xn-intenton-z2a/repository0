@@ -409,7 +409,6 @@ describe("CLI Behavior", () => {
   });
 });
 
-
 describe("Number Utilities", () => {
   test("escapeRegex escapes special characters", () => {
     const input = "[test]*.?";

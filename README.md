@@ -21,7 +21,7 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--geomean:** Compute the geometric mean of positive numbers.
 - **--config:** Display the current CLI configuration including tool version and environment settings.
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
-- **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. **This inline flag is isolated to each command invocation and resets automatically.**
+- **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. **This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.**
 - **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and any correction suggestions based on the current configuration.
 
 ### Enhanced Input Parsing Details
@@ -68,7 +68,7 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
   Unit tests in the `tests/unit/` folder cover both CLI behavior and the integrated number utilities.
 
 - **Configuration:**
-  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control and resets automatically.
+  Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control and resets immediately after each invocation.
 
 - **Diagnostic Tools:**
   The new **--diagnose-nan** command offers an in-depth diagnostic report of how tokens are processed, aiding in debugging parsing issues.
@@ -101,7 +101,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, and improved handling of NaN tokens (including rejecting empty tokens post-trimming) are all supported. The inline NaN flag and diagnostic command are isolated to each invocation and reset automatically.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, and improved handling of NaN tokens (including rejecting empty tokens post-trimming) are all supported. The inline NaN flag now resets immediately after each command invocation to ensure predictable behavior.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
