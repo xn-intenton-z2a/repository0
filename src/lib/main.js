@@ -88,12 +88,8 @@ function parseNumbers(args) {
     } else {
       // Always trim outer whitespace
       let trimmed = token.trim();
-      if (tokenPunctuationConfig !== undefined) {
-        if (tokenPunctuationConfig !== "") {
-          trimmed = trimmed.replace(leadingRegex, '').replace(trailingRegex, '');
-        }
-      } else {
-        trimmed = trimmed.replace(/^[,.;?!]+|[,.;?!]+$/g, '');
+      if (tokenPunctuationConfig !== undefined && tokenPunctuationConfig !== "") {
+        trimmed = trimmed.replace(leadingRegex, '').replace(trailingRegex, '');
       }
       processed = trimmed;
       tokenCache.set(token, processed);
@@ -107,7 +103,9 @@ function parseNumbers(args) {
       invalid.push(generateWarning(config.DYNAMIC_WARNING_INDEX ? index + 1 : 0, token));
       return;
     }
-    if (processed.toLowerCase() === "nan") {
+    // Normalize token to lower case for consistent comparison
+    let normalized = processed.toLowerCase();
+    if (normalized === "nan") {
       if (config.ALLOW_NAN || inlineAllowNan) {
         valid.push(NaN);
       } else {
