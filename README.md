@@ -11,7 +11,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 `repository0` is a demo repository showcasing GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate automated CI/CD workflows.
 
-The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, logarithmic, and percentile commands. In addition to operations like sum, multiply, subtract, and divide, the tool provides:
+The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical, logarithmic, percentile, and diagnostic commands. In addition to operations like sum, multiply, subtract, and divide, the tool provides:
 
 - **--median:** Compute the median of a list of numbers.
 - **--mode:** Compute the mode(s) of a list of numbers.
@@ -19,9 +19,10 @@ The CLI functionality in `src/lib/main.js` now includes arithmetic, statistical,
 - **--log:** Compute logarithms with detailed error messages.
 - **--percentile:** Compute a specified percentile of a dataset using linear interpolation.
 - **--geomean:** Compute the geometric mean of positive numbers.
-- **--config:** Display the current CLI configuration including tool version and environment settings. The configuration output now also includes the state of the inline NaN flag.
+- **--config:** Display the current CLI configuration including tool version and environment settings.
 - **--toggle-allow-nan:** Dynamically toggle the ALLOW_NAN setting for numeric parsing.
 - **--allow-nan-inline:** *New!* Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. **This inline flag is isolated to each command invocation and resets automatically.**
+- **--diagnose-nan:** *New!* Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and any correction suggestions based on the current configuration.
 
 ### Enhanced Input Parsing Details
 The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like " NaN ", "NaN,", or "NaN?" are consistently processed based on the environment variables:
@@ -69,6 +70,9 @@ All commands uniformly return "Error: No valid numeric inputs provided." when in
 - **Configuration:**
   Customize behavior via environment variables like **INVALID_TOKENS**, **ALLOW_NAN**, **TOKEN_PUNCTUATION_CONFIG**, etc. The **--toggle-allow-nan** command allows runtime changes without restarting the tool. The new **--allow-nan-inline** flag provides per-command control and resets automatically.
 
+- **Diagnostic Tools:**
+  The new **--diagnose-nan** command offers an in-depth diagnostic report of how tokens are processed, aiding in debugging parsing issues.
+
 - **Documentation:**
   This README, along with [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE), provide guidelines and details for effective use and contribution.
 
@@ -97,7 +101,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, and the new **--allow-nan-inline** flag for per-command NaN acceptance. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, and improved handling of NaN tokens (including rejecting empty tokens post-trimming) are all supported. The inline NaN flag is now isolated to each command invocation and resets automatically.
+The CLI in `src/lib/main.js` has been updated to include new statistical commands, the **--config** command, the **--toggle-allow-nan** command, the **--allow-nan-inline** flag for per-command NaN acceptance, and the new **--diagnose-nan** command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, and improved handling of NaN tokens (including rejecting empty tokens post-trimming) are all supported. The inline NaN flag and diagnostic command are isolated to each invocation and reset automatically.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 
