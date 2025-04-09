@@ -1,31 +1,37 @@
-# HISTORY_LOG
+# HISTORY_LOG with SEARCH
 
 ## Overview
-This feature adds a command history logging utility to the CLI tool. Every command execution, including its input parameters, output (or error), timestamp, and execution duration, is recorded in a persistent local JSON file (e.g., `.repository_history.json`). In addition, a new CLI flag `--history` is introduced to view the audit log directly from the command line. This improves traceability, debugging, and accountability within the tool, in line with the repository’s mission for healthy collaboration and streamlined automation.
+This update enhances the existing HISTORY_LOG feature by adding robust search and filtering capabilities to the command history audit. In addition to recording every CLI command execution with its inputs, outputs, timestamp, and duration, users can now query the history for specific commands, keywords, or date ranges. This improvement further supports traceability and debugging while reinforcing our commitment to healthy collaboration and practical automation.
 
 ## CLI Integration
-- **Command Flag:** Add a new flag `--history` to display the audit log.
-  - When invoked without additional parameters, it displays a summary of past CLI commands and their execution times.
-  - Supports optional flags like `--json` or `--json-pretty` for structured output.
-- **Audit Logging:** Every command (whether successful or an error) is logged with metadata including:
-  - Timestamp in ISO 8601 format
-  - Command name and cleansed input parameters
-  - Execution duration in milliseconds
-  - Result or error message
+- **New Sub-Commands:**
+  - `--history search <query>`: Filters the audit log entries by matching the provided query string in command names, inputs, or error messages.
+  - `--history filter --start <date> --end <date>`: Returns history entries logged within a specific ISO date range.
+- **Output Modes:**
+  - Supports plain text summary as well as JSON output (using the existing `--json` and `--json-pretty` flags) for machine-friendly querying.
+- **User Experience:**
+  - The enhanced history command provides pagination and summary statistics (total entries found) when a filter or search is applied.
 
 ## Implementation Details
-- **Logging Mechanism:** Implement a lightweight logging module within the repository that appends a JSON entry for each command execution to a file named `.repository_history.json`.
-  - Use synchronous file operations from Node's fs module to ensure atomic writes and immediate persistence.
-  - Each log entry is an object containing the fields: `timestamp`, `command`, `inputEcho`, `executionDuration`, and `result` (or `error`).
-- **History Retrieval:** The `--history` command reads the JSON log file and outputs its contents:
-  - In default mode, displays a human-readable summary (e.g., one entry per line).
-  - In JSON mode, prints the complete JSON object for programmatic use.
-- **Performance Considerations:** Implement file rotation or archiving if the log file exceeds a preset size (optional enhancement for future iterations).
+- **Audit Log Extension:**
+  - The persistent JSON file (e.g., `.repository_history.json`) now includes all previous fields and is queried based on user input.
+  - A lightweight in-memory search index is built at startup to optimize query performance over the (typically small) log file.
+- **Query Parsing & Filtering:**
+  - The CLI parses search queries or filter parameters and returns matching log entries. Date range filtering uses ISO formatted timestamps.
+  - In case of an invalid query or date format, a clear error message is returned along with usage guidance.
+- **Error Handling:**
+  - Robust error validation ensures that queries that yield no results inform the user rather than failing silently.
+  - File I/O errors during history retrieval are caught and reported, similar to existing logging error handling.
 
-## Error Handling & Documentation
-- Validate file I/O operations to handle potential read/write errors, and provide fallback messages if the log file is inaccessible.
-- Include unit tests to simulate and verify that logs are correctly appended and retrieved for each CLI command execution.
-- Update the README and CONTRIBUTING documents to include instructions on how to use the `--history` command and interpret the audit log output.
+## Testing & Documentation
+- **Unit Tests:**
+  - New tests are added to simulate various search queries and date range filters. Tests will cover expected matches as well as no-result scenarios.
+  - Existing tests for log appending and retrieval remain unchanged.
+- **Documentation:**
+  - Update the README and CLI help documentation to include examples:
+    - `node src/lib/main.js --history search sum`
+    - `node src/lib/main.js --history filter --start 2023-10-01T00:00:00Z --end 2023-10-31T23:59:59Z`
+  - Inline comments and markdown files are updated to reflect these enhancements.
 
 ## Alignment with Repository Mission
-By adding a dedicated command history logger, the tool enhances diagnostics and accountability while promoting healthy collaboration. The HISTORY_LOG feature provides end-users and contributors with immediate access to past execution details, reinforcing transparency and aiding troubleshooting, which is in full accordance with the repository's mission of providing modular and self-contained CLI utilities.
+By integrating search and filtering directly into the HISTORY_LOG feature, this update empowers users to quickly locate past command executions and debug issues more efficiently. It solidifies the tool's role in promoting transparency, traceability, and actionable insights within a single, self-contained CLI repository.
