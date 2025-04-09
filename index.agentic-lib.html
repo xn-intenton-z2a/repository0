@@ -44,16 +44,15 @@
 <li class="md-github"><strong class="md-github">--toggle-allow-nan:</strong> Dynamically toggle the ALLOW_NAN setting for numeric parsing.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="enhanced-input-parsing-details" href="#enhanced-input-parsing-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enhanced Input Parsing Details</h3>
-<p class="md-github">The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization, punctuation stripping, and 'NaN' handling are now integrated directly into the main CLI file (<code class="md-github">src/lib/main.js</code>).</p>
-<p class="md-github">Configuration via environment variables:</p>
+<p class="md-github">The input parsing mechanism has been refactored for improved modularity. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like &quot; NaN &quot;, &quot;NaN,&quot;, or &quot;NaN?&quot; are consistently processed based on the environment variables:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">ALLOW_NAN:</strong> When set to <code class="md-github">true</code>, allows 'NaN' as a valid numeric input.</li>
 <li class="md-github"><strong class="md-github">INVALID_TOKENS:</strong> A list of tokens to reject (default rejects variants of &quot;NaN&quot;).</li>
-<li class="md-github"><strong class="md-github">TOKEN_PUNCTUATION_CONFIG:</strong> Specifies custom punctuation characters to trim from tokens. If undefined, defaults to &quot;,.;?!&quot;. An empty string disables trimming.</li>
+<li class="md-github"><strong class="md-github">TOKEN_PUNCTUATION_CONFIG:</strong> Specifies custom punctuation characters to trim from tokens. If undefined, defaults to &quot;,.;?!&quot;. An empty string disables punctuation stripping but still trims outer whitespace.</li>
 <li class="md-github"><strong class="md-github">DISABLE_NAN_SUGGESTION:</strong> When set to <code class="md-github">true</code>, suppresses the correction suggestion in warnings.</li>
 <li class="md-github"><strong class="md-github">DYNAMIC_WARNING_INDEX:</strong> If <code class="md-github">true</code>, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.</li>
 </ul>
-<p class="md-github"><strong class="md-github">Note:</strong> In non-JSON mode, warnings for invalid tokens are now output to stderr via <code class="md-github">console.warn</code>.</p>
+<p class="md-github"><strong class="md-github">Note:</strong> In non-JSON mode, warnings for invalid tokens are output via <code class="md-github">console.warn</code>.</p>
 <h3 class="md-github"><a class="md-github__anchor" name="global-json-output-mode" href="#global-json-output-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global JSON Output Mode</h3>
 <p class="md-github">A new global flag has been added:</p>
 <ul class="md-github">
@@ -123,7 +122,7 @@ This README, along with <a href="./MISSION.md" class="md-github">MISSION.md</a>,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-09T13:35:31.929Z</p>
+    <p>Generated on 2025-04-09T13:47:35.576Z</p>
   </footer>
 </body>
 </html>
