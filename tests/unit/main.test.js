@@ -157,7 +157,7 @@ describe("CLI Behavior", () => {
     process.env.ALLOW_NAN = originalAllowNan;
   });
 
-  // Tests for the new --config command
+  // New test for the new --config command
   describe("CLI Config Command", () => {
     test("outputs configuration in plain text mode", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -294,10 +294,18 @@ describe("CLI Behavior", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "N aN", "5"]);
-    // 'N aN' is not a valid trimmed 'NaN', so it should be rejected, resulting in sum = 5
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("5"));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("N aN"));
     warnSpy.mockRestore();
     logSpy.mockRestore();
+  });
+
+  // New test to verify that correction suggestion is included for NaN tokens
+  test("includes correction suggestion in warning for NaN tokens", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "NaN", "5"]);
+    const warningCall = warnSpy.mock.calls.find(call => call[0].includes("NaN"));
+    expect(warningCall[0]).toContain("Did you mean to allow NaN values?");
+    warnSpy.mockRestore();
   });
 });
