@@ -103,7 +103,7 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("version", "1.4.1-13");
       expect(output).toHaveProperty("executionDuration");
       expect(typeof output.executionDuration).toBe('number');
       expect(output).toHaveProperty("inputEcho");
@@ -120,7 +120,7 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("version", "1.4.1-13");
       expect(output).toHaveProperty("executionDuration");
       expect(typeof output.executionDuration).toBe('number');
       expect(output).toHaveProperty("inputEcho");
@@ -160,7 +160,7 @@ describe("CLI Behavior", () => {
       await main(["--config"]);
       const output = logSpy.mock.calls[0][0];
       expect(output).toContain("Configuration Settings:");
-      expect(output).toContain("TOOL_VERSION: 1.4.1-1");
+      expect(output).toContain("TOOL_VERSION: 1.4.1-13");
       expect(output).toContain("INVALID_TOKENS:");
       expect(output).toContain("DYNAMIC_WARNING_INDEX:");
       expect(output).toContain("TOKEN_PUNCTUATION_CONFIG:");
@@ -176,7 +176,7 @@ describe("CLI Behavior", () => {
       const output = tryParseJSON(logSpy.mock.calls[0][0]);
       expect(output).toHaveProperty("command", "config");
       expect(output).toHaveProperty("config");
-      expect(output.config).toHaveProperty("TOOL_VERSION", "1.4.1-1");
+      expect(output.config).toHaveProperty("TOOL_VERSION", "1.4.1-13");
       expect(output.config).toHaveProperty("INVALID_TOKENS");
       expect(output.config).toHaveProperty("DYNAMIC_WARNING_INDEX");
       expect(output.config).toHaveProperty("TOKEN_PUNCTUATION_CONFIG");
@@ -186,7 +186,7 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("version", "1.4.1-13");
       expect(output).toHaveProperty("executionDuration");
       expect(typeof output.executionDuration).toBe('number');
       expect(output).toHaveProperty("inputEcho");
@@ -360,6 +360,23 @@ describe("CLI Behavior", () => {
     });
   });
 
+  describe("Ignore Invalid Flag", () => {
+    test("processes mixed valid and invalid tokens when --ignore-invalid is provided", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--ignore-invalid", "--sum", "10", "abc", "20", "NaN"]);
+      // valid tokens: 10 and 20 => sum = 30
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("30"));
+      logSpy.mockRestore();
+    });
+
+    test("returns warning message (not error) when all tokens are invalid with --ignore-invalid", async () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      await main(["--ignore-invalid", "--sum", "abc", "NaN"]);
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("Warning: All tokens ignored, no valid numeric inputs provided."));
+      logSpy.mockRestore();
+    });
+  });
+
   describe("CLI Diagnose NaN Command", () => {
     test("outputs diagnostic report in plain text mode with trim indices", async () => {
       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -388,7 +405,7 @@ describe("CLI Behavior", () => {
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
-      expect(output).toHaveProperty("version", "1.4.1-1");
+      expect(output).toHaveProperty("version", "1.4.1-13");
       expect(output).toHaveProperty("executionDuration");
       expect(typeof output.executionDuration).toBe('number');
       expect(output).toHaveProperty("inputEcho");
@@ -420,7 +437,7 @@ describe("Number Utilities", () => {
     process.env.INVALID_TOKENS = "nan";
     const originalTokenPunctuation = process.env.TOKEN_PUNCTUATION_CONFIG;
     process.env.TOKEN_PUNCTUATION_CONFIG = ",.;?!";
-    const input = ["  ,10, ", "!!NaN??", "abc"];
+    const input = ["  ,10, ", "!!NaN??", "abc"]; 
     const result = parseNumbers(input);
     expect(result.valid).toEqual([10]);
     expect(result.invalid.length).toBeGreaterThan(0);

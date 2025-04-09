@@ -23,6 +23,8 @@
  *
  * New Flag: --allow-nan-inline - Allows NaN tokens to be accepted as valid numeric inputs for the current command only without modifying the global ALLOW_NAN setting. This inline flag is transient and resets automatically after each command invocation.
  *
+ * New Flag: --ignore-invalid - When provided, the CLI will ignore invalid numeric tokens instead of erroring out if any are encountered. If all tokens are invalid, a warning message is returned.
+ *
  * New Command: --config outputs the current CLI configuration including TOOL_VERSION and the configuration of invalid tokens.
  *
  * New Command: --toggle-allow-nan dynamically toggles the ALLOW_NAN setting for numeric parsing at runtime.
@@ -60,8 +62,9 @@ function generateWarning(pos, originalToken) {
   return `${indexText}: ${originalToken}${suggestion}`;
 }
 
-// Global flag for inline NaN acceptance; resets after each command invocation
+// Global flags for inline NaN acceptance and ignoring invalid tokens; both reset after each command invocation
 let inlineAllowNan = false;
+let ignoreInvalidMode = false;
 
 function parseNumbers(args) {
   const config = getConfig();
@@ -122,10 +125,10 @@ function parseNumbers(args) {
   return { valid, invalid };
 }
 
-const TOOL_VERSION = '1.4.1-1';
+const TOOL_VERSION = '1.4.1-13';
 
 const usage =
-  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] [--allow-nan-inline] [--diagnose-nan] numbers...";
+  "Usage: node src/lib/main.js [--json] [--json-pretty] [--summarize-warnings] [--diagnostics] [--ignore-invalid] [--help, -h] [--version] [--greet] [--info] [--sum, -s] [--multiply, -m] [--subtract] [--divide, -d] [--modulo] [--average, -a] [--power] [--factorial] [--sqrt] [--median] [--mode] [--stddev] [--range] [--factors] [--variance] [--demo] [--real] [--fibonacci] [--gcd] [--lcm] [--prime] [--log] [--percentile] [--geomean, -g] [--config] [--toggle-allow-nan] [--allow-nan-inline] [--diagnose-nan] numbers...";
 
 // Global flags for JSON output mode and summarizing warnings
 let jsonMode = false;
@@ -226,7 +229,11 @@ const commands = {
   "--sum": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("sum", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("sum", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("sum", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const result = numbers.reduce((acc, val) => acc + val, 0);
@@ -235,7 +242,11 @@ const commands = {
   "--multiply": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("multiply", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("multiply", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("multiply", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const result = numbers.reduce((acc, val) => acc * val, 1);
@@ -244,7 +255,11 @@ const commands = {
   "--subtract": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("subtract", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("subtract", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("subtract", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     } else if (numbers.length === 1) {
       sendSuccess("subtract", numbers[0], invalid);
@@ -259,7 +274,11 @@ const commands = {
   "--divide": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("divide", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("divide", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("divide", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     let result = numbers[0];
@@ -275,7 +294,11 @@ const commands = {
   "--modulo": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length < 2) {
-      sendError("modulo", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("modulo", "Warning: Not enough valid numeric inputs provided.", invalid);
+      } else {
+        sendError("modulo", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const dividend = numbers[0];
@@ -291,7 +314,11 @@ const commands = {
   "--average": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("average", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("average", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("average", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const sum = numbers.reduce((acc, val) => acc + val, 0);
@@ -356,9 +383,13 @@ const commands = {
     sendSuccess("sqrt", Math.sqrt(n));
   },
   "--median": async (args) => {
-    const { valid: numbers } = parseNumbers(args);
+    const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("median", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("median", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("median", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const sorted = numbers.slice().sort((a, b) => a - b);
@@ -372,9 +403,13 @@ const commands = {
     sendSuccess("median", median);
   },
   "--mode": async (args) => {
-    const { valid: numbers } = parseNumbers(args);
+    const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("mode", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("mode", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("mode", "Error: No valid numeric inputs provided.");
+      }
       return;
     }
     const frequency = {};
@@ -388,9 +423,13 @@ const commands = {
     sendSuccess("mode", modes.join(","));
   },
   "--stddev": async (args) => {
-    const { valid: numbers } = parseNumbers(args);
+    const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("stddev", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("stddev", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("stddev", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const mean = numbers.reduce((acc, v) => acc + v, 0) / numbers.length;
@@ -405,9 +444,13 @@ const commands = {
     sendSuccess("real", "Real call: This feature is not implemented over the wire yet.");
   },
   "--range": async (args) => {
-    const { valid: numbers } = parseNumbers(args);
+    const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("range", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("range", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("range", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     const min = Math.min(...numbers);
@@ -433,9 +476,13 @@ const commands = {
     sendSuccess("factors", factors.join(","));
   },
   "--variance": async (args) => {
-    const { valid: numbers } = parseNumbers(args);
+    const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("variance", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("variance", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("variance", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     if (numbers.length === 1) {
@@ -493,7 +540,11 @@ const commands = {
   "--prime": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("prime", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("prime", "Warning: All tokens ignored, no valid numeric inputs provided.");
+      } else {
+        sendError("prime", "Error: No valid numeric inputs provided.");
+      }
       return;
     }
     const isPrime = (num) => {
@@ -509,7 +560,11 @@ const commands = {
   "--log": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("log", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("log", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("log", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     if (numbers.length === 1) {
@@ -537,7 +592,11 @@ const commands = {
   "--percentile": async (args) => {
     const { valid: numbers } = parseNumbers(args);
     if (numbers.length < 2) {
-      sendError("percentile", "Error: No valid numeric inputs provided.");
+      if (ignoreInvalidMode) {
+        sendSuccess("percentile", "Warning: Not enough valid numeric inputs provided.");
+      } else {
+        sendError("percentile", "Error: No valid numeric inputs provided.");
+      }
       return;
     }
     const p = numbers[0];
@@ -566,7 +625,11 @@ const commands = {
   "--geomean": async (args) => {
     const { valid: numbers, invalid } = parseNumbers(args);
     if (numbers.length === 0) {
-      sendError("geomean", "Error: No valid numeric inputs provided.", invalid);
+      if (ignoreInvalidMode) {
+        sendSuccess("geomean", "Warning: All tokens ignored, no valid numeric inputs provided.", invalid);
+      } else {
+        sendError("geomean", "Error: No valid numeric inputs provided.", invalid);
+      }
       return;
     }
     for (const num of numbers) {
@@ -764,6 +827,7 @@ async function cliMain(args) {
   jsonMode = false;
   jsonPretty = false;
   summarizeWarnings = false;
+  ignoreInvalidMode = false;
   __inputEcho = [];
   __startTime = 0;
 
@@ -773,6 +837,11 @@ async function cliMain(args) {
     args = args.filter(arg => arg !== "--allow-nan-inline");
   }
   inlineAllowNan = allowNanFlag;
+
+  if (args && args.includes("--ignore-invalid")) {
+    ignoreInvalidMode = true;
+    args = args.filter(arg => arg !== "--ignore-invalid");
+  }
 
   // Force initialization of ALLOW_NAN and INVALID_TOKENS via config
   const config = getConfig();
@@ -823,6 +892,7 @@ async function cliMain(args) {
     sendError("cliMain", error.message);
   }
   inlineAllowNan = false;
+  ignoreInvalidMode = false;
 }
 
 const __test = {
