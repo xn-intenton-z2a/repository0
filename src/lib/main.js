@@ -130,7 +130,7 @@ function parseNumbers(raw) {
     const token = raw[i];
     let str = String(token).trim();
     // Normalize token by stripping leading/trailing punctuation and whitespace, then trim again
-    let normalized = str.replace(new RegExp('^[,.;?!\\s]+|[,.;?!\\s]+$', 'g'), '').trim();
+    let normalized = str.replace(new RegExp('^[,.;?!\s]+|[,.;?!\s]+$', 'g'), '').trim();
     // Skip if a flag is encountered
     if (normalized.startsWith('--')) {
       continue;
@@ -565,50 +565,56 @@ commands["-h"] = commands["--help"];
 commands["-g"] = commands["--geomean"];
 
 async function cliMain(args) {
-  // Reset modes for every invocation to avoid state carryover between calls
-  jsonMode = false;
-  jsonPretty = false;
-  summarizeWarnings = false;
-  if (args === undefined) {
-    args = [];
-  }
-  if (!Array.isArray(args)) {
-    sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
-    return;
-  }
-  // Check for global flags
-  if (args.includes("--json-pretty")) {
-    jsonMode = true;
-    jsonPretty = true;
-    args = args.filter(arg => arg !== "--json-pretty" && arg !== "--json");
-  } else if (args.includes("--json")) {
-    jsonMode = true;
-    args = args.filter(arg => arg !== "--json");
-  }
-  if (args.includes("--summarize-warnings")) {
-    summarizeWarnings = true;
-    args = args.filter(arg => arg !== "--summarize-warnings");
-  }
-  // Set global inputEcho as the cleansed input
-  __inputEcho = args;
-  // Record start time for execution duration
-  __startTime = Date.now();
-
-  if (args.length === 0) {
-    if (jsonMode) {
-      sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
-    } else {
-      console.log(usage);
-      console.log("No CLI arguments provided. Exiting.");
+  // Save the current environment variable for INVALID_TOKENS to avoid test interference
+  const savedInvalidTokens = process.env.INVALID_TOKENS;
+  try {
+    // Reset modes for every invocation to avoid state carryover between calls
+    jsonMode = false;
+    jsonPretty = false;
+    summarizeWarnings = false;
+    if (args === undefined) {
+      args = [];
     }
-    return;
-  }
-  const flag = args[0];
-  const rest = args.slice(1);
-  if (commands[flag]) {
-    await commands[flag](rest);
-  } else {
-    sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
+    if (!Array.isArray(args)) {
+      sendError("cliMain", usage + "()\nNo CLI arguments provided. Exiting.");
+      return;
+    }
+    // Check for global flags
+    if (args.includes("--json-pretty")) {
+      jsonMode = true;
+      jsonPretty = true;
+      args = args.filter(arg => arg !== "--json-pretty" && arg !== "--json");
+    } else if (args.includes("--json")) {
+      jsonMode = true;
+      args = args.filter(arg => arg !== "--json");
+    }
+    if (args.includes("--summarize-warnings")) {
+      summarizeWarnings = true;
+      args = args.filter(arg => arg !== "--summarize-warnings");
+    }
+    // Set global inputEcho as the cleansed input
+    __inputEcho = args;
+    // Record start time for execution duration
+    __startTime = Date.now();
+
+    if (args.length === 0) {
+      if (jsonMode) {
+        sendSuccess("cliMain", usage + "\nNo CLI arguments provided. Exiting.");
+      } else {
+        console.log(usage);
+        console.log("No CLI arguments provided. Exiting.");
+      }
+      return;
+    }
+    const flag = args[0];
+    const rest = args.slice(1);
+    if (commands[flag]) {
+      await commands[flag](rest);
+    } else {
+      sendSuccess("cliMain", "Run with: " + JSON.stringify(args));
+    }
+  } finally {
+    process.env.INVALID_TOKENS = savedInvalidTokens;
   }
 }
 
