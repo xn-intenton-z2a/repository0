@@ -1,24 +1,31 @@
 # CALCULATIONS
 
 ## Overview
-This feature consolidates the arithmetic, combinatorial, and statistical computation capabilities into a unified module. It merges core functionalities from the previous NUMERIC and CORRELATION features, offering a comprehensive suite of numerical operations such as basic arithmetic (sum, subtract, multiply, divide), advanced statistical operations (median, mode, standard deviation, variance, percentile, geometric mean), combinatorial functions (factorial), as well as correlation analysis and linear regression. This consolidation reduces redundancy and streamlines maintenance while preserving detailed diagnostics for NaN token handling and performance optimizations.
+This unified CALCULATIONS feature consolidates a wide range of numerical operations into a single, self-contained module. It now not only supports basic arithmetic, statistical analysis, combinatorial functions, and correlation/regression (as previously defined) but also integrates advanced matrix operations. By merging the standalone MATRIX functionality into CALCULATIONS, the repository streamlines mathematical computations into one coherent interface.
 
 ## CLI Integration
-- **Primary Command Flags:** The unified module will support the same CLI flags as before (e.g., `--sum`, `--subtract`, `--multiply`, `--divide`, `--median`, `--mode`, `--stddev`, `--percentile`, `--factorial`, etc.), along with the correlation functionality now enhanced with an optional regression mode (triggered via `--regression`).
-- **Usage Examples:**
-  - Arithmetic: `node src/lib/main.js --sum 10 20 30`
-  - Statistical: `node src/lib/main.js --median 3 5 9 12 7 5`
-  - Correlation & Regression: `node src/lib/main.js --correlation --regression 1 2 3 4 5 6`
-- **Output Modes:** The module supports both standard text output and JSON output (using `--json` or `--json-pretty`) which includes metadata such as timestamp, tool version, execution duration, and input echo.
+- **Global Command Flags:** Commands such as `--sum`, `--multiply`, `--subtract`, `--divide`, `--median`, `--mode`, `--stddev`, `--percentile`, `--factorial`, `--geomean`, and additional correlation/regression flags remain available.
+- **Matrix Sub-Command:** A new set of sub-commands under a dedicated `matrix` namespace is provided:
+  - **add:** Add two matrices, e.g., `node src/lib/main.js --calculations matrix add "[[1,2],[3,4]]" "[[5,6],[7,8]]"`.
+  - **multiply:** Multiply two matrices with compatible dimensions.
+  - **transpose:** Transpose a given matrix.
+  - **determinant:** Compute the determinant of a square matrix.
+  - **inverse:** Calculate the inverse of a non-singular square matrix.
 
 ## Implementation Details
-- **Unified Parsing:** The module reuses the enhanced number parsing logic (including configurable punctuation stripping, caching for regex operations, inline allowances for NaN when specified, and detailed diagnostics) originally found in NUMERIC and DIAGNOSTICS. 
-- **Operation Logic:** All arithmetic operations (sum, subtract, multiply, divide) and statistical calculations (median, mode, standard deviation, variance, percentile, geomean) will be performed consistently. The correlation functionality computes the Pearson correlation coefficient and, when supplied with the `--regression` flag, calculates the linear regression parameters (slope, intercept, coefficient of determination). 
-- **Error Handling:** Edge cases such as division by zero, invalid or malformed inputs and singular matrices (in case of regression with constant datasets) are handled with clear, consistent error messages in both plain text and JSON modes.
+- **Unified Parsing and Error Handling:** The module reuses the enhanced number parsing logic (including configurable punctuation stripping, NaN normalization, and detailed diagnostics) to ensure consistency across scalar and matrix operations.
+- **Operation Logic:** 
+  - **Scalar Operations:** All existing arithmetic, statistical, combinatorial, and regression functions are supported as described in the previous CALCULATIONS spec.
+  - **Matrix Operations:** Matrix inputs are accepted as JSON-formatted strings. The feature validates matrix dimensions and performs:
+    - **Addition:** Element-wise addition of matrices with identical dimensions.
+    - **Multiplication:** Standard matrix multiplication respecting dimension constraints.
+    - **Transpose:** Swapping rows and columns of the matrix.
+    - **Determinant & Inverse:** Using recursive determinant calculation and appropriate inversion algorithms (e.g., Gauss-Jordan elimination) for square matrices.
+- **Output Modes:** Consistent with the global JSON and plain text modes. In JSON mode, outputs include metadata (timestamp, tool version, execution duration, input echo).
 
 ## Testing & Documentation
-- **Unit Tests:** New tests will verify correct arithmetic computations, statistical measures, and correlation/regression calculations. These tests will cover both typical inputs and edge cases including invalid tokens and NaN scenarios.
-- **Documentation:** The README, CLI usage guides, and inline code comments will be updated to reflect the consolidated functionality. Detailed examples will illustrate how the unified calculations module can be used for a wide range of numerical analysis tasks.
+- **Unit Tests:** New tests will cover a variety of scalar computations as well as edge cases for matrix operations (including non-conformable matrices and singularity cases).
+- **Documentation:** Updates will be made to the README and CLI usage guides. Inline code comments and examples will illustrate how to compute both scalar and matrix operations using the unified CALCULATIONS module.
 
 ## Alignment with Repository Mission
-By consolidating numerical and statistical operations, the CALCULATIONS feature simplifies the codebase while enhancing the repository’s analytical capabilities. It supports streamlined automation, promotes healthy collaboration, and ensures that users have a robust, self-contained tool for complex numerical computations without redundant or overlapping features.
+Merging MATRIX into CALCULATIONS enhances the repository's analytical capabilities by providing a comprehensive numerical toolkit. This consolidation reduces redundancy, simplifies maintenance, and supports the mission of fostering healthy collaboration through streamlined, modular CLI utilities.
