@@ -55,6 +55,8 @@
 <li class="md-github"><strong class="md-github">DISABLE_NAN_SUGGESTION:</strong> When set to <code class="md-github">true</code>, suppresses correction suggestions in warnings.</li>
 <li class="md-github"><strong class="md-github">DYNAMIC_WARNING_INDEX:</strong> If <code class="md-github">true</code>, warning messages use a 1-indexed token position, otherwise a fixed index (0) is used.</li>
 </ul>
+<p class="md-github"><strong class="md-github">Improved 'NaN' Normalization:</strong>
+Variants in casing, surrounding punctuation, and extraneous whitespace around 'NaN' are now normalized and validated consistently. Only correctly formatted inputs are accepted when configured, ensuring clear diagnostics.</p>
 <p class="md-github"><strong class="md-github">Global JSON Output Mode:</strong></p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">--json:</strong> Outputs command results as minified JSON for machine integration.</li>
@@ -85,7 +87,7 @@ CI/CD workflows in the <code class="md-github">.github/workflows/</code> directo
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main CLI functionality is in <code class="md-github">src/lib/main.js</code>, featuring enhanced numeric parsing and new flags such as <strong class="md-github">--ignore-invalid</strong>.</p>
+The main CLI functionality is in <code class="md-github">src/lib/main.js</code>, featuring enhanced numeric parsing with improved 'NaN' normalization and new flags for dynamic behavior.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
@@ -118,14 +120,14 @@ See <a href="./MISSION.md" class="md-github">MISSION.md</a>, <a href="./CONTRIBU
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new functionality for handling invalid numeric tokens with the <strong class="md-github">--ignore-invalid</strong> flag, along with other enhancements such as JSON output mode, dynamic warning indices, and improved input parsing.</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to improve normalization and diagnostic handling of 'NaN' tokens along with other enhancements such as JSON output mode and dynamic warning indices.</p>
 <p class="md-github">For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using this repository template, see <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <p class="md-github">For more about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic‑lib.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-09T18:24:11.021Z</p>
+    <p>Generated on 2025-04-09T18:38:26.221Z</p>
   </footer>
 </body>
 </html>
