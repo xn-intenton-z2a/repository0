@@ -1,38 +1,45 @@
 # TRIGONOMETRY
 
 ## Overview
-This feature adds a new CLI command `--trig` that computes a range of trigonometric functions. Originally, it supported basic functions (sine, cosine, and tangent). This update extends the existing functionality by adding optional hyperbolic trigonometric functions (sinh, cosh, and tanh), enabling users to perform both circular and hyperbolic computations. This enhancement provides a broader set of mathematical tools within the modular, single-source file CLI tool and supports practical automation and diagnostic tasks.
+This feature enhances the existing TRIGONOMETRY module in the CLI tool. In addition to supporting basic trigonometric functions (sine, cosine, and tangent) and hyperbolic functions (sinh, cosh, tanh), this update adds inverse trigonometric functions and inverse hyperbolic functions. Users can now compute arcsine (asin), arccosine (acos), and arctangent (atan) as well as the corresponding hyperbolic inverses (asinh, acosh, atanh). These additions broaden the mathematical capabilities of the CLI tool in a modular, single-source file environment, aligning with the repository’s mission of fostering healthy collaboration and practical automation.
 
 ## CLI Integration
-- **Command Addition:** The `--trig` CLI flag remains available. Users now supply a function name as the first parameter from the following options (case-insensitive):
-  - Basic functions: `sin`, `cos`, `tan`
-  - Hyperbolic functions: `sinh`, `cosh`, `tanh`
-- **Parameters:** The command expects at least two parameters: the trigonometric function (as listed above) and the angle value. An optional flag `--deg` indicates if the provided angle is in degrees (default is radians). When `--deg` is supplied, the tool converts the input from degrees to radians before computation.
+- **Command Flag:** The `--trig` CLI flag is used to invoke the feature.
+- **Function Parameter:** Users must provide a function name (case-insensitive) as the first parameter. Supported functions include:
+  - **Basic Functions:** `sin`, `cos`, `tan`
+  - **Hyperbolic Functions:** `sinh`, `cosh`, `tanh`
+  - **Inverse Functions:** `asin`, `acos`, `atan`
+  - **Inverse Hyperbolic Functions:** `asinh`, `acosh`, `atanh`
+- **Angle/Input Parameter:** The command expects at least one numeric parameter representing the angle or value. 
+- **Degree Conversion:** An optional `--deg` flag can be provided. For basic and hyperbolic functions, this flag indicates that the provided input is in degrees (and will be converted to radians before computation). For inverse functions, if `--deg` is provided, the result (normally in radians) will be converted to degrees for user convenience.
 
 ## Trigonometric Computation
 - **Basic Functions:** 
-  - `Math.sin(angle)` for sine
-  - `Math.cos(angle)` for cosine
-  - `Math.tan(angle)` for tangent
+  - `Math.sin(angle)`, `Math.cos(angle)`, `Math.tan(angle)` when the input is in radians (or converted from degrees when `--deg` is set).
 - **Hyperbolic Functions:** 
-  - `Math.sinh(angle)` for hyperbolic sine
-  - `Math.cosh(angle)` for hyperbolic cosine
-  - `Math.tanh(angle)` for hyperbolic tangent
-- **Degree Conversion:** When the `--deg` flag is provided, the angle is converted using the formula: `radians = degrees * (Math.PI / 180)`.
+  - `Math.sinh(angle)`, `Math.cosh(angle)`, `Math.tanh(angle)` computed directly on the provided value.
+- **Inverse Functions:** 
+  - For circular functions: `Math.asin(value)`, `Math.acos(value)`, `Math.atan(value)`. When the `--deg` flag is active, the output is converted from radians to degrees using the conversion: `degrees = radians * (180/Math.PI)`.
+- **Inverse Hyperbolic Functions:** 
+  - Computed using `Math.asinh(value)`, `Math.acosh(value)`, `Math.atanh(value)` with appropriate domain validation.
 
 ## Error Handling & Validation
-- The command validates that the function parameter is one of the recognized identifiers. If an unrecognized function is provided, it will output an error message: "Error: Unsupported trigonometric function. Use sin, cos, tan, sinh, cosh, or tanh.".
-- The numeric input is validated using the existing `parseNumbers` helper. If no valid numeric input is provided, the standardized error message "Error: No valid numeric inputs provided." is returned.
-- Flags and extra parameters are checked, and any deviations from the expected input pattern result in clear error messages following existing guidelines.
+- **Function Validation:** The command validates that the provided function name is one of the supported options. If an unrecognized function is provided, the CLI outputs an error message listing the accepted identifiers.
+- **Numeric Input:** Validates that the numeric parameter(s) are provided and are within the valid domain for the selected function. For instance, inverse trigonometric functions require inputs in certain ranges (e.g. value for asin and acos must lie between -1 and 1).
+- **Degree Flag Handling:** Ensures that conversions are correctly applied for both input (basic/hyperbolic) and output (inverse functions) based on the `--deg` flag.
 
 ## Testing & Documentation
-- **Unit Tests:** New tests should simulate valid computations for all supported functions (both basic and hyperbolic). Include tests for the `--deg` flag to ensure proper angle conversion. Invalid cases (e.g., unknown function names or non-numeric angles) must verify that proper error messages are output.
-- **Documentation Updates:** The README and CLI usage documentation are updated to include examples such as:
-  - Basic: `node src/lib/main.js --trig sin 1.57`
-  - With degree flag: `node src/lib/main.js --trig cos 180 --deg`
+- **Unit Tests:** New tests should be added to cover:
+  - Computation of basic functions with and without the `--deg` flag.
+  - Hyperbolic function computations.
+  - Inverse function evaluations, including cases where the output should be converted to degrees.
+  - Error scenarios such as out-of-domain inputs and unrecognized function names.
+- **Documentation Updates:** The README and CLI usage docs should include examples such as:
+  - Basic: `node src/lib/main.js --trig sin 45 --deg`
+  - Inverse: `node src/lib/main.js --trig asin 0.5` and with degree output: `node src/lib/main.js --trig asin 0.5 --deg`
   - Hyperbolic: `node src/lib/main.js --trig sinh 0.5`
-  - With degree flag (if applicable): `node src/lib/main.js --trig tanh 45 --deg`
-- **Inline Comments:** In `src/lib/main.js`, comments are added to document the new branch logic handling hyperbolic function computation.
+  - Inverse Hyperbolic: `node src/lib/main.js --trig atanh 0.3`
+- **Inline Comments:** Developers should include inline comments in the source file to document the branch logic for selecting the correct Math functions and for handling the degree conversions.
 
 ## Alignment with Repository Mission
-By extending the TRIGONOMETRY feature to support hyperbolic functions, this update richens the mathematical toolset available in the CLI tool. It aligns with the repository’s mission to deliver modular, single-source utilities for practical automation, enabling healthier collaboration and more comprehensive diagnostics in mathematical workflows.
+By extending the TRIGONOMETRY feature to include inverse trigonometric and inverse hyperbolic functions, this update further enriches the modular CLI tool’s mathematical capabilities. This enhancement supports diverse diagnostic, educational, and automation tasks within a single-source file, reinforcing the repository’s mission of fostering healthy collaboration and streamlined automation.
