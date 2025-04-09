@@ -41,28 +41,26 @@
 <li class="md-github"><strong class="md-github">--percentile:</strong> Compute a specified percentile of a dataset using linear interpolation.</li>
 <li class="md-github"><strong class="md-github">--geomean:</strong> Compute the geometric mean of positive numbers.</li>
 <li class="md-github"><strong class="md-github">--config:</strong> Display the current CLI configuration including tool version and environment settings.</li>
-<li class="md-github"><strong class="md-github">--toggle-allow-nan:</strong> Dynamically toggle the ALLOW_NAN setting for numeric parsing.</li>
-<li class="md-github"><strong class="md-github">--allow-nan-inline:</strong> <em class="md-github">New!</em> Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. <strong class="md-github">This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.</strong></li>
-<li class="md-github"><strong class="md-github">--diagnose-nan:</strong> <em class="md-github">New!</em> Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and now also the token character range (trimStart and trimEnd) within the original token that was preserved after trimming. This additional information helps identify exactly which characters were removed during processing.</li>
+<li class="md-github"><strong class="md-github">--toggle-allow-nan:</strong> Dynamically toggle the ALLOW_NAN setting for numeric parsing at runtime.</li>
+<li class="md-github"><strong class="md-github">--allow-nan-inline:</strong> <em class="md-github">New!</em> Allow NaN tokens to be accepted as valid numeric inputs for the current command invocation without changing global settings. This inline flag is isolated to each command invocation, resets immediately after each command, and ensures predictable parsing behavior.</li>
+<li class="md-github"><strong class="md-github">--diagnose-nan:</strong> <em class="md-github">New!</em> Provides a detailed diagnostic report for NaN token handling. It analyzes each input token, reporting the original token, its trimmed version, whether it was accepted, the warning index, and token character range information (trimStart and trimEnd) to aid in debugging.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="enhanced-input-parsing-details" href="#enhanced-input-parsing-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enhanced Input Parsing Details</h3>
-<p class="md-github">The input parsing mechanism has been refactored for improved modularity and performance. Utility functions to handle token normalization now always trim outer whitespace before applying configurable punctuation stripping. This ensures that variants like &quot; NaN &quot;, &quot;NaN,&quot; or &quot;NaN?&quot; are consistently processed based on the environment variables:</p>
+<p class="md-github">The input parsing mechanism has been refactored for improved modularity and performance. A dedicated configuration function now centralizes environment variable initialization for:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">ALLOW_NAN:</strong> When set to <code class="md-github">true</code>, allows 'NaN' as a valid numeric input.</li>
 <li class="md-github"><strong class="md-github">INVALID_TOKENS:</strong> A list of tokens to reject (default rejects variants of &quot;NaN&quot;).</li>
-<li class="md-github"><strong class="md-github">TOKEN_PUNCTUATION_CONFIG:</strong> Specifies custom punctuation characters to trim from tokens. If undefined, defaults to &quot;,.;?!&quot;. An empty string disables punctuation stripping but still trims outer whitespace.</li>
+<li class="md-github"><strong class="md-github">TOKEN_PUNCTUATION_CONFIG:</strong> Specifies custom punctuation characters to trim from tokens. If undefined, defaults to &quot;,.;?!&quot;. An empty string disables punctuation stripping (beyond trimming whitespace).</li>
 <li class="md-github"><strong class="md-github">DISABLE_NAN_SUGGESTION:</strong> When set to <code class="md-github">true</code>, suppresses the correction suggestion in warnings.</li>
-<li class="md-github"><strong class="md-github">DYNAMIC_WARNING_INDEX:</strong> If <code class="md-github">true</code>, warning messages report the actual token position (1-indexed); otherwise, a fixed index (0) is used.</li>
+<li class="md-github"><strong class="md-github">DYNAMIC_WARNING_INDEX:</strong> If <code class="md-github">true</code>, warning messages use the token's actual position (1-indexed); otherwise, a fixed index (0) is used.</li>
 </ul>
-<p class="md-github"><strong class="md-github">Performance Optimization:</strong> The NaN token parsing now employs a caching mechanism to store results of repetitive regex operations. This significantly improves performance when processing high-volume input (e.g., over 100,000 tokens) without changing the functional behavior.</p>
-<p class="md-github"><strong class="md-github">Note:</strong> In non-JSON mode, warnings for invalid tokens are output via <code class="md-github">console.warn</code>. Tokens that become empty after trimming are now considered invalid.</p>
-<h3 class="md-github"><a class="md-github__anchor" name="global-json-output-mode" href="#global-json-output-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global JSON Output Mode</h3>
-<p class="md-github">A new global flag has been added:</p>
+<p class="md-github"><strong class="md-github">Performance Optimization:</strong> The NaN token parsing now employs caching of regex operations to significantly improve performance in high-volume scenarios.</p>
+<p class="md-github"><strong class="md-github">Global JSON Output Mode:</strong></p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">--json:</strong> Outputs command results as minified JSON for machine integration.</li>
-<li class="md-github"><strong class="md-github">--json-pretty:</strong> Outputs formatted JSON with 2-space indentation. (Takes precedence over --json if both are provided.)</li>
+<li class="md-github"><strong class="md-github">--json-pretty:</strong> Outputs formatted JSON with 2-space indentation (overrides --json if both are provided).</li>
 </ul>
-<p class="md-github">JSON responses now include metadata:</p>
+<p class="md-github">JSON responses include metadata:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">timestamp:</strong> ISO formatted execution timestamp.</li>
 <li class="md-github"><strong class="md-github">version:</strong> Tool version.</li>
@@ -70,7 +68,6 @@
 <li class="md-github"><strong class="md-github">inputEcho:</strong> The cleaned input parameters after global flag filtering.</li>
 </ul>
 <h3 class="md-github"><a class="md-github__anchor" name="shorthand-aliases" href="#shorthand-aliases"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Shorthand Aliases</h3>
-<p class="md-github">Aliases have been added for user convenience:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">-s:</strong> Alias for <code class="md-github">--sum</code></li>
 <li class="md-github"><strong class="md-github">-m:</strong> Alias for <code class="md-github">--multiply</code></li>
@@ -79,7 +76,7 @@
 <li class="md-github"><strong class="md-github">-h:</strong> Alias for <code class="md-github">--help</code></li>
 <li class="md-github"><strong class="md-github">-g:</strong> Alias for <code class="md-github">--geomean</code></li>
 </ul>
-<p class="md-github">All commands uniformly return &quot;Error: No valid numeric inputs provided.&quot; when invalid inputs are encountered, accompanied by detailed warnings (printed to stderr in non-JSON mode).</p>
+<p class="md-github">All commands uniformly return &quot;Error: No valid numeric inputs provided.&quot; when invalid inputs are encountered, and detailed warnings are provided (via stderr in non-JSON mode).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -88,23 +85,23 @@ CI/CD workflows in the <code class="md-github">.github/workflows/</code> directo
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality resides in <code class="md-github">src/lib/main.js</code>. The numeric parsing utilities are integrated for a streamlined structure.</p>
+The main functionality resides in <code class="md-github">src/lib/main.js</code>. The numeric parsing and environment configuration are centralized to ensure consistent behavior.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder cover both CLI behavior and the integrated number utilities.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder cover both CLI behavior and number utilities.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Configuration:</strong>
-Customize behavior via environment variables like <strong class="md-github">INVALID_TOKENS</strong>, <strong class="md-github">ALLOW_NAN</strong>, <strong class="md-github">TOKEN_PUNCTUATION_CONFIG</strong>, etc. The <strong class="md-github">--toggle-allow-nan</strong> command allows runtime changes without restarting the tool. The new <strong class="md-github">--allow-nan-inline</strong> flag provides per-command control and resets immediately after each invocation.</p>
+Customize behavior via environment variables. The new configuration function in the CLI centralizes settings like <strong class="md-github">ALLOW_NAN</strong>, <strong class="md-github">INVALID_TOKENS</strong>, <strong class="md-github">TOKEN_PUNCTUATION_CONFIG</strong>, etc. The <strong class="md-github">--toggle-allow-nan</strong> command allows runtime changes, while the <strong class="md-github">--allow-nan-inline</strong> flag enables per-command control.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Diagnostic Tools:</strong>
-The new <strong class="md-github">--diagnose-nan</strong> command offers an in-depth diagnostic report of how tokens are processed, now including token character range information (trimStart and trimEnd) to aid debugging.</p>
+The <strong class="md-github">--diagnose-nan</strong> command offers an in-depth diagnostic report, now including token character range details to assist in debugging.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
-This README, along with <a href="./MISSION.md" class="md-github">MISSION.md</a>, <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a>, and <a href="./LICENSE" class="md-github">LICENSE</a>, provide guidelines and details for effective use and contribution.</p>
+Refer to <a href="./MISSION.md" class="md-github">MISSION.md</a>, <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a>, and <a href="./LICENSE" class="md-github">LICENSE</a> for more details.</p>
 </li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
@@ -122,14 +119,14 @@ This README, along with <a href="./MISSION.md" class="md-github">MISSION.md</a>,
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
 <p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="note" href="#note"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note</h2>
-<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands, the <strong class="md-github">--config</strong> command, the <strong class="md-github">--toggle-allow-nan</strong> command, the <strong class="md-github">--allow-nan-inline</strong> flag for per-command NaN acceptance, and the new <strong class="md-github">--diagnose-nan</strong> command for detailed NaN diagnostics. Global JSON flags, a configurable warning index mode, customizable punctuation stripping, improved handling of NaN tokens, enhanced diagnostics with token character range information, and performance optimizations via caching for high-volume token processing are all supported.</p>
+<p class="md-github">The CLI in <code class="md-github">src/lib/main.js</code> has been updated to include new statistical commands, configuration consolidation for consistent NaN handling, a dedicated environment configuration function, the <strong class="md-github">--toggle-allow-nan</strong> command, the <strong class="md-github">--allow-nan-inline</strong> flag, and the <strong class="md-github">--diagnose-nan</strong> command for detailed diagnostics. Global JSON output, dynamic warning indices, custom punctuation stripping, and performance optimizations via regex caching are also supported.</p>
 <p class="md-github">For further details, refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and [CONTRIBUTING.md].</p>
 <p class="md-github">For guidance on using the repository template, see <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
-<p class="md-github">For more information about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic-lib.</p>
+<p class="md-github">For more about intentïon <code class="md-github">agentic‑lib</code>, visit https://github.com/xn-intenton-z2a/agentic‑lib.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-09T17:59:40.772Z</p>
+    <p>Generated on 2025-04-09T18:10:42.109Z</p>
   </footer>
 </body>
 </html>
