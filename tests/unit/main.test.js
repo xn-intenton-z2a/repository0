@@ -168,6 +168,7 @@ describe("CLI Behavior", () => {
       expect(output).toContain("INVALID_TOKENS:");
       expect(output).toContain("DYNAMIC_WARNING_INDEX:");
       expect(output).toContain("TOKEN_PUNCTUATION_CONFIG:");
+      expect(output).toContain("DISABLE_NAN_SUGGESTION:");
       logSpy.mockRestore();
     });
 
@@ -181,6 +182,7 @@ describe("CLI Behavior", () => {
       expect(output.config).toHaveProperty("INVALID_TOKENS");
       expect(output.config).toHaveProperty("DYNAMIC_WARNING_INDEX");
       expect(output.config).toHaveProperty("TOKEN_PUNCTUATION_CONFIG");
+      expect(output.config).toHaveProperty("DISABLE_NAN_SUGGESTION");
       expect(output).toHaveProperty("timestamp");
       expect(typeof output.timestamp).toBe('string');
       expect(isoRegex.test(output.timestamp)).toBe(true);
@@ -304,8 +306,20 @@ describe("CLI Behavior", () => {
   test("includes correction suggestion in warning for NaN tokens", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main(["--sum", "NaN", "5"]);
-    const warningCall = warnSpy.mock.calls.find(call => call[0].includes("NaN"));
+    const warningCall = warnSpy.mock.calls.find(call => call[0].includes("NaN") && call[0].includes("Did you mean"));
     expect(warningCall[0]).toContain("Did you mean to allow NaN values?");
+    warnSpy.mockRestore();
+  });
+
+  // New test to verify suppression of correction suggestion when DISABLE_NAN_SUGGESTION is true
+  test("suppresses correction suggestion with DISABLE_NAN_SUGGESTION true", async () => {
+    const original = process.env.DISABLE_NAN_SUGGESTION;
+    process.env.DISABLE_NAN_SUGGESTION = "true";
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await main(["--sum", "NaN", "5"]);
+    const warnings = warnSpy.mock.calls.map(call => call[0]);
+    expect(warnings.some(w => w.includes("Did you mean to allow NaN"))).toBe(false);
+    process.env.DISABLE_NAN_SUGGESTION = original;
     warnSpy.mockRestore();
   });
 });
