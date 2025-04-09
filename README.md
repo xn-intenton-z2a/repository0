@@ -33,6 +33,9 @@ The input parsing mechanism has been refactored for improved modularity and perf
 - **DISABLE_NAN_SUGGESTION:** When set to `true`, suppresses correction suggestions in warnings.
 - **DYNAMIC_WARNING_INDEX:** If `true`, warning messages use a 1-indexed token position, otherwise a fixed index (0) is used.
 
+**Improved 'NaN' Normalization:**
+Variants in casing, surrounding punctuation, and extraneous whitespace around 'NaN' are now normalized and validated consistently. Only correctly formatted inputs are accepted when configured, ensuring clear diagnostics.
+
 **Global JSON Output Mode:**
 - **--json:** Outputs command results as minified JSON for machine integration.
 - **--json-pretty:** Outputs formatted JSON with 2-space indentation.
@@ -59,7 +62,7 @@ All commands return a clear message if invalid inputs are detected. With the new
   CI/CD workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**
-  The main CLI functionality is in `src/lib/main.js`, featuring enhanced numeric parsing and new flags such as **--ignore-invalid**.
+  The main CLI functionality is in `src/lib/main.js`, featuring enhanced numeric parsing with improved 'NaN' normalization and new flags for dynamic behavior.
 
 - **Tests:**
   Unit tests in the `tests/unit/` folder cover CLI behavior, numeric utilities, and the new ignore-invalid functionality.
@@ -96,7 +99,7 @@ Released under the MIT License (see [LICENSE](./LICENSE)).
 
 ## Note
 
-The CLI in `src/lib/main.js` has been updated to include new functionality for handling invalid numeric tokens with the **--ignore-invalid** flag, along with other enhancements such as JSON output mode, dynamic warning indices, and improved input parsing.
+The CLI in `src/lib/main.js` has been updated to improve normalization and diagnostic handling of 'NaN' tokens along with other enhancements such as JSON output mode and dynamic warning indices.
 
 For further details, refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md].
 

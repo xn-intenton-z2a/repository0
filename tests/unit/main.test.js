@@ -437,7 +437,7 @@ describe("Number Utilities", () => {
     process.env.INVALID_TOKENS = "nan";
     const originalTokenPunctuation = process.env.TOKEN_PUNCTUATION_CONFIG;
     process.env.TOKEN_PUNCTUATION_CONFIG = ",.;?!";
-    const input = ["  ,10, ", "!!NaN??", "abc"]; 
+    const input = ["  ,10, ", "!!NaN??", "abc"];
     const result = parseNumbers(input);
     expect(result.valid).toEqual([10]);
     expect(result.invalid.length).toBeGreaterThan(0);
