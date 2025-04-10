@@ -2,21 +2,25 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
+  "openIssues": 60,
   "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
   "openPRs": 1,
   "prDetails": [
     {
-      "title": "Add --trace-plugins flag to enable plugin transformation trace logging with detailed output. (fixes #1210)",
-      "ageMinutes": 1
+      "title": "Refactor NaN handling to standardize Unicode normalization and streamline conversion logic (fixes #1226)",
+      "ageMinutes": 0
     }
   ],
-  "diffMinutes": 0,
-  "diffMinutesMain": 8,
+  "diffMinutes": 1,
+  "diffMinutesMain": 4,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:51",
+      "message": "Add --trace-plugins flag to enable plugin transformation trace l..."
+    },
     {
       "time": "19:42",
       "message": "Add support for customNan configuration in .repositoryConfig.jso..."
@@ -32,23 +36,19 @@
     {
       "time": "19:13",
       "message": "Refactored NaN conversion logic to consistently handle Unicode v..."
-    },
-    {
-      "time": "19:02",
-      "message": "Refactored NaN conversion handling for consistency and enhanced ..."
     }
   ],
   "branches": {
     "count": 1,
     "details": [
       {
-        "branch": "agentic-lib-issue-1210",
+        "branch": "agentic-lib-issue-1226",
         "minutesSinceLastCommit": 1
       }
     ]
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:51:26.298Z"
+  "generatedAt": "2025-04-10T19:56:37.865Z"
 }
