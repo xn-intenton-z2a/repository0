@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 25,
-  "issuesClosedLastHour": 4,
+  "openIssues": 23,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Added early legacy flag handling in main.js to properly output deprecation warnings ensuring all tests pass. (fixes #1233)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 36,
-  "commitsLastHour": 2,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "21:30",
+      "message": "Added early legacy flag handling in main.js to properly output d..."
+    },
     {
       "time": "20:53",
       "message": "Updated documentation to clarify the NaN subcommand usage and it..."
@@ -32,23 +31,14 @@
     {
       "time": "19:58",
       "message": "Archived the decision on NaN directives and documented it in bot..."
-    },
-    {
-      "time": "19:47",
-      "message": "Consolidated NaN flag documentation across CLI help README and c..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1233",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:30:06.646Z"
+  "generatedAt": "2025-04-10T21:31:11.727Z"
 }
