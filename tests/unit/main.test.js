@@ -70,9 +70,8 @@ describe("CLI Help Message", () => {
       "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
       "  --check-update               Check if a new version is available from the npm registry\n\n" +
       "NaN Flags:\n" +
-      "  --diagnose-nan               Display informational message about NaN handling.\n\n" +
-      "Note: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only.\n" +
-      "(Archived Decision: The handling of NaN directives remains as a no-operation as documented in MISSION.md and CONTRIBUTING.md.)"
+      "  --diagnose-nan               Informational only; does not affect CLI behavior. See MISSION.md, CONTRIBUTING.md, and README.md for details.\n\n" +
+      "Note: NaN-related flags are strictly non-operative per project guidelines."
     );
     consoleLogSpy.mockRestore();
   });
@@ -213,7 +212,7 @@ describe("CLI Diagnose NaN", () => {
     await main(["--diagnose-nan"]);
     const calls = consoleLogSpy.mock.calls.map(call => call[0]);
     expect(calls.some(msg => msg === "NaN Informational Output:")).toBe(true);
-    expect(calls.some(msg => msg.includes("informational only"))).toBe(true);
+    expect(calls.some(msg => msg.includes("informational purposes"))).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });

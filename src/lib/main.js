@@ -90,7 +90,7 @@ async function checkForUpdate(args, argv) {
   }
 }
 
-// Consolidated help message with unified NaN flag documentation
+// Consolidated help message with updated NaN directive documentation
 const helpMessage =
   "Usage: node main.js [options]\n" +
   "Options:\n" +
@@ -103,9 +103,8 @@ const helpMessage =
   "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
   "  --check-update               Check if a new version is available from the npm registry\n\n" +
   "NaN Flags:\n" +
-  "  --diagnose-nan               Display informational message about NaN handling.\n" +
-  "\nNote: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only.\n" +
-  "(Archived Decision: The handling of NaN directives remains as a no-operation as documented in MISSION.md and CONTRIBUTING.md.)";
+  "  --diagnose-nan               Informational only; does not affect CLI behavior. See MISSION.md, CONTRIBUTING.md, and README.md for details.\n\n" +
+  "Note: NaN-related flags are strictly non-operative per project guidelines.";
 
 // Updated main to be asynchronous to support async update check
 export async function main(args = process.argv.slice(2)) {
@@ -124,7 +123,7 @@ export async function main(args = process.argv.slice(2)) {
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
-    .option("diagnose-nan", { type: "boolean", description: "Display informational message about NaN handling" })
+    .option("diagnose-nan", { type: "boolean", description: "Informational only; does not affect CLI behavior. See documentation for details." })
     .option("check-update", { type: "boolean", description: "Check if a new version is available from the npm registry" })
     .help(false)
     .version(false)
@@ -207,9 +206,9 @@ export async function main(args = process.argv.slice(2)) {
   }
 
   if (argv["diagnose-nan"]) {
-    // Archived decision: NaN flags are informational only and do not affect CLI functionality.
+    // Archived decision: NaN-related flags are informational only.
     console.log("NaN Informational Output:");
-    console.log("All NaN-related flags are informational only and do not affect CLI functionality.");
+    console.log("This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.");
     return;
   }
 
