@@ -40,7 +40,27 @@ The CLI now supports the following subcommands:
 
 - **nan**
   - **Usage:** `node src/lib/main.js nan`
-  - **Description:** Display informational output regarding NaN flags. Note: This command is purely informational and non-operative; it triggers no modifications or computations. Refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+  - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative; it triggers no modifications or computations. Refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+### Detailed Deprecation Notice for Legacy CLI Flags
+
+Legacy CLI flags are no longer supported and have been mapped to their corresponding subcommands. Please update your usage according to the table below:
+
+| Legacy Flag           | New Subcommand (or Option)      | Example Usage                                             |
+|-----------------------|---------------------------------|----------------------------------------------------------|
+| `--help`              | *Use subcommands*               | `node src/lib/main.js version`                           |
+| `--pkg-version`       | `version`                       | `node src/lib/main.js version`                           |
+| `--diagnostics`       | `diagnostics`                   | `node src/lib/main.js diagnostics`                       |
+| `--check-update`      | `update`                        | `node src/lib/main.js update`                            |
+| `--json-output`       | `json`                          | `node src/lib/main.js json extraArg`                     |
+| `--json-extended`     | `json --extended`               | `node src/lib/main.js json --extended extraArg`          |
+| `--verbose`           | `verbose`                       | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
+| `--warning-index-mode`| `verbose` (with --warning option)| `node src/lib/main.js verbose --warning 5`               |
+| `--diagnose-nan`      | `nan`                           | `node src/lib/main.js nan`                               |
+
+**Rationale:**
+
+Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage.
 
 ### Environment Configuration and CLI_MODE
 
@@ -54,7 +74,7 @@ will result in the CLI logging a message such as "Environment CLI_MODE: debug". 
 
 ### Note on Legacy Flags
 
-Legacy CLI flags (e.g., `--help`, `--pkg-version`, `--diagnostics`, `--check-update`, `--json-output`, `--json-extended`, `--verbose`, `--warning-index-mode`, `--diagnose-nan`) are deprecated. Using them will result in a deprecation warning and redirection to the corresponding subcommand behavior. Please update your usage to the subcommand structure.
+Legacy CLI flags (e.g., `--help`, `--pkg-version`, `--diagnostics`, `--check-update`, `--json-output`, `--json-extended`, `--verbose`, `--warning-index-mode`, `--diagnose-nan`) are deprecated. Using them will trigger a deprecation warning and execute the mapped functionality using the corresponding new subcommands. Please use the updated subcommand usage as detailed above.
 
 ## Workflows and Dependencies
 
