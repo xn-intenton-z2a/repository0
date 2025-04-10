@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 22,
+  "openIssues": 23,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Lock NaN-related flags to non-operative behavior by adding inline comments and enhancing tests. (fixes #1229)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 3,
+  "diffMinutesMain": 4,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1229",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:53:59.375Z"
+  "generatedAt": "2025-04-10T21:55:19.453Z"
 }
