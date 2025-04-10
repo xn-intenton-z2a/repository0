@@ -6,7 +6,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
-**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling.
+**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling. Specifically, the JSON output generation has been refactored into a helper function that supports both standard and extended metadata formats, ensuring consistency and easier maintenance.
 
 The tool supports the following flags:
 
@@ -39,7 +39,7 @@ The tool supports the following flags:
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
   • `cwd`: The current working directory  
   • `uptime`: The process uptime in seconds
-
+  
   **Example:**
   node src/lib/main.js --json-extended extraArg
 
