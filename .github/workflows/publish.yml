@@ -143,7 +143,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@3.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@3.4.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       #githubRelease: true
@@ -164,7 +164,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@3.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@3.4.0'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
@@ -175,5 +175,22 @@ jobs:
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  stats:
+    if: ${{ always() }}
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.4.0'
+    with:
+      cache: 'npm'
+      npmAuthOrganisation: '@xn-intenton-z2a'
+      public: 'public'
+      s3BucketUrl: 's3://agentic-lib-bucket/events/'
+      iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
+      iamDeploymentRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

@@ -282,7 +282,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.4.0'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -477,9 +477,26 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.4.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
       gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (fixes #${{ needs.select-branch.outputs.issueNumber }})"
       label: 'automerge'
+
+  stats:
+    if: ${{ always() }}
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.4.0'
+    with:
+      cache: 'npm'
+      npmAuthOrganisation: '@xn-intenton-z2a'
+      public: 'public'
+      s3BucketUrl: 's3://agentic-lib-bucket/events/'
+      iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
+      iamDeploymentRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

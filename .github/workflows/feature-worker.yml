@@ -47,7 +47,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.4.0'
     with:
       feature: ${{ inputs.feature }}
       featuresDir: 'features/'
@@ -67,4 +67,21 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  stats:
+    if: ${{ always() }}
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.4.0'
+    with:
+      cache: 'npm'
+      npmAuthOrganisation: '@xn-intenton-z2a'
+      public: 'public'
+      s3BucketUrl: 's3://agentic-lib-bucket/events/'
+      iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
+      iamDeploymentRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
+    secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

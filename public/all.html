@@ -4,52 +4,55 @@
   <meta charset="UTF-8">
   <title>agentic-lib</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.9/ejs.min.js"></script>
   <style>
-      /* Basic reset and box-sizing */
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { height: 100%; }
-      body {
-          font-family: Arial, sans-serif;
-          background-color: #f9f9f9;
-          color: #333;
-          display: flex;
-          flex-direction: column;
-          padding: 1em;
-      }
-      header {
-          margin-bottom: 1em;
-          text-align: center;
-      }
-      h1 { font-size: 1.8em; margin-bottom: 0.5em; }
-      #controls { margin-top: 1em; margin-bottom: 1em; text-align: center; }
-      #autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
-      /* Main content container fills available space */
-      #mainContent {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-      }
-      /* Grid container: fill available space and auto-size rows */
-      .grid {
-          flex: 1;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1em;
-          overflow-y: auto;
-          grid-auto-rows: 1fr;  /* Each row takes equal available space */
-      }
-      /* The iframe now fills its container completely */
-      .tile iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-      }
-      footer {
-          margin-top: 0;
-          text-align: center;
-          font-size: 0.9em;
-          color: #777;
-      }
+
+/* Basic reset and box-sizing */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    padding: 1em;
+}
+header {
+    margin-bottom: 1em;
+    text-align: center;
+}
+h1 { font-size: 1.8em; margin-bottom: 0.5em; }
+#controls { margin-top: 1em; margin-bottom: 1em; text-align: center; }
+#autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
+/* Main content container fills available space */
+#mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+/* Grid container: fill available space and auto-size rows */
+.grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1em;
+    overflow-y: auto;
+    grid-auto-rows: 1fr;  /* Each row takes equal available space */
+}
+/* The iframe now fills its container completely */
+.tile iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+footer {
+    margin-top: 0;
+    text-align: center;
+    font-size: 0.9em;
+    color: #777;
+}
+
   </style>
 </head>
 <body>
@@ -71,51 +74,78 @@
 </footer>
 
 <script>
-  // Configuration: list of URLs to display in the tiles.
-  const urls = [
-    "https://agentic-lib-bucket.s3.eu-west-2.amazonaws.com/events/agentic-lib-stats.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAQaCWV1LXdlc3QtMiJHMEUCIQD017w3peXQQH3x6cLtPunq96au2R4Ztdqc0IwO0Ox3HAIgTRQhN5%2FFVjSaK1pZO%2F8WvZm8VORUz2%2FFt6Cyr5xeT1wq4AMIfRACGgw1NDExMzQ2NjQ2MDEiDH7d0zLHM5oNN2JazSq9A78AF03wgSgY0VE78bec%2BkA%2BZaHMv5rXN2dF1VhgHdXe4FgnEnVjArvTaYmso7AQtdsBel6hmLwRWTYQTiw4oa4DJW2rQMjnuRb6mjoPtCupAKQzxrhw5BWDNkXzduVET3CtcK%2F4jUbiaAr2%2BpNDCfbHkpojHV2wK3PGzM3Z4hrXSGZfbDMOFVhxGq0RP1iSPKWM5RYrE3lSPjRYnD5ZnYBBhpuuDtB1%2Fpe7Yyt3fPKuK%2BOTVb1CapcB6sHbPmihcQ15ee8BrU3BBBmBZi7QU2K3m9AwNI63eVg7L5AfrrHrsrdpdLsTwECSrSUEYaNjlFtVyeZhm5RPDqrj2CRHNmqOgREOWlca0CT6Wd6uwtsHHGXlXpr4bbEtbJ2EWPvgKkOsIVhvk94iL1kuw8z4nc0%2BLzI7k6CUSWrBukaoBJ1Pn2PggpfAmao%2BHXVdOayMDn4ACfDXQ91N6I7U%2BULYIvwCADuCCz4Mi6cZp7tdji%2B30nILXeXV7u3tze53SYvO%2FhknuDA6C1zU6qr%2FJpdJXTTaWc35JqLaDEn1FhaDVztMgnivVmZjjNLy7S9qo6ulx3wIaFyS%2BCTeh61FOIAw7%2FjVvwY65AJooimrSzlLUgRzH0F7eEFaWpFLyPEIAP%2FlHpfNKcaJCpqZva4mrJjcuBUpehiTtbHrqtrSylzDuC2T6dAtqZTCW76kiWnUp0vW50II5AyQ2u3fc2rySpOvxRyrFAFdN5oFXvSo%2BuR5phKzoLFHQNraBQ5GreMw45pnAGEDkRxm9mWr90rdR%2BbbWwhvoE9tXK83ysp2R4yr%2FuS1svP08dU8o3lMJdkmguj6%2Bev68r97SxNeoVmWb9RAm0aHvpikeyoJsURoMTFhvxeXliPUdUsJvTOFPhHSk0Z6sVNH%2BA88ZNAfoUkIlvbHmWgyY5OjR6BWYOnDqBfbp0wwgmLVobz57Nq0jEE8WvyUJ3cMiZHW8yvdabPGaIkLqe%2F19ieUq61y090aZS1QVwM%2B9BUrPn3wJfpOFqtra%2FvuX6XuyavmLhgzbOEmzeDvYFCD3lGWlVdFmwzQ1kzPR7dwvQpy4pFLQ0EiDQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX37RDWOMZIUCY77W%2F20250408%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250408T195256Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=a87c2df7edca9666139ce909b8ffed5f042de41d8cde052477d8bc47418293e4",
-    "https://agentic-lib-bucket.s3.eu-west-2.amazonaws.com/events/repository0-crucible-stats.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAQaCWV1LXdlc3QtMiJHMEUCIQD017w3peXQQH3x6cLtPunq96au2R4Ztdqc0IwO0Ox3HAIgTRQhN5%2FFVjSaK1pZO%2F8WvZm8VORUz2%2FFt6Cyr5xeT1wq4AMIfRACGgw1NDExMzQ2NjQ2MDEiDH7d0zLHM5oNN2JazSq9A78AF03wgSgY0VE78bec%2BkA%2BZaHMv5rXN2dF1VhgHdXe4FgnEnVjArvTaYmso7AQtdsBel6hmLwRWTYQTiw4oa4DJW2rQMjnuRb6mjoPtCupAKQzxrhw5BWDNkXzduVET3CtcK%2F4jUbiaAr2%2BpNDCfbHkpojHV2wK3PGzM3Z4hrXSGZfbDMOFVhxGq0RP1iSPKWM5RYrE3lSPjRYnD5ZnYBBhpuuDtB1%2Fpe7Yyt3fPKuK%2BOTVb1CapcB6sHbPmihcQ15ee8BrU3BBBmBZi7QU2K3m9AwNI63eVg7L5AfrrHrsrdpdLsTwECSrSUEYaNjlFtVyeZhm5RPDqrj2CRHNmqOgREOWlca0CT6Wd6uwtsHHGXlXpr4bbEtbJ2EWPvgKkOsIVhvk94iL1kuw8z4nc0%2BLzI7k6CUSWrBukaoBJ1Pn2PggpfAmao%2BHXVdOayMDn4ACfDXQ91N6I7U%2BULYIvwCADuCCz4Mi6cZp7tdji%2B30nILXeXV7u3tze53SYvO%2FhknuDA6C1zU6qr%2FJpdJXTTaWc35JqLaDEn1FhaDVztMgnivVmZjjNLy7S9qo6ulx3wIaFyS%2BCTeh61FOIAw7%2FjVvwY65AJooimrSzlLUgRzH0F7eEFaWpFLyPEIAP%2FlHpfNKcaJCpqZva4mrJjcuBUpehiTtbHrqtrSylzDuC2T6dAtqZTCW76kiWnUp0vW50II5AyQ2u3fc2rySpOvxRyrFAFdN5oFXvSo%2BuR5phKzoLFHQNraBQ5GreMw45pnAGEDkRxm9mWr90rdR%2BbbWwhvoE9tXK83ysp2R4yr%2FuS1svP08dU8o3lMJdkmguj6%2Bev68r97SxNeoVmWb9RAm0aHvpikeyoJsURoMTFhvxeXliPUdUsJvTOFPhHSk0Z6sVNH%2BA88ZNAfoUkIlvbHmWgyY5OjR6BWYOnDqBfbp0wwgmLVobz57Nq0jEE8WvyUJ3cMiZHW8yvdabPGaIkLqe%2F19ieUq61y090aZS1QVwM%2B9BUrPn3wJfpOFqtra%2FvuX6XuyavmLhgzbOEmzeDvYFCD3lGWlVdFmwzQ1kzPR7dwvQpy4pFLQ0EiDQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX37RDWOMZIUCY77W%2F20250408%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250408T195320Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=f45895ed1f36c710a7e93e351a2ab81026bf65f1c169cab367f530b9c4b0d77c",
-    "https://agentic-lib-bucket.s3.eu-west-2.amazonaws.com/events/repository0-plot-code-lib-stats.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAQaCWV1LXdlc3QtMiJHMEUCIQD017w3peXQQH3x6cLtPunq96au2R4Ztdqc0IwO0Ox3HAIgTRQhN5%2FFVjSaK1pZO%2F8WvZm8VORUz2%2FFt6Cyr5xeT1wq4AMIfRACGgw1NDExMzQ2NjQ2MDEiDH7d0zLHM5oNN2JazSq9A78AF03wgSgY0VE78bec%2BkA%2BZaHMv5rXN2dF1VhgHdXe4FgnEnVjArvTaYmso7AQtdsBel6hmLwRWTYQTiw4oa4DJW2rQMjnuRb6mjoPtCupAKQzxrhw5BWDNkXzduVET3CtcK%2F4jUbiaAr2%2BpNDCfbHkpojHV2wK3PGzM3Z4hrXSGZfbDMOFVhxGq0RP1iSPKWM5RYrE3lSPjRYnD5ZnYBBhpuuDtB1%2Fpe7Yyt3fPKuK%2BOTVb1CapcB6sHbPmihcQ15ee8BrU3BBBmBZi7QU2K3m9AwNI63eVg7L5AfrrHrsrdpdLsTwECSrSUEYaNjlFtVyeZhm5RPDqrj2CRHNmqOgREOWlca0CT6Wd6uwtsHHGXlXpr4bbEtbJ2EWPvgKkOsIVhvk94iL1kuw8z4nc0%2BLzI7k6CUSWrBukaoBJ1Pn2PggpfAmao%2BHXVdOayMDn4ACfDXQ91N6I7U%2BULYIvwCADuCCz4Mi6cZp7tdji%2B30nILXeXV7u3tze53SYvO%2FhknuDA6C1zU6qr%2FJpdJXTTaWc35JqLaDEn1FhaDVztMgnivVmZjjNLy7S9qo6ulx3wIaFyS%2BCTeh61FOIAw7%2FjVvwY65AJooimrSzlLUgRzH0F7eEFaWpFLyPEIAP%2FlHpfNKcaJCpqZva4mrJjcuBUpehiTtbHrqtrSylzDuC2T6dAtqZTCW76kiWnUp0vW50II5AyQ2u3fc2rySpOvxRyrFAFdN5oFXvSo%2BuR5phKzoLFHQNraBQ5GreMw45pnAGEDkRxm9mWr90rdR%2BbbWwhvoE9tXK83ysp2R4yr%2FuS1svP08dU8o3lMJdkmguj6%2Bev68r97SxNeoVmWb9RAm0aHvpikeyoJsURoMTFhvxeXliPUdUsJvTOFPhHSk0Z6sVNH%2BA88ZNAfoUkIlvbHmWgyY5OjR6BWYOnDqBfbp0wwgmLVobz57Nq0jEE8WvyUJ3cMiZHW8yvdabPGaIkLqe%2F19ieUq61y090aZS1QVwM%2B9BUrPn3wJfpOFqtra%2FvuX6XuyavmLhgzbOEmzeDvYFCD3lGWlVdFmwzQ1kzPR7dwvQpy4pFLQ0EiDQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX37RDWOMZIUCY77W%2F20250408%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250408T195218Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=bbdcb4776e8821de63fe7816380c6f296b66eb081d5dbdc9652a7d40995dcb40",
-    "https://agentic-lib-bucket.s3.eu-west-2.amazonaws.com/events/repository0-stats.json?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEAQaCWV1LXdlc3QtMiJHMEUCIQD017w3peXQQH3x6cLtPunq96au2R4Ztdqc0IwO0Ox3HAIgTRQhN5%2FFVjSaK1pZO%2F8WvZm8VORUz2%2FFt6Cyr5xeT1wq4AMIfRACGgw1NDExMzQ2NjQ2MDEiDH7d0zLHM5oNN2JazSq9A78AF03wgSgY0VE78bec%2BkA%2BZaHMv5rXN2dF1VhgHdXe4FgnEnVjArvTaYmso7AQtdsBel6hmLwRWTYQTiw4oa4DJW2rQMjnuRb6mjoPtCupAKQzxrhw5BWDNkXzduVET3CtcK%2F4jUbiaAr2%2BpNDCfbHkpojHV2wK3PGzM3Z4hrXSGZfbDMOFVhxGq0RP1iSPKWM5RYrE3lSPjRYnD5ZnYBBhpuuDtB1%2Fpe7Yyt3fPKuK%2BOTVb1CapcB6sHbPmihcQ15ee8BrU3BBBmBZi7QU2K3m9AwNI63eVg7L5AfrrHrsrdpdLsTwECSrSUEYaNjlFtVyeZhm5RPDqrj2CRHNmqOgREOWlca0CT6Wd6uwtsHHGXlXpr4bbEtbJ2EWPvgKkOsIVhvk94iL1kuw8z4nc0%2BLzI7k6CUSWrBukaoBJ1Pn2PggpfAmao%2BHXVdOayMDn4ACfDXQ91N6I7U%2BULYIvwCADuCCz4Mi6cZp7tdji%2B30nILXeXV7u3tze53SYvO%2FhknuDA6C1zU6qr%2FJpdJXTTaWc35JqLaDEn1FhaDVztMgnivVmZjjNLy7S9qo6ulx3wIaFyS%2BCTeh61FOIAw7%2FjVvwY65AJooimrSzlLUgRzH0F7eEFaWpFLyPEIAP%2FlHpfNKcaJCpqZva4mrJjcuBUpehiTtbHrqtrSylzDuC2T6dAtqZTCW76kiWnUp0vW50II5AyQ2u3fc2rySpOvxRyrFAFdN5oFXvSo%2BuR5phKzoLFHQNraBQ5GreMw45pnAGEDkRxm9mWr90rdR%2BbbWwhvoE9tXK83ysp2R4yr%2FuS1svP08dU8o3lMJdkmguj6%2Bev68r97SxNeoVmWb9RAm0aHvpikeyoJsURoMTFhvxeXliPUdUsJvTOFPhHSk0Z6sVNH%2BA88ZNAfoUkIlvbHmWgyY5OjR6BWYOnDqBfbp0wwgmLVobz57Nq0jEE8WvyUJ3cMiZHW8yvdabPGaIkLqe%2F19ieUq61y090aZS1QVwM%2B9BUrPn3wJfpOFqtra%2FvuX6XuyavmLhgzbOEmzeDvYFCD3lGWlVdFmwzQ1kzPR7dwvQpy4pFLQ0EiDQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIAX37RDWOMZIUCY77W%2F20250408%2Feu-west-2%2Fs3%2Faws4_request&X-Amz-Date=20250408T195356Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=c238c8d955cff1692168515d52db24e86a29a855455e5c06f52bb2437851b891",
-  ];
 
-  const tileContainer = document.getElementById('tileContainer');
-  const autoReloadSwitch = document.getElementById('autoReloadSwitch');
+// Configuration: list of URLs of stats data to display in the tiles.
+const urls = [
+  "agentic-lib-stats.json",
+  "repository0-crucible-stats.json",
+  "repository0-plot-code-lib-stats.json",
+  "repository0-stats.json"
+];
 
-  // Generate grid tiles
-  urls.forEach((url, index) => {
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-    tile.dataset.url = url;
-    // No fixed height: iframe will take full height of its container.
+const tileContainer = document.getElementById('tileContainer');
+const autoReloadSwitch = document.getElementById('autoReloadSwitch');
 
-    # TODO, instead, load a templated file. stats.html (in the same directory relative to this one) and merge it with JS from s3 via pre-signed URLS.
-    tile.innerHTML = `<iframe src="${url}" title="Tile ${index + 1}"></iframe>`;
+// Generate grid tiles with templated content using EJS.
+urls.forEach((jsonUrl, index) => {
+  const tile = document.createElement('div');
+  tile.className = 'tile';
+  tile.dataset.url = jsonUrl;
 
-    // Clicking a tile opens the URL in a new tab.
-    tile.addEventListener('click', () => {
-      window.open(url, '_blank');
+  // Load the template and JSON data concurrently.
+  Promise.all([
+    fetch('stats.html').then(res => res.text()),
+    fetch(jsonUrl).then(res => res.json())
+  ])
+    .then(([template, statsData]) => {
+      // Use EJS to render the template with the JSON data.
+      tile.innerHTML = ejs.render(template, statsData);
+    })
+    .catch(err => {
+      console.error('Error loading template or JSON:', err);
+      tile.innerHTML = `<p>Error loading data for tile ${index + 1}</p>`;
     });
 
-    tileContainer.appendChild(tile);
+  // Clicking a tile opens the JSON data URL in a new tab.
+  tile.addEventListener('click', () => {
+    window.open(jsonUrl, '_blank');
   });
 
-  // Auto-reload: cycle through tiles, reloading one every 10 seconds.
-  // TODO: re-draw grid instead of reloading iframe.
-  let currentTile = 0;
-  function autoReload() {
-    if (!autoReloadSwitch.checked) return;
-    const iframes = document.querySelectorAll('.tile iframe');
-    if (iframes.length === 0) return;
-    iframes[currentTile].contentWindow.location.reload(true);
-    currentTile = (currentTile + 1) % iframes.length;
-  }
-  setInterval(autoReload, 10000);
+  tileContainer.appendChild(tile);
+});
 
-  // Update label on auto-reload switch change.
-  autoReloadSwitch.addEventListener('change', () => {
-    document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked ? "Auto-reload enabled" : "Auto-reload disabled";
-  });
+// Auto-reload: cycle through tiles, reloading one every 10 seconds.
+let currentTile = 0;
+function autoReload() {
+  if (!autoReloadSwitch.checked) return;
+  const tiles = document.querySelectorAll('.tile');
+  if (tiles.length === 0) return;
+
+  // Reload the content of the current tile.
+  const tile = tiles[currentTile];
+  const jsonUrl = tile.dataset.url;
+  Promise.all([
+    fetch('stats.html').then(res => res.text()),
+    fetch(jsonUrl).then(res => res.json())
+  ])
+    .then(([template, statsData]) => {
+      tile.innerHTML = ejs.render(template, statsData);
+    })
+    .catch(err => {
+      console.error('Error reloading tile:', err);
+    });
+
+  currentTile = (currentTile + 1) % tiles.length;
+}
+setInterval(autoReload, 2000);
+
+// Update label on auto-reload switch change.
+autoReloadSwitch.addEventListener('change', () => {
+  document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked
+    ? "Auto-reload enabled"
+    : "Auto-reload disabled";
+});
+
 </script>
 </body>
 </html>
