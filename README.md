@@ -14,6 +14,8 @@ This repository template demonstrates GitHub workflows imported from intentïon 
   - `--diagnostics`: Show detailed diagnostic information (Node version, package version, and dependencies).
   - `--json-output`: Output CLI response in JSON format including all provided arguments and metadata (e.g., timestamp, Node version, package version).
   - `--verbose`: Enable verbose logging for detailed debug information, including parsed arguments and internal state details.
+  
+  Additionally, the CLI automatically loads environment configuration from a `.env` file using the `dotenv` package. This allows default options such as `CLI_MODE` to be set via environment variables.
 
 - **CLI Diagnostics:**
   The CLI outputs diagnostic information when the `--diagnostics` flag is provided.

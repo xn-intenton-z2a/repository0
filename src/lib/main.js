@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
 export function main(args = []) {
+  // Log environment configuration if CLI_MODE is set
+  if (process.env.CLI_MODE) {
+    console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
+  }
+
   const verbose = args.includes("--verbose");
 
   if (args.includes("--help") || args.includes("-h")) {

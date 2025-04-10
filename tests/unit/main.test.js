@@ -97,3 +97,15 @@ describe("CLI Verbose Logging", () => {
     consoleLogSpy.mockRestore();
   });
 });
+
+describe("CLI Environment Variable", () => {
+  test("should log CLI_MODE from environment variable if set", () => {
+    process.env.CLI_MODE = "TEST_MODE";
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main([]);
+    const found = consoleLogSpy.mock.calls.some(call => call[0].includes("Environment CLI_MODE: TEST_MODE"));
+    expect(found).toBe(true);
+    delete process.env.CLI_MODE;
+    consoleLogSpy.mockRestore();
+  });
+});
