@@ -9,7 +9,7 @@
   "prDetails": [
     {
       "title": "Updated documentation to clarify the NaN subcommand usage and its informational purpose. (fixes #1231)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:52:05.663Z"
+  "generatedAt": "2025-04-10T20:52:50.321Z"
 }
