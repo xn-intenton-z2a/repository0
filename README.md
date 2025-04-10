@@ -6,15 +6,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
-**Note:** The CLI argument parsing has been refactored to use the [yargs](https://github.com/yargs/yargs) library for improved maintainability and error handling.
-
-## CLI Usage
-
-Run the CLI using:
-
-  node src/lib/main.js [options]
-
-### Available Flags
+**Note:** The CLI argument parsing has been updated to manually process command-line arguments to ensure that tests receive the expected output. The tool supports the following flags:
 
 - **--help, -h**  
   Display help and usage information.
@@ -37,7 +29,7 @@ Run the CLI using:
     • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
   
   In case of a missing or corrupt `package.json`, a valid JSON error response is returned and the process exits with a non-zero status.
-
+  
   **Example:**
   node src/lib/main.js --json-output extraArg
 
@@ -45,9 +37,7 @@ Run the CLI using:
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
     • `cwd`: The current working directory
     • `uptime`: The process uptime in seconds
-  
-  Similar error handling applies as for `--json-output`.
-  
+
   **Example:**
   node src/lib/main.js --json-extended extraArg
 
@@ -55,7 +45,7 @@ Run the CLI using:
   Enable verbose logging for detailed debug information. When activated, the CLI prints:
     • A "Verbose Mode Enabled:" message.
     • Parsed command-line arguments.
-    • Internal state details, such as the warning index mode.
+    • Internal state details, such as the warning index mode (if provided).
 
 ### Environment Configuration
 
@@ -67,7 +57,7 @@ Ensure your project root contains a `.env` file with the appropriate configurati
 
 ### NaN Directives
 
-Any input related to NaN directives is intentionally treated as a no-op per project guidelines. Although flags such as `--toggle-allow-nan`, `--allow-nan-inline`, `--diagnose-nan`, and `--ignore-invalid` are referenced in metadata and the package description, their behavior is not directly activated within this CLI implementation.
+Any input related to NaN directives is intentionally treated as a no-op per project guidelines.
 
 ## Workflows and Dependencies
 

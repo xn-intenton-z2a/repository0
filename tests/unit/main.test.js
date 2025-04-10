@@ -51,7 +51,7 @@ describe("CLI Version Flag", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--version"]);
     const call = consoleLogSpy.mock.calls[0][0];
-    expect(call.startsWith("Package version:")).toBe(true);
+    expect(call.startsWith("Package version:"), call).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });
