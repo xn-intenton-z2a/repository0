@@ -13,6 +13,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
   - `--warning-index-mode <value>`: Configure a warning index mode via the command line.
   - `--diagnostics`: Show detailed diagnostic information (Node version, package version, and dependencies).
   - `--json-output`: Output CLI response in JSON format including all provided arguments and metadata (e.g., timestamp, Node version, package version).
+  - `--verbose`: Enable verbose logging for detailed debug information, including parsed arguments and internal state details.
 
 - **CLI Diagnostics:**
   The CLI outputs diagnostic information when the `--diagnostics` flag is provided.

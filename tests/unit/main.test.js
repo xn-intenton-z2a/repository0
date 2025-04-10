@@ -26,7 +26,8 @@ describe("CLI Help Message", () => {
         "  --version                    Show package version\n" +
         "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-        "  --json-output                Output CLI response in JSON format with metadata\n\n" +
+        "  --json-output                Output CLI response in JSON format with metadata\n" +
+        "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     consoleLogSpy.mockRestore();
@@ -81,6 +82,18 @@ describe("CLI JSON Output", () => {
     expect(parsed.metadata).toHaveProperty('packageVersion');
     expect(parsed.arguments).toContain("--json-output");
     expect(parsed.arguments).toContain("extraArg");
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Verbose Logging", () => {
+  test("should display verbose debug information when --verbose flag is provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--verbose", "--warning-index-mode", "3"]);
+    const calls = consoleLogSpy.mock.calls.map(call => call[0]);
+    expect(calls.some(msg => msg === "Verbose Mode Enabled:" || (typeof msg === 'string' && msg.includes("Verbose Mode Enabled:")))).toBe(true);
+    expect(calls.some(msg => typeof msg === 'string' && msg.includes("Parsed Arguments:"))).toBe(true);
+    expect(calls.some(msg => typeof msg === 'string' && msg.includes("Internal State:"))).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });
