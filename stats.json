@@ -4,11 +4,15 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 3,
-  "diffMinutesMain": 3,
+  "diffMinutes": 1,
+  "diffMinutesMain": 1,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "16:56",
+      "message": "Clarify NaN directives as intentionally non-operative in CLI hel..."
+    },
     {
       "time": "16:46",
       "message": "Fixed test parentheses and error handling in tests for --pkg-ver..."
@@ -24,10 +28,6 @@
     {
       "time": "16:20",
       "message": "Refactored CLI argument parsing to use yargs for more robust and..."
-    },
-    {
-      "time": "16:06",
-      "message": "Clarified NaN directives as non-operative in CLI help and docume..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T16:50:22.124Z"
+  "generatedAt": "2025-04-10T16:57:50.155Z"
 }
