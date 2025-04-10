@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "agentic-lib",
   "engine": "schedule-1",
-  "openIssues": 1,
+  "openIssues": 2,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 5,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 16,
-  "diffMinutesMain": 45,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Implemented agenticHandler for autonomous workflow invocation with corresponding tests and documentation updates. (fixes #979)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 48,
   "commitsLastHour": 2,
   "commitsLastDay": 28,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-979",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:24:03.455Z"
+  "generatedAt": "2025-04-10T20:27:22.424Z"
 }
