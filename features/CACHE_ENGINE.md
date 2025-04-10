@@ -1,26 +1,49 @@
 # CACHE_ENGINE
 
 ## Overview
-This feature introduces a lightweight caching engine to improve performance by reducing redundant remote API calls and processing overhead. The cache engine is designed as a single module that can be integrated with various repository functionalities (such as TEMPLATE_MANAGER, RELEASE_MANAGER, and WORKFLOW_MANAGER) that perform remote data fetching. It provides an in-memory cache with configurable time-to-live (TTL) support, and can be extended to support file-based caching if needed.
+The CACHE_ENGINE feature introduces a lightweight caching solution to reduce redundant remote API calls and processing overhead. This update enhances the existing in-memory cache by adding an optional persistent caching mechanism using file-based storage. The persistent cache is designed to maintain cached data between application runs, thereby improving performance in CI/CD environments and during iterative development.
 
 ## Implementation Details
-- **Single Source File:**
-  - Implement the caching logic in a single module (e.g., `src/lib/cacheEngine.js`) to keep the feature self-contained and maintainable.
+- **Core API Enhancements:**
+  - Retain the existing in-memory cache operations: `set(key, value, ttl)`, `get(key)`, and `clear(key)`.
+  - Introduce an optional file-based caching mechanism that writes cache entries to a JSON file on disk. This persistent cache is used as a fallback if the in-memory cache does not contain a valid entry.
+  - Provide a unified interface so that the consumer can specify whether to use in-memory caching only or enable persistent caching with a CLI flag (e.g. `--persistent-cache`).
 
-- **Core API:**
-  - Provide basic operations such as `set(key, value, ttl)`, `get(key)`, and `clear(key)`.
-  - Support automatic expiration of cached entries based on the TTL specified when adding an entry.
-  - Optionally expose a CLI flag (`--clear-cache`) that allows users to invalidate the entire cache from the command line.
+- **File-Based Caching:**
+  - On setting a cache entry with persistent caching enabled, the key-value pair, along with its expiration timestamp, is written to a designated cache file (e.g. `cache.json`).
+  - On retrieval, the module first checks the in-memory cache. If not found, it attempts to load the cache from file, validate the TTL, and then populate the in-memory cache if valid.
+  - Implement automatic cleanup of expired entries in the persistent cache file during read/write operations.
 
-- **Integration Points:**
-  - Design the cache engine to be easily integrated with existing modules that perform remote calls (for example, fetching remote templates or querying GitHub APIs).
-  - Ensure that the cache does not interfere with the primary functionality if an entry is missing (i.e., fallback to a fresh remote request).
+- **CLI Integration:**
+  - Add a new optional CLI flag `--persistent-cache` to activate persistent caching mode. When this flag is provided, cache operations will use both in-memory and file-based mechanisms.
+  - Provide a `--clear-cache` flag that clears both in-memory and persistent cache files.
 
 - **Error Handling & Testing:**
-  - Implement robust error handling to catch and log any cache-related errors without affecting the overall workflow.
-  - Write unit tests (e.g., in `tests/unit/cacheEngine.test.js`) to simulate cache hits, misses, and entry expiration scenarios.
+  - Implement robust error handling to ensure that any file-system errors in reading or writing to the persistent cache do not affect the main workflow. Fall back to the in-memory cache if file operations fail.
+  - Write unit tests (e.g., in `tests/unit/cacheEngine.test.js`) to simulate cache hits, misses, TTL expiration, and error scenarios, ensuring both in-memory and persistent caching work as expected.
 
 ## Benefits
-- **Performance Improvement:** Reduces the number of repetitive remote API calls, lowering latency and improving responsiveness.
-- **Cost Efficiency:** Minimizes unnecessary requests, potentially reducing the load on external services and associated costs.
-- **Maintainable & Extendable:** Keeps the caching functionality isolated, allowing for future enhancements such as switching to a persistent file-based cache, if required.
+- **Performance Improvement:**
+  - Reduces repetitive remote API calls by caching responses across application runs.
+  - Enhances responsiveness in environments with frequent, similar requests (e.g., CI pipelines).
+
+- **Cost Efficiency:**
+  - Minimizes unnecessary external requests, potentially lowering associated costs and resource usage.
+
+- **Flexibility & Maintainability:**
+  - Offers a simple API that abstracts the caching mechanism, allowing users to opt for persistent caching without altering their application logic.
+  - Keeps caching functionality isolated in a single module, simplifying future extensions and maintenance.
+
+## Documentation & Usage Examples
+- **Usage Examples:**
+  ```bash
+  # Run the application with persistent caching enabled
+  node src/lib/main.js --persistent-cache
+
+  # Clear both in-memory and persistent caches
+  node src/lib/main.js --clear-cache
+  ```
+
+- **Documentation:**
+  - Update the README and CONTRIBUTING files to include instructions on enabling persistent caching.
+  - Detail the structure of the persistent cache file and the cleanup process for expired entries.
