@@ -45,7 +45,8 @@ export function main(args = process.argv.slice(2)) {
     "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
     "  --json-output                Output CLI response in JSON format with metadata\n" +
     "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-    "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
+    "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
+    "  --diagnose-nan               Show NaN diagnostic information\n\n" +
     "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines.";
 
   // Parse command-line arguments using yargs
@@ -58,6 +59,7 @@ export function main(args = process.argv.slice(2)) {
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
+    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information (NaN directives are intentionally treated as no-ops)" })
     .help(false)
     .version(false)
     .parse();
@@ -150,6 +152,12 @@ export function main(args = process.argv.slice(2)) {
     console.log("Verbose Mode Enabled:");
     console.log("Parsed Arguments:", args);
     console.log("Internal State:", { warningIndex });
+    return;
+  }
+
+  if (argv["diagnose-nan"]) {
+    console.log("NaN Diagnostics:");
+    console.log("- NaN directives are intentionally treated as no-ops per project guidelines.");
     return;
   }
 

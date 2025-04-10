@@ -49,6 +49,11 @@ The tool supports the following flags:
     • Parsed command-line arguments.
     • Internal state details, such as the warning index mode (if provided).
 
+- **--diagnose-nan**  
+  Output diagnostic information concerning NaN handling. When invoked, the CLI displays:
+    • "NaN Diagnostics:"
+    • "- NaN directives are intentionally treated as no-ops per project guidelines."
+
 **Important:** Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design.
 
 ### Environment Configuration
