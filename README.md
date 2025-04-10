@@ -6,6 +6,8 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
+**Note:** The CLI argument parsing has been refactored to use the [yargs](https://github.com/yargs/yargs) library for improved maintainability and error handling.
+
 ## CLI Usage
 
 Run the CLI using:
@@ -49,7 +51,7 @@ Run the CLI using:
   **Example:**
   node src/lib/main.js --json-extended extraArg
 
-- **--verbose**  
+- **--verbose, -v**  
   Enable verbose logging for detailed debug information. When activated, the CLI prints:
     • A "Verbose Mode Enabled:" message.
     • Parsed command-line arguments.

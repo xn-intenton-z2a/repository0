@@ -6,6 +6,8 @@ dotenv.config();
 
 import { fileURLToPath } from "url";
 import * as fs from "fs";
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 // Utility object for file operations to allow easier testing.
 export const utils = {
@@ -28,15 +30,62 @@ function getPkgData() {
   }
 }
 
-export function main(args = []) {
+export function main(args = process.argv.slice(2)) {
+  let pkgData;
+  try {
+    pkgData = getPkgData();
+  } catch (err) {
+    if (args.includes("--json-output") || args.includes("--json-extended")) {
+      console.log(JSON.stringify({ error: err.message }));
+    } else {
+      console.error(err.message);
+    }
+    process.exit(1);
+  }
+
+  // Parse command-line arguments using yargs
+  const argv = yargs(hideBin(args))
+    .usage("Usage: node main.js [options]")
+    .option("help", {
+      alias: "h",
+      type: "boolean",
+      description: "Show help message",
+    })
+    .option("version", {
+      type: "boolean",
+      description: "Show package version",
+    })
+    .option("diagnostics", {
+      type: "boolean",
+      description: "Show diagnostic information (Node version, package version, dependencies)",
+    })
+    .option("json-output", {
+      type: "boolean",
+      description: "Output CLI response in JSON format with metadata",
+    })
+    .option("json-extended", {
+      type: "boolean",
+      description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)",
+    })
+    .option("warning-index-mode", {
+      type: "number",
+      description: "Set warning index mode (numeric value)",
+    })
+    .option("verbose", {
+      alias: "v",
+      type: "boolean",
+      description: "Enable verbose logging for detailed debug information",
+    })
+    .help(false) // disable automatic help
+    .version(false) // disable automatic version
+    .parse();
+
   // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
 
-  const verbose = args.includes("--verbose");
-
-  if (args.includes("--help") || args.includes("-h")) {
+  if (argv.help) {
     console.log(
       "Usage: node main.js [options]\n" +
         "Options:\n" +
@@ -46,104 +95,69 @@ export function main(args = []) {
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
         "  --json-output                Output CLI response in JSON format with metadata\n" +
         "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-        "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
+        "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     return;
   }
 
-  if (args.includes("--version")) {
-    try {
-      const pkgData = getPkgData();
-      console.log(`Package version: ${pkgData.version}`);
-      return;
-    } catch (err) {
-      console.error(err.message);
-      process.exit(1);
-    }
+  if (argv.version) {
+    console.log(`Package version: ${pkgData.version}`);
+    return;
   }
 
-  if (args.includes("--diagnostics")) {
-    try {
-      const pkgData = getPkgData();
-      console.log("Diagnostics Information:");
-      console.log(`Node version: ${process.version}`);
-      console.log(`Package version: ${pkgData.version}`);
-      console.log("Dependencies:");
-      for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
-        console.log(`  ${dep}: ${ver}`);
-      }
-      return;
-    } catch (err) {
-      console.error(err.message);
-      process.exit(1);
+  if (argv.diagnostics) {
+    console.log("Diagnostics Information:");
+    console.log(`Node version: ${process.version}`);
+    console.log(`Package version: ${pkgData.version}`);
+    console.log("Dependencies:");
+    for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
+      console.log(`  ${dep}: ${ver}`);
     }
+    return;
   }
 
-  if (args.includes("--json-extended")) {
-    try {
-      const pkgData = getPkgData();
-      const output = {
-        arguments: args,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          nodeVersion: process.version,
-          packageVersion: pkgData.version,
-          cwd: process.cwd(),
-          uptime: process.uptime()
-        }
-      };
-      console.log(JSON.stringify(output));
-      return;
-    } catch (err) {
-      console.log(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
+  if (argv['json-extended']) {
+    const output = {
+      arguments: args,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        nodeVersion: process.version,
+        packageVersion: pkgData.version,
+        cwd: process.cwd(),
+        uptime: process.uptime(),
+      },
+    };
+    console.log(JSON.stringify(output));
+    return;
   }
 
-  if (args.includes("--json-output")) {
-    try {
-      const pkgData = getPkgData();
-      const output = {
-        arguments: args,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          nodeVersion: process.version,
-          packageVersion: pkgData.version
-        }
-      };
-      console.log(JSON.stringify(output));
-      return;
-    } catch (err) {
-      console.log(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
+  if (argv['json-output']) {
+    const output = {
+      arguments: args,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        nodeVersion: process.version,
+        packageVersion: pkgData.version,
+      },
+    };
+    console.log(JSON.stringify(output));
+    return;
   }
 
-  let warningIndex = null;
-  const warningIndexFlag = "--warning-index-mode";
-  if (args.includes(warningIndexFlag)) {
-    const idx = args.indexOf(warningIndexFlag);
-    if (idx !== -1 && idx + 1 < args.length) {
-      const num = Number(args[idx + 1]);
-      if (!Number.isNaN(num)) {
-        warningIndex = num;
-        console.log(`Warning index mode set to: ${warningIndex}`);
-      }
-    }
+  if (typeof argv['warning-index-mode'] === 'number') {
+    console.log(`Warning index mode set to: ${argv['warning-index-mode']}`);
   }
 
-  // Additional verbose logging
-  if (verbose) {
+  if (argv.verbose) {
     console.log("Verbose Mode Enabled:");
-    console.log("Parsed Arguments:", args);
-    console.log("Internal State:", { warningIndex });
+    console.log("Parsed Arguments:", argv);
+    console.log("Internal State:", { warningIndex: argv['warning-index-mode'] || null });
   }
 
   console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+  main(process.argv.slice(2));
 }
