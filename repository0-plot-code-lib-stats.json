@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 65,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Imported afterEach from vitest in test file to fix ReferenceError. (fixes #1694)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 18,
+  "diffMinutesMain": 21,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1694",
-        "minutesSinceLastCommit": 5
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:16:00.675Z"
+  "generatedAt": "2025-04-10T20:19:27.880Z"
 }
