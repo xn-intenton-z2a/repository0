@@ -31,25 +31,25 @@ describe("CLI Help Message", () => {
     main(["--help"]);
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
-      "Options:\n" +
-      "  --help, -h                   Show help message\n" +
-      "  --version                    Show package version\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-      "  --json-output                Output CLI response in JSON format with metadata\n" +
-      "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-      "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
-      "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
+        "Options:\n" +
+        "  --help, -h                   Show help message\n" +
+        "  --pkg-version                Show package version\n" +
+        "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+        "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+        "  --json-output                Output CLI response in JSON format with metadata\n" +
+        "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
+        "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
+        "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
     );
     consoleLogSpy.mockRestore();
   });
 });
 
 
-describe("CLI Version Flag", () => {
-  test("should display package version when --version is passed", () => {
+describe("CLI Package Version Flag", () => {
+  test("should display package version when --pkg-version is passed", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--version"]);
+    main(["--pkg-version"]);
     const call = consoleLogSpy.mock.calls[0][0];
     expect(call.startsWith("Package version:"), call).toBe(true);
     consoleLogSpy.mockRestore();
@@ -159,10 +159,10 @@ describe("CLI Package.json Error Handling", () => {
     vi.restoreAllMocks();
   });
 
-  test("should handle error in --version gracefully", () => {
+  test("should handle error in --pkg-version gracefully", () => {
     const readSpy = simulatePkgError();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => main(["--version"])).toThrow('process.exit called');
+    expect(() => main(["--pkg-version"])).toThrow('process.exit called');
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
     readSpy.mockRestore();
   });

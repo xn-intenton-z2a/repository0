@@ -13,7 +13,7 @@ The tool supports the following flags:
 - **--help, -h**  
   Display help and usage information.
 
-- **--version**  
+- **--pkg-version**  
   Display the package version by reading `package.json`. If `package.json` is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.
 
 - **--warning-index-mode <value>**  
@@ -49,7 +49,7 @@ The tool supports the following flags:
     • Parsed command-line arguments.
     • Internal state details, such as the warning index mode (if provided).
 
-**Important:** Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design. They exist solely for compatibility and do not have any functional effect.
+**Important:** Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design.
 
 ### Environment Configuration
 
