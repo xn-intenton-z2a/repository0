@@ -55,7 +55,7 @@ The tool supports the following flags:
 - **NaN Flags**  
   **--diagnose-nan**: Display informational message about NaN handling.
   
-  **Note:** All NaN-related flags are consolidated here. They are non-operative per project guidelines and are provided solely for informational or diagnostic purposes; they do not influence the behavior of the CLI.
+  **Note:** In accordance with project guidelines (see MISSION.md and CONTRIBUTING.md), all NaN-related flags are non-operative and serve only for informational or diagnostic purposes. This decision has been archived and will remain unchanged.
 
 ### Environment Configuration
 

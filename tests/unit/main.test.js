@@ -60,18 +60,19 @@ describe("CLI Help Message", () => {
     await main(["--help"]);
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
-        "Options:\n" +
-        "  --help, -h                   Show help message\n" +
-        "  --pkg-version                Show package version\n" +
-        "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-        "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-        "  --json-output                Output CLI response in JSON format with metadata\n" +
-        "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-        "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-        "  --check-update               Check if a new version is available from the npm registry\n\n" +
-        "NaN Flags:\n" +
-        "  --diagnose-nan               Display informational message about NaN handling.\n\n" +
-        "Note: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only."
+      "Options:\n" +
+      "  --help, -h                   Show help message\n" +
+      "  --pkg-version                Show package version\n" +
+      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+      "  --json-output                Output CLI response in JSON format with metadata\n" +
+      "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
+      "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
+      "  --check-update               Check if a new version is available from the npm registry\n\n" +
+      "NaN Flags:\n" +
+      "  --diagnose-nan               Display informational message about NaN handling.\n\n" +
+      "Note: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only.\n" +
+      "(Archived Decision: The handling of NaN directives remains as a no-operation as documented in MISSION.md and CONTRIBUTING.md.)"
     );
     consoleLogSpy.mockRestore();
   });
