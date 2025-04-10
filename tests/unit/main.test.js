@@ -36,7 +36,7 @@ function mockHttpsGetError(error) {
         }
       }
     };
-    // Call callback won't be called in error simulation
+    // Callback not called in error simulation
     return req;
   });
 }
