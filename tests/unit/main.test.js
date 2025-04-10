@@ -22,9 +22,19 @@ describe("CLI Help Message", () => {
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
       "Options:\n" +
-      "  --help, -h       Show help message\n\n" +
+      "  --help, -h                   Show help message\n" +
+      "  --warning-index-mode <value> Set warning index mode (numeric value)\n\n" +
       "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Warning Index Mode", () => {
+  test("should log warning index message when flag and valid number provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--warning-index-mode", "5"]);
+    expect(consoleLogSpy).toHaveBeenCalledWith("Warning index mode set to: 5");
     consoleLogSpy.mockRestore();
   });
 });
