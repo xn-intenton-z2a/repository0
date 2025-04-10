@@ -10,6 +10,9 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 - **CLI Execution:**
   The CLI is implemented in `src/lib/main.js`. Run the CLI with `node src/lib/main.js [options]`. Use the `--help` or `-h` flag to see usage options. A new flag `--warning-index-mode <value>` has been added to allow users to configure a warning index mode via the command line.
 
+- **CLI Diagnostics:**
+  A new `--diagnostics` flag has been implemented. When provided, the CLI outputs detailed information about the runtime environment, including the Node.js version, package version, and a summary of key dependencies.
+
 - **NaN Handling:**
   Note that any `NaN` directives or inputs are intentionally treated as no-ops. This design decision is by intention, ensuring that no operations are performed on such inputs. For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md) and [MISSION.md](./MISSION.md).
 
