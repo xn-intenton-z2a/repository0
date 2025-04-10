@@ -6,6 +6,8 @@ dotenv.config();
 
 import { fileURLToPath } from "url";
 import * as fs from "fs";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 // Utility object for file operations to allow easier testing.
 export const utils = {
@@ -34,49 +36,56 @@ export function main(args = process.argv.slice(2)) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
 
-  let pkgData;
-  const loadPkgData = () => {
-    if (!pkgData) {
-      pkgData = getPkgData();
-    }
-    return pkgData;
-  };
+  const helpMessage =
+    "Usage: node main.js [options]\n" +
+    "Options:\n" +
+    "  --help, -h                   Show help message\n" +
+    "  --version                    Show package version\n" +
+    "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+    "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+    "  --json-output                Output CLI response in JSON format with metadata\n" +
+    "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
+    "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
+    "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines.";
 
-  // Manually check for flags since tests pass pre-sliced arguments
-  if (args.includes("--help") || args.includes("-h")) {
-    console.log(
-      "Usage: node main.js [options]\n" +
-      "Options:\n" +
-      "  --help, -h                   Show help message\n" +
-      "  --version                    Show package version\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-      "  --json-output                Output CLI response in JSON format with metadata\n" +
-      "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-      "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
-      "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
-    );
+  // Parse command-line arguments using yargs
+  const argv = yargs(args)
+    .usage("Usage: node main.js [options]")
+    .option("help", { alias: "h", type: "boolean", description: "Show help message" })
+    .option("version", { type: "boolean", description: "Show package version" })
+    .option("warning-index-mode", { type: "number", description: "Set warning index mode (numeric value)" })
+    .option("diagnostics", { type: "boolean", description: "Show diagnostic information (Node version, package version, dependencies)" })
+    .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
+    .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
+    .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
+    .help(false)
+    .version(false)
+    .parse();
+
+  if (argv.help) {
+    console.log(helpMessage);
     return;
   }
 
-  if (args.includes("--version")) {
+  if (argv.version) {
     try {
-      const pkg = loadPkgData();
+      const pkg = getPkgData();
       console.log(`Package version: ${pkg.version}`);
     } catch (err) {
-      if (args.includes("--json-output") || args.includes("--json-extended")) {
-        console.log(JSON.stringify({ error: err.message }));
+      const errorMsg = err.message;
+      if (argv["json-output"] || argv["json-extended"]) {
+        console.log(JSON.stringify({ error: errorMsg }));
       } else {
-        console.error(err.message);
+        console.error(errorMsg);
       }
       process.exit(1);
     }
     return;
   }
 
-  if (args.includes("--diagnostics")) {
+  if (argv.diagnostics) {
     try {
-      const pkg = loadPkgData();
+      const pkg = getPkgData();
       console.log("Diagnostics Information:");
       console.log(`Node version: ${process.version}`);
       console.log(`Package version: ${pkg.version}`);
@@ -85,19 +94,20 @@ export function main(args = process.argv.slice(2)) {
         console.log(`  ${dep}: ${ver}`);
       }
     } catch (err) {
-      if (args.includes("--json-output") || args.includes("--json-extended")) {
-        console.log(JSON.stringify({ error: err.message }));
+      const errorMsg = err.message;
+      if (argv["json-output"] || argv["json-extended"]) {
+        console.log(JSON.stringify({ error: errorMsg }));
       } else {
-        console.error(err.message);
+        console.error(errorMsg);
       }
       process.exit(1);
     }
     return;
   }
 
-  if (args.includes("--json-extended")) {
+  if (argv["json-extended"]) {
     try {
-      const pkg = loadPkgData();
+      const pkg = getPkgData();
       const output = {
         arguments: args,
         metadata: {
@@ -116,9 +126,9 @@ export function main(args = process.argv.slice(2)) {
     return;
   }
 
-  if (args.includes("--json-output")) {
+  if (argv["json-output"]) {
     try {
-      const pkg = loadPkgData();
+      const pkg = getPkgData();
       const output = {
         arguments: args,
         metadata: {
@@ -135,23 +145,16 @@ export function main(args = process.argv.slice(2)) {
     return;
   }
 
-  // Check for verbose flag before processing warning index mode
-  if (args.includes("--verbose") || args.includes("-v")) {
-    let warningIndex = null;
-    const idx = args.indexOf("--warning-index-mode");
-    if (idx !== -1 && args[idx + 1] !== undefined) {
-      warningIndex = Number(args[idx + 1]);
-    }
+  if (argv.verbose) {
+    const warningIndex = argv["warning-index-mode"] !== undefined ? argv["warning-index-mode"] : null;
     console.log("Verbose Mode Enabled:");
     console.log("Parsed Arguments:", args);
     console.log("Internal State:", { warningIndex });
     return;
   }
 
-  // Check for warning index mode flag
-  const wiIdx = args.indexOf("--warning-index-mode");
-  if (wiIdx !== -1 && args[wiIdx + 1] !== undefined) {
-    const value = Number(args[wiIdx + 1]);
+  if (argv["warning-index-mode"] !== undefined) {
+    const value = argv["warning-index-mode"];
     if (!isNaN(value)) {
       console.log(`Warning index mode set to: ${value}`);
       return;

@@ -6,7 +6,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
-**Note:** The CLI argument parsing has been updated to manually process command-line arguments to ensure that tests receive the expected output. 
+**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling.
 
 The tool supports the following flags:
 
