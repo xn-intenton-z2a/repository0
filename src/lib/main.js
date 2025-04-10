@@ -30,6 +30,24 @@ function getPkgData() {
   }
 }
 
+// New helper function to generate JSON output
+function generateJsonOutput(args, extended = false) {
+  const pkg = getPkgData();
+  let metadata = {
+    timestamp: new Date().toISOString(),
+    nodeVersion: process.version,
+    packageVersion: pkg.version,
+  };
+  if (extended) {
+    metadata.cwd = process.cwd();
+    metadata.uptime = process.uptime();
+  }
+  return JSON.stringify({
+    arguments: args,
+    metadata: metadata,
+  });
+}
+
 // NOTE: The CLI includes options related to NaN directives. 
 // These directives (e.g., --diagnose-nan) are intentionally non-operative per project guidelines.
 // They are provided solely for informational purposes and do not affect application functionality.
@@ -112,18 +130,7 @@ export function main(args = process.argv.slice(2)) {
 
   if (argv["json-extended"]) {
     try {
-      const pkg = getPkgData();
-      const output = {
-        arguments: args,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          nodeVersion: process.version,
-          packageVersion: pkg.version,
-          cwd: process.cwd(),
-          uptime: process.uptime(),
-        },
-      };
-      console.log(JSON.stringify(output));
+      console.log(generateJsonOutput(args, true));
     } catch (err) {
       console.log(JSON.stringify({ error: err.message }));
       process.exit(1);
@@ -133,16 +140,7 @@ export function main(args = process.argv.slice(2)) {
 
   if (argv["json-output"]) {
     try {
-      const pkg = getPkgData();
-      const output = {
-        arguments: args,
-        metadata: {
-          timestamp: new Date().toISOString(),
-          nodeVersion: process.version,
-          packageVersion: pkg.version,
-        },
-      };
-      console.log(JSON.stringify(output));
+      console.log(generateJsonOutput(args, false));
     } catch (err) {
       console.log(JSON.stringify({ error: err.message }));
       process.exit(1);

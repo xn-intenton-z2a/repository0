@@ -163,7 +163,7 @@ describe("CLI Package.json Error Handling", () => {
   test("should handle error in --pkg-version gracefully", () => {
     const readSpy = simulatePkgError();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => main(["--pkg-version"])).toThrow("process.exit called");
+    expect(() => main(["--pkg-version"]).toThrow("process.exit called"));
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
     readSpy.mockRestore();
   });
