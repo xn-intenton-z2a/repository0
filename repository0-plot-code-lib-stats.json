@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 89,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored numeric input normalization to explicitly reject NaN and improved error messaging. (fixes #1721)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 4,
+  "diffMinutesMain": 6,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1721",
+        "minutesSinceLastCommit": 0
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T23:36:03.199Z"
+  "generatedAt": "2025-04-10T23:37:46.698Z"
 }
