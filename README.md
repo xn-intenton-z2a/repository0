@@ -4,64 +4,60 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 ## Overview
 
-`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
+`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now supports a subcommand architecture for enhanced clarity, maintainability, and usability.
 
-**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling. The JSON output generation is handled by a helper function that supports both standard and extended metadata formats, ensuring consistency and easier maintenance.
+### New CLI Subcommands
 
-The tool supports the following flags:
+The CLI has been refactored to use subcommands. The following subcommands are available:
 
-- **--help, -h**  
-  Display help and usage information.
+- **version**
+  - **Usage:** `node src/lib/main.js version`
+  - **Description:** Display the package version.
 
-- **--pkg-version**  
-  Display the package version by reading `package.json`. If `package.json` is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.
+- **diagnostics**
+  - **Usage:** `node src/lib/main.js diagnostics`
+  - **Description:** Show diagnostic information including Node version, package version, and dependency list.
 
-- **--warning-index-mode <value>**  
-  Set the warning index mode to a numeric value.
-  
-  **Example:**
-  node src/lib/main.js --warning-index-mode 5
+- **update**
+  - **Usage:** `node src/lib/main.js update`
+  - **Description:** Check if a new CLI version is available from the npm registry.
 
-- **--diagnostics**  
-  Output detailed diagnostic information including Node version, package version, and list of dependencies. If there is an error reading `package.json`, an error message will be displayed and the process exits with a non-zero status.
+- **json**
+  - **Usage:**
+    - Standard: `node src/lib/main.js json [extraArgs]`
+    - Extended Metadata: `node src/lib/main.js json --extended [extraArgs]`
+  - **Description:** Output CLI response in JSON format. The extended mode includes additional metadata (current working directory and process uptime).
 
-- **--json-output**  
-  Output the CLI response in JSON format. The JSON structure includes:
-  • `arguments`: Array of provided command line arguments.
-  • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
-  
-  In case of a missing or corrupt `package.json`, a valid JSON error response is returned and the process exits with a non-zero status.
-  
-  **Example:**
-  node src/lib/main.js --json-output extraArg
+- **verbose**
+  - **Usage:**
+    - Basic verbose: `node src/lib/main.js verbose`
+    - Set warning index: `node src/lib/main.js verbose --warning <number>`
+  - **Description:** Enable verbose logging. It outputs parsed arguments and internal state or sets the warning index mode if specified.
 
-- **--json-extended**  
-  Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
-  • `cwd`: The current working directory
-  • `uptime`: The process uptime in seconds
-  
-  **Example:**
-  node src/lib/main.js --json-extended extraArg
+- **warn**
+  - **Usage:** `node src/lib/main.js warn --value <number>`
+  - **Description:** Explicitly set the warning index mode.
 
-- **--verbose, -v**  
-  Enable verbose logging for detailed debug information. When activated, the CLI prints:
-  • A "Verbose Mode Enabled:" message
-  • Parsed command-line arguments
-  • Internal state details, such as the warning index mode (if provided).
+- **nan**
+  - **Usage:** `node src/lib/main.js nan`
+  - **Description:** Display informational output regarding NaN flags. (Note: NaN-related flags are informational only.)
 
-- **--check-update**  
-  Check if a new version is available from the npm registry. The update check functionality uses async/await for improved readability and reliability. The CLI compares the version specified in `package.json` with the latest version available, informing you whether an update is available.
+### Legacy Flag Support
 
-- **NaN Flags**  
-  **--diagnose-nan**: Informational only; this flag does not impact CLI functionality. For details on its purpose and the archived decision regarding NaN handling, please refer to MISSION.md and CONTRIBUTING.md.
+For backward compatibility, the following flags are still supported and internally mapped to the new subcommands:
+
+- `--help` or `-h`
+- `--pkg-version`
+- `--diagnostics`
+- `--check-update`
+- `--json-output` and `--json-extended`
+- `--verbose`
+- `--warning-index-mode`
+- `--diagnose-nan`
 
 ### Environment Configuration
 
-The CLI automatically loads environment configuration via the `dotenv` package. For example, if you set the environment variable `CLI_MODE` in a `.env` file, the CLI will output:
-
-  Environment CLI_MODE: <value>
-
-Ensure your project root contains a `.env` file with the appropriate configurations.
+The CLI automatically loads configuration from a `.env` file via the `dotenv` package. If the `CLI_MODE` environment variable is set, it will be logged at startup.
 
 ## Workflows and Dependencies
 
@@ -77,15 +73,15 @@ The repository's workflows manage testing, formatting, linting, and CI/CD operat
 1. Configure the required secrets in your repository settings (e.g., `CHATGPT_API_SECRET_KEY`).
 2. Install dependencies with:
 
-  npm install
+   npm install
 
-3. Run the CLI:
+3. Run the CLI using one of the subcommands. Example:
 
-  npm start
+   npm start -- version
 
 4. Execute tests:
 
-  npm test
+   npm test
 
 ## intentïon `agentic‑lib`
 

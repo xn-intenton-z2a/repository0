@@ -4,11 +4,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { fileURLToPath } from "url";
-import * as fs from "fs";
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-import https from "https";
+import { fileURLToPath } from 'url';
+import * as fs from 'fs';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
+import https from 'https';
 
 // Utility object for file operations to allow easier testing.
 export const utils = {
@@ -23,11 +23,11 @@ export function readFileSyncWrapper(file, encoding) {
 // Helper function to load and parse package.json
 function getPkgData() {
   try {
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const content = utils.readFileSyncWrapper(pkgPath, "utf-8");
+    const pkgPath = new URL('../../package.json', import.meta.url);
+    const content = utils.readFileSyncWrapper(pkgPath, 'utf-8');
     return JSON.parse(content);
   } catch (error) {
-    throw new Error("Failed to load package.json: " + error.message);
+    throw new Error('Failed to load package.json: ' + error.message);
   }
 }
 
@@ -53,20 +53,20 @@ function generateJsonOutput(args, extended = false) {
 async function checkForUpdate(args, argv) {
   const pkg = getPkgData();
   const currentVersion = pkg.version;
-  const url = "https://registry.npmjs.org/@xn-intenton-z2a/repository0";
+  const url = 'https://registry.npmjs.org/@xn-intenton-z2a/repository0';
   try {
     const data = await new Promise((resolve, reject) => {
       const req = https.get(url, (res) => {
-        let data = "";
+        let data = '';
         res.on('data', (chunk) => { data += chunk; });
         res.on('end', () => { resolve(data); });
       });
       req.on('error', (err) => { reject(err); });
     });
     const jsonData = JSON.parse(data);
-    const latestVersion = jsonData["dist-tags"] && jsonData["dist-tags"].latest;
+    const latestVersion = jsonData['dist-tags'] && jsonData['dist-tags'].latest;
     if (!latestVersion) {
-      throw new Error("Latest version information not found.");
+      throw new Error('Latest version information not found.');
     }
     let messageText = '';
     if (latestVersion === currentVersion) {
@@ -74,14 +74,14 @@ async function checkForUpdate(args, argv) {
     } else {
       messageText = `An update is available: current version ${currentVersion}, latest version ${latestVersion}`;
     }
-    if (argv["json-output"] || argv["json-extended"]) {
+    if (argv['json-output'] || argv['json-extended']) {
       console.log(JSON.stringify({ message: messageText }));
     } else {
       console.log(messageText);
     }
   } catch (err) {
-    const errorMsg = "Network error: " + err.message;
-    if (argv["json-output"] || argv["json-extended"]) {
+    const errorMsg = 'Network error: ' + err.message;
+    if (argv['json-output'] || argv['json-extended']) {
       console.log(JSON.stringify({ error: errorMsg }));
     } else {
       console.error(errorMsg);
@@ -90,137 +90,263 @@ async function checkForUpdate(args, argv) {
   }
 }
 
-// Consolidated help message with updated NaN directive documentation
+// Consolidated help message with updated subcommand documentation
 const helpMessage =
-  "Usage: node main.js [options]\n" +
-  "Options:\n" +
-  "  --help, -h                   Show help message\n" +
-  "  --pkg-version                Show package version\n" +
-  "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-  "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-  "  --json-output                Output CLI response in JSON format with metadata\n" +
-  "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-  "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-  "  --check-update               Check if a new version is available from the npm registry\n\n" +
-  "NaN Flags:\n" +
-  "  --diagnose-nan               Informational only; does not affect CLI behavior. See MISSION.md, CONTRIBUTING.md, and README.md for details.\n\n" +
-  "Note: NaN-related flags are strictly non-operative per project guidelines.";
+  'Usage: node main.js <command> [options]\n' +
+  '\n' +
+  'Commands:\n' +
+  '  version         Display the package version\n' +
+  '  diagnostics     Show diagnostic information\n' +
+  '  update          Check if a new version is available from the npm registry\n' +
+  '  json [--extended]    Output CLI response in JSON format (use --extended for more metadata)\n' +
+  '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
+  '  warn --value <num>          Set warning index mode explicitly\n' +
+  '  nan             Show NaN informational message\n' +
+  '\n' +
+  'Legacy Flag Support (mapped to subcommands):\n' +
+  '  --help, -h, --pkg-version, --diagnostics, --check-update, --json-output, --json-extended, --verbose, --warning-index-mode, --diagnose-nan\n' +
+  '\n' +
+  'Note: NaN-related flags are informational only per project guidelines.';
 
-// Updated main to be asynchronous to support async update check
+// Updated main to support subcommand architecture while retaining legacy flag behavior
 export async function main(args = process.argv.slice(2)) {
   // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
 
-  // Parse command-line arguments using yargs
-  const argv = yargs(args)
-    .usage("Usage: node main.js [options]")
-    .option("help", { alias: "h", type: "boolean", description: "Show help message" })
-    .option("pkg-version", { type: "boolean", description: "Show package version" })
-    .option("warning-index-mode", { type: "number", description: "Set warning index mode (numeric value)" })
-    .option("diagnostics", { type: "boolean", description: "Show diagnostic information (Node version, package version, dependencies)" })
-    .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
-    .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
-    .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
-    .option("diagnose-nan", { type: "boolean", description: "Informational only; does not affect CLI behavior. See documentation for details." })
-    .option("check-update", { type: "boolean", description: "Check if a new version is available from the npm registry" })
+  const legacyOptions = {
+    help: { alias: 'h', type: 'boolean', description: 'Show help message' },
+    'pkg-version': { type: 'boolean', description: 'Show package version' },
+    diagnostics: { type: 'boolean', description: 'Show diagnostic information' },
+    'json-output': { type: 'boolean', description: 'Output JSON formatted response' },
+    'json-extended': { type: 'boolean', description: 'Output extended JSON formatted response' },
+    verbose: { alias: 'v', type: 'boolean', description: 'Enable verbose logging' },
+    'warning-index-mode': { type: 'number', description: 'Set warning index mode (numeric value)' },
+    'diagnose-nan': { type: 'boolean', description: 'NaN informational flag' },
+    'check-update': { type: 'boolean', description: 'Check for CLI update' }
+  };
+
+  const parser = yargs(args)
+    .usage('Usage: $0 <command> [options]')
+    .options(legacyOptions)
+    .command(
+      'version',
+      'Display the package version',
+      () => {},
+      (argv) => {
+        try {
+          const pkg = getPkgData();
+          console.log(`Package version: ${pkg.version}`);
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv['json-output'] || argv['json-extended']) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'diagnostics',
+      'Show diagnostic information',
+      () => {},
+      (argv) => {
+        try {
+          const pkg = getPkgData();
+          console.log('Diagnostics Information:');
+          console.log(`Node version: ${process.version}`);
+          console.log(`Package version: ${pkg.version}`);
+          console.log('Dependencies:');
+          for (const [dep, ver] of Object.entries(pkg.dependencies)) {
+            console.log(`  ${dep}: ${ver}`);
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv['json-output'] || argv['json-extended']) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'update',
+      'Check if a new version is available from the npm registry',
+      () => {},
+      async (argv) => {
+        await checkForUpdate(args, argv);
+      }
+    )
+    .command(
+      'json',
+      'Output CLI response in JSON format',
+      (yargs) => {
+        return yargs.option('extended', {
+          alias: 'e',
+          type: 'boolean',
+          description: 'Output extended metadata',
+        }).positional('extra', {
+          type: 'string',
+          array: true,
+          describe: 'Additional arguments',
+          default: []
+        });
+      },
+      (argv) => {
+        try {
+          if (argv.extended) console.log(generateJsonOutput(args, true));
+          else console.log(generateJsonOutput(args, false));
+        } catch (err) {
+          const errorMsg = err.message;
+          console.log(JSON.stringify({ error: errorMsg }));
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'verbose',
+      'Enable verbose logging',
+      (yargs) => {
+        return yargs.option('warning', {
+          alias: 'w',
+          type: 'number',
+          description: 'Set warning index mode',
+        });
+      },
+      (argv) => {
+        if (argv.warning !== undefined) {
+          console.log(`Warning index mode set to: ${argv.warning}`);
+        } else {
+          console.log('Verbose Mode Enabled:');
+          console.log('Parsed Arguments:', args);
+          console.log('Internal State:', { warningIndex: argv['warning-index-mode'] || null });
+        }
+      }
+    )
+    .command(
+      'warn',
+      'Set warning index mode',
+      (yargs) => {
+        return yargs.option('value', {
+          type: 'number',
+          demandOption: true,
+          description: 'Warning index mode number',
+        });
+      },
+      (argv) => {
+        console.log(`Warning index mode set to: ${argv.value}`);
+      }
+    )
+    .command(
+      'nan',
+      false,
+      () => {},
+      (argv) => {
+        console.log('NaN Informational Output:');
+        console.log('This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
+      }
+    )
     .help(false)
     .version(false)
-    .parse();
+    .parserConfiguration({ "unknown-options-as-args": true })
+    .exitProcess(false);
 
-  if (argv.help) {
-    console.log(helpMessage);
-    return;
-  }
+  // Use async parsing to support asynchronous command handlers
+  const parsed = await parser.parseAsync();
 
-  if (argv["pkg-version"]) {
-    try {
-      const pkg = getPkgData();
-      console.log(`Package version: ${pkg.version}`);
-    } catch (err) {
-      const errorMsg = err.message;
-      if (argv["json-output"] || argv["json-extended"]) {
-        console.log(JSON.stringify({ error: errorMsg }));
-      } else {
-        console.error(errorMsg);
-      }
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (argv.diagnostics) {
-    try {
-      const pkg = getPkgData();
-      console.log("Diagnostics Information:");
-      console.log(`Node version: ${process.version}`);
-      console.log(`Package version: ${pkg.version}`);
-      console.log("Dependencies:");
-      for (const [dep, ver] of Object.entries(pkg.dependencies)) {
-        console.log(`  ${dep}: ${ver}`);
-      }
-    } catch (err) {
-      const errorMsg = err.message;
-      if (argv["json-output"] || argv["json-extended"]) {
-        console.log(JSON.stringify({ error: errorMsg }));
-      } else {
-        console.error(errorMsg);
-      }
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (argv["check-update"]) {
-    await checkForUpdate(args, argv);
-    return;
-  }
-
-  if (argv["json-extended"]) {
-    try {
-      console.log(generateJsonOutput(args, true));
-    } catch (err) {
-      console.log(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (argv["json-output"]) {
-    try {
-      console.log(generateJsonOutput(args, false));
-    } catch (err) {
-      console.log(JSON.stringify({ error: err.message }));
-      process.exit(1);
-    }
-    return;
-  }
-
-  if (argv.verbose) {
-    const warningIndex = argv["warning-index-mode"] !== undefined ? argv["warning-index-mode"] : null;
-    console.log("Verbose Mode Enabled:");
-    console.log("Parsed Arguments:", args);
-    console.log("Internal State:", { warningIndex });
-    return;
-  }
-
-  if (argv["diagnose-nan"]) {
-    // Archived decision: NaN-related flags are informational only.
-    console.log("NaN Informational Output:");
-    console.log("This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.");
-    return;
-  }
-
-  if (argv["warning-index-mode"] !== undefined) {
-    const value = argv["warning-index-mode"];
-    if (!isNaN(value)) {
-      console.log(`Warning index mode set to: ${value}`);
+  // If no subcommand provided, check for legacy flag-based calls
+  if (!parsed._ || parsed._.length === 0) {
+    if (parsed.help) {
+      console.log(helpMessage);
       return;
     }
+    if (parsed['pkg-version']) {
+      try {
+        const pkg = getPkgData();
+        console.log(`Package version: ${pkg.version}`);
+      } catch (err) {
+        const errorMsg = err.message;
+        if (parsed['json-output'] || parsed['json-extended']) {
+          console.log(JSON.stringify({ error: errorMsg }));
+        } else {
+          console.error(errorMsg);
+        }
+        process.exit(1);
+      }
+      return;
+    }
+    if (parsed.diagnostics) {
+      try {
+        const pkg = getPkgData();
+        console.log('Diagnostics Information:');
+        console.log(`Node version: ${process.version}`);
+        console.log(`Package version: ${pkg.version}`);
+        console.log('Dependencies:');
+        for (const [dep, ver] of Object.entries(pkg.dependencies)) {
+          console.log(`  ${dep}: ${ver}`);
+        }
+      } catch (err) {
+        const errorMsg = err.message;
+        if (parsed['json-output'] || parsed['json-extended']) {
+          console.log(JSON.stringify({ error: errorMsg }));
+        } else {
+          console.error(errorMsg);
+        }
+        process.exit(1);
+      }
+      return;
+    }
+    if (parsed['check-update']) {
+      await checkForUpdate(args, parsed);
+      return;
+    }
+    if (parsed['json-extended']) {
+      try {
+        console.log(generateJsonOutput(args, true));
+      } catch (err) {
+        console.log(JSON.stringify({ error: err.message }));
+        process.exit(1);
+      }
+      return;
+    }
+    if (parsed['json-output']) {
+      try {
+        console.log(generateJsonOutput(args, false));
+      } catch (err) {
+        console.log(JSON.stringify({ error: err.message }));
+        process.exit(1);
+      }
+      return;
+    }
+    if (parsed.verbose) {
+      if (parsed['warning-index-mode'] !== undefined) {
+        console.log(`Warning index mode set to: ${parsed['warning-index-mode']}`);
+      } else {
+        console.log('Verbose Mode Enabled:');
+        console.log('Parsed Arguments:', args);
+        console.log('Internal State:', { warningIndex: parsed['warning-index-mode'] || null });
+      }
+      return;
+    }
+    if (parsed['diagnose-nan']) {
+      console.log('NaN Informational Output:');
+      console.log('This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
+      return;
+    }
+    if (parsed['warning-index-mode'] !== undefined) {
+      const value = parsed['warning-index-mode'];
+      if (!isNaN(value)) {
+        console.log(`Warning index mode set to: ${value}`);
+        return;
+      }
+    }
+    console.log(`Run with: ${JSON.stringify(args)}`);
   }
-
-  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
