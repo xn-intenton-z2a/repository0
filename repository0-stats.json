@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 21,
-  "issuesClosedLastHour": 2,
+  "openIssues": 20,
+  "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Consolidated NaN flag documentation across CLI help README and contributing guidelines for clarity. (fixes #1220)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 19,
-  "commitsLastHour": 1,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:47",
+      "message": "Consolidated NaN flag documentation across CLI help README and c..."
+    },
     {
       "time": "19:28",
       "message": "Refactored checkForUpdate error handling to always prefix networ..."
@@ -32,23 +31,14 @@
     {
       "time": "18:21",
       "message": "Added --check-update CLI flag to check for available updates fro..."
-    },
-    {
-      "time": "18:06",
-      "message": "Fixed test assertion syntax for pkg-version error handling in ma..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1220",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:47:27.813Z"
+  "generatedAt": "2025-04-10T19:48:28.172Z"
 }
