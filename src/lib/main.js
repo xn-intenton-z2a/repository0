@@ -48,7 +48,8 @@ function loadConfig() {
 
 function saveConfig(config) {
   try {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+    // Use non-pretty printed JSON to match test expectations
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config));
   } catch (error) {
     throw new Error('Failed to save configuration: ' + error.message);
   }
@@ -383,7 +384,8 @@ export async function main(args = process.argv.slice(2)) {
               console.log(JSON.stringify({ config }));
             } else {
               console.log('Current Configuration:');
-              console.log(JSON.stringify(config, null, 2));
+              // Use non-pretty printed version to match test expectations
+              console.log(JSON.stringify(config));
             }
           } catch (err) {
             const errorMsg = err.message;
