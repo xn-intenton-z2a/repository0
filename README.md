@@ -50,9 +50,11 @@ The tool supports the following flags:
   • Internal state details, such as the warning index mode (if provided).
 
 - **--diagnose-nan**  
-  Output diagnostic information concerning NaN handling. When invoked, the CLI displays:
-  • "NaN Diagnostics:" 
-  • "- NaN directives are intentionally treated as no-ops per project guidelines."
+  Show diagnostic information related to NaN handling.
+
+### NaN Directives
+
+Please note that all CLI flags related to NaN (including --diagnose-nan, --toggle-allow-nan, --allow-nan-inline, and --ignore-invalid) are intentionally non-operative. This design choice ensures that the tool maintains consistent behavior and avoids misinterpretation regarding the management of 'Not a Number' (NaN) values. For further guidelines, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Environment Configuration
 
@@ -62,9 +64,9 @@ The CLI automatically loads environment configuration via the `dotenv` package. 
 
 Ensure your project root contains a `.env` file with the appropriate configurations.
 
-### NaN Directives
+### NaN Directives in Practice
 
-All CLI flags related to NaN (for example, --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are intentionally non-operative and do not affect the tool's functionality. This design decision is deliberate per project guidelines. Users should not expect any additional behavior from these directives.
+All flags related to NaN are provided solely for informational purposes and do not influence the behavior of the CLI. They are part of the interface only and are designed to avoid unnecessary processing or side effects.
 
 ## Workflows and Dependencies
 
