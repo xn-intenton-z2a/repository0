@@ -1,11 +1,10 @@
 import { beforeEach, afterEach, describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
-import * as fs from "fs";
 
-// Helper to simulate package.json read error
+// Helper to simulate package.json read error using the readFileSyncWrapper
 function simulatePkgError() {
-  return vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
+  return vi.spyOn(mainModule, "readFileSyncWrapper").mockImplementation(() => {
     throw new Error("Simulated read error");
   });
 }
@@ -17,12 +16,14 @@ describe("Main Module Import", () => {
   });
 });
 
+
 describe("Default Demo Output", () => {
   test("should terminate without error", () => {
     process.argv = ["node", "src/lib/main.js"];
     main([]);
   });
 });
+
 
 describe("CLI Help Message", () => {
   test("should display help information when --help is passed", () => {
@@ -44,15 +45,17 @@ describe("CLI Help Message", () => {
   });
 });
 
+
 describe("CLI Version Flag", () => {
   test("should display package version when --version is passed", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--version"]);
     const call = consoleLogSpy.mock.calls[0][0];
-    expect(call.startsWith("Package version:"));
+    expect(call.startsWith("Package version:")).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });
+
 
 describe("CLI Warning Index Mode", () => {
   test("should log warning index message when flag and valid number provided", () => {
@@ -62,6 +65,7 @@ describe("CLI Warning Index Mode", () => {
     consoleLogSpy.mockRestore();
   });
 });
+
 
 describe("CLI Diagnostics", () => {
   test("should output diagnostic information when --diagnostics is provided", () => {
@@ -75,6 +79,7 @@ describe("CLI Diagnostics", () => {
     consoleLogSpy.mockRestore();
   });
 });
+
 
 describe("CLI JSON Output", () => {
   test("should output valid JSON with arguments and metadata when --json-output is provided", () => {
@@ -94,6 +99,7 @@ describe("CLI JSON Output", () => {
     consoleLogSpy.mockRestore();
   });
 });
+
 
 describe("CLI Extended JSON Output", () => {
   test("should output valid JSON with extended metadata when --json-extended flag is provided", () => {
@@ -117,6 +123,7 @@ describe("CLI Extended JSON Output", () => {
   });
 });
 
+
 describe("CLI Verbose Logging", () => {
   test("should display verbose debug information when --verbose flag is provided", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -128,6 +135,7 @@ describe("CLI Verbose Logging", () => {
     consoleLogSpy.mockRestore();
   });
 });
+
 
 describe("CLI Environment Variable", () => {
   test("should log CLI_MODE from environment variable if set", () => {
@@ -141,6 +149,7 @@ describe("CLI Environment Variable", () => {
   });
 });
 
+
 describe("CLI Package.json Error Handling", () => {
   let exitSpy;
   beforeEach(() => {
@@ -153,7 +162,6 @@ describe("CLI Package.json Error Handling", () => {
   test("should handle error in --version gracefully", () => {
     const readSpy = simulatePkgError();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => main(["--version"]).toThrow('process.exit called'));
     expect(() => main(["--version"])).toThrow('process.exit called');
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
     readSpy.mockRestore();
