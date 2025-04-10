@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 63,
-  "issuesClosedLastHour": 4,
+  "openIssues": 61,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Enhance CLI conversion logic to support Unicode variants of NaN and update tests and documentation accordingly. (fixes #1214)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 7,
-  "commitsLastHour": 3,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "18:54",
+      "message": "Enhance CLI conversion logic to support Unicode variants of NaN ..."
+    },
     {
       "time": "18:46",
       "message": "Update from agentic-lib"
@@ -32,23 +31,14 @@
     {
       "time": "17:52",
       "message": "Add automated unit test to verify CLI handling of the NaN argume..."
-    },
-    {
-      "time": "17:43",
-      "message": "Extended JSON replacer to serialize Infinity and -Infinity along..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1214",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T18:54:17.938Z"
+  "generatedAt": "2025-04-10T18:58:10.947Z"
 }
