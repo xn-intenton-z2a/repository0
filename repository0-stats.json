@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 23,
-  "issuesClosedLastHour": 6,
+  "openIssues": 21,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Consolidated duplicate NaN directive documentation across main.js README and package.json. (fixes #1224)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 7,
-  "commitsLastHour": 3,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "20:06",
+      "message": "Consolidated duplicate NaN directive documentation across main.j..."
+    },
     {
       "time": "19:58",
       "message": "Archived the decision on NaN directives and documented it in bot..."
@@ -32,23 +31,14 @@
     {
       "time": "18:46",
       "message": "Update from agentic-lib"
-    },
-    {
-      "time": "18:26",
-      "message": "Acknowledge NaN prompt confirmed non-operative behavior per guid..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1224",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:05:27.853Z"
+  "generatedAt": "2025-04-10T20:06:39.001Z"
 }
