@@ -1,28 +1,47 @@
-# Overview
-This feature merges file-based logging, log rotation, and configurable log levels into a single cohesive logging module. It provides a unified interface for managing logs that includes writing logs to files, automatically rotating them based on size, and filtering log outputs by severity. This consolidated approach simplifies configuration and ensures consistency in how logs are handled across the application.
+# LOGGING
 
-# Implementation Details
-- **File Logging:**
-  - Introduce a CLI flag `--log-file <filename>` that activates logging to the specified file. Log entries should include timestamps and be formatted in a consistent, human-readable format.
-  - Implement a dedicated logging module (e.g. `src/lib/logging.js`) that handles writing messages to file as well as console output.
+## Overview
+This feature consolidates file-based logging, log rotation, configurable log levels, and automated log cleanup into a unified logging module. It provides a single interface to manage logging output, perform log rotation, and clean up old log files. This integration ensures that both active logging and passive maintenance are handled in one place, simplifying configuration and reducing disk clutter. This is in line with the repository's mission of providing robust and actionable diagnostics for healthy CI/CD workflows.
 
-- **Log Rotation:**
-  - Integrate log rotation capabilities into the logging module. When the file reaches a predefined size threshold (configurable via an environment variable or a default value), the module should rename the current log file with a timestamp or incremental index and start a new log file.
-  - Support activation via a CLI flag such as `--enable-log-rotation` or through configuration in the environment.
+## Implementation Details
+- **File Logging & Rotation:**
+  - Activate logging via a CLI flag (e.g. `--log-file <filename>`) to write timestamped log entries in a human-readable format.
+  - Implement log rotation so that when a specified file size threshold is reached (configurable via an environment variable), the current log file is archived (renamed with a timestamp or incremental index) and a new log file is started.
+  - Support activation via an additional CLI flag (e.g. `--enable-log-rotation`) or through environment configuration.
 
 - **Configurable Log Levels:**
-  - Support a `--log-level <level>` flag where `<level>` can be one of DEBUG, INFO, WARN, or ERROR. The logging module should only output messages at or above the configured level.
-  - Ensure that the log level filtering applies uniformly to both console and file outputs.
+  - Provide a `--log-level <level>` flag where `<level>` can be one of DEBUG, INFO, WARN, or ERROR. Ensure that log output respects the configured level for both console and file outputs.
 
-- **Optional Log Summary (Enhancement):**
-  - Optionally, add functionality to generate a summary of log events, e.g. aggregating counts of errors, warnings, and info messages. This can be triggered via a dedicated CLI flag if needed to assist with diagnostics in CI/CD workflows.
+- **Automated Log Cleanup Integration:**
+  - Merge log cleanup responsibilities into the unified logging module. Introduce a CLI flag (e.g. `--cleanup-logs`) that triggers a routine to scan the designated log directory for rotated log files.
+  - The cleanup process will apply configurable criteria based on maximum file age (e.g. older than 7 days) or a maximum number of log files to retain, with settings provided via environment variables (e.g. `LOG_CLEANUP_MAX_AGE`, `LOG_CLEANUP_MAX_FILES`).
+  - The module should log a summary of the cleanup actions performed and handle any errors gracefully without interrupting the main CLI flow.
 
-# Testing
-- **Unit Tests:** Develop tests to ensure that log entries are correctly written to files, that rotation is triggered once the file size threshold is crossed, and that log level filtering works as expected.
-- **Edge Cases:** Test behavior for unwritable file paths, missing directories, and invalid log level inputs. Ensure fallback mechanisms allow the application to continue logging to the console if file logging fails.
+- **Integration & Modularity:**
+  - Refactor the logging functionality into a dedicated module (e.g. `src/lib/logging.js`) that encapsulates file logging, rotation, level filtering, and cleanup.
+  - Integrate with existing diagnostics by ensuring that any issues in logging do not affect other CLI operations. Fallback to console logging if file operations fail.
 
-# Documentation
-- Update the README and CONTRIBUTING guidelines to include instructions for using the unified logging system, examples for CLI flags (`--log-file`, `--enable-log-rotation`, `--log-level`), and troubleshooting tips.
-- Ensure integration with existing diagnostics and observability features by referencing the new logging functionality.
+## Testing
+- **Unit Tests:**
+  - Develop tests to confirm that log entries are correctly written and formatted in both console and file outputs.
+  - Simulate scenarios where the log file reaches the size limit to verify that rotation occurs as expected.
+  - Create tests to simulate the presence of rotated log files and validate that the cleanup routine deletes files that exceed the configured retention policy.
 
-This consolidated logging feature enhances the repository's mission by providing a robust, easy-to-maintain mechanism for capturing and managing logs, ultimately supporting dependable and clear CI/CD workflows.
+- **Edge Cases:**
+  - Test behavior for unwritable file paths, missing directories, and invalid log level inputs. Ensure that the system logs warnings if cleanup cannot be performed and safely degrades to console-only logging if necessary.
+
+## Documentation
+- **Usage Examples:**
+  ```bash
+  # Activate file logging with rotation
+  node src/lib/main.js --log-file app.log --enable-log-rotation --log-level INFO
+
+  # Run the application and trigger log cleanup
+  node src/lib/main.js --cleanup-logs
+  ```
+- Update the README and CONTRIBUTING documentation to include usage instructions for all logging-related CLI flags (`--log-file`, `--enable-log-rotation`, `--log-level`, and `--cleanup-logs`) along with examples and troubleshooting tips.
+
+## Benefits
+- **Unified Logging Management:** Combines logging, rotation, and cleanup into one maintainable module, reducing redundancy.
+- **Enhanced Diagnostics:** Provides clear logging output with automatic cleanup to prevent disk clutter, improving system reliability in CI/CD environments.
+- **User Flexibility:** Offers configurable options that allow users to tailor logging behavior to their project’s needs.
