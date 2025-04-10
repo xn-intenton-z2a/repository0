@@ -36,15 +36,10 @@ const CONFIG_FILE = 'config.json';
 
 function loadConfig() {
   try {
-    let configContent;
-    try {
-      // Attempt to read the config file
-      configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
-    } catch (err) {
-      // If reading fails (e.g., file doesn't exist), create a default config file
+    if (!fs.existsSync(CONFIG_FILE)) {
       saveConfig({});
-      configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
     }
+    const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
     return JSON.parse(configContent);
   } catch (error) {
     throw new Error('Failed to load configuration: ' + error.message);
