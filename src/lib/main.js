@@ -5,13 +5,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { fileURLToPath } from "url";
-import { readFileSync } from "fs";
+import * as fs from "fs";
 
 // Helper function to load and parse package.json
 function getPkgData() {
   try {
     const pkgPath = new URL("../../package.json", import.meta.url);
-    const content = readFileSync(pkgPath, "utf-8");
+    const content = fs.readFileSync(pkgPath, "utf-8");
     return JSON.parse(content);
   } catch (error) {
     throw new Error("Failed to load package.json: " + error.message);

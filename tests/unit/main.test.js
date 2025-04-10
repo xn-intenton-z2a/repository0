@@ -1,14 +1,15 @@
 import { beforeEach, afterEach, describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
-import { readFileSync } from "fs";
+import * as fs from "fs";
 
 // Helper to simulate package.json read error
 function simulatePkgError() {
-  return vi.spyOn(require('fs'), 'readFileSync').mockImplementation(() => {
+  return vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
     throw new Error("Simulated read error");
   });
 }
+
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -70,7 +71,6 @@ describe("CLI Diagnostics", () => {
     expect(calls.includes("Node version:")).toBe(true);
     expect(calls.includes("Package version:" )).toBe(true);
     expect(calls.includes("Dependencies:" )).toBe(true);
-    // Optionally check for one known dependency
     expect(calls.includes("dotenv:" )).toBe(true);
     consoleLogSpy.mockRestore();
   });
@@ -153,6 +153,7 @@ describe("CLI Package.json Error Handling", () => {
   test("should handle error in --version gracefully", () => {
     const readSpy = simulatePkgError();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => main(["--version"]).toThrow('process.exit called'));
     expect(() => main(["--version"])).toThrow('process.exit called');
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
     readSpy.mockRestore();
