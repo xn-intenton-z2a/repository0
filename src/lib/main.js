@@ -7,6 +7,17 @@ dotenv.config();
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
+// Helper function to load and parse package.json
+function getPkgData() {
+  try {
+    const pkgPath = new URL("../../package.json", import.meta.url);
+    const content = readFileSync(pkgPath, "utf-8");
+    return JSON.parse(content);
+  } catch (error) {
+    throw new Error("Failed to load package.json: " + error.message);
+  }
+}
+
 export function main(args = []) {
   // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
@@ -32,56 +43,71 @@ export function main(args = []) {
   }
 
   if (args.includes("--version")) {
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
-    console.log(`Package version: ${pkgData.version}`);
-    return;
+    try {
+      const pkgData = getPkgData();
+      console.log(`Package version: ${pkgData.version}`);
+      return;
+    } catch (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
   }
 
   if (args.includes("--diagnostics")) {
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
-
-    console.log("Diagnostics Information:");
-    console.log(`Node version: ${process.version}`);
-    console.log(`Package version: ${pkgData.version}`);
-    console.log("Dependencies:");
-    for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
-      console.log(`  ${dep}: ${ver}`);
+    try {
+      const pkgData = getPkgData();
+      console.log("Diagnostics Information:");
+      console.log(`Node version: ${process.version}`);
+      console.log(`Package version: ${pkgData.version}`);
+      console.log("Dependencies:");
+      for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
+        console.log(`  ${dep}: ${ver}`);
+      }
+      return;
+    } catch (err) {
+      console.error(err.message);
+      process.exit(1);
     }
-    return;
   }
 
   if (args.includes("--json-extended")) {
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
-    const output = {
-      arguments: args,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        nodeVersion: process.version,
-        packageVersion: pkgData.version,
-        cwd: process.cwd(),
-        uptime: process.uptime()
-      }
-    };
-    console.log(JSON.stringify(output));
-    return;
+    try {
+      const pkgData = getPkgData();
+      const output = {
+        arguments: args,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          nodeVersion: process.version,
+          packageVersion: pkgData.version,
+          cwd: process.cwd(),
+          uptime: process.uptime()
+        }
+      };
+      console.log(JSON.stringify(output));
+      return;
+    } catch (err) {
+      console.log(JSON.stringify({ error: err.message }));
+      process.exit(1);
+    }
   }
 
   if (args.includes("--json-output")) {
-    const pkgPath = new URL("../../package.json", import.meta.url);
-    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
-    const output = {
-      arguments: args,
-      metadata: {
-        timestamp: new Date().toISOString(),
-        nodeVersion: process.version,
-        packageVersion: pkgData.version
-      }
-    };
-    console.log(JSON.stringify(output));
-    return;
+    try {
+      const pkgData = getPkgData();
+      const output = {
+        arguments: args,
+        metadata: {
+          timestamp: new Date().toISOString(),
+          nodeVersion: process.version,
+          packageVersion: pkgData.version
+        }
+      };
+      console.log(JSON.stringify(output));
+      return;
+    } catch (err) {
+      console.log(JSON.stringify({ error: err.message }));
+      process.exit(1);
+    }
   }
 
   let warningIndex = null;

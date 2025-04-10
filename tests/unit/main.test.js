@@ -1,6 +1,14 @@
 import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
+import { readFileSync } from "fs";
+
+// Helper to simulate package.json read error
+function simulatePkgError() {
+  return vi.spyOn(require('fs'), 'readFileSync').mockImplementation(() => {
+    throw new Error("Simulated read error");
+  });
+}
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -58,12 +66,12 @@ describe("CLI Diagnostics", () => {
   test("should output diagnostic information when --diagnostics is provided", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--diagnostics"]);
-    const calls = consoleLogSpy.mock.calls.flat();
-    expect(calls.some(call => call.includes("Node version:"))).toBe(true);
-    expect(calls.some(call => call.includes("Package version:"))).toBe(true);
-    expect(calls.some(call => call.includes("Dependencies:"))).toBe(true);
+    const calls = consoleLogSpy.mock.calls.flat().join(" ");
+    expect(calls.includes("Node version:")).toBe(true);
+    expect(calls.includes("Package version:" )).toBe(true);
+    expect(calls.includes("Dependencies:" )).toBe(true);
     // Optionally check for one known dependency
-    expect(calls.some(call => call.includes("dotenv:"))).toBe(true);
+    expect(calls.includes("dotenv:" )).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });
@@ -114,7 +122,7 @@ describe("CLI Verbose Logging", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--verbose", "--warning-index-mode", "3"]);
     const calls = consoleLogSpy.mock.calls.map(call => call[0]);
-    expect(calls.some(msg => msg === "Verbose Mode Enabled:" || (typeof msg === 'string' && msg.includes("Verbose Mode Enabled:")))).toBe(true);
+    expect(calls.some(msg => typeof msg === 'string' && msg.includes("Verbose Mode Enabled:"))).toBe(true);
     expect(calls.some(msg => typeof msg === 'string' && msg.includes("Parsed Arguments:"))).toBe(true);
     expect(calls.some(msg => typeof msg === 'string' && msg.includes("Internal State:"))).toBe(true);
     consoleLogSpy.mockRestore();
@@ -130,5 +138,35 @@ describe("CLI Environment Variable", () => {
     expect(found).toBe(true);
     delete process.env.CLI_MODE;
     consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Package.json Error Handling", () => {
+  let exitSpy;
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('process.exit called'); });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("should handle error in --version gracefully", () => {
+    const readSpy = simulatePkgError();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => main(["--version"])).toThrow('process.exit called');
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
+    readSpy.mockRestore();
+  });
+
+  test("should output JSON error in --json-output when package.json read fails", () => {
+    const readSpy = simulatePkgError();
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    expect(() => main(["--json-output"])) .toThrow('process.exit called');
+    const outputArg = consoleLogSpy.mock.calls[0][0];
+    let parsed;
+    expect(() => { parsed = JSON.parse(outputArg); }).not.toThrow();
+    expect(parsed).toHaveProperty('error');
+    expect(parsed.error).toContain('Failed to load package.json');
+    readSpy.mockRestore();
   });
 });

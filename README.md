@@ -18,7 +18,7 @@ Run the CLI using:
   Display help and usage information.
 
 - **--version**  
-  Display the package version by reading `package.json`.
+  Display the package version by reading `package.json`. If `package.json` is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.
 
 - **--warning-index-mode <value>**  
   Set the warning index mode to a numeric value.
@@ -27,12 +27,14 @@ Run the CLI using:
   node src/lib/main.js --warning-index-mode 5
 
 - **--diagnostics**  
-  Output detailed diagnostic information including Node version, package version, and list of dependencies.
+  Output detailed diagnostic information including Node version, package version, and list of dependencies. If there is an error reading `package.json`, an error message will be displayed and the process exits with a non-zero status.
 
 - **--json-output**  
   Output the CLI response in JSON format. The JSON structure includes:
     • `arguments`: Array of provided command line arguments.
     • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
+  
+  In case of a missing or corrupt `package.json`, a valid JSON error response is returned and the process exits with a non-zero status.
 
   **Example:**
   node src/lib/main.js --json-output extraArg
@@ -41,6 +43,8 @@ Run the CLI using:
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
     • `cwd`: The current working directory
     • `uptime`: The process uptime in seconds
+  
+  Similar error handling applies as for `--json-output`.
   
   **Example:**
   node src/lib/main.js --json-extended extraArg
