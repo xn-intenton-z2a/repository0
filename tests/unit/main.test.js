@@ -73,6 +73,15 @@ describe('Legacy Flags Deprecation', () => {
     expect(consoleLogSpy).toHaveBeenCalledWith('Warning index mode set to: 5');
     consoleLogSpy.mockRestore();
   });
+
+  test('should keep --diagnose-nan flag non-operative and informational', async () => {
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await main(['--diagnose-nan']);
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Deprecation Warning: Legacy flag --diagnose-nan is deprecated'));
+    expect(consoleLogSpy).toHaveBeenCalledWith('NaN Informational Output:');
+    expect(consoleLogSpy).toHaveBeenCalledWith('This command is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
+    consoleLogSpy.mockRestore();
+  });
 });
 
 describe('Subcommand: version', () => {
