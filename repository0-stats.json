@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 21,
-  "issuesClosedLastHour": 0,
+  "openIssues": 19,
+  "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored checkForUpdate error handling to always prefix network errors with Network error to pass tests. (fixes #1215)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 41,
-  "commitsLastHour": 1,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:28",
+      "message": "Refactored checkForUpdate error handling to always prefix networ..."
+    },
     {
       "time": "18:46",
       "message": "Update from agentic-lib"
@@ -32,23 +31,14 @@
     {
       "time": "18:06",
       "message": "Fixed test assertion syntax for pkg-version error handling in ma..."
-    },
-    {
-      "time": "17:19",
-      "message": "Enhanced inline and README documentation to clarify that all NaN..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1215",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:27:40.873Z"
+  "generatedAt": "2025-04-10T19:28:52.176Z"
 }
