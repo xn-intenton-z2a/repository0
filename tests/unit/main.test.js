@@ -207,7 +207,7 @@ describe('Subcommand: config', () => {
 
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await main(['config', 'view']);
-    expect(writeFileSyncSpy).toHaveBeenCalledWith('config.json', JSON.stringify({}, null, 2));
+    expect(writeFileSyncSpy).toHaveBeenCalledWith('config.json', '{}');
     expect(consoleLogSpy).toHaveBeenCalledWith('Current Configuration:');
     expect(consoleLogSpy).toHaveBeenCalledWith('{}');
     consoleLogSpy.mockRestore();
