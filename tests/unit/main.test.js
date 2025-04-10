@@ -68,9 +68,10 @@ describe("CLI Help Message", () => {
         "  --json-output                Output CLI response in JSON format with metadata\n" +
         "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
         "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-        "  --diagnose-nan               Show NaN diagnostic information\n" +
         "  --check-update               Check if a new version is available from the npm registry\n\n" +
-        "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality."
+        "NaN Flags:\n" +
+        "  --diagnose-nan               Display informational message about NaN handling.\n\n" +
+        "Note: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only."
     );
     consoleLogSpy.mockRestore();
   });
@@ -206,12 +207,12 @@ describe("CLI Package.json Error Handling", () => {
 });
 
 describe("CLI Diagnose NaN", () => {
-  test("should output NaN diagnostic information when --diagnose-nan is provided", async () => {
+  test("should output informational message when --diagnose-nan is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--diagnose-nan"]);
     const calls = consoleLogSpy.mock.calls.map(call => call[0]);
-    expect(calls.some(msg => msg === "NaN Diagnostics:")).toBe(true);
-    expect(calls.some(msg => msg.includes("NaN directives are intentionally treated as no-ops"))).toBe(true);
+    expect(calls.some(msg => msg === "NaN Informational Output:")).toBe(true);
+    expect(calls.some(msg => msg.includes("informational only"))).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });

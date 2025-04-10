@@ -90,9 +90,7 @@ async function checkForUpdate(args, argv) {
   }
 }
 
-// NOTE: The CLI includes options related to NaN directives. 
-// These directives (e.g., --diagnose-nan) are intentionally non-operative per project guidelines.
-// They are provided solely for informational purposes and do not affect application functionality.
+// Consolidated help message with unified NaN flag documentation
 const helpMessage =
   "Usage: node main.js [options]\n" +
   "Options:\n" +
@@ -103,9 +101,10 @@ const helpMessage =
   "  --json-output                Output CLI response in JSON format with metadata\n" +
   "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
   "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-  "  --diagnose-nan               Show NaN diagnostic information\n" +
   "  --check-update               Check if a new version is available from the npm registry\n\n" +
-  "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
+  "NaN Flags:\n" +
+  "  --diagnose-nan               Display informational message about NaN handling.\n\n" +
+  "Note: All NaN-related flags are non-operative per project guidelines; they provide diagnostic or informational output only.";
 
 // Updated main to be asynchronous to support async update check
 export async function main(args = process.argv.slice(2)) {
@@ -124,7 +123,7 @@ export async function main(args = process.argv.slice(2)) {
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
-    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information" })
+    .option("diagnose-nan", { type: "boolean", description: "Display informational message about NaN handling" })
     .option("check-update", { type: "boolean", description: "Check if a new version is available from the npm registry" })
     .help(false)
     .version(false)
@@ -207,9 +206,9 @@ export async function main(args = process.argv.slice(2)) {
   }
 
   if (argv["diagnose-nan"]) {
-    // Note: NaN related directives are intentionally non-operative per project guidelines.
-    console.log("NaN Diagnostics:");
-    console.log("- NaN directives are intentionally treated as no-ops per project guidelines.");
+    // Consolidated NaN flag information
+    console.log("NaN Informational Output:");
+    console.log("All NaN-related flags are informational only and do not affect CLI functionality.");
     return;
   }
 
