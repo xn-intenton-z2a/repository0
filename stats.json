@@ -1,12 +1,17 @@
 {
-  "openIssues": 10,
-  "issuesClosedLastHour": 6,
+  "openIssues": 11,
+  "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 10,
-  "diffMinutesMain": 40,
-  "commitsLastHour": 3,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Moved environment variable logging from the top-level to inside main to ensure it runs during tests. (fixes #1151)",
+      "ageMinutes": 1
+    }
+  ],
+  "diffMinutes": 2,
+  "diffMinutesMain": 52,
+  "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -35,12 +40,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1151",
-        "minutesSinceLastCommit": 28
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T14:07:47.429Z"
+  "generatedAt": "2025-04-10T14:19:41.892Z"
 }
