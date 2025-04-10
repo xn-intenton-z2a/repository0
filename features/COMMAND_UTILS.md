@@ -1,30 +1,39 @@
 # COMMAND_UTILS
 
 ## Overview
-This feature consolidates two related functionalities — command aliasing and command history tracking — into a single, cohesive module. By merging the COMMAND_ALIAS and COMMAND_HISTORY features, the repository streamlines command management for both alias substitution and historical tracking, thus reducing redundancy and improving maintainability.
+This feature consolidates multiple command-related functionalities including alias management, command history tracking, and introduces a centralized CLI routing mechanism. The addition of CLI routing streamlines the processing of command-line arguments, ensuring that all features (such as PROJECT_INIT, CHANGELOG, INFO, and others) are uniformly invoked through a single, maintainable entry point. This update aligns with the repository’s mission to support healthy collaboration by simplifying the CLI’s operation and error handling.
 
 ## Implementation Details
-- **Alias Management:**
-  - Create a JSON configuration file (e.g., `aliases.json`) at the repository root that maps user-defined aliases to full command sequences.
-  - Enhance the CLI argument parser (in `src/lib/argParser.js` or similar) to recognize and substitute aliases from the configuration file before dispatching commands.
-  - Implement robust handling for unrecognized or malformed alias entries to ensure the CLI falls back to normal execution with clear error messages.
+- **Centralized Routing:**
+  - Implement a new module (e.g. `src/lib/cliRouter.js`) responsible for parsing CLI arguments, validating flags, and dispatching commands to the appropriate modules.
+  - Integrate alias substitution from the existing `aliases.json` configuration before command dispatch.
+  - Ensure the router validates input and handles errors uniformly, returning standardized exit codes (as defined in the EXIT_CODES feature).
 
-- **Command History Tracking:**
-  - Integrate a history recording mechanism that logs each executed command with its arguments and timestamp. Entries are appended to a file (e.g., `history.json`) located at the project root.
-  - Provide an optional CLI flag (e.g., `--show-history`) that displays the recorded history in a clear format for user review and debugging.
-  - Ensure that file access errors in the history module do not interrupt normal CLI operations.
+- **Alias Management and History Tracking:**
+  - Retain and enhance the current alias mapping functionality, allowing user-defined shortcuts to be translated into full command sequences.
+  - Log executed commands with timestamps into `history.json` for traceability and diagnostics.
 
-- **Modularity & Integration:**
-  - Combine the aliasing and history functionality into a single module (e.g., `src/lib/commandUtils.js`) to minimize code duplication and centralize command-related operations.
-  - Refactor the main CLI workflow (in `src/lib/main.js`) to invoke the combined module, ensuring smooth and transparent integration without affecting other repository features.
+- **Integration:**
+  - Update the main CLI file (`src/lib/main.js`) to delegate all command processing to the new CLI router.
+  - Ensure compatibility with interactive modes and existing features (such as project initialization, changelog generation, and diagnostics) by routing their respective flags appropriately.
+
+- **Modularity & Maintainability:**
+  - Consolidate all CLI-related operations into a single, cohesive module to minimize redundant code and simplify future enhancements.
+  - Provide clear error messages and help output when invalid commands or flags are detected.
 
 ## Testing
 - **Unit Tests:**
-  - Create comprehensive tests (e.g., in `tests/unit/commandUtils.test.js`) to verify correct alias substitution under various scenarios including valid, missing, and malformed alias definitions.
-  - Test the history recording functionality to confirm that executed commands are accurately logged with proper timestamps.
+  - Create tests to simulate a variety of CLI inputs and ensure the router correctly parses and dispatches commands.
+  - Verify integration with alias resolution and command history recording.
+
+- **Edge Cases:**
+  - Test the handling of missing or malformed CLI arguments to ensure appropriate error notifications and standardized exit codes are returned.
 
 ## Documentation
-- Update user guides and the README to reflect the consolidated functionality, including instructions on how to configure aliasing via `aliases.json` and how to review the command history with the `--show-history` flag.
-- Provide usage examples and troubleshooting guidelines to assist both new and experienced users.
+- Update the README and CONTRIBUTING files with usage examples demonstrating the new CLI routing system.
+- Provide detailed instructions on how legacy commands are processed via the router, along with examples of common command sequences.
 
-This unified approach to command management supports the repository’s mission of fostering healthy collaboration by making command execution more intuitive and traceable.
+## Benefits
+- **Simplified CLI Process:** Centralizes and streamlines command parsing and execution, reducing the complexity of the main entry point.
+- **Enhanced Maintainability:** Unifies command management, making it easier to extend and debug CLI functionalities in the future.
+- **Improved User Experience:** Offers consistent behavior across all CLI operations, ensuring clear, actionable error messages and help output.
