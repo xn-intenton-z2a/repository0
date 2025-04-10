@@ -53,7 +53,7 @@ The tool supports the following flags:
   Show diagnostic information related to NaN handling. **Note:** This flag is intentionally non-operative per project guidelines.
 
 - **--check-update**  
-  Check if a new version is available from the npm registry. When invoked, the CLI fetches the latest version information from [npm registry](https://registry.npmjs.org/@xn-intenton-z2a/repository0) and compares it with the version specified in `package.json`. It then outputs whether your CLI is up-to-date or if an update is available.
+  Check if a new version is available from the npm registry. The update check functionality has been refactored to use async/await for improved readability and reliability. When invoked, the CLI fetches the latest version information from [npm registry](https://registry.npmjs.org/@xn-intenton-z2a/repository0) and compares it with the version specified in `package.json`. It then outputs whether your CLI is up-to-date or if an update is available.
 
   **Example:**
   node src/lib/main.js --check-update

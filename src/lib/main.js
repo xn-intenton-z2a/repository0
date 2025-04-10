@@ -49,51 +49,45 @@ function generateJsonOutput(args, extended = false) {
   });
 }
 
-// New helper function to check for CLI update
-function checkForUpdate(args, argv) {
+// Refactored helper function to check for CLI update using async/await
+async function checkForUpdate(args, argv) {
   const pkg = getPkgData();
   const currentVersion = pkg.version;
   const url = "https://registry.npmjs.org/@xn-intenton-z2a/repository0";
-  https.get(url, (res) => {
-    let data = "";
-    res.on('data', (chunk) => { data += chunk; });
-    res.on('end', () => {
-      try {
-        const jsonData = JSON.parse(data);
-        const latestVersion = jsonData["dist-tags"] && jsonData["dist-tags"].latest;
-        if (!latestVersion) {
-          throw new Error("Latest version information not found.");
-        }
-        let messageText = '';
-        if (latestVersion === currentVersion) {
-          messageText = `You are using the latest version: ${currentVersion}`;
-        } else {
-          messageText = `An update is available: current version ${currentVersion}, latest version ${latestVersion}`;
-        }
-        if (argv["json-output"] || argv["json-extended"]) {
-          console.log(JSON.stringify({ message: messageText }));
-        } else {
-          console.log(messageText);
-        }
-      } catch (err) {
-        const errorMsg = "Invalid response from update server: " + err.message;
-        if (argv["json-output"] || argv["json-extended"]) {
-          console.log(JSON.stringify({ error: errorMsg }));
-        } else {
-          console.error(errorMsg);
-        }
-        process.exit(1);
-      }
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const req = https.get(url, (res) => {
+        let data = "";
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => { resolve(data); });
+      });
+      req.on('error', (err) => { reject(err); });
     });
-  }).on('error', (err) => {
-    const errorMsg = "Network error: " + err.message;
+    const jsonData = JSON.parse(data);
+    const latestVersion = jsonData["dist-tags"] && jsonData["dist-tags"].latest;
+    if (!latestVersion) {
+      throw new Error("Latest version information not found.");
+    }
+    let messageText = '';
+    if (latestVersion === currentVersion) {
+      messageText = `You are using the latest version: ${currentVersion}`;
+    } else {
+      messageText = `An update is available: current version ${currentVersion}, latest version ${latestVersion}`;
+    }
+    if (argv["json-output"] || argv["json-extended"]) {
+      console.log(JSON.stringify({ message: messageText }));
+    } else {
+      console.log(messageText);
+    }
+  } catch (err) {
+    const errorMsg = err.message.includes('Network error') ? "Network error: " + err.message : "Invalid response from update server: " + err.message;
     if (argv["json-output"] || argv["json-extended"]) {
       console.log(JSON.stringify({ error: errorMsg }));
     } else {
       console.error(errorMsg);
     }
     process.exit(1);
-  });
+  }
 }
 
 // NOTE: The CLI includes options related to NaN directives. 
@@ -113,7 +107,8 @@ const helpMessage =
   "  --check-update               Check if a new version is available from the npm registry\n\n" +
   "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
 
-export function main(args = process.argv.slice(2)) {
+// Updated main to be asynchronous to support async update check
+export async function main(args = process.argv.slice(2)) {
   // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
@@ -179,7 +174,7 @@ export function main(args = process.argv.slice(2)) {
   }
 
   if (argv["check-update"]) {
-    checkForUpdate(args, argv);
+    await checkForUpdate(args, argv);
     return;
   }
 

@@ -36,7 +36,6 @@ function mockHttpsGetError(error) {
         }
       }
     };
-    // Callback not called in error simulation
     return req;
   });
 }
@@ -48,16 +47,16 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should terminate without error", () => {
+  test("should terminate without error", async () => {
     process.argv = ["node", "src/lib/main.js"];
-    main([]);
+    await main([]);
   });
 });
 
 describe("CLI Help Message", () => {
-  test("should display help information when --help is passed", () => {
+  test("should display help information when --help is passed", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--help"]);
+    await main(["--help"]);
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
         "Options:\n" +
@@ -77,9 +76,9 @@ describe("CLI Help Message", () => {
 });
 
 describe("CLI Package Version Flag", () => {
-  test("should display package version when --pkg-version is passed", () => {
+  test("should display package version when --pkg-version is passed", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--pkg-version"]);
+    await main(["--pkg-version"]);
     const call = consoleLogSpy.mock.calls[0][0];
     expect(call.startsWith("Package version:"), call).toBe(true);
     consoleLogSpy.mockRestore();
@@ -87,18 +86,18 @@ describe("CLI Package Version Flag", () => {
 });
 
 describe("CLI Warning Index Mode", () => {
-  test("should log warning index message when flag and valid number provided", () => {
+  test("should log warning index message when flag and valid number provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--warning-index-mode", "5"]);
+    await main(["--warning-index-mode", "5"]);
     expect(consoleLogSpy).toHaveBeenCalledWith("Warning index mode set to: 5");
     consoleLogSpy.mockRestore();
   });
 });
 
 describe("CLI Diagnostics", () => {
-  test("should output diagnostic information when --diagnostics is provided", () => {
+  test("should output diagnostic information when --diagnostics is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--diagnostics"]);
+    await main(["--diagnostics"]);
     const calls = consoleLogSpy.mock.calls.flat().join(" ");
     expect(calls.includes("Node version:")).toBe(true);
     expect(calls.includes("Package version:" )).toBe(true);
@@ -109,9 +108,9 @@ describe("CLI Diagnostics", () => {
 });
 
 describe("CLI JSON Output", () => {
-  test("should output valid JSON with arguments and metadata when --json-output is provided", () => {
+  test("should output valid JSON with arguments and metadata when --json-output is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--json-output", "extraArg"]);
+    await main(["--json-output", "extraArg"]);
     expect(consoleLogSpy).toHaveBeenCalled();
     const outputArg = consoleLogSpy.mock.calls[0][0];
     let parsed;
@@ -128,9 +127,9 @@ describe("CLI JSON Output", () => {
 });
 
 describe("CLI Extended JSON Output", () => {
-  test("should output valid JSON with extended metadata when --json-extended flag is provided", () => {
+  test("should output valid JSON with extended metadata when --json-extended flag is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--json-extended", "extraArg"]);
+    await main(["--json-extended", "extraArg"]);
     expect(consoleLogSpy).toHaveBeenCalled();
     const outputArg = consoleLogSpy.mock.calls[0][0];
     let parsed;
@@ -150,9 +149,9 @@ describe("CLI Extended JSON Output", () => {
 });
 
 describe("CLI Verbose Logging", () => {
-  test("should display verbose debug information when --verbose flag is provided", () => {
+  test("should display verbose debug information when --verbose flag is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--verbose", "--warning-index-mode", "3"]);
+    await main(["--verbose", "--warning-index-mode", "3"]);
     const calls = consoleLogSpy.mock.calls.map(call => call[0]);
     expect(calls.some(msg => typeof msg === 'string' && msg.includes("Verbose Mode Enabled:"))).toBe(true);
     expect(calls.some(msg => typeof msg === 'string' && msg.includes("Parsed Arguments:"))).toBe(true);
@@ -162,10 +161,10 @@ describe("CLI Verbose Logging", () => {
 });
 
 describe("CLI Environment Variable", () => {
-  test("should log CLI_MODE from environment variable if set", () => {
+  test("should log CLI_MODE from environment variable if set", async () => {
     process.env.CLI_MODE = "TEST_MODE";
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main([]);
+    await main([]);
     const found = consoleLogSpy.mock.calls.some(call => call[0].includes("Environment CLI_MODE: TEST_MODE"));
     expect(found).toBe(true);
     delete process.env.CLI_MODE;
@@ -182,19 +181,19 @@ describe("CLI Package.json Error Handling", () => {
     vi.restoreAllMocks();
   });
 
-  test("should handle error in --pkg-version gracefully", () => {
+  test("should handle error in --pkg-version gracefully", async () => {
     const readSpy = simulatePkgError();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(() => { main(["--pkg-version"]); }).toThrow("process.exit called");
+    await expect(main(["--pkg-version"]).catch(e => { throw e; })).rejects.toThrow("process.exit called");
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to load package.json'));
     readSpy.mockRestore();
   });
 
-  test("should output JSON error in --json-output when package.json read fails", () => {
+  test("should output JSON error in --json-output when package.json read fails", async () => {
     const readSpy = simulatePkgError();
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     try {
-      main(["--json-output"]);
+      await main(["--json-output"]);
     } catch(e) {}
     const outputArg = consoleLogSpy.mock.calls[0][0];
     let parsed;
@@ -206,9 +205,9 @@ describe("CLI Package.json Error Handling", () => {
 });
 
 describe("CLI Diagnose NaN", () => {
-  test("should output NaN diagnostic information when --diagnose-nan is provided", () => {
+  test("should output NaN diagnostic information when --diagnose-nan is provided", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    main(["--diagnose-nan"]);
+    await main(["--diagnose-nan"]);
     const calls = consoleLogSpy.mock.calls.map(call => call[0]);
     expect(calls.some(msg => msg === "NaN Diagnostics:")).toBe(true);
     expect(calls.some(msg => msg.includes("NaN directives are intentionally treated as no-ops"))).toBe(true);
@@ -222,36 +221,35 @@ describe("CLI Check Update", () => {
     vi.restoreAllMocks();
   });
 
-  test("should indicate up-to-date when current version equals latest version", () => {
+  test("should indicate up-to-date when current version equals latest version", async () => {
     const pkg = { version: "1.4.1-13" };
-    // Mock getPkgData to return our pkg
     vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
     const responseData = JSON.stringify({ "dist-tags": { latest: "1.4.1-13" } });
     const httpsGetSpy = mockHttpsGetSuccess(responseData);
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    main(["--check-update"]);
+    await main(["--check-update"]);
     expect(consoleLogSpy).toHaveBeenCalledWith("You are using the latest version: 1.4.1-13");
 
     httpsGetSpy.mockRestore();
     consoleLogSpy.mockRestore();
   });
 
-  test("should indicate update available when registry version is newer", () => {
+  test("should indicate update available when registry version is newer", async () => {
     const pkg = { version: "1.4.1-13" };
     vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
     const responseData = JSON.stringify({ "dist-tags": { latest: "1.4.1-14" } });
     const httpsGetSpy = mockHttpsGetSuccess(responseData);
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    main(["--check-update"]);
+    await main(["--check-update"]);
     expect(consoleLogSpy).toHaveBeenCalledWith("An update is available: current version 1.4.1-13, latest version 1.4.1-14");
 
     httpsGetSpy.mockRestore();
     consoleLogSpy.mockRestore();
   });
 
-  test("should handle network error gracefully", () => {
+  test("should handle network error gracefully", async () => {
     const pkg = { version: "1.4.1-13" };
     vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
     const error = new Error("Simulated network error");
@@ -260,7 +258,7 @@ describe("CLI Check Update", () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('process.exit called'); });
     
-    expect(() => { main(["--check-update"]); }).toThrow("process.exit called");
+    await expect(main(["--check-update"]).catch(e => { throw e; })).rejects.toThrow("process.exit called");
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("Network error: Simulated network error"));
 
     httpsGetSpy.mockRestore();
