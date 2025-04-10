@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Changed yargs parser to use parseAsync with adjusted parserConfiguration and removed strict to support asynchronous command handlers and legacy flags fixing build and test issues. (fixes #1226)",
-      "ageMinutes": 1
+      "ageMinutes": 2
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 38,
+  "diffMinutesMain": 39,
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1226",
-        "minutesSinceLastCommit": 2
+        "minutesSinceLastCommit": 3
       }
     ]
   },
-  "averagePRAge": 1,
+  "averagePRAge": 2,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:44:52.111Z"
+  "generatedAt": "2025-04-10T20:45:35.854Z"
 }
