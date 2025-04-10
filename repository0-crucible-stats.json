@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 62,
-  "issuesClosedLastHour": 6,
-  "issuesClosedLastDay": 88,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Modernized NaN handling to support extended Unicode variants and robust configuration error handling. (fixes #1237)",
-      "ageMinutes": 1
-    }
-  ],
-  "diffMinutes": 0,
-  "diffMinutesMain": 13,
-  "commitsLastHour": 3,
+  "openIssues": 60,
+  "issuesClosedLastHour": 8,
+  "issuesClosedLastDay": 90,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 1,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "21:26",
+      "message": "Modernized NaN handling to support extended Unicode variants and..."
+    },
     {
       "time": "21:12",
       "message": "Enhanced Unicode normalization in NaN conversion by normalizing ..."
@@ -32,23 +31,14 @@
     {
       "time": "20:12",
       "message": "Implemented the --dump-config flag to output effective configura..."
-    },
-    {
-      "time": "19:58",
-      "message": "Refactor NaN handling to standardize Unicode normalization and s..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1237",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:26:25.970Z"
+  "generatedAt": "2025-04-10T21:28:51.401Z"
 }

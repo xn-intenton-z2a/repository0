@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 24,
+  "openIssues": 25,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Added early legacy flag handling in main.js to properly output deprecation warnings ensuring all tests pass. (fixes #1233)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 33,
+  "diffMinutesMain": 36,
   "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1233",
-        "minutesSinceLastCommit": 9
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:27:08.372Z"
+  "generatedAt": "2025-04-10T21:29:19.251Z"
 }
