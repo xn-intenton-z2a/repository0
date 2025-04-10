@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 81,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 40,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Forced chalk instance with level 3 is now used for all theme overrides to ensure ANSI color codes are produced fixing the dynamic CLI theme tests. (fixes #1711)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 43,
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1711",
-        "minutesSinceLastCommit": 8
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T22:39:07.933Z"
+  "generatedAt": "2025-04-10T22:41:40.454Z"
 }
