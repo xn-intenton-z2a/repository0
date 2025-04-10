@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
-  "issuesClosedLastHour": 10,
-  "issuesClosedLastDay": 98,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored NaN configuration resolution to enforce clear precedence CLI Repo Config Environment Default and updated tests and README accordingly. (fixes #1247)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 12,
-  "commitsLastHour": 5,
+  "openIssues": 60,
+  "issuesClosedLastHour": 12,
+  "issuesClosedLastDay": 100,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "22:24",
+      "message": "Refactored NaN configuration resolution to enforce clear precede..."
+    },
     {
       "time": "22:10",
       "message": "Add support for asynchronous custom NaN handlers in CLI conversi..."
@@ -32,23 +31,14 @@
     {
       "time": "21:34",
       "message": "Clarified Unicode NaN handling and custom replacement behavior i..."
-    },
-    {
-      "time": "21:26",
-      "message": "Modernized NaN handling to support extended Unicode variants and..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1247",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T22:22:55.692Z"
+  "generatedAt": "2025-04-10T22:26:03.727Z"
 }
