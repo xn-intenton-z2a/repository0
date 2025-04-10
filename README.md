@@ -42,13 +42,19 @@ The CLI now supports the following subcommands:
   - **Usage:** `node src/lib/main.js nan`
   - **Description:** Display informational output regarding NaN flags. Note: This command is purely informational and non-operative; it triggers no modifications or computations. Refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
+### Environment Configuration and CLI_MODE
+
+The CLI automatically loads configuration from a `.env` file via the `dotenv` package. A special environment variable, **CLI_MODE**, can be set in your `.env` file to trigger additional logging and diagnostic output at startup. For example, setting:
+
+```env
+CLI_MODE=debug
+```
+
+will result in the CLI logging a message such as "Environment CLI_MODE: debug". This is useful for debugging or when you want extra information about the environment without changing the CLI behavior significantly. When **CLI_MODE** is not set, the CLI will operate normally without the extra logging.
+
 ### Note on Legacy Flags
 
 Legacy CLI flags (e.g., `--help`, `--pkg-version`, `--diagnostics`, `--check-update`, `--json-output`, `--json-extended`, `--verbose`, `--warning-index-mode`, `--diagnose-nan`) are deprecated. Using them will result in a deprecation warning and redirection to the corresponding subcommand behavior. Please update your usage to the subcommand structure.
-
-## Environment Configuration
-
-The CLI automatically loads configuration from a `.env` file via the `dotenv` package. If the `CLI_MODE` environment variable is set, it will be logged at startup.
 
 ## Workflows and Dependencies
 
