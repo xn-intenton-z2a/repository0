@@ -1,14 +1,18 @@
 {
-  "openIssues": 15,
-  "issuesClosedLastHour": 2,
+  "openIssues": 17,
+  "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 6,
-  "diffMinutesMain": 40,
-  "commitsLastHour": 1,
+  "diffMinutes": 3,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "18:06",
+      "message": "Fixed test assertion syntax for pkg-version error handling in ma..."
+    },
     {
       "time": "17:19",
       "message": "Enhanced inline and README documentation to clarify that all NaN..."
@@ -24,23 +28,14 @@
     {
       "time": "16:34",
       "message": "Add --diagnose-nan flag with associated tests and documentation ..."
-    },
-    {
-      "time": "16:26",
-      "message": "Refactor CLI version flag to use --pkg-version instead of reserv..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1205",
-        "minutesSinceLastCommit": 36
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T17:59:42.420Z"
+  "generatedAt": "2025-04-10T18:10:28.400Z"
 }
