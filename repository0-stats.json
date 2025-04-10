@@ -2,19 +2,14 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 25,
-  "issuesClosedLastHour": 6,
+  "openIssues": 23,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Clarified the non-operative nature of the NaN command in both source code and README documentation. (fixes #1234)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 5,
-  "commitsLastHour": 3,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -39,16 +34,11 @@
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1234",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:36:28.892Z"
+  "generatedAt": "2025-04-10T21:37:08.485Z"
 }
