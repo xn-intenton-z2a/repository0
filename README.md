@@ -6,7 +6,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
-**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling. Specifically, the JSON output generation has been refactored into a helper function that supports both standard and extended metadata formats, ensuring consistency and easier maintenance.
+**Note:** The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling. The JSON output generation is handled by a helper function that supports both standard and extended metadata formats, ensuring consistency and easier maintenance.
 
 The tool supports the following flags:
 
@@ -37,7 +37,7 @@ The tool supports the following flags:
 
 - **--json-extended**  
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
-  • `cwd`: The current working directory  
+  • `cwd`: The current working directory
   • `uptime`: The process uptime in seconds
   
   **Example:**
@@ -45,17 +45,15 @@ The tool supports the following flags:
 
 - **--verbose, -v**  
   Enable verbose logging for detailed debug information. When activated, the CLI prints:
-  • A "Verbose Mode Enabled:" message.
-  • Parsed command-line arguments.
+  • A "Verbose Mode Enabled:" message
+  • Parsed command-line arguments
   • Internal state details, such as the warning index mode (if provided).
 
 - **--check-update**  
-  Check if a new version is available from the npm registry. The update check functionality has been refactored to use async/await for improved readability and reliability. When invoked, the CLI fetches the latest version information from [npm registry](https://registry.npmjs.org/@xn-intenton-z2a/repository0) and compares it with the version specified in `package.json`. It then outputs whether your CLI is up-to-date or if an update is available.
+  Check if a new version is available from the npm registry. The update check functionality uses async/await for improved readability and reliability. The CLI compares the version specified in `package.json` with the latest version available, informing you whether an update is available.
 
 - **NaN Flags**  
-  **--diagnose-nan**: Display informational message about NaN handling.
-  
-  **Note:** In accordance with project guidelines (see MISSION.md and CONTRIBUTING.md), all NaN-related flags are non-operative and serve only for informational or diagnostic purposes. This decision has been archived and will remain unchanged.
+  **--diagnose-nan**: Informational only; this flag does not impact CLI functionality. For details on its purpose and the archived decision regarding NaN handling, please refer to MISSION.md and CONTRIBUTING.md.
 
 ### Environment Configuration
 
