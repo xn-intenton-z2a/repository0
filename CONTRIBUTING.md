@@ -31,6 +31,11 @@ The guidelines below apply to human or automated contributions:
     - Tests use vitest and competing test frameworks should not be added.
     - Mocks in tests must not interfere with other tests.
 
+- **Issue Creation:**
+    - Don't create issues for NaN validation or anything related to NaN.
+    - Don't create layers of configuration managers or similar abstractions.
+    - Work on adding valuable functionality not plumbing.
+
 - **Testing:**
     - The command `npm test` should invoke the tests added for the new functionality (and pass).
     - If you add new functionality, ensure it is covered by tests.
