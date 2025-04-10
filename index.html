@@ -85,17 +85,77 @@
 <p class="md-github"><strong class="md-github">nan</strong></p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js nan</code></li>
-<li class="md-github"><strong class="md-github">Description:</strong> Display informational output regarding NaN flags. Note: This command is purely informational and non-operative; it triggers no modifications or computations. Refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</li>
+<li class="md-github"><strong class="md-github">Description:</strong> Display informational output regarding NaN flags. This command is purely informational and non-operative; it triggers no modifications or computations. Refer to <a href="./MISSION.md" class="md-github">MISSION.md</a> and <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> for guidelines.</li>
 </ul>
 </li>
 </ul>
+<h3 class="md-github"><a class="md-github__anchor" name="detailed-deprecation-notice-for-legacy-cli-flags" href="#detailed-deprecation-notice-for-legacy-cli-flags"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Detailed Deprecation Notice for Legacy CLI Flags</h3>
+<p class="md-github">Legacy CLI flags are no longer supported and have been mapped to their corresponding subcommands. Please update your usage according to the table below:</p>
+<table class="md-github">
+<thead class="md-github">
+<tr class="md-github">
+<th class="md-github">Legacy Flag</th>
+<th class="md-github">New Subcommand (or Option)</th>
+<th class="md-github">Example Usage</th>
+</tr>
+</thead>
+<tbody class="md-github">
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--help</code></td>
+<td class="md-github"><em class="md-github">Use subcommands</em></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js version</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--pkg-version</code></td>
+<td class="md-github"><code class="md-github">version</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js version</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--diagnostics</code></td>
+<td class="md-github"><code class="md-github">diagnostics</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js diagnostics</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--check-update</code></td>
+<td class="md-github"><code class="md-github">update</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js update</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--json-output</code></td>
+<td class="md-github"><code class="md-github">json</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js json extraArg</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--json-extended</code></td>
+<td class="md-github"><code class="md-github">json --extended</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js json --extended extraArg</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--verbose</code></td>
+<td class="md-github"><code class="md-github">verbose</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js verbose</code> or <code class="md-github">node src/lib/main.js verbose --warning 3</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--warning-index-mode</code></td>
+<td class="md-github"><code class="md-github">verbose</code> (with --warning option)</td>
+<td class="md-github"><code class="md-github">node src/lib/main.js verbose --warning 5</code></td>
+</tr>
+<tr class="md-github">
+<td class="md-github"><code class="md-github">--diagnose-nan</code></td>
+<td class="md-github"><code class="md-github">nan</code></td>
+<td class="md-github"><code class="md-github">node src/lib/main.js nan</code></td>
+</tr>
+</tbody>
+</table>
+<p class="md-github"><strong class="md-github">Rationale:</strong></p>
+<p class="md-github">Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage.</p>
 <h3 class="md-github"><a class="md-github__anchor" name="environment-configuration-and-cli_mode" href="#environment-configuration-and-cli_mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment Configuration and CLI_MODE</h3>
 <p class="md-github">The CLI automatically loads configuration from a <code class="md-github">.env</code> file via the <code class="md-github">dotenv</code> package. A special environment variable, <strong class="md-github">CLI_MODE</strong>, can be set in your <code class="md-github">.env</code> file to trigger additional logging and diagnostic output at startup. For example, setting:</p>
 <pre class="md-github"><code class="md-github language-env">CLI_MODE=debug
 </code></pre>
 <p class="md-github">will result in the CLI logging a message such as &quot;Environment CLI_MODE: debug&quot;. This is useful for debugging or when you want extra information about the environment without changing the CLI behavior significantly. When <strong class="md-github">CLI_MODE</strong> is not set, the CLI will operate normally without the extra logging.</p>
 <h3 class="md-github"><a class="md-github__anchor" name="note-on-legacy-flags" href="#note-on-legacy-flags"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Note on Legacy Flags</h3>
-<p class="md-github">Legacy CLI flags (e.g., <code class="md-github">--help</code>, <code class="md-github">--pkg-version</code>, <code class="md-github">--diagnostics</code>, <code class="md-github">--check-update</code>, <code class="md-github">--json-output</code>, <code class="md-github">--json-extended</code>, <code class="md-github">--verbose</code>, <code class="md-github">--warning-index-mode</code>, <code class="md-github">--diagnose-nan</code>) are deprecated. Using them will result in a deprecation warning and redirection to the corresponding subcommand behavior. Please update your usage to the subcommand structure.</p>
+<p class="md-github">Legacy CLI flags (e.g., <code class="md-github">--help</code>, <code class="md-github">--pkg-version</code>, <code class="md-github">--diagnostics</code>, <code class="md-github">--check-update</code>, <code class="md-github">--json-output</code>, <code class="md-github">--json-extended</code>, <code class="md-github">--verbose</code>, <code class="md-github">--warning-index-mode</code>, <code class="md-github">--diagnose-nan</code>) are deprecated. Using them will trigger a deprecation warning and execute the mapped functionality using the corresponding new subcommands. Please use the updated subcommand usage as detailed above.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="workflows-and-dependencies" href="#workflows-and-dependencies"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workflows and Dependencies</h2>
 <p class="md-github">The repository's workflows manage testing, formatting, linting, and CI/CD operations. For more details, please refer to:</p>
 <ul class="md-github">
@@ -127,7 +187,7 @@
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T21:50:23.495Z</p>
+    <p>Generated on 2025-04-10T21:51:23.459Z</p>
   </footer>
 </body>
 </html>
