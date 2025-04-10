@@ -47,7 +47,7 @@ export function main(args = process.argv.slice(2)) {
     "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
     "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
     "  --diagnose-nan               Show NaN diagnostic information\n\n" +
-    "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines.";
+    "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
 
   // Parse command-line arguments using yargs
   const argv = yargs(args)
@@ -59,7 +59,7 @@ export function main(args = process.argv.slice(2)) {
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
-    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information (NaN directives are intentionally treated as no-ops)" })
+    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information (NaN directives are intentionally non-operative)" })
     .help(false)
     .version(false)
     .parse();
