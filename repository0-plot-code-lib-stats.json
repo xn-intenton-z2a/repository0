@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 77,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 0,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Await error reporting before exit and update tests for async main function. (fixes #1707)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 4,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1707",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:47:45.855Z"
+  "generatedAt": "2025-04-10T21:51:15.040Z"
 }
