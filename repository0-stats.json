@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 24,
-  "issuesClosedLastHour": 6,
+  "openIssues": 22,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Changed yargs parser to use parseAsync with adjusted parserConfiguration and removed strict to support asynchronous command handlers and legacy flags fixing build and test issues. (fixes #1226)",
-      "ageMinutes": 2
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 39,
-  "commitsLastHour": 3,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "20:46",
+      "message": "Changed yargs parser to use parseAsync with adjusted parserConfi..."
+    },
     {
       "time": "20:06",
       "message": "Consolidated duplicate NaN directive documentation across main.j..."
@@ -32,23 +31,14 @@
     {
       "time": "19:28",
       "message": "Refactored checkForUpdate error handling to always prefix networ..."
-    },
-    {
-      "time": "18:46",
-      "message": "Update from agentic-lib"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1226",
-        "minutesSinceLastCommit": 3
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 2,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:45:35.854Z"
+  "generatedAt": "2025-04-10T20:46:38.116Z"
 }

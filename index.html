@@ -25,65 +25,84 @@
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
 <p class="md-github">This repository template demonstrates GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code> and serves as a demo for automated CI/CD processes. For guidance on using this template, refer to <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a>.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github"><code class="md-github">repository0</code> is a demo repository showcasing GitHub workflows from intentïon <code class="md-github">agentic‑lib</code> for automated CI/CD processes. It includes a CLI tool implemented in <code class="md-github">src/lib/main.js</code> that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.</p>
-<p class="md-github"><strong class="md-github">Note:</strong> The CLI argument parsing has been refactored to leverage yargs for robust and maintainable parsing. In addition to the existing features, the CLI now benefits from automatic help generation and improved flag handling. The JSON output generation is handled by a helper function that supports both standard and extended metadata formats, ensuring consistency and easier maintenance.</p>
-<p class="md-github">The tool supports the following flags:</p>
+<p class="md-github"><code class="md-github">repository0</code> is a demo repository showcasing GitHub workflows from intentïon <code class="md-github">agentic‑lib</code> for automated CI/CD processes. It includes a CLI tool implemented in <code class="md-github">src/lib/main.js</code> that now supports a subcommand architecture for enhanced clarity, maintainability, and usability.</p>
+<h3 class="md-github"><a class="md-github__anchor" name="new-cli-subcommands" href="#new-cli-subcommands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>New CLI Subcommands</h3>
+<p class="md-github">The CLI has been refactored to use subcommands. The following subcommands are available:</p>
 <ul class="md-github">
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--help, -h</strong><br>
-Display help and usage information.</p>
+<p class="md-github"><strong class="md-github">version</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js version</code></li>
+<li class="md-github"><strong class="md-github">Description:</strong> Display the package version.</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--pkg-version</strong><br>
-Display the package version by reading <code class="md-github">package.json</code>. If <code class="md-github">package.json</code> is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.</p>
+<p class="md-github"><strong class="md-github">diagnostics</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js diagnostics</code></li>
+<li class="md-github"><strong class="md-github">Description:</strong> Show diagnostic information including Node version, package version, and dependency list.</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--warning-index-mode <value></strong><br>
-Set the warning index mode to a numeric value.</p>
-<p class="md-github"><strong class="md-github">Example:</strong>
-node src/lib/main.js --warning-index-mode 5</p>
+<p class="md-github"><strong class="md-github">update</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js update</code></li>
+<li class="md-github"><strong class="md-github">Description:</strong> Check if a new CLI version is available from the npm registry.</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--diagnostics</strong><br>
-Output detailed diagnostic information including Node version, package version, and list of dependencies. If there is an error reading <code class="md-github">package.json</code>, an error message will be displayed and the process exits with a non-zero status.</p>
+<p class="md-github"><strong class="md-github">json</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong>
+<ul class="md-github">
+<li class="md-github">Standard: <code class="md-github">node src/lib/main.js json [extraArgs]</code></li>
+<li class="md-github">Extended Metadata: <code class="md-github">node src/lib/main.js json --extended [extraArgs]</code></li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Description:</strong> Output CLI response in JSON format. The extended mode includes additional metadata (current working directory and process uptime).</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--json-output</strong><br>
-Output the CLI response in JSON format. The JSON structure includes:
-• <code class="md-github">arguments</code>: Array of provided command line arguments.
-• <code class="md-github">metadata</code>: An object containing <code class="md-github">timestamp</code>, <code class="md-github">nodeVersion</code>, and <code class="md-github">packageVersion</code>.</p>
-<p class="md-github">In case of a missing or corrupt <code class="md-github">package.json</code>, a valid JSON error response is returned and the process exits with a non-zero status.</p>
-<p class="md-github"><strong class="md-github">Example:</strong>
-node src/lib/main.js --json-output extraArg</p>
+<p class="md-github"><strong class="md-github">verbose</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong>
+<ul class="md-github">
+<li class="md-github">Basic verbose: <code class="md-github">node src/lib/main.js verbose</code></li>
+<li class="md-github">Set warning index: <code class="md-github">node src/lib/main.js verbose --warning &lt;number&gt;</code></li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">Description:</strong> Enable verbose logging. It outputs parsed arguments and internal state or sets the warning index mode if specified.</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--json-extended</strong><br>
-Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
-• <code class="md-github">cwd</code>: The current working directory
-• <code class="md-github">uptime</code>: The process uptime in seconds</p>
-<p class="md-github"><strong class="md-github">Example:</strong>
-node src/lib/main.js --json-extended extraArg</p>
+<p class="md-github"><strong class="md-github">warn</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js warn --value &lt;number&gt;</code></li>
+<li class="md-github"><strong class="md-github">Description:</strong> Explicitly set the warning index mode.</li>
+</ul>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--verbose, -v</strong><br>
-Enable verbose logging for detailed debug information. When activated, the CLI prints:
-• A &quot;Verbose Mode Enabled:&quot; message
-• Parsed command-line arguments
-• Internal state details, such as the warning index mode (if provided).</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">--check-update</strong><br>
-Check if a new version is available from the npm registry. The update check functionality uses async/await for improved readability and reliability. The CLI compares the version specified in <code class="md-github">package.json</code> with the latest version available, informing you whether an update is available.</p>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">NaN Flags</strong><br>
-<strong class="md-github">--diagnose-nan</strong>: Informational only; this flag does not impact CLI functionality. For details on its purpose and the archived decision regarding NaN handling, please refer to MISSION.md and CONTRIBUTING.md.</p>
+<p class="md-github"><strong class="md-github">nan</strong></p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Usage:</strong> <code class="md-github">node src/lib/main.js nan</code></li>
+<li class="md-github"><strong class="md-github">Description:</strong> Display informational output regarding NaN flags. (Note: NaN-related flags are informational only.)</li>
+</ul>
 </li>
 </ul>
+<h3 class="md-github"><a class="md-github__anchor" name="legacy-flag-support" href="#legacy-flag-support"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Legacy Flag Support</h3>
+<p class="md-github">For backward compatibility, the following flags are still supported and internally mapped to the new subcommands:</p>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">--help</code> or <code class="md-github">-h</code></li>
+<li class="md-github"><code class="md-github">--pkg-version</code></li>
+<li class="md-github"><code class="md-github">--diagnostics</code></li>
+<li class="md-github"><code class="md-github">--check-update</code></li>
+<li class="md-github"><code class="md-github">--json-output</code> and <code class="md-github">--json-extended</code></li>
+<li class="md-github"><code class="md-github">--verbose</code></li>
+<li class="md-github"><code class="md-github">--warning-index-mode</code></li>
+<li class="md-github"><code class="md-github">--diagnose-nan</code></li>
+</ul>
 <h3 class="md-github"><a class="md-github__anchor" name="environment-configuration" href="#environment-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment Configuration</h3>
-<p class="md-github">The CLI automatically loads environment configuration via the <code class="md-github">dotenv</code> package. For example, if you set the environment variable <code class="md-github">CLI_MODE</code> in a <code class="md-github">.env</code> file, the CLI will output:</p>
-<p class="md-github">Environment CLI_MODE: <value></p>
-<p class="md-github">Ensure your project root contains a <code class="md-github">.env</code> file with the appropriate configurations.</p>
+<p class="md-github">The CLI automatically loads configuration from a <code class="md-github">.env</code> file via the <code class="md-github">dotenv</code> package. If the <code class="md-github">CLI_MODE</code> environment variable is set, it will be logged at startup.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="workflows-and-dependencies" href="#workflows-and-dependencies"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workflows and Dependencies</h2>
 <p class="md-github">The repository's workflows manage testing, formatting, linting, and CI/CD operations. For more details, please refer to:</p>
 <ul class="md-github">
@@ -94,24 +113,28 @@ Check if a new version is available from the npm registry. The update check func
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
 <ol class="md-github">
-<li class="md-github">Configure the required secrets in your repository settings (e.g., <code class="md-github">CHATGPT_API_SECRET_KEY</code>).</li>
-<li class="md-github">Install dependencies with:</li>
-</ol>
+<li class="md-github">
+<p class="md-github">Configure the required secrets in your repository settings (e.g., <code class="md-github">CHATGPT_API_SECRET_KEY</code>).</p>
+</li>
+<li class="md-github">
+<p class="md-github">Install dependencies with:</p>
 <p class="md-github">npm install</p>
-<ol start="3" class="md-github">
-<li class="md-github">Run the CLI:</li>
-</ol>
-<p class="md-github">npm start</p>
-<ol start="4" class="md-github">
-<li class="md-github">Execute tests:</li>
-</ol>
+</li>
+<li class="md-github">
+<p class="md-github">Run the CLI using one of the subcommands. Example:</p>
+<p class="md-github">npm start -- version</p>
+</li>
+<li class="md-github">
+<p class="md-github">Execute tests:</p>
 <p class="md-github">npm test</p>
+</li>
+</ol>
 <h2 class="md-github"><a class="md-github__anchor" name="intentïon-agenticlib" href="#intentïon-agenticlib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic‑lib</code></h2>
 <p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic‑lib</code></strong> is a collection of reusable GitHub Actions workflows that enable autonomous operations and continuous evolution of your code. For more information and updates, visit <a href="https://github.com/xn-intenton-z2a/repository0" class="md-github">intentïon agentic‑lib</a>.</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T20:45:46.831Z</p>
+    <p>Generated on 2025-04-10T20:46:47.515Z</p>
   </footer>
 </body>
 </html>
