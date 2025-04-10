@@ -2,14 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 20,
+  "openIssues": 21,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 14,
-  "commitsLastHour": 2,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Consolidated NaN flag documentation across CLI help README and contributing guidelines for clarity. (fixes #1220)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 19,
+  "commitsLastHour": 1,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1220",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:42:52.298Z"
+  "generatedAt": "2025-04-10T19:47:27.813Z"
 }

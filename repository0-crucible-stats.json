@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
-  "issuesClosedLastHour": 12,
+  "openIssues": 59,
+  "issuesClosedLastHour": 14,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Add support for customNan configuration in .repositoryConfig.json for persistent NaN replacement. (fixes #1224)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 8,
-  "commitsLastHour": 7,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 2,
+  "commitsLastHour": 8,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:42",
+      "message": "Add support for customNan configuration in .repositoryConfig.jso..."
+    },
     {
       "time": "19:33",
       "message": "Optimized Unicode normalization for NaN variants and enhanced de..."
@@ -32,23 +31,14 @@
     {
       "time": "19:02",
       "message": "Refactored NaN conversion handling for consistency and enhanced ..."
-    },
-    {
-      "time": "18:54",
-      "message": "Enhance CLI conversion logic to support Unicode variants of NaN ..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1224",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:42:22.843Z"
+  "generatedAt": "2025-04-10T19:45:32.495Z"
 }
