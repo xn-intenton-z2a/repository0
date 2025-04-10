@@ -7,16 +7,21 @@ dotenv.config();
 import { fileURLToPath } from "url";
 import * as fs from "fs";
 
-// New wrapper function for fs.readFileSync to allow easier testing.
+// Utility object for file operations to allow easier testing.
+export const utils = {
+  readFileSyncWrapper: (file, encoding) => fs.readFileSync(file, encoding),
+};
+
+// Exported function that uses utils for consistency.
 export function readFileSyncWrapper(file, encoding) {
-  return fs.readFileSync(file, encoding);
+  return utils.readFileSyncWrapper(file, encoding);
 }
 
 // Helper function to load and parse package.json
 function getPkgData() {
   try {
     const pkgPath = new URL("../../package.json", import.meta.url);
-    const content = readFileSyncWrapper(pkgPath, "utf-8");
+    const content = utils.readFileSyncWrapper(pkgPath, "utf-8");
     return JSON.parse(content);
   } catch (error) {
     throw new Error("Failed to load package.json: " + error.message);

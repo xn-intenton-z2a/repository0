@@ -2,9 +2,9 @@ import { beforeEach, afterEach, describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
-// Helper to simulate package.json read error using the readFileSyncWrapper
+// Helper to simulate package.json read error using the utils.readFileSyncWrapper
 function simulatePkgError() {
-  return vi.spyOn(mainModule, "readFileSyncWrapper").mockImplementation(() => {
+  return vi.spyOn(mainModule.utils, "readFileSyncWrapper").mockImplementation(() => {
     throw new Error("Simulated read error");
   });
 }
