@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 60,
+  "openIssues": 61,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 98,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 8,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored NaN configuration resolution to enforce clear precedence CLI Repo Config Environment Default and updated tests and README accordingly. (fixes #1247)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 12,
   "commitsLastHour": 5,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1247",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T22:19:38.933Z"
+  "generatedAt": "2025-04-10T22:22:55.692Z"
 }
