@@ -40,6 +40,7 @@ function mockHttpsGetError(error) {
   });
 }
 
+
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();

@@ -80,7 +80,7 @@ async function checkForUpdate(args, argv) {
       console.log(messageText);
     }
   } catch (err) {
-    const errorMsg = err.message.includes('Network error') ? "Network error: " + err.message : "Invalid response from update server: " + err.message;
+    const errorMsg = "Network error: " + err.message;
     if (argv["json-output"] || argv["json-extended"]) {
       console.log(JSON.stringify({ error: errorMsg }));
     } else {
