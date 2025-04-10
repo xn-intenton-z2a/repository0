@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
-  "issuesClosedLastHour": 10,
+  "openIssues": 59,
+  "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Optimized Unicode normalization for NaN variants and enhanced debug logging to include normalized input details. (fixes #1221)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 6,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:33",
+      "message": "Optimized Unicode normalization for NaN variants and enhanced de..."
+    },
     {
       "time": "19:27",
       "message": "Refactored NaN conversion logic for consistent CLI behavior and ..."
@@ -32,23 +31,14 @@
     {
       "time": "18:54",
       "message": "Enhance CLI conversion logic to support Unicode variants of NaN ..."
-    },
-    {
-      "time": "18:46",
-      "message": "Update from agentic-lib"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1221",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:33:19.657Z"
+  "generatedAt": "2025-04-10T19:34:04.292Z"
 }
