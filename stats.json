@@ -1,19 +1,22 @@
 {
-  "openIssues": 15,
-  "issuesClosedLastHour": 8,
+  "openIssues": 13,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactor CLI version flag to use --pkg-version instead of reserved --version to eliminate warnings. (fixes #1196)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 5,
   "diffMinutesMain": 5,
-  "commitsLastHour": 4,
+  "commitsLastHour": 5,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "16:34",
+      "message": "Add --diagnose-nan flag with associated tests and documentation ..."
+    },
+    {
+      "time": "16:26",
+      "message": "Refactor CLI version flag to use --pkg-version instead of reserv..."
+    },
     {
       "time": "16:20",
       "message": "Refactored CLI argument parsing to use yargs for more robust and..."
@@ -25,27 +28,14 @@
     {
       "time": "15:56",
       "message": "Reordered verbose flag handling to execute before warning index ..."
-    },
-    {
-      "time": "15:33",
-      "message": "Refactored file reading in main.js to use a mutable utils object..."
-    },
-    {
-      "time": "14:32",
-      "message": "Added --json-extended flag to output extended JSON metadata incl..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1196",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T16:26:18.153Z"
+  "generatedAt": "2025-04-10T16:39:58.024Z"
 }

@@ -34,7 +34,7 @@
 Display help and usage information.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">--version</strong><br>
+<p class="md-github"><strong class="md-github">--pkg-version</strong><br>
 Display the package version by reading <code class="md-github">package.json</code>. If <code class="md-github">package.json</code> is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.</p>
 </li>
 <li class="md-github">
@@ -71,8 +71,14 @@ Enable verbose logging for detailed debug information. When activated, the CLI p
 • Parsed command-line arguments.
 • Internal state details, such as the warning index mode (if provided).</p>
 </li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">--diagnose-nan</strong><br>
+Output diagnostic information concerning NaN handling. When invoked, the CLI displays:
+• &quot;NaN Diagnostics:&quot;
+• &quot;- NaN directives are intentionally treated as no-ops per project guidelines.&quot;</p>
+</li>
 </ul>
-<p class="md-github"><strong class="md-github">Important:</strong> Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design. They exist solely for compatibility and do not have any functional effect.</p>
+<p class="md-github"><strong class="md-github">Important:</strong> Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design.</p>
 <h3 class="md-github"><a class="md-github__anchor" name="environment-configuration" href="#environment-configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment Configuration</h3>
 <p class="md-github">The CLI automatically loads environment configuration via the <code class="md-github">dotenv</code> package. For example, if you set the environment variable <code class="md-github">CLI_MODE</code> in a <code class="md-github">.env</code> file, the CLI will output:</p>
 <p class="md-github">Environment CLI_MODE: <value></p>
@@ -106,7 +112,7 @@ Enable verbose logging for detailed debug information. When activated, the CLI p
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T16:26:28.558Z</p>
+    <p>Generated on 2025-04-10T16:40:07.696Z</p>
   </footer>
 </body>
 </html>
