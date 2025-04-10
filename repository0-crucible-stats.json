@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 62,
-  "issuesClosedLastHour": 8,
+  "openIssues": 60,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored NaN conversion logic for consistent CLI behavior and streamlined debug logging. (fixes #1213)",
-      "ageMinutes": 2
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 12,
-  "commitsLastHour": 5,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:27",
+      "message": "Refactored NaN conversion logic for consistent CLI behavior and ..."
+    },
     {
       "time": "19:13",
       "message": "Refactored NaN conversion logic to consistently handle Unicode v..."
@@ -32,23 +31,14 @@
     {
       "time": "18:46",
       "message": "Update from agentic-lib"
-    },
-    {
-      "time": "18:45",
-      "message": "Changed const convertedArgs to let convertedArgs in main to allo..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1213",
-        "minutesSinceLastCommit": 3
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 2,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:26:34.402Z"
+  "generatedAt": "2025-04-10T19:27:43.493Z"
 }
