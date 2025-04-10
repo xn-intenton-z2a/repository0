@@ -3,17 +3,17 @@
   "repo": "repository0-crucible",
   "engine": "schedule-3",
   "openIssues": 63,
-  "issuesClosedLastHour": 5,
+  "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 82,
   "openPRs": 1,
   "prDetails": [
     {
       "title": "Updated main.js dump-config logic and added beforeEach reset in Environment Custom NaN Handler tests to ensure proper isolation between tests. (fixes #1230)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 39,
+  "diffMinutesMain": 40,
   "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:52:04.802Z"
+  "generatedAt": "2025-04-10T20:52:52.190Z"
 }
