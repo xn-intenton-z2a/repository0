@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 63,
-  "issuesClosedLastHour": 4,
-  "issuesClosedLastDay": 82,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Updated main.js dump-config logic and added beforeEach reset in Environment Custom NaN Handler tests to ensure proper isolation between tests. (fixes #1230)",
-      "ageMinutes": 1
-    }
-  ],
+  "openIssues": 61,
+  "issuesClosedLastHour": 6,
+  "issuesClosedLastDay": 84,
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 40,
-  "commitsLastHour": 2,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "20:53",
+      "message": "Updated main.js dump-config logic and added beforeEach reset in ..."
+    },
     {
       "time": "20:12",
       "message": "Implemented the --dump-config flag to output effective configura..."
@@ -32,23 +31,14 @@
     {
       "time": "19:42",
       "message": "Add support for customNan configuration in .repositoryConfig.jso..."
-    },
-    {
-      "time": "19:33",
-      "message": "Optimized Unicode normalization for NaN variants and enhanced de..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1230",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:52:52.190Z"
+  "generatedAt": "2025-04-10T20:53:44.731Z"
 }
