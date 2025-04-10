@@ -8,10 +8,13 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 ## Key Feature Documentation
 
 - **CLI Execution:**
-  The CLI is implemented in `src/lib/main.js`. Run the CLI with `node src/lib/main.js [options]`. Use the `--help` or `-h` flag to see usage options. A new flag `--warning-index-mode <value>` has been added to allow users to configure a warning index mode via the command line.
+  The CLI is implemented in `src/lib/main.js`. Run the CLI with `node src/lib/main.js [options]`. Use the `--help` or `-h` flag to see usage options. Additional flags include:
+  - `--version`: Display the current package version
+  - `--warning-index-mode <value>`: Configure a warning index mode via the command line.
+  - `--diagnostics`: Show detailed diagnostic information (Node version, package version, and dependencies).
 
 - **CLI Diagnostics:**
-  A new `--diagnostics` flag has been implemented. When provided, the CLI outputs detailed information about the runtime environment, including the Node.js version, package version, and a summary of key dependencies.
+  The CLI outputs diagnostic information when the `--diagnostics` flag is provided.
 
 - **NaN Handling:**
   Note that any `NaN` directives or inputs are intentionally treated as no-ops. This design decision is by intention, ensuring that no operations are performed on such inputs. For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md) and [MISSION.md](./MISSION.md).
@@ -20,7 +23,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
   Workflows in the `.github/workflows/` directory use reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  Main functionality resides in `src/lib/main.js`, which is maintained according to the project’s mission and coding standards.
+  Main functionality resides in `src/lib/main.js`, which adheres to the project’s mission and coding standards.
 
 - **Dependencies:**
   The `package.json` file outlines dependencies and scripts for testing, formatting, linting, and CLI execution.

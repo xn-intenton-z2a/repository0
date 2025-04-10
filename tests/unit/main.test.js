@@ -23,10 +23,22 @@ describe("CLI Help Message", () => {
       "Usage: node main.js [options]\n" +
       "Options:\n" +
       "  --help, -h                   Show help message\n" +
+      "  --version                    Show package version\n" +
       "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
       "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n\n" +
       "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Version Flag", () => {
+  test("should display package version when --version is passed", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--version"]);
+    // We can't hardcode the version string as it reads from package.json, but we expect it to start with 'Package version:'
+    const call = consoleLogSpy.mock.calls[0][0];
+    expect(call.startsWith("Package version:"));
     consoleLogSpy.mockRestore();
   });
 });
