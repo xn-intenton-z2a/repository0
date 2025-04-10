@@ -355,77 +355,86 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'config view',
-      'View CLI configuration',
-      (yargs) => {
-        return yargs.option('json', {
-          type: 'boolean',
-          description: 'Output in JSON format'
-        });
-      },
-      (argv) => {
-        try {
-          const config = loadConfig();
-          if (argv.json) {
-            console.log(JSON.stringify({ config }));
-          } else {
-            console.log('Current Configuration:');
-            console.log(JSON.stringify(config));
-          }
-        } catch (err) {
-          const errorMsg = err.message;
-          if (argv.json) {
-            console.log(JSON.stringify({ error: errorMsg }));
-          } else {
-            console.error(errorMsg);
-          }
-          process.exit(1);
-        }
-      }
-    )
-    .command(
-      'config set',
-      'Update CLI configuration',
+      'config',
+      'Manage CLI configuration',
       (yargs) => {
         return yargs
-          .option('key', {
-            type: 'string',
-            describe: 'Configuration key (required for set action)'
-          })
-          .option('value', {
-            type: 'string',
-            describe: 'Configuration value (required for set action)'
-          })
-          .option('json', {
-            type: 'boolean',
-            description: 'Output in JSON format'
-          });
+          .command(
+            'view',
+            'View CLI configuration',
+            (yargs) => {
+              return yargs.option('json', {
+                type: 'boolean',
+                description: 'Output in JSON format'
+              });
+            },
+            (argv) => {
+              try {
+                const config = loadConfig();
+                if (argv.json) {
+                  console.log(JSON.stringify({ config }));
+                } else {
+                  console.log('Current Configuration:');
+                  console.log(JSON.stringify(config));
+                }
+              } catch (err) {
+                const errorMsg = err.message;
+                if (argv.json) {
+                  console.log(JSON.stringify({ error: errorMsg }));
+                } else {
+                  console.error(errorMsg);
+                }
+                process.exit(1);
+              }
+            }
+          )
+          .command(
+            'set',
+            'Update CLI configuration',
+            (yargs) => {
+              return yargs
+                .option('key', {
+                  type: 'string',
+                  description: 'Configuration key'
+                })
+                .option('value', {
+                  type: 'string',
+                  description: 'Configuration value'
+                })
+                .option('json', {
+                  type: 'boolean',
+                  description: 'Output in JSON format'
+                });
+            },
+            (argv) => {
+              if (!argv.key || !argv.value) {
+                console.error('Error: --key and --value must be provided for set action.');
+                process.exit(1);
+              }
+              try {
+                const config = loadConfig();
+                config[argv.key] = argv.value;
+                saveConfig(config);
+                const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+                if (argv.json) {
+                  console.log(JSON.stringify({ message: messageText, config }));
+                } else {
+                  console.log(messageText);
+                }
+              } catch (err) {
+                const errorMsg = err.message;
+                if (argv.json) {
+                  console.log(JSON.stringify({ error: errorMsg }));
+                } else {
+                  console.error(errorMsg);
+                }
+                process.exit(1);
+              }
+            }
+          )
+          .demandCommand(1, 'You must specify a valid config subcommand.');
       },
-      (argv) => {
-        if (!argv.key || !argv.value) {
-          console.error('Error: --key and --value must be provided for set action.');
-          process.exit(1);
-        }
-        try {
-          const config = loadConfig();
-          config[argv.key] = argv.value;
-          saveConfig(config);
-          const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
-          if (argv.json) {
-            console.log(JSON.stringify({ message: messageText, config }));
-          } else {
-            console.log(messageText);
-          }
-        } catch (err) {
-          const errorMsg = err.message;
-          if (argv.json) {
-            console.log(JSON.stringify({ error: errorMsg }));
-          } else {
-            console.error(errorMsg);
-          }
-          process.exit(1);
-        }
-      }
+      () => {}
     )
     .help(false)
     .version(false)
