@@ -2,9 +2,9 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
+  "openIssues": 60,
   "issuesClosedLastHour": 6,
-  "issuesClosedLastDay": 84,
+  "issuesClosedLastDay": 86,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
@@ -12,6 +12,10 @@
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "21:01",
+      "message": "Clarified the error message for missing replacement with --custo..."
+    },
     {
       "time": "20:53",
       "message": "Updated main.js dump-config logic and added beforeEach reset in ..."
@@ -27,10 +31,6 @@
     {
       "time": "19:51",
       "message": "Add --trace-plugins flag to enable plugin transformation trace l..."
-    },
-    {
-      "time": "19:42",
-      "message": "Add support for customNan configuration in .repositoryConfig.jso..."
     }
   ],
   "branches": {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T20:53:54.499Z"
+  "generatedAt": "2025-04-10T21:01:51.993Z"
 }
