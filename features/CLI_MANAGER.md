@@ -1,31 +1,36 @@
 # CLI_MANAGER
 
 ## Overview
-This feature consolidates the functionalities of CLI interactive improvements and robust argument parsing into a single module called CLI_MANAGER. It merges dynamic command suggestions, history search, and interactive session management with structured command-line argument validation and routing. By unifying these aspects, the repository reduces redundancy and streamlines CLI operations, supporting the repository’s mission of fostering healthy collaboration and efficient CI/CD workflows.
+This feature consolidates all aspects of the command-line interface into a single, unified module. It merges interactive improvements (such as real-time command suggestions, history search, and auto-completion) with robust argument parsing and routing. Additionally, this update integrates usage analytics directly within the CLI, capturing command frequency and user interaction data. By unifying these functionalities, the repository reduces code duplication, streamlines CL interface operations, and provides actionable insights to optimize the user experience.
 
 ## Implementation Details
 - **Centralized CLI Processing:**
-  - Merge the interactive session capabilities (e.g., real-time command suggestions, command history, REPL experience) with structured flag parsing and validation.
-  - Leverage Node.js’s readline module alongside libraries like Zod for schema validation to ensure accurate interpretation of CLI flags and dynamic auto-completion.
-- **Unified Command Management:**
-  - Integrate flag parsing, alias resolution, and error messaging into one central module. All CLI commands will now be routed through CLI_MANAGER, ensuring consistency in help outputs and error handling.
-  - Provide interactive prompts that match the output of conventional CLI help flags, including context-sensitive suggestions and historical command recall.
-- **Integration and Modularity:**
-  - Implement the consolidated logic in a single source file (e.g., `src/lib/cliManager.js`) that replaces the separate modules for interactive CLI and argument parsing.
-  - Ensure full backward compatibility by supporting all existing commands and extending them where necessary.
+  - Merge interactive session capabilities (real-time suggestions, command history, REPL-like features) with structured flag parsing using libraries such as Node.js's readline and Zod for schema validation.
+  - Route all commands through a single module (`src/lib/cliManager.js`) to ensure consistency in help outputs, error handling, and interactive prompt behavior.
+
+- **Usage Analytics Integration:**
+  - Integrate analytics logic within the CLI manager to intercept and log every command execution along with timestamps and arguments.
+  - Store analytics data in a JSON file (e.g. `usage.json`) that tracks frequency and recency of commands, replacing the separate USAGE_ANALYTICS module.
+  - Provide a CLI flag (e.g. `--usage-analytics`) to display a summary report of command usage in both human-readable and JSON formats.
+
+- **Error Handling and Backward Compatibility:**
+  - Ensure that enhancements in auto-completion and usage tracking do not interfere with existing CLI operations.
+  - Maintain robust error messaging for invalid or malformed commands, with clear guidance for user correction.
 
 ## Testing
 - **Unit Tests:**
-  - Create tests to simulate different CLI inputs and interactive sessions. Verify that suggestions, history search, auto-completion, and command validations work seamlessly together.
+  - Simulate various CLI inputs (both interactive and scripted) to validate that suggestions, history retrieval, and auto-completion work seamlessly.
+  - Verify that command executions are correctly logged in `usage.json` and that the analytics report accurately reflects command usage.
+
 - **Edge Cases:**
-  - Validate behavior for missing or malformed commands, ensuring that the unified module provides clear, actionable error messages without disrupting the interactive flow.
+  - Test scenarios with missing or corrupted analytics data files and ensure graceful degradation (e.g. in-memory logging fallback).
+  - Validate behavior when users input unexpected commands or use unsupported flags.
 
 ## Documentation
-- **README & CONTRIBUTING Updates:**
-  - Update documentation with usage examples covering interactive sessions, auto-completion, and command-line flag behavior.
-  - Provide examples to show how existing CLI commands are now handled by the unified CLI_MANAGER module.
+- Update the README and CONTRIBUTING documents with new usage examples demonstrating interactive sessions, command auto-completion, and usage analytics reporting (via the `--usage-analytics` flag).
+- Provide detailed API references for the CLI manager functions, including configuration options and customization of analytics data capture.
 
 ## Benefits
-- **Enhanced User Experience:** Provides a more responsive and intuitive CLI by combining real-time interactivity with robust parsing and error handling.
-- **Streamlined Maintenance:** Centralizes CLI functionality into one module, reducing code duplication and simplifying future enhancements.
-- **Consistency:** Ensures uniform behavior and messaging across all CLI operations, aligning with the repository’s emphasis on actionable diagnostics for CI/CD workflows.
+- **Enhanced User Experience:** By combining interactive CLI improvements with usage tracking, users receive a more intuitive and responsive command-line interface.
+- **Streamlined Maintenance:** Centralizes functionality into one module, reducing redundancy and simplifying future feature enhancements.
+- **Actionable Insights:** Usage analytics integrated within the CLI help maintainers understand command usage patterns, enabling data-driven improvements.
