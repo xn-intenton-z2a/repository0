@@ -4,11 +4,11 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 ## Overview
 
-`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now supports a subcommand architecture for enhanced clarity, maintainability, and usability.
+`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands.
 
-### New CLI Subcommands
+### CLI Subcommands
 
-The CLI has been refactored to use subcommands. The following subcommands are available:
+The CLI now supports the following subcommands:
 
 - **version**
   - **Usage:** `node src/lib/main.js version`
@@ -26,13 +26,13 @@ The CLI has been refactored to use subcommands. The following subcommands are av
   - **Usage:**
     - Standard: `node src/lib/main.js json [extraArgs]`
     - Extended Metadata: `node src/lib/main.js json --extended [extraArgs]`
-  - **Description:** Output CLI response in JSON format. The extended mode includes additional metadata (current working directory and process uptime).
+  - **Description:** Output CLI response in JSON format. Extended mode includes additional metadata such as the current working directory and process uptime.
 
 - **verbose**
   - **Usage:**
     - Basic verbose: `node src/lib/main.js verbose`
     - Set warning index: `node src/lib/main.js verbose --warning <number>`
-  - **Description:** Enable verbose logging. It outputs parsed arguments and internal state or sets the warning index mode if specified.
+  - **Description:** Enable verbose logging; outputs parsed arguments and internal state or sets the warning index mode if specified.
 
 - **warn**
   - **Usage:** `node src/lib/main.js warn --value <number>`
@@ -40,22 +40,13 @@ The CLI has been refactored to use subcommands. The following subcommands are av
 
 - **nan**
   - **Usage:** `node src/lib/main.js nan`
-  - **Description:** Display informational output regarding NaN flags. NOTE: This command is solely informational. It does not trigger any computational changes and exists only to adhere to the project guidelines regarding NaN handling. For more information, please refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
+  - **Description:** Display informational output regarding NaN flags. This command is solely informational; refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
-### Legacy Flag Support
+### Note on Legacy Flags
 
-For backward compatibility, the following flags are still supported and internally mapped to the new subcommands:
+Legacy CLI flags (e.g., `--help`, `--pkg-version`, `--diagnostics`, `--check-update`, `--json-output`, `--json-extended`, `--verbose`, `--warning-index-mode`, `--diagnose-nan`) are deprecated. Using them will result in a deprecation warning and redirection to the corresponding subcommand behavior. Please update your usage to the subcommand structure.
 
-- `--help` or `-h`
-- `--pkg-version`
-- `--diagnostics`
-- `--check-update`
-- `--json-output` and `--json-extended`
-- `--verbose`
-- `--warning-index-mode`
-- `--diagnose-nan`
-
-### Environment Configuration
+## Environment Configuration
 
 The CLI automatically loads configuration from a `.env` file via the `dotenv` package. If the `CLI_MODE` environment variable is set, it will be logged at startup.
 

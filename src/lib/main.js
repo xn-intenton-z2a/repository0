@@ -90,7 +90,7 @@ async function checkForUpdate(args, argv) {
   }
 }
 
-// Consolidated help message with updated subcommand documentation
+// Consolidated help message emphasizing subcommand usage and deprecation of legacy flags
 const helpMessage =
   'Usage: node main.js <command> [options]\n' +
   '\n' +
@@ -101,35 +101,19 @@ const helpMessage =
   '  json [--extended]    Output CLI response in JSON format (use --extended for more metadata)\n' +
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
-  '  nan             Display informational output regarding NaN flags (usage: node main.js nan). This command is informational only; see MISSION.md and CONTRIBUTING.md for guidelines.\n' +
+  '  nan             Display informational output regarding NaN flags\n' +
   '\n' +
-  'Legacy Flag Support (mapped to subcommands):\n' +
-  '  --help, -h, --pkg-version, --diagnostics, --check-update, --json-output, --json-extended, --verbose, --warning-index-mode, --diagnose-nan\n' +
-  '\n' +
-  'Note: NaN-related flags are informational only per project guidelines.';
+  'Note: Legacy CLI flags are deprecated. Please use the subcommand architecture for all operations.';
 
-// Updated main to support subcommand architecture while retaining legacy flag behavior
+// Updated main to support subcommand architecture and deprecate legacy flags
 export async function main(args = process.argv.slice(2)) {
-  // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
 
-  const legacyOptions = {
-    help: { alias: 'h', type: 'boolean', description: 'Show help message' },
-    'pkg-version': { type: 'boolean', description: 'Show package version' },
-    diagnostics: { type: 'boolean', description: 'Show diagnostic information' },
-    'json-output': { type: 'boolean', description: 'Output JSON formatted response' },
-    'json-extended': { type: 'boolean', description: 'Output extended JSON formatted response' },
-    verbose: { alias: 'v', type: 'boolean', description: 'Enable verbose logging' },
-    'warning-index-mode': { type: 'number', description: 'Set warning index mode (numeric value)' },
-    'diagnose-nan': { type: 'boolean', description: 'NaN informational flag' },
-    'check-update': { type: 'boolean', description: 'Check for CLI update' }
-  };
-
+  // Define only the new subcommands; legacy flags will be handled separately with a deprecation warning.
   const parser = yargs(args)
     .usage('Usage: $0 <command> [options]')
-    .options(legacyOptions)
     .command(
       'version',
       'Display the package version',
@@ -244,7 +228,7 @@ export async function main(args = process.argv.slice(2)) {
     )
     .command(
       'nan',
-      false,
+      'Display informational output regarding NaN flags',
       () => {},
       (argv) => {
         console.log('NaN Informational Output:');
@@ -257,31 +241,29 @@ export async function main(args = process.argv.slice(2)) {
     .parserConfiguration({ "unknown-options-as-args": true })
     .exitProcess(false);
 
-  // Use async parsing to support asynchronous command handlers
+  // Parse the arguments
   const parsed = await parser.parseAsync();
 
-  // If no subcommand provided, check for legacy flag-based calls
+  // If no subcommand is provided, check for legacy flag usage and redirect with a deprecation warning
   if (!parsed._ || parsed._.length === 0) {
     if (parsed.help) {
+      console.log('Deprecation Warning: Legacy flag --help is deprecated. Use subcommands instead.');
       console.log(helpMessage);
       return;
     }
     if (parsed['pkg-version']) {
+      console.log('Deprecation Warning: Legacy flag --pkg-version is deprecated. Use the "version" subcommand instead.');
       try {
         const pkg = getPkgData();
         console.log(`Package version: ${pkg.version}`);
       } catch (err) {
-        const errorMsg = err.message;
-        if (parsed['json-output'] || parsed['json-extended']) {
-          console.log(JSON.stringify({ error: errorMsg }));
-        } else {
-          console.error(errorMsg);
-        }
+        console.error(err.message);
         process.exit(1);
       }
       return;
     }
     if (parsed.diagnostics) {
+      console.log('Deprecation Warning: Legacy flag --diagnostics is deprecated. Use the "diagnostics" subcommand instead.');
       try {
         const pkg = getPkgData();
         console.log('Diagnostics Information:');
@@ -292,21 +274,18 @@ export async function main(args = process.argv.slice(2)) {
           console.log(`  ${dep}: ${ver}`);
         }
       } catch (err) {
-        const errorMsg = err.message;
-        if (parsed['json-output'] || parsed['json-extended']) {
-          console.log(JSON.stringify({ error: errorMsg }));
-        } else {
-          console.error(errorMsg);
-        }
+        console.error(err.message);
         process.exit(1);
       }
       return;
     }
     if (parsed['check-update']) {
+      console.log('Deprecation Warning: Legacy flag --check-update is deprecated. Use the "update" subcommand instead.');
       await checkForUpdate(args, parsed);
       return;
     }
     if (parsed['json-extended']) {
+      console.log('Deprecation Warning: Legacy flag --json-extended is deprecated. Use "json --extended" subcommand instead.');
       try {
         console.log(generateJsonOutput(args, true));
       } catch (err) {
@@ -316,6 +295,7 @@ export async function main(args = process.argv.slice(2)) {
       return;
     }
     if (parsed['json-output']) {
+      console.log('Deprecation Warning: Legacy flag --json-output is deprecated. Use the "json" subcommand instead.');
       try {
         console.log(generateJsonOutput(args, false));
       } catch (err) {
@@ -325,6 +305,7 @@ export async function main(args = process.argv.slice(2)) {
       return;
     }
     if (parsed.verbose) {
+      console.log('Deprecation Warning: Legacy flag --verbose is deprecated. Use the "verbose" subcommand instead.');
       if (parsed['warning-index-mode'] !== undefined) {
         console.log(`Warning index mode set to: ${parsed['warning-index-mode']}`);
       } else {
@@ -335,6 +316,7 @@ export async function main(args = process.argv.slice(2)) {
       return;
     }
     if (parsed['diagnose-nan']) {
+      console.log('Deprecation Warning: Legacy flag --diagnose-nan is deprecated. Use the "nan" subcommand instead.');
       console.log('NaN Informational Output:');
       console.log('This command is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
       return;
@@ -342,11 +324,12 @@ export async function main(args = process.argv.slice(2)) {
     if (parsed['warning-index-mode'] !== undefined) {
       const value = parsed['warning-index-mode'];
       if (!isNaN(value)) {
+        console.log('Deprecation Warning: Legacy flag --warning-index-mode is deprecated. Use the "verbose" or "warn" subcommand instead.');
         console.log(`Warning index mode set to: ${value}`);
         return;
       }
     }
-    console.log(`Run with: ${JSON.stringify(args)}`);
+    console.log(`No valid subcommand provided.\n${helpMessage}`);
   }
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-13",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated for centralized environment configuration with consolidated NaN flag documentation (all NaN directives are informational only), JSON output modes with metadata, configurable warning index mode, extended CLI metadata via --json-extended, enhanced NaN diagnostics via --diagnose-nan, and update check functionality via --check-update.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Now supports exclusive subcommand usage with legacy flags deprecated.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
