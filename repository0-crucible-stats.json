@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 62,
-  "issuesClosedLastHour": 8,
+  "openIssues": 60,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored NaN conversion logic to consistently handle Unicode variants and all CLI flags --native-nan --strict-nan --debug-nan --custom-nan as per regenerated specifications. (fixes #1219)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 8,
-  "commitsLastHour": 5,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:13",
+      "message": "Refactored NaN conversion logic to consistently handle Unicode v..."
+    },
     {
       "time": "19:02",
       "message": "Refactored NaN conversion handling for consistency and enhanced ..."
@@ -32,23 +31,14 @@
     {
       "time": "18:45",
       "message": "Changed const convertedArgs to let convertedArgs in main to allo..."
-    },
-    {
-      "time": "18:15",
-      "message": "Updated custom --custom-nan flag handling to throw an error when..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1219",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:11:33.661Z"
+  "generatedAt": "2025-04-10T19:14:28.493Z"
 }
