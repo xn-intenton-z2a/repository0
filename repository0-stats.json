@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 21,
-  "issuesClosedLastHour": 4,
+  "openIssues": 19,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Archived the decision on NaN directives and documented it in both source and README as per guidelines. (fixes #1222)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 9,
-  "commitsLastHour": 2,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "19:58",
+      "message": "Archived the decision on NaN directives and documented it in bot..."
+    },
     {
       "time": "19:47",
       "message": "Consolidated NaN flag documentation across CLI help README and c..."
@@ -32,23 +31,14 @@
     {
       "time": "18:26",
       "message": "Acknowledge NaN prompt confirmed non-operative behavior per guid..."
-    },
-    {
-      "time": "18:21",
-      "message": "Added --check-update CLI flag to check for available updates fro..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1222",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:57:35.207Z"
+  "generatedAt": "2025-04-10T19:58:35.491Z"
 }
