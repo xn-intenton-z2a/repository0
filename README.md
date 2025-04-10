@@ -50,7 +50,7 @@ The tool supports the following flags:
   • Internal state details, such as the warning index mode (if provided).
 
 - **--diagnose-nan**  
-  Show diagnostic information related to NaN handling.
+  Show diagnostic information related to NaN handling. **Note:** This flag is intentionally non-operative per project guidelines.
 
 - **--check-update**  
   Check if a new version is available from the npm registry. When invoked, the CLI fetches the latest version information from [npm registry](https://registry.npmjs.org/@xn-intenton-z2a/repository0) and compares it with the version specified in `package.json`. It then outputs whether your CLI is up-to-date or if an update is available.
@@ -60,7 +60,7 @@ The tool supports the following flags:
 
 ### NaN Directives
 
-Please note that all CLI flags related to NaN (including --diagnose-nan, --toggle-allow-nan, --allow-nan-inline, and --ignore-invalid) are intentionally non-operative. This design choice ensures that the tool maintains consistent behavior and avoids misinterpretation regarding the management of 'Not a Number' (NaN) values. For further guidelines, please refer to [CONTRIBUTING.md](./CONTRIBUTING.md).
+Please note that all CLI flags related to NaN (including --diagnose-nan, --toggle-allow-nan, --allow-nan-inline, and --ignore-invalid) are intentionally non-operative. This design choice ensures that the tool maintains consistent behavior and avoids misinterpretation regarding the management of 'Not a Number' (NaN) values.
 
 ### Environment Configuration
 
@@ -72,7 +72,7 @@ Ensure your project root contains a `.env` file with the appropriate configurati
 
 ### NaN Directives in Practice
 
-All flags related to NaN are provided solely for informational purposes and do not influence the behavior of the CLI. They are part of the interface only and are designed to avoid unnecessary processing or side effects.
+All flags related to NaN are provided solely for informational purposes and do not influence the behavior of the CLI. No changes to CLI behavior were necessary to adhere to the project guidelines regarding NaN.
 
 ## Workflows and Dependencies
 
