@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
-export function main(args) {
+export function main(args = []) {
   const verbose = args.includes("--verbose");
 
   if (args.includes("--help") || args.includes("-h")) {
