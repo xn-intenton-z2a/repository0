@@ -38,7 +38,8 @@ describe("CLI Help Message", () => {
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
         "  --json-output                Output CLI response in JSON format with metadata\n" +
         "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-        "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
+        "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
+        "  --diagnose-nan               Show NaN diagnostic information\n\n" +
         "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
     );
     consoleLogSpy.mockRestore();
@@ -177,5 +178,17 @@ describe("CLI Package.json Error Handling", () => {
     expect(parsed).toHaveProperty('error');
     expect(parsed.error).toContain('Failed to load package.json');
     readSpy.mockRestore();
+  });
+});
+
+// New Test for --diagnose-nan flag
+describe("CLI Diagnose NaN", () => {
+  test("should output NaN diagnostic information when --diagnose-nan is provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--diagnose-nan"]);
+    const calls = consoleLogSpy.mock.calls.map(call => call[0]);
+    expect(calls.some(msg => msg === "NaN Diagnostics:")).toBe(true);
+    expect(calls.some(msg => msg.includes("NaN directives are intentionally treated as no-ops"))).toBe(true);
+    consoleLogSpy.mockRestore();
   });
 });
