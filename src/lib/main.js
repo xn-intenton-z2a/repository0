@@ -24,6 +24,7 @@ export function main(args = []) {
         "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
         "  --json-output                Output CLI response in JSON format with metadata\n" +
+        "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
         "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
@@ -48,6 +49,23 @@ export function main(args = []) {
     for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
       console.log(`  ${dep}: ${ver}`);
     }
+    return;
+  }
+
+  if (args.includes("--json-extended")) {
+    const pkgPath = new URL("../../package.json", import.meta.url);
+    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
+    const output = {
+      arguments: args,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        nodeVersion: process.version,
+        packageVersion: pkgData.version,
+        cwd: process.cwd(),
+        uptime: process.uptime()
+      }
+    };
+    console.log(JSON.stringify(output));
     return;
   }
 

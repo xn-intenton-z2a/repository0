@@ -31,12 +31,19 @@ Run the CLI using:
 
 - **--json-output**  
   Output the CLI response in JSON format. The JSON structure includes:
-  
     • `arguments`: Array of provided command line arguments.
     • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
-  
+
   **Example:**
   node src/lib/main.js --json-output extraArg
+
+- **--json-extended**  
+  Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
+    • `cwd`: The current working directory
+    • `uptime`: The process uptime in seconds
+  
+  **Example:**
+  node src/lib/main.js --json-extended extraArg
 
 - **--verbose**  
   Enable verbose logging for detailed debug information. When activated, the CLI prints:

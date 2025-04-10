@@ -27,6 +27,7 @@ describe("CLI Help Message", () => {
         "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
         "  --json-output                Output CLI response in JSON format with metadata\n" +
+        "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
         "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
@@ -81,6 +82,28 @@ describe("CLI JSON Output", () => {
     expect(parsed.metadata).toHaveProperty('nodeVersion');
     expect(parsed.metadata).toHaveProperty('packageVersion');
     expect(parsed.arguments).toContain("--json-output");
+    expect(parsed.arguments).toContain("extraArg");
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Extended JSON Output", () => {
+  test("should output valid JSON with extended metadata when --json-extended flag is provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--json-extended", "extraArg"]);
+    expect(consoleLogSpy).toHaveBeenCalled();
+    const outputArg = consoleLogSpy.mock.calls[0][0];
+    let parsed;
+    expect(() => { parsed = JSON.parse(outputArg); }).not.toThrow();
+    expect(parsed).toHaveProperty('arguments');
+    expect(parsed).toHaveProperty('metadata');
+    const meta = parsed.metadata;
+    expect(meta).toHaveProperty('timestamp');
+    expect(meta).toHaveProperty('nodeVersion');
+    expect(meta).toHaveProperty('packageVersion');
+    expect(meta).toHaveProperty('cwd');
+    expect(meta).toHaveProperty('uptime');
+    expect(parsed.arguments).toContain("--json-extended");
     expect(parsed.arguments).toContain("extraArg");
     consoleLogSpy.mockRestore();
   });
