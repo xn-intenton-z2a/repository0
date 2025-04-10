@@ -1,43 +1,53 @@
 # TEMPLATE_MANAGER
 
 ## Overview
-This feature consolidates and enhances the template-related functionalities by merging the existing template validation tool with a new template updating capability. It not only checks for the presence and integrity of key repository files (such as README.md, CONTRIBUTING.md, MISSION.md, LICENSE, etc.) as done previously by TEMPLATE_VALIDATOR, but also enables users to update these template files to the latest version fetched from a remote source (e.g. a designated URL from the agentic‑lib repository).
+Enhance the template management functionality to not only validate and update critical repository template files (e.g., README.md, CONTRIBUTING.md, MISSION.md, LICENSE, etc.) from a remote source, but also support automatic merging of local customizations with remote updates. This update empowers contributors to maintain local modifications while still staying in sync with the latest template standards from the remote repository.
 
 ## Implementation Details
-- **Validation Functionality:**
-  - Retain the existing file existence and minimal integrity checks for essential files.
-  - Log clear messages indicating successful validation or pinpointing issues that require attention.
+- **Validation & Update Functionality:**
+  - Retain existing file existence checks and minimal integrity verifications for essential files.
+  - Introduce CLI flags:
+    - `--validate-template`: Validate the current template files locally.
+    - `--update-template`: Fetch the latest approved versions from a remote endpoint (configured via environment variables or a fixed URL), compare with the local copies, and update if differences are found.
 
-- **Update Functionality:**
-  - Introduce a new CLI flag `--update-template` in addition to the existing `--validate-template` flag.
-  - When invoked with `--update-template`, the module will fetch the latest approved versions of template files from a remote endpoint (configured via environment variables or a fixed URL).
-  - Compare fetched versions with the current local files and, if differences are detected, prompt the user for confirmation before updating the files. In automated scenarios, a `--force` flag may bypass the confirmation.
-  - Ensure robust error handling and rollback capabilities in case of failed updates, preserving the current state of the repository.
+- **Merge Local Customizations:**
+  - **Detection:** Before overwriting a local template file, check if the file has local customizations (e.g., by comparing file hashes or timestamps).
+  - **Differential Merge:** If modifications are detected, automatically generate a diff between the local file and the fetched remote version.
+  - **User Confirmation & Merge:** Provide an interactive prompt (or a confirmation flag such as `--force-merge` for automated scenarios) that displays the diff and asks the user whether to:
+    - Overwrite the file completely with the remote version.
+    - Merge changes manually (e.g., by launching a basic editor or saving the diff to a temporary file for review).
+  - **Safety & Rollback:** Ensure that if updating or merging fails, a rollback mechanism preserves the current local state to prevent data loss.
 
-- **Modularity and Maintainability:**
-  - Encapsulate the entire logic within a single source file (e.g., `src/lib/templateManager.js`) to keep the functionality self-contained.
-  - Provide clear logging using the repository’s logging and diagnostics framework, ensuring that both validation and update operations are easily traceable.
+- **Modularity & Logging:**
+  - Encapsulate the entire logic in a single module (e.g., `src/lib/templateManager.js`).
+  - Integrate with the repository’s logging system to record update attempts, merge diff details, and any errors encountered.
+  - Ensure that all output messages and prompts are consistent with the repository’s CLI guidelines.
 
 ## Testing
 - **Unit Tests:**
-  - Create tests to simulate various repository states (missing files, outdated templates, or correctly updated files) using mocks or temporary file structures.
-  - Verify that both validation and update operations behave as expected, including handling forced updates and error scenarios.
+  - Simulate scenarios with clean template files, outdated templates, and files with local modifications.
+  - Verify that the diff generation correctly identifies differences and that the confirmation prompt behaves as expected.
+  - Test the rollback mechanism by simulating failures during the update/merge process.
+
+- **Edge Cases:**
+  - Local modifications that only change non-critical sections (e.g., whitespace) should not trigger a forced merge.
+  - Handle cases where the remote endpoint is unreachable by ensuring that the validation provides clear error messages without altering local files.
 
 ## Documentation
-- Update the README and CONTRIBUTING files to include instructions for using both the validation (`--validate-template`) and update (`--update-template`) functionalities.
-- Provide usage examples such as:
+- Update the README and CONTRIBUTING files with usage instructions covering both validation and update functionalities. Include examples such as:
   ```bash
   # Validate the repository template files
   node src/lib/main.js --validate-template
   
-  # Update the repository template files after validation
+  # Update template files with interactive merge for local customizations
   node src/lib/main.js --update-template
   
-  # Force update without interactive confirmation
-  node src/lib/main.js --update-template --force
+  # Force merge without interactive confirmation
+  node src/lib/main.js --update-template --force-merge
   ```
+- Include a section in the documentation on how local customizations are handled and how the merge process preserves user changes.
 
 ## Benefits
-- **Enhanced Template Integrity:** Ensures that critical repository files are not only validated but can also be updated to align with the latest standards.
-- **Streamlined Maintenance:** Provides a single, unified tool for managing template files, reducing redundancy and simplifying contributor workflows.
-- **Support for Automated Workflows:** Facilitates integration into CI/CD pipelines to automate the upkeep of essential documentation and configuration files.
+- **Template Integrity:** Ensures that critical repository files remain up-to-date with the latest standards while respecting local modifications.
+- **Streamlined Maintenance:** Provides a single unified tool to manage, validate, and merge template files, reducing redundancy and potential conflicts.
+- **Contributor Flexibility:** Empowers contributors to customize templates according to project needs without losing the benefits of remote updates.
