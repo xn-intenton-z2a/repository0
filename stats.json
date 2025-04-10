@@ -1,14 +1,18 @@
 {
-  "openIssues": 13,
-  "issuesClosedLastHour": 10,
+  "openIssues": 12,
+  "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 5,
-  "diffMinutesMain": 5,
-  "commitsLastHour": 5,
+  "diffMinutes": 3,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "16:46",
+      "message": "Fixed test parentheses and error handling in tests for --pkg-ver..."
+    },
     {
       "time": "16:34",
       "message": "Add --diagnose-nan flag with associated tests and documentation ..."
@@ -24,10 +28,6 @@
     {
       "time": "16:06",
       "message": "Clarified NaN directives as non-operative in CLI help and docume..."
-    },
-    {
-      "time": "15:56",
-      "message": "Reordered verbose flag handling to execute before warning index ..."
     }
   ],
   "branches": {
@@ -37,5 +37,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T16:39:58.024Z"
+  "generatedAt": "2025-04-10T16:50:22.124Z"
 }
