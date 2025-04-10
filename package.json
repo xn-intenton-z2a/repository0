@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-13",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated to centralize environment configuration for consistent NaN handling (note: NaN directives are intentionally treated as no-ops), add JSON output mode with metadata, include a configurable warning index mode, configurable punctuation stripping, suppression of NaN correction suggestions, added --toggle-allow-nan for runtime NaN configuration, new --allow-nan-inline flag for per-command NaN acceptance, an enhanced --diagnose-nan command, the new --ignore-invalid flag to bypass invalid tokens, and added --json-extended for extended CLI metadata.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated for centralized environment configuration with consistent NaN handling (all NaN directives are non-operative), JSON output mode with metadata, configurable warning index mode, and extended CLI metadata via --json-extended.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {

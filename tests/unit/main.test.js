@@ -31,15 +31,15 @@ describe("CLI Help Message", () => {
     main(["--help"]);
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
-        "Options:\n" +
-        "  --help, -h                   Show help message\n" +
-        "  --version                    Show package version\n" +
-        "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-        "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-        "  --json-output                Output CLI response in JSON format with metadata\n" +
-        "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-        "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
-        "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
+      "Options:\n" +
+      "  --help, -h                   Show help message\n" +
+      "  --version                    Show package version\n" +
+      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+      "  --json-output                Output CLI response in JSON format with metadata\n" +
+      "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
+      "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
+      "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
     );
     consoleLogSpy.mockRestore();
   });

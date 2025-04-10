@@ -6,7 +6,9 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that supports various options for configuration and debugging. This documentation reflects the latest CLI options and behavior implemented in version 1.4.1-13.
 
-**Note:** The CLI argument parsing has been updated to manually process command-line arguments to ensure that tests receive the expected output. The tool supports the following flags:
+**Note:** The CLI argument parsing has been updated to manually process command-line arguments to ensure that tests receive the expected output. 
+
+The tool supports the following flags:
 
 - **--help, -h**  
   Display help and usage information.
@@ -35,7 +37,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 - **--json-extended**  
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
-    • `cwd`: The current working directory
+    • `cwd`: The current working directory  
     • `uptime`: The process uptime in seconds
 
   **Example:**
@@ -47,6 +49,8 @@ This repository template demonstrates GitHub workflows imported from intentïon 
     • Parsed command-line arguments.
     • Internal state details, such as the warning index mode (if provided).
 
+**Important:** Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design. They exist solely for compatibility and do not have any functional effect.
+
 ### Environment Configuration
 
 The CLI automatically loads environment configuration via the `dotenv` package. For example, if you set the environment variable `CLI_MODE` in a `.env` file, the CLI will output:
@@ -57,7 +61,7 @@ Ensure your project root contains a `.env` file with the appropriate configurati
 
 ### NaN Directives
 
-Any input related to NaN directives is intentionally treated as a no-op per project guidelines.
+All directives or flags related to NaN are intentionally treated as no-ops per project guidelines. Users should not expect any additional functionality from these directives.
 
 ## Workflows and Dependencies
 
