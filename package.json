@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-13",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated for centralized environment configuration with consistent NaN handling (all NaN directives are non-operative), JSON output mode with metadata, configurable warning index mode, extended CLI metadata via --json-extended, and enhanced NaN diagnostics via --diagnose-nan.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Updated for centralized environment configuration with consistent NaN handling (all NaN directives are non-operative), JSON output modes with metadata, configurable warning index mode, extended CLI metadata via --json-extended, enhanced NaN diagnostics via --diagnose-nan, and update check functionality via --check-update.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -18,7 +18,8 @@
     "coverage": "vitest --coverage",
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js --diagnostics",
-    "version": "node src/lib/main.js --pkg-version"
+    "version": "node src/lib/main.js --pkg-version",
+    "check-update": "node src/lib/main.js --check-update"
   },
   "keywords": [],
   "author": "",

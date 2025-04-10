@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import * as fs from "fs";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import https from "https";
 
 // Utility object for file operations to allow easier testing.
 export const utils = {
@@ -48,6 +49,53 @@ function generateJsonOutput(args, extended = false) {
   });
 }
 
+// New helper function to check for CLI update
+function checkForUpdate(args, argv) {
+  const pkg = getPkgData();
+  const currentVersion = pkg.version;
+  const url = "https://registry.npmjs.org/@xn-intenton-z2a/repository0";
+  https.get(url, (res) => {
+    let data = "";
+    res.on('data', (chunk) => { data += chunk; });
+    res.on('end', () => {
+      try {
+        const jsonData = JSON.parse(data);
+        const latestVersion = jsonData["dist-tags"] && jsonData["dist-tags"].latest;
+        if (!latestVersion) {
+          throw new Error("Latest version information not found.");
+        }
+        let messageText = '';
+        if (latestVersion === currentVersion) {
+          messageText = `You are using the latest version: ${currentVersion}`;
+        } else {
+          messageText = `An update is available: current version ${currentVersion}, latest version ${latestVersion}`;
+        }
+        if (argv["json-output"] || argv["json-extended"]) {
+          console.log(JSON.stringify({ message: messageText }));
+        } else {
+          console.log(messageText);
+        }
+      } catch (err) {
+        const errorMsg = "Invalid response from update server: " + err.message;
+        if (argv["json-output"] || argv["json-extended"]) {
+          console.log(JSON.stringify({ error: errorMsg }));
+        } else {
+          console.error(errorMsg);
+        }
+        process.exit(1);
+      }
+    });
+  }).on('error', (err) => {
+    const errorMsg = "Network error: " + err.message;
+    if (argv["json-output"] || argv["json-extended"]) {
+      console.log(JSON.stringify({ error: errorMsg }));
+    } else {
+      console.error(errorMsg);
+    }
+    process.exit(1);
+  });
+}
+
 // NOTE: The CLI includes options related to NaN directives. 
 // These directives (e.g., --diagnose-nan) are intentionally non-operative per project guidelines.
 // They are provided solely for informational purposes and do not affect application functionality.
@@ -61,7 +109,8 @@ const helpMessage =
   "  --json-output                Output CLI response in JSON format with metadata\n" +
   "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
   "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-  "  --diagnose-nan               Show NaN diagnostic information\n\n" +
+  "  --diagnose-nan               Show NaN diagnostic information\n" +
+  "  --check-update               Check if a new version is available from the npm registry\n\n" +
   "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
 
 export function main(args = process.argv.slice(2)) {
@@ -81,6 +130,7 @@ export function main(args = process.argv.slice(2)) {
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
     .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information" })
+    .option("check-update", { type: "boolean", description: "Check if a new version is available from the npm registry" })
     .help(false)
     .version(false)
     .parse();
@@ -125,6 +175,11 @@ export function main(args = process.argv.slice(2)) {
       }
       process.exit(1);
     }
+    return;
+  }
+
+  if (argv["check-update"]) {
+    checkForUpdate(args, argv);
     return;
   }
 
