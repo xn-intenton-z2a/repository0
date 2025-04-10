@@ -1,32 +1,33 @@
 # PROJECT_INIT
 
 ## Overview
-This feature introduces a simple project initialization capability directly from the CLI. It allows users to quickly bootstrap a new project using the repository template structure from repository0. By invoking the initialization command, the CLI will set up a basic project scaffold, including configuration files, template code, and necessary directories. This helps new users start their projects faster and ensures that they adhere to the repository's standards and workflows.
+This feature bootstraps new projects from the repository template. In this updated version, the CLI not only sets up the basic project scaffold (configuration files, template code, and directories) but also offers an optional interactive mode. When run in an interactive terminal, users will be prompted to customize key aspects of the project initialization such as project name, selected template variants, and initial configuration settings. This ensures projects are set up to better match user requirements while still adhering to repository standards.
 
 ## Implementation Details
 - **CLI Flag Integration:**
-  - Add a new CLI flag (e.g., `--init`) in the argument parser in `src/lib/main.js` to trigger project initialization.
-  - When the flag is detected, delegate the initialization process to a dedicated module (e.g., `src/lib/projectInit.js`).
+  - Retain the existing `--init` flag to trigger project initialization.
+  - Detect if the CLI is running in an interactive terminal (using process.stdout.isTTY) and optionally prompt the user for additional configuration inputs.
+  - Introduce interactive prompts to customize elements like project name, template variant (if multiple templates are available), and initial configuration options. Use built-in Node.js methods (e.g. readline) to collect user input without adding external dependencies.
 
 - **Initialization Process:**
-  - The `projectInit.js` module will contain logic to copy or generate essential template files (e.g., README.md, .env, CONTRIBUTING.md, and a basic directory structure) into a target directory specified by the user.
-  - If no target directory is provided, default to the current working directory, while ensuring existing files aren't overwritten without confirmation.
-  - Include error handling to deal with common file system issues (e.g., permission errors, target directory not writable).
+  - The dedicated module (e.g. `src/lib/projectInit.js`) will now include logic to detect if interactive input is available. If so, it will prompt users for choices and incorporate responses into the scaffold generation.
+  - If the user does not supply a target directory, the files will be generated in the current working directory with a confirmation prompt before overwriting any existing files.
+  - All file operations use Node.js built-in modules (`fs`, `path`) and include robust error handling for cases like permission issues or invalid inputs.
 
-- **Modularity and Simplicity:**
-  - The entire functionality is implemented as a single source file for ease of maintenance.
-  - Use Node.js built-in modules such as `fs` and `path` for file operations, ensuring compatibility with the repository's configuration and CI/CD workflows.
+- **Modularity and Maintainability:**
+  - The entire functionality is implemented within a single source file to ensure ease of maintenance.
+  - Interactive functionality is toggled without interfering with non-interactive (scripted) use cases, maintaining backward compatibility.
 
 ## Testing
 - **Unit Tests:**
-  - Develop tests (e.g., in `tests/unit/projectInit.test.js`) to simulate the command-line invocation with the `--init` flag.
-  - Verify that the correct files and directories are created in a temporary directory and that errors are handled gracefully.
+  - Add tests to simulate both non-interactive and interactive project initialization scenarios (e.g., using mocks for stdin). Verify that the project scaffold is created correctly in both modes.
+  - Ensure that file overwrites are safeguarded and proper error handling is in place.
 
 ## Documentation
-- Update the README and CONTRIBUTING files to include instructions on how to use the `--init` flag for project initialization.
-- Provide examples, such as:
+- Update the README and CONTRIBUTING files to include instructions on using the enhanced interactive project initialization feature. 
+- Include examples such as:
   ```bash
-  # Initialize a new project in the current directory
+  # Initialize a new project in the current directory interactively
   node src/lib/main.js --init
   
   # Initialize a new project in a specified directory
@@ -34,6 +35,6 @@ This feature introduces a simple project initialization capability directly from
   ```
 
 ## Benefits
-- **Rapid Bootstrapping:** Provides an easy and consistent way for users to start a new project using the repository0 template.
-- **Consistency:** Ensures that all new projects begin with the same structure and configuration, promoting best practices from the start.
-- **Ease of Use:** Reduces manual setup steps, accelerating development and lowering the barrier for contributions.
+- **Rapid Bootstrapping with Customization:** Users get a ready-to-use project scaffold that can be fine-tuned during initialization.
+- **Enhanced User Experience:** Interactive mode reduces manual post-setup configuration, lowering the barrier for new contributions.
+- **Consistency and Safety:** Ensures all new projects adhere to repository standards while offering a personalized setup experience.
