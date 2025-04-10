@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 24,
-  "issuesClosedLastHour": 8,
+  "openIssues": 22,
+  "issuesClosedLastHour": 9,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Update README documentation to clarify CLI_MODE environment variable usage. (fixes #1236)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 8,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "21:45",
+      "message": "Update README documentation to clarify CLI_MODE environment vari..."
+    },
     {
       "time": "21:36",
       "message": "Clarified the non-operative nature of the NaN command in both so..."
@@ -32,23 +31,14 @@
     {
       "time": "20:46",
       "message": "Changed yargs parser to use parseAsync with adjusted parserConfi..."
-    },
-    {
-      "time": "20:06",
-      "message": "Consolidated duplicate NaN directive documentation across main.j..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1236",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:45:11.324Z"
+  "generatedAt": "2025-04-10T21:46:09.392Z"
 }
