@@ -1,0 +1,44 @@
+{
+  "owner": "xn-intenton-z2a",
+  "repo": "repository0-crucible",
+  "engine": "schedule-3",
+  "openIssues": 61,
+  "issuesClosedLastHour": 6,
+  "issuesClosedLastDay": 100,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
+  "commitsLastDay": 100,
+  "lastFiveCommitMessages": [
+    {
+      "time": "18:46",
+      "message": "Update from agentic-lib"
+    },
+    {
+      "time": "18:45",
+      "message": "Changed const convertedArgs to let convertedArgs in main to allo..."
+    },
+    {
+      "time": "18:15",
+      "message": "Updated custom --custom-nan flag handling to throw an error when..."
+    },
+    {
+      "time": "17:52",
+      "message": "Add automated unit test to verify CLI handling of the NaN argume..."
+    },
+    {
+      "time": "17:43",
+      "message": "Extended JSON replacer to serialize Infinity and -Infinity along..."
+    }
+  ],
+  "branches": {
+    "count": 0,
+    "details": []
+  },
+  "averagePRAge": 0,
+  "testStatus": "PASS",
+  "testsLastPassedMinutes": 15,
+  "generatedAt": "2025-04-10T18:46:49.698Z"
+}
