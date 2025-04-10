@@ -319,9 +319,10 @@ export async function main(args = process.argv.slice(2)) {
     )
     .command(
       'nan',
-      'Display informational output regarding NaN flags',
+      'Display informational output regarding NaN flags (this command is purely informational and non-operative)',
       () => {},
       (argv) => {
+        // This subcommand is informational only and does not affect program behavior.
         console.log('NaN Informational Output:');
         console.log('This command is for informational purposes only. It does not affect program behavior.');
         console.log('Refer to MISSION.md and CONTRIBUTING.md for guidelines on NaN usage.');
