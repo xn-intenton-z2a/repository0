@@ -5,6 +5,8 @@ import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
 export function main(args) {
+  const verbose = args.includes("--verbose");
+
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
       "Usage: node main.js [options]\n" +
@@ -13,14 +15,14 @@ export function main(args) {
         "  --version                    Show package version\n" +
         "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-        "  --json-output                Output CLI response in JSON format with metadata\n\n" +
+        "  --json-output                Output CLI response in JSON format with metadata\n" +
+        "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     return;
   }
 
   if (args.includes("--version")) {
-    // Determine the package.json location relative to this file
     const pkgPath = new URL("../../package.json", import.meta.url);
     const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
     console.log(`Package version: ${pkgData.version}`);
@@ -28,7 +30,6 @@ export function main(args) {
   }
 
   if (args.includes("--diagnostics")) {
-    // Determine the package.json location relative to this file
     const pkgPath = new URL("../../package.json", import.meta.url);
     const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
 
@@ -43,7 +44,6 @@ export function main(args) {
   }
 
   if (args.includes("--json-output")) {
-    // Determine the package.json location relative to this file
     const pkgPath = new URL("../../package.json", import.meta.url);
     const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
     const output = {
@@ -58,9 +58,8 @@ export function main(args) {
     return;
   }
 
-  // Check for --warning-index-mode and validate the parameter
-  const warningIndexFlag = "--warning-index-mode";
   let warningIndex = null;
+  const warningIndexFlag = "--warning-index-mode";
   if (args.includes(warningIndexFlag)) {
     const idx = args.indexOf(warningIndexFlag);
     if (idx !== -1 && idx + 1 < args.length) {
@@ -70,6 +69,13 @@ export function main(args) {
         console.log(`Warning index mode set to: ${warningIndex}`);
       }
     }
+  }
+
+  // Additional verbose logging
+  if (verbose) {
+    console.log("Verbose Mode Enabled:");
+    console.log("Parsed Arguments:", args);
+    console.log("Internal State:", { warningIndex });
   }
 
   console.log(`Run with: ${JSON.stringify(args)}`);
