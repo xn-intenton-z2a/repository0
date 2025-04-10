@@ -2,14 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 20,
-  "issuesClosedLastHour": 2,
+  "openIssues": 21,
+  "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 37,
-  "commitsLastHour": 2,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored checkForUpdate error handling to always prefix network errors with Network error to pass tests. (fixes #1215)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 40,
+  "commitsLastHour": 1,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1215",
-        "minutesSinceLastCommit": 43
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:23:22.243Z"
+  "generatedAt": "2025-04-10T19:26:54.744Z"
 }
