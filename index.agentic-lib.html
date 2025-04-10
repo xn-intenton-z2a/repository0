@@ -33,6 +33,10 @@
 The CLI is implemented in <code class="md-github">src/lib/main.js</code>. Run the CLI with <code class="md-github">node src/lib/main.js [options]</code>. Use the <code class="md-github">--help</code> or <code class="md-github">-h</code> flag to see usage options. A new flag <code class="md-github">--warning-index-mode &lt;value&gt;</code> has been added to allow users to configure a warning index mode via the command line.</p>
 </li>
 <li class="md-github">
+<p class="md-github"><strong class="md-github">CLI Diagnostics:</strong>
+A new <code class="md-github">--diagnostics</code> flag has been implemented. When provided, the CLI outputs detailed information about the runtime environment, including the Node.js version, package version, and a summary of key dependencies.</p>
+</li>
+<li class="md-github">
 <p class="md-github"><strong class="md-github">NaN Handling:</strong>
 Note that any <code class="md-github">NaN</code> directives or inputs are intentionally treated as no-ops. This design decision is by intention, ensuring that no operations are performed on such inputs. For more details, see <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> and <a href="./MISSION.md" class="md-github">MISSION.md</a>.</p>
 </li>
@@ -76,7 +80,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T12:24:53.214Z</p>
+    <p>Generated on 2025-04-10T12:44:22.443Z</p>
   </footer>
 </body>
 </html>
