@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from "vitest";
+import { beforeEach, afterEach, describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 import { readFileSync } from "fs";
@@ -161,7 +161,7 @@ describe("CLI Package.json Error Handling", () => {
   test("should output JSON error in --json-output when package.json read fails", () => {
     const readSpy = simulatePkgError();
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    expect(() => main(["--json-output"])) .toThrow('process.exit called');
+    expect(() => main(["--json-output"])).toThrow('process.exit called');
     const outputArg = consoleLogSpy.mock.calls[0][0];
     let parsed;
     expect(() => { parsed = JSON.parse(outputArg); }).not.toThrow();
