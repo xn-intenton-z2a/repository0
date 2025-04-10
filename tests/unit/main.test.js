@@ -40,7 +40,7 @@ describe("CLI Help Message", () => {
         "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
         "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
         "  --diagnose-nan               Show NaN diagnostic information\n\n" +
-        "Note: All NaN-related directives (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative as per project guidelines."
+        "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality."
     );
     consoleLogSpy.mockRestore();
   });

@@ -27,8 +27,8 @@ The tool supports the following flags:
 
 - **--json-output**  
   Output the CLI response in JSON format. The JSON structure includes:
-    • `arguments`: Array of provided command line arguments.
-    • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
+  • `arguments`: Array of provided command line arguments.
+  • `metadata`: An object containing `timestamp`, `nodeVersion`, and `packageVersion`.
   
   In case of a missing or corrupt `package.json`, a valid JSON error response is returned and the process exits with a non-zero status.
   
@@ -37,24 +37,22 @@ The tool supports the following flags:
 
 - **--json-extended**  
   Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
-    • `cwd`: The current working directory  
-    • `uptime`: The process uptime in seconds
+  • `cwd`: The current working directory  
+  • `uptime`: The process uptime in seconds
 
   **Example:**
   node src/lib/main.js --json-extended extraArg
 
 - **--verbose, -v**  
   Enable verbose logging for detailed debug information. When activated, the CLI prints:
-    • A "Verbose Mode Enabled:" message.
-    • Parsed command-line arguments.
-    • Internal state details, such as the warning index mode (if provided).
+  • A "Verbose Mode Enabled:" message.
+  • Parsed command-line arguments.
+  • Internal state details, such as the warning index mode (if provided).
 
 - **--diagnose-nan**  
   Output diagnostic information concerning NaN handling. When invoked, the CLI displays:
-    • "NaN Diagnostics:"
-    • "- NaN directives are intentionally treated as no-ops per project guidelines."
-
-**Important:** Any CLI flags or directives related to NaN (such as --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are non-operative by design.
+  • "NaN Diagnostics:" 
+  • "- NaN directives are intentionally treated as no-ops per project guidelines."
 
 ### Environment Configuration
 
@@ -66,7 +64,7 @@ Ensure your project root contains a `.env` file with the appropriate configurati
 
 ### NaN Directives
 
-All directives or flags related to NaN are intentionally treated as no-ops per project guidelines. Users should not expect any additional functionality from these directives.
+All CLI flags related to NaN (for example, --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, and --ignore-invalid) are intentionally non-operative and do not affect the tool's functionality. This design decision is deliberate per project guidelines. Users should not expect any additional behavior from these directives.
 
 ## Workflows and Dependencies
 
