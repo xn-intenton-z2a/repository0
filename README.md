@@ -4,7 +4,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 ## Overview
 
-`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands. Additionally, NaN-related flags are intentionally locked as non-operative to prevent unintended future changes.
+`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands. Additionally, a new **config** subcommand has been introduced to manage CLI configuration settings via a `config.json` file. NaN-related flags remain intentionally locked as non-operative to prevent unintended future changes.
 
 ### CLI Subcommands
 
@@ -40,37 +40,43 @@ The CLI now supports the following subcommands:
 
 - **nan**
   - **Usage:** `node src/lib/main.js nan`
-  - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative; it triggers no modifications or computations. Refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+  - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative.
+
+- **config**
+  - **Usage:**
+    - View configuration: `node src/lib/main.js config view [--json]`
+    - Update configuration: `node src/lib/main.js config set --key <key> --value <value> [--json]`
+  - **Description:** Manage CLI configuration settings stored in a `config.json` file. The `view` action displays current configuration and the `set` action updates a configuration key with a new value. The configuration file is created with default settings if it does not already exist.
 
 ### Detailed Deprecation Notice for Legacy CLI Flags
 
 Legacy CLI flags are no longer supported and have been mapped to their corresponding subcommands. Please update your usage according to the table below. Note that NaN-related flags (e.g. `--diagnose-nan`) are intentionally locked to remain non-operative.
 
-| Legacy Flag           | New Subcommand (or Option)       | Example Usage                                             |
-|-----------------------|----------------------------------|----------------------------------------------------------|
-| `--help`              | *Use subcommands*                | `node src/lib/main.js version`                           |
-| `--pkg-version`       | `version`                        | `node src/lib/main.js version`                           |
-| `--diagnostics`       | `diagnostics`                    | `node src/lib/main.js diagnostics`                       |
-| `--check-update`      | `update`                         | `node src/lib/main.js update`                            |
-| `--json-output`       | `json`                           | `node src/lib/main.js json extraArg`                     |
-| `--json-extended`     | `json --extended`                | `node src/lib/main.js json --extended extraArg`          |
-| `--verbose`           | `verbose`                        | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
-| `--warning-index-mode`| `verbose` (with --warning option)| `node src/lib/main.js verbose --warning 5`               |
-| `--diagnose-nan`      | `nan`                            | `node src/lib/main.js nan`                               |
+| Legacy Flag            | New Subcommand (or Option)       | Example Usage                                             |
+|------------------------|----------------------------------|----------------------------------------------------------|
+| `--help`               | *Use subcommands*                | `node src/lib/main.js version`                           |
+| `--pkg-version`        | `version`                        | `node src/lib/main.js version`                           |
+| `--diagnostics`        | `diagnostics`                    | `node src/lib/main.js diagnostics`                       |
+| `--check-update`       | `update`                         | `node src/lib/main.js update`                            |
+| `--json-output`        | `json`                           | `node src/lib/main.js json extraArg`                     |
+| `--json-extended`      | `json --extended`                | `node src/lib/main.js json --extended extraArg`          |
+| `--verbose`            | `verbose`                        | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
+| `--warning-index-mode` | `verbose` (with --warning option)| `node src/lib/main.js verbose --warning 5`               |
+| `--diagnose-nan`       | `nan`                            | `node src/lib/main.js nan`                               |
 
 **Rationale:**
 
-Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Specifically, NaN-related flags are locked to prevent any future changes that might inadvertently add functionality.
+Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Particularly, the new **config** subcommand enhances flexibility by allowing users to manage CLI settings without modifying the code.
 
 ### Environment Configuration and CLI_MODE
 
-The CLI automatically loads configuration from a `.env` file via the `dotenv` package. A special environment variable, **CLI_MODE**, can be set in your `.env` file to trigger additional logging and diagnostic output at startup. For example, setting:
+The CLI automatically loads configuration from a `.env` file via the `dotenv` package. A special environment variable, **CLI_MODE**, can be set in your `.env` file to trigger additional logging and diagnostic output at startup. For example:
 
 ```env
 CLI_MODE=debug
 ```
 
-will result in the CLI logging a message such as "Environment CLI_MODE: debug". This is useful for debugging or when you want extra information about the environment without changing the CLI behavior significantly. When **CLI_MODE** is not set, the CLI will operate normally without the extra logging.
+This will result in the CLI logging a message such as "Environment CLI_MODE: debug". When **CLI_MODE** is not set, the CLI will operate normally without the extra logging.
 
 ### Note on Legacy Flags
 
@@ -96,7 +102,15 @@ The repository's workflows manage testing, formatting, linting, and CI/CD operat
 
    npm start -- version
 
-4. Execute tests:
+4. To manage configuration, use the **config** subcommand. For example, view settings:
+
+   node src/lib/main.js config view
+
+   Or update a configuration item:
+
+   node src/lib/main.js config set --key theme --value dark
+
+5. Execute tests:
 
    npm test
 

@@ -31,6 +31,30 @@ function getPkgData() {
   }
 }
 
+// Helper functions for configuration management
+const CONFIG_FILE = 'config.json';
+
+function loadConfig() {
+  try {
+    if (!fs.existsSync(CONFIG_FILE)) {
+      // If config file doesn't exist, create one with default settings (empty object)
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify({}, null, 2));
+    }
+    const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
+    return JSON.parse(configContent);
+  } catch (error) {
+    throw new Error('Failed to load configuration: ' + error.message);
+  }
+}
+
+function saveConfig(config) {
+  try {
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+  } catch (error) {
+    throw new Error('Failed to save configuration: ' + error.message);
+  }
+}
+
 // New helper function to generate JSON output
 function generateJsonOutput(args, extended = false) {
   const pkg = getPkgData();
@@ -102,6 +126,7 @@ const helpMessage =
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
   '  nan             Display informational output regarding NaN flags\n' +
+  '  config <action> [options]   Manage CLI configuration (view or set)\n' +
   '\n' +
   'Note: Legacy CLI flags are deprecated. Please use the subcommand architecture for all operations.';
 
@@ -195,7 +220,6 @@ export async function main(args = process.argv.slice(2)) {
   for (const flag in legacyFlagMapping) {
     if (args.includes(flag)) {
       const handler = legacyFlagMapping[flag];
-      // If the handler returns a promise, await it
       const result = handler();
       if (result instanceof Promise) {
         await result;
@@ -324,10 +348,78 @@ export async function main(args = process.argv.slice(2)) {
       'Display informational output regarding NaN flags (this command is purely informational and non-operative)',
       () => {},
       (argv) => {
-        // LOCKED: NaN subcommand remains intentionally non-operative. See MISSION.md and CONTRIBUTING.md for guidelines.
         console.log('NaN Informational Output:');
         console.log('This command is for informational purposes only. It does not affect program behavior.');
         console.log('Refer to MISSION.md and CONTRIBUTING.md for guidelines on NaN usage.');
+      }
+    )
+    .command(
+      'config <action>',
+      'Manage CLI configuration (view or set)',
+      (yargs) => {
+        return yargs
+          .positional('action', {
+            describe: 'Action to perform: view or set',
+            type: 'string',
+            choices: ['view', 'set']
+          })
+          .option('key', {
+            type: 'string',
+            describe: 'Configuration key (required for set action)'
+          })
+          .option('value', {
+            type: 'string',
+            describe: 'Configuration value (required for set action)'
+          })
+          .option('json', {
+            type: 'boolean',
+            description: 'Output in JSON format'
+          });
+      },
+      (argv) => {
+        if (argv.action === 'view') {
+          try {
+            const config = loadConfig();
+            if (argv.json) {
+              console.log(JSON.stringify({ config }));
+            } else {
+              console.log('Current Configuration:');
+              console.log(JSON.stringify(config, null, 2));
+            }
+          } catch (err) {
+            const errorMsg = err.message;
+            if (argv.json) {
+              console.log(JSON.stringify({ error: errorMsg }));
+            } else {
+              console.error(errorMsg);
+            }
+            process.exit(1);
+          }
+        } else if (argv.action === 'set') {
+          if (!argv.key || !argv.value) {
+            console.error('Error: --key and --value must be provided for set action.');
+            process.exit(1);
+          }
+          try {
+            const config = loadConfig();
+            config[argv.key] = argv.value;
+            saveConfig(config);
+            const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+            if (argv.json) {
+              console.log(JSON.stringify({ message: messageText, config }));
+            } else {
+              console.log(messageText);
+            }
+          } catch (err) {
+            const errorMsg = err.message;
+            if (argv.json) {
+              console.log(JSON.stringify({ error: errorMsg }));
+            } else {
+              console.error(errorMsg);
+            }
+            process.exit(1);
+          }
+        }
       }
     )
     .help(false)

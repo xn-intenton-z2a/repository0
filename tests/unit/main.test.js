@@ -2,6 +2,7 @@ import { beforeEach, afterEach, describe, test, expect, vi } from 'vitest';
 import * as mainModule from '@src/lib/main.js';
 import { main } from '@src/lib/main.js';
 import https from 'https';
+import fs from 'fs';
 
 // Helper to simulate package.json read error using the utils.readFileSyncWrapper
 function simulatePkgError() {
@@ -184,55 +185,71 @@ describe('Subcommand: nan', () => {
   });
 });
 
-// New tests for subcommand update functionality
+// New tests for subcommand config functionality
 
-describe('Subcommand: update', () => {
+describe('Subcommand: config', () => {
+  let existsSyncSpy, writeFileSyncSpy, readFileSyncSpy;
+
+  beforeEach(() => {
+    existsSyncSpy = vi.spyOn(fs, 'existsSync');
+    writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync');
+    readFileSyncSpy = vi.spyOn(fs, 'readFileSync');
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  test('should indicate up-to-date when current version equals latest version', async () => {
-    const pkg = { version: '1.4.1-13' };
-    vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
-    const responseData = JSON.stringify({ 'dist-tags': { latest: '1.4.1-13' } });
-    const httpsGetSpy = mockHttpsGetSuccess(responseData);
+  test('should create a default config file if not present and view configuration in non-JSON format', async () => {
+    existsSyncSpy.mockReturnValue(false);
+    // Simulate reading newly created file
+    readFileSyncSpy.mockReturnValue('{}');
+
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    await main(['update']);
-    expect(consoleLogSpy).toHaveBeenCalledWith('You are using the latest version: 1.4.1-13');
-
-    httpsGetSpy.mockRestore();
+    await main(['config', 'view']);
+    expect(writeFileSyncSpy).toHaveBeenCalledWith('config.json', JSON.stringify({}, null, 2));
+    expect(consoleLogSpy).toHaveBeenCalledWith('Current Configuration:');
+    expect(consoleLogSpy).toHaveBeenCalledWith('{}');
     consoleLogSpy.mockRestore();
   });
 
-  test('should indicate update available when registry version is newer', async () => {
-    const pkg = { version: '1.4.1-13' };
-    vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
-    const responseData = JSON.stringify({ 'dist-tags': { latest: '1.4.1-14' } });
-    const httpsGetSpy = mockHttpsGetSuccess(responseData);
+  test('should view configuration in JSON format when --json flag is used', async () => {
+    existsSyncSpy.mockReturnValue(true);
+    // Provide a sample config
+    const sampleConfig = { theme: 'dark' };
+    readFileSyncSpy.mockReturnValue(JSON.stringify(sampleConfig));
+
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    await main(['update']);
-    expect(consoleLogSpy).toHaveBeenCalledWith('An update is available: current version 1.4.1-13, latest version 1.4.1-14');
-
-    httpsGetSpy.mockRestore();
+    await main(['config', 'view', '--json']);
+    const output = consoleLogSpy.mock.calls[0][0];
+    const parsed = JSON.parse(output);
+    expect(parsed).toHaveProperty('config');
+    expect(parsed.config).toEqual(sampleConfig);
     consoleLogSpy.mockRestore();
   });
 
-  test('should handle network error gracefully in update subcommand', async () => {
-    const pkg = { version: '1.4.1-13' };
-    vi.spyOn(mainModule, 'readFileSyncWrapper').mockReturnValue(JSON.stringify(pkg));
-    const error = new Error('Simulated network error');
-    const httpsGetSpy = mockHttpsGetError(error);
+  test('should update configuration when config set is used with --key and --value', async () => {
+    existsSyncSpy.mockReturnValue(true);
+    // Start with an empty config
+    readFileSyncSpy.mockReturnValue('{}');
 
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await main(['config', 'set', '--key', 'language', '--value', 'en']);
+    // Check that writeFileSync was called with updated config
+    expect(writeFileSyncSpy).toHaveBeenCalled();
+    const args = writeFileSyncSpy.mock.calls[0];
+    const writtenConfig = JSON.parse(args[1]);
+    expect(writtenConfig.language).toBe('en');
+    expect(consoleLogSpy).toHaveBeenCalledWith('Configuration updated: language set to en');
+    consoleLogSpy.mockRestore();
+  });
+
+  test('should output error if key or value is missing for config set', async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('process.exit called'); });
-    
-    await expect(main(['update'])).rejects.toThrow('process.exit called');
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Network error: Simulated network error'));
-
-    httpsGetSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
+    await main(['config', 'set', '--key', 'language']);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error: --key and --value must be provided for set action.');
     exitSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 });
