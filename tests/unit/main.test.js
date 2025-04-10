@@ -38,7 +38,7 @@ describe("CLI Help Message", () => {
         "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
         "  --json-output                Output CLI response in JSON format with metadata\n" +
         "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-        "  --verbose                    Enable verbose logging for detailed debug information\n\n" +
+        "  --verbose, -v                Enable verbose logging for detailed debug information\n\n" +
         "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     consoleLogSpy.mockRestore();
@@ -51,7 +51,7 @@ describe("CLI Version Flag", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--version"]);
     const call = consoleLogSpy.mock.calls[0][0];
-    expect(call.startsWith("Package version:")).toBe(true);
+    expect(call.startsWith("Package version:"), call).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });
