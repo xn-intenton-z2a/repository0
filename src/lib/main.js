@@ -190,6 +190,11 @@ export async function main(args = process.argv.slice(2)) {
           alias: 'e',
           type: 'boolean',
           description: 'Output extended metadata',
+        }).positional('extra', {
+          type: 'string',
+          array: true,
+          describe: 'Additional arguments',
+          default: []
         });
       },
       (argv) => {
@@ -248,12 +253,14 @@ export async function main(args = process.argv.slice(2)) {
     )
     .help(false)
     .version(false)
-    .strict();
+    .parserConfiguration({ "unknown-options-as-args": true })
+    .exitProcess(false);
 
-  const parsed = parser.parseSync();
+  // Use async parsing to support asynchronous command handlers
+  const parsed = await parser.parseAsync();
 
   // If no subcommand provided, check for legacy flag-based calls
-  if (!parsed._.length) {
+  if (!parsed._ || parsed._.length === 0) {
     if (parsed.help) {
       console.log(helpMessage);
       return;
