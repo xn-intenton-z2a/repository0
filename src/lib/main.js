@@ -135,16 +135,7 @@ export function main(args = process.argv.slice(2)) {
     return;
   }
 
-  // Check for warning index mode flag
-  const wiIdx = args.indexOf("--warning-index-mode");
-  if (wiIdx !== -1 && args[wiIdx + 1] !== undefined) {
-    const value = Number(args[wiIdx + 1]);
-    if (!isNaN(value)) {
-      console.log(`Warning index mode set to: ${value}`);
-      return;
-    }
-  }
-
+  // Check for verbose flag before processing warning index mode
   if (args.includes("--verbose") || args.includes("-v")) {
     let warningIndex = null;
     const idx = args.indexOf("--warning-index-mode");
@@ -155,6 +146,16 @@ export function main(args = process.argv.slice(2)) {
     console.log("Parsed Arguments:", args);
     console.log("Internal State:", { warningIndex });
     return;
+  }
+
+  // Check for warning index mode flag
+  const wiIdx = args.indexOf("--warning-index-mode");
+  if (wiIdx !== -1 && args[wiIdx + 1] !== undefined) {
+    const value = Number(args[wiIdx + 1]);
+    if (!isNaN(value)) {
+      console.log(`Warning index mode set to: ${value}`);
+      return;
+    }
   }
 
   console.log(`Run with: ${JSON.stringify(args)}`);
