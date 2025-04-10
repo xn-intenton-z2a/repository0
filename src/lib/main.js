@@ -40,7 +40,7 @@ export function main(args = process.argv.slice(2)) {
     "Usage: node main.js [options]\n" +
     "Options:\n" +
     "  --help, -h                   Show help message\n" +
-    "  --version                    Show package version\n" +
+    "  --pkg-version                Show package version\n" +
     "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
     "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
     "  --json-output                Output CLI response in JSON format with metadata\n" +
@@ -52,7 +52,7 @@ export function main(args = process.argv.slice(2)) {
   const argv = yargs(args)
     .usage("Usage: node main.js [options]")
     .option("help", { alias: "h", type: "boolean", description: "Show help message" })
-    .option("version", { type: "boolean", description: "Show package version" })
+    .option("pkg-version", { type: "boolean", description: "Show package version" })
     .option("warning-index-mode", { type: "number", description: "Set warning index mode (numeric value)" })
     .option("diagnostics", { type: "boolean", description: "Show diagnostic information (Node version, package version, dependencies)" })
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
@@ -67,7 +67,7 @@ export function main(args = process.argv.slice(2)) {
     return;
   }
 
-  if (argv.version) {
+  if (argv["pkg-version"]) {
     try {
       const pkg = getPkgData();
       console.log(`Package version: ${pkg.version}`);

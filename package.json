@@ -18,7 +18,7 @@
     "coverage": "vitest --coverage",
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js --diagnostics",
-    "version": "node src/lib/main.js --version"
+    "version": "node src/lib/main.js --pkg-version"
   },
   "keywords": [],
   "author": "",
