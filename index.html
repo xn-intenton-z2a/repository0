@@ -30,11 +30,16 @@
 <ul class="md-github">
 <li class="md-github">
 <p class="md-github"><strong class="md-github">CLI Execution:</strong>
-The CLI is implemented in <code class="md-github">src/lib/main.js</code>. Run the CLI with <code class="md-github">node src/lib/main.js [options]</code>. Use the <code class="md-github">--help</code> or <code class="md-github">-h</code> flag to see usage options. A new flag <code class="md-github">--warning-index-mode &lt;value&gt;</code> has been added to allow users to configure a warning index mode via the command line.</p>
+The CLI is implemented in <code class="md-github">src/lib/main.js</code>. Run the CLI with <code class="md-github">node src/lib/main.js [options]</code>. Use the <code class="md-github">--help</code> or <code class="md-github">-h</code> flag to see usage options. Additional flags include:</p>
+<ul class="md-github">
+<li class="md-github"><code class="md-github">--version</code>: Display the current package version</li>
+<li class="md-github"><code class="md-github">--warning-index-mode &lt;value&gt;</code>: Configure a warning index mode via the command line.</li>
+<li class="md-github"><code class="md-github">--diagnostics</code>: Show detailed diagnostic information (Node version, package version, and dependencies).</li>
+</ul>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">CLI Diagnostics:</strong>
-A new <code class="md-github">--diagnostics</code> flag has been implemented. When provided, the CLI outputs detailed information about the runtime environment, including the Node.js version, package version, and a summary of key dependencies.</p>
+The CLI outputs diagnostic information when the <code class="md-github">--diagnostics</code> flag is provided.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">NaN Handling:</strong>
@@ -46,7 +51,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory use
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-Main functionality resides in <code class="md-github">src/lib/main.js</code>, which is maintained according to the project’s mission and coding standards.</p>
+Main functionality resides in <code class="md-github">src/lib/main.js</code>, which adheres to the project’s mission and coding standards.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -80,7 +85,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T12:44:22.443Z</p>
+    <p>Generated on 2025-04-10T13:01:18.960Z</p>
   </footer>
 </body>
 </html>
