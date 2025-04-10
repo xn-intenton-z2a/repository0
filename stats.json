@@ -1,19 +1,27 @@
 {
-  "openIssues": 11,
+  "openIssues": 10,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
   "openPRs": 1,
   "prDetails": [
     {
-      "title": "Moved environment variable logging from the top-level to inside main to ensure it runs during tests. (fixes #1151)",
-      "ageMinutes": 1
+      "title": "Added --json-extended flag to output extended JSON metadata including current working directory and process uptime with corresponding tests and documentation updates. (fixes #1178)",
+      "ageMinutes": 0
     }
   ],
-  "diffMinutes": 2,
-  "diffMinutesMain": 52,
+  "diffMinutes": 1,
+  "diffMinutesMain": 6,
   "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "14:25",
+      "message": "Update README to include detailed CLI flag descriptions and usag..."
+    },
+    {
+      "time": "14:19",
+      "message": "Moved environment variable logging from the top-level to inside ..."
+    },
     {
       "time": "13:27",
       "message": "Refactored main to default args to an empty array for consistent..."
@@ -25,27 +33,19 @@
     {
       "time": "13:13",
       "message": "Added --json-output flag to output CLI response in JSON format w..."
-    },
-    {
-      "time": "13:04",
-      "message": "Removed duplicate openai dependency from devDependencies in pack..."
-    },
-    {
-      "time": "12:48",
-      "message": "Added --version flag support to display package version and upda..."
     }
   ],
   "branches": {
     "count": 1,
     "details": [
       {
-        "branch": "agentic-lib-issue-1151",
-        "minutesSinceLastCommit": 2
+        "branch": "agentic-lib-issue-1178",
+        "minutesSinceLastCommit": 1
       }
     ]
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T14:19:41.892Z"
+  "generatedAt": "2025-04-10T14:32:15.345Z"
 }
