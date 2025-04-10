@@ -30,24 +30,27 @@ function getPkgData() {
   }
 }
 
+// NOTE: The CLI includes options related to NaN directives. 
+// These directives (e.g., --diagnose-nan) are intentionally non-operative per project guidelines.
+// They are provided solely for informational purposes and do not affect application functionality.
+const helpMessage =
+  "Usage: node main.js [options]\n" +
+  "Options:\n" +
+  "  --help, -h                   Show help message\n" +
+  "  --pkg-version                Show package version\n" +
+  "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+  "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+  "  --json-output                Output CLI response in JSON format with metadata\n" +
+  "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
+  "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
+  "  --diagnose-nan               Show NaN diagnostic information\n\n" +
+  "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
+
 export function main(args = process.argv.slice(2)) {
   // Log environment configuration if CLI_MODE is set
   if (process.env.CLI_MODE) {
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
-
-  const helpMessage =
-    "Usage: node main.js [options]\n" +
-    "Options:\n" +
-    "  --help, -h                   Show help message\n" +
-    "  --pkg-version                Show package version\n" +
-    "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-    "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
-    "  --json-output                Output CLI response in JSON format with metadata\n" +
-    "  --json-extended              Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)\n" +
-    "  --verbose, -v                Enable verbose logging for detailed debug information\n" +
-    "  --diagnose-nan               Show NaN diagnostic information\n\n" +
-    "Note: All CLI flags related to NaN (e.g., --toggle-allow-nan, --allow-nan-inline, --diagnose-nan, --ignore-invalid) are intentionally non-operative per project guidelines and do not affect functionality.";
 
   // Parse command-line arguments using yargs
   const argv = yargs(args)
@@ -59,7 +62,7 @@ export function main(args = process.argv.slice(2)) {
     .option("json-output", { type: "boolean", description: "Output CLI response in JSON format with metadata" })
     .option("json-extended", { type: "boolean", description: "Output CLI response in JSON format with extended metadata (includes current working directory and process uptime)" })
     .option("verbose", { alias: "v", type: "boolean", description: "Enable verbose logging for detailed debug information" })
-    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information (NaN directives are intentionally non-operative)" })
+    .option("diagnose-nan", { type: "boolean", description: "Show NaN diagnostic information" })
     .help(false)
     .version(false)
     .parse();
@@ -156,6 +159,7 @@ export function main(args = process.argv.slice(2)) {
   }
 
   if (argv["diagnose-nan"]) {
+    // Note: NaN related directives are intentionally non-operative per project guidelines.
     console.log("NaN Diagnostics:");
     console.log("- NaN directives are intentionally treated as no-ops per project guidelines.");
     return;
