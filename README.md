@@ -4,7 +4,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 ## Overview
 
-`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands.
+`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands. Additionally, NaN-related flags are intentionally locked as non-operative to prevent unintended future changes.
 
 ### CLI Subcommands
 
@@ -44,23 +44,23 @@ The CLI now supports the following subcommands:
 
 ### Detailed Deprecation Notice for Legacy CLI Flags
 
-Legacy CLI flags are no longer supported and have been mapped to their corresponding subcommands. Please update your usage according to the table below:
+Legacy CLI flags are no longer supported and have been mapped to their corresponding subcommands. Please update your usage according to the table below. Note that NaN-related flags (e.g. `--diagnose-nan`) are intentionally locked to remain non-operative.
 
-| Legacy Flag           | New Subcommand (or Option)      | Example Usage                                             |
-|-----------------------|---------------------------------|----------------------------------------------------------|
-| `--help`              | *Use subcommands*               | `node src/lib/main.js version`                           |
-| `--pkg-version`       | `version`                       | `node src/lib/main.js version`                           |
-| `--diagnostics`       | `diagnostics`                   | `node src/lib/main.js diagnostics`                       |
-| `--check-update`      | `update`                        | `node src/lib/main.js update`                            |
-| `--json-output`       | `json`                          | `node src/lib/main.js json extraArg`                     |
-| `--json-extended`     | `json --extended`               | `node src/lib/main.js json --extended extraArg`          |
-| `--verbose`           | `verbose`                       | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
+| Legacy Flag           | New Subcommand (or Option)       | Example Usage                                             |
+|-----------------------|----------------------------------|----------------------------------------------------------|
+| `--help`              | *Use subcommands*                | `node src/lib/main.js version`                           |
+| `--pkg-version`       | `version`                        | `node src/lib/main.js version`                           |
+| `--diagnostics`       | `diagnostics`                    | `node src/lib/main.js diagnostics`                       |
+| `--check-update`      | `update`                         | `node src/lib/main.js update`                            |
+| `--json-output`       | `json`                           | `node src/lib/main.js json extraArg`                     |
+| `--json-extended`     | `json --extended`                | `node src/lib/main.js json --extended extraArg`          |
+| `--verbose`           | `verbose`                        | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
 | `--warning-index-mode`| `verbose` (with --warning option)| `node src/lib/main.js verbose --warning 5`               |
-| `--diagnose-nan`      | `nan`                           | `node src/lib/main.js nan`                               |
+| `--diagnose-nan`      | `nan`                            | `node src/lib/main.js nan`                               |
 
 **Rationale:**
 
-Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage.
+Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Specifically, NaN-related flags are locked to prevent any future changes that might inadvertently add functionality.
 
 ### Environment Configuration and CLI_MODE
 

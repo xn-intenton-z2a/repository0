@@ -178,6 +178,7 @@ export async function main(args = process.argv.slice(2)) {
       }
     },
     '--diagnose-nan': () => {
+      // LOCKED: NaN-related flag remains intentionally non-operative; no functional changes should be applied.
       console.log('Deprecation Warning: Legacy flag --diagnose-nan is deprecated. Use the "nan" subcommand instead.');
       console.log('NaN Informational Output:');
       console.log('This command is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
@@ -323,7 +324,7 @@ export async function main(args = process.argv.slice(2)) {
       'Display informational output regarding NaN flags (this command is purely informational and non-operative)',
       () => {},
       (argv) => {
-        // This subcommand is informational only and does not affect program behavior.
+        // LOCKED: NaN subcommand remains intentionally non-operative. See MISSION.md and CONTRIBUTING.md for guidelines.
         console.log('NaN Informational Output:');
         console.log('This command is for informational purposes only. It does not affect program behavior.');
         console.log('Refer to MISSION.md and CONTRIBUTING.md for guidelines on NaN usage.');
