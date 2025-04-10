@@ -7,12 +7,12 @@ dotenv.config();
 import { fileURLToPath } from "url";
 import { readFileSync } from "fs";
 
-// Log environment configuration if CLI_MODE is set
-if (process.env.CLI_MODE) {
-  console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
-}
-
 export function main(args = []) {
+  // Log environment configuration if CLI_MODE is set
+  if (process.env.CLI_MODE) {
+    console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
+  }
+
   const verbose = args.includes("--verbose");
 
   if (args.includes("--help") || args.includes("-h")) {
