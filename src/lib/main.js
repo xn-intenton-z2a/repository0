@@ -8,12 +8,13 @@ export function main(args) {
   if (args.includes("--help") || args.includes("-h")) {
     console.log(
       "Usage: node main.js [options]\n" +
-      "Options:\n" +
-      "  --help, -h                   Show help message\n" +
-      "  --version                    Show package version\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n\n" +
-      "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
+        "Options:\n" +
+        "  --help, -h                   Show help message\n" +
+        "  --version                    Show package version\n" +
+        "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+        "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+        "  --json-output                Output CLI response in JSON format with metadata\n\n" +
+        "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     return;
   }
@@ -38,6 +39,22 @@ export function main(args) {
     for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
       console.log(`  ${dep}: ${ver}`);
     }
+    return;
+  }
+
+  if (args.includes("--json-output")) {
+    // Determine the package.json location relative to this file
+    const pkgPath = new URL("../../package.json", import.meta.url);
+    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
+    const output = {
+      arguments: args,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        nodeVersion: process.version,
+        packageVersion: pkgData.version
+      }
+    };
+    console.log(JSON.stringify(output));
     return;
   }
 

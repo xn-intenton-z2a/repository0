@@ -21,12 +21,13 @@ describe("CLI Help Message", () => {
     main(["--help"]);
     expect(consoleLogSpy).toHaveBeenCalledWith(
       "Usage: node main.js [options]\n" +
-      "Options:\n" +
-      "  --help, -h                   Show help message\n" +
-      "  --version                    Show package version\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
-      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n\n" +
-      "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
+        "Options:\n" +
+        "  --help, -h                   Show help message\n" +
+        "  --version                    Show package version\n" +
+        "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+        "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n" +
+        "  --json-output                Output CLI response in JSON format with metadata\n\n" +
+        "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     consoleLogSpy.mockRestore();
   });
@@ -36,7 +37,6 @@ describe("CLI Version Flag", () => {
   test("should display package version when --version is passed", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--version"]);
-    // We can't hardcode the version string as it reads from package.json, but we expect it to start with 'Package version:'
     const call = consoleLogSpy.mock.calls[0][0];
     expect(call.startsWith("Package version:"));
     consoleLogSpy.mockRestore();
@@ -57,14 +57,30 @@ describe("CLI Diagnostics", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--diagnostics"]);
     const calls = consoleLogSpy.mock.calls.flat();
-    // Check that diagnostics info includes Node version
     expect(calls.some(call => call.includes("Node version:"))).toBe(true);
-    // Check that diagnostics info includes Package version
     expect(calls.some(call => call.includes("Package version:"))).toBe(true);
-    // Check that diagnostics info includes Dependencies header
     expect(calls.some(call => call.includes("Dependencies:"))).toBe(true);
-    // Optionally check for one known dependency (e.g., dotenv)
+    // Optionally check for one known dependency
     expect(calls.some(call => call.includes("dotenv:"))).toBe(true);
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI JSON Output", () => {
+  test("should output valid JSON with arguments and metadata when --json-output is provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--json-output", "extraArg"]);
+    expect(consoleLogSpy).toHaveBeenCalled();
+    const outputArg = consoleLogSpy.mock.calls[0][0];
+    let parsed;
+    expect(() => { parsed = JSON.parse(outputArg); }).not.toThrow();
+    expect(parsed).toHaveProperty('arguments');
+    expect(parsed).toHaveProperty('metadata');
+    expect(parsed.metadata).toHaveProperty('timestamp');
+    expect(parsed.metadata).toHaveProperty('nodeVersion');
+    expect(parsed.metadata).toHaveProperty('packageVersion');
+    expect(parsed.arguments).toContain("--json-output");
+    expect(parsed.arguments).toContain("extraArg");
     consoleLogSpy.mockRestore();
   });
 });
