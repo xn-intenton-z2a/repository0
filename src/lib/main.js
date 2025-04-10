@@ -108,6 +108,7 @@ const helpMessage =
 // Updated main to support subcommand architecture and deprecate legacy flags
 export async function main(args = process.argv.slice(2)) {
   if (process.env.CLI_MODE) {
+    // If CLI_MODE is set, log additional environment details for diagnostic purposes
     console.log(`Environment CLI_MODE: ${process.env.CLI_MODE}`);
   }
 
