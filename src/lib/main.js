@@ -101,7 +101,7 @@ const helpMessage =
   '  json [--extended]    Output CLI response in JSON format (use --extended for more metadata)\n' +
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
-  '  nan             Show NaN informational message\n' +
+  '  nan             Display informational output regarding NaN flags (usage: node main.js nan). This command is informational only; see MISSION.md and CONTRIBUTING.md for guidelines.\n' +
   '\n' +
   'Legacy Flag Support (mapped to subcommands):\n' +
   '  --help, -h, --pkg-version, --diagnostics, --check-update, --json-output, --json-extended, --verbose, --warning-index-mode, --diagnose-nan\n' +
@@ -248,7 +248,8 @@ export async function main(args = process.argv.slice(2)) {
       () => {},
       (argv) => {
         console.log('NaN Informational Output:');
-        console.log('This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
+        console.log('This command is for informational purposes only. It does not affect program behavior.');
+        console.log('Refer to MISSION.md and CONTRIBUTING.md for guidelines on NaN usage.');
       }
     )
     .help(false)
@@ -335,7 +336,7 @@ export async function main(args = process.argv.slice(2)) {
     }
     if (parsed['diagnose-nan']) {
       console.log('NaN Informational Output:');
-      console.log('This flag is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
+      console.log('This command is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
       return;
     }
     if (parsed['warning-index-mode'] !== undefined) {

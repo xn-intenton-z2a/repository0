@@ -40,7 +40,7 @@ The CLI has been refactored to use subcommands. The following subcommands are av
 
 - **nan**
   - **Usage:** `node src/lib/main.js nan`
-  - **Description:** Display informational output regarding NaN flags. (Note: NaN-related flags are informational only.)
+  - **Description:** Display informational output regarding NaN flags. NOTE: This command is solely informational. It does not trigger any computational changes and exists only to adhere to the project guidelines regarding NaN handling. For more information, please refer to [MISSION.md](./MISSION.md) and [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Legacy Flag Support
 
