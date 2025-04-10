@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Refactored NaN conversion handling for consistency and enhanced debug logging across all input variations. (fixes #1216)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 6,
+  "diffMinutes": 0,
+  "diffMinutesMain": 7,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1216",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:01:08.970Z"
+  "generatedAt": "2025-04-10T19:02:24.141Z"
 }
