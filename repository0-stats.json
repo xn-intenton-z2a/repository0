@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Clarified the non-operative nature of the NaN command in both source code and README documentation. (fixes #1234)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 4,
+  "diffMinutes": 0,
+  "diffMinutesMain": 5,
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:35:18.333Z"
+  "generatedAt": "2025-04-10T21:36:04.469Z"
 }
