@@ -40,7 +40,6 @@ function mockHttpsGetError(error) {
   });
 }
 
-
 // Tests for subcommand architecture
 
 describe('Main Module Import', () => {
@@ -49,25 +48,28 @@ describe('Main Module Import', () => {
   });
 });
 
-describe('Legacy Flags Support', () => {
-  test('should display help message when --help is passed', async () => {
+describe('Legacy Flags Deprecation', () => {
+  test('should display help message with deprecation warning when --help is passed', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await main(['--help']);
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Deprecation Warning: Legacy flag --help is deprecated'));
     expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Usage:'));
     consoleLogSpy.mockRestore();
   });
 
-  test('should display package version when --pkg-version is passed (legacy)', async () => {
+  test('should display package version with deprecation warning when --pkg-version is passed', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await main(['--pkg-version']);
-    const call = consoleLogSpy.mock.calls[0][0];
-    expect(call.startsWith('Package version:')).toBe(true);
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Deprecation Warning: Legacy flag --pkg-version is deprecated'));
+    const call = consoleLogSpy.mock.calls.find(call => typeof call[0] === 'string' && call[0].startsWith('Package version:'));
+    expect(call[0]).toMatch(/^Package version:/);
     consoleLogSpy.mockRestore();
   });
 
-  test('should log warning index mode when --warning-index-mode is provided (legacy)', async () => {
+  test('should log warning index mode with deprecation warning when --warning-index-mode is provided', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await main(['--warning-index-mode', '5']);
+    expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Deprecation Warning: Legacy flag --warning-index-mode is deprecated'));
     expect(consoleLogSpy).toHaveBeenCalledWith('Warning index mode set to: 5');
     consoleLogSpy.mockRestore();
   });
@@ -77,8 +79,8 @@ describe('Subcommand: version', () => {
   test('should display package version when subcommand version is used', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await main(['version']);
-    const call = consoleLogSpy.mock.calls[0][0];
-    expect(call.startsWith('Package version:')).toBe(true);
+    const call = consoleLogSpy.mock.calls.find(call => typeof call[0] === 'string' && call[0].startsWith('Package version:'));
+    expect(call[0]).toMatch(/^Package version:/);
     consoleLogSpy.mockRestore();
   });
 });
@@ -217,7 +219,7 @@ describe('Subcommand: update', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('process.exit called'); });
     
-    await expect(main(['update']).catch(e => { throw e; })).rejects.toThrow('process.exit called');
+    await expect(main(['update'])).rejects.toThrow('process.exit called');
     expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Network error: Simulated network error'));
 
     httpsGetSpy.mockRestore();
