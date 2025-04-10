@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 61,
+  "openIssues": 62,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 3,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored NaN conversion handling for consistency and enhanced debug logging across all input variations. (fixes #1216)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 6,
   "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1216",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T18:58:10.947Z"
+  "generatedAt": "2025-04-10T19:01:08.970Z"
 }
