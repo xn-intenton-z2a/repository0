@@ -37,7 +37,7 @@ Display help and usage information.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--version</strong><br>
-Display the package version by reading <code class="md-github">package.json</code>.</p>
+Display the package version by reading <code class="md-github">package.json</code>. If <code class="md-github">package.json</code> is missing, corrupt, or unreadable, a clear error message is provided and the process exits with a non-zero status.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--warning-index-mode <value></strong><br>
@@ -47,13 +47,14 @@ node src/lib/main.js --warning-index-mode 5</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--diagnostics</strong><br>
-Output detailed diagnostic information including Node version, package version, and list of dependencies.</p>
+Output detailed diagnostic information including Node version, package version, and list of dependencies. If there is an error reading <code class="md-github">package.json</code>, an error message will be displayed and the process exits with a non-zero status.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--json-output</strong><br>
 Output the CLI response in JSON format. The JSON structure includes:
 • <code class="md-github">arguments</code>: Array of provided command line arguments.
 • <code class="md-github">metadata</code>: An object containing <code class="md-github">timestamp</code>, <code class="md-github">nodeVersion</code>, and <code class="md-github">packageVersion</code>.</p>
+<p class="md-github">In case of a missing or corrupt <code class="md-github">package.json</code>, a valid JSON error response is returned and the process exits with a non-zero status.</p>
 <p class="md-github"><strong class="md-github">Example:</strong>
 node src/lib/main.js --json-output extraArg</p>
 </li>
@@ -62,6 +63,7 @@ node src/lib/main.js --json-output extraArg</p>
 Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
 • <code class="md-github">cwd</code>: The current working directory
 • <code class="md-github">uptime</code>: The process uptime in seconds</p>
+<p class="md-github">Similar error handling applies as for <code class="md-github">--json-output</code>.</p>
 <p class="md-github"><strong class="md-github">Example:</strong>
 node src/lib/main.js --json-extended extraArg</p>
 </li>
@@ -106,7 +108,7 @@ Enable verbose logging for detailed debug information. When activated, the CLI p
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T15:29:53.064Z</p>
+    <p>Generated on 2025-04-10T15:39:18.727Z</p>
   </footer>
 </body>
 </html>
