@@ -23,7 +23,8 @@ describe("CLI Help Message", () => {
       "Usage: node main.js [options]\n" +
       "Options:\n" +
       "  --help, -h                   Show help message\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n\n" +
+      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n\n" +
       "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
     consoleLogSpy.mockRestore();
@@ -35,6 +36,23 @@ describe("CLI Warning Index Mode", () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--warning-index-mode", "5"]);
     expect(consoleLogSpy).toHaveBeenCalledWith("Warning index mode set to: 5");
+    consoleLogSpy.mockRestore();
+  });
+});
+
+describe("CLI Diagnostics", () => {
+  test("should output diagnostic information when --diagnostics is provided", () => {
+    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["--diagnostics"]);
+    const calls = consoleLogSpy.mock.calls.flat();
+    // Check that diagnostics info includes Node version
+    expect(calls.some(call => call.includes("Node version:"))).toBe(true);
+    // Check that diagnostics info includes Package version
+    expect(calls.some(call => call.includes("Package version:"))).toBe(true);
+    // Check that diagnostics info includes Dependencies header
+    expect(calls.some(call => call.includes("Dependencies:"))).toBe(true);
+    // Optionally check for one known dependency (e.g., dotenv)
+    expect(calls.some(call => call.includes("dotenv:"))).toBe(true);
     consoleLogSpy.mockRestore();
   });
 });

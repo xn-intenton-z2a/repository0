@@ -2,6 +2,7 @@
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 
 export function main(args) {
   if (args.includes("--help") || args.includes("-h")) {
@@ -9,9 +10,25 @@ export function main(args) {
       "Usage: node main.js [options]\n" +
       "Options:\n" +
       "  --help, -h                   Show help message\n" +
-      "  --warning-index-mode <value> Set warning index mode (numeric value)\n\n" +
+      "  --warning-index-mode <value> Set warning index mode (numeric value)\n" +
+      "  --diagnostics                Show diagnostic information (Node version, package version, dependencies)\n\n" +
       "Note: Any NaN directives are intentionally treated as no-ops per project guidelines."
     );
+    return;
+  }
+
+  if (args.includes("--diagnostics")) {
+    // Determine the package.json location relative to this file
+    const pkgPath = new URL("../../package.json", import.meta.url);
+    const pkgData = JSON.parse(readFileSync(pkgPath, "utf-8"));
+
+    console.log("Diagnostics Information:");
+    console.log(`Node version: ${process.version}`);
+    console.log(`Package version: ${pkgData.version}`);
+    console.log("Dependencies:");
+    for (const [dep, ver] of Object.entries(pkgData.dependencies)) {
+      console.log(`  ${dep}: ${ver}`);
+    }
     return;
   }
 
