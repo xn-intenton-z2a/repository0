@@ -9,10 +9,10 @@
   "prDetails": [
     {
       "title": "Added early legacy flag handling in main.js to properly output deprecation warnings ensuring all tests pass. (fixes #1233)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
-  "diffMinutes": 1,
+  "diffMinutes": 0,
   "diffMinutesMain": 36,
   "commitsLastHour": 2,
   "commitsLastDay": 100,
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T21:29:19.251Z"
+  "generatedAt": "2025-04-10T21:30:06.646Z"
 }
