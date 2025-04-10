@@ -9,7 +9,7 @@
   "prDetails": [
     {
       "title": "Enhance CLI conversion logic to support Unicode variants of NaN and update tests and documentation accordingly. (fixes #1214)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1214",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T18:53:32.049Z"
+  "generatedAt": "2025-04-10T18:54:17.938Z"
 }
