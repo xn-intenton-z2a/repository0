@@ -51,11 +51,19 @@ Output detailed diagnostic information including Node version, package version, 
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--json-output</strong><br>
-Output the CLI response in JSON format. The JSON structure includes:</p>
-<p class="md-github">• <code class="md-github">arguments</code>: Array of provided command line arguments.
+Output the CLI response in JSON format. The JSON structure includes:
+• <code class="md-github">arguments</code>: Array of provided command line arguments.
 • <code class="md-github">metadata</code>: An object containing <code class="md-github">timestamp</code>, <code class="md-github">nodeVersion</code>, and <code class="md-github">packageVersion</code>.</p>
 <p class="md-github"><strong class="md-github">Example:</strong>
 node src/lib/main.js --json-output extraArg</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">--json-extended</strong><br>
+Output the CLI response in JSON format with extended metadata. In addition to the standard fields, the metadata object includes:
+• <code class="md-github">cwd</code>: The current working directory
+• <code class="md-github">uptime</code>: The process uptime in seconds</p>
+<p class="md-github"><strong class="md-github">Example:</strong>
+node src/lib/main.js --json-extended extraArg</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">--verbose</strong><br>
@@ -98,7 +106,7 @@ Enable verbose logging for detailed debug information. When activated, the CLI p
 
   </section>
   <footer>
-    <p>Generated on 2025-04-10T14:32:32.014Z</p>
+    <p>Generated on 2025-04-10T14:41:45.464Z</p>
   </footer>
 </body>
 </html>
