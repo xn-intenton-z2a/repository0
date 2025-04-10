@@ -2,14 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 59,
-  "issuesClosedLastHour": 14,
+  "openIssues": 61,
+  "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Add --trace-plugins flag to enable plugin transformation trace logging with detailed output. (fixes #1210)",
+      "ageMinutes": 1
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 2,
-  "commitsLastHour": 8,
+  "diffMinutesMain": 8,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1210",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-10T19:45:32.495Z"
+  "generatedAt": "2025-04-10T19:51:26.298Z"
 }
