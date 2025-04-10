@@ -12,6 +12,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
   - `--version`: Display the current package version
   - `--warning-index-mode <value>`: Configure a warning index mode via the command line.
   - `--diagnostics`: Show detailed diagnostic information (Node version, package version, and dependencies).
+  - `--json-output`: Output CLI response in JSON format including all provided arguments and metadata (e.g., timestamp, Node version, package version).
 
 - **CLI Diagnostics:**
   The CLI outputs diagnostic information when the `--diagnostics` flag is provided.
