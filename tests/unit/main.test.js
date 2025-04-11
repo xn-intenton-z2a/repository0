@@ -247,8 +247,7 @@ describe('Subcommand: config', () => {
   test('should output error if key or value is missing for config set', async () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    await main(['config', 'set', '--key', 'language']);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Missing required arguments: key and value');
+    await expect(main(['config', 'set', '--key', 'language'])).rejects.toThrow('Missing required arguments: key and value');
     exitSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });

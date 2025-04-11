@@ -11,10 +11,11 @@ import { hideBin } from 'yargs/helpers';
 import https from 'https';
 
 // Utility object for file operations to allow easier testing.
+// Bind fs methods so that test spies can intercept the calls
 export const utils = {
-  readFileSyncWrapper: (file, encoding) => fs.readFileSync(file, encoding),
-  existsSyncWrapper: (file) => fs.existsSync(file),
-  writeFileSyncWrapper: (file, data) => fs.writeFileSync(file, data),
+  readFileSyncWrapper: fs.readFileSync.bind(fs),
+  existsSyncWrapper: fs.existsSync.bind(fs),
+  writeFileSyncWrapper: fs.writeFileSync.bind(fs),
 };
 
 // Exported function that uses utils for consistency.
@@ -424,6 +425,11 @@ export async function main(args = process.argv.slice(2)) {
     .help(false)
     .version(false)
     .parserConfiguration({ "unknown-options-as-args": true })
+    .exitProcess(false)
+    .fail((msg, err, yargs) => {
+      console.error(msg);
+      throw err || new Error(msg);
+    })
     .strict(false);
 
   await parser.parseAsync();
