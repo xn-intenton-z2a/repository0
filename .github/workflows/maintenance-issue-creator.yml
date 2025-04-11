@@ -22,6 +22,22 @@ on:
 
 jobs:
 
+  agentic-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: agentic-lib
+        id: agentic-lib
+        shell: bash
+        run: |
+          maintenanceIssuesWipLimit=$(grep '^maintenanceIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}"
+          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}" >> $GITHUB_OUTPUT
+    outputs:
+      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+
   # If the prompt is "house choice", a random prompt will be selected from the prompt library otherwise the supplied title will be used.
   select-prompt:
     runs-on: ubuntu-latest
@@ -69,9 +85,10 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.6.0'
     with:
       prompt: ${{ needs.select-prompt.outputs.prompt }}
+      maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
@@ -80,6 +97,7 @@ jobs:
       dependenciesFile: 'package.json'
       buildScript: 'npm run build'
       testScript: 'npm test'
+      issueSelectionLabel: 'maintenance'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
@@ -94,10 +112,11 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.6.0'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
+      issueLabels: 'maintenance, automated'
 
   stats:
     if: ${{ always() }}
@@ -105,7 +124,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.5.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.6.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
