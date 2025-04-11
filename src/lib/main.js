@@ -423,7 +423,8 @@ export async function main(args = process.argv.slice(2)) {
                 process.exit(1);
               }
             }
-          );
+          )
+          .demandCommand(1, 'Please specify a valid config subcommand');
       }
     )
     .help(false)
