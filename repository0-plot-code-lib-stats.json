@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 3,
-  "diffMinutesMain": 6,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Standardized numeric fallback handling for NaN inputs across CSV import and CLI validation. (fixes #1750)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 0,
+  "diffMinutesMain": 9,
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1750",
+        "minutesSinceLastCommit": 0
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T04:49:00.901Z"
+  "generatedAt": "2025-04-11T04:51:51.127Z"
 }
