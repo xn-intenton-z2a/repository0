@@ -7,7 +7,7 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 2,
+  "diffMinutes": 0,
   "diffMinutesMain": 15,
   "commitsLastHour": 4,
   "commitsLastDay": 94,
@@ -38,12 +38,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1848",
-        "minutesSinceLastCommit": 5
+        "minutesSinceLastCommit": 0
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T15:55:02.326Z"
+  "generatedAt": "2025-04-11T15:55:42.904Z"
 }
