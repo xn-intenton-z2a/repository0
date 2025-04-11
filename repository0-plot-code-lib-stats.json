@@ -5,18 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Improve documentation and inline comments to clarify the dual fallback mechanism for NaN numeric parsing using both CLI flag and environment variable. (fixes #1748)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 7,
+  "diffMinutesMain": 2,
   "commitsLastHour": 3,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "04:42",
+      "message": "Improve documentation and inline comments to clarify the dual fa..."
+    },
     {
       "time": "04:33",
       "message": "Adjusted main.js to process STDIN input before checking for empt..."
@@ -32,23 +31,14 @@
     {
       "time": "03:34",
       "message": "Integrated numeric parser utilities into main.js and updated tes..."
-    },
-    {
-      "time": "02:27",
-      "message": "Refactor validateNumericArg to immediately reject NaN inputs and..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1748",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T04:41:08.060Z"
+  "generatedAt": "2025-04-11T04:45:39.575Z"
 }
