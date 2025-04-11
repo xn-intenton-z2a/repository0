@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Enhance CSV importer to use fallback for NaN values in CSV cells when provided. (fixes #1738)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 4,
+  "diffMinutesMain": 6,
   "commitsLastHour": 1,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1738",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T03:39:43.676Z"
+  "generatedAt": "2025-04-11T03:40:55.700Z"
 }
