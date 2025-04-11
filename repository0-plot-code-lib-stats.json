@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 10,
+  "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Consolidated NaN parsing logic by refactoring numeric input processing into a single function. (fixes #1769)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 5,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 2,
+  "diffMinutesMain": 3,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:43",
+      "message": "Consolidated NaN parsing logic by refactoring numeric input proc..."
+    },
     {
       "time": "06:36",
       "message": "Enhance explicit NaN handling and add dynamic theme support for ..."
@@ -32,23 +31,14 @@
     {
       "time": "06:08",
       "message": "Fixed CSV parser in preserveDecimal mode to correctly join thous..."
-    },
-    {
-      "time": "05:52",
-      "message": "Enhanced tests to ensure case-insensitive handling of NaN inputs..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1769",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:42:36.113Z"
+  "generatedAt": "2025-04-11T06:46:11.409Z"
 }
