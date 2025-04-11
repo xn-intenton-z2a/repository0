@@ -39,11 +39,11 @@ const CONFIG_FILE = 'config.json';
 
 function loadConfig() {
   try {
-    // Use utils wrappers so that file operations are easier to spy on during testing
-    if (!utils.existsSyncWrapper(CONFIG_FILE)) {
-      utils.writeFileSyncWrapper(CONFIG_FILE, '{}');
+    // Use fs directly now so that file operations can be properly spied on during testing
+    if (!fs.existsSync(CONFIG_FILE)) {
+      fs.writeFileSync(CONFIG_FILE, '{}');
     }
-    const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
+    const configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
     return JSON.parse(configContent);
   } catch (error) {
     throw new Error('Failed to load configuration: ' + error.message);
@@ -52,8 +52,8 @@ function loadConfig() {
 
 function saveConfig(config) {
   try {
-    // Write non-pretty printed JSON using utils wrapper
-    utils.writeFileSyncWrapper(CONFIG_FILE, JSON.stringify(config));
+    // Write non-pretty printed JSON using fs directly
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config));
   } catch (error) {
     throw new Error('Failed to save configuration: ' + error.message);
   }
