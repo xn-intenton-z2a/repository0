@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 2,
+  "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Enhance CSV importer to use fallback for NaN values in CSV cells when provided. (fixes #1738)",
-      "ageMinutes": 0
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 1,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "03:41",
+      "message": "Enhance CSV importer to use fallback for NaN values in CSV cells..."
+    },
     {
       "time": "03:34",
       "message": "Integrated numeric parser utilities into main.js and updated tes..."
@@ -32,23 +31,14 @@
     {
       "time": "01:49",
       "message": "Fixed test file by importing beforeEach and afterEach from vites..."
-    },
-    {
-      "time": "01:08",
-      "message": "Refine NaN handling in numeric argument validation with clearer ..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1738",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T03:41:32.635Z"
+  "generatedAt": "2025-04-11T03:43:02.060Z"
 }
