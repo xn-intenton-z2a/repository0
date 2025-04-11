@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 70,
-  "issuesClosedLastHour": 0,
+  "openIssues": 68,
+  "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Reordered the refresh-config and dump-config flags in main to ensure dynamic configuration refresh is applied before dumping the config. (fixes #1250)",
-      "ageMinutes": 0
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 207,
-  "commitsLastHour": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 1,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "01:52",
+      "message": "Reordered the refresh-config and dump-config flags in main to en..."
+    },
     {
       "time": "22:24",
       "message": "Refactored NaN configuration resolution to enforce clear precede..."
@@ -32,23 +31,14 @@
     {
       "time": "21:40",
       "message": "Consolidated and enhanced NaN handling logic for uniform behavio..."
-    },
-    {
-      "time": "21:34",
-      "message": "Clarified Unicode NaN handling and custom replacement behavior i..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1250",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T01:52:01.804Z"
+  "generatedAt": "2025-04-11T01:53:08.254Z"
 }
