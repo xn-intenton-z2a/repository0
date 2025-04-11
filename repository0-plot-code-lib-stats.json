@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 8,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refined NaN normalization and structured fallback logging for numeric parsing. (fixes #1865)",
-      "ageMinutes": 0
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 4,
-  "commitsLastDay": 96,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 5,
+  "commitsLastDay": 97,
   "lastFiveCommitMessages": [
+    {
+      "time": "17:36",
+      "message": "Refined NaN normalization and structured fallback logging for nu..."
+    },
     {
       "time": "17:29",
       "message": "Implemented --strict-numeric flag for strict numeric validation ..."
@@ -32,23 +31,14 @@
     {
       "time": "16:44",
       "message": "Improved custom NaN variants detection and enhanced fallback war..."
-    },
-    {
-      "time": "16:32",
-      "message": "Enhance NaN input normalization and fallback messaging in numeri..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1865",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T17:35:58.068Z"
+  "generatedAt": "2025-04-11T17:37:49.295Z"
 }
