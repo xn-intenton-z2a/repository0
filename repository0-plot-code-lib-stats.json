@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 8,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Enhanced unified NaN fallback and error messaging for CLI and CSV parsing. (fixes #1812)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 9,
-  "commitsLastHour": 4,
-  "commitsLastDay": 96,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 5,
+  "commitsLastDay": 97,
   "lastFiveCommitMessages": [
+    {
+      "time": "11:49",
+      "message": "Enhanced unified NaN fallback and error messaging for CLI and CS..."
+    },
     {
       "time": "11:39",
       "message": "Standardize NaN input handling improving fallback consistency an..."
@@ -32,23 +31,14 @@
     {
       "time": "11:04",
       "message": "Added global config option ALLOW_NAN to control explicit NaN inp..."
-    },
-    {
-      "time": "10:44",
-      "message": "Refined NaN parsing error messages and consolidated fallback mec..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1812",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T11:48:53.065Z"
+  "generatedAt": "2025-04-11T11:50:14.726Z"
 }
