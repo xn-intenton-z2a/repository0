@@ -194,6 +194,12 @@ describe('Subcommand: config', () => {
     existsSyncSpy = vi.spyOn(fs, 'existsSync');
     writeFileSyncSpy = vi.spyOn(fs, 'writeFileSync');
     readFileSyncSpy = vi.spyOn(fs, 'readFileSync');
+    // Reset any existing config file to ensure test isolation
+    try {
+      if (fs.existsSync('config.json')) {
+        fs.unlinkSync('config.json');
+      }
+    } catch (err) {}
   });
 
   afterEach(() => {
