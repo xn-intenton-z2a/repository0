@@ -5,12 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 18,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Ensure custom NaN variants are consistently reported in warnings and error messages for both CSV and CLI numeric input processing. (fixes #1842)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 20,
   "commitsLastHour": 2,
-  "commitsLastDay": 96,
+  "commitsLastDay": 95,
   "lastFiveCommitMessages": [
     {
       "time": "14:20",
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1842",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T14:39:18.322Z"
+  "generatedAt": "2025-04-11T14:41:23.818Z"
 }
