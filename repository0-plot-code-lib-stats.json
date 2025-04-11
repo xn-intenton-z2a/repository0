@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 6,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refined NaN handling by normalizing custom variants and ensuring uniform fallback behavior across CLI and CSV import. (fixes #1841)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 3,
-  "commitsLastDay": 94,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
+  "commitsLastDay": 95,
   "lastFiveCommitMessages": [
+    {
+      "time": "15:27",
+      "message": "Refined NaN handling by normalizing custom variants and ensuring..."
+    },
     {
       "time": "15:20",
       "message": "Added missing autoDetectDelimiter function in main.js and update..."
@@ -32,23 +31,14 @@
     {
       "time": "14:20",
       "message": "Added warning in validateNumericArg to log when a fallback is ap..."
-    },
-    {
-      "time": "13:45",
-      "message": "Improve numeric fallback error messages and custom NaN variant h..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1841",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T15:27:08.342Z"
+  "generatedAt": "2025-04-11T15:28:05.640Z"
 }
