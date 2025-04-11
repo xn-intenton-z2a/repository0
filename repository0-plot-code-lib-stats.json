@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 6,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Added global config option ALLOW_NAN to control explicit NaN inputs. (fixes #1808)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 18,
-  "commitsLastHour": 3,
-  "commitsLastDay": 98,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 4,
+  "commitsLastDay": 99,
   "lastFiveCommitMessages": [
+    {
+      "time": "11:04",
+      "message": "Added global config option ALLOW_NAN to control explicit NaN inp..."
+    },
     {
       "time": "10:44",
       "message": "Refined NaN parsing error messages and consolidated fallback mec..."
@@ -32,23 +31,14 @@
     {
       "time": "10:00",
       "message": "Refactored numeric parsing functions to improve unified NaN hand..."
-    },
-    {
-      "time": "09:49",
-      "message": "Updated validateNumericArg to log a warning when a fallback is a..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1808",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T11:03:06.271Z"
+  "generatedAt": "2025-04-11T11:05:33.858Z"
 }
