@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 12,
+  "issuesClosedLastHour": 14,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Unified NaN handling across CLI and CSV importer with standardized error messages. (fixes #1756)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 12,
-  "commitsLastHour": 6,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "05:26",
+      "message": "Unified NaN handling across CLI and CSV importer with standardiz..."
+    },
     {
       "time": "05:13",
       "message": "Standardized NaN handling and unified error messages for CSV and..."
@@ -32,23 +31,14 @@
     {
       "time": "04:54",
       "message": "Standardized numeric fallback handling for NaN inputs across CSV..."
-    },
-    {
-      "time": "04:42",
-      "message": "Improve documentation and inline comments to clarify the dual fa..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1756",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T05:25:33.583Z"
+  "generatedAt": "2025-04-11T05:27:49.511Z"
 }
