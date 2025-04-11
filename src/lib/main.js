@@ -38,11 +38,11 @@ const CONFIG_FILE = 'config.json';
 
 function loadConfig() {
   try {
-    if (!utils.existsSyncWrapper(CONFIG_FILE)) {
-      // Directly write default empty config if file does not exist
-      utils.writeFileSyncWrapper(CONFIG_FILE, '{}');
+    // Use direct fs methods so that tests spying on fs work as expected
+    if (!fs.existsSync(CONFIG_FILE)) {
+      fs.writeFileSync(CONFIG_FILE, '{}');
     }
-    const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
+    const configContent = fs.readFileSync(CONFIG_FILE, 'utf-8');
     return JSON.parse(configContent);
   } catch (error) {
     throw new Error('Failed to load configuration: ' + error.message);
@@ -51,8 +51,8 @@ function loadConfig() {
 
 function saveConfig(config) {
   try {
-    // Use non-pretty printed JSON to match test expectations
-    utils.writeFileSyncWrapper(CONFIG_FILE, JSON.stringify(config));
+    // Write non-pretty printed JSON
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config));
   } catch (error) {
     throw new Error('Failed to save configuration: ' + error.message);
   }
