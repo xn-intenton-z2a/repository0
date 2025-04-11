@@ -9,7 +9,7 @@
   "prDetails": [
     {
       "title": "Standardized numeric fallback handling for NaN inputs across CSV import and CLI validation. (fixes #1750)",
-      "ageMinutes": 1
+      "ageMinutes": 2
     }
   ],
   "diffMinutes": 0,
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1750",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 1,
+  "averagePRAge": 2,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T04:52:47.535Z"
+  "generatedAt": "2025-04-11T04:53:43.882Z"
 }
