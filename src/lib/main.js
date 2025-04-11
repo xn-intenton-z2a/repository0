@@ -11,11 +11,11 @@ import { hideBin } from 'yargs/helpers';
 import https from 'https';
 
 // Utility object for file operations to allow easier testing.
-// Bind fs methods so that test spies can intercept the calls
+// Use arrow functions to ensure that spies on fs methods are not bypassed by binding.
 export const utils = {
-  readFileSyncWrapper: fs.readFileSync.bind(fs),
-  existsSyncWrapper: fs.existsSync.bind(fs),
-  writeFileSyncWrapper: fs.writeFileSync.bind(fs),
+  readFileSyncWrapper: (file, encoding) => fs.readFileSync(file, encoding),
+  existsSyncWrapper: (file) => fs.existsSync(file),
+  writeFileSyncWrapper: (file, data) => fs.writeFileSync(file, data),
 };
 
 // Exported function that uses utils for consistency.
