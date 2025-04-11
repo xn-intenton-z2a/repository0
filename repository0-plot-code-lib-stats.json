@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Unified NaN parsing and fallback mechanisms across CLI and CSV importer by refactoring numeric parsing utilities. (fixes #1784)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
+  "diffMinutesMain": 8,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1784",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:04:08.886Z"
+  "generatedAt": "2025-04-11T08:06:52.230Z"
 }
