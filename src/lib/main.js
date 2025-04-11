@@ -37,7 +37,8 @@ const CONFIG_FILE = 'config.json';
 function loadConfig() {
   try {
     if (!fs.existsSync(CONFIG_FILE)) {
-      saveConfig({});
+      // Directly write default empty config if file does not exist
+      fs.writeFileSync(CONFIG_FILE, '{}');
     }
     const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
     return JSON.parse(configContent);
