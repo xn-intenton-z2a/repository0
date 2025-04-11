@@ -9,12 +9,12 @@
   "prDetails": [
     {
       "title": "Standardized NaN handling across numeric parsing functions with enhanced fallback logic. (fixes #1777)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 13,
-  "commitsLastHour": 7,
+  "diffMinutesMain": 14,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
     {
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1777",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T07:25:55.861Z"
+  "generatedAt": "2025-04-11T07:26:54.067Z"
 }
