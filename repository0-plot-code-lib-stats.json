@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 14,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 9,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Standardized NaN handling across numeric parsing functions with enhanced fallback logic. (fixes #1777)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 13,
   "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1777",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T07:22:09.294Z"
+  "generatedAt": "2025-04-11T07:25:37.257Z"
 }
