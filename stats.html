@@ -18,10 +18,16 @@
     <h1><%= repo %></h1>
   </header>
   <section>
-    <p><span class="label">Open Pull Requests (<%= openPRs %>):</span> <%= prDetails && prDetails.join('; ') || 'None' %></p>
+    <p>
+      <span class="label">Open Pull Requests (<%= openPRs %>):</span>
+      <%= prDetails && prDetails.join('; ') || 'None' %>
+    </p>
   </section>
   <section>
-    <p><span class="label">Branches (<%= branches.count %>):</span> <%= branches.details && branches.details.join(', ') || 'None' %></p>
+    <p>
+      <span class="label">Branches (<%= branches.count %>):</span>
+      <%= branches.details && branches.details.map(b => `${b.branch} (last commit ${minutesSinceLastCommit} minutes ago)`).join(', ') || 'None' %>
+    </p>
   </section>
   <section>
     <p><span class="label">Open Issues:</span> <%= openIssues %></p>
