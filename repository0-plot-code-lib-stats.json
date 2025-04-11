@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Implemented case-insensitive handling for NaN in numeric argument validation. (fixes #1740)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 12,
+  "diffMinutesMain": 13,
   "commitsLastHour": 2,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T03:54:40.391Z"
+  "generatedAt": "2025-04-11T03:55:01.878Z"
 }
