@@ -425,10 +425,7 @@ export async function main(args = process.argv.slice(2)) {
     .strict(false);
 
   await parser.parseAsync();
-
-  // If no subcommand is provided, show the help message
-  // (this line might not be reached because of demandCommand)
-  console.log(`No valid subcommand provided.\n${helpMessage}`);
+  return;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
