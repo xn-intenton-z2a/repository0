@@ -354,7 +354,7 @@ export async function main(args = process.argv.slice(2)) {
       'config',
       'Manage CLI configuration',
       (yargs) => {
-        yargs
+        return yargs
           .command(
             'view',
             'View CLI configuration',
@@ -425,8 +425,7 @@ export async function main(args = process.argv.slice(2)) {
             }
           )
           .demandCommand(1, 'You need to specify a subcommand for config');
-      },
-      () => {}
+      }
     )
     .help(false)
     .version(false)
