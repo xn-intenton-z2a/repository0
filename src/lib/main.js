@@ -356,12 +356,11 @@ export async function main(args = process.argv.slice(2)) {
           .command(
             'view',
             'View CLI configuration',
-            (yargs) => {
-              return yargs.option('json', {
+            (yargs) =>
+              yargs.option('json', {
                 type: 'boolean',
                 description: 'Output in JSON format'
-              });
-            },
+              }),
             (argv) => {
               try {
                 const config = loadConfig();
@@ -385,8 +384,8 @@ export async function main(args = process.argv.slice(2)) {
           .command(
             'set',
             'Update CLI configuration',
-            (yargs) => {
-              return yargs
+            (yargs) =>
+              yargs
                 .option('key', {
                   type: 'string',
                   description: 'Configuration key'
@@ -398,8 +397,7 @@ export async function main(args = process.argv.slice(2)) {
                 .option('json', {
                   type: 'boolean',
                   description: 'Output in JSON format'
-                });
-            },
+                }),
             (argv) => {
               if (!argv.key || !argv.value) {
                 console.error('Error: --key and --value must be provided for set action.');
@@ -425,7 +423,8 @@ export async function main(args = process.argv.slice(2)) {
                 process.exit(1);
               }
             }
-          );
+          )
+          .demandCommand(1, 'Please specify a valid config subcommand');
       },
       () => {}
     )
