@@ -122,7 +122,7 @@ const helpMessage =
   '  version         Display the package version\n' +
   '  diagnostics     Show diagnostic information\n' +
   '  update          Check if a new version is available from the npm registry\n' +
-  '  json [--extended]    Output CLI response in JSON format (use --extended for more metadata)\n' +
+  '  json [--extended] [extra..]    Output CLI response in JSON format (use --extended for more metadata)\n' +
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
   '  nan             Display informational output regarding NaN flags\n' +
@@ -285,18 +285,13 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'json',
+      'json [extra..]',
       'Output CLI response in JSON format',
       (yargs) => {
         return yargs.option('extended', {
           alias: 'e',
           type: 'boolean',
           description: 'Output extended metadata',
-        }).positional('extra', {
-          type: 'string',
-          array: true,
-          describe: 'Additional arguments',
-          default: []
         });
       },
       (argv) => {
@@ -438,7 +433,7 @@ export async function main(args = process.argv.slice(2)) {
     .help(false)
     .version(false)
     .parserConfiguration({ "unknown-options-as-args": true })
-    .strictCommands()
+    .strict(false)
     .exitProcess(false);
 
   // Parse the arguments

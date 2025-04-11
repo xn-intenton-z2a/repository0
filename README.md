@@ -24,8 +24,8 @@ The CLI now supports the following subcommands:
 
 - **json**
   - **Usage:**
-    - Standard: `node src/lib/main.js json [extraArgs]`
-    - Extended Metadata: `node src/lib/main.js json --extended [extraArgs]`
+    - Standard: `node src/lib/main.js json [extra ...]`
+    - Extended Metadata: `node src/lib/main.js json --extended [extra ...]`
   - **Description:** Output CLI response in JSON format. Extended mode includes additional metadata such as the current working directory and process uptime.
 
 - **verbose**
@@ -60,8 +60,8 @@ Legacy CLI flags are no longer supported and have been mapped to their correspon
 | `--pkg-version`        | `version`                        | `node src/lib/main.js version`                           |
 | `--diagnostics`        | `diagnostics`                    | `node src/lib/main.js diagnostics`                       |
 | `--check-update`       | `update`                         | `node src/lib/main.js update`                            |
-| `--json-output`        | `json`                           | `node src/lib/main.js json extraArg`                     |
-| `--json-extended`      | `json --extended`                | `node src/lib/main.js json --extended extraArg`          |
+| `--json-output`        | `json`                           | `node src/lib/main.js json [extra ...]`                  |
+| `--json-extended`      | `json --extended`                | `node src/lib/main.js json --extended [extra ...]`       |
 | `--verbose`            | `verbose`                        | `node src/lib/main.js verbose` or `node src/lib/main.js verbose --warning 3` |
 | `--warning-index-mode` | `verbose` (with --warning option)| `node src/lib/main.js verbose --warning 5`               |
 | `--diagnose-nan`       | `nan`                            | `node src/lib/main.js nan`                               |
