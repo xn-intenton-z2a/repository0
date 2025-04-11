@@ -9,10 +9,10 @@
   "prDetails": [
     {
       "title": "Implemented --allow-nan flag to enable explicit NaN acceptance in CLI numeric arguments. (fixes #1737)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
-  "diffMinutes": 1,
+  "diffMinutes": 0,
   "diffMinutesMain": 8,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1737",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:51:06.717Z"
+  "generatedAt": "2025-04-11T06:51:56.919Z"
 }
