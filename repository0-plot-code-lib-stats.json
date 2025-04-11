@@ -12,7 +12,7 @@
       "ageMinutes": 0
     }
   ],
-  "diffMinutes": 1,
+  "diffMinutes": 0,
   "diffMinutesMain": 13,
   "commitsLastHour": 7,
   "commitsLastDay": 100,
@@ -50,5 +50,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T07:25:37.257Z"
+  "generatedAt": "2025-04-11T07:25:55.861Z"
 }
