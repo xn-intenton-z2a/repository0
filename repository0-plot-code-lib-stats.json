@@ -5,12 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refined normalization to trim whitespace and enhanced unified NaN parsing fallback with structured logging. (fixes #1875)",
+      "ageMinutes": 1
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 1,
+  "diffMinutesMain": 7,
   "commitsLastHour": 5,
-  "commitsLastDay": 97,
+  "commitsLastDay": 96,
   "lastFiveCommitMessages": [
     {
       "time": "18:21",
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1875",
+        "minutesSinceLastCommit": 2
+      }
+    ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T18:23:39.011Z"
+  "generatedAt": "2025-04-11T18:29:08.479Z"
 }
