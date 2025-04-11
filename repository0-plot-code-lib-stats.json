@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refined error messaging for --numberNaN inputs with detailed guidance on acceptable numeric formats. (fixes #1723)",
+      "ageMinutes": 1
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
+  "diffMinutesMain": 10,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1723",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T07:44:15.188Z"
+  "generatedAt": "2025-04-11T07:48:31.681Z"
 }
