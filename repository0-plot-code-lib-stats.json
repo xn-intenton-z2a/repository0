@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 10,
+  "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Expand documentation for unified NaN handling and add CLI examples in the README. (fixes #1792)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 10,
-  "commitsLastHour": 5,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "08:54",
+      "message": "Expand documentation for unified NaN handling and add CLI exampl..."
+    },
     {
       "time": "08:43",
       "message": "Refactored numeric parsing to enforce consistent NaN handling an..."
@@ -32,23 +31,14 @@
     {
       "time": "08:07",
       "message": "Unified NaN parsing and fallback mechanisms across CLI and CSV i..."
-    },
-    {
-      "time": "07:58",
-      "message": "Enhanced numeric parsing to recognize signed NaN variants and ad..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1792",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:53:52.740Z"
+  "generatedAt": "2025-04-11T08:54:43.876Z"
 }
