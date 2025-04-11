@@ -129,8 +129,7 @@ const helpMessage =
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
   '  nan             Display informational output regarding NaN flags\n' +
-  '  config view     View CLI configuration\n' +
-  '  config set      Update CLI configuration\n' +
+  '  config <action>          Manage CLI configuration (actions: view, set)\n' +
   '\n' +
   'Note: Legacy CLI flags are deprecated. Please use the subcommand architecture for all operations.';
 
@@ -352,67 +351,70 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'config view',
-      'View CLI configuration',
-      (yargs) => yargs.option('json', { type: 'boolean', description: 'Output in JSON format' }),
-      (argv) => {
-        try {
-          const config = loadConfig();
-          if (argv.json) {
-            console.log(JSON.stringify({ config }));
-          } else {
-            console.log('Current Configuration:');
-            console.log(JSON.stringify(config));
-          }
-        } catch (err) {
-          const errorMsg = err.message;
-          if (argv.json) {
-            console.log(JSON.stringify({ error: errorMsg }));
-          } else {
-            console.error(errorMsg);
-          }
-          process.exit(1);
-        }
-      }
-    )
-    .command(
-      'config set',
-      'Update CLI configuration',
-      (yargs) =>
-        yargs
+      'config <action>',
+      'Manage CLI configuration (actions: view, set)',
+      (yargs) => {
+        return yargs
+          .positional('action', {
+            describe: 'Configuration action',
+            choices: ['view', 'set']
+          })
           .option('key', {
             type: 'string',
-            demandOption: true,
             description: 'Configuration key'
           })
           .option('value', {
             type: 'string',
-            demandOption: true,
             description: 'Configuration value'
           })
           .option('json', {
             type: 'boolean',
             description: 'Output in JSON format'
-          }),
+          });
+      },
       (argv) => {
-        try {
-          const config = loadConfig();
-          config[argv.key] = argv.value;
-          saveConfig(config);
-          const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
-          if (argv.json) {
-            console.log(JSON.stringify({ message: messageText, config }));
-          } else {
-            console.log(messageText);
+        if (argv.action === 'view') {
+          try {
+            const config = loadConfig();
+            if (argv.json) {
+              console.log(JSON.stringify({ config }));
+            } else {
+              console.log('Current Configuration:');
+              console.log(JSON.stringify(config));
+            }
+          } catch (err) {
+            const errorMsg = err.message;
+            if (argv.json) {
+              console.log(JSON.stringify({ error: errorMsg }));
+            } else {
+              console.error(errorMsg);
+            }
+            process.exit(1);
           }
-        } catch (err) {
-          const errorMsg = err.message;
-          if (argv.json) {
-            console.log(JSON.stringify({ error: errorMsg }));
-          } else {
-            console.error(errorMsg);
+        } else if (argv.action === 'set') {
+          if (!argv.key || !argv.value) {
+            console.error('Missing required arguments: key and value');
+            process.exit(1);
           }
-          process.exit(1);
+          try {
+            const config = loadConfig();
+            config[argv.key] = argv.value;
+            saveConfig(config);
+            const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+            if (argv.json) {
+              console.log(JSON.stringify({ message: messageText, config }));
+            } else {
+              console.log(messageText);
+            }
+          } catch (err) {
+            const errorMsg = err.message;
+            if (argv.json) {
+              console.log(JSON.stringify({ error: errorMsg }));
+            } else {
+              console.error(errorMsg);
+            }
+            process.exit(1);
+          }
         }
       }
     )
