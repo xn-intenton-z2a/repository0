@@ -38,12 +38,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1287",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:45:10.831Z"
+  "generatedAt": "2025-04-11T08:45:57.403Z"
 }
