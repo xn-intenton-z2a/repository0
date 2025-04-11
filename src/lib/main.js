@@ -438,6 +438,7 @@ export async function main(args = process.argv.slice(2)) {
     .help(false)
     .version(false)
     .parserConfiguration({ "unknown-options-as-args": true })
+    .strictCommands()
     .exitProcess(false);
 
   // Parse the arguments
