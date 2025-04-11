@@ -13,6 +13,8 @@ import https from 'https';
 // Utility object for file operations to allow easier testing.
 export const utils = {
   readFileSyncWrapper: (file, encoding) => fs.readFileSync(file, encoding),
+  existsSyncWrapper: (file) => fs.existsSync(file),
+  writeFileSyncWrapper: (file, data) => fs.writeFileSync(file, data),
 };
 
 // Exported function that uses utils for consistency.
@@ -36,9 +38,9 @@ const CONFIG_FILE = 'config.json';
 
 function loadConfig() {
   try {
-    if (!fs.existsSync(CONFIG_FILE)) {
+    if (!utils.existsSyncWrapper(CONFIG_FILE)) {
       // Directly write default empty config if file does not exist
-      fs.writeFileSync(CONFIG_FILE, '{}');
+      utils.writeFileSyncWrapper(CONFIG_FILE, '{}');
     }
     const configContent = utils.readFileSyncWrapper(CONFIG_FILE, 'utf-8');
     return JSON.parse(configContent);
@@ -50,7 +52,7 @@ function loadConfig() {
 function saveConfig(config) {
   try {
     // Use non-pretty printed JSON to match test expectations
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config));
+    utils.writeFileSyncWrapper(CONFIG_FILE, JSON.stringify(config));
   } catch (error) {
     throw new Error('Failed to save configuration: ' + error.message);
   }
