@@ -248,7 +248,7 @@ describe('Subcommand: config', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     await main(['config', 'set', '--key', 'language']);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed')); // error message might vary
+    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Failed'));
     exitSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
