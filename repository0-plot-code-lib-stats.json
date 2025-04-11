@@ -5,12 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Enhanced unified NaN fallback and error messaging for CLI and CSV parsing. (fixes #1812)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 7,
+  "diffMinutesMain": 8,
   "commitsLastHour": 4,
-  "commitsLastDay": 97,
+  "commitsLastDay": 96,
   "lastFiveCommitMessages": [
     {
       "time": "11:39",
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1812",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T11:46:12.274Z"
+  "generatedAt": "2025-04-11T11:48:02.716Z"
 }
