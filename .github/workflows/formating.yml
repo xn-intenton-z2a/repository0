@@ -46,7 +46,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@3.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@3.5.0'
     with:
       script: 'npm run formatting-fix -- src/lib/main.js tests/unit/main.test.js ; npm run linting-fix src/lib/main.js tests/unit/main.test.js'
       sarifScript: ''
@@ -67,7 +67,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.5.0'
     with:
       branch: 'agentic-lib-formatting'
       baseBranch: 'main'
@@ -80,13 +80,15 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.5.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
       public: 'public'
-      s3BucketUrl: 's3://agentic-lib-bucket/events/'
+      s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
+      s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'
-      iamDeploymentRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
+      iamStatsBucketWriterRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role'
+      iamPublicWebsiteStatsBucketWriterRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
