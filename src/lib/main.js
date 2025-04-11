@@ -352,89 +352,81 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'config',
-      'Manage CLI configuration',
-      (yargs) => {
-        return yargs
-          .command(
-            'view',
-            'View CLI configuration',
-            (yargs) => yargs.option('json', { type: 'boolean', description: 'Output in JSON format' }),
-            (argv) => {
-              try {
-                const config = loadConfig();
-                if (argv.json) {
-                  console.log(JSON.stringify({ config }));
-                } else {
-                  console.log('Current Configuration:');
-                  console.log(JSON.stringify(config));
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          )
-          .command(
-            'set',
-            'Update CLI configuration',
-            (yargs) =>
-              yargs
-                .option('key', {
-                  type: 'string',
-                  demandOption: true,
-                  description: 'Configuration key'
-                })
-                .option('value', {
-                  type: 'string',
-                  demandOption: true,
-                  description: 'Configuration value'
-                })
-                .option('json', {
-                  type: 'boolean',
-                  description: 'Output in JSON format'
-                }),
-            (argv) => {
-              try {
-                const config = loadConfig();
-                config[argv.key] = argv.value;
-                saveConfig(config);
-                const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
-                if (argv.json) {
-                  console.log(JSON.stringify({ message: messageText, config }));
-                } else {
-                  console.log(messageText);
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          )
-          .demandCommand(1, 'You need to specify a subcommand: view or set');
+      'config view',
+      'View CLI configuration',
+      (yargs) => yargs.option('json', { type: 'boolean', description: 'Output in JSON format' }),
+      (argv) => {
+        try {
+          const config = loadConfig();
+          if (argv.json) {
+            console.log(JSON.stringify({ config }));
+          } else {
+            console.log('Current Configuration:');
+            console.log(JSON.stringify(config));
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
       }
     )
+    .command(
+      'config set',
+      'Update CLI configuration',
+      (yargs) =>
+        yargs
+          .option('key', {
+            type: 'string',
+            demandOption: true,
+            description: 'Configuration key'
+          })
+          .option('value', {
+            type: 'string',
+            demandOption: true,
+            description: 'Configuration value'
+          })
+          .option('json', {
+            type: 'boolean',
+            description: 'Output in JSON format'
+          }),
+      (argv) => {
+        try {
+          const config = loadConfig();
+          config[argv.key] = argv.value;
+          saveConfig(config);
+          const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+          if (argv.json) {
+            console.log(JSON.stringify({ message: messageText, config }));
+          } else {
+            console.log(messageText);
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .demandCommand(1, 'You need to specify a subcommand: view, set, etc.')
     .help(false)
     .version(false)
     .parserConfiguration({ "unknown-options-as-args": true })
     .strict(false);
 
-  const parsed = await parser.parseAsync();
+  await parser.parseAsync();
 
   // If no subcommand is provided, show the help message
-  if (!parsed._ || parsed._.length === 0) {
-    console.log(`No valid subcommand provided.\n${helpMessage}`);
-  }
+  // (this line might not be reached because of demandCommand)
+  console.log(`No valid subcommand provided.\n${helpMessage}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
