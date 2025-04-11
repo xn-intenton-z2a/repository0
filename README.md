@@ -42,11 +42,13 @@ The CLI now supports the following subcommands:
   - **Usage:** `node src/lib/main.js nan`
   - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative.
 
-- **config**
-  - **Usage:**
-    - View configuration: `node src/lib/main.js config view [--json]`
-    - Update configuration: `node src/lib/main.js config set --key <key> --value <value> [--json]`
-  - **Description:** Manage CLI configuration settings stored in a `config.json` file. The "view" action displays the current configuration, and the "set" action updates a configuration key-value pair. If the config file does not exist, it is created with default settings.
+- **config view**
+  - **Usage:** `node src/lib/main.js config view [--json]`
+  - **Description:** View the current CLI configuration settings stored in `config.json`. Use the `--json` flag to output in JSON format.
+
+- **config set**
+  - **Usage:** `node src/lib/main.js config set --key <key> --value <value> [--json]`
+  - **Description:** Update a CLI configuration key-value pair in `config.json`. If the file does not exist, it is created with default settings.
 
 ### Detailed Deprecation Notice for Legacy CLI Flags
 
@@ -66,7 +68,7 @@ Legacy CLI flags are no longer supported and have been mapped to their correspon
 
 **Rationale:**
 
-Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Particularly, the new **config** subcommand enhances flexibility by allowing users to manage CLI settings without modifying the code.
+Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Particularly, the new **config** subcommands enhance flexibility by allowing users to manage CLI settings without modifying the code.
 
 ### Environment Configuration and CLI_MODE
 
@@ -102,7 +104,7 @@ The repository's workflows manage testing, formatting, linting, and CI/CD operat
 
    npm start -- version
 
-4. To manage configuration, use the **config** subcommand. For example, view settings:
+4. To manage configuration, use the **config** subcommands. For example, view settings:
 
    node src/lib/main.js config view
 

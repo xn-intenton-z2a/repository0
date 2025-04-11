@@ -126,7 +126,8 @@ const helpMessage =
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
   '  nan             Display informational output regarding NaN flags\n' +
-  '  config <action> [options]   Manage CLI configuration (actions: view, set)\n' +
+  '  config view     View CLI configuration\n' +
+  '  config set      Update CLI configuration\n' +
   '\n' +
   'Note: Legacy CLI flags are deprecated. Please use the subcommand architecture for all operations.';
 
@@ -203,7 +204,6 @@ export async function main(args = process.argv.slice(2)) {
       }
     },
     '--diagnose-nan': () => {
-      // LOCKED: NaN-related flag remains intentionally non-operative; no functional changes should be applied.
       console.log('Deprecation Warning: Legacy flag --diagnose-nan is deprecated. Use the "nan" subcommand instead.');
       console.log('NaN Informational Output:');
       console.log('This command is for informational purposes only. Refer to MISSION.md and CONTRIBUTING.md for guidelines.');
@@ -349,85 +349,77 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'config <action>',
-      'Manage CLI configuration',
+      'config view',
+      'View CLI configuration',
+      (yargs) => {
+        return yargs.option('json', {
+          type: 'boolean',
+          description: 'Output in JSON format'
+        });
+      },
+      (argv) => {
+        try {
+          const config = loadConfig();
+          if (argv.json) {
+            console.log(JSON.stringify({ config }));
+          } else {
+            console.log('Current Configuration:');
+            console.log(JSON.stringify(config));
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'config set',
+      'Update CLI configuration',
       (yargs) => {
         return yargs
-          .command(
-            'view',
-            'View CLI configuration',
-            (yargs) => {
-              return yargs.option('json', {
-                type: 'boolean',
-                description: 'Output in JSON format'
-              });
-            },
-            (argv) => {
-              try {
-                const config = loadConfig();
-                if (argv.json) {
-                  console.log(JSON.stringify({ config }));
-                } else {
-                  console.log('Current Configuration:');
-                  console.log(JSON.stringify(config));
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          )
-          .command(
-            'set',
-            'Update CLI configuration',
-            (yargs) => {
-              return yargs
-                .option('key', {
-                  type: 'string',
-                  description: 'Configuration key'
-                })
-                .option('value', {
-                  type: 'string',
-                  description: 'Configuration value'
-                })
-                .option('json', {
-                  type: 'boolean',
-                  description: 'Output in JSON format'
-                });
-            },
-            (argv) => {
-              if (!argv.key || !argv.value) {
-                console.error('Error: --key and --value must be provided for set action.');
-                process.exit(1);
-              }
-              try {
-                const config = loadConfig();
-                config[argv.key] = argv.value;
-                saveConfig(config);
-                const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
-                if (argv.json) {
-                  console.log(JSON.stringify({ message: messageText, config }));
-                } else {
-                  console.log(messageText);
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          );
+          .option('key', {
+            type: 'string',
+            description: 'Configuration key'
+          })
+          .option('value', {
+            type: 'string',
+            description: 'Configuration value'
+          })
+          .option('json', {
+            type: 'boolean',
+            description: 'Output in JSON format'
+          });
+      },
+      (argv) => {
+        if (!argv.key || !argv.value) {
+          console.error('Error: --key and --value must be provided for set action.');
+          process.exit(1);
+        }
+        try {
+          const config = loadConfig();
+          config[argv.key] = argv.value;
+          saveConfig(config);
+          const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+          if (argv.json) {
+            console.log(JSON.stringify({ message: messageText, config }));
+          } else {
+            console.log(messageText);
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
       }
-      // Removed empty handler to allow subcommands to execute
     )
     .help(false)
     .version(false)
