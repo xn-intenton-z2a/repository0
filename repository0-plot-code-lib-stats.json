@@ -7,8 +7,8 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 2,
-  "diffMinutesMain": 3,
+  "diffMinutes": 0,
+  "diffMinutesMain": 4,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:46:11.409Z"
+  "generatedAt": "2025-04-11T06:47:17.467Z"
 }
