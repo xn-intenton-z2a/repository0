@@ -421,8 +421,7 @@ export async function main(args = process.argv.slice(2)) {
             }
           )
           .demandCommand(1, 'You need to specify a valid config subcommand');
-      },
-      () => {}
+      }
     )
     .help(false)
     .version(false)
