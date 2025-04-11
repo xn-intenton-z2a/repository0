@@ -7,10 +7,10 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 1,
-  "diffMinutesMain": 200,
+  "diffMinutes": 5,
+  "diffMinutesMain": 207,
   "commitsLastHour": 0,
-  "commitsLastDay": 76,
+  "commitsLastDay": 75,
   "lastFiveCommitMessages": [
     {
       "time": "06:37",
@@ -38,12 +38,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1287",
-        "minutesSinceLastCommit": 7
+        "minutesSinceLastCommit": 5
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T09:57:57.077Z"
+  "generatedAt": "2025-04-11T10:04:54.509Z"
 }
