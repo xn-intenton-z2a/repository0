@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0-crucible",
   "engine": "schedule-3",
-  "openIssues": 82,
-  "issuesClosedLastHour": 4,
+  "openIssues": 80,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Standardize and unify NaN input processing and caching based on normalized input. (fixes #1283)",
-      "ageMinutes": 0
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 4,
-  "commitsLastHour": 2,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
   "commitsLastDay": 96,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:37",
+      "message": "Standardize and unify NaN input processing and caching based on ..."
+    },
     {
       "time": "06:31",
       "message": "Refactored bulk NaN processing for consistent async behavior and..."
@@ -32,23 +31,14 @@
     {
       "time": "04:31",
       "message": "Enhanced diagnostic logging in processNaNConversion for improved..."
-    },
-    {
-      "time": "04:14",
-      "message": "Fixed NaN conversion fallback in processNaNConversion to use the..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1283",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:35:23.926Z"
+  "generatedAt": "2025-04-11T06:37:37.289Z"
 }
