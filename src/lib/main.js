@@ -424,8 +424,7 @@ export async function main(args = process.argv.slice(2)) {
               }
             }
           );
-      },
-      () => {}
+      }
     )
     .help(false)
     .version(false)
