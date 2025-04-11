@@ -3,14 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 12,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 6,
-  "commitsLastHour": 6,
-  "commitsLastDay": 97,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Implemented configurable custom NaN variants for numeric parsing and updated tests and docs accordingly. (fixes #1796)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 10,
+  "commitsLastHour": 5,
+  "commitsLastDay": 96,
   "lastFiveCommitMessages": [
     {
       "time": "12:49",
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1796",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T12:55:45.865Z"
+  "generatedAt": "2025-04-11T12:59:49.127Z"
 }
