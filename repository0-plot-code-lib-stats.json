@@ -5,10 +5,15 @@
   "openIssues": 100,
   "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
-  "diffMinutes": 4,
-  "diffMinutesMain": 9,
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Unified NaN handling across CLI and CSV importer with standardized error messages. (fixes #1756)",
+      "ageMinutes": 0
+    }
+  ],
+  "diffMinutes": 1,
+  "diffMinutesMain": 12,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1756",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T05:22:38.116Z"
+  "generatedAt": "2025-04-11T05:25:33.583Z"
 }
