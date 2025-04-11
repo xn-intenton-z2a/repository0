@@ -129,7 +129,8 @@ const helpMessage =
   '  verbose [--warning <num>]   Enable verbose logging (or set warning index mode)\n' +
   '  warn --value <num>          Set warning index mode explicitly\n' +
   '  nan             Display informational output regarding NaN flags\n' +
-  '  config          Manage CLI configuration (subcommands: view, set)\n' +
+  '  config view     View CLI configuration\n' +
+  '  config set      Update CLI configuration\n' +
   '\n' +
   'Note: Legacy CLI flags are deprecated. Please use the subcommand architecture for all operations.';
 
@@ -351,80 +352,72 @@ export async function main(args = process.argv.slice(2)) {
       }
     )
     .command(
-      'config',
-      'Manage CLI configuration',
-      (yargs) => {
-        return yargs
-          .command(
-            'view',
-            'View CLI configuration',
-            (yargs) =>
-              yargs.option('json', {
-                type: 'boolean',
-                description: 'Output in JSON format'
-              }),
-            (argv) => {
-              try {
-                const config = loadConfig();
-                if (argv.json) {
-                  console.log(JSON.stringify({ config }));
-                } else {
-                  console.log('Current Configuration:');
-                  console.log(JSON.stringify(config));
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          )
-          .command(
-            'set',
-            'Update CLI configuration',
-            (yargs) =>
-              yargs
-                .option('key', {
-                  type: 'string',
-                  demandOption: true,
-                  description: 'Configuration key'
-                })
-                .option('value', {
-                  type: 'string',
-                  demandOption: true,
-                  description: 'Configuration value'
-                })
-                .option('json', {
-                  type: 'boolean',
-                  description: 'Output in JSON format'
-                }),
-            (argv) => {
-              try {
-                const config = loadConfig();
-                config[argv.key] = argv.value;
-                saveConfig(config);
-                const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
-                if (argv.json) {
-                  console.log(JSON.stringify({ message: messageText, config }));
-                } else {
-                  console.log(messageText);
-                }
-              } catch (err) {
-                const errorMsg = err.message;
-                if (argv.json) {
-                  console.log(JSON.stringify({ error: errorMsg }));
-                } else {
-                  console.error(errorMsg);
-                }
-                process.exit(1);
-              }
-            }
-          )
-          .demandCommand(1, 'Please specify a valid config subcommand');
+      'config view',
+      'View CLI configuration',
+      (yargs) =>
+        yargs.option('json', {
+          type: 'boolean',
+          description: 'Output in JSON format'
+        }),
+      (argv) => {
+        try {
+          const config = loadConfig();
+          if (argv.json) {
+            console.log(JSON.stringify({ config }));
+          } else {
+            console.log('Current Configuration:');
+            console.log(JSON.stringify(config));
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
+      }
+    )
+    .command(
+      'config set',
+      'Update CLI configuration',
+      (yargs) =>
+        yargs
+          .option('key', {
+            type: 'string',
+            demandOption: true,
+            description: 'Configuration key'
+          })
+          .option('value', {
+            type: 'string',
+            demandOption: true,
+            description: 'Configuration value'
+          })
+          .option('json', {
+            type: 'boolean',
+            description: 'Output in JSON format'
+          }),
+      (argv) => {
+        try {
+          const config = loadConfig();
+          config[argv.key] = argv.value;
+          saveConfig(config);
+          const messageText = `Configuration updated: ${argv.key} set to ${argv.value}`;
+          if (argv.json) {
+            console.log(JSON.stringify({ message: messageText, config }));
+          } else {
+            console.log(messageText);
+          }
+        } catch (err) {
+          const errorMsg = err.message;
+          if (argv.json) {
+            console.log(JSON.stringify({ error: errorMsg }));
+          } else {
+            console.error(errorMsg);
+          }
+          process.exit(1);
+        }
       }
     )
     .help(false)
