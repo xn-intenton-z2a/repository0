@@ -3,14 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 8,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Added global config option ALLOW_NAN to control explicit NaN inputs. (fixes #1808)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 15,
-  "commitsLastHour": 4,
-  "commitsLastDay": 99,
+  "diffMinutesMain": 18,
+  "commitsLastHour": 3,
+  "commitsLastDay": 98,
   "lastFiveCommitMessages": [
     {
       "time": "10:44",
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1808",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T10:59:16.438Z"
+  "generatedAt": "2025-04-11T11:03:00.474Z"
 }
