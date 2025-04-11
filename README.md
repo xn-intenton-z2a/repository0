@@ -4,7 +4,7 @@ This repository template demonstrates GitHub workflows imported from intentïon 
 
 ## Overview
 
-`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands. Additionally, a new **config** subcommand has been introduced to manage CLI configuration settings via a `config.json` file. NaN-related flags remain intentionally locked as non-operative to prevent unintended future changes.
+`repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` for automated CI/CD processes. It includes a CLI tool implemented in `src/lib/main.js` that now exclusively uses a subcommand architecture for enhanced clarity, maintainability, and usability. Legacy CLI flags have been deprecated in favor of explicit subcommands. Additionally, a new **config** command has been introduced to manage CLI configuration settings via a `config.json` file.
 
 ### CLI Subcommands
 
@@ -42,14 +42,13 @@ The CLI now supports the following subcommands:
   - **Usage:** `node src/lib/main.js nan`
   - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative.
 
-- **config**
-  - **Subcommands:**
-    - **view**
-      - **Usage:** `node src/lib/main.js config view [--json]`
-      - **Description:** View the current CLI configuration settings stored in `config.json`. Use the `--json` flag to output in JSON format.
-    - **set**
-      - **Usage:** `node src/lib/main.js config set --key <key> --value <value> [--json]`
-      - **Description:** Update a CLI configuration key-value pair in `config.json`. If the file does not exist, it is created with default settings.
+- **config view**
+  - **Usage:** `node src/lib/main.js config view [--json]`
+  - **Description:** View the current CLI configuration settings stored in `config.json`. Use the `--json` flag to output in JSON format.
+
+- **config set**
+  - **Usage:** `node src/lib/main.js config set --key <key> --value <value> [--json]`
+  - **Description:** Update a CLI configuration key-value pair in `config.json`. If the file does not exist, it is created with default settings.
 
 ### Detailed Deprecation Notice for Legacy CLI Flags
 
@@ -69,7 +68,7 @@ Legacy CLI flags are no longer supported and have been mapped to their correspon
 
 **Rationale:**
 
-Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Particularly, the new **config** subcommands enhance flexibility by allowing users to manage CLI settings without modifying the code.
+Migrating to a subcommand architecture improves clarity, maintainability, and facilitates automated processing of CLI output. This redesign makes the CLI more intuitive and ensures that legacy flags produce deprecation warnings along with guidance on the updated usage. Particularly, the new **config** commands enhance flexibility by allowing users to manage CLI settings without modifying the code.
 
 ### Environment Configuration and CLI_MODE
 
@@ -105,7 +104,7 @@ The repository's workflows manage testing, formatting, linting, and CI/CD operat
 
    npm start -- version
 
-4. To manage configuration, use the **config** subcommands. For example, view settings:
+4. To manage configuration, use the **config** commands. For example, view settings:
 
    node src/lib/main.js config view
 
