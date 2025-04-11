@@ -5,18 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 14,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Standardized NaN handling across numeric parsing functions with enhanced fallback logic. (fixes #1777)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 14,
-  "commitsLastHour": 6,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "07:28",
+      "message": "Standardized NaN handling across numeric parsing functions with ..."
+    },
     {
       "time": "07:12",
       "message": "Implement automatic retry mechanism for error report submission ..."
@@ -32,23 +31,14 @@
     {
       "time": "06:52",
       "message": "Implemented --allow-nan flag to enable explicit NaN acceptance i..."
-    },
-    {
-      "time": "06:43",
-      "message": "Consolidated NaN parsing logic by refactoring numeric input proc..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1777",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T07:26:54.067Z"
+  "generatedAt": "2025-04-11T07:28:48.849Z"
 }
