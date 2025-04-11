@@ -7,11 +7,15 @@
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 4,
-  "diffMinutesMain": 9,
+  "diffMinutes": 0,
+  "diffMinutesMain": 1,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "08:43",
+      "message": "Refactored numeric parsing to enforce consistent NaN handling an..."
+    },
     {
       "time": "08:28",
       "message": "Refactored CSV importer to trim cell values for consistent NaN h..."
@@ -27,10 +31,6 @@
     {
       "time": "07:58",
       "message": "Enhanced numeric parsing to recognize signed NaN variants and ad..."
-    },
-    {
-      "time": "07:48",
-      "message": "Refined error messaging for --numberNaN inputs with detailed gui..."
     }
   ],
   "branches": {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:37:48.377Z"
+  "generatedAt": "2025-04-11T08:44:28.915Z"
 }
