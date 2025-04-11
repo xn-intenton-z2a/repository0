@@ -3,13 +3,18 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 12,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Add file-based logging support via --log-file flag for dual logging to console and file. (fixes #1820)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 1,
-  "diffMinutesMain": 4,
-  "commitsLastHour": 6,
+  "diffMinutesMain": 7,
+  "commitsLastHour": 5,
   "commitsLastDay": 96,
   "lastFiveCommitMessages": [
     {
@@ -34,11 +39,16 @@
     }
   ],
   "branches": {
-    "count": 0,
-    "details": []
+    "count": 1,
+    "details": [
+      {
+        "branch": "agentic-lib-issue-1820",
+        "minutesSinceLastCommit": 1
+      }
+    ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T12:13:08.030Z"
+  "generatedAt": "2025-04-11T12:16:03.032Z"
 }
