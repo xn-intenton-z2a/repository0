@@ -8,10 +8,14 @@
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 1,
+  "diffMinutesMain": 0,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "08:13",
+      "message": "Enhance CSV importer with auto-detection of delimiters and updat..."
+    },
     {
       "time": "08:07",
       "message": "Unified NaN parsing and fallback mechanisms across CLI and CSV i..."
@@ -27,10 +31,6 @@
     {
       "time": "07:37",
       "message": "Made error reporting retry delays and max attempts configurable ..."
-    },
-    {
-      "time": "07:28",
-      "message": "Standardized NaN handling across numeric parsing functions with ..."
     }
   ],
   "branches": {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T08:08:29.606Z"
+  "generatedAt": "2025-04-11T08:14:29.220Z"
 }
