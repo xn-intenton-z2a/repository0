@@ -26,7 +26,7 @@
   <section>
     <p>
       <span class="label">Branches (<%= branches.count %>):</span>
-      <%= branches.details && branches.details.map(b => `${b.branch} (last commit ${minutesSinceLastCommit} minutes ago)`).join(', ') || 'None' %>
+      <%= branches.details && branches.details.map(b => `${b.branch} (last commit ${b.minutesSinceLastCommit} minutes ago)`).join(', ') || 'None' %>
     </p>
   </section>
   <section>
