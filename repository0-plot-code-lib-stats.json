@@ -8,10 +8,14 @@
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 10,
+  "diffMinutesMain": 1,
   "commitsLastHour": 6,
   "commitsLastDay": 97,
   "lastFiveCommitMessages": [
+    {
+      "time": "13:18",
+      "message": "Enhanced error messaging for invalid --numberNaN input to provid..."
+    },
     {
       "time": "13:05",
       "message": "Refactored NaN handling for numeric inputs and CSV imports for c..."
@@ -27,23 +31,14 @@
     {
       "time": "12:39",
       "message": "Optimized NaN variant normalization and fallback handling with i..."
-    },
-    {
-      "time": "12:28",
-      "message": "Refined NaN detection fallback warnings and standardized error m..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1710",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T13:16:25.358Z"
+  "generatedAt": "2025-04-11T13:19:46.818Z"
 }
