@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Enhanced unified NaN fallback and error messaging for CLI and CSV parsing. (fixes #1812)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 8,
+  "diffMinutes": 0,
+  "diffMinutesMain": 9,
   "commitsLastHour": 4,
   "commitsLastDay": 96,
   "lastFiveCommitMessages": [
@@ -47,8 +47,8 @@
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T11:48:02.716Z"
+  "generatedAt": "2025-04-11T11:48:53.065Z"
 }
