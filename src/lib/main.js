@@ -426,8 +426,8 @@ export async function main(args = process.argv.slice(2)) {
               }
             }
           );
-      },
-      () => {}
+      }
+      // Removed empty handler to allow subcommands to execute
     )
     .help(false)
     .version(false)
