@@ -3,15 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 8,
+  "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 11,
-  "commitsLastHour": 4,
+  "diffMinutesMain": 1,
+  "commitsLastHour": 5,
   "commitsLastDay": 98,
   "lastFiveCommitMessages": [
+    {
+      "time": "11:26",
+      "message": "Standardize NaN variant handling across CLI and CSV imports with..."
+    },
     {
       "time": "11:14",
       "message": "Enhance documentation and tests for unified NaN handling in CLI ..."
@@ -27,23 +31,14 @@
     {
       "time": "10:37",
       "message": "Standardized error messages and handling for signed NaN variants..."
-    },
-    {
-      "time": "10:13",
-      "message": "Added scientific notation support in numeric parsing and updated..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1804",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T11:25:28.442Z"
+  "generatedAt": "2025-04-11T11:28:12.722Z"
 }
