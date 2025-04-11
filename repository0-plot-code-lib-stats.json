@@ -8,10 +8,14 @@
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 12,
+  "diffMinutesMain": 0,
   "commitsLastHour": 5,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:08",
+      "message": "Fixed CSV parser in preserveDecimal mode to correctly join thous..."
+    },
     {
       "time": "05:52",
       "message": "Enhanced tests to ensure case-insensitive handling of NaN inputs..."
@@ -27,23 +31,14 @@
     {
       "time": "05:13",
       "message": "Standardized NaN handling and unified error messages for CSV and..."
-    },
-    {
-      "time": "05:08",
-      "message": "Enhanced error logging and reporting for NaN numeric parsing fai..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1760",
-        "minutesSinceLastCommit": 6
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:05:14.123Z"
+  "generatedAt": "2025-04-11T06:08:37.610Z"
 }
