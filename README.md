@@ -42,11 +42,13 @@ The CLI now supports the following subcommands:
   - **Usage:** `node src/lib/main.js nan`
   - **Description:** Display informational output regarding NaN flags. This command is purely informational and non-operative.
 
-- **config** (with nested subcommands)
-  - **Usage (view):** `node src/lib/main.js config view [--json]`
-  - **Description (view):** View the current CLI configuration. If `--json` is provided, outputs the configuration in JSON format.
-  - **Usage (set):** `node src/lib/main.js config set --key <key> --value <value> [--json]`
-  - **Description (set):** Update a CLI configuration setting. This command modifies the `config.json` file with the new key-value pair. If `--json` is provided, outputs the result in JSON format.
+- **config view**
+  - **Usage:** `node src/lib/main.js config view [--json]`
+  - **Description:** View the current CLI configuration. If `--json` is provided, outputs the configuration in JSON format.
+
+- **config set**
+  - **Usage:** `node src/lib/main.js config set --key <key> --value <value> [--json]`
+  - **Description:** Update a CLI configuration setting. This command modifies the `config.json` file with the new key-value pair. If `--json` is provided, outputs the result in JSON format.
 
 ### Detailed Deprecation Notice for Legacy CLI Flags
 
