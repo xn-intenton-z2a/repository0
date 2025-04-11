@@ -8,10 +8,14 @@
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 8,
+  "diffMinutesMain": 0,
   "commitsLastHour": 5,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:26",
+      "message": "Refactored numeric parsing logic to standardize NaN handling acr..."
+    },
     {
       "time": "06:14",
       "message": "Implemented custom CSV delimiter support with --csv-delimiter fl..."
@@ -27,10 +31,6 @@
     {
       "time": "05:40",
       "message": "Refactored numeric input processing to ensure case-insensitive N..."
-    },
-    {
-      "time": "05:26",
-      "message": "Unified NaN handling across CLI and CSV importer with standardiz..."
     }
   ],
   "branches": {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:23:22.773Z"
+  "generatedAt": "2025-04-11T06:27:50.667Z"
 }
