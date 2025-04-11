@@ -3,20 +3,19 @@
   "repo": "repository0-plot-code-lib",
   "engine": "schedule-3",
   "openIssues": 100,
-  "issuesClosedLastHour": 6,
+  "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Standardized numeric fallback handling for NaN inputs across CSV import and CLI validation. (fixes #1750)",
-      "ageMinutes": 2
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 10,
-  "commitsLastHour": 3,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 4,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "04:54",
+      "message": "Standardized numeric fallback handling for NaN inputs across CSV..."
+    },
     {
       "time": "04:42",
       "message": "Improve documentation and inline comments to clarify the dual fa..."
@@ -32,23 +31,14 @@
     {
       "time": "03:41",
       "message": "Enhance CSV importer to use fallback for NaN values in CSV cells..."
-    },
-    {
-      "time": "03:34",
-      "message": "Integrated numeric parser utilities into main.js and updated tes..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1750",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 2,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T04:53:43.882Z"
+  "generatedAt": "2025-04-11T04:54:39.283Z"
 }
