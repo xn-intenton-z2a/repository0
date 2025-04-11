@@ -5,18 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 12,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Implemented --allow-nan flag to enable explicit NaN acceptance in CLI numeric arguments. (fixes #1737)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 8,
+  "diffMinutesMain": 0,
   "commitsLastHour": 6,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    {
+      "time": "06:52",
+      "message": "Implemented --allow-nan flag to enable explicit NaN acceptance i..."
+    },
     {
       "time": "06:43",
       "message": "Consolidated NaN parsing logic by refactoring numeric input proc..."
@@ -32,23 +31,14 @@
     {
       "time": "06:14",
       "message": "Implemented custom CSV delimiter support with --csv-delimiter fl..."
-    },
-    {
-      "time": "06:08",
-      "message": "Fixed CSV parser in preserveDecimal mode to correctly join thous..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1737",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T06:51:56.919Z"
+  "generatedAt": "2025-04-11T06:52:48.202Z"
 }
