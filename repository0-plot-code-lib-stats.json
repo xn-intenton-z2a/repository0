@@ -5,18 +5,17 @@
   "openIssues": 100,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refined normalization to trim whitespace and enhanced unified NaN parsing fallback with structured logging. (fixes #1875)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 7,
+  "diffMinutesMain": 1,
   "commitsLastHour": 5,
-  "commitsLastDay": 96,
+  "commitsLastDay": 97,
   "lastFiveCommitMessages": [
+    {
+      "time": "18:29",
+      "message": "Refined normalization to trim whitespace and enhanced unified Na..."
+    },
     {
       "time": "18:21",
       "message": "Fixed caching issues in getGlobalConfig and added a resetGlobalC..."
@@ -32,23 +31,14 @@
     {
       "time": "17:36",
       "message": "Refined NaN normalization and structured fallback logging for nu..."
-    },
-    {
-      "time": "17:29",
-      "message": "Implemented --strict-numeric flag for strict numeric validation ..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1875",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-11T18:29:08.479Z"
+  "generatedAt": "2025-04-11T18:30:47.766Z"
 }
