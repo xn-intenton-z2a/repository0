@@ -4,13 +4,19 @@ import { promises as fs } from "fs";
 import { existsSync } from "fs";
 import path from "path";
 
-// Mock the OpenAI module for chat command tests
+// Mock the OpenAI module for chat command and summarization tests
 vi.mock("openai", () => {
   class FakeConfiguration {}
   class FakeOpenAIApi {
     constructor(config) {}
     async createChatCompletion(params) {
-      // For testing multi-turn, we can check the messages length if needed
+      // For summarization, check if the messages include our summarization prompt
+      if (params.messages && Array.isArray(params.messages)) {
+        const lastMessage = params.messages[params.messages.length - 1].content;
+        if (lastMessage.startsWith('Summarize the following conversation:')) {
+          return { data: { choices: [{ message: { content: "Summary of conversation" } }] } };
+        }
+      }
       return { data: { choices: [{ message: { content: "Response from OpenAI" } }] } };
     }
   }
@@ -235,5 +241,36 @@ describe("CLI Commands", () => {
     }
     const output = await captureOutput(() => main(["chat-history"]));
     expect(output).toContain("No conversation history available.");
+  });
+
+  // Tests for chat-summarize command
+  test("chat-summarize command displays summary when history exists", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "How are you?" },
+      { role: "assistant", content: "I am fine." }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-summarize"]));
+    expect(output).toContain("Summary of conversation");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-summarize command shows no history message when file is missing", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-summarize"]));
+    expect(output).toContain("No conversation history to summarize.");
+  });
+
+  test("chat-summarize command shows no history message when file is empty", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    await fs.writeFile(historyFile, JSON.stringify([], null, 2));
+    const output = await captureOutput(() => main(["chat-summarize"]));
+    expect(output).toContain("No conversation history to summarize.");
+    await fs.unlink(historyFile);
   });
 });
