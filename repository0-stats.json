@@ -2,7 +2,7 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Tests",
+  "lastActivityName": "Automerge",
   "lastActivityBranchName": "main",
   "openIssues": 6,
   "issuesClosedLastHour": 2,
@@ -28,5 +28,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T18:47:18.267Z"
+  "statsGeneratedAt": "2025-04-12T18:48:00.890Z"
 }
