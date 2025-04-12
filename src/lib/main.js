@@ -55,6 +55,23 @@ export function main(args = []) {
         console.log("Performing update...");
       }
     )
+    .command(
+      "config",
+      "View configuration settings",
+      (yargs) => {
+        return yargs
+          .command(
+            "show",
+            "Display configuration",
+            () => {},
+            () => {
+              console.log("Configuration: using default settings");
+            }
+          )
+          .demandCommand(1, "You need to specify a valid config subcommand");
+      },
+      () => {}
+    )
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

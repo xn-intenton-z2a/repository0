@@ -40,6 +40,13 @@ describe("CLI Commands", () => {
     expect(output).toContain("Performing update...");
   });
 
+  test("config show command", () => {
+    const output = captureOutput(() => {
+      main(["config", "show"]);
+    });
+    expect(output).toContain("Configuration: using default settings");
+  });
+
   test("no command provided shows error/help", () => {
     const output = captureOutput(() => {
       try {
