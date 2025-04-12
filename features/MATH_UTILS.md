@@ -1,27 +1,23 @@
 # MATH_UTILS
 
 ## Overview
-This feature provides a suite of mathematical utilities that extend the CLI tool. In addition to computing the Greatest Common Divisor (GCD), Least Common Multiple (LCM), and checking for prime numbers, this update introduces prime factorization. These enhancements improve the tool's utility and align with the project's mission by offering clear, practical numerical operations.
+This enhanced math utilities feature now includes additional support for modular arithmetic. In addition to the existing operations (GCD, LCM, prime checking, and prime factorization), this update introduces a new modular exponentiation function. This provides users with the ability to calculate (base^exponent mod modulus) directly via the CLI, enhancing the utility and comprehensiveness of our math library.
 
 ## Implementation
-- Update the existing module (e.g., `src/lib/math_utils.js`) to include a new function:
-  - `primeFactors(n)`: Compute and return the list of prime factors for a given number `n`.
-- Update the CLI command in `src/lib/main.js` to support an extended `math` command with a new subcommand `factor` alongside existing subcommands `gcd`, `lcm`, and `prime`.
-- Ensure detailed error handling, including validations on input types and help messages for incorrect usage.
-- Maintain the existing functions (`gcd`, `lcm`, `isPrime`) ensuring backward compatibility.
+- Update the math utilities module (e.g., `src/lib/math_utils.js`) to include a new function:
+  - `modExp(base, exponent, modulus)` that efficiently computes the modular exponentiation.
+- Update the CLI entry point in `src/lib/main.js` to add a new subcommand `modexp` alongside the existing subcommands (`gcd`, `lcm`, `prime`, `factor`).
+- Ensure robust error handling and input validation, including checks for numeric inputs and non-zero modulus where appropriate.
+- Extend unit tests in `tests/unit/` to include coverage for the new `modExp` functionality, ensuring validation of correct operation, edge cases, and error scenarios.
 
 ## Usage
-- To compute the GCD: `node src/lib/main.js math gcd 54 24`
-- To compute the LCM: `node src/lib/main.js math lcm 54 24`
-- To check if a number is prime: `node src/lib/main.js math prime 13`
-- To compute prime factors: `node src/lib/main.js math factor 84`
-
-## Testing & Documentation
-- Extend unit tests to cover the new `primeFactors` functionality in the `tests/unit/` suite.
-- Update documentation in the README and this feature file with examples and usage instructions for the new subcommand.
-- Ensure test coverage includes valid inputs, edge/corner cases, and error scenarios for all math utilities.
+- Compute the GCD: `node src/lib/main.js math gcd 54 24`
+- Compute the LCM: `node src/lib/main.js math lcm 54 24`
+- Check for prime numbers: `node src/lib/main.js math prime 13`
+- Compute prime factors: `node src/lib/main.js math factor 84`
+- Compute modular exponentiation: `node src/lib/main.js math modexp 2 10 1000`
 
 ## Benefits
-- Enhances the CLI by providing a broader set of mathematical operations.
-- Demonstrates incremental improvements to software features that adhere to high code quality standards.
-- Maintains clarity in functionality while offering additional value to users in numerical computation.
+- Expands the range of mathematical operations offered by the CLI tool.
+- Provides users with a direct and efficient method for performing modular arithmetic, which is useful in many practical and educational contexts.
+- Ensures consistency in coding quality, documentation, and test coverage across all math utilities.
