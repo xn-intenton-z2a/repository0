@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
+  "openIssues": 4,
   "issuesClosedLastHour": 15,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Fix JSON import by using createRequire and adjust test catch blocks to eliminate unused exception variable warnings. (fixes #1403)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 3,
+  "diffMinutesMain": 4,
   "commitsLastHour": 8,
   "commitsLastDay": 28,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1403",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T04:29:12.481Z"
+  "generatedAt": "2025-04-12T04:29:47.836Z"
 }
