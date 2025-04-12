@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown and HTML), analyze, remove, archive, import, translate, and edit conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF), analyze, remove, archive, import, translate, and edit conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -40,6 +40,8 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-export`
 - **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`).
   - Example: `repository0 chat-html-export`
+- **chat-pdf-export:** Exports the conversation history to a PDF file (`chat_history.pdf`).
+  - Example: `repository0 chat-pdf-export`
 - **chat-statistics:** Provides analytics on the conversation history by computing total messages, counts per role, and average message length.
   - Example: `repository0 chat-statistics`
 - **chat-remove:** Removes a specific conversation entry from the history. It accepts a required numeric argument `--index` (alias `-i`) representing the 1-based index of the entry to remove.
@@ -74,19 +76,19 @@ Error handling has been centralized to include a consistent formatted error outp
 ## What’s Inside
 
 - **GitHub Workflows:**
-  GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
+    GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, and the newly implemented `chat-html-export` for exporting conversation history in HTML format.
+    The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, `chat-html-export`, and the newly implemented `chat-pdf-export` for exporting conversation history to PDF.
 
 - **Dependencies:**
-  The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
+    The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests validate the CLI commands and error handling scenarios, ensuring robust behavior in various edge cases.
+    Unit tests validate the CLI commands and error handling scenarios, ensuring robust behavior in various edge cases.
 
 - **Documentation:**
-  This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+    This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
 

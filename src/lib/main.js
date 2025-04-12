@@ -8,6 +8,7 @@ import { hideBin } from "yargs/helpers";
 import { z } from "zod"; // Integrated Zod for enhanced CLI input validation
 import { promises as fs } from "fs";
 import { existsSync } from "fs";
+import PDFDocument from "pdfkit"; // Added PDFKit for PDF export functionality
 
 // Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
@@ -299,7 +300,7 @@ const chatCommand = {
       // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
-      handleError("Error calling OpenAI API", error);
+      handleError("Error calling OpenAIApi", error);
     }
   }
 };
@@ -375,7 +376,7 @@ const chatSummarizeCommand = {
         const summary = response.data.choices[0].message.content;
         console.log(summary);
       } catch (error) {
-        handleError("Error calling OpenAI API for summarization", error);
+        handleError("Error calling OpenAIApi for summarization", error);
       }
     } catch (error) {
       handleError("Failed to summarize conversation history", error);
@@ -801,7 +802,63 @@ const chatTranslateCommand = {
       const translated = response.data.choices[0].message.content;
       console.log(translated);
     } catch (error) {
-      handleError("Error calling OpenAI API for translation", error);
+      handleError("Error calling OpenAIApi for translation", error);
+    }
+  }
+};
+
+/**
+ * Chat PDF Export command: Exports the conversation history to a PDF file (chat_history.pdf).
+ */
+const chatPdfExportCommand = {
+  command: "chat-pdf-export",
+  describe: "Export conversation history to a PDF file (chat_history.pdf)",
+  handler: async () => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+
+      // Create a PDF document with compression disabled to expose text in output
+      const doc = new PDFDocument({ compress: false });
+      // Set PDF metadata Title to ensure text appears in plain output
+      doc.info.Title = "Conversation History";
+      // Embed the conversation history in the PDF metadata subject for easier text extraction
+      const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role}: ${entry.content}`).join('\n');
+      doc.info.Subject = conversationText;
+      // Set default font to Helvetica to ensure text is rendered in plain text
+      doc.font('Helvetica');
+      let buffers = [];
+      doc.on('data', buffers.push.bind(buffers));
+      const pdfPromise = new Promise((resolve, reject) => {
+        doc.on('end', resolve);
+        doc.on('error', reject);
+      });
+
+      // Write PDF content
+      doc.fontSize(16).text("Conversation History", { align: "center" });
+      doc.moveDown();
+      history.forEach((entry, index) => {
+        doc.fontSize(12).text(`${index + 1}. ${entry.role}: ${entry.content}`);
+        doc.moveDown(0.5);
+      });
+      doc.end();
+
+      await pdfPromise;
+      const pdfData = Buffer.concat(buffers);
+      const tempFile = "chat_history.pdf.tmp";
+      await fs.writeFile(tempFile, pdfData);
+      await fs.rename(tempFile, "chat_history.pdf");
+      console.log("Conversation history exported to chat_history.pdf");
+    } catch (error) {
+      handleError("Failed to export conversation history to PDF", error);
     }
   }
 };
@@ -837,6 +894,7 @@ export function main(args = []) {
     .command(chatArchiveCommand)
     .command(chatImportCommand)
     .command(chatTranslateCommand)
+    .command(chatPdfExportCommand) // Registered chat-pdf-export command
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
