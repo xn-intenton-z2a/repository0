@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API as well as robust CLI input validation using Zod to cover edge cases such as booleans, null, undefined, objects, and arrays.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API as well as robust and standardized CLI input validation.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -27,15 +27,13 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 ## CLI Input Validation
 
-The CLI validates all input arguments to ensure they are non-empty strings using Zod. With the latest enhancements, the CLI now also checks and rejects non-string inputs including booleans, null, undefined, objects, arrays, and even NaN. If an invalid input is detected, the CLI will display a standardized error message following this pattern:
+The CLI now validates all input arguments to ensure they are non-empty strings. The validation process has been refactored to produce standardized error messages for any invalid input, including booleans, null, undefined, objects, arrays, and even NaN. In case of invalid input, the error message follows this format:
 
 ```
-Invalid input: Expected a valid non-empty string command, but received <input>
+Invalid input: Expected a valid non-empty string command, but received <input>. Please provide a valid non-empty string, such as 'start' or 'info'.
 ```
 
-Additionally, error messages now include a suggestion to help guide the user. For example, if an invalid value is provided, the error message will be appended with:
-
-" Please provide a valid non-empty string, such as 'start' or 'info'."
+This ensures clarity and consistency, making it easier to debug input errors.
 
 ## Error Handling Improvements
 
@@ -47,13 +45,13 @@ Error handling has been centralized to include a consistent prefix ("CLI Error:"
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation using Zod with detailed diagnostics information, as well as a new chat command that leverages the OpenAI API.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation using standardized error messages, as well as a new chat command that leverages the OpenAI API.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including explicit checks for invalid inputs such as NaN, booleans, null, undefined, empty strings, objects, and arrays, ensuring robust behavior.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
