@@ -63,7 +63,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@3.6.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@3.6.6'
     with:
       buildScript: 'npm run build'
       testScript: 'npm test'
@@ -87,7 +87,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@3.6.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@3.6.6'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'
@@ -110,7 +110,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.6.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.6.6'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -128,7 +128,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.6.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.6.6'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -145,13 +145,12 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.6.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.6.6'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
-      lastActivityTimestamp: ${{ github.event.created_at }}
       public: 'public'
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
