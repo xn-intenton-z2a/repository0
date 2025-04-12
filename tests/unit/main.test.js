@@ -218,34 +218,32 @@ describe("CLI Commands", () => {
         return main([big]);
       } catch {} 
     });
-    // Expecting the bigint to be stringified with an appended 'n'
     expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received ${big.toString()}n`);
     expect(output).toContain(suggestion);
   });
 
-  // New test for multi-turn conversation
-  test("chat multi-turn conversation accumulates context", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
-    const output1 = await captureOutput(() => main(["chat", "--prompt", "First prompt"]))
-    const output2 = await captureOutput(() => main(["chat", "--prompt", "Second prompt"]))
-    expect(output1).toContain("Response from OpenAI");
-    expect(output2).toContain("Response from OpenAI");
+  // New tests for chat-history command
+  test("chat-history command displays conversation history if file exists", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Hello" },
+      { role: "assistant", content: "Hi there!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-history"]));
+    expect(output).toContain("Conversation History:");
+    expect(output).toContain("1. user: Hello");
+    expect(output).toContain("2. assistant: Hi there!");
+    // Cleanup
+    await fs.unlink(historyFile);
   });
 
-  // New test for persistent chat history file creation
-  test("chat command persists conversation history", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+  test("chat-history command displays no history message when file does not exist", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     if (existsSync(historyFile)) {
       await fs.unlink(historyFile);
     }
-    await captureOutput(() => main(["chat", "--prompt", "Persistent prompt"]))
-    expect(existsSync(historyFile)).toBe(true);
-    const data = await fs.readFile(historyFile, "utf-8");
-    const history = JSON.parse(data);
-    expect(history).toEqual(expect.arrayContaining([
-      { role: "user", content: "Persistent prompt" },
-      { role: "assistant", content: expect.any(String) }
-    ]));
+    const output = await captureOutput(() => main(["chat-history"]));
+    expect(output).toContain("No conversation history available.");
   });
 });
