@@ -2,18 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Review Issue",
+  "lastActivityName": "Issue Worker",
   "lastActivityBranchName": "main",
   "openIssues": 7,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 100,
   "openPRs": 1,
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "prDetails": [
-    "[0m] Embed conversation history in PDF metadata to pass pdf export tests. (fixes #1503)"
+    "[1m] Embed conversation history in PDF metadata to pass pdf export tests. (fixes #1503)"
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 35,
+  "diffMinutesMain": 36,
   "commitsLastHour": 2,
   "commitsLastDay": 94,
   "lastFiveCommitMessages": [
@@ -26,11 +26,11 @@
   "branches": {
     "count": 1,
     "details": [
-      "[1m] agentic-lib-issue-1503"
+      "[2m] agentic-lib-issue-1503"
     ],
-    "averageBranchAge": 1
+    "averageBranchAge": 2
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T18:38:17.512Z"
+  "statsGeneratedAt": "2025-04-12T18:38:55.828Z"
 }
