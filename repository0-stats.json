@@ -2,16 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Apply Fix on Fail",
+  "lastActivityName": "Review Issue",
   "lastActivityBranchName": "main",
-  "openIssues": 6,
+  "openIssues": 7,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
+  "openPRs": 1,
   "averagePRAge": 0,
-  "prDetails": [],
+  "prDetails": [
+    "[0m] Embed conversation history in PDF metadata to pass pdf export tests. (fixes #1503)"
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 34,
+  "diffMinutesMain": 35,
   "commitsLastHour": 2,
   "commitsLastDay": 94,
   "lastFiveCommitMessages": [
@@ -24,11 +26,11 @@
   "branches": {
     "count": 1,
     "details": [
-      "[0m] agentic-lib-issue-1503"
+      "[1m] agentic-lib-issue-1503"
     ],
-    "averageBranchAge": 0
+    "averageBranchAge": 1
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T18:37:02.234Z"
+  "statsGeneratedAt": "2025-04-12T18:38:17.512Z"
 }
