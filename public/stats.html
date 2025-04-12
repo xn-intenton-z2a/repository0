@@ -55,9 +55,9 @@
   <section>
     <p><span class="label">Last 5 commit messages from main:</span></p>
     <ul>
-      <% lastFiveCommitMessages.forEach(function(msg){ %>
-        <li><%= msg.time %> - <%= msg.message %></li>
-      <% }); %>
+      <% lastFiveCommitMessages.forEach(commitMessage => %>
+        <li><%= commitMessage %></li>
+      <% ); %>
     </ul>
   </section>
   <footer>
