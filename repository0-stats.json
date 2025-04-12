@@ -2,39 +2,33 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Apply Fix on Fail",
+  "lastActivityName": "Automerge",
   "lastActivityBranchName": "main",
   "nextIssue": "[1519] Add Tag-Based Filtering Option to Chat Export Commands automated, feature",
-  "openIssues": 8,
-  "issuesClosedLastHour": 1,
+  "openIssues": 6,
+  "issuesClosedLastHour": 3,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "averagePRAge": 63,
-  "prDetails": [
-    "[63m] Added chat session titling feature with new chat-title command and updated history structure. (fixes #1518)"
-  ],
+  "openPRs": 0,
+  "averagePRAge": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 18,
+  "diffMinutesMain": 0,
   "commitsLastHour": 7,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
+    "[21:36] - Added chat session titling feature with new chat-title command a...",
     "[21:16] - Update from agentic-lib",
     "[21:15] - Update from agentic-lib",
     "[21:10] - Update from agentic-lib",
-    "[21:04] - Update from agentic-lib",
-    "[20:52] - Update from agentic-lib"
+    "[21:04] - Update from agentic-lib"
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      "[64m] agentic-lib-issue-1518"
-    ],
-    "branchIssueDetails": [
-      "[1518] Add Chat Session Titling Feature automated, feature"
-    ],
-    "averageBranchAge": 64
+    "count": 0,
+    "details": [],
+    "branchIssueDetails": [],
+    "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T21:35:16.237Z"
+  "statsGeneratedAt": "2025-04-12T21:36:37.129Z"
 }
