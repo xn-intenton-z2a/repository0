@@ -117,6 +117,48 @@ const infoCommand = {
 };
 
 /**
+ * Chat command: Interact with OpenAI API using a provided prompt.
+ */
+const chatCommand = {
+  command: "chat",
+  describe: "Chat with OpenAI API using a prompt",
+  builder: (yargs) => {
+    return yargs.option("prompt", {
+      alias: "p",
+      type: "string",
+      describe: "The prompt message to send",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const prompt = argv.prompt;
+    // Validate the prompt using existing validation
+    validateArg(prompt);
+    
+    const apiKey = process.env.CHATGPT_API_SECRET_KEY;
+    if (!apiKey) {
+      handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
+    }
+
+    // Dynamically import the OpenAI module
+    const { Configuration, OpenAIApi } = await import("openai");
+    const configuration = new Configuration({ apiKey });
+    const openai = new OpenAIApi(configuration);
+    
+    try {
+      const response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: "user", content: prompt }]
+      });
+      const reply = response.data.choices[0].message.content;
+      console.log(reply);
+    } catch (error) {
+      handleError("Error calling OpenAI API", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -134,6 +176,7 @@ export function main(args = []) {
     .command(updateCommand)
     .command(configCommand)
     .command(infoCommand)
+    .command(chatCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -22,6 +22,8 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response.
+  - Example: `repository0 chat --prompt "Hello, how are you?"`
 
 **Input Validation:**
 
@@ -42,13 +44,13 @@ The error handling has been refactored to provide uniform and clear error messag
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with detailed diagnostics information.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with detailed diagnostics information, as well as a new chat command that leverages the OpenAI API.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for enhanced diagnostics output along with invalid inputs like NaN and empty strings.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for enhanced diagnostics output along with invalid inputs like NaN and empty strings, and now also cover the chat command integration.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -56,7 +58,7 @@ The error handling has been refactored to provide uniform and clear error messag
 ## Getting Started
 
 This repository is set up with the necessary workflows and scripts. You need to supply the following secret:
-- `CHATGPT_API_SECRET_KEY` - An account key with access to the OpenAI chat completions API for model `o3-mini`.
+- `CHATGPT_API_SECRET_KEY` - An account key with access to the OpenAI chat completions API for model `gpt-3.5-turbo`.
 
 Set this secret in your repository settings under *Settings > Secrets and Variables > Actions*.
 
