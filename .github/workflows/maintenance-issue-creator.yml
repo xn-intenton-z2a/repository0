@@ -16,9 +16,9 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    #- cron: '0 0 1 */6 *' # schedule-1
-    #- cron: '0 0 */28 * *' # schedule-2
-    - cron: '0 0 */7 * *' # schedule-3
+    #- cron: '0 0 */7 * *' # schedule-1
+    #- cron: '0 4 * * *' # schedule-2
+    - cron: '0 */2 * * *' # schedule-3
 
 jobs:
 
