@@ -319,6 +319,55 @@ const chatSummarizeCommand = {
 };
 
 /**
+ * Chat Search command: Searches the conversation history for a given query keyword.
+ */
+const chatSearchCommand = {
+  command: "chat-search",
+  describe: "Search conversation history for a query keyword",
+  builder: (yargs) => {
+    return yargs.option("query", {
+      alias: "q",
+      type: "string",
+      describe: "The query keyword to search in conversation history",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const query = argv.query;
+    validateArg(query);
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available.");
+      return;
+    }
+    let history;
+    try {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      history = JSON.parse(data);
+    } catch (e) {
+      console.log("No conversation history available.");
+      return;
+    }
+    if (!history || history.length === 0) {
+      console.log("No conversation history available.");
+      return;
+    }
+    const lowerQuery = query.toLowerCase();
+    const results = history.filter(entry =>
+      (entry.role && String(entry.role).toLowerCase().includes(lowerQuery)) ||
+      (entry.content && String(entry.content).toLowerCase().includes(lowerQuery))
+    );
+    if (results.length === 0) {
+      console.log(`No results found for query: "${query}"`);
+    } else {
+      console.log("Search Results:");
+      results.forEach((entry, index) => {
+        console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+      });
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -340,6 +389,7 @@ export function main(args = []) {
     .command(chatCommand)
     .command(chatHistoryCommand)
     .command(chatSummarizeCommand)
+    .command(chatSearchCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

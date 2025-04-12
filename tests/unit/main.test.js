@@ -273,4 +273,41 @@ describe("CLI Commands", () => {
     expect(output).toContain("No conversation history to summarize.");
     await fs.unlink(historyFile);
   });
+
+  // Tests for chat-search command
+  test("chat-search command displays matching history entries for a valid query", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "I need help with testing." },
+      { role: "assistant", content: "Sure, I can help you with that." },
+      { role: "user", content: "What is the time?" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-search", "--query", "help"]));
+    expect(output).toContain("Search Results:");
+    expect(output).toContain("1. user: I need help with testing.");
+    expect(output).toContain("2. assistant: Sure, I can help you with that.");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-search command displays no results message when no entries match the query", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "I like apples." },
+      { role: "assistant", content: "Apples are great!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-search", "--query", "banana"]));
+    expect(output).toContain("No results found for query: \"banana\"");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-search command displays no conversation history message when history file is missing", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-search", "--query", "test"]));
+    expect(output).toContain("No conversation history available.");
+  });
 });
