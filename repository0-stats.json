@@ -4,6 +4,7 @@
   "engine": "schedule-3",
   "lastActivityName": "Tests",
   "lastActivityBranchName": "main",
+  "nextIssue": "",
   "openIssues": 5,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
@@ -11,22 +12,23 @@
   "averagePRAge": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 2,
-  "commitsLastHour": 5,
-  "commitsLastDay": 97,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 6,
+  "commitsLastDay": 98,
   "lastFiveCommitMessages": [
+    "[19:33] - Update from agentic-lib",
     "[19:30] - No changes applied as NaN prompt input is intentionally ignored....",
     "[19:25] - Fixed multiline string error in chat-pdf-export command to resol...",
     "[19:01] - Modified chat command handler to output custom summarization res...",
-    "[18:40] - Update from agentic-lib",
-    "[18:39] - Embed conversation history in PDF metadata to pass pdf export te..."
+    "[18:40] - Update from agentic-lib"
   ],
   "branches": {
     "count": 0,
     "details": [],
+    "branchIssueDetails": [],
     "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T19:33:01.789Z"
+  "statsGeneratedAt": "2025-04-12T19:34:06.589Z"
 }

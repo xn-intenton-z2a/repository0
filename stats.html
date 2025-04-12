@@ -26,14 +26,26 @@
   </section>
   <section>
     <p>
+      <span class="label">Branches (<%= branches.count %> of average age <%= branches.averageBranchAge %> minutes):</span><br/>
+      <%= branches.details && branches.details.join(', ') || 'None' %>
+    </p>
+  </section>
+  <section>
+    <p>
+      <span class="label">Branch Issues:</span><br/>
+      <%= branches.branchIssueDetails && branches.branchIssueDetails.join(', ') || 'None' %>
+    </p>
+  </section>
+  <section>
+    <p>
       <span class="label">Open PRs (<%= openPRs %> of average age <%= averagePRAge %> minutes):</span><br/>
       <%= prDetails && prDetails.join(', ') || 'None' %>
     </p>
   </section>
   <section>
     <p>
-      <span class="label">Branches (<%= branches.count %> of average age <%= branches.averageBranchAge %> minutes):</span><br/>
-      <%= branches.details && branches.details.join(', ') || 'None' %>
+      <span class="label">Next Issue:</span><br/>
+      <%= nextIssue %>
     </p>
   </section>
   <section>
