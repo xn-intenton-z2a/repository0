@@ -15,6 +15,8 @@ vi.mock("openai", () => {
         const lastMessage = params.messages[params.messages.length - 1].content;
         if (lastMessage.startsWith('Summarize the following conversation:')) {
           return { data: { choices: [{ message: { content: "Summary of conversation" } }] } };
+        } else if (lastMessage.startsWith('Translate the following conversation history')) {
+          return { data: { choices: [{ message: { content: `Translated conversation to target language` } }] } };
         }
       }
       // Check for custom model and temperature parameters
@@ -529,6 +531,39 @@ describe("CLI Commands", () => {
     });
     expect(output).toContain("Invalid conversation entry: Missing or empty 'content' property.");
     await fs.unlink(importFile);
+  });
+
+  // New tests for chat-translate command
+  test("chat-translate command with empty language input displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-translate", "--language", ""]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
+    expect(output).toContain(suggestion);
+  });
+
+  test("chat-translate command displays no conversation history message when file does not exist", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-translate", "--language", "Spanish"]));
+    expect(output).toContain("No conversation history available to translate.");
+  });
+
+  test("chat-translate command translates conversation history with valid history", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Hello" },
+      { role: "assistant", content: "Hi there!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-translate", "--language", "Spanish"]));
+    expect(output).toContain("Translated conversation to target language");
+    await fs.unlink(historyFile);
   });
 
   // Tests for chat command with custom model and temperature

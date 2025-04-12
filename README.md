@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, remove, archive, and import conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, remove, archive, import, and now translate conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -44,10 +44,14 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-remove --index 2`
 - **chat-archive:** Archives the current conversation history into a timestamped file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and resets the conversation history.
   - Example: `repository0 chat-archive`
-- **chat-import:** Imports conversation history from a JSON file and merges it with the existing history. This command helps integrate an external conversation history file into the current session.
+- **chat-import:** Imports conversation history from a JSON file and merges it with the existing history.
   - Options:
     - `--file` or `-f`: The path to a JSON file containing an array of conversation entries, where each entry has a non-empty `role` and `content`.
   - Example: `repository0 chat-import --file ./my_conversation.json`
+- **chat-translate:** Translates the current conversation history into a specified target language. The command uses the existing OpenAI API integration to translate the entire conversation while preserving the roles and format.
+  - Options:
+    - `--language` or `-l`: The target language for translation (required), e.g., 'Spanish' or 'French'.
+  - Example: `repository0 chat-translate --language Spanish`
 
 ## CLI Input Validation and Error Handling
 
@@ -71,7 +75,7 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive` and `chat-import` commands for archiving and importing conversation history, along with other chat history commands.
+  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, and newly implemented `chat-translate` for translating conversation history.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
