@@ -1,6 +1,10 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and now manage a chat session title.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. 
+
+The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.
+
+In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -24,7 +28,7 @@ Key subcommands include:
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
-- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded.
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
   - Options:
     - `--prompt` or `-p`: The prompt message to send (required).
     - `--max-history-messages`: Maximum number of messages before summarization (default: can be set via environment variable or persisted configuration).
@@ -32,6 +36,7 @@ Key subcommands include:
     - `--model` or `-m`: The OpenAI model to use (default: can be set via environment variable or persisted configuration).
     - `--temperature` or `-t`: The response randomness factor (default: can be set via environment variable or persisted configuration).
     - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional).
+    - `--auto-archive-threshold`: Maximum number of messages before automatically archiving the conversation history (default: can be set via `CHAT_AUTO_ARCHIVE_THRESHOLD` environment variable, persisted configuration, or defaults to 50).
   - Example: `repository0 chat --verbose --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
 - **chat-history:** Displays the persistent conversation history in a human-readable format.
   - Example: `repository0 chat-history`
@@ -62,7 +67,7 @@ Key subcommands include:
     - `--language` or `-l`: The target language, e.g., "Spanish" or "French" (required).
   - Example: `repository0 chat-translate --language Spanish`
 - **chat-config-update:** Updates and persists default chat configuration settings (model, temperature, etc.)
-  - Example: `repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3`
+  - Example: `repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100`
 - **chat-tag:** Manage tags on conversation entries. Subcommands include:
   - `add`: Add a tag to a conversation entry (e.g., `repository0 chat-tag add --index 3 --tag "important"`).
   - `remove`: Remove a tag from a conversation entry (e.g., `repository0 chat-tag remove --index 3 --tag "important"`).
@@ -83,6 +88,10 @@ Example:
 repository0 --verbose chat --prompt "Hello, Debug me!"
 ```
 
+## Automatic Conversation Archival
+
+If the conversation history exceeds a certain threshold (configured via the `--auto-archive-threshold` option, the `CHAT_AUTO_ARCHIVE_THRESHOLD` environment variable, or a persisted configuration), the CLI will automatically archive the current conversation history to a timestamped JSON file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and reset the active conversation history. This helps in managing long-term conversation data and ensures optimal performance.
+
 ## CLI Input Validation and Error Handling
 
 All input arguments are validated using Zod. Invalid inputs yield standardized error messages to guide correct CLI usage.
@@ -96,21 +105,21 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **GitHub Workflows:**
     Automated workflows from intentïon `agentic‑lib` handle CI/CD tasks.
 - **Source Code:**
-    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles, and enhanced export commands with tag filtering.
+    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles, enhanced export commands with tag filtering, and the new automatic archival mechanism for conversation history.
 - **Global Verbose Mode:**
     Enables detailed logging for debugging.
 - **Dependencies:**
     Refer to `package.json` for project dependencies and scripts.
 - **Tests:**
-    Comprehensive unit tests ensure robust functionality including the new tag filtering in export commands and chat session title feature.
+    Comprehensive unit tests ensure robust functionality including the new auto archival feature and chat session title management.
 - **Documentation:**
     This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.
 
 ## Getting Started
 
-Setup your OpenAI API key by configuring the `CHATGPT_API_SECRET_KEY` environment variable.
+Set up your OpenAI API key by configuring the `CHATGPT_API_SECRET_KEY` environment variable.
 
-Configure other settings (if needed) via environment variables or the `chat-config-update` command.
+Configure other settings (if needed) via environment variables, CLI options, or the `chat-config-update` command.
 
 ## Links
 
