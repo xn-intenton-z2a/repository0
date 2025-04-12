@@ -23,7 +23,9 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and now manage a chat session title.</p>
+<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension.</p>
+<p class="md-github">The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.</p>
+<p class="md-github">In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code>, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
@@ -56,7 +58,7 @@
 <li class="md-github">Example: <code class="md-github">repository0 info</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded.
+<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
 <ul class="md-github">
 <li class="md-github">Options:
 <ul class="md-github">
@@ -66,6 +68,7 @@
 <li class="md-github"><code class="md-github">--model</code> or <code class="md-github">-m</code>: The OpenAI model to use (default: can be set via environment variable or persisted configuration).</li>
 <li class="md-github"><code class="md-github">--temperature</code> or <code class="md-github">-t</code>: The response randomness factor (default: can be set via environment variable or persisted configuration).</li>
 <li class="md-github"><code class="md-github">--summarization-prompt</code>: Custom prompt to use for summarizing conversation history (optional).</li>
+<li class="md-github"><code class="md-github">--auto-archive-threshold</code>: Maximum number of messages before automatically archiving the conversation history (default: can be set via <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code> environment variable, persisted configuration, or defaults to 50).</li>
 </ul>
 </li>
 <li class="md-github">Example: <code class="md-github">repository0 chat --verbose --prompt &quot;Hello, how are you?&quot; --model &quot;gpt-4&quot; --temperature 0.9 --summarization-prompt &quot;Custom summarize:&quot;</code></li>
@@ -143,7 +146,7 @@
 </li>
 <li class="md-github"><strong class="md-github">chat-config-update:</strong> Updates and persists default chat configuration settings (model, temperature, etc.)
 <ul class="md-github">
-<li class="md-github">Example: <code class="md-github">repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3</code></li>
+<li class="md-github">Example: <code class="md-github">repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100</code></li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">chat-tag:</strong> Manage tags on conversation entries. Subcommands include:
@@ -167,6 +170,8 @@
 <p class="md-github">Example:</p>
 <pre class="md-github"><code class="md-github language-bash">repository0 --verbose chat --prompt &quot;Hello, Debug me!&quot;
 </code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="automatic-conversation-archival" href="#automatic-conversation-archival"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Automatic Conversation Archival</h2>
+<p class="md-github">If the conversation history exceeds a certain threshold (configured via the <code class="md-github">--auto-archive-threshold</code> option, the <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code> environment variable, or a persisted configuration), the CLI will automatically archive the current conversation history to a timestamped JSON file (e.g., <code class="md-github">chat_history-YYYYMMDDHHmmss.json</code>) and reset the active conversation history. This helps in managing long-term conversation data and ensures optimal performance.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-input-validation-and-error-handling" href="#cli-input-validation-and-error-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Input Validation and Error Handling</h2>
 <p class="md-github">All input arguments are validated using Zod. Invalid inputs yield standardized error messages to guide correct CLI usage.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="error-handling-improvements" href="#error-handling-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error Handling Improvements</h2>
@@ -176,19 +181,19 @@
 <li class="md-github"><strong class="md-github">GitHub Workflows:</strong>
 Automated workflows from intentïon <code class="md-github">agentic‑lib</code> handle CI/CD tasks.</li>
 <li class="md-github"><strong class="md-github">Source Code:</strong>
-The CLI functionality is implemented in <code class="md-github">src/lib/main.js</code> with modular commands including the new <code class="md-github">chat-title</code> for managing session titles, and enhanced export commands with tag filtering.</li>
+The CLI functionality is implemented in <code class="md-github">src/lib/main.js</code> with modular commands including the new <code class="md-github">chat-title</code> for managing session titles, enhanced export commands with tag filtering, and the new automatic archival mechanism for conversation history.</li>
 <li class="md-github"><strong class="md-github">Global Verbose Mode:</strong>
 Enables detailed logging for debugging.</li>
 <li class="md-github"><strong class="md-github">Dependencies:</strong>
 Refer to <code class="md-github">package.json</code> for project dependencies and scripts.</li>
 <li class="md-github"><strong class="md-github">Tests:</strong>
-Comprehensive unit tests ensure robust functionality including the new tag filtering in export commands and chat session title feature.</li>
+Comprehensive unit tests ensure robust functionality including the new auto archival feature and chat session title management.</li>
 <li class="md-github"><strong class="md-github">Documentation:</strong>
 This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
-<p class="md-github">Setup your OpenAI API key by configuring the <code class="md-github">CHATGPT_API_SECRET_KEY</code> environment variable.</p>
-<p class="md-github">Configure other settings (if needed) via environment variables or the <code class="md-github">chat-config-update</code> command.</p>
+<p class="md-github">Set up your OpenAI API key by configuring the <code class="md-github">CHATGPT_API_SECRET_KEY</code> environment variable.</p>
+<p class="md-github">Configure other settings (if needed) via environment variables, CLI options, or the <code class="md-github">chat-config-update</code> command.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="links" href="#links"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Links</h2>
 <ul class="md-github">
 <li class="md-github"><a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></li>
@@ -202,7 +207,7 @@ This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline 
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T23:47:43.918Z</p>
+    <p>Generated on 2025-04-12T23:49:05.406Z</p>
   </footer>
 </body>
 </html>
