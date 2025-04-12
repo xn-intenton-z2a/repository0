@@ -17,9 +17,27 @@ function handleError(message, err) {
 }
 
 /**
+ * Validates all CLI arguments to ensure they are strings. 
+ * Provides explicit error messages for non-string or invalid inputs.
+ * @param {Array} args - An array of CLI arguments.
+ */
+function validateArgs(args) {
+  for (const arg of args) {
+    if (typeof arg !== "string") {
+      if (typeof arg === "number" && Number.isNaN(arg)) {
+        handleError("Invalid input: Expected a valid command, but received NaN");
+      } else {
+        handleError(`Invalid input: Expected a valid command, but received ${arg}`);
+      }
+    }
+  }
+}
+
+/**
  * Main function to parse CLI arguments and execute subcommands.
  * 
- * In addition to processing valid commands, this function checks for non-string inputs.
+ * In addition to processing valid commands, this function checks for non-string inputs
+ * and utilizes a dedicated argument validation function for improved clarity.
  * If an argument is not a string (for example, NaN), it will trigger an error with a descriptive
  * message indicating the invalid input.
  *
@@ -32,15 +50,7 @@ export function main(args = []) {
   }
 
   // Validate that all arguments are strings.
-  for (const arg of args) {
-    if (typeof arg !== "string") {
-      if (typeof arg === "number" && Number.isNaN(arg)) {
-        handleError("Invalid input: Expected a valid command, but received NaN");
-      } else {
-        handleError(`Invalid input: Expected a valid command, but received ${arg}`);
-      }
-    }
-  }
+  validateArgs(args);
 
   return yargs(args)
     .scriptName("repository0")
