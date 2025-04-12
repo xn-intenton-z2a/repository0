@@ -11,9 +11,9 @@ const require = createRequire(import.meta.url);
 const packageData = require("../../package.json");
 
 /**
- * Handles errors in a consistent format and throws an error for the caller.
+ * Logs and throws errors with a consistent formatted message.
  * @param {string} message - The error message to display.
- * @param {Error} [err] - Optional original error to throw.
+ * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
   const formatted = `Error: ${message}`;
@@ -22,18 +22,14 @@ function handleError(message, err) {
 }
 
 /**
- * Validates a single CLI argument ensuring it is a non-empty string.
- * Consolidates error handling for all invalid inputs including non-string and empty strings.
+ * Validates that a CLI argument is a non-empty string.
+ * If the argument is not a string or is empty, a standardized error is thrown.
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
   if (typeof arg !== "string") {
-    if (typeof arg === "number" && Number.isNaN(arg)) {
-      handleError("Invalid input: Expected a valid string command, but received NaN");
-    } else {
-      // Use JSON.stringify for better readability of non-string arguments
-      handleError(`Invalid input: Expected a valid string command, but received ${JSON.stringify(arg)}`);
-    }
+    const received = (typeof arg === "number" && Number.isNaN(arg)) ? "NaN" : JSON.stringify(arg);
+    handleError(`Invalid input: Expected a valid string command, but received ${received}`);
   }
   if (arg.trim() === "") {
     handleError("Invalid input: Expected a non-empty string command, but received an empty string");
@@ -41,20 +37,17 @@ function validateArg(arg) {
 }
 
 /**
- * Validates all CLI arguments using the consolidated error handling logic.
- * @param {Array} args - An array of CLI arguments.
+ * Validates an array of CLI arguments using the standardized validation.
+ * @param {Array} args - Array of CLI arguments.
  */
 function validateArgs(args) {
-  for (const arg of args) {
-    validateArg(arg);
-  }
+  args.forEach(validateArg);
 }
 
 // Modular command definitions
 
 /**
- * Registers the diagnostics command.
- * @returns {object} Yargs command module for diagnostics
+ * Diagnostics command: Runs diagnostics.
  */
 const diagnosticsCommand = {
   command: "diagnostics",
@@ -65,8 +58,7 @@ const diagnosticsCommand = {
 };
 
 /**
- * Registers the version command.
- * @returns {object} Yargs command module for version
+ * Version command: Displays the current version.
  */
 const versionCommand = {
   command: "version",
@@ -77,8 +69,7 @@ const versionCommand = {
 };
 
 /**
- * Registers the update command.
- * @returns {object} Yargs command module for update
+ * Update command: Initiates an update.
  */
 const updateCommand = {
   command: "update",
@@ -89,8 +80,7 @@ const updateCommand = {
 };
 
 /**
- * Registers the config command with its subcommand(s).
- * @returns {object} Yargs command module for config
+ * Config command: Displays configuration settings. Uses the 'show' subcommand.
  */
 const configCommand = {
   command: "config",
@@ -108,8 +98,7 @@ const configCommand = {
 };
 
 /**
- * Registers the info command which displays repository metadata.
- * @returns {object} Yargs command module for info
+ * Info command: Displays repository metadata.
  */
 const infoCommand = {
   command: "info",
@@ -120,21 +109,15 @@ const infoCommand = {
 };
 
 /**
- * Main function to parse CLI arguments and execute subcommands.
- * Logs provided arguments for debugging, validates inputs, and executes commands.
- * If an argument fails validation, a detailed error message is shown.
- *
- * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
+ * Main function to parse CLI arguments and execute the appropriate subcommand.
+ * Logs provided arguments (or default empty array) and validates inputs for robustness.
+ * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
  */
 export function main(args = []) {
-  // Log provided arguments (or default empty array) for debugging.
   if (args.length === 0) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
-
-  // Validate that all arguments are non-empty strings with standardized error messaging.
   validateArgs(args);
-
   return yargs(args)
     .scriptName("repository0")
     .usage("$0 <command>")

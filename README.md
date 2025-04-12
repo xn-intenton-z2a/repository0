@@ -26,16 +26,15 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 **Input Validation:**
 
 - All CLI arguments must be non-empty strings representing valid commands.
-- The CLI uses a consolidated error handling approach for consistency. For example:
-  - Non-string inputs (for instance, NaN) result in: 
+- The CLI now uses a refactored and consolidated error handling approach for consistent error formatting. For example:
+  - Non-string inputs (e.g., NaN) will trigger the error:
     - `Invalid input: Expected a valid string command, but received NaN`
-  - Empty string inputs result in:
+  - Empty string inputs will trigger the error:
     - `Invalid input: Expected a non-empty string command, but received an empty string`
 
-**Error Handling:**
+**Error Handling Improvements:**
 
-- Errors are standardized and prefixed with `Error:` to ensure both human-readability and machine parsing.
-- Enhanced error messaging now leverages structured formatting for clarity and maintainability.
+The error handling has been refactored to provide uniform and clear error messages. This ensures that any invalid input is identified and reported consistently, aiding in troubleshooting and debugging.
 
 ## What’s Inside
 
@@ -43,7 +42,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with clearer error messages.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with standardized error messages.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
