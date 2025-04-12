@@ -18,6 +18,11 @@ function handleError(message, err) {
 
 /**
  * Main function to parse CLI arguments and execute subcommands.
+ * 
+ * In addition to processing valid commands, this function checks for non-string inputs.
+ * If an argument is not a string (for example, NaN), it will trigger an error with a descriptive
+ * message indicating the invalid input.
+ *
  * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
  */
 export function main(args = []) {
