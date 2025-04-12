@@ -94,7 +94,7 @@ describe("CLI Commands", () => {
         return main([NaN]);
       } catch {}
     });
-    expect(output).toContain("Invalid input: Expected a valid string command, but received NaN");
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN");
   });
 
   test("empty string input displays error message", async () => {
@@ -131,5 +131,60 @@ describe("CLI Commands", () => {
       } catch {}
     });
     expect(output).toContain("Missing environment variable CHATGPT_API_SECRET_KEY");
+  });
+
+  // New tests for additional edge cases
+  test("boolean input (true) displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([true]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received true");
+  });
+
+  test("boolean input (false) displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([false]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received false");
+  });
+
+  test("null input displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([null]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received null");
+  });
+
+  test("undefined input displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([undefined]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received undefined");
+  });
+
+  test("object input displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([{ command: "test" }]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received {\"command\":\"test\"}");
+  });
+
+  test("array input displays error", async () => {
+    const output = await captureOutput(() => {
+      try {
+        return main([["array"]]);
+      } catch {} 
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
   });
 });

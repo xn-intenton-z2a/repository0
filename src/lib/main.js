@@ -25,12 +25,32 @@ function handleError(message, err) {
 /**
  * Validates that a CLI argument is a non-empty string.
  * If the argument is not a string or is empty, a standardized error is thrown.
+ * This function now additionally handles booleans, null, undefined, objects and arrays.
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
   if (typeof arg !== "string") {
-    const received = (typeof arg === "number" && Number.isNaN(arg)) ? "NaN" : JSON.stringify(arg);
-    handleError(`Invalid input: Expected a valid string command, but received ${received}`);
+    let received;
+    if (arg === null) {
+      received = "null";
+    } else if (arg === undefined) {
+      received = "undefined";
+    } else if (typeof arg === "boolean") {
+      received = arg.toString();
+    } else if (Array.isArray(arg)) {
+      received = "Array";
+    } else if (typeof arg === "object") {
+      try {
+        received = JSON.stringify(arg);
+      } catch (e) {
+        received = String(arg);
+      }
+    } else if (typeof arg === "number" && Number.isNaN(arg)) {
+      received = "NaN";
+    } else {
+      received = JSON.stringify(arg);
+    }
+    handleError(`Invalid input: Expected a valid non-empty string command, but received ${received}`);
   }
   if (arg.trim() === "") {
     handleError("Invalid input: Expected a non-empty string command, but received an empty string");
