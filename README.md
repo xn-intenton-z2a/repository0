@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view and summarize the conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, and search the conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -28,6 +28,8 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-history`
 - **chat-summarize:** Generates a concise summary of the conversation history. This command reads the conversation history from `.chat_history.json` and uses the OpenAI API to produce a summary. If no history exists, it outputs a message indicating that there is no conversation history to summarize.
   - Example: `repository0 chat-summarize`
+- **chat-search:** Searches the conversation history for entries that match a provided keyword (case-insensitive). It filters both user and assistant messages, and displays the matching entries in a clear, indexed format. If no matches are found or if no conversation history exists, an appropriate message is shown.
+  - Example: `repository0 chat-search --query "search text"`
 
 ## CLI Input Validation and Error Handling
 
@@ -52,13 +54,13 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations, a command to display the conversation history, and a new command to summarize the conversation history.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations, a command to display the conversation history, a command to summarize the conversation history, and a new command to search the conversation history.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation, history display functionality, and conversation summarization for the chat commands.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation, history display functionality, conversation summarization, and conversation search capabilities.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
