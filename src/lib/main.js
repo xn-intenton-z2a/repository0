@@ -37,6 +37,63 @@ function validateArgs(args) {
   }
 }
 
+// Modular command definitions
+
+/**
+ * Registers the diagnostics command.
+ * @returns {object} Yargs command module for diagnostics
+ */
+const diagnosticsCommand = {
+  command: "diagnostics",
+  describe: "Run diagnostics",
+  handler: () => {
+    console.log("Diagnostics: running diagnostics");
+  }
+};
+
+/**
+ * Registers the version command.
+ * @returns {object} Yargs command module for version
+ */
+const versionCommand = {
+  command: "version",
+  describe: "Show version",
+  handler: () => {
+    console.log(`Version ${packageData.version}`);
+  }
+};
+
+/**
+ * Registers the update command.
+ * @returns {object} Yargs command module for update
+ */
+const updateCommand = {
+  command: "update",
+  describe: "Perform update",
+  handler: () => {
+    console.log("Performing update...");
+  }
+};
+
+/**
+ * Registers the config command with its subcommand(s).
+ * @returns {object} Yargs command module for config
+ */
+const configCommand = {
+  command: "config",
+  describe: "View configuration settings",
+  builder: (yargs) => {
+    return yargs.command({
+      command: "show",
+      describe: "Display configuration",
+      handler: () => {
+        console.log("Configuration: using default settings");
+      }
+    }).demandCommand(1, "You need to specify a valid config subcommand");
+  },
+  handler: () => {}
+};
+
 /**
  * Main function to parse CLI arguments and execute subcommands.
  *
@@ -58,47 +115,10 @@ export function main(args = []) {
   return yargs(args)
     .scriptName("repository0")
     .usage("$0 <command>")
-    .command(
-      "diagnostics",
-      "Run diagnostics",
-      () => {},
-      () => {
-        console.log("Diagnostics: running diagnostics");
-      }
-    )
-    .command(
-      "version",
-      "Show version",
-      () => {},
-      () => {
-        console.log(`Version ${packageData.version}`);
-      }
-    )
-    .command(
-      "update",
-      "Perform update",
-      () => {},
-      () => {
-        console.log("Performing update...");
-      }
-    )
-    .command(
-      "config",
-      "View configuration settings",
-      (yargs) => {
-        return yargs
-          .command(
-            "show",
-            "Display configuration",
-            () => {},
-            () => {
-              console.log("Configuration: using default settings");
-            }
-          )
-          .demandCommand(1, "You need to specify a valid config subcommand");
-      },
-      () => {}
-    )
+    .command(diagnosticsCommand)
+    .command(versionCommand)
+    .command(updateCommand)
+    .command(configCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
