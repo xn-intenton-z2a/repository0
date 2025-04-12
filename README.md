@@ -33,14 +33,9 @@ The CLI validates all input arguments to ensure they are non-empty strings using
 Invalid input: Expected a valid non-empty string command, but received <input>
 ```
 
-For example:
+Additionally, error messages now include a suggestion to help guide the user. For example, if an invalid value is provided, the error message will be appended with:
 
-- Providing NaN as input produces:
-  - `Invalid input: Expected a valid non-empty string command, but received NaN`
-- Providing an empty string produces:
-  - `Invalid input: Expected a non-empty string command, but received an empty string`
-- Providing a boolean (e.g., true) produces:
-  - `Invalid input: Expected a valid non-empty string command, but received true`
+" Please provide a valid non-empty string, such as 'start' or 'info'."
 
 ## Error Handling Improvements
 

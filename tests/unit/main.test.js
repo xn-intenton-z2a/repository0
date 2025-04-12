@@ -37,6 +37,7 @@ async function captureOutput(fn) {
   return output;
 }
 
+const suggestion = "Please provide a valid non-empty string, such as 'start' or 'info'.";
 
 describe("CLI Commands", () => {
   test("diagnostics command", async () => {
@@ -94,6 +95,7 @@ describe("CLI Commands", () => {
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN");
+    expect(output).toContain(suggestion);
   });
 
   test("empty string input displays error message", async () => {
@@ -103,6 +105,7 @@ describe("CLI Commands", () => {
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
+    expect(output).toContain(suggestion);
   });
 
   // Tests for the new chat command
@@ -120,6 +123,7 @@ describe("CLI Commands", () => {
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
+    expect(output).toContain(suggestion);
   });
 
   test("chat command missing API key displays error", async () => {
@@ -132,7 +136,6 @@ describe("CLI Commands", () => {
     expect(output).toContain("Missing environment variable CHATGPT_API_SECRET_KEY");
   });
 
-  // New tests for additional edge cases
   test("boolean input (true) displays error", async () => {
     const output = await captureOutput(() => {
       try {
@@ -140,6 +143,7 @@ describe("CLI Commands", () => {
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received true");
+    expect(output).toContain(suggestion);
   });
 
   test("boolean input (false) displays error", async () => {
@@ -149,6 +153,7 @@ describe("CLI Commands", () => {
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received false");
+    expect(output).toContain(suggestion);
   });
 
   test("null input displays error", async () => {
@@ -158,6 +163,7 @@ describe("CLI Commands", () => {
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received null");
+    expect(output).toContain(suggestion);
   });
 
   test("undefined input displays error", async () => {
@@ -167,6 +173,7 @@ describe("CLI Commands", () => {
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received undefined");
+    expect(output).toContain(suggestion);
   });
 
   test("object input displays error", async () => {
@@ -176,14 +183,16 @@ describe("CLI Commands", () => {
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received {\"command\":\"test\"}");
+    expect(output).toContain(suggestion);
   });
 
   test("array input displays error", async () => {
     const output = await captureOutput(() => {
       try {
-        return main([["array"]]);
+        return main([ ["array"] ]);
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
+    expect(output).toContain(suggestion);
   });
 });
