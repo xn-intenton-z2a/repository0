@@ -193,7 +193,7 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversation.
  */
 const chatCommand = {
   command: "chat",
@@ -227,6 +227,10 @@ const chatCommand = {
         type: "number",
         describe: "Response randomness factor",
         default: 0.7
+      })
+      .option("summarization-prompt", {
+        type: "string",
+        describe: "Custom prompt to use for summarizing conversation history (optional)"
       });
   },
   handler: async (argv) => {
@@ -267,9 +271,13 @@ const chatCommand = {
     // Auto-summarization: if conversation history grows too long, summarize older messages
     if (conversationHistory.length > maxHistoryMessages) {
       const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
+      const customPrompt = argv["summarization-prompt"];
+      const summarizationUserMessage = customPrompt && customPrompt.trim() !== ""
+        ? `${customPrompt} ${JSON.stringify(messagesToSummarize)}`
+        : `Summarize the following conversation: ${JSON.stringify(messagesToSummarize)}`;
       const summarizationMessages = [
         { role: "system", content: "You are a summarization assistant. Given the conversation history, produce a concise summary." },
-        { role: "user", content: `Summarize the following conversation: ${JSON.stringify(messagesToSummarize)}` }
+        { role: "user", content: summarizationUserMessage }
       ];
       try {
         const summaryResponse = await openai.createChatCompletion({

@@ -10,10 +10,12 @@ vi.mock("openai", () => {
   class FakeOpenAIApi {
     constructor(config) {}
     async createChatCompletion(params) {
-      // For summarization, check if the messages include our summarization prompt
+      // For custom summarization prompt, check if the last message starts with 'Custom summarize:'
       if (params.messages && Array.isArray(params.messages)) {
         const lastMessage = params.messages[params.messages.length - 1].content;
-        if (lastMessage.startsWith('Summarize the following conversation:')) {
+        if (lastMessage.startsWith('Custom summarize:')) {
+          return { data: { choices: [{ message: { content: "Custom summarization response" } }] } };
+        } else if (lastMessage.startsWith('Summarize the following conversation:')) {
           return { data: { choices: [{ message: { content: "Summary of conversation" } }] } };
         } else if (lastMessage.startsWith('Translate the following conversation history')) {
           return { data: { choices: [{ message: { content: `Translated conversation to target language` } }] } };
@@ -644,6 +646,24 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => main(["chat", "--prompt", "Hello, custom test", "--model", "gpt-4", "--temperature", "0.9"]));
     expect(output).toContain("Custom response from OpenAI with gpt-4");
+  });
+
+  // New test for chat command with custom summarization prompt
+  test("chat command with custom summarization prompt triggers custom summarization", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    // Write a sample history to force auto-summarization
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Message 1" },
+      { role: "assistant", content: "Response 1" },
+      { role: "user", content: "Message 2" },
+      { role: "assistant", content: "Response 2" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    // Set max-history-messages to 3 so that with the additional prompt the summarization is triggered
+    const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--summarization-prompt", "Custom summarize:" ]));
+    expect(output).toContain("Custom summarization response");
+    await fs.unlink(historyFile);
   });
 
   // New tests for chat-pdf-export command
