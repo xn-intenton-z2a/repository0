@@ -40,8 +40,8 @@ on:
   #    - agentic-lib-*
   schedule:
     #- cron: '0 */4 * * *' # schedule-1
-    #- cron: '*/30 * * * *' # schedule-2
-    - cron: '*/15 * * * *' # schedule-3
+    #- cron: '0 */1 * * *' # schedule-2
+    - cron: '*/30 * * * *' # schedule-3
 
 jobs:
 
