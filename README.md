@@ -20,7 +20,7 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 - **update:** Initiates an update.
   - Example: `repository0 update`
 
-When the CLI is executed without any arguments, the default parameter ensures that the arguments are treated as an empty array, logging "Run with: []" before displaying an error message prompting for a valid command.
+When the CLI is executed without any arguments, it first logs the default parameter message `Run with: []` and then displays an error prompting you to specify a valid command.
 
 ## What’s Inside
 
@@ -34,7 +34,7 @@ When the CLI is executed without any arguments, the default parameter ensures th
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests now cover the new default parameter functionality when no arguments are provided.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including proper handling of the default parameter when no arguments are provided.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
