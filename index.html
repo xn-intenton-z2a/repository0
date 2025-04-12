@@ -23,10 +23,10 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, search, export, and analyze the conversation history. Additionally, the chat command now supports configurable auto-summarization settings, allowing users to override the default summarization threshold and the number of recent messages to retain via CLI options or environment variables.</p>
+<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, and remove (delete specific entry) from the conversation history.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Package metadata is imported using Node's built-in createRequire, which avoids deprecated JSON import assertions.</p>
+<p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-usage" href="#cli-usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Usage</h2>
 <p class="md-github">The CLI employs yargs for robust subcommand parsing and improved input validation. Key subcommands include:</p>
 <ul class="md-github">
@@ -55,36 +55,45 @@
 <li class="md-github">Example: <code class="md-github">repository0 info</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. You can override the default summarization settings by using the following options or environment variables:
+<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded.
 <ul class="md-github">
-<li class="md-github"><code class="md-github">--max-history-messages</code>: Maximum number of messages before summarization (default: 10). Alternatively, set the environment variable <code class="md-github">CHAT_MAX_HISTORY_MESSAGES</code>.</li>
-<li class="md-github"><code class="md-github">--recent-messages</code>: Number of recent messages to retain after summarization (default: 2). Alternatively, set the environment variable <code class="md-github">CHAT_RECENT_MESSAGES</code>.</li>
+<li class="md-github">Options:
+<ul class="md-github">
+<li class="md-github"><code class="md-github">--max-history-messages</code>: Maximum number of messages before summarization (default: 10) or via <code class="md-github">CHAT_MAX_HISTORY_MESSAGES</code> environment variable.</li>
+<li class="md-github"><code class="md-github">--recent-messages</code>: Number of recent messages to retain after summarization (default: 2) or via <code class="md-github">CHAT_RECENT_MESSAGES</code> environment variable.</li>
+</ul>
+</li>
 <li class="md-github">Example: <code class="md-github">repository0 chat --prompt &quot;Hello, how are you?&quot; --max-history-messages 5 --recent-messages 1</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format. It reads the content from the <code class="md-github">.chat_history.json</code> file and prints each entry. If no conversation history is available, an appropriate message is shown.
+<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-history</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history by using the OpenAI API. If no history exists, it outputs a message indicating that there is no conversation history to summarize.
+<li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history by using the OpenAI API.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-summarize</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-search:</strong> Searches the conversation history for entries that match a provided keyword (case-insensitive). It filters both user and assistant messages and displays the matching entries. If no matches are found or if no conversation history exists, an appropriate message is shown.
+<li class="md-github"><strong class="md-github">chat-search:</strong> Searches the conversation history for entries that match a provided keyword (case-insensitive).
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-search --query &quot;search text&quot;</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-export:</strong> Exports the conversation history to a markdown file (<code class="md-github">chat_history.md</code>). The command reads the conversation history from <code class="md-github">.chat_history.json</code>, formats it with markdown (including indices, roles, and messages), and writes the output to the markdown file. If there is no conversation history, an appropriate message is displayed.
+<li class="md-github"><strong class="md-github">chat-export:</strong> Exports the conversation history to a markdown file (<code class="md-github">chat_history.md</code>).
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-export</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-statistics:</strong> Provides analytics on the conversation history by computing total messages, message counts per role, and average message length per role.
+<li class="md-github"><strong class="md-github">chat-statistics:</strong> Provides analytics on the conversation history by computing total messages, counts per role, and average message length.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-statistics</code></li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">chat-remove:</strong> Removes a specific conversation entry from the history. It accepts a required numeric argument <code class="md-github">--index</code> (alias <code class="md-github">-i</code>) representing the 1-based index of the entry to remove.
+<ul class="md-github">
+<li class="md-github">Example: <code class="md-github">repository0 chat-remove --index 2</code></li>
 </ul>
 </li>
 </ul>
@@ -100,7 +109,7 @@
 </ul>
 <p class="md-github">This consistent formatting aids debugging and ensures seamless integration with downstream tools.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="error-handling-improvements" href="#error-handling-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error Handling Improvements</h2>
-<p class="md-github">Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized keys (<code class="md-github">error</code> and <code class="md-github">message</code>).</p>
+<p class="md-github">Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized messages.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -109,7 +118,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations and auto-summarizes long conversation histories using configurable thresholds and atomic file operations, and additional commands to display, summarize, search, export, and analyze (statistics) the conversation history.</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now features a new <code class="md-github">chat-remove</code> command for fine-grained deletion of conversation history entries along with other chat history commands.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -117,7 +126,7 @@ The <code class="md-github">package.json</code> file defines project dependencie
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversations, history display functionality, conversation summarization, conversation search capabilities, export to markdown, and conversation analytics.</p>
+Unit tests validate the CLI commands and error handling scenarios, ensuring robust behavior in various edge cases.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -125,14 +134,11 @@ This README provides essential project information. For contribution guidelines,
 </li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
-<p class="md-github">This repository is set up with the necessary workflows and scripts. You need to supply the following secret:</p>
+<p class="md-github">Set up the required secret for chat functionality:</p>
 <ul class="md-github">
-<li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> - An account key with access to the OpenAI chat completions API for model <code class="md-github">gpt-3.5-turbo</code>.</li>
+<li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> - Your OpenAI API key for model <code class="md-github">gpt-3.5-turbo</code>.</li>
 </ul>
-<p class="md-github">Set this secret in your repository settings under <em class="md-github">Settings &gt; Secrets and Variables &gt; Actions</em>.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="intentïon-agenticlib" href="#intentïon-agenticlib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic‑lib</code></h2>
-<p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic‑lib</code></strong> is a collection of reusable GitHub Actions workflows enabling your repository to operate in an “agentic” manner. These workflows are designed to automate tasks such as testing, building, and deploying your projects. They are invoked using GitHub’s <code class="md-github">workflow_call</code> event and can be composed together like an SDK.</p>
-<p class="md-github"><em class="md-github">Warning:</em> Running these workflows may incur resource usage and charges.</p>
+<p class="md-github">Configure this secret in your repository settings under <em class="md-github">Settings &gt; Secrets and Variables &gt; Actions</em>.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="links" href="#links"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Links</h2>
 <ul class="md-github">
 <li class="md-github"><a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></li>
@@ -146,7 +152,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T15:37:25.845Z</p>
+    <p>Generated on 2025-04-12T15:38:04.591Z</p>
   </footer>
 </body>
 </html>
