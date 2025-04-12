@@ -287,3 +287,4 @@ fabric.properties
 /src/lib/output.*
 /tests/unit/output.*
 /output.*
+/CONTRIBUTING.md.bak
