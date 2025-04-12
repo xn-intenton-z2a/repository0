@@ -240,7 +240,7 @@ const infoCommand = {
 
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, and configurable model/temperature).",
+  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, auto-archival, and configurable model/temperature).",
   builder: (yargs) => {
     return yargs
       .option("prompt", {
@@ -274,6 +274,11 @@ const chatCommand = {
       .option("summarization-prompt", {
         type: "string",
         describe: "Custom prompt to use for summarizing conversation history (optional)"
+      })
+      .option("auto-archive-threshold", { 
+        type: "number",
+        describe: "Maximum number of messages before auto archiving the conversation history",
+        default: undefined
       });
   },
   handler: async (argv) => {
@@ -289,14 +294,39 @@ const chatCommand = {
     await loadHistory();
     debugLog(`Post-load, conversation history length: ${conversationData.messages.length}`);
 
-    const apiKey = process.env.CHATGPT_API_SECRET_KEY;
-    if (!apiKey) {
-      handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
-    }
+    // Determine auto archive threshold from CLI option, environment variable, persisted config, or default (50)
+    let autoArchiveThreshold = argv["auto-archive-threshold"] !== undefined ? parseInt(argv["auto-archive-threshold"]) : 
+                               (process.env.CHAT_AUTO_ARCHIVE_THRESHOLD ? parseInt(process.env.CHAT_AUTO_ARCHIVE_THRESHOLD) : 
+                               (chatConfig.autoArchiveThreshold || 50));
 
     // Append user prompt to conversation history with tags initialized
     conversationData.messages.push({ role: "user", content: prompt, tags: [] });
     debugLog("User prompt appended to conversation history.");
+
+    // Auto-Archival: if the conversation history exceeds the autoArchiveThreshold, archive history
+    if (conversationData.messages.length > autoArchiveThreshold) {
+      debugLog("Auto-archive triggered due to conversation length exceeding threshold.");
+      const archiveContent = { ...conversationData };
+      const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+      const archiveFile = `chat_history-${timestamp}.json`;
+      const tempArchiveFile = archiveFile + ".tmp";
+      try {
+        await fs.writeFile(tempArchiveFile, JSON.stringify(archiveContent, null, 2));
+        await fs.rename(tempArchiveFile, archiveFile);
+        console.log(`Conversation history auto-archived to ${archiveFile}`);
+        // Retain the current user message as the sole entry in the new conversation
+        const currentUserMessage = conversationData.messages[conversationData.messages.length - 1];
+        conversationData = { sessionTitle: conversationData.sessionTitle, messages: [currentUserMessage] };
+        await saveHistory();
+      } catch (error) {
+        handleError("Failed to auto-archive conversation history", error);
+      }
+    }
+
+    const apiKey = process.env.CHATGPT_API_SECRET_KEY;
+    if (!apiKey) {
+      handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
+    }
 
     // Get configurable auto-summarization settings, using CLI option, then env, then persisted config, then default
     let maxHistoryMessages = argv["max-history-messages"] !== undefined ? parseInt(argv["max-history-messages"]) : (process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : (chatConfig["max-history-messages"] || 10));
@@ -906,6 +936,10 @@ const chatConfigUpdateCommand = {
       .option("recent-messages", {
         type: "number",
         describe: "Update the default number of recent messages to retain after summarization"
+      })
+      .option("auto-archive-threshold", {
+        type: "number",
+        describe: "Update the default auto archive threshold for conversation history"
       });
   },
   handler: async (argv) => {
@@ -914,6 +948,7 @@ const chatConfigUpdateCommand = {
     if (argv.temperature !== undefined) newConfig.temperature = argv.temperature;
     if (argv["max-history-messages"] !== undefined) newConfig["max-history-messages"] = argv["max-history-messages"]; 
     if (argv["recent-messages"] !== undefined) newConfig["recent-messages"] = argv["recent-messages"]; 
+    if (argv["auto-archive-threshold"] !== undefined) newConfig.autoArchiveThreshold = argv["auto-archive-threshold"];
 
     let existingConfig = {};
     if (existsSync(CHAT_CONFIG_FILE)) {

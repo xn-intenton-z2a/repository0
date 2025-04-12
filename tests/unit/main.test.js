@@ -737,6 +737,37 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
+  // Test for auto archival feature triggered in chat command
+  test("chat command auto-archives conversation when threshold exceeded", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    // Pre-fill history with 3 messages
+    const sampleHistory = { sessionTitle: "Auto Archive Test", messages: [
+      { role: "user", content: "Old message 1", tags: [] },
+      { role: "assistant", content: "Old response 1", tags: [] },
+      { role: "user", content: "Old message 2", tags: [] }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    // Set auto archive threshold to 3, so adding one more will trigger auto-archival
+    const output = await captureOutput(() => main(["chat", "--prompt", "New auto archival test", "--auto-archive-threshold", "3"]));
+    // Check for auto archive message
+    expect(output).toMatch(/Conversation history auto-archived to chat_history-\d{14}\.json/);
+    // Verify that the conversation history file now contains only the new message and preserved session title
+    const newHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(newHistory.sessionTitle).toBe("Auto Archive Test");
+    expect(newHistory.messages.length).toBe(1);
+    expect(newHistory.messages[0].content).toBe("New auto archival test");
+    // Cleanup archived file if exists
+    const archiveMatch = output.match(/Conversation history auto-archived to (chat_history-\d{14}\.json)/);
+    if (archiveMatch) {
+      const archiveFile = path.resolve(process.cwd(), archiveMatch[1]);
+      if (existsSync(archiveFile)) {
+        await fs.unlink(archiveFile);
+      }
+    }
+    await fs.unlink(historyFile);
+  });
+
   // Test for global verbose flag
   test("global verbose flag enables detailed debug logging", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
@@ -751,13 +782,14 @@ describe("CLI Commands", () => {
     if (existsSync(configFile)) {
       await fs.unlink(configFile);
     }
-    const output = await captureOutput(() => main(["chat-config-update", "--model", "gpt-4", "--temperature", "0.8", "--max-history-messages", "15", "--recent-messages", "3"]));
+    const output = await captureOutput(() => main(["chat-config-update", "--model", "gpt-4", "--temperature", "0.8", "--max-history-messages", "15", "--recent-messages", "3", "--auto-archive-threshold", "100"]));
     expect(output).toContain("Chat configuration updated successfully.");
     const configData = JSON.parse(await fs.readFile(configFile, "utf-8"));
     expect(configData.model).toBe("gpt-4");
     expect(configData.temperature).toBe(0.8);
     expect(configData["max-history-messages"]).toBe(15);
     expect(configData["recent-messages"]).toBe(3);
+    expect(configData.autoArchiveThreshold).toBe(100);
     await fs.unlink(configFile);
   });
 
