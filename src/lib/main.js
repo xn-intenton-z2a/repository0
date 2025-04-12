@@ -47,13 +47,21 @@ function validateArgs(args) {
 // Modular command definitions
 
 /**
- * Diagnostics command: Runs diagnostics.
+ * Diagnostics command: Runs diagnostics with detailed environment information.
  */
 const diagnosticsCommand = {
   command: "diagnostics",
-  describe: "Run diagnostics",
+  describe: "Run diagnostics with detailed environment information",
   handler: () => {
     console.log("Diagnostics: running diagnostics");
+    console.log("Node.js Version: " + process.version);
+    console.log(`Package: ${packageData.name}`);
+    console.log(`Version: ${packageData.version}`);
+    console.log(`Description: ${packageData.description}`);
+    console.log("Dependencies:");
+    for (const [dep, ver] of Object.entries(packageData.dependencies || {})) {
+      console.log(`  ${dep}: ${ver}`);
+    }
   }
 };
 
