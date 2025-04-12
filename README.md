@@ -22,6 +22,10 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 - **config:** Displays configuration settings. Use the subcommand **show** to view the current configuration.
   - Example: `repository0 config show`
 
+**Input Validation:**
+
+- The CLI argument validation logic has been refactored to provide clear and robust error messages when non-string inputs (such as NaN) are provided.
+
 When the CLI is executed without any arguments, it first logs the default parameter message `Run with: []` and then displays an error prompting you to specify a valid command.
 
 - **Error Handling:** 
