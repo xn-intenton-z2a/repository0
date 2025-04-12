@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API as well as robust CLI input validation covering edge cases such as booleans, null, undefined, objects, and arrays.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -27,19 +27,14 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 ## CLI Input Validation
 
-The CLI validates all input arguments to ensure they are non-empty strings. If an invalid input is detected, the CLI will:
+The CLI validates all input arguments to ensure they are non-empty strings. With the latest enhancements, the CLI now also checks and rejects booleans, null, undefined, objects, and arrays. If an invalid input is detected, the CLI will:
 
-- For non-string inputs (including NaN), display: 
-  - `Invalid input: Expected a valid string command, but received NaN` (or the corresponding value)
+- For non-string inputs (including booleans, null, undefined, objects, and arrays), display a standardized error message similar to:
+  - `Invalid input: Expected a valid non-empty string command, but received <value>`
 - For empty strings, display:
   - `Invalid input: Expected a non-empty string command, but received an empty string`
 
 This validation mechanism is enforced in the source code and verified by tests in `tests/unit/main.test.js`.
-
-## Input Validation Overview
-
-- **Non-empty Strings:** All CLI commands must be provided as non-empty strings. 
-- **Invalid Inputs:** If a non-string or empty string is provided, the CLI returns a standardized error message prefixed with "CLI Error:".
 
 ## Error Handling Improvements
 
@@ -57,7 +52,7 @@ The error handling has been centralized to include a consistent prefix ("CLI Err
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for invalid inputs like NaN and empty strings, as well as covering the chat command integration.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for invalid inputs such as NaN, booleans, null, undefined, empty strings, objects, and arrays, in addition to covering the chat command integration.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
