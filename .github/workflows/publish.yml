@@ -179,6 +179,9 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   stats:
+    needs:
+      - publish-npm
+      - publish-mvn
     if: ${{ always() }}
     permissions:
       contents: write

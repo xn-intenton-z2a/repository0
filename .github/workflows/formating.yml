@@ -75,6 +75,8 @@ jobs:
       label: 'automerge'
 
   stats:
+    needs:
+      - create-pr
     if: ${{ always() }}
     permissions:
       contents: write

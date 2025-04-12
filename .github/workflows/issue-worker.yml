@@ -363,6 +363,8 @@ jobs:
       label: 'automerge'
 
   stats:
+    needs:
+      - apply-issue-resolution
     if: ${{ always() }}
     permissions:
       contents: write

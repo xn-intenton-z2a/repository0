@@ -243,6 +243,8 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   stats:
+    needs:
+      - deploy
     if: ${{ always() }}
     permissions:
       contents: write

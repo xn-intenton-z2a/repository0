@@ -98,6 +98,8 @@ jobs:
           result-encoding: string
 
   stats:
+    needs:
+      - cleanup
     if: ${{ always() }}
     permissions:
       contents: write

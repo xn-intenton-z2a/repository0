@@ -77,6 +77,8 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   stats:
+    needs:
+      - review-issue
     if: ${{ always() }}
     permissions:
       contents: write

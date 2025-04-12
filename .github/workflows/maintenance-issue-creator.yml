@@ -119,6 +119,8 @@ jobs:
       issueLabels: 'maintenance, automated'
 
   stats:
+    needs:
+      - create-issue
     if: ${{ always() }}
     permissions:
       contents: write

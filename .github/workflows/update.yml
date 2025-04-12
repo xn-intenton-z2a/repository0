@@ -136,6 +136,10 @@ jobs:
       label: 'automerge'
 
   stats:
+    needs:
+      - check-branch
+      - update-npm
+      - update-mvn
     if: ${{ always() }}
     permissions:
       contents: write
