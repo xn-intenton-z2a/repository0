@@ -1,151 +1,160 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>agentic-lib</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.9/ejs.min.js"></script>
-  <style>
+  <head>
+    <meta charset="UTF-8" />
+    <title>agentic-lib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/ejs@3.1.9/ejs.min.js"></script>
+    <style>
+      /* Basic reset and box-sizing */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        padding: 1em;
+      }
+      header {
+        margin-bottom: 1em;
+        text-align: center;
+      }
+      h1 {
+        font-size: 1.8em;
+        margin-bottom: 0.5em;
+      }
+      #controls {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        text-align: center;
+      }
+      #autoReloadLabel {
+        font-size: 1em;
+        margin-left: 0.5em;
+      }
+      /* Main content container fills available space */
+      #mainContent {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Grid container: fill available space and auto-size rows */
+      .grid {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1em;
+        overflow-y: auto;
+        grid-auto-rows: 1fr; /* Each row takes equal available space */
+      }
+      /* The iframe now fills its container completely */
+      .tile iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
+      footer {
+        margin-top: 0;
+        text-align: center;
+        font-size: 0.9em;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p>
+        <a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> -
+        <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">site</a>
+      </p>
+    </header>
+    <div id="mainContent">
+      <div class="grid" id="tileContainer">
+        <!-- Tiles will be generated here -->
+      </div>
+    </div>
+    <div id="controls">
+      <label>
+        <input type="checkbox" id="autoReloadSwitch" checked />
+        <span id="autoReloadLabel">Auto-reload enabled</span>
+      </label>
+    </div>
+    <footer></footer>
 
-/* Basic reset and box-sizing */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    padding: 1em;
-}
-header {
-    margin-bottom: 1em;
-    text-align: center;
-}
-h1 { font-size: 1.8em; margin-bottom: 0.5em; }
-#controls { margin-top: 1em; margin-bottom: 1em; text-align: center; }
-#autoReloadLabel { font-size: 1em; margin-left: 0.5em; }
-/* Main content container fills available space */
-#mainContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-/* Grid container: fill available space and auto-size rows */
-.grid {
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1em;
-    overflow-y: auto;
-    grid-auto-rows: 1fr;  /* Each row takes equal available space */
-}
-/* The iframe now fills its container completely */
-.tile iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-footer {
-    margin-top: 0;
-    text-align: center;
-    font-size: 0.9em;
-    color: #777;
-}
+    <script>
+      // Configuration: list of URLs of stats data to display in the tiles.
+      const urls = [
+        "agentic-lib-stats.json",
+        "repository0-crucible-stats.json",
+        "repository0-plot-code-lib-stats.json",
+        "repository0-stats.json",
+      ];
 
-  </style>
-</head>
-<body>
-<header>
-  <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/index.html">site</a></p>
-</header>
-<div id="mainContent">
-  <div class="grid" id="tileContainer">
-    <!-- Tiles will be generated here -->
-  </div>
-</div>
-<div id="controls">
-  <label>
-    <input type="checkbox" id="autoReloadSwitch" checked>
-    <span id="autoReloadLabel">Auto-reload enabled</span>
-  </label>
-</div>
-<footer>
-</footer>
+      const tileContainer = document.getElementById("tileContainer");
+      const autoReloadSwitch = document.getElementById("autoReloadSwitch");
 
-<script>
+      // Generate grid tiles with templated content using EJS.
+      urls.forEach((jsonUrl, index) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.dataset.url = jsonUrl;
 
-// Configuration: list of URLs of stats data to display in the tiles.
-const urls = [
-  "agentic-lib-stats.json",
-  "repository0-crucible-stats.json",
-  "repository0-plot-code-lib-stats.json",
-  "repository0-stats.json"
-];
+        // Load the template and JSON data concurrently.
+        Promise.all([fetch("stats.html").then((res) => res.text()), fetch(jsonUrl).then((res) => res.json())])
+          .then(([template, statsData]) => {
+            // Use EJS to render the template with the JSON data.
+            tile.innerHTML = ejs.render(template, statsData);
+          })
+          .catch((err) => {
+            console.error("Error loading template or JSON:", err);
+            tile.innerHTML = `<p>Error loading data for tile ${index + 1}</p>`;
+          });
 
-const tileContainer = document.getElementById('tileContainer');
-const autoReloadSwitch = document.getElementById('autoReloadSwitch');
+        // Clicking a tile opens the JSON data URL in a new tab.
+        tile.addEventListener("click", () => {
+          window.open(jsonUrl, "_blank");
+        });
 
-// Generate grid tiles with templated content using EJS.
-urls.forEach((jsonUrl, index) => {
-  const tile = document.createElement('div');
-  tile.className = 'tile';
-  tile.dataset.url = jsonUrl;
+        tileContainer.appendChild(tile);
+      });
 
-  // Load the template and JSON data concurrently.
-  Promise.all([
-    fetch('stats.html').then(res => res.text()),
-    fetch(jsonUrl).then(res => res.json())
-  ])
-    .then(([template, statsData]) => {
-      // Use EJS to render the template with the JSON data.
-      tile.innerHTML = ejs.render(template, statsData);
-    })
-    .catch(err => {
-      console.error('Error loading template or JSON:', err);
-      tile.innerHTML = `<p>Error loading data for tile ${index + 1}</p>`;
-    });
+      // Auto-reload: cycle through tiles, reloading one every 10 seconds.
+      let currentTile = 0;
+      function autoReload() {
+        if (!autoReloadSwitch.checked) return;
+        const tiles = document.querySelectorAll(".tile");
+        if (tiles.length === 0) return;
 
-  // Clicking a tile opens the JSON data URL in a new tab.
-  tile.addEventListener('click', () => {
-    window.open(jsonUrl, '_blank');
-  });
+        // Reload the content of the current tile.
+        const tile = tiles[currentTile];
+        const jsonUrl = tile.dataset.url;
+        Promise.all([fetch("stats.html").then((res) => res.text()), fetch(jsonUrl).then((res) => res.json())])
+          .then(([template, statsData]) => {
+            tile.innerHTML = ejs.render(template, statsData);
+          })
+          .catch((err) => {
+            console.error("Error reloading tile:", err);
+          });
 
-  tileContainer.appendChild(tile);
-});
+        currentTile = (currentTile + 1) % tiles.length;
+      }
+      setInterval(autoReload, 2000);
 
-// Auto-reload: cycle through tiles, reloading one every 10 seconds.
-let currentTile = 0;
-function autoReload() {
-  if (!autoReloadSwitch.checked) return;
-  const tiles = document.querySelectorAll('.tile');
-  if (tiles.length === 0) return;
-
-  // Reload the content of the current tile.
-  const tile = tiles[currentTile];
-  const jsonUrl = tile.dataset.url;
-  Promise.all([
-    fetch('stats.html').then(res => res.text()),
-    fetch(jsonUrl).then(res => res.json())
-  ])
-    .then(([template, statsData]) => {
-      tile.innerHTML = ejs.render(template, statsData);
-    })
-    .catch(err => {
-      console.error('Error reloading tile:', err);
-    });
-
-  currentTile = (currentTile + 1) % tiles.length;
-}
-setInterval(autoReload, 2000);
-
-// Update label on auto-reload switch change.
-autoReloadSwitch.addEventListener('change', () => {
-  document.getElementById('autoReloadLabel').textContent = autoReloadSwitch.checked
-    ? "Auto-reload enabled"
-    : "Auto-reload disabled";
-});
-
-</script>
-</body>
+      // Update label on auto-reload switch change.
+      autoReloadSwitch.addEventListener("change", () => {
+        document.getElementById("autoReloadLabel").textContent = autoReloadSwitch.checked
+          ? "Auto-reload enabled"
+          : "Auto-reload disabled";
+      });
+    </script>
+  </body>
 </html>
