@@ -2,12 +2,12 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 2,
+  "openIssues": 3,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 4,
+  "diffMinutes": 0,
   "diffMinutesMain": 6,
   "commitsLastHour": 5,
   "commitsLastDay": 45,
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T08:01:49.140Z"
+  "generatedAt": "2025-04-12T08:02:31.155Z"
 }
