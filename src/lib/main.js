@@ -376,7 +376,7 @@ const chatSummarizeCommand = {
         const summary = response.data.choices[0].message.content;
         console.log(summary);
       } catch (error) {
-        handleError("Error calling OpenAI API for summarization", error);
+        handleError("Error calling OpenAIApi for summarization", error);
       }
     } catch (error) {
       handleError("Failed to summarize conversation history", error);
@@ -826,8 +826,8 @@ const chatPdfExportCommand = {
         return;
       }
 
-      // Create a PDF document
-      const doc = new PDFDocument();
+      // Create a PDF document with compression disabled to expose text in output
+      const doc = new PDFDocument({ compress: false });
       let buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       const pdfPromise = new Promise((resolve, reject) => {

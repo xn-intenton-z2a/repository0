@@ -76,19 +76,19 @@ Error handling has been centralized to include a consistent formatted error outp
 ## What’s Inside
 
 - **GitHub Workflows:**
-  GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
+    GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, `chat-html-export`, and the newly implemented `chat-pdf-export` for exporting conversation history to PDF.
+    The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, `chat-html-export`, and the newly implemented `chat-pdf-export` for exporting conversation history to PDF.
 
 - **Dependencies:**
-  The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
+    The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests validate the CLI commands and error handling scenarios, ensuring robust behavior in various edge cases.
+    Unit tests validate the CLI commands and error handling scenarios, ensuring robust behavior in various edge cases.
 
 - **Documentation:**
-  This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+    This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
 
