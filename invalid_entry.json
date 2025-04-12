@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "Valid message",
+    "tags": []
+  },
+  {
+    "role": "assistant"
+  }
+]

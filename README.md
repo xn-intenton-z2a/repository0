@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and now manage a chat session title.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and now manage a chat session title.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -39,12 +39,12 @@ Key subcommands include:
   - Example: `repository0 chat-summarize`
 - **chat-search:** Searches the conversation history for entries that match a provided keyword (case-insensitive).
   - Example: `repository0 chat-search --query "search text"`
-- **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`).
-  - Example: `repository0 chat-export`
-- **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`).
-  - Example: `repository0 chat-html-export`
-- **chat-pdf-export:** Exports the conversation history to a PDF file (`chat_history.pdf`).
-  - Example: `repository0 chat-pdf-export`
+- **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`). An optional `--tag` flag can be provided to export only entries that include the specified tag.
+  - Example: `repository0 chat-export --tag important`
+- **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`). Supports an optional `--tag` flag for filtered export.
+  - Example: `repository0 chat-html-export --tag important`
+- **chat-pdf-export:** Exports the conversation history to a PDF file (`chat_history.pdf`). Supports an optional `--tag` flag for filtered export.
+  - Example: `repository0 chat-pdf-export --tag important`
 - **chat-statistics:** Provides analytics on the conversation history by computing total messages, counts per role, and average message length.
   - Example: `repository0 chat-statistics`
 - **chat-remove:** Removes a specific conversation entry from the history by specifying its 1-based index.
@@ -96,13 +96,13 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **GitHub Workflows:**
     Automated workflows from intentïon `agentic‑lib` handle CI/CD tasks.
 - **Source Code:**
-    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles.
+    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles, and enhanced export commands with tag filtering.
 - **Global Verbose Mode:**
     Enables detailed logging for debugging.
 - **Dependencies:**
     Refer to `package.json` for project dependencies and scripts.
 - **Tests:**
-    Comprehensive unit tests ensure robust functionality including the new chat session title feature.
+    Comprehensive unit tests ensure robust functionality including the new tag filtering in export commands and chat session title feature.
 - **Documentation:**
     This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.
 
