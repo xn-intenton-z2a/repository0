@@ -20,9 +20,9 @@ let conversationHistory = [];
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  const fullMessage = "CLI Error: " + message;
-  console.error(fullMessage);
-  throw err || new Error(fullMessage);
+  // Log only the message for clearer output in tests
+  console.error(message);
+  throw err || new Error(message);
 }
 
 /**
