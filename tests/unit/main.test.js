@@ -82,6 +82,6 @@ describe("CLI Commands", () => {
         // Expected error due to invalid input
       }
     });
-    expect(output).toContain("Invalid input: Expected a valid command, but received NaN");
+    expect(output).toContain("Invalid input: Expected a valid string command, but received NaN");
   });
 });

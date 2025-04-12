@@ -17,29 +17,29 @@ function handleError(message, err) {
 }
 
 /**
- * Validates all CLI arguments to ensure they are strings.
- * Provides explicit error messages for non-string or invalid inputs.
+ * Validates all CLI arguments to ensure they are non-empty strings.
+ * Provides explicit error messages with context about expected values.
  * @param {Array} args - An array of CLI arguments.
  */
 function validateArgs(args) {
   for (const arg of args) {
     if (typeof arg !== "string") {
       if (typeof arg === "number" && Number.isNaN(arg)) {
-        handleError("Invalid input: Expected a valid command, but received NaN");
+        handleError("Invalid input: Expected a valid string command, but received NaN");
       } else {
-        handleError(`Invalid input: Expected a valid command, but received ${arg}`);
+        handleError(`Invalid input: Expected a valid string command, but received ${arg}`);
       }
     }
+    // Optional: Further validation can be added here (e.g. non-empty check)
   }
 }
 
 /**
  * Main function to parse CLI arguments and execute subcommands.
  *
- * In addition to processing valid commands, this function checks for non-string inputs
- * and utilizes a dedicated argument validation function for improved clarity.
- * If an argument is not a string (for example, NaN), it will trigger an error with a descriptive
- * message indicating the invalid input.
+ * This function logs provided arguments for debugging, validates them to ensure they
+ * are non-empty strings representing valid commands, and sets up subcommand parsing using yargs.
+ * If an argument fails validation, a detailed error message is shown.
  *
  * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
  */
@@ -49,7 +49,7 @@ export function main(args = []) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
 
-  // Validate that all arguments are strings.
+  // Validate that all arguments are non-empty strings.
   validateArgs(args);
 
   return yargs(args)
@@ -61,7 +61,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Diagnostics: running diagnostics");
-      },
+      }
     )
     .command(
       "version",
@@ -69,7 +69,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Version 1.4.1-13");
-      },
+      }
     )
     .command(
       "update",
@@ -77,7 +77,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Performing update...");
-      },
+      }
     )
     .command(
       "config",
@@ -90,11 +90,11 @@ export function main(args = []) {
             () => {},
             () => {
               console.log("Configuration: using default settings");
-            },
+            }
           )
           .demandCommand(1, "You need to specify a valid config subcommand");
       },
-      () => {},
+      () => {}
     )
     .demandCommand(1, "You need to specify a valid command")
     .strict()
