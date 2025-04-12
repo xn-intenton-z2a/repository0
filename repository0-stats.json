@@ -2,14 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 8,
-  "issuesClosedLastHour": 10,
+  "openIssues": 9,
+  "issuesClosedLastHour": 9,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Expanded CLI invalid input tests and updated input validation to handle Symbol and BigInt types. (fixes #1460)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 4,
-  "commitsLastHour": 5,
+  "diffMinutesMain": 5,
+  "commitsLastHour": 4,
   "commitsLastDay": 54,
   "lastFiveCommitMessages": [
     {
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1460",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T10:37:13.893Z"
+  "generatedAt": "2025-04-12T10:38:25.928Z"
 }
