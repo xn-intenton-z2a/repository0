@@ -192,11 +192,11 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations and configurable model and temperature options.
  */
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation and auto-summarizes long histories). Conversation history is saved using atomic file operations.",
+  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, and configurable model/temperature).",
   builder: (yargs) => {
     return yargs
       .option("prompt", {
@@ -214,6 +214,18 @@ const chatCommand = {
         type: "number",
         describe: "Number of recent messages to retain after summarization",
         default: 2
+      })
+      .option("model", {
+        alias: "m",
+        type: "string",
+        describe: "The OpenAI model to use",
+        default: "gpt-3.5-turbo"
+      })
+      .option("temperature", {
+        alias: "t",
+        type: "number",
+        describe: "Response randomness factor",
+        default: 0.7
       });
   },
   handler: async (argv) => {
@@ -247,6 +259,10 @@ const chatCommand = {
       keepRecentMessages = process.env.CHAT_RECENT_MESSAGES ? parseInt(process.env.CHAT_RECENT_MESSAGES) : 2;
     }
 
+    // Get configurable model and temperature
+    const model = argv.model;
+    const temperature = parseFloat(argv.temperature);
+
     // Auto-summarization: if conversation history grows too long, summarize older messages
     if (conversationHistory.length > maxHistoryMessages) {
       const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
@@ -256,8 +272,9 @@ const chatCommand = {
       ];
       try {
         const summaryResponse = await openai.createChatCompletion({
-          model: "gpt-3.5-turbo",
-          messages: summarizationMessages
+          model,
+          messages: summarizationMessages,
+          temperature
         });
         const summary = summaryResponse.data.choices[0].message.content;
         conversationHistory = [
@@ -271,8 +288,9 @@ const chatCommand = {
 
     try {
       const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: conversationHistory
+        model,
+        messages: conversationHistory,
+        temperature
       });
       const reply = response.data.choices[0].message.content;
       console.log(reply);
@@ -351,7 +369,8 @@ const chatSummarizeCommand = {
       try {
         const response = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
-          messages: summarizationMessages
+          messages: summarizationMessages,
+          temperature: 0.7
         });
         const summary = response.data.choices[0].message.content;
         console.log(summary);

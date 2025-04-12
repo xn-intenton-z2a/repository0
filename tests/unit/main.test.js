@@ -17,6 +17,10 @@ vi.mock("openai", () => {
           return { data: { choices: [{ message: { content: "Summary of conversation" } }] } };
         }
       }
+      // Check for custom model and temperature parameters
+      if (params.model === "gpt-4" && params.temperature === 0.9) {
+        return { data: { choices: [{ message: { content: "Custom response from OpenAI with gpt-4" } }] } };
+      }
       return { data: { choices: [{ message: { content: "Response from OpenAI" } }] } };
     }
   }
@@ -437,19 +441,23 @@ describe("CLI Commands", () => {
     // Check that archive message was printed
     const archiveRegex = /Conversation history archived to chat_history-\d{14}\.json/;
     expect(output).toMatch(archiveRegex);
-    // Extract archive file name from output
     const match = output.match(archiveRegex);
     if (match) {
       const archiveFileName = match[0].replace('Conversation history archived to ', '');
-      // Check that the archive file exists and contains the sample history
       const archivedData = JSON.parse(await fs.readFile(path.resolve(process.cwd(), archiveFileName), "utf-8"));
       expect(archivedData).toEqual(sampleHistory);
-      // Clean up archive file
       await fs.unlink(path.resolve(process.cwd(), archiveFileName));
     }
-    // Check that the history file has been reset to an empty array
     const newHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(newHistory).toEqual([]);
     await fs.unlink(historyFile);
   });
+
+  // New test: chat command with custom model and temperature
+  test("chat command with custom model and temperature", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const output = await captureOutput(() => main(["chat", "--prompt", "Hello, custom test", "--model", "gpt-4", "--temperature", "0.9"]));
+    expect(output).toContain("Custom response from OpenAI with gpt-4");
+  });
+
 });

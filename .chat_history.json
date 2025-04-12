@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "Hello, custom test"
+  },
+  {
+    "role": "assistant",
+    "content": "Custom response from OpenAI with gpt-4"
+  }
+]

@@ -24,9 +24,12 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 info`
 - **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded.
   - Options:
+    - `--prompt` or `-p`: The prompt message to send (required).
     - `--max-history-messages`: Maximum number of messages before summarization (default: 10) or via `CHAT_MAX_HISTORY_MESSAGES` environment variable.
     - `--recent-messages`: Number of recent messages to retain after summarization (default: 2) or via `CHAT_RECENT_MESSAGES` environment variable.
-  - Example: `repository0 chat --prompt "Hello, how are you?" --max-history-messages 5 --recent-messages 1`
+    - `--model` or `-m`: The OpenAI model to use (default: "gpt-3.5-turbo").
+    - `--temperature` or `-t`: The response randomness factor (default: 0.7).
+  - Example with custom options: `repository0 chat --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9`
 - **chat-history:** Displays the persistent conversation history in a human-readable format.
   - Example: `repository0 chat-history`
 - **chat-summarize:** Generates a concise summary of the conversation history by using the OpenAI API.
@@ -39,7 +42,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-statistics`
 - **chat-remove:** Removes a specific conversation entry from the history. It accepts a required numeric argument `--index` (alias `-i`) representing the 1-based index of the entry to remove.
   - Example: `repository0 chat-remove --index 2`
-- **chat-archive:** Archives the current conversation history into a timestamped file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and resets the conversation history. 
+- **chat-archive:** Archives the current conversation history into a timestamped file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and resets the conversation history.
   - Example: `repository0 chat-archive`
 
 ## CLI Input Validation and Error Handling
@@ -79,7 +82,7 @@ Error handling has been centralized to include a consistent formatted error outp
 ## Getting Started
 
 Set up the required secret for chat functionality:
-- `CHATGPT_API_SECRET_KEY` - Your OpenAI API key for model `gpt-3.5-turbo`.
+- `CHATGPT_API_SECRET_KEY` - Your OpenAI API key for model `gpt-3.5-turbo` (or your chosen model).
 
 Configure this secret in your repository settings under *Settings > Secrets and Variables > Actions*.
 
