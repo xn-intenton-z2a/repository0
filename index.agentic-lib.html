@@ -60,6 +60,7 @@
 <ul class="md-github">
 <li class="md-github">All CLI arguments must be non-empty strings representing valid commands.</li>
 <li class="md-github">If a non-string argument (e.g. NaN) is provided, the CLI outputs a clear error message: &quot;Invalid input: Expected a valid string command, but received {input}&quot;.</li>
+<li class="md-github">If an empty string is provided, the CLI outputs a clear error message: &quot;Invalid input: Expected a non-empty string command, but received an empty string&quot;.</li>
 <li class="md-github">When executed without any arguments, the CLI logs <code class="md-github">Run with: []</code> followed by an error message prompting for a valid command.</li>
 </ul>
 <p class="md-github"><strong class="md-github">Error Handling:</strong></p>
@@ -82,7 +83,7 @@ The <code class="md-github">package.json</code> file defines dependencies and sc
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder validate CLI commands and error handling, including checks for invalid inputs like NaN.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder validate CLI commands and error handling, including checks for invalid inputs such as NaN and empty strings.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -111,7 +112,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T03:58:18.882Z</p>
+    <p>Generated on 2025-04-12T03:59:47.273Z</p>
   </footer>
 </body>
 </html>
