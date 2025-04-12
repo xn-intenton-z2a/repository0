@@ -230,8 +230,8 @@ describe("CLI Commands", () => {
   test("chat-history command displays conversation history if file exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Hello" },
-      { role: "assistant", content: "Hi there!" }
+      { role: "user", content: "Hello", tags: [] },
+      { role: "assistant", content: "Hi there!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-history"]));
@@ -255,8 +255,8 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "How are you?" },
-      { role: "assistant", content: "I am fine." }
+      { role: "user", content: "How are you?", tags: [] },
+      { role: "assistant", content: "I am fine.", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-summarize"]));
@@ -285,9 +285,9 @@ describe("CLI Commands", () => {
   test("chat-search command displays matching history entries for a valid query", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "I need help with testing." },
-      { role: "assistant", content: "Sure, I can help you with that." },
-      { role: "user", content: "What is the time?" }
+      { role: "user", content: "I need help with testing.", tags: [] },
+      { role: "assistant", content: "Sure, I can help you with that.", tags: [] },
+      { role: "user", content: "What is the time?", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "help"]));
@@ -300,8 +300,8 @@ describe("CLI Commands", () => {
   test("chat-search command displays no results message when no entries match the query", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "I like apples." },
-      { role: "assistant", content: "Apples are great!" }
+      { role: "user", content: "I like apples.", tags: [] },
+      { role: "assistant", content: "Apples are great!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "banana"]));
@@ -323,8 +323,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
     const sampleHistory = [
-      { role: "user", content: "Hello Markdown" },
-      { role: "assistant", content: "Hi in Markdown!" }
+      { role: "user", content: "Hello Markdown", tags: [] },
+      { role: "assistant", content: "Hi in Markdown!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-export"]));
@@ -342,8 +342,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const htmlFile = path.resolve(process.cwd(), "chat_history.html");
     const sampleHistory = [
-      { role: "user", content: "Hello HTML" },
-      { role: "assistant", content: "Hi in HTML!" }
+      { role: "user", content: "Hello HTML", tags: [] },
+      { role: "assistant", content: "Hi in HTML!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-html-export"]));
@@ -379,10 +379,10 @@ describe("CLI Commands", () => {
   test("chat-statistics command displays statistics when history exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Hello" },
-      { role: "assistant", content: "Hi there!" },
-      { role: "user", content: "How are you doing today?" },
-      { role: "assistant", content: "I'm doing well, thank you!" }
+      { role: "user", content: "Hello", tags: [] },
+      { role: "assistant", content: "Hi there!", tags: [] },
+      { role: "user", content: "How are you doing today?", tags: [] },
+      { role: "assistant", content: "I'm doing well, thank you!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-statistics"]));
@@ -397,9 +397,9 @@ describe("CLI Commands", () => {
   test("chat-remove command successfully removes an entry", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Entry 1" },
-      { role: "assistant", content: "Entry 2" },
-      { role: "user", content: "Entry 3" }
+      { role: "user", content: "Entry 1", tags: [] },
+      { role: "assistant", content: "Entry 2", tags: [] },
+      { role: "user", content: "Entry 3", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-remove", "--index", "2"]));
@@ -407,8 +407,8 @@ describe("CLI Commands", () => {
     const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(updatedHistory.length).toBe(2);
     expect(updatedHistory).toEqual([
-      { role: "user", content: "Entry 1" },
-      { role: "user", content: "Entry 3" }
+      { role: "user", content: "Entry 1", tags: [] },
+      { role: "user", content: "Entry 3", tags: [] }
     ]);
     await fs.unlink(historyFile);
   });
@@ -416,7 +416,7 @@ describe("CLI Commands", () => {
   test("chat-remove command error for out-of-bound index", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Only Entry" }
+      { role: "user", content: "Only Entry", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -457,8 +457,8 @@ describe("CLI Commands", () => {
   test("chat-edit command successfully updates a message", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Old message 1" },
-      { role: "assistant", content: "Old message 2" }
+      { role: "user", content: "Old message 1", tags: [] },
+      { role: "assistant", content: "Old message 2", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const newMessage = "Updated message";
@@ -472,7 +472,7 @@ describe("CLI Commands", () => {
   test("chat-edit command error for out-of-bound index", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Only Entry" }
+      { role: "user", content: "Only Entry", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -487,7 +487,7 @@ describe("CLI Commands", () => {
   test("chat-edit command error for empty message", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Old message" }
+      { role: "user", content: "Old message", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -513,8 +513,8 @@ describe("CLI Commands", () => {
   test("chat-archive command archives history and resets file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Archive test" },
-      { role: "assistant", content: "History to archive" }
+      { role: "user", content: "Archive test", tags: [] },
+      { role: "assistant", content: "History to archive", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-archive"]));
@@ -536,14 +536,14 @@ describe("CLI Commands", () => {
   test("chat-import command successfully imports valid conversation history", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const initialHistory = [
-      { role: "user", content: "Existing message" }
+      { role: "user", content: "Existing message", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
 
     const importFile = path.resolve(process.cwd(), "test_import.json");
     const importData = [
-      { role: "assistant", content: "Imported reply" },
-      { role: "user", content: "Imported question" }
+      { role: "assistant", content: "Imported reply", tags: [] },
+      { role: "user", content: "Imported question", tags: [] }
     ];
     await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
 
@@ -595,7 +595,7 @@ describe("CLI Commands", () => {
   test("chat-import command errors when an entry has invalid structure", async () => {
     const importFile = path.resolve(process.cwd(), "invalid_entry.json");
     const importData = [
-      { role: "user", content: "Valid message" },
+      { role: "user", content: "Valid message", tags: [] },
       { role: "assistant" }
     ];
     await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
@@ -632,8 +632,8 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Hello" },
-      { role: "assistant", content: "Hi there!" }
+      { role: "user", content: "Hello", tags: [] },
+      { role: "assistant", content: "Hi there!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-translate", "--language", "Spanish"]));
@@ -654,10 +654,10 @@ describe("CLI Commands", () => {
     // Write a sample history to force auto-summarization
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Message 1" },
-      { role: "assistant", content: "Response 1" },
-      { role: "user", content: "Message 2" },
-      { role: "assistant", content: "Response 2" }
+      { role: "user", content: "Message 1", tags: [] },
+      { role: "assistant", content: "Response 1", tags: [] },
+      { role: "user", content: "Message 2", tags: [] },
+      { role: "assistant", content: "Response 2", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     // Set max-history-messages to 3 so that auto-summarization is triggered
@@ -671,8 +671,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
     const sampleHistory = [
-      { role: "user", content: "Hello PDF" },
-      { role: "assistant", content: "Hi in PDF!" }
+      { role: "user", content: "Hello PDF", tags: [] },
+      { role: "assistant", content: "Hi in PDF!", tags: [] }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-pdf-export"]));
@@ -729,5 +729,73 @@ describe("CLI Commands", () => {
     expect(updatedConfig.model).toBe("gpt-3.5-turbo");
     expect(updatedConfig.temperature).toBe(0.9);
     await fs.unlink(configFile);
+  });
+
+  // New tests for chat-tag command
+  test("chat-tag add command adds a tag to an entry", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Test message", tags: [] }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-tag", "add", "--index", "1", "--tag", "important"]));
+    expect(output).toContain("Tag \"important\" added to conversation entry at index 1.");
+    const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(updatedHistory[0].tags).toContain("important");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-tag add command errors when adding duplicate tag", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Test message", tags: ["important"] }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-tag", "add", "--index", "1", "--tag", "important"]);
+      } catch {}
+    });
+    expect(output).toContain("Tag \"important\" already exists for entry at index 1.");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-tag remove command removes a tag from an entry", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Test message", tags: ["important", "todo"] }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-tag", "remove", "--index", "1", "--tag", "important"]));
+    expect(output).toContain("Tag \"important\" removed from conversation entry at index 1.");
+    const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(updatedHistory[0].tags).not.toContain("important");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-tag list command lists tags for an entry", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Test message", tags: ["important", "urgent"] }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-tag", "list", "--index", "1"]));
+    expect(output).toContain("Tags for entry at index 1: important, urgent");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-tag filter command filters entries by tag", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Message one", tags: ["tag1"] },
+      { role: "assistant", content: "Reply one", tags: [] },
+      { role: "user", content: "Message two", tags: ["tag1", "tag2"] }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-tag", "filter", "--tag", "tag1"]));
+    expect(output).toContain("Conversation entries with tag \"tag1\":");
+    expect(output).toContain("user: Message one");
+    expect(output).toContain("user: Message two");
+    await fs.unlink(historyFile);
   });
 });
