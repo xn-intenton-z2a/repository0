@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: 'tests/unit/main.test.js'
+      branchPrefix:
+        description: 'The prefix of the branch to scan for. e.g. "agentic-lib-"'
+        required: false
+        type: string
+        default: 'agentic-lib-'
       applyFixEvenIfTestsPass:
         description: 'Apply the fix even if the tests pass. e.g. true'
         required: false
@@ -48,7 +53,7 @@ jobs:
   select-branch:
     runs-on: ubuntu-latest
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
     steps:
@@ -269,6 +274,53 @@ jobs:
           fi
     outputs:
       branch: ${{ steps.create-branch-if-required.outputs.branch }}
+
+  label-issue-before-attempt:
+    needs:
+      - select-issue
+      - branch-for-fix
+      - npm-test
+      - npm-build
+      - npm-run
+      - needs-fix
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: ${{ env.cache }}
+
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
+
+      - name: Add "issueWorker-<run-id>" label
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            onst label = ;
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: "${{ needs.select-issue.outputs.issueNumber }}",
+              labels: [`apply-fix-${{ github.run_id }}`]
+            });
 
   apply-fix:
     needs:
