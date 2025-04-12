@@ -207,7 +207,7 @@ describe("CLI Commands", () => {
         return main([sym]);
       } catch {} 
     });
-    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received ${sym.toString()}`);
+    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received Symbol(testSymbol)`);
     expect(output).toContain(suggestion);
   });
 

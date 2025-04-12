@@ -34,7 +34,8 @@ The CLI validates all input arguments using Zod to ensure that every command rec
 - **Boolean (true or false)**
 - **null or undefined**
 - **Object or Array**
-- **Symbol or BigInt**
+- **Symbol** (now explicitly handled to include a descriptive string representation)
+- **BigInt**
 
 The system produces a standardized error message. For example, when a NaN value is provided the error may look like:
 
@@ -54,7 +55,7 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (now also covering Symbol and BigInt types), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (now explicitly handling symbols and bigints), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
