@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 4,
-  "issuesClosedLastHour": 9,
+  "openIssues": 2,
+  "issuesClosedLastHour": 11,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Enhanced CLI argument validation error messages and updated documentation accordingly. (fixes #1388)",
-      "ageMinutes": 0
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 12,
-  "commitsLastHour": 5,
-  "commitsLastDay": 21,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 6,
+  "commitsLastDay": 22,
   "lastFiveCommitMessages": [
+    {
+      "time": "03:43",
+      "message": "Enhanced CLI argument validation error messages and updated docu..."
+    },
     {
       "time": "03:30",
       "message": "Updated by `npm run formatting-fix -- \".\" ; npm run linting-fix ..."
@@ -32,23 +31,14 @@
     {
       "time": "02:56",
       "message": "Standardized error handling output across all CLI subcommands us..."
-    },
-    {
-      "time": "02:50",
-      "message": "Add new config subcommand with a show option to display default ..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1388",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T03:42:39.474Z"
+  "generatedAt": "2025-04-12T03:44:04.921Z"
 }
