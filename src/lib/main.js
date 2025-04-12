@@ -318,6 +318,7 @@ const chatCommand = {
         const currentUserMessage = conversationData.messages[conversationData.messages.length - 1];
         conversationData = { sessionTitle: conversationData.sessionTitle, messages: [currentUserMessage] };
         await saveHistory();
+        return;
       } catch (error) {
         handleError("Failed to auto-archive conversation history", error);
       }

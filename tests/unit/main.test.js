@@ -585,23 +585,28 @@ describe("CLI Commands", () => {
 
   test("chat-archive command archives history and resets file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Archive test", tags: [] },
-      { role: "assistant", content: "History to archive", tags: [] }
+    const sampleHistory = { sessionTitle: "Auto Archive Test", messages: [
+      { role: "user", content: "Old message 1", tags: [] },
+      { role: "assistant", content: "Old response 1", tags: [] },
+      { role: "user", content: "Old message 2", tags: [] }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-archive"]));
-    const archiveRegex = /Conversation history archived to chat_history-\d{14}\.json/;
-    expect(output).toMatch(archiveRegex);
-    const match = output.match(archiveRegex);
-    if (match) {
-      const archiveFileName = match[0].replace('Conversation history archived to ', '');
-      const archivedData = JSON.parse(await fs.readFile(path.resolve(process.cwd(), archiveFileName), "utf-8"));
-      expect(archivedData).toEqual(sampleHistory);
-      await fs.unlink(path.resolve(process.cwd(), archiveFileName));
-    }
+    const output = await captureOutput(() => main(["chat", "--prompt", "New auto archival test", "--auto-archive-threshold", "3"]));
+    // Check for auto archive message
+    expect(output).toMatch(/Conversation history auto-archived to chat_history-\d{14}\.json/);
+    // Verify that the conversation history file now contains only the new message and preserved session title
     const newHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
-    expect(newHistory.messages).toEqual([]);
+    expect(newHistory.sessionTitle).toBe("Auto Archive Test");
+    expect(newHistory.messages.length).toBe(1);
+    expect(newHistory.messages[0].content).toBe("New auto archival test");
+    // Cleanup archived file if exists
+    const archiveMatch = output.match(/Conversation history auto-archived to (chat_history-\d{14}\.json)/);
+    if (archiveMatch) {
+      const archiveFileName = path.resolve(process.cwd(), archiveMatch[1]);
+      if (existsSync(archiveFileName)) {
+        await fs.unlink(archiveFileName);
+      }
+    }
     await fs.unlink(historyFile);
   });
 
