@@ -59,6 +59,8 @@
 <p class="md-github"><strong class="md-github">Input Validation:</strong></p>
 <ul class="md-github">
 <li class="md-github">All CLI arguments must be non-empty strings representing valid commands.</li>
+<li class="md-github">The CLI now uses a consolidated error handling approach to ensure consistent and clear error messages for all invalid inputs.
+<ul class="md-github">
 <li class="md-github">If a non-string input is provided (for example, NaN), the CLI responds with:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">Invalid input: Expected a valid string command, but received NaN</code></li>
@@ -69,9 +71,10 @@
 <li class="md-github"><code class="md-github">Invalid input: Expected a non-empty string command, but received an empty string</code></li>
 </ul>
 </li>
+</ul>
+</li>
 <li class="md-github">When executed without any arguments, the CLI logs <code class="md-github">Run with: []</code> and displays an error prompting for a valid command.</li>
 </ul>
-<p class="md-github"><em class="md-github">All error messages have been standardized to ensure consistency and clarity.</em></p>
 <p class="md-github"><strong class="md-github">Error Handling:</strong></p>
 <ul class="md-github">
 <li class="md-github">Errors are standardized and prefixed with <code class="md-github">Error:</code> to ensure both human-readability and machine parsing.</li>
@@ -84,7 +87,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, avoiding deprecated import assertions.</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, avoiding deprecated import assertions. The error handling for CLI arguments has been refactored for better clarity and maintenance.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -121,7 +124,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T05:06:59.580Z</p>
+    <p>Generated on 2025-04-12T05:07:42.903Z</p>
   </footer>
 </body>
 </html>

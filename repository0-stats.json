@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
-  "issuesClosedLastHour": 14,
+  "openIssues": 1,
+  "issuesClosedLastHour": 16,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored CLI argument error handling to use a consolidated helper function for invalid inputs. (fixes #1410)",
-      "ageMinutes": 1
-    }
-  ],
+  "openPRs": 0,
+  "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 10,
-  "commitsLastHour": 7,
-  "commitsLastDay": 32,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 8,
+  "commitsLastDay": 33,
   "lastFiveCommitMessages": [
+    {
+      "time": "05:07",
+      "message": "Refactored CLI argument error handling to use a consolidated hel..."
+    },
     {
       "time": "04:56",
       "message": "Updated package.json import to use createRequire instead of impo..."
@@ -32,23 +31,14 @@
     {
       "time": "04:31",
       "message": "Fix JSON import by using createRequire and adjust test catch blo..."
-    },
-    {
-      "time": "04:25",
-      "message": "Confirmed and finalized handling of NaN as invalid CLI input wit..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1410",
-        "minutesSinceLastCommit": 2
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T05:06:34.075Z"
+  "generatedAt": "2025-04-12T05:07:24.612Z"
 }
