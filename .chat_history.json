@@ -1,0 +1,22 @@
+[
+  {
+    "role": "assistant",
+    "content": "Summary of previous conversation: Summary of conversation"
+  },
+  {
+    "role": "user",
+    "content": "Message 11"
+  },
+  {
+    "role": "user",
+    "content": "Message 12"
+  },
+  {
+    "role": "user",
+    "content": "New message after long history"
+  },
+  {
+    "role": "assistant",
+    "content": "Response from OpenAI"
+  }
+]

@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, and search the conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, and search the conversation history. Additionally, the chat command now automatically summarizes older parts of a long conversation history when a preset threshold is exceeded, ensuring efficient interaction by keeping the context concise.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -22,7 +22,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
-- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions.
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if it becomes too long.
   - Example: `repository0 chat --prompt "Hello, how are you?"`
 - **chat-history:** Displays the persistent conversation history in a human-readable format. It reads the content from the `.chat_history.json` file and prints each entry. If no conversation history is available, an appropriate message is shown.
   - Example: `repository0 chat-history`
@@ -39,7 +39,7 @@ The CLI validates all input arguments using Zod to ensure that every command rec
 - **Boolean (true or false)**
 - **null or undefined**
 - **Object or Array**
-- **Symbol** (now explicitly handled to include a descriptive string representation)
+- **Symbol**
 - **BigInt**
 
 This consistent formatting aids debugging and ensures seamless integration with downstream tools.
@@ -54,13 +54,13 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations, a command to display the conversation history, a command to summarize the conversation history, and a new command to search the conversation history.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations and auto-summarizes long conversation histories, a command to display the conversation history, a command to summarize the conversation history, and a new command to search the conversation history.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation, history display functionality, conversation summarization, and conversation search capabilities.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation, history display functionality, conversation summarization, conversation search capabilities, and automatic summarization when history exceeds the threshold.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
