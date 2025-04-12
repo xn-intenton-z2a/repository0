@@ -277,13 +277,13 @@ jobs:
 
   label-issue-before-attempt:
     needs:
-      - select-issue
+      - select-branch
       - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
       - needs-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.select-issue.outputs.issueNumber != '' }}
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.select-branch.outputs.issueNumber != '' }}
     permissions:
       contents: write
       issues: write
@@ -317,7 +317,7 @@ jobs:
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: "${{ needs.select-issue.outputs.issueNumber }}",
+              issue_number: "${{ needs.select-branch.outputs.issueNumber }}",
               labels: [`apply-fix-${{ github.run_id }}`]
             });
 
