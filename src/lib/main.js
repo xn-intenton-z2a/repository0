@@ -2,9 +2,12 @@
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import packageData from "../../package.json" assert { type: "json" };
+
+const require = createRequire(import.meta.url);
+const packageData = require("../../package.json");
 
 /**
  * Handles errors in a consistent format and throws an error for the caller.

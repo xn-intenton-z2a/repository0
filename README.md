@@ -6,7 +6,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 ## Overview
 
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Notably, the JSON import for package metadata now uses Node's built-in createRequire for better compatibility.
 
 ## CLI Usage
 
@@ -40,7 +40,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which has been refactored to modularize CLI command registration into individual command definitions for easier future modifications.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, enabling better compatibility and future-proofing the JSON module import.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.

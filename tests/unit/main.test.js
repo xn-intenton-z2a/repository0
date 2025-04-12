@@ -14,7 +14,7 @@ function captureOutput(fn) {
   };
   try {
     fn();
-  } catch (e) {
+  } catch {
     // Catch errors thrown due to missing command arguments or invalid input
   }
   console.log = originalLog;
@@ -66,7 +66,7 @@ describe("CLI Commands", () => {
     const output = captureOutput(() => {
       try {
         main([]);
-      } catch (e) {
+      } catch {
         // Expected error due to demandCommand
       }
     });
@@ -78,7 +78,7 @@ describe("CLI Commands", () => {
       try {
         // Call main with no arguments to rely on the default parameter
         main();
-      } catch (e) {
+      } catch {
         // Expected error due to missing command
       }
     });
@@ -89,7 +89,7 @@ describe("CLI Commands", () => {
     const output = captureOutput(() => {
       try {
         main([NaN]);
-      } catch (e) {
+      } catch {
         // Expected error due to invalid input
       }
     });
@@ -100,7 +100,7 @@ describe("CLI Commands", () => {
     const output = captureOutput(() => {
       try {
         main([""]);
-      } catch (e) {
+      } catch {
         // Expected error due to empty string input
       }
     });
