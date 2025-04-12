@@ -29,7 +29,6 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as:
 
-- **NaN**
 - **Empty string**
 - **Boolean (true or false)**
 - **null or undefined**
@@ -37,7 +36,7 @@ The CLI validates all input arguments using Zod to ensure that every command rec
 - **Symbol** (now explicitly handled to include a descriptive string representation)
 - **BigInt**
 
-The system produces a standardized error message. For example, when a NaN value is provided the error may look like:
+The system produces a standardized error message. For example, when a NaN value is provided, the error may look like:
 
 ```json
 { "error": "CLI Error", "message": "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'." }
@@ -55,7 +54,7 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (now explicitly handling symbols and bigints), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.

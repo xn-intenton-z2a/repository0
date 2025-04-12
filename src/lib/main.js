@@ -81,7 +81,7 @@ function stringifyArg(arg) {
 
 /**
  * Validates that a CLI argument is a non-empty string using Zod.
- * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, arrays, symbols, and bigints.
+ * Provides standardized error messages for various invalid inputs such as booleans, null, undefined, objects, arrays, symbols, and bigints.
  * The error message always follows the pattern: 
  * "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
  *
@@ -92,10 +92,6 @@ function validateArg(arg) {
   // Explicitly check for undefined to provide a custom error message
   if (arg === undefined) {
     handleError(`Invalid input: Expected a valid non-empty string command, but received undefined.${suggestion}`);
-  }
-  // Explicit check for NaN to ensure consistent error message
-  if (typeof arg === "number" && Number.isNaN(arg)) {
-    handleError(`Invalid input: Expected a valid non-empty string command, but received NaN.${suggestion}`);
   }
   const schema = z.string({
     invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}.${suggestion}`
