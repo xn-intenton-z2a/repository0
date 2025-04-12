@@ -47,16 +47,15 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 ## CLI Input Validation and Error Handling
 
-The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as:
+The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as an empty string, boolean, null, undefined, object, array, symbol, or bigint, the CLI returns a standardized error message. For example:
 
-- **Empty string**
-- **Boolean (true or false)**
-- **null or undefined**
-- **Object or Array**
-- **Symbol**
-- **BigInt**
+  "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'."
 
-This consistent formatting aids debugging and ensures seamless integration with downstream tools.
+This behavior is consistent across all commands and aids in debugging and proper CLI usage. Here are some examples of invalid inputs and their corresponding error messages:
+
+- For an empty string: "Invalid input: Expected a valid non-empty string command, but received an empty string. Please provide a valid non-empty string, such as 'start' or 'info'."
+- For a boolean value (e.g., true): "Invalid input: Expected a valid non-empty string command, but received true. Please provide a valid non-empty string, such as 'start' or 'info'."
+- For null: "Invalid input: Expected a valid non-empty string command, but received null. Please provide a valid non-empty string, such as 'start' or 'info'."
 
 ## Error Handling Improvements
 
