@@ -27,16 +27,24 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 ## CLI Input Validation
 
-The CLI validates all input arguments to ensure they are non-empty strings using Zod. With the latest enhancements, the CLI now also checks and rejects booleans, null, undefined, objects, and arrays. If an invalid input is detected, the CLI will:
+The CLI validates all input arguments to ensure they are non-empty strings using Zod. With the latest enhancements, the CLI now also checks and rejects non-string inputs including booleans, null, undefined, objects, arrays, and even NaN. If an invalid input is detected, the CLI will display a standardized error message following this pattern:
 
-- For non-string inputs (including booleans, null, undefined, objects, and arrays), display a standardized error message similar to:
-  - `Invalid input: Expected a valid non-empty string command, but received <value>`
-- For empty strings, display:
+```
+Invalid input: Expected a valid non-empty string command, but received <input>
+```
+
+For example:
+
+- Providing NaN as input produces:
+  - `Invalid input: Expected a valid non-empty string command, but received NaN`
+- Providing an empty string produces:
   - `Invalid input: Expected a non-empty string command, but received an empty string`
+- Providing a boolean (e.g., true) produces:
+  - `Invalid input: Expected a valid non-empty string command, but received true`
 
 ## Error Handling Improvements
 
-The error handling has been centralized to include a consistent prefix ("CLI Error:") for all error messages. This enhancement provides additional context that aids in debugging while ensuring that the original error message remains clear and recognizable.
+Error handling has been centralized to include a consistent prefix ("CLI Error:") for all error messages. This enhancement aids in debugging by clearly identifying CLI errors while preserving the original error information.
 
 ## What’s Inside
 
@@ -50,7 +58,7 @@ The error handling has been centralized to include a consistent prefix ("CLI Err
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for invalid inputs such as NaN, booleans, null, undefined, empty strings, objects, and arrays, in addition to covering the chat command integration.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including explicit checks for invalid inputs such as NaN, booleans, null, undefined, empty strings, objects, and arrays, ensuring robust behavior.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

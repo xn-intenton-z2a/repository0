@@ -45,7 +45,8 @@ function stringifyArg(arg) {
 
 /**
  * Validates that a CLI argument is a non-empty string using Zod.
- * Provides standardized error messages for various invalid inputs.
+ * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, and arrays.
+ * The error message always follows the pattern: "Invalid input: Expected a valid non-empty string command, but received <value>".
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
