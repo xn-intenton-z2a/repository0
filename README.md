@@ -33,7 +33,7 @@ The CLI now validates all input arguments to ensure they are non-empty strings u
 Invalid input: Expected a valid non-empty string command, but received <input>. Please provide a valid non-empty string, such as 'start' or 'info'.
 ```
 
-This ensures clarity and consistency, making it easier to debug input errors.
+Error messages have been refined to include explicit punctuation after the received input value for improved clarity.
 
 ## Error Handling Improvements
 
