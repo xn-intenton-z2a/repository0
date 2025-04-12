@@ -187,7 +187,7 @@ export function main(args = []) {
         handleError("Command failed", err);
       }
     })
-    .parse();
+    .parseAsync();
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

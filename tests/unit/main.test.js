@@ -73,7 +73,7 @@ describe("CLI Commands", () => {
   test("no command provided shows error/help", async () => {
     const output = await captureOutput(() => {
       try {
-        main([]);
+        return main([]);
       } catch {}
     });
     expect(output).toContain("You need to specify a valid command");
@@ -82,7 +82,7 @@ describe("CLI Commands", () => {
   test("default parameter when no arguments provided", async () => {
     const output = await captureOutput(() => {
       try {
-        main();
+        return main();
       } catch {}
     });
     expect(output).toContain("Run with: []");
@@ -91,7 +91,7 @@ describe("CLI Commands", () => {
   test("NaN input displays error message", async () => {
     const output = await captureOutput(() => {
       try {
-        main([NaN]);
+        return main([NaN]);
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid string command, but received NaN");
@@ -100,7 +100,7 @@ describe("CLI Commands", () => {
   test("empty string input displays error message", async () => {
     const output = await captureOutput(() => {
       try {
-        main([""]);
+        return main([""]);
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
@@ -117,7 +117,7 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => {
       try {
-        main(["chat", "--prompt", ""]);
+        return main(["chat", "--prompt", ""]);
       } catch {}
     });
     expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
@@ -127,7 +127,7 @@ describe("CLI Commands", () => {
     delete process.env.CHATGPT_API_SECRET_KEY;
     const output = await captureOutput(() => {
       try {
-        main(["chat", "--prompt", "Hello"]);
+        return main(["chat", "--prompt", "Hello"]);
       } catch {}
     });
     expect(output).toContain("Missing environment variable CHATGPT_API_SECRET_KEY");
