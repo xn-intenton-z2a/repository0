@@ -26,16 +26,16 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 **Input Validation:**
 
 - All CLI arguments must be non-empty strings representing valid commands.
-- The CLI now uses a consolidated error handling approach to ensure consistent and clear error messages for all invalid inputs.
-  - If a non-string input is provided (for example, NaN), the CLI responds with: 
+- The CLI uses a consolidated error handling approach for consistency. For example:
+  - Non-string inputs (for instance, NaN) result in: 
     - `Invalid input: Expected a valid string command, but received NaN`
-  - If an empty string is provided, the CLI responds with: 
+  - Empty string inputs result in:
     - `Invalid input: Expected a non-empty string command, but received an empty string`
-- When executed without any arguments, the CLI logs `Run with: []` and displays an error prompting for a valid command.
 
 **Error Handling:**
 
 - Errors are standardized and prefixed with `Error:` to ensure both human-readability and machine parsing.
+- Enhanced error messaging now leverages structured formatting for clarity and maintainability.
 
 ## What’s Inside
 
@@ -43,7 +43,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, avoiding deprecated import assertions. The error handling for CLI arguments has been refactored for better clarity and maintenance.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with clearer error messages.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
