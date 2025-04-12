@@ -128,7 +128,7 @@ urls.forEach((jsonUrl, index) => {
       // Use EJS to render the template with the JSON data.
       tile.innerHTML = ejs.render(template, statsData);
       // Attach the MutationObserver to this tile.
-      attachGlowObserver(tile);
+      //attachGlowObserver(tile);
     })
     .catch(err => {
       console.error('Error loading template or JSON:', err);
