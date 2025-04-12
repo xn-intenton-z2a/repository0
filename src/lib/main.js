@@ -31,7 +31,8 @@ function validateArg(arg) {
     if (typeof arg === "number" && Number.isNaN(arg)) {
       handleError("Invalid input: Expected a valid string command, but received NaN");
     } else {
-      handleError(`Invalid input: Expected a valid string command, but received ${arg}`);
+      // Use JSON.stringify for better readability of non-string arguments
+      handleError(`Invalid input: Expected a valid string command, but received ${JSON.stringify(arg)}`);
     }
   }
   if (arg.trim() === "") {
