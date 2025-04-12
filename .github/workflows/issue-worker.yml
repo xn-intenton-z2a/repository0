@@ -377,7 +377,7 @@ jobs:
       npmAuthOrganisation: '@xn-intenton-z2a'
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
-      lastActivityTimestamp: ${{ github.run_started_at }}
+      lastActivityTimestamp: ${{ github.event.created_at }}
       public: 'public'
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
