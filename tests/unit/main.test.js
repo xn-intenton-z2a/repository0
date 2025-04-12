@@ -1,17 +1,20 @@
 import { describe, test, expect } from "vitest";
 import { main } from "@src/lib/main.js";
 
-// Helper to capture console.log output
+// Helper to capture console.log and console.error output
 function captureOutput(fn) {
   let output = "";
   const originalLog = console.log;
+  const originalError = console.error;
   console.log = (msg) => { output += msg + "\n"; };
+  console.error = (msg) => { output += msg + "\n"; };
   try {
     fn();
   } catch (e) {
-    // Catch errors thrown due to missing command arguments
+    // Catch errors thrown due to missing command arguments or invalid input
   }
   console.log = originalLog;
+  console.error = originalError;
   return output;
 }
 
@@ -58,5 +61,16 @@ describe("CLI Commands", () => {
       }
     });
     expect(output).toContain("Run with: []");
+  });
+
+  test("NaN input displays error message", () => {
+    const output = captureOutput(() => {
+      try {
+        main([NaN]);
+      } catch (e) {
+        // Expected error due to invalid input
+      }
+    });
+    expect(output).toContain("Invalid input: Expected a valid command, but received NaN");
   });
 });

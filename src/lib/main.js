@@ -15,6 +15,19 @@ export function main(args = []) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
 
+  // Validate that all arguments are strings.
+  for (const arg of args) {
+    if (typeof arg !== "string") {
+      if (typeof arg === "number" && Number.isNaN(arg)) {
+        console.error("Invalid input: Expected a valid command, but received NaN");
+        throw new Error("Invalid input: Expected a valid command, but received NaN");
+      } else {
+        console.error(`Invalid input: Expected a valid command, but received ${arg}`);
+        throw new Error(`Invalid input: Expected a valid command, but received ${arg}`);
+      }
+    }
+  }
+
   return yargs(args)
     .scriptName("repository0")
     .usage("$0 <command>")

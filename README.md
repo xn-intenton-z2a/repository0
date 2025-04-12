@@ -22,19 +22,21 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 
 When the CLI is executed without any arguments, it first logs the default parameter message `Run with: []` and then displays an error prompting you to specify a valid command.
 
+- **Note:** Passing non-string arguments (such as NaN) to the CLI will result in an error message: "Invalid input: Expected a valid command, but received NaN".
+
 ## What’s Inside
 
 - **GitHub Workflows:**  
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands along with improved handling of missing arguments.
+  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands, with improved error handling for invalid input such as non-string values.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including proper handling of the default parameter when no arguments are provided.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including proper handling of missing arguments and invalid non-string inputs.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
