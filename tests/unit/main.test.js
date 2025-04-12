@@ -226,8 +226,8 @@ describe("CLI Commands", () => {
   // New test for multi-turn conversation
   test("chat multi-turn conversation accumulates context", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
-    const output1 = await captureOutput(() => main(["chat", "--prompt", "First prompt"]));
-    const output2 = await captureOutput(() => main(["chat", "--prompt", "Second prompt"]));
+    const output1 = await captureOutput(() => main(["chat", "--prompt", "First prompt"]))
+    const output2 = await captureOutput(() => main(["chat", "--prompt", "Second prompt"]))
     expect(output1).toContain("Response from OpenAI");
     expect(output2).toContain("Response from OpenAI");
   });
@@ -239,7 +239,7 @@ describe("CLI Commands", () => {
     if (existsSync(historyFile)) {
       await fs.unlink(historyFile);
     }
-    await captureOutput(() => main(["chat", "--prompt", "Persistent prompt"]));
+    await captureOutput(() => main(["chat", "--prompt", "Persistent prompt"]))
     expect(existsSync(historyFile)).toBe(true);
     const data = await fs.readFile(historyFile, "utf-8");
     const history = JSON.parse(data);
