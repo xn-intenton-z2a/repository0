@@ -25,16 +25,23 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 - **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response.
   - Example: `repository0 chat --prompt "Hello, how are you?"`
 
-**Input Validation:**
+## CLI Input Validation
 
-- All CLI arguments must be non-empty strings representing valid commands.
-- The CLI now uses a refactored and consolidated error handling approach for consistent error formatting. For example:
-  - Non-string inputs (e.g., NaN) will trigger the error:
-    - `Invalid input: Expected a valid string command, but received NaN`
-  - Empty string inputs will trigger the error:
-    - `Invalid input: Expected a non-empty string command, but received an empty string`
+The CLI validates all input arguments to ensure they are non-empty strings. If an invalid input is detected, the CLI will:
 
-**Error Handling Improvements:**
+- For non-string inputs (including NaN), display: 
+  - `Invalid input: Expected a valid string command, but received NaN` (or the corresponding value)
+- For empty strings, display:
+  - `Invalid input: Expected a non-empty string command, but received an empty string`
+
+This validation mechanism is enforced in the source code and verified by tests in `tests/unit/main.test.js`.
+
+## Input Validation Overview
+
+- **Non-empty Strings:** All CLI commands must be provided as non-empty strings. 
+- **Invalid Inputs:** If a non-string or empty string is provided, the CLI returns a standardized error message prefixed with "CLI Error:".
+
+## Error Handling Improvements
 
 The error handling has been centralized to include a consistent prefix ("CLI Error:") for all error messages. This enhancement provides additional context that aids in debugging while ensuring that the original error message remains clear and recognizable.
 
@@ -50,7 +57,7 @@ The error handling has been centralized to include a consistent prefix ("CLI Err
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for enhanced diagnostics output along with invalid inputs like NaN and empty strings, and now also cover the chat command integration.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for invalid inputs like NaN and empty strings, as well as covering the chat command integration.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
