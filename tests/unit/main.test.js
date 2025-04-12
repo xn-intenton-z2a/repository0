@@ -1,5 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 import { main } from "@src/lib/main.js";
+import { promises as fs } from "fs";
+import { existsSync } from "fs";
+import path from "path";
 
 // Mock the OpenAI module for chat command tests
 vi.mock("openai", () => {
@@ -204,5 +207,22 @@ describe("CLI Commands", () => {
     const output2 = await captureOutput(() => main(["chat", "--prompt", "Second prompt"]));
     expect(output1).toContain("Response from OpenAI");
     expect(output2).toContain("Response from OpenAI");
+  });
+
+  // New test for persistent chat history file creation
+  test("chat command persists conversation history", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    await captureOutput(() => main(["chat", "--prompt", "Persistent prompt"]));
+    expect(existsSync(historyFile)).toBe(true);
+    const data = await fs.readFile(historyFile, "utf-8");
+    const history = JSON.parse(data);
+    expect(history).toEqual(expect.arrayContaining([
+      { role: "user", content: "Persistent prompt" },
+      { role: "assistant", content: expect.any(String) }
+    ]));
   });
 });
