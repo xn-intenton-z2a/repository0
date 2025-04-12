@@ -75,7 +75,6 @@ function stringifyArg(arg) {
       return String(arg);
     }
   }
-  if (typeof arg === "number" && Number.isNaN(arg)) return "NaN";
   return JSON.stringify(arg);
 }
 

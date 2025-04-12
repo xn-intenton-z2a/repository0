@@ -92,16 +92,6 @@ describe("CLI Commands", () => {
     expect(output).toContain("Run with: []");
   });
 
-  test("NaN input displays error message", async () => {
-    const output = await captureOutput(() => {
-      try {
-        return main([NaN]);
-      } catch {}
-    });
-    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN");
-    expect(output).toContain(suggestion);
-  });
-
   test("empty string input displays error message", async () => {
     const output = await captureOutput(() => {
       try {

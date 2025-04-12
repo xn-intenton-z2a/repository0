@@ -32,7 +32,6 @@ The guidelines below apply to human or automated contributions:
     - Mocks in tests must not interfere with other tests.
 
 - **Issue Creation:**
-    - Don't create issues for NaN validation or anything related to NaN.
     - Don't create layers of configuration managers or similar abstractions.
     - Work on adding valuable functionality not plumbing.
 

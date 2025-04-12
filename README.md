@@ -38,12 +38,6 @@ The CLI validates all input arguments using Zod to ensure that every command rec
 - **Symbol** (now explicitly handled to include a descriptive string representation)
 - **BigInt**
 
-The system produces a standardized error message. For example, when a NaN value is provided, the error may look like:
-
-```json
-{ "error": "CLI Error", "message": "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'." }
-```
-
 This consistent formatting aids debugging and ensures seamless integration with downstream tools.
 
 ## Error Handling Improvements
