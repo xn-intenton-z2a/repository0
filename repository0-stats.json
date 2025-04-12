@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
+  "openIssues": 4,
   "issuesClosedLastHour": 9,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Updated CLI version command to dynamically retrieve version from package.json (fixes #1389)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 7,
+  "diffMinutesMain": 8,
   "commitsLastHour": 5,
   "commitsLastDay": 22,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1389",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T03:51:41.323Z"
+  "generatedAt": "2025-04-12T03:52:27.420Z"
 }
