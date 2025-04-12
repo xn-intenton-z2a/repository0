@@ -16,9 +16,9 @@ const packageData = require("../../package.json");
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  const formatted = `Error: ${message}`;
-  console.error(formatted);
-  throw err || new Error(formatted);
+  // Refactored error handling: print the message directly without redundant prefixes
+  console.error(message);
+  throw err || new Error(message);
 }
 
 /**
