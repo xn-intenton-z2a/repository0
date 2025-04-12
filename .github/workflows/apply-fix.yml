@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Apply Fix on Fail
-concurrency: agentic-lib
+concurrency: agentic-lib-commit
 run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
@@ -30,14 +30,14 @@ on:
         required: false
         type: boolean
         default: false
-  workflow_run:
-    workflows:
-      - 'Tests'
-      - 'Issue Worker'
-    types:
-      - completed
-    branches:
-      - agentic-lib-*
+  #workflow_run:
+  #  workflows:
+  #    - 'Tests'
+  #    - 'Issue Worker'
+  #  types:
+  #    - completed
+  #  branches:
+  #    - agentic-lib-*
   schedule:
     #- cron: '0 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
@@ -283,7 +283,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.7.1'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -478,7 +478,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.7.1'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -493,7 +493,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.7.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
