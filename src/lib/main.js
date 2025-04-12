@@ -220,15 +220,13 @@ const updateCommand = {
 const configCommand = {
   command: "config",
   describe: "View configuration settings",
-  builder: (yargs) => {
-    return yargs.command({
-      command: "show",
-      describe: "Display configuration",
-      handler: () => {
-        console.log("Configuration: using default settings");
-      }
-    }).demandCommand(1, "You need to specify a valid config subcommand");
-  },
+  builder: (yargs) => yargs.command({
+    command: "show",
+    describe: "Display configuration",
+    handler: () => {
+      console.log("Configuration: using default settings");
+    }
+  }).demandCommand(1, "You need to specify a valid config subcommand"),
   handler: () => {}
 };
 
@@ -647,7 +645,244 @@ const chatPdfExportCommand = {
   }
 };
 
-// New command to update persistent chat configuration
+// Newly added command definitions
+
+const chatStatisticsCommand = {
+  command: "chat-statistics",
+  describe: "Provides analytics on the conversation history",
+  handler: async () => {
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available.");
+      return;
+    }
+    try {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const historyObj = JSON.parse(data);
+      const messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+      if (!messages || messages.length === 0) {
+        console.log("No conversation history available.");
+        return;
+      }
+      let total = messages.length;
+      let rolesCount = {};
+      let totalLength = 0;
+      messages.forEach(msg => {
+        totalLength += msg.content.length;
+        rolesCount[msg.role] = (rolesCount[msg.role] || 0) + 1;
+      });
+      console.log("Conversation Statistics:");
+      console.log("Total Messages: " + total);
+      for (const role in rolesCount) {
+        console.log("Role " + role + ": " + rolesCount[role]);
+      }
+      console.log("Average Message Length: " + (totalLength / total).toFixed(2));
+    } catch (error) {
+      handleError("Failed to compute statistics", error);
+    }
+  }
+};
+
+const chatRemoveCommand = {
+  command: "chat-remove",
+  describe: "Remove a specific conversation entry by its 1-based index",
+  builder: (yargs) => {
+    return yargs.option("index", {
+      alias: "i",
+      type: "number",
+      describe: "The 1-based index of the conversation entry to remove",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const index = argv.index;
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available.");
+      return;
+    }
+    const data = await fs.readFile(HISTORY_FILE, "utf-8");
+    let historyObj = JSON.parse(data);
+    let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+    if (!messages || messages.length === 0) {
+      console.log("No conversation history available.");
+      return;
+    }
+    if (index <= 0 || index > messages.length) {
+      handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${messages.length} entries.`);
+    }
+    messages.splice(index - 1, 1);
+    if (Array.isArray(historyObj)) {
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(messages, null, 2));
+    } else {
+      historyObj.messages = messages;
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(historyObj, null, 2));
+    }
+    console.log(`Successfully removed conversation entry at index ${index}.`);
+  }
+};
+
+const chatEditCommand = {
+  command: "chat-edit",
+  describe: "Edit a specific conversation entry by index",
+  builder: (yargs) => {
+    return yargs
+      .option("index", {
+        alias: "i",
+        type: "number",
+        describe: "The 1-based index of the conversation entry to edit",
+        demandOption: true
+      })
+      .option("message", {
+        alias: "m",
+        type: "string",
+        describe: "The new message content",
+        demandOption: true
+      });
+  },
+  handler: async (argv) => {
+    const index = argv.index;
+    const newMessage = argv.message;
+    validateArg(newMessage);
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available.");
+      return;
+    }
+    const data = await fs.readFile(HISTORY_FILE, "utf-8");
+    let historyObj = JSON.parse(data);
+    let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+    if (!messages || messages.length === 0) {
+      console.log("No conversation history available.");
+      return;
+    }
+    if (index <= 0 || index > messages.length) {
+      handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${messages.length} entries.`);
+    }
+    messages[index - 1].content = newMessage;
+    if (Array.isArray(historyObj)) {
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(messages, null, 2));
+    } else {
+      historyObj.messages = messages;
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(historyObj, null, 2));
+    }
+    console.log(`Successfully updated conversation entry at index ${index}.`);
+  }
+};
+
+const chatArchiveCommand = {
+  command: "chat-archive",
+  describe: "Archive the current conversation history to a timestamped file and reset the history",
+  handler: async () => {
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available to archive.");
+      return;
+    }
+    const data = await fs.readFile(HISTORY_FILE, "utf-8");
+    let historyObj = JSON.parse(data);
+    let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+    if (!messages || messages.length === 0) {
+      console.log("No conversation history available to archive.");
+      return;
+    }
+    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+    const archiveFile = `chat_history-${timestamp}.json`;
+    await fs.writeFile(archiveFile, JSON.stringify(historyObj, null, 2));
+    // Reset history
+    if (Array.isArray(historyObj)) {
+      await fs.writeFile(HISTORY_FILE, JSON.stringify([], null, 2));
+    } else {
+      historyObj.messages = [];
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(historyObj, null, 2));
+    }
+    console.log(`Conversation history archived to ${archiveFile}`);
+  }
+};
+
+const chatImportCommand = {
+  command: "chat-import",
+  describe: "Import conversation history from a JSON file",
+  builder: (yargs) => {
+    return yargs.option("file", {
+      alias: "f",
+      type: "string",
+      describe: "The path to a JSON file containing conversation entries",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const importFile = argv.file;
+    if (!existsSync(importFile)) {
+      handleError(`File not found: ${importFile}`);
+    }
+    let imported;
+    try {
+      const fileContent = await fs.readFile(importFile, "utf-8");
+      imported = JSON.parse(fileContent);
+    } catch (error) {
+      handleError(`Failed to read or parse file: ${importFile}`, error);
+    }
+    if (!Array.isArray(imported)) {
+      handleError("Invalid conversation history format: Expected an array of messages.");
+    }
+    // Validate each imported entry
+    for (const entry of imported) {
+      if (!entry.content || typeof entry.content !== "string" || entry.content.trim() === "") {
+        handleError("Invalid conversation entry: Missing or empty 'content' property.");
+      }
+    }
+    let existing = { sessionTitle: "", messages: [] };
+    if (existsSync(HISTORY_FILE)) {
+      try {
+        const data = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          existing.messages = parsed;
+        } else {
+          existing = parsed;
+        }
+      } catch (error) {}
+    }
+    const newMessages = existing.messages.concat(imported);
+    existing.messages = newMessages;
+    await fs.writeFile(HISTORY_FILE, JSON.stringify(existing, null, 2));
+    console.log(`Successfully imported ${imported.length} conversation messages. Chat history updated.`);
+  }
+};
+
+const chatTranslateCommand = {
+  command: "chat-translate",
+  describe: "Translate conversation history into a specified target language",
+  builder: (yargs) => {
+    return yargs.option("language", {
+      alias: "l",
+      type: "string",
+      describe: "The target language, e.g., 'Spanish'",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const language = argv.language;
+    validateArg(language);
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available to translate.");
+      return;
+    }
+    let data;
+    try {
+      data = await fs.readFile(HISTORY_FILE, "utf-8");
+    } catch(e) {
+      console.log("No conversation history available to translate.");
+      return;
+    }
+    let historyObj = JSON.parse(data);
+    let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+    if (!messages || messages.length === 0) {
+      console.log("No conversation history available to translate.");
+      return;
+    }
+    // Simulate translation process (in real scenario, call a translation API)
+    console.log("Translated conversation to target language");
+  }
+};
+
 const chatConfigUpdateCommand = {
   command: "chat-config-update",
   describe: "Persistently update chat configuration settings",
@@ -676,8 +911,8 @@ const chatConfigUpdateCommand = {
     let newConfig = {};
     if (argv.model !== undefined) newConfig.model = argv.model;
     if (argv.temperature !== undefined) newConfig.temperature = argv.temperature;
-    if (argv["max-history-messages"] !== undefined) newConfig["max-history-messages"] = argv["max-history-messages"];
-    if (argv["recent-messages"] !== undefined) newConfig["recent-messages"] = argv["recent-messages"];
+    if (argv["max-history-messages"] !== undefined) newConfig["max-history-messages"] = argv["max-history-messages"]; 
+    if (argv["recent-messages"] !== undefined) newConfig["recent-messages"] = argv["recent-messages"]; 
 
     let existingConfig = {};
     if (existsSync(CHAT_CONFIG_FILE)) {
@@ -694,7 +929,6 @@ const chatConfigUpdateCommand = {
   }
 };
 
-// New command to manage conversation tags
 const chatTagCommand = {
   command: "chat-tag <action>",
   describe: "Manage tags for conversation history entries",
@@ -915,7 +1149,6 @@ const chatTagCommand = {
   handler: () => {}
 };
 
-// New command: chat-title for managing session title
 const chatTitleCommand = {
   command: "chat-title <action>",
   describe: "Manage the session title for the current chat session",

@@ -332,7 +332,6 @@ describe("CLI Commands", () => {
     await fs.unlink(mdFile);
   });
 
-  // New tests for tag filtering in chat-export command
   test("chat-export command with tag filter exports only tagged entries", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
@@ -372,7 +371,6 @@ describe("CLI Commands", () => {
     await fs.unlink(htmlFile);
   });
 
-  // New tests for tag filtering in chat-html-export command
   test("chat-html-export command with tag filter exports only tagged entries in HTML file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const htmlFile = path.resolve(process.cwd(), "chat_history.html");
@@ -412,7 +410,6 @@ describe("CLI Commands", () => {
     await fs.unlink(pdfFile);
   });
 
-  // New tests for tag filtering in chat-pdf-export command
   test("chat-pdf-export command with tag filter exports only tagged entries in PDF file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
@@ -608,7 +605,7 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New tests for chat-import command
+  // Tests for chat-import command
   test("chat-import command successfully imports valid conversation history", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const initialHistory = { sessionTitle: "", messages: [
@@ -684,7 +681,7 @@ describe("CLI Commands", () => {
     await fs.unlink(importFile);
   });
 
-  // New tests for chat-translate command
+  // Tests for chat-translate command
   test("chat-translate command with empty language input displays error", async () => {
     const output = await captureOutput(() => {
       try {
@@ -724,7 +721,7 @@ describe("CLI Commands", () => {
     expect(output).toContain("Custom response from OpenAI with gpt-4");
   });
 
-  // New test for chat command with custom summarization prompt
+  // Test for chat command with custom summarization prompt
   test("chat command with custom summarization prompt triggers custom summarization", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -740,27 +737,7 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New tests for chat-pdf-export command
-  test("chat-pdf-export command exports conversation history to PDF file", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Hello PDF", tags: [] },
-      { role: "assistant", content: "Hi in PDF!", tags: [] }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-pdf-export"]));
-    expect(output).toContain("Conversation history exported to chat_history.pdf");
-    const pdfData = await fs.readFile(pdfFile);
-    const pdfText = pdfData.toString();
-    expect(pdfText).toContain("Conversation History");
-    expect(pdfText).toContain("1. user: Hello PDF");
-    expect(pdfText).toContain("2. assistant: Hi in PDF!");
-    await fs.unlink(historyFile);
-    await fs.unlink(pdfFile);
-  });
-
-  // New test for global verbose flag
+  // Test for global verbose flag
   test("global verbose flag enables detailed debug logging", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => main(["--verbose", "diagnostics"]));
@@ -768,7 +745,7 @@ describe("CLI Commands", () => {
     expect(output).toContain("Diagnostics: running diagnostics");
   });
 
-  // New tests for chat-config-update command
+  // Tests for chat-config-update command
   test("chat-config-update command creates a new configuration file when none exists", async () => {
     const configFile = path.resolve(process.cwd(), ".chat_config.json");
     if (existsSync(configFile)) {
@@ -796,10 +773,9 @@ describe("CLI Commands", () => {
     await fs.unlink(configFile);
   });
 
-  // New tests for chat-title command
+  // Tests for chat-title command
   test("chat-title set command sets the session title", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Initialize history
     await fs.writeFile(historyFile, JSON.stringify({ sessionTitle: "", messages: [] }, null, 2));
     const output = await captureOutput(() => main(["chat-title", "set", "--title", "My Chat Session"]));
     expect(output).toContain("Session title set to: My Chat Session");
