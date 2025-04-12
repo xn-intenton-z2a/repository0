@@ -31,7 +31,9 @@ function validateArgs(args) {
         handleError(`Invalid input: Expected a valid string command, but received ${arg}`);
       }
     }
-    // Optional: Further validation can be added here (e.g. non-empty check)
+    if (arg.trim() === "") {
+      handleError("Invalid input: Expected a non-empty string command, but received an empty string");
+    }
   }
 }
 

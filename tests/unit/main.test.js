@@ -85,4 +85,15 @@ describe("CLI Commands", () => {
     });
     expect(output).toContain("Invalid input: Expected a valid string command, but received NaN");
   });
+
+  test("empty string input displays error message", () => {
+    const output = captureOutput(() => {
+      try {
+        main([""]);
+      } catch (e) {
+        // Expected error due to empty string input
+      }
+    });
+    expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
+  });
 });
