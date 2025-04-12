@@ -14,8 +14,9 @@ import PDFDocument from "pdfkit"; // Added PDFKit for PDF export functionality
 const require = createRequire(import.meta.url);
 const packageData = require("../../package.json");
 
-// Global conversation history for multi-turn chat sessions (in-memory copy, loaded from persistent storage)
-let conversationHistory = [];
+// Global conversation data for multi-turn chat sessions
+// Updated structure: { sessionTitle: string, messages: [] }
+let conversationData = { sessionTitle: "", messages: [] };
 
 const HISTORY_FILE = ".chat_history.json";
 const CHAT_CONFIG_FILE = ".chat_config.json";
@@ -31,22 +32,33 @@ function debugLog(message) {
 
 /**
  * Loads conversation history from the persistent history file.
+ * The file now stores an object with a sessionTitle and messages array.
  */
 async function loadHistory() {
   try {
     if (existsSync(HISTORY_FILE)) {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      conversationHistory = JSON.parse(data);
-      // Ensure each history entry has a tags property
-      conversationHistory = conversationHistory.map(entry => {
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        // Legacy format: convert to new structure
+        conversationData = { sessionTitle: "", messages: parsed };
+      } else {
+        conversationData = parsed;
+        // Ensure messages array exists
+        if (!Array.isArray(conversationData.messages)) {
+          conversationData.messages = [];
+        }
+      }
+      // Ensure each message has a tags property
+      conversationData.messages = conversationData.messages.map(entry => {
         if (!entry.tags || !Array.isArray(entry.tags)) {
           entry.tags = [];
         }
         return entry;
       });
-      debugLog(`Loaded conversation history with ${conversationHistory.length} entries.`);
+      debugLog(`Loaded conversation history with ${conversationData.messages.length} messages.`);
     } else {
-      conversationHistory = [];
+      conversationData = { sessionTitle: "", messages: [] };
       debugLog("No existing conversation history found; starting fresh.");
     }
   } catch (error) {
@@ -56,12 +68,11 @@ async function loadHistory() {
 
 /**
  * Saves the current conversation history to the persistent history file using atomic file operations.
- * Writes to a temporary file and then renames it to ensure data integrity during concurrent operations.
  */
 async function saveHistory() {
   const tempFile = HISTORY_FILE + ".tmp";
   try {
-    await fs.writeFile(tempFile, JSON.stringify(conversationHistory, null, 2));
+    await fs.writeFile(tempFile, JSON.stringify(conversationData, null, 2));
     await fs.rename(tempFile, HISTORY_FILE);
     debugLog("Conversation history saved successfully.");
   } catch (error) {
@@ -140,15 +151,11 @@ function stringifyArg(arg) {
 
 /**
  * Validates that a CLI argument is a non-empty string using Zod.
- * Provides standardized error messages for various invalid inputs such as booleans, null, undefined, objects, arrays, symbols, and bigints.
- * The error message always follows the pattern: 
- * "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
- *
+ * Provides standardized error messages.
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
   const suggestion = " Please provide a valid non-empty string, such as 'start' or 'info'.";
-  // Explicitly check for undefined to provide a custom error message
   if (arg === undefined) {
     handleError(`Invalid input: Expected a valid non-empty string command, but received undefined.${suggestion}`);
   }
@@ -282,7 +289,7 @@ const chatCommand = {
     
     // Load conversation history from file
     await loadHistory();
-    debugLog(`Post-load, conversation history length: ${conversationHistory.length}`);
+    debugLog(`Post-load, conversation history length: ${conversationData.messages.length}`);
 
     const apiKey = process.env.CHATGPT_API_SECRET_KEY;
     if (!apiKey) {
@@ -290,7 +297,7 @@ const chatCommand = {
     }
 
     // Append user prompt to conversation history with tags initialized
-    conversationHistory.push({ role: "user", content: prompt, tags: [] });
+    conversationData.messages.push({ role: "user", content: prompt, tags: [] });
     debugLog("User prompt appended to conversation history.");
 
     // Get configurable auto-summarization settings, using CLI option, then env, then persisted config, then default
@@ -302,9 +309,9 @@ const chatCommand = {
     const temperature = argv.temperature !== undefined ? parseFloat(argv.temperature) : (process.env.CHAT_TEMPERATURE ? parseFloat(process.env.CHAT_TEMPERATURE) : (chatConfig.temperature !== undefined ? chatConfig.temperature : 0.7));
 
     // Auto-summarization: if conversation history grows too long, summarize older messages
-    if (conversationHistory.length > maxHistoryMessages) {
+    if (conversationData.messages.length > maxHistoryMessages) {
       debugLog("Auto-summarization triggered.");
-      const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
+      const messagesToSummarize = conversationData.messages.slice(0, conversationData.messages.length - keepRecentMessages);
       const customPrompt = argv["summarization-prompt"];
       const summarizationUserMessage = customPrompt && customPrompt.trim() !== ""
         ? `${customPrompt} ${JSON.stringify(messagesToSummarize)}`
@@ -324,14 +331,14 @@ const chatCommand = {
         });
         const summary = summaryResponse.data.choices[0].message.content;
         debugLog("Auto-summarization completed.");
-        conversationHistory = [
+        conversationData.messages = [
           { role: "assistant", content: `Summary of previous conversation: ${summary}`, tags: [] },
-          ...conversationHistory.slice(conversationHistory.length - keepRecentMessages)
+          ...conversationData.messages.slice(conversationData.messages.length - keepRecentMessages)
         ];
         // If a custom summarization prompt was provided, use the summary as the final reply
         if (customPrompt && customPrompt.trim() !== "") {
           console.log(summary);
-          conversationHistory.push({ role: "assistant", content: summary, tags: [] });
+          conversationData.messages.push({ role: "assistant", content: summary, tags: [] });
           await saveHistory();
           return;
         }
@@ -346,14 +353,14 @@ const chatCommand = {
       const openai = new OpenAIApi(configuration);
       const response = await openai.createChatCompletion({
         model,
-        messages: conversationHistory,
+        messages: conversationData.messages,
         temperature
       });
       const reply = response.data.choices[0].message.content;
       debugLog("Received reply from OpenAIApi.");
       console.log(reply);
       // Append assistant's reply to the conversation history with tags initialized
-      conversationHistory.push({ role: "assistant", content: reply, tags: [] });
+      conversationData.messages.push({ role: "assistant", content: reply, tags: [] });
       // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
@@ -369,7 +376,8 @@ const chatHistoryCommand = {
     try {
       if (existsSync(HISTORY_FILE)) {
         const data = await fs.readFile(HISTORY_FILE, "utf-8");
-        const history = JSON.parse(data);
+        const historyObj = JSON.parse(data);
+        const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
         if (!history || history.length === 0) {
           console.log("No conversation history available.");
         } else {
@@ -397,7 +405,8 @@ const chatSummarizeCommand = {
         return;
       }
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history to summarize.");
         return;
@@ -455,7 +464,8 @@ const chatSearchCommand = {
     let history;
     try {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
     } catch (e) {
       console.log("No conversation history available.");
       return;
@@ -490,7 +500,8 @@ const chatExportCommand = {
         return;
       }
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available to export.");
         return;
@@ -517,7 +528,8 @@ const chatHtmlExportCommand = {
         return;
       }
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available to export.");
         return;
@@ -554,7 +566,8 @@ const chatStatisticsCommand = {
     }
     try {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available.");
         return;
@@ -593,7 +606,6 @@ const chatRemoveCommand = {
   },
   handler: async (argv) => {
     const index = argv.index;
-    // Validate that index is a positive integer
     if (typeof index !== "number" || index <= 0 || !Number.isInteger(index)) {
       handleError(`Invalid input: Index should be a positive integer. Received ${index}`);
     }
@@ -603,7 +615,8 @@ const chatRemoveCommand = {
     let history;
     try {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
     } catch (error) {
       handleError("Failed to read conversation history", error);
     }
@@ -613,11 +626,24 @@ const chatRemoveCommand = {
     if (index > history.length) {
       handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
     }
-    // Remove the target entry. Adjust for 1-based indexing.
     history.splice(index - 1, 1);
     const tempFile = HISTORY_FILE + ".tmp";
     try {
-      await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+      // If history file stored as object, update messages
+      let updatedData;
+      if (existsSync(HISTORY_FILE)) {
+        const data = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) {
+          updatedData = history;
+        } else {
+          parsed.messages = history;
+          updatedData = parsed;
+        }
+      } else {
+        updatedData = history;
+      }
+      await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
       await fs.rename(tempFile, HISTORY_FILE);
       console.log(`Successfully removed conversation entry at index ${index}.`);
     } catch (error) {
@@ -647,7 +673,6 @@ const chatEditCommand = {
   handler: async (argv) => {
     const index = argv.index;
     const newMessage = argv.message;
-    // Validate new message content
     validateArg(newMessage);
     if (typeof index !== "number" || index <= 0 || !Number.isInteger(index)) {
       handleError(`Invalid input: Index should be a positive integer. Received ${index}`);
@@ -658,7 +683,8 @@ const chatEditCommand = {
     let history;
     try {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
     } catch (error) {
       handleError("Failed to read conversation history", error);
     }
@@ -668,11 +694,19 @@ const chatEditCommand = {
     if (index > history.length) {
       handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
     }
-    // Update the content of the selected conversation entry
     history[index - 1].content = newMessage;
     const tempFile = HISTORY_FILE + ".tmp";
     try {
-      await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+      let updatedData;
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const parsed = JSON.parse(data);
+      if (Array.isArray(parsed)) {
+        updatedData = history;
+      } else {
+        parsed.messages = history;
+        updatedData = parsed;
+      }
+      await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
       await fs.rename(tempFile, HISTORY_FILE);
       console.log(`Successfully updated conversation entry at index ${index}.`);
     } catch (error) {
@@ -691,24 +725,22 @@ const chatArchiveCommand = {
         return;
       }
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available to archive.");
         return;
       }
-      // Create timestamp in format YYYYMMDDHHmmss
       const now = new Date();
       const pad = (num) => String(num).padStart(2, '0');
       const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
       const archiveFileName = `chat_history-${timestamp}.json`;
-      
-      // Archive the existing history file using atomic operations
       const tempArchive = archiveFileName + ".tmp";
-      await fs.writeFile(tempArchive, JSON.stringify(history, null, 2));
+      await fs.writeFile(tempArchive, JSON.stringify(historyObj, null, 2));
       await fs.rename(tempArchive, archiveFileName);
-      
-      // Reset the conversation history by writing an empty array
-      await fs.writeFile(HISTORY_FILE, JSON.stringify([], null, 2));
+      // Reset the conversation history 
+      const newHistory = { sessionTitle: "", messages: [] };
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(newHistory, null, 2));
       console.log(`Conversation history archived to ${archiveFileName}`);
     } catch (error) {
       handleError("Failed to archive conversation history", error);
@@ -729,7 +761,6 @@ const chatImportCommand = {
   },
   handler: async (argv) => {
     const filePath = argv.file;
-    // Validate file parameter
     validateArg(filePath);
     if (!existsSync(filePath)) {
       handleError(`File not found: ${filePath}`);
@@ -744,7 +775,6 @@ const chatImportCommand = {
     if (!Array.isArray(importedData)) {
       handleError("Invalid conversation history format: Expected an array of messages.");
     }
-    // Validate each entry in the array
     for (const entry of importedData) {
       if (typeof entry !== "object" || entry === null) {
         handleError("Invalid conversation entry: Each entry must be an object.");
@@ -755,21 +785,13 @@ const chatImportCommand = {
       if (typeof entry.content !== "string" || entry.content.trim() === "") {
         handleError("Invalid conversation entry: Missing or empty 'content' property.");
       }
-      // Initialize tags if not present
       if (!entry.tags || !Array.isArray(entry.tags)) {
         entry.tags = [];
       }
     }
-    
-    // Load existing conversation history
     await loadHistory();
-    
-    // Merge imported data with existing history
-    conversationHistory = conversationHistory.concat(importedData);
-    
-    // Save updated conversation history using atomic file operations
+    conversationData.messages = conversationData.messages.concat(importedData);
     await saveHistory();
-    
     console.log(`Successfully imported ${importedData.length} conversation messages. Chat history updated.`);
   }
 };
@@ -797,7 +819,8 @@ const chatTranslateCommand = {
     let history;
     try {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available to translate.");
         return;
@@ -844,20 +867,17 @@ const chatPdfExportCommand = {
         return;
       }
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
-      const history = JSON.parse(data);
+      const historyObj = JSON.parse(data);
+      const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
       if (!history || history.length === 0) {
         console.log("No conversation history available to export.");
         return;
       }
 
-      // Create a PDF document with compression disabled to expose text in output
       const doc = new PDFDocument({ compress: false });
-      // Set PDF metadata Title to ensure text appears in plain output
       doc.info.Title = "Conversation History";
-      // Embed the conversation history in the PDF metadata subject for easier text extraction
       const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role}: ${entry.content}`).join('\n');
       doc.info.Subject = conversationText;
-      // Set default font to Helvetica to ensure text is rendered in plain text
       doc.font('Helvetica');
       let buffers = [];
       doc.on('data', buffers.push.bind(buffers));
@@ -866,7 +886,6 @@ const chatPdfExportCommand = {
         doc.on('error', reject);
       });
 
-      // Write PDF content
       doc.fontSize(16).text("Conversation History", { align: "center" });
       doc.moveDown();
       history.forEach((entry, index) => {
@@ -967,7 +986,8 @@ const chatTagCommand = {
           let history;
           try {
             const data = await fs.readFile(HISTORY_FILE, "utf-8");
-            history = JSON.parse(data);
+            const historyObj = JSON.parse(data);
+            history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
           } catch (error) {
             handleError("Failed to read conversation history", error);
           }
@@ -987,7 +1007,16 @@ const chatTagCommand = {
           entry.tags.push(tag);
           const tempFile = HISTORY_FILE + ".tmp";
           try {
-            await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+            let updatedData;
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) {
+              updatedData = history;
+            } else {
+              parsed.messages = history;
+              updatedData = parsed;
+            }
+            await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
             await fs.rename(tempFile, HISTORY_FILE);
             console.log(`Tag "${tag}" added to conversation entry at index ${index}.`);
           } catch (error) {
@@ -1022,7 +1051,8 @@ const chatTagCommand = {
           let history;
           try {
             const data = await fs.readFile(HISTORY_FILE, "utf-8");
-            history = JSON.parse(data);
+            const historyObj = JSON.parse(data);
+            history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
           } catch (error) {
             handleError("Failed to read conversation history", error);
           }
@@ -1043,7 +1073,16 @@ const chatTagCommand = {
           entry.tags.splice(tagIndex, 1);
           const tempFile = HISTORY_FILE + ".tmp";
           try {
-            await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+            let updatedData;
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) {
+              updatedData = history;
+            } else {
+              parsed.messages = history;
+              updatedData = parsed;
+            }
+            await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
             await fs.rename(tempFile, HISTORY_FILE);
             console.log(`Tag "${tag}" removed from conversation entry at index ${index}.`);
           } catch (error) {
@@ -1070,7 +1109,8 @@ const chatTagCommand = {
           let history;
           try {
             const data = await fs.readFile(HISTORY_FILE, "utf-8");
-            history = JSON.parse(data);
+            const historyObj = JSON.parse(data);
+            history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
           } catch (error) {
             handleError("Failed to read conversation history", error);
           }
@@ -1109,7 +1149,8 @@ const chatTagCommand = {
           let history;
           try {
             const data = await fs.readFile(HISTORY_FILE, "utf-8");
-            history = JSON.parse(data);
+            const historyObj = JSON.parse(data);
+            history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
           } catch (error) {
             handleError("Failed to read conversation history", error);
           }
@@ -1133,14 +1174,63 @@ const chatTagCommand = {
   handler: () => {}
 };
 
+// New command: chat-title for managing session title
+const chatTitleCommand = {
+  command: "chat-title <action>",
+  describe: "Manage the session title for the current chat session",
+  builder: (yargs) => {
+    return yargs
+      .command({
+        command: "set",
+        describe: "Set the session title",
+        builder: (yargs) => yargs.option("title", {
+          alias: "t",
+          type: "string",
+          describe: "The title to set for the current session",
+          demandOption: true
+        }),
+        handler: async (argv) => {
+          const title = argv.title;
+          validateArg(title);
+          await loadHistory();
+          conversationData.sessionTitle = title;
+          await saveHistory();
+          console.log(`Session title set to: ${title}`);
+        }
+      })
+      .command({
+        command: "get",
+        describe: "Get the current session title",
+        handler: async () => {
+          await loadHistory();
+          if (conversationData.sessionTitle && conversationData.sessionTitle.trim() !== "") {
+            console.log(`Current session title: ${conversationData.sessionTitle}`);
+          } else {
+            console.log("No session title set.");
+          }
+        }
+      })
+      .command({
+        command: "clear",
+        describe: "Clear the current session title",
+        handler: async () => {
+          await loadHistory();
+          conversationData.sessionTitle = "";
+          await saveHistory();
+          console.log("Session title cleared.");
+        }
+      })
+      .demandCommand(1, "You need to specify a chat-title subcommand (set, get, clear)");
+  },
+  handler: () => {}
+};
+
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
- * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
  */
 export function main(args = []) {
   if (!args) args = [];
-  // Global verbose flag detection
   const verbose = args.includes("--verbose");
   if (verbose) {
     args = args.filter(arg => arg !== "--verbose");
@@ -1179,6 +1269,7 @@ export function main(args = []) {
     .command(chatPdfExportCommand)
     .command(chatConfigUpdateCommand)
     .command(chatTagCommand)
+    .command(chatTitleCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

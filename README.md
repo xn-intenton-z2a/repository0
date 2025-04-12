@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, and manage conversation tags.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and now manage a chat session title.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -68,6 +68,10 @@ Key subcommands include:
   - `remove`: Remove a tag from a conversation entry (e.g., `repository0 chat-tag remove --index 3 --tag "important"`).
   - `list`: List all tags for a conversation entry (e.g., `repository0 chat-tag list --index 3`).
   - `filter`: Filter conversation entries by a tag (e.g., `repository0 chat-tag filter --tag "important"`).
+- **chat-title:** Manage the chat session title. Subcommands include:
+  - `set`: Set the session title (e.g., `repository0 chat-title set --title "Project Discussion"`).
+  - `get`: Get the current session title (e.g., `repository0 chat-title get`).
+  - `clear`: Clear the current session title (e.g., `repository0 chat-title clear`).
 
 ## Global Verbose Mode
 
@@ -92,13 +96,13 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **GitHub Workflows:**
     Automated workflows from intentïon `agentic‑lib` handle CI/CD tasks.
 - **Source Code:**
-    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-tag` for tagging conversation history entries.
+    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles.
 - **Global Verbose Mode:**
     Enables detailed logging for debugging.
 - **Dependencies:**
     Refer to `package.json` for project dependencies and scripts.
 - **Tests:**
-    Comprehensive unit tests ensure robust functionality including the new tagging feature.
+    Comprehensive unit tests ensure robust functionality including the new chat session title feature.
 - **Documentation:**
     This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.
 
