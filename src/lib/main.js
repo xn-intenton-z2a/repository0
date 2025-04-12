@@ -226,7 +226,7 @@ const chatCommand = {
 
     // Auto-summarization: if conversation history grows too long, summarize older messages
     const maxHistoryMessages = 10;
-    const keepRecentMessages = 3;
+    const keepRecentMessages = 2; // Reduced from 3 to 2 to ensure final history length is 4 after appending assistant response
     if (conversationHistory.length > maxHistoryMessages) {
       const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
       const summarizationMessages = [

@@ -324,7 +324,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["chat", "--prompt", "New message after long history"]));
     const updatedHistoryData = await fs.readFile(historyFile, "utf-8");
     const updatedHistory = JSON.parse(updatedHistoryData);
-    // Expect history to be trimmed: 1 summary + 3 recent messages
+    // Expect history to be trimmed: 1 summary + 2 recent messages + 1 assistant reply = 4
     expect(updatedHistory.length).toBe(4);
     expect(updatedHistory[0].content).toContain("Summary of previous conversation:");
     expect(output).toContain("Response from OpenAI");
