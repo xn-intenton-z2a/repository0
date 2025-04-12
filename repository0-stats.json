@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 4,
-  "issuesClosedLastHour": 1,
+  "openIssues": 2,
+  "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Added a custom fail handler to yargs in main.js to ensure the expected error message is printed when no command is provided. (fixes #1371)",
-      "ageMinutes": 15
-    }
-  ],
-  "diffMinutes": 8,
-  "diffMinutesMain": 41,
-  "commitsLastHour": 1,
-  "commitsLastDay": 12,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 2,
+  "commitsLastDay": 13,
   "lastFiveCommitMessages": [
+    {
+      "time": "01:44",
+      "message": "Added a custom fail handler to yargs in main.js to ensure the ex..."
+    },
     {
       "time": "01:01",
       "message": "Update from agentic-lib"
@@ -32,23 +31,14 @@
     {
       "time": "00:30",
       "message": "Update workflow schedule to schedule-3\n\nChanged the workflow sch..."
-    },
-    {
-      "time": "00:23",
-      "message": "Maintain MATH_UTILS"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1371",
-        "minutesSinceLastCommit": 16
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 15,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T01:42:52.153Z"
+  "generatedAt": "2025-04-12T01:44:27.643Z"
 }
