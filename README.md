@@ -34,7 +34,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 **Error Handling Improvements:**
 
-The error handling has been refactored to provide uniform and clear error messages. This ensures that any invalid input is identified and reported consistently, aiding in troubleshooting and debugging.
+The error handling has been refactored to provide uniform and clear error messages by removing redundant prefixes. This ensures that any invalid input is identified and reported consistently, aiding in troubleshooting and debugging.
 
 ## What’s Inside
 
