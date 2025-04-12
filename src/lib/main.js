@@ -192,8 +192,7 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations by maintaining conversation context across sessions.
- * Automatically summarizes older parts of the conversation history if a preset threshold is exceeded.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations.
  */
 const chatCommand = {
   command: "chat",
@@ -396,6 +395,36 @@ const chatSearchCommand = {
 };
 
 /**
+ * Chat Export command: Exports the conversation history to a markdown file.
+ */
+const chatExportCommand = {
+  command: "chat-export",
+  describe: "Export conversation history to a markdown file",
+  handler: async () => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      let mdContent = "# Conversation History\n\n";
+      history.forEach((entry, index) => {
+        mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n\n`;
+      });
+      await fs.writeFile("chat_history.md", mdContent);
+      console.log("Conversation history exported to chat_history.md");
+    } catch (error) {
+      handleError("Failed to export conversation history", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -418,6 +447,7 @@ export function main(args = []) {
     .command(chatHistoryCommand)
     .command(chatSummarizeCommand)
     .command(chatSearchCommand)
+    .command(chatExportCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
