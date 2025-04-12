@@ -2,14 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 2,
-  "issuesClosedLastHour": 16,
+  "openIssues": 3,
+  "issuesClosedLastHour": 14,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Refactored CLI argument error handling to use a consolidated helper function for invalid inputs. (fixes #1410)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 8,
-  "commitsLastHour": 8,
+  "diffMinutesMain": 9,
+  "commitsLastHour": 7,
   "commitsLastDay": 32,
   "lastFiveCommitMessages": [
     {
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1410",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T05:04:41.203Z"
+  "generatedAt": "2025-04-12T05:05:59.403Z"
 }
