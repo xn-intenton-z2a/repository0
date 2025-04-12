@@ -2,16 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 4,
-  "issuesClosedLastHour": 9,
+  "openIssues": 5,
+  "issuesClosedLastHour": 11,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 8,
-  "commitsLastHour": 4,
-  "commitsLastDay": 69,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 5,
+  "commitsLastDay": 70,
   "lastFiveCommitMessages": [
+    {
+      "time": "14:06",
+      "message": "Added chat-export command to export conversation history to mark..."
+    },
     {
       "time": "13:57",
       "message": "Refactored conversation history persistence to use atomic file o..."
@@ -27,23 +31,14 @@
     {
       "time": "13:22",
       "message": "Added chat-summarize command to summarize conversation history u..."
-    },
-    {
-      "time": "11:43",
-      "message": "Update from agentic-lib"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1472",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T14:05:45.653Z"
+  "generatedAt": "2025-04-12T14:07:08.001Z"
 }

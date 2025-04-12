@@ -23,7 +23,7 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, and search the conversation history. Additionally, the chat command now automatically summarizes older parts of a long conversation history when a preset threshold is exceeded, ensuring efficient interaction by keeping the context concise. Conversation history updates are now performed using atomic file operations to prevent data corruption during concurrent CLI invocations.</p>
+<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and new commands to view, summarize, search, and export the conversation history. The chat command now automatically summarizes older parts of a long conversation history when a preset threshold is exceeded, ensuring efficient interaction by keeping the context concise. Conversation history updates are now performed using atomic file operations to prevent data corruption during concurrent CLI invocations.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Package metadata is imported using Node's built-in createRequire, which avoids deprecated JSON import assertions.</p>
@@ -55,7 +55,7 @@
 <li class="md-github">Example: <code class="md-github">repository0 info</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if it becomes too long and now uses atomic file operations to ensure data integrity even with concurrent accesses.
+<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if it becomes too long and uses atomic file operations to ensure data integrity during concurrent accesses.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat --prompt &quot;Hello, how are you?&quot;</code></li>
 </ul>
@@ -65,14 +65,19 @@
 <li class="md-github">Example: <code class="md-github">repository0 chat-history</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history. This command reads the conversation history from <code class="md-github">.chat_history.json</code> and uses the OpenAI API to produce a summary. If no history exists, it outputs a message indicating that there is no conversation history to summarize.
+<li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history by using the OpenAI API. If no history exists, it outputs a message indicating that there is no conversation history to summarize.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-summarize</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-search:</strong> Searches the conversation history for entries that match a provided keyword (case-insensitive). It filters both user and assistant messages, and displays the matching entries in a clear, indexed format. If no matches are found or if no conversation history exists, an appropriate message is shown.
+<li class="md-github"><strong class="md-github">chat-search:</strong> Searches the conversation history for entries that match a provided keyword (case-insensitive). It filters both user and assistant messages and displays the matching entries. If no matches are found or if no conversation history exists, an appropriate message is shown.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-search --query &quot;search text&quot;</code></li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">chat-export:</strong> Exports the conversation history to a markdown file (<code class="md-github">chat_history.md</code>). The command reads the conversation history from <code class="md-github">.chat_history.json</code>, formats it with markdown (including indices, roles, and messages), and writes the output to the markdown file. If there is no conversation history, an appropriate message is displayed.
+<ul class="md-github">
+<li class="md-github">Example: <code class="md-github">repository0 chat-export</code></li>
 </ul>
 </li>
 </ul>
@@ -97,7 +102,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations and auto-summarizes long conversation histories using atomic file operations, a command to display the conversation history, a command to summarize the conversation history, and a new command to search the conversation history.</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations and auto-summarizes long conversation histories using atomic file operations, a command to display the conversation history, a command to summarize the conversation history, a command to search the conversation history, and a new command to export the conversation history to markdown.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -105,7 +110,7 @@ The <code class="md-github">package.json</code> file defines project dependencie
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation, history display functionality, conversation summarization, conversation search capabilities, and automatic summarization when history exceeds the threshold.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversations, history display functionality, conversation summarization, conversation search capabilities, and conversation export to markdown.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong>
@@ -134,7 +139,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T14:06:05.763Z</p>
+    <p>Generated on 2025-04-12T14:07:24.045Z</p>
   </footer>
 </body>
 </html>
