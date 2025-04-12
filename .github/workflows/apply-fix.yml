@@ -33,6 +33,7 @@ on:
   workflow_run:
     workflows:
       - 'Tests'
+      - 'Issue Worker'
     types:
       - completed
     branches:
@@ -40,7 +41,7 @@ on:
   schedule:
     #- cron: '0 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
-    - cron: '*/5 * * * *' # schedule-3
+    - cron: '*/10 * * * *' # schedule-3
 
 jobs:
 
