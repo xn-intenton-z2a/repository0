@@ -26,6 +26,7 @@ The CLI now employs yargs for robust subcommand parsing and improved input valid
 
 - All CLI arguments must be non-empty strings representing valid commands.
 - If a non-string argument (e.g. NaN) is provided, the CLI outputs a clear error message: "Invalid input: Expected a valid string command, but received {input}".
+- If an empty string is provided, the CLI outputs a clear error message: "Invalid input: Expected a non-empty string command, but received an empty string".
 - When executed without any arguments, the CLI logs `Run with: []` followed by an error message prompting for a valid command.
 
 **Error Handling:**
@@ -44,7 +45,7 @@ The CLI now employs yargs for robust subcommand parsing and improved input valid
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate CLI commands and error handling, including checks for invalid inputs like NaN.
+  Unit tests in the `tests/unit/` folder validate CLI commands and error handling, including checks for invalid inputs such as NaN and empty strings.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
