@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { z } from "zod";
 
 // Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
@@ -44,30 +43,20 @@ function stringifyArg(arg) {
 }
 
 /**
- * Validates that a CLI argument is a non-empty string using Zod.
+ * Validates that a CLI argument is a non-empty string.
  * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, and arrays.
- * The error message always follows the pattern: "Invalid input: Expected a valid non-empty string command, but received <value>".
- * A suggestion is appended to guide users towards providing a correct input.
+ * The error message always follows the pattern: "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
-  try {
-    const suggestion = " Please provide a valid non-empty string, such as 'start' or 'info'.";
-    // Updated schema to include a custom required_error for undefined inputs and appended suggestion
-    const schema = z.string({
-      required_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`,
-      invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`
-    }).refine(val => val.trim() !== "", {
-      message: `Invalid input: Expected a non-empty string command, but received an empty string${suggestion}`
-    });
-
-    schema.parse(arg);
-  } catch (error) {
-    if (error instanceof z.ZodError && error.errors && error.errors.length > 0) {
-      handleError(error.errors[0].message);
-    } else {
-      handleError(String(error));
-    }
+  const suggestion = "Please provide a valid non-empty string, such as 'start' or 'info'.";
+  if (typeof arg !== "string") {
+    handleError(`Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`);
+    return;
+  }
+  if (arg.trim() === "") {
+    handleError(`Invalid input: Expected a non-empty string command, but received an empty string${suggestion}`);
+    return;
   }
 }
 
@@ -167,7 +156,7 @@ const chatCommand = {
   },
   handler: async (argv) => {
     const prompt = argv.prompt;
-    // Validate the prompt using Zod based validation
+    // Validate the prompt
     validateArg(prompt);
     
     const apiKey = process.env.CHATGPT_API_SECRET_KEY;
