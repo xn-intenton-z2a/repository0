@@ -65,6 +65,8 @@ function stringifyArg(arg) {
   if (arg === null) return "null";
   if (arg === undefined) return "undefined";
   if (typeof arg === "boolean") return arg.toString();
+  if (typeof arg === "symbol") return arg.toString();
+  if (typeof arg === "bigint") return arg.toString() + "n";
   if (Array.isArray(arg)) return "Array";
   if (typeof arg === "object") {
     try {
@@ -79,7 +81,7 @@ function stringifyArg(arg) {
 
 /**
  * Validates that a CLI argument is a non-empty string using Zod.
- * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, and arrays.
+ * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, arrays, symbols, and bigints.
  * The error message always follows the pattern: 
  * "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
  *

@@ -200,6 +200,29 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
+  test("symbol input displays error", async () => {
+    const sym = Symbol("testSymbol");
+    const output = await captureOutput(() => {
+      try {
+        return main([sym]);
+      } catch {} 
+    });
+    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received ${sym.toString()}`);
+    expect(output).toContain(suggestion);
+  });
+
+  test("bigint input displays error", async () => {
+    const big = BigInt(123);
+    const output = await captureOutput(() => {
+      try {
+        return main([big]);
+      } catch {} 
+    });
+    // Expecting the bigint to be stringified with an appended 'n'
+    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received ${big.toString()}n`);
+    expect(output).toContain(suggestion);
+  });
+
   // New test for multi-turn conversation
   test("chat multi-turn conversation accumulates context", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
