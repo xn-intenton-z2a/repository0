@@ -50,8 +50,9 @@ function stringifyArg(arg) {
  */
 function validateArg(arg) {
   try {
-    // This schema only accepts strings and fails if the string is empty after trimming
+    // Updated schema to include a custom required_error for undefined inputs
     const schema = z.string({
+      required_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}`,
       invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}`
     }).refine(val => val.trim() !== "", {
       message: "Invalid input: Expected a non-empty string command, but received an empty string"
