@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { z } from "zod"; // Integrated Zod for enhanced CLI input validation
 
 // Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
@@ -43,20 +44,30 @@ function stringifyArg(arg) {
 }
 
 /**
- * Validates that a CLI argument is a non-empty string.
+ * Validates that a CLI argument is a non-empty string using Zod.
  * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, and arrays.
  * The error message always follows the pattern: "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
-  const suggestion = "Please provide a valid non-empty string, such as 'start' or 'info'.";
-  if (typeof arg !== "string") {
-    handleError(`Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`);
-    return;
+  const suggestion = " Please provide a valid non-empty string, such as 'start' or 'info'.";
+  // Explicitly check for undefined to provide a custom error message
+  if (arg === undefined) {
+    handleError(`Invalid input: Expected a valid non-empty string command, but received undefined${suggestion}`);
   }
-  if (arg.trim() === "") {
-    handleError(`Invalid input: Expected a non-empty string command, but received an empty string${suggestion}`);
-    return;
+  const schema = z.string({
+    invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`
+  }).nonempty({
+    message: `Invalid input: Expected a non-empty string command, but received an empty string${suggestion}`
+  });
+  try {
+    schema.parse(arg);
+  } catch (error) {
+    if (error.errors && error.errors.length > 0) {
+      handleError(error.errors[0].message);
+    } else {
+      handleError("Invalid input");
+    }
   }
 }
 
