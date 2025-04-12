@@ -59,25 +59,25 @@
 <p class="md-github"><strong class="md-github">Input Validation:</strong></p>
 <ul class="md-github">
 <li class="md-github">All CLI arguments must be non-empty strings representing valid commands.</li>
-<li class="md-github">The CLI now uses a consolidated error handling approach to ensure consistent and clear error messages for all invalid inputs.
+<li class="md-github">The CLI uses a consolidated error handling approach for consistency. For example:
 <ul class="md-github">
-<li class="md-github">If a non-string input is provided (for example, NaN), the CLI responds with:
+<li class="md-github">Non-string inputs (for instance, NaN) result in:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">Invalid input: Expected a valid string command, but received NaN</code></li>
 </ul>
 </li>
-<li class="md-github">If an empty string is provided, the CLI responds with:
+<li class="md-github">Empty string inputs result in:
 <ul class="md-github">
 <li class="md-github"><code class="md-github">Invalid input: Expected a non-empty string command, but received an empty string</code></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="md-github">When executed without any arguments, the CLI logs <code class="md-github">Run with: []</code> and displays an error prompting for a valid command.</li>
 </ul>
 <p class="md-github"><strong class="md-github">Error Handling:</strong></p>
 <ul class="md-github">
 <li class="md-github">Errors are standardized and prefixed with <code class="md-github">Error:</code> to ensure both human-readability and machine parsing.</li>
+<li class="md-github">Enhanced error messaging now leverages structured formatting for clarity and maintainability.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
@@ -87,7 +87,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, avoiding deprecated import assertions. The error handling for CLI arguments has been refactored for better clarity and maintenance.</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with clearer error messages.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -124,7 +124,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T05:24:22.675Z</p>
+    <p>Generated on 2025-04-12T05:25:04.141Z</p>
   </footer>
 </body>
 </html>
