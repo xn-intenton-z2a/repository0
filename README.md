@@ -27,7 +27,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 
 ## CLI Input Validation
 
-The CLI now validates all input arguments to ensure they are non-empty strings using Zod for enhanced type enforcement. The validation process produces standardized error messages for any invalid input, whether they be booleans, null, undefined, objects, arrays, or even NaN. In case of invalid input, the error message follows this format:
+The CLI now validates all input arguments to ensure they are non-empty strings using Zod for enhanced type enforcement. Every invalid input produces a standardized error message following this pattern:
 
 ```
 Invalid input: Expected a valid non-empty string command, but received <input>. Please provide a valid non-empty string, such as 'start' or 'info'.

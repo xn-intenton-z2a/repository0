@@ -58,7 +58,7 @@ function validateArg(arg) {
   const schema = z.string({
     invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}${suggestion}`
   }).nonempty({
-    message: `Invalid input: Expected a non-empty string command, but received an empty string${suggestion}`
+    message: `Invalid input: Expected a valid non-empty string command, but received an empty string${suggestion}`
   });
   try {
     schema.parse(arg);
