@@ -35,11 +35,14 @@ async function loadHistory() {
 }
 
 /**
- * Saves the current conversation history to the persistent history file.
+ * Saves the current conversation history to the persistent history file using atomic file operations.
+ * Writes to a temporary file and then renames it to ensure data integrity during concurrent operations.
  */
 async function saveHistory() {
+  const tempFile = HISTORY_FILE + ".tmp";
   try {
-    await fs.writeFile(HISTORY_FILE, JSON.stringify(conversationHistory, null, 2));
+    await fs.writeFile(tempFile, JSON.stringify(conversationHistory, null, 2));
+    await fs.rename(tempFile, HISTORY_FILE);
   } catch (error) {
     handleError("Failed to write conversation history", error);
   }
@@ -194,7 +197,7 @@ const infoCommand = {
  */
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation and auto-summarizes long histories)",
+  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation and auto-summarizes long histories). Conversation history is saved using atomic file operations.",
   builder: (yargs) => {
     return yargs.option("prompt", {
       alias: "p",
@@ -257,7 +260,7 @@ const chatCommand = {
       console.log(reply);
       // Append assistant's reply to the conversation history
       conversationHistory.push({ role: "assistant", content: reply });
-      // Save updated conversation history to persistent file
+      // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
       handleError("Error calling OpenAI API", error);
