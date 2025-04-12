@@ -16,9 +16,10 @@ const packageData = require("../../package.json");
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  // Refactored error handling: print the message directly without redundant prefixes
-  console.error(message);
-  throw err || new Error(message);
+  // Centralized error formatting with CLI Error prefix for clarity
+  const fullMessage = "CLI Error: " + message;
+  console.error(fullMessage);
+  throw err || new Error(fullMessage);
 }
 
 /**
