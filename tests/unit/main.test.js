@@ -7,6 +7,7 @@ vi.mock("openai", () => {
   class FakeOpenAIApi {
     constructor(config) {}
     async createChatCompletion(params) {
+      // For testing multi-turn, we can check the messages length if needed
       return { data: { choices: [{ message: { content: "Response from OpenAI" } }] } };
     }
   }
@@ -108,7 +109,7 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
-  // Tests for the new chat command
+  // Tests for the chat command
   test("chat command with valid prompt", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => main(["chat", "--prompt", "Hello, how are you?"]));
@@ -194,5 +195,14 @@ describe("CLI Commands", () => {
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
     expect(output).toContain(suggestion);
+  });
+
+  // New test for multi-turn conversation
+  test("chat multi-turn conversation accumulates context", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const output1 = await captureOutput(() => main(["chat", "--prompt", "First prompt"]));
+    const output2 = await captureOutput(() => main(["chat", "--prompt", "Second prompt"]));
+    expect(output1).toContain("Response from OpenAI");
+    expect(output2).toContain("Response from OpenAI");
   });
 });

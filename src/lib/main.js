@@ -11,6 +11,9 @@ import { z } from "zod"; // Integrated Zod for enhanced CLI input validation
 const require = createRequire(import.meta.url);
 const packageData = require("../../package.json");
 
+// Global conversation history for multi-turn chat sessions
+let conversationHistory = [];
+
 /**
  * Logs and throws errors with a consistent formatted message.
  * @param {string} message - The error message to display.
@@ -156,11 +159,11 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a provided prompt.
+ * Chat command: Interact with OpenAI API using a prompt. Supports multi-turn conversations by maintaining conversation context in the session.
  */
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt",
+  describe: "Chat with OpenAI API using a prompt (supports multi-turn conversation)",
   builder: (yargs) => {
     return yargs.option("prompt", {
       alias: "p",
@@ -179,6 +182,9 @@ const chatCommand = {
       handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
     }
 
+    // Append user prompt to conversation history
+    conversationHistory.push({ role: "user", content: prompt });
+
     // Dynamically import the OpenAI module
     const { Configuration, OpenAIApi } = await import("openai");
     const configuration = new Configuration({ apiKey });
@@ -187,10 +193,12 @@ const chatCommand = {
     try {
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }]
+        messages: conversationHistory,
       });
       const reply = response.data.choices[0].message.content;
       console.log(reply);
+      // Append assistant's reply to the conversation history
+      conversationHistory.push({ role: "assistant", content: reply });
     } catch (error) {
       handleError("Error calling OpenAI API", error);
     }
