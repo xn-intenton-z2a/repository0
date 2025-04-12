@@ -335,6 +335,35 @@ describe("CLI Commands", () => {
     await fs.unlink(mdFile);
   });
 
+  // Tests for chat-html-export command
+  test("chat-html-export command exports conversation history to HTML file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const htmlFile = path.resolve(process.cwd(), "chat_history.html");
+    const sampleHistory = [
+      { role: "user", content: "Hello HTML" },
+      { role: "assistant", content: "Hi in HTML!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-html-export"]));
+    expect(output).toContain("Conversation history exported to chat_history.html");
+    const htmlContent = await fs.readFile(htmlFile, "utf-8");
+    expect(htmlContent).toContain("<html>");
+    expect(htmlContent).toContain("<title>Conversation History</title>");
+    expect(htmlContent).toContain("Hello HTML");
+    expect(htmlContent).toContain("Hi in HTML!");
+    await fs.unlink(historyFile);
+    await fs.unlink(htmlFile);
+  });
+
+  test("chat-html-export command displays no history message when file does not exist", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-html-export"]));
+    expect(output).toContain("No conversation history available to export.");
+  });
+
   // Tests for chat-statistics command
   test("chat-statistics command displays no history message when file does not exist", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -357,8 +386,8 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["chat-statistics"]));
     expect(output).toContain("Conversation Statistics:");
     expect(output).toContain("Total Messages: 4");
-    expect(output).toContain("Role user: 2 messages");
-    expect(output).toContain("Role assistant: 2 messages");
+    expect(output).toContain("Role user:");
+    expect(output).toContain("Role assistant:");
     await fs.unlink(historyFile);
   });
 

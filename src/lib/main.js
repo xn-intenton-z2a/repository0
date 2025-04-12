@@ -192,7 +192,7 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations and configurable model/temperature options.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations.
  */
 const chatCommand = {
   command: "chat",
@@ -458,6 +458,46 @@ const chatExportCommand = {
       console.log("Conversation history exported to chat_history.md");
     } catch (error) {
       handleError("Failed to export conversation history", error);
+    }
+  }
+};
+
+/**
+ * Chat HTML Export command: Exports the conversation history to an HTML file.
+ */
+const chatHtmlExportCommand = {
+  command: "chat-html-export",
+  describe: "Export conversation history to an HTML file",
+  handler: async () => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      let htmlContent = "<!DOCTYPE html>\n<html>\n<head>\n";
+      htmlContent += "<meta charset=\"UTF-8\">\n";
+      htmlContent += "<title>Conversation History</title>\n";
+      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; }</style>\n";
+      htmlContent += "</head>\n<body>\n";
+      htmlContent += "<h1>Conversation History</h1>\n";
+      history.forEach((entry, index) => {
+        htmlContent += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
+        htmlContent += `<p class=\"message\">${entry.content}</p></div>\n`;
+      });
+      htmlContent += "</body>\n</html>";
+
+      const tempFile = "chat_history.html.tmp";
+      await fs.writeFile(tempFile, htmlContent);
+      await fs.rename(tempFile, "chat_history.html");
+      console.log("Conversation history exported to chat_history.html");
+    } catch (error) {
+      handleError("Failed to export conversation history to HTML", error);
     }
   }
 };
@@ -790,6 +830,7 @@ export function main(args = []) {
     .command(chatSummarizeCommand)
     .command(chatSearchCommand)
     .command(chatExportCommand)
+    .command(chatHtmlExportCommand)
     .command(chatStatisticsCommand)
     .command(chatRemoveCommand)
     .command(chatEditCommand)
