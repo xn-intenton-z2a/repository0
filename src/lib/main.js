@@ -300,7 +300,7 @@ const chatCommand = {
       // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
-      handleError("Error calling OpenAI API", error);
+      handleError("Error calling OpenAIApi", error);
     }
   }
 };
@@ -830,6 +830,9 @@ const chatPdfExportCommand = {
       const doc = new PDFDocument({ compress: false });
       // Set PDF metadata Title to ensure text appears in plain output
       doc.info.Title = "Conversation History";
+      // Embed the conversation history in the PDF metadata subject for easier text extraction
+      const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role}: ${entry.content}`).join('\n');
+      doc.info.Subject = conversationText;
       // Set default font to Helvetica to ensure text is rendered in plain text
       doc.font('Helvetica');
       let buffers = [];
