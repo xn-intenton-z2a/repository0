@@ -242,6 +242,34 @@ const chatCommand = {
 };
 
 /**
+ * Chat History command: Displays the conversation history in a formatted manner.
+ */
+const chatHistoryCommand = {
+  command: "chat-history",
+  describe: "Display conversation history",
+  handler: async () => {
+    try {
+      if (existsSync(HISTORY_FILE)) {
+        const data = await fs.readFile(HISTORY_FILE, "utf-8");
+        const history = JSON.parse(data);
+        if (!history || history.length === 0) {
+          console.log("No conversation history available.");
+        } else {
+          console.log("Conversation History:");
+          history.forEach((entry, index) => {
+            console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+          });
+        }
+      } else {
+        console.log("No conversation history available.");
+      }
+    } catch (error) {
+      handleError("Failed to load conversation history", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -261,6 +289,7 @@ export function main(args = []) {
     .command(configCommand)
     .command(infoCommand)
     .command(chatCommand)
+    .command(chatHistoryCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

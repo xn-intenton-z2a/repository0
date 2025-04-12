@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), as well as robust and standardized CLI input validation powered by Zod.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and a new command to display the conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -22,8 +22,10 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
-- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command now supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. Subsequent calls to the chat command will build upon previous interactions.
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions.
   - Example: `repository0 chat --prompt "Hello, how are you?"`
+- **chat-history:** Displays the persistent conversation history in a human-readable format. It reads the content from the `.chat_history.json` file and prints each entry. If no conversation history is available, an appropriate message is shown.
+  - Example: `repository0 chat-history`
 
 ## CLI Input Validation and Error Handling
 
@@ -54,13 +56,13 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (with streamlined error handling), features a chat command that supports persistent multi-turn conversations, and a new chat-history command to view conversation history.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation for the chat command.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversation and history display functionality for the chat command.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
