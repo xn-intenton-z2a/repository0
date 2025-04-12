@@ -104,7 +104,7 @@ describe("CLI Commands", () => {
         return main([""]);
       } catch {}
     });
-    expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
     expect(output).toContain(suggestion);
   });
 
@@ -122,7 +122,7 @@ describe("CLI Commands", () => {
         return main(["chat", "--prompt", ""]);
       } catch {}
     });
-    expect(output).toContain("Invalid input: Expected a non-empty string command, but received an empty string");
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
     expect(output).toContain(suggestion);
   });
 
