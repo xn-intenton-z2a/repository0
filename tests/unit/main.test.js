@@ -22,6 +22,7 @@ function captureOutput(fn) {
   return output;
 }
 
+
 describe("CLI Commands", () => {
   test("diagnostics command", () => {
     const output = captureOutput(() => {
