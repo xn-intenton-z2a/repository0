@@ -23,7 +23,7 @@ function handleError(message, err) {
 /**
  * Validates all CLI arguments to ensure they are non-empty strings.
  * Provides explicit error messages with context about expected values.
- * Note: This function explicitly handles NaN values as invalid input.
+ * All error messages now follow a standardized format for clarity.
  * @param {Array} args - An array of CLI arguments.
  */
 function validateArgs(args) {
@@ -112,9 +112,7 @@ const infoCommand = {
 
 /**
  * Main function to parse CLI arguments and execute subcommands.
- *
- * This function logs provided arguments for debugging, validates them to ensure they
- * are non-empty strings representing valid commands, and sets up subcommand parsing using yargs.
+ * Logs provided arguments for debugging, validates inputs, and executes commands.
  * If an argument fails validation, a detailed error message is shown.
  *
  * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
@@ -125,7 +123,7 @@ export function main(args = []) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
 
-  // Validate that all arguments are non-empty strings.
+  // Validate that all arguments are non-empty strings with standardized error messaging.
   validateArgs(args);
 
   return yargs(args)

@@ -32,6 +32,8 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - `Invalid input: Expected a non-empty string command, but received an empty string`
 - When executed without any arguments, the CLI logs `Run with: []` and displays an error prompting for a valid command.
 
+*All error messages have been standardized to ensure consistency and clarity.*
+
 **Error Handling:**
 
 - Errors are standardized and prefixed with `Error:` to ensure both human-readability and machine parsing.
