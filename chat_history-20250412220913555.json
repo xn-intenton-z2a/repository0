@@ -1,0 +1,15 @@
+{
+  "sessionTitle": "",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Archive test",
+      "tags": []
+    },
+    {
+      "role": "assistant",
+      "content": "History to archive",
+      "tags": []
+    }
+  ]
+}

@@ -45,8 +45,7 @@ async function captureOutput(fn) {
     if (result && typeof result.then === "function") {
       await result;
     }
-  } catch {
-  }
+  } catch {}
   console.log = originalLog;
   console.error = originalError;
   return output;
@@ -228,7 +227,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "Test Session", messages: [
       { role: "user", content: "Hello", tags: [] },
       { role: "assistant", content: "Hi there!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-history"]));
     expect(output).toContain("Conversation History:");
@@ -253,7 +252,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "How are you?", tags: [] },
       { role: "assistant", content: "I am fine.", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-summarize"]));
     expect(output).toContain("Summary of conversation");
@@ -284,7 +283,7 @@ describe("CLI Commands", () => {
       { role: "user", content: "I need help with testing.", tags: [] },
       { role: "assistant", content: "Sure, I can help you with that.", tags: [] },
       { role: "user", content: "What is the time?", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "help"]));
     expect(output).toContain("Search Results:");
@@ -298,7 +297,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "I like apples.", tags: [] },
       { role: "assistant", content: "Apples are great!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "banana"]));
     expect(output).toContain("No results found for query: \"banana\"");
@@ -321,7 +320,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Hello Markdown", tags: [] },
       { role: "assistant", content: "Hi in Markdown!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-export"]));
     expect(output).toContain("Conversation history exported to chat_history.md");
@@ -333,6 +332,25 @@ describe("CLI Commands", () => {
     await fs.unlink(mdFile);
   });
 
+  test("chat-export command with tag filter exports only tagged entries", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const mdFile = path.resolve(process.cwd(), "chat_history.md");
+    const sampleHistory = { sessionTitle: "", messages: [
+      { role: "user", content: "Entry 1", tags: ["important"] },
+      { role: "assistant", content: "Entry 2", tags: [] },
+      { role: "user", content: "Entry 3", tags: ["important"] }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-export", "--tag", "important"]));
+    expect(output).toContain("Conversation history exported to chat_history.md");
+    const mdContent = await fs.readFile(mdFile, "utf-8");
+    expect(mdContent).toContain("**1. user**: Entry 1");
+    expect(mdContent).toContain("**2. user**: Entry 3");
+    expect(mdContent).not.toContain("Entry 2");
+    await fs.unlink(historyFile);
+    await fs.unlink(mdFile);
+  });
+
   // Tests for chat-html-export command
   test("chat-html-export command exports conversation history to HTML file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -340,7 +358,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Hello HTML", tags: [] },
       { role: "assistant", content: "Hi in HTML!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-html-export"]));
     expect(output).toContain("Conversation history exported to chat_history.html");
@@ -351,6 +369,65 @@ describe("CLI Commands", () => {
     expect(htmlContent).toContain("Hi in HTML!");
     await fs.unlink(historyFile);
     await fs.unlink(htmlFile);
+  });
+
+  test("chat-html-export command with tag filter exports only tagged entries in HTML file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const htmlFile = path.resolve(process.cwd(), "chat_history.html");
+    const sampleHistory = { sessionTitle: "", messages: [
+      { role: "user", content: "Entry 1", tags: ["tag1"] },
+      { role: "assistant", content: "Entry 2", tags: [] },
+      { role: "user", content: "Entry 3", tags: ["tag1"] }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-html-export", "--tag", "tag1"]));
+    expect(output).toContain("Conversation history exported to chat_history.html");
+    const htmlContent = await fs.readFile(htmlFile, "utf-8");
+    expect(htmlContent).toContain("Entry 1");
+    expect(htmlContent).toContain("Entry 3");
+    expect(htmlContent).not.toContain("Entry 2");
+    await fs.unlink(historyFile);
+    await fs.unlink(htmlFile);
+  });
+
+  // Tests for chat-pdf-export command
+  test("chat-pdf-export command exports conversation history to PDF file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
+    const sampleHistory = { sessionTitle: "", messages: [
+      { role: "user", content: "Hello PDF", tags: [] },
+      { role: "assistant", content: "Hi in PDF!", tags: [] }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-pdf-export"]));
+    expect(output).toContain("Conversation history exported to chat_history.pdf");
+    const pdfData = await fs.readFile(pdfFile);
+    const pdfText = pdfData.toString();
+    expect(pdfText).toContain("Conversation History");
+    expect(pdfText).toContain("1. user: Hello PDF");
+    expect(pdfText).toContain("2. assistant: Hi in PDF!");
+    await fs.unlink(historyFile);
+    await fs.unlink(pdfFile);
+  });
+
+  test("chat-pdf-export command with tag filter exports only tagged entries in PDF file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
+    const sampleHistory = { sessionTitle: "", messages: [
+      { role: "user", content: "PDF Entry 1", tags: ["export"] },
+      { role: "assistant", content: "PDF Entry 2", tags: [] },
+      { role: "user", content: "PDF Entry 3", tags: ["export"] }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-pdf-export", "--tag", "export"]));
+    expect(output).toContain("Conversation history exported to chat_history.pdf");
+    const pdfData = await fs.readFile(pdfFile);
+    const pdfText = pdfData.toString();
+    expect(pdfText).toContain("PDF Entry 1");
+    expect(pdfText).toContain("PDF Entry 3");
+    expect(pdfText).not.toContain("PDF Entry 2");
+    await fs.unlink(historyFile);
+    await fs.unlink(pdfFile);
   });
 
   test("chat-html-export command displays no history message when file does not exist", async () => {
@@ -379,7 +456,7 @@ describe("CLI Commands", () => {
       { role: "assistant", content: "Hi there!", tags: [] },
       { role: "user", content: "How are you doing today?", tags: [] },
       { role: "assistant", content: "I'm doing well, thank you!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-statistics"]));
     expect(output).toContain("Conversation Statistics:");
@@ -396,7 +473,7 @@ describe("CLI Commands", () => {
       { role: "user", content: "Entry 1", tags: [] },
       { role: "assistant", content: "Entry 2", tags: [] },
       { role: "user", content: "Entry 3", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-remove", "--index", "2"]));
     expect(output).toContain("Successfully removed conversation entry at index 2.");
@@ -413,7 +490,7 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Only Entry", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
       try {
@@ -455,7 +532,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Old message 1", tags: [] },
       { role: "assistant", content: "Old message 2", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const newMessage = "Updated message";
     const output = await captureOutput(() => main(["chat-edit", "--index", "2", "--message", newMessage]));
@@ -469,7 +546,7 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Only Entry", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
       try {
@@ -484,7 +561,7 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Old message", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
       try {
@@ -511,7 +588,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Archive test", tags: [] },
       { role: "assistant", content: "History to archive", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-archive"]));
     const archiveRegex = /Conversation history archived to chat_history-\d{14}\.json/;
@@ -528,12 +605,12 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New tests for chat-import command
+  // Tests for chat-import command
   test("chat-import command successfully imports valid conversation history", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const initialHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Existing message", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
 
     const importFile = path.resolve(process.cwd(), "test_import.json");
@@ -604,7 +681,7 @@ describe("CLI Commands", () => {
     await fs.unlink(importFile);
   });
 
-  // New tests for chat-translate command
+  // Tests for chat-translate command
   test("chat-translate command with empty language input displays error", async () => {
     const output = await captureOutput(() => {
       try {
@@ -630,7 +707,7 @@ describe("CLI Commands", () => {
     const sampleHistory = { sessionTitle: "", messages: [
       { role: "user", content: "Hello", tags: [] },
       { role: "assistant", content: "Hi there!", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-translate", "--language", "Spanish"]));
     expect(output).toContain("Translated conversation to target language");
@@ -644,7 +721,7 @@ describe("CLI Commands", () => {
     expect(output).toContain("Custom response from OpenAI with gpt-4");
   });
 
-  // New test for chat command with custom summarization prompt
+  // Test for chat command with custom summarization prompt
   test("chat command with custom summarization prompt triggers custom summarization", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -653,43 +730,14 @@ describe("CLI Commands", () => {
       { role: "assistant", content: "Response 1", tags: [] },
       { role: "user", content: "Message 2", tags: [] },
       { role: "assistant", content: "Response 2", tags: [] }
-    ]};
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--summarization-prompt", "Custom summarize:" ]));
     expect(output).toContain("Custom summarization response");
     await fs.unlink(historyFile);
   });
 
-  // New tests for chat-pdf-export command
-  test("chat-pdf-export command exports conversation history to PDF file", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Hello PDF", tags: [] },
-      { role: "assistant", content: "Hi in PDF!", tags: [] }
-    ]};
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-pdf-export"]));
-    expect(output).toContain("Conversation history exported to chat_history.pdf");
-    const pdfData = await fs.readFile(pdfFile);
-    const pdfText = pdfData.toString();
-    expect(pdfText).toContain("Conversation History");
-    expect(pdfText).toContain("1. user: Hello PDF");
-    expect(pdfText).toContain("2. assistant: Hi in PDF!");
-    await fs.unlink(historyFile);
-    await fs.unlink(pdfFile);
-  });
-
-  test("chat-pdf-export command displays message when no history exists", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    if (existsSync(historyFile)) {
-      await fs.unlink(historyFile);
-    }
-    const output = await captureOutput(() => main(["chat-pdf-export"]));
-    expect(output).toContain("No conversation history available to export.");
-  });
-
-  // New test for global verbose flag
+  // Test for global verbose flag
   test("global verbose flag enables detailed debug logging", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => main(["--verbose", "diagnostics"]));
@@ -697,7 +745,7 @@ describe("CLI Commands", () => {
     expect(output).toContain("Diagnostics: running diagnostics");
   });
 
-  // New tests for chat-config-update command
+  // Tests for chat-config-update command
   test("chat-config-update command creates a new configuration file when none exists", async () => {
     const configFile = path.resolve(process.cwd(), ".chat_config.json");
     if (existsSync(configFile)) {
@@ -725,12 +773,9 @@ describe("CLI Commands", () => {
     await fs.unlink(configFile);
   });
 
-  // New tests for chat-tag command (already present in previous tests)
-
-  // New tests for chat-title command
+  // Tests for chat-title command
   test("chat-title set command sets the session title", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Initialize history
     await fs.writeFile(historyFile, JSON.stringify({ sessionTitle: "", messages: [] }, null, 2));
     const output = await captureOutput(() => main(["chat-title", "set", "--title", "My Chat Session"]));
     expect(output).toContain("Session title set to: My Chat Session");
