@@ -6,6 +6,7 @@ import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
+// Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
 const packageData = require("../../package.json");
 
