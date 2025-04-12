@@ -192,7 +192,7 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations and configurable model and temperature options.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations and configurable model/temperature options.
  */
 const chatCommand = {
   command: "chat",
@@ -589,6 +589,63 @@ const chatArchiveCommand = {
 };
 
 /**
+ * Chat Import command: Imports conversation history from a JSON file and merges it with the existing history.
+ */
+const chatImportCommand = {
+  command: "chat-import",
+  describe: "Import conversation history from a JSON file",
+  builder: (yargs) => {
+    return yargs.option("file", {
+      alias: "f",
+      type: "string",
+      describe: "Path to the JSON file containing conversation history",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const filePath = argv.file;
+    // Validate file parameter
+    validateArg(filePath);
+    if (!existsSync(filePath)) {
+      handleError(`File not found: ${filePath}`);
+    }
+    let importedData;
+    try {
+      const fileContent = await fs.readFile(filePath, "utf-8");
+      importedData = JSON.parse(fileContent);
+    } catch (error) {
+      handleError(`Failed to read or parse file: ${filePath}`, error);
+    }
+    if (!Array.isArray(importedData)) {
+      handleError("Invalid conversation history format: Expected an array of messages.");
+    }
+    // Validate each entry in the array
+    for (const entry of importedData) {
+      if (typeof entry !== "object" || entry === null) {
+        handleError("Invalid conversation entry: Each entry must be an object.");
+      }
+      if (typeof entry.role !== "string" || entry.role.trim() === "") {
+        handleError("Invalid conversation entry: Missing or empty 'role' property.");
+      }
+      if (typeof entry.content !== "string" || entry.content.trim() === "") {
+        handleError("Invalid conversation entry: Missing or empty 'content' property.");
+      }
+    }
+    
+    // Load existing conversation history
+    await loadHistory();
+    
+    // Merge imported data with existing history
+    conversationHistory = conversationHistory.concat(importedData);
+    
+    // Save updated conversation history using atomic file operations
+    await saveHistory();
+    
+    console.log(`Successfully imported ${importedData.length} conversation messages. Chat history updated.`);
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -615,6 +672,7 @@ export function main(args = []) {
     .command(chatStatisticsCommand)
     .command(chatRemoveCommand)
     .command(chatArchiveCommand)
+    .command(chatImportCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

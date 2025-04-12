@@ -438,7 +438,6 @@ describe("CLI Commands", () => {
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-archive"]));
-    // Check that archive message was printed
     const archiveRegex = /Conversation history archived to chat_history-\d{14}\.json/;
     expect(output).toMatch(archiveRegex);
     const match = output.match(archiveRegex);
@@ -453,7 +452,86 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New test: chat command with custom model and temperature
+  // New tests for chat-import command
+  test("chat-import command successfully imports valid conversation history", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    // Initialize existing history
+    const initialHistory = [
+      { role: "user", content: "Existing message" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
+
+    // Create a temporary import file with valid conversation data
+    const importFile = path.resolve(process.cwd(), "test_import.json");
+    const importData = [
+      { role: "assistant", content: "Imported reply" },
+      { role: "user", content: "Imported question" }
+    ];
+    await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
+
+    const output = await captureOutput(() => main(["chat-import", "--file", importFile]));
+    expect(output).toContain("Successfully imported 2 conversation messages. Chat history updated.");
+
+    const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(updatedHistory.length).toBe(3);
+    expect(updatedHistory).toEqual(initialHistory.concat(importData));
+
+    // Clean up temporary files
+    await fs.unlink(importFile);
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-import command errors when file does not exist", async () => {
+    const nonExistentFile = path.resolve(process.cwd(), "nonexistent.json");
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-import", "--file", nonExistentFile]);
+      } catch {}
+    });
+    expect(output).toContain(`File not found: ${nonExistentFile}`);
+  });
+
+  test("chat-import command errors when file contains invalid JSON", async () => {
+    const importFile = path.resolve(process.cwd(), "invalid.json");
+    await fs.writeFile(importFile, "This is not JSON");
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-import", "--file", importFile]);
+      } catch {}
+    });
+    expect(output).toContain(`Failed to read or parse file: ${importFile}`);
+    await fs.unlink(importFile);
+  });
+
+  test("chat-import command errors when JSON structure is invalid (not an array)", async () => {
+    const importFile = path.resolve(process.cwd(), "not_array.json");
+    await fs.writeFile(importFile, JSON.stringify({ role: "user", content: "Invalid structure" }));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-import", "--file", importFile]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid conversation history format: Expected an array of messages.");
+    await fs.unlink(importFile);
+  });
+
+  test("chat-import command errors when an entry has invalid structure", async () => {
+    const importFile = path.resolve(process.cwd(), "invalid_entry.json");
+    const importData = [
+      { role: "user", content: "Valid message" },
+      { role: "assistant" }  // Missing content
+    ];
+    await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-import", "--file", importFile]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid conversation entry: Missing or empty 'content' property.");
+    await fs.unlink(importFile);
+  });
+
+  // Tests for chat command with custom model and temperature
   test("chat command with custom model and temperature", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const output = await captureOutput(() => main(["chat", "--prompt", "Hello, custom test", "--model", "gpt-4", "--temperature", "0.9"]));
