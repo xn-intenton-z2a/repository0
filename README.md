@@ -30,17 +30,18 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 The CLI validates all input arguments using Zod to ensure inputs are non-empty strings. If an invalid input is provided, such as:
 
 - **NaN:**
-  - Error: "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'."
+  - Error: Structured JSON output with keys, for example:
+    ```json
+    { "error": "CLI Error", "message": "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'." }
+    ```
 - **Empty string:**
-  - Error: "Invalid input: Expected a valid non-empty string command, but received an empty string. Please provide a valid non-empty string, such as 'start' or 'info'."
+  - Error: Structured JSON output with keys similar to the above.
 - **Boolean, null, undefined, object, or array:**
-  - Similar standardized error messages are produced.
-
-These error messages help users quickly identify that the provided input does not meet the requirements. For further confirmation of these behaviors, please refer to the tests in [tests/unit/main.test.js](./tests/unit/main.test.js).
+  - Similar standardized JSON error messages are produced.
 
 ## Error Handling Improvements
 
-Error handling has been centralized to include a consistent prefix ("CLI Error:") for all error messages. This enhancement aids in debugging by clearly identifying CLI errors while preserving the original error information.
+Error handling has been centralized to include a consistent JSON formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized keys (`error` and `message`).
 
 ## What’s Inside
 

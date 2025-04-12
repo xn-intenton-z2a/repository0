@@ -15,14 +15,14 @@ const packageData = require("../../package.json");
 let conversationHistory = [];
 
 /**
- * Logs and throws errors with a consistent formatted message.
+ * Logs and throws errors with a consistent formatted JSON message.
  * @param {string} message - The error message to display.
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  const fullMessage = "CLI Error: " + message;
-  console.error(fullMessage);
-  throw err || new Error(fullMessage);
+  const errorObj = { error: "CLI Error", message: message };
+  console.error(JSON.stringify(errorObj));
+  throw err || new Error(JSON.stringify(errorObj));
 }
 
 /**
