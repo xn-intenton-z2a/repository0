@@ -55,6 +55,10 @@ function validateArg(arg) {
   if (arg === undefined) {
     handleError(`Invalid input: Expected a valid non-empty string command, but received undefined.${suggestion}`);
   }
+  // Explicit check for NaN to ensure consistent error message
+  if (typeof arg === "number" && Number.isNaN(arg)) {
+    handleError(`Invalid input: Expected a valid non-empty string command, but received NaN.${suggestion}`);
+  }
   const schema = z.string({
     invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}.${suggestion}`
   }).nonempty({
