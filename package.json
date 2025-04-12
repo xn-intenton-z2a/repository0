@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.4.1-13",
-  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Now supports exclusive subcommand usage with enhanced CLI input validation using Zod, modular command registration, chat command integration using OpenAI API, and additional edge case handling for CLI inputs.",
+  "description": "Demo repository showcasing agentic‑lib workflows with a minimal CLI demonstration. Now supports exclusive subcommand usage with enhanced CLI input validation using Zod, modular command registration, chat command integration using OpenAI API with multi-turn conversation support, and additional edge case handling for CLI inputs.",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
