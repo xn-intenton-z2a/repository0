@@ -51,7 +51,7 @@ describe("CLI Commands", () => {
   test("default parameter when no arguments provided", () => {
     const output = captureOutput(() => {
       try {
-        // Call main with no arguments to rely on default parameter
+        // Call main with no arguments to rely on the default parameter
         main();
       } catch (e) {
         // Expected error due to missing command

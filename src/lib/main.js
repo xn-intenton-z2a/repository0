@@ -10,7 +10,7 @@ import { hideBin } from "yargs/helpers";
  * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
  */
 export function main(args = []) {
-  // If no arguments provided, log the default value.
+  // Log provided arguments (or default empty array) for debugging.
   if (args.length === 0) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
