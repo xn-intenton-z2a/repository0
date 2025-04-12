@@ -444,6 +444,45 @@ const chatExportCommand = {
 };
 
 /**
+ * Chat Statistics command: Provides analytics on the conversation history.
+ */
+const chatStatisticsCommand = {
+  command: "chat-statistics",
+  describe: "Display conversation analytics",
+  handler: async () => {
+    if (!existsSync(HISTORY_FILE)) {
+      console.log("No conversation history available.");
+      return;
+    }
+    try {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history available.");
+        return;
+      }
+      const totalMessages = history.length;
+      const roleCounts = {};
+      const totalChars = {};
+      history.forEach(entry => {
+        const role = entry.role;
+        const content = entry.content || "";
+        roleCounts[role] = (roleCounts[role] || 0) + 1;
+        totalChars[role] = (totalChars[role] || 0) + content.length;
+      });
+      console.log("Conversation Statistics:");
+      console.log(`Total Messages: ${totalMessages}`);
+      Object.keys(roleCounts).forEach(role => {
+        const avgLength = (totalChars[role] / roleCounts[role]).toFixed(2);
+        console.log(`Role ${role}: ${roleCounts[role]} messages, Average Length: ${avgLength} characters`);
+      });
+    } catch (error) {
+      handleError("Failed to compute conversation statistics", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -467,6 +506,7 @@ export function main(args = []) {
     .command(chatSummarizeCommand)
     .command(chatSearchCommand)
     .command(chatExportCommand)
+    .command(chatStatisticsCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

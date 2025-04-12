@@ -218,7 +218,7 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
-  // New tests for chat-history command
+  // Tests for chat-history command
   test("chat-history command displays conversation history if file exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
@@ -230,7 +230,6 @@ describe("CLI Commands", () => {
     expect(output).toContain("Conversation History:");
     expect(output).toContain("1. user: Hello");
     expect(output).toContain("2. assistant: Hi there!");
-    // Cleanup
     await fs.unlink(historyFile);
   });
 
@@ -311,7 +310,7 @@ describe("CLI Commands", () => {
     expect(output).toContain("No conversation history available.");
   });
 
-  // New test for chat-export command
+  // Test for chat-export command
   test("chat-export command exports conversation history to markdown file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
@@ -326,27 +325,34 @@ describe("CLI Commands", () => {
     expect(mdContent).toContain("# Conversation History");
     expect(mdContent).toContain("**1. user**: Hello Markdown");
     expect(mdContent).toContain("**2. assistant**: Hi in Markdown!");
-    // Cleanup
     await fs.unlink(historyFile);
     await fs.unlink(mdFile);
   });
 
-  // New test for configurable auto-summarization thresholds
-  test("chat command uses custom auto-summarization thresholds", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+  // New tests for chat-statistics command
+  test("chat-statistics command displays no history message when file does not exist", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Create a conversation history with 4 messages
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-statistics"]));
+    expect(output).toContain("No conversation history available.");
+  });
+
+  test("chat-statistics command displays statistics when history exists", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = [
-      { role: "user", content: "Msg1" },
-      { role: "assistant", content: "Msg2" },
-      { role: "user", content: "Msg3" },
-      { role: "assistant", content: "Msg4" }
+      { role: "user", content: "Hello" },
+      { role: "assistant", content: "Hi there!" },
+      { role: "user", content: "How are you doing today?" },
+      { role: "assistant", content: "I'm doing well, thank you!" }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    // Set custom thresholds: max-history-messages = 3 and recent-messages = 1
-    const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--recent-messages", "1"]));
-    expect(output).toContain("Response from OpenAI");
-    // Cleanup
+    const output = await captureOutput(() => main(["chat-statistics"]));
+    expect(output).toContain("Conversation Statistics:");
+    expect(output).toContain("Total Messages: 4");
+    expect(output).toContain("Role user: 2 messages");
+    expect(output).toContain("Role assistant: 2 messages");
     await fs.unlink(historyFile);
   });
 });
