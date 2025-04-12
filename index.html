@@ -69,7 +69,8 @@
 <li class="md-github"><strong class="md-github">Boolean (true or false)</strong></li>
 <li class="md-github"><strong class="md-github">null or undefined</strong></li>
 <li class="md-github"><strong class="md-github">Object or Array</strong></li>
-<li class="md-github"><strong class="md-github">Symbol or BigInt</strong></li>
+<li class="md-github"><strong class="md-github">Symbol</strong> (now explicitly handled to include a descriptive string representation)</li>
+<li class="md-github"><strong class="md-github">BigInt</strong></li>
 </ul>
 <p class="md-github">The system produces a standardized error message. For example, when a NaN value is provided the error may look like:</p>
 <pre class="md-github"><code class="md-github language-json">{ &quot;error&quot;: &quot;CLI Error&quot;, &quot;message&quot;: &quot;Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'.&quot; }
@@ -85,7 +86,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (now also covering Symbol and BigInt types), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json, includes enhanced CLI argument validation using Zod (now explicitly handling symbols and bigints), and features a revised chat command that supports persistent multi-turn conversations by storing conversation history in a file (.chat_history.json).</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -122,7 +123,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T10:45:11.050Z</p>
+    <p>Generated on 2025-04-12T10:46:33.402Z</p>
   </footer>
 </body>
 </html>
