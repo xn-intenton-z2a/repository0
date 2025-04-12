@@ -95,6 +95,18 @@ const configCommand = {
 };
 
 /**
+ * Registers the info command which displays repository metadata.
+ * @returns {object} Yargs command module for info
+ */
+const infoCommand = {
+  command: "info",
+  describe: "Display repository metadata",
+  handler: () => {
+    console.log(`Repository: ${packageData.name}\nVersion: ${packageData.version}\nDescription: ${packageData.description}`);
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute subcommands.
  *
  * This function logs provided arguments for debugging, validates them to ensure they
@@ -119,6 +131,7 @@ export function main(args = []) {
     .command(versionCommand)
     .command(updateCommand)
     .command(configCommand)
+    .command(infoCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
