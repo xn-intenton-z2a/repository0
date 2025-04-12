@@ -1,6 +1,6 @@
 # `repository0`
 
-The repository is intended as a template that includes:
+This repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
 * Workflows from `agentic‑lib` which reference reusable workflows.
@@ -10,19 +10,31 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 ## Overview
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
+## CLI Usage
+The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy flag usage is deprecated. The following subcommands are available:
+
+- **diagnostics:** Runs diagnostics. 
+  - Example: `repository0 diagnostics`
+- **version:** Displays the current version.
+  - Example: `repository0 version`
+- **update:** Initiates an update.
+  - Example: `repository0 update`
+
+Running the CLI without a subcommand will output an error message prompting for a valid command.
+
 ## What’s Inside
 
 - **GitHub Workflows:**  
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to adhere to the project’s mission and coding standards.
+  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests now cover the new subcommand functionality.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -40,10 +52,13 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
-START_README_END
-### Contributing
+## Links
 
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
+- [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
+- [MISSION.md](./MISSION.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [LICENSE](./LICENSE)
+- [intentïon agentic‑lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 
 ## License
 
