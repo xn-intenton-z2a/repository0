@@ -23,7 +23,7 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API as well as robust and standardized CLI input validation.</p>
+<p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension, and now includes a chat command integration with OpenAI's API as well as robust and standardized CLI input validation powered by Zod.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Package metadata is imported using Node's built-in createRequire, which avoids deprecated JSON import assertions.</p>
@@ -62,7 +62,7 @@
 </li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-input-validation" href="#cli-input-validation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Input Validation</h2>
-<p class="md-github">The CLI now validates all input arguments to ensure they are non-empty strings. The validation process has been refactored to produce standardized error messages for any invalid input, including booleans, null, undefined, objects, arrays, and even NaN. In case of invalid input, the error message follows this format:</p>
+<p class="md-github">The CLI now validates all input arguments to ensure they are non-empty strings using Zod for enhanced type enforcement. The validation process produces standardized error messages for any invalid input, whether they be booleans, null, undefined, objects, arrays, or even NaN. In case of invalid input, the error message follows this format:</p>
 <pre class="md-github"><code class="md-github">Invalid input: Expected a valid non-empty string command, but received &lt;input&gt;. Please provide a valid non-empty string, such as 'start' or 'info'.
 </code></pre>
 <p class="md-github">This ensures clarity and consistency, making it easier to debug input errors.</p>
@@ -76,7 +76,7 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation using standardized error messages, as well as a new chat command that leverages the OpenAI API.</p>
+The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation using Zod, as well as a new chat command that leverages the OpenAI API.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -113,7 +113,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T08:33:14.443Z</p>
+    <p>Generated on 2025-04-12T08:34:42.239Z</p>
   </footer>
 </body>
 </html>
