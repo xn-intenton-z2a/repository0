@@ -26,13 +26,15 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
 **Input Validation:**
 
 - All CLI arguments must be non-empty strings representing valid commands.
-- If a non-string argument (e.g. NaN) is provided, the CLI outputs: "Invalid input: Expected a valid string command, but received NaN".
-- If an empty string is provided, the CLI outputs: "Invalid input: Expected a non-empty string command, but received an empty string".
+- If a non-string input is provided (for example, NaN), the CLI responds with: 
+  - `Invalid input: Expected a valid string command, but received NaN`
+- If an empty string is provided, the CLI responds with: 
+  - `Invalid input: Expected a non-empty string command, but received an empty string`
 - When executed without any arguments, the CLI logs `Run with: []` and displays an error prompting for a valid command.
 
 **Error Handling:**
 
-- Errors are standardized and prefixed with "Error:" to ensure both human-readability and machine parsing.
+- Errors are standardized and prefixed with `Error:` to ensure both human-readability and machine parsing.
 
 ## What’s Inside
 
