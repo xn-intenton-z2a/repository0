@@ -782,7 +782,8 @@ const chatArchiveCommand = {
       console.log("No conversation history available to archive.");
       return;
     }
-    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "");
+    // Adjust timestamp to produce a 14-digit string (YYYYMMDDHHmmss)
+    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
     const archiveFile = `chat_history-${timestamp}.json`;
     await fs.writeFile(archiveFile, JSON.stringify(historyObj, null, 2));
     // Reset history
