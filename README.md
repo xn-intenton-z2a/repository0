@@ -66,7 +66,7 @@ Error handling has been centralized to include a consistent formatted error outp
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversations, history display functionality, conversation summarization, conversation search capabilities, export to markdown, and now conversation analytics.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, ensuring robust behavior across a variety of input types, including persistent multi-turn conversations, history display functionality, conversation summarization, conversation search capabilities, export to markdown, and conversation analytics.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
