@@ -20,6 +20,7 @@ function handleError(message, err) {
 /**
  * Validates all CLI arguments to ensure they are non-empty strings.
  * Provides explicit error messages with context about expected values.
+ * Note: This function explicitly handles NaN values as invalid input.
  * @param {Array} args - An array of CLI arguments.
  */
 function validateArgs(args) {
