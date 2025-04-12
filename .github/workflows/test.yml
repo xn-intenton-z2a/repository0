@@ -18,11 +18,11 @@ on:
       - '**/*.properties'
       - '!exports/**'
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - "Automerge"
-    types:
-      - completed
+  #workflow_run:
+  #  workflows:
+  #    - "Automerge"
+  #  types:
+  #    - completed
   schedule:
     #- cron: '45 */6 * * *' # schedule-1
     #- cron: '45 */4 * * *' # schedule-2
