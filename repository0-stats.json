@@ -2,11 +2,16 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 7,
+  "openIssues": 8,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Standardized error messages for invalid CLI inputs to ensure consistency across commands (fixes #1443)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
   "diffMinutesMain": 18,
   "commitsLastHour": 2,
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1443",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T08:52:12.945Z"
+  "generatedAt": "2025-04-12T08:52:53.239Z"
 }
