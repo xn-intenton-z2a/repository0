@@ -7,9 +7,14 @@ import { hideBin } from "yargs/helpers";
 
 /**
  * Main function to parse CLI arguments and execute subcommands.
- * @param {Array} args - Array of command line arguments.
+ * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
  */
-export function main(args) {
+export function main(args = []) {
+  // If no arguments provided, log the default value.
+  if (args.length === 0) {
+    console.log(`Run with: ${JSON.stringify(args)}`);
+  }
+
   return yargs(args)
     .scriptName("repository0")
     .usage("$0 <command>")
@@ -41,13 +46,11 @@ export function main(args) {
     .strict()
     .help()
     .fail((msg, err, yargsInstance) => {
-      // If the error message is related to missing command, output the expected message.
       if (msg && msg.includes("You need to specify a valid command")) {
         console.log("You need to specify a valid command");
       } else if (msg) {
         console.error(msg);
       }
-      // Throw an error to halt execution; test cases can catch this.
       throw err || new Error(msg || "Command failed");
     })
     .parse();

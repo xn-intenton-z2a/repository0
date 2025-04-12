@@ -20,7 +20,7 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 - **update:** Initiates an update.
   - Example: `repository0 update`
 
-Running the CLI without a subcommand will output an error message prompting for a valid command.
+When the CLI is executed without any arguments, the default parameter ensures that the arguments are treated as an empty array, logging "Run with: []" before displaying an error message prompting for a valid command.
 
 ## What’s Inside
 
@@ -28,13 +28,13 @@ Running the CLI without a subcommand will output an error message prompting for 
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands.
+  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands along with improved handling of missing arguments.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests now cover the new subcommand functionality.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Tests now cover the new default parameter functionality when no arguments are provided.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
