@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Adjusted auto-summarization logic by reducing the kept recent messages from 3 to 2 to ensure the final conversation history length is 4. (fixes #1478)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 12,
+  "diffMinutesMain": 13,
   "commitsLastHour": 2,
   "commitsLastDay": 67,
   "lastFiveCommitMessages": [
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1478",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T13:45:45.086Z"
+  "generatedAt": "2025-04-12T13:46:33.412Z"
 }
