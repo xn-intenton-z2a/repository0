@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 1,
+  "openIssues": 2,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "chore: formatting fixes",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 9,
+  "diffMinutesMain": 10,
   "commitsLastHour": 5,
   "commitsLastDay": 20,
   "lastFiveCommitMessages": [
@@ -45,5 +50,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T03:26:44.936Z"
+  "generatedAt": "2025-04-12T03:27:16.206Z"
 }
