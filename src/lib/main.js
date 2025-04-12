@@ -22,23 +22,30 @@ function handleError(message, err) {
 }
 
 /**
- * Validates all CLI arguments to ensure they are non-empty strings.
- * Provides explicit error messages with context about expected values.
- * All error messages now follow a standardized format for clarity.
+ * Validates a single CLI argument ensuring it is a non-empty string.
+ * Consolidates error handling for all invalid inputs including non-string and empty strings.
+ * @param {*} arg - CLI argument to validate.
+ */
+function validateArg(arg) {
+  if (typeof arg !== "string") {
+    if (typeof arg === "number" && Number.isNaN(arg)) {
+      handleError("Invalid input: Expected a valid string command, but received NaN");
+    } else {
+      handleError(`Invalid input: Expected a valid string command, but received ${arg}`);
+    }
+  }
+  if (arg.trim() === "") {
+    handleError("Invalid input: Expected a non-empty string command, but received an empty string");
+  }
+}
+
+/**
+ * Validates all CLI arguments using the consolidated error handling logic.
  * @param {Array} args - An array of CLI arguments.
  */
 function validateArgs(args) {
   for (const arg of args) {
-    if (typeof arg !== "string") {
-      if (typeof arg === "number" && Number.isNaN(arg)) {
-        handleError("Invalid input: Expected a valid string command, but received NaN");
-      } else {
-        handleError(`Invalid input: Expected a valid string command, but received ${arg}`);
-      }
-    }
-    if (arg.trim() === "") {
-      handleError("Invalid input: Expected a non-empty string command, but received an empty string");
-    }
+    validateArg(arg);
   }
 }
 
