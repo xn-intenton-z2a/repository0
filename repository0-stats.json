@@ -3,7 +3,7 @@
   "repo": "repository0",
   "engine": "schedule-3",
   "openIssues": 3,
-  "issuesClosedLastHour": 58,
+  "issuesClosedLastHour": 42,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
@@ -45,5 +45,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T01:12:40.908Z"
+  "generatedAt": "2025-04-12T01:12:49.881Z"
 }
