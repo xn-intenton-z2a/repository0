@@ -269,6 +269,56 @@ const chatHistoryCommand = {
 };
 
 /**
+ * Chat Summarize command: Summarizes the conversation history using OpenAI API or built-in logic.
+ */
+const chatSummarizeCommand = {
+  command: "chat-summarize",
+  describe: "Summarize the conversation history",
+  handler: async () => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history to summarize.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history to summarize.");
+        return;
+      }
+
+      const apiKey = process.env.CHATGPT_API_SECRET_KEY;
+      if (!apiKey) {
+        handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
+      }
+
+      // Prepare a summarization prompt
+      const summarizationMessages = [
+        { role: "system", content: "You are a summarization assistant. Given the conversation history, produce a concise summary." },
+        { role: "user", content: `Summarize the following conversation: ${JSON.stringify(history)}` }
+      ];
+
+      const { Configuration, OpenAIApi } = await import("openai");
+      const configuration = new Configuration({ apiKey });
+      const openai = new OpenAIApi(configuration);
+
+      try {
+        const response = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: summarizationMessages,
+        });
+        const summary = response.data.choices[0].message.content;
+        console.log(summary);
+      } catch (error) {
+        handleError("Error calling OpenAI API for summarization", error);
+      }
+    } catch (error) {
+      handleError("Failed to summarize conversation history", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -289,6 +339,7 @@ export function main(args = []) {
     .command(infoCommand)
     .command(chatCommand)
     .command(chatHistoryCommand)
+    .command(chatSummarizeCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
