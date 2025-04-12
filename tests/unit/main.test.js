@@ -45,8 +45,7 @@ async function captureOutput(fn) {
     if (result && typeof result.then === "function") {
       await result;
     }
-  } catch {
-  }
+  } catch {}
   console.log = originalLog;
   console.error = originalError;
   return output;
@@ -725,8 +724,6 @@ describe("CLI Commands", () => {
     await fs.unlink(configFile);
   });
 
-  // New tests for chat-tag command (already present in previous tests)
-
   // New tests for chat-title command
   test("chat-title set command sets the session title", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -765,6 +762,28 @@ describe("CLI Commands", () => {
     expect(output).toContain("Session title cleared.");
     const data = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(data.sessionTitle).toBe("");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-title append command appends to an existing session title", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = { sessionTitle: "Existing Title", messages: [] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-title", "append", "--text", "Appended Text"]));
+    expect(output).toContain("Session title updated to: Existing Title Appended Text");
+    const data = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(data.sessionTitle).toBe("Existing Title Appended Text");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-title append command sets title when none exists", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = { sessionTitle: "", messages: [] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-title", "append", "--text", "New Title"]));
+    expect(output).toContain("Session title updated to: New Title");
+    const data = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(data.sessionTitle).toBe("New Title");
     await fs.unlink(historyFile);
   });
 });

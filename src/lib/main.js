@@ -1199,6 +1199,28 @@ const chatTitleCommand = {
         }
       })
       .command({
+        command: "append",
+        describe: "Append text to the current session title",
+        builder: (yargs) => yargs.option("text", {
+          alias: "t",
+          type: "string",
+          describe: "The text to append to the session title",
+          demandOption: true
+        }),
+        handler: async (argv) => {
+          const text = argv.text;
+          validateArg(text);
+          await loadHistory();
+          if (conversationData.sessionTitle && conversationData.sessionTitle.trim() !== "") {
+            conversationData.sessionTitle += " " + text;
+          } else {
+            conversationData.sessionTitle = text;
+          }
+          await saveHistory();
+          console.log(`Session title updated to: ${conversationData.sessionTitle}`);
+        }
+      })
+      .command({
         command: "get",
         describe: "Get the current session title",
         handler: async () => {
@@ -1220,7 +1242,7 @@ const chatTitleCommand = {
           console.log("Session title cleared.");
         }
       })
-      .demandCommand(1, "You need to specify a chat-title subcommand (set, get, clear)");
+      .demandCommand(1, "You need to specify a chat-title subcommand (set, append, get, clear)");
   },
   handler: () => {}
 };

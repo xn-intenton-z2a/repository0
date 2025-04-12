@@ -70,6 +70,7 @@ Key subcommands include:
   - `filter`: Filter conversation entries by a tag (e.g., `repository0 chat-tag filter --tag "important"`).
 - **chat-title:** Manage the chat session title. Subcommands include:
   - `set`: Set the session title (e.g., `repository0 chat-title set --title "Project Discussion"`).
+  - `append`: Append text to the current session title (e.g., `repository0 chat-title append --text "Additional Info"`).
   - `get`: Get the current session title (e.g., `repository0 chat-title get`).
   - `clear`: Clear the current session title (e.g., `repository0 chat-title clear`).
 
