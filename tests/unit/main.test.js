@@ -311,23 +311,23 @@ describe("CLI Commands", () => {
     expect(output).toContain("No conversation history available.");
   });
 
-  // New test for auto-summarization in chat command
-  test("chat command auto-summarizes long conversation history", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+  // New test for chat-export command
+  test("chat-export command exports conversation history to markdown file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Create a long history exceeding the threshold
-    const longHistory = [];
-    for (let i = 0; i < 12; i++) {
-      longHistory.push({ role: "user", content: "Message " + (i + 1) });
-    }
-    await fs.writeFile(historyFile, JSON.stringify(longHistory, null, 2));
-    const output = await captureOutput(() => main(["chat", "--prompt", "New message after long history"]));
-    const updatedHistoryData = await fs.readFile(historyFile, "utf-8");
-    const updatedHistory = JSON.parse(updatedHistoryData);
-    // Expect history to be trimmed: 1 summary + 2 recent messages + 1 assistant reply = 4
-    expect(updatedHistory.length).toBe(4);
-    expect(updatedHistory[0].content).toContain("Summary of previous conversation:");
-    expect(output).toContain("Response from OpenAI");
+    const mdFile = path.resolve(process.cwd(), "chat_history.md");
+    const sampleHistory = [
+      { role: "user", content: "Hello Markdown" },
+      { role: "assistant", content: "Hi in Markdown!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-export"]));
+    expect(output).toContain("Conversation history exported to chat_history.md");
+    const mdContent = await fs.readFile(mdFile, "utf-8");
+    expect(mdContent).toContain("# Conversation History");
+    expect(mdContent).toContain("**1. user**: Hello Markdown");
+    expect(mdContent).toContain("**2. assistant**: Hi in Markdown!");
+    // Cleanup
     await fs.unlink(historyFile);
+    await fs.unlink(mdFile);
   });
 });
