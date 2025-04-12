@@ -1,5 +1,5 @@
 # Which agentic-lib workflow schedule should be used?
-schedule: schedule-1
+schedule: schedule-3
 # How many features should exist concurrently open for issue creation.
 featuresWipLimit: 2
 # How many issues should be open to be picked up?
