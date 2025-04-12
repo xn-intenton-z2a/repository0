@@ -2,16 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
-  "issuesClosedLastHour": 4,
+  "openIssues": 2,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 4,
-  "commitsLastHour": 2,
-  "commitsLastDay": 17,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
+  "commitsLastDay": 18,
   "lastFiveCommitMessages": [
+    {
+      "time": "02:56",
+      "message": "Standardized error handling output across all CLI subcommands us..."
+    },
     {
       "time": "02:50",
       "message": "Add new config subcommand with a show option to display default ..."
@@ -27,23 +31,14 @@
     {
       "time": "01:48",
       "message": "Refactored main to include a default empty array parameter and l..."
-    },
-    {
-      "time": "01:44",
-      "message": "Added a custom fail handler to yargs in main.js to ensure the ex..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1382",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T02:54:58.025Z"
+  "generatedAt": "2025-04-12T02:56:35.528Z"
 }
