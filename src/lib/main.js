@@ -6,13 +6,44 @@ import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { z } from "zod"; // Integrated Zod for enhanced CLI input validation
+import { promises as fs } from "fs";
+import { existsSync } from "fs";
 
 // Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
 const packageData = require("../../package.json");
 
-// Global conversation history for multi-turn chat sessions
+// Global conversation history for multi-turn chat sessions (in-memory copy, loaded from persistent storage)
 let conversationHistory = [];
+
+const HISTORY_FILE = ".chat_history.json";
+
+/**
+ * Loads conversation history from the persistent history file.
+ */
+async function loadHistory() {
+  try {
+    if (existsSync(HISTORY_FILE)) {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      conversationHistory = JSON.parse(data);
+    } else {
+      conversationHistory = [];
+    }
+  } catch (error) {
+    handleError("Failed to read conversation history", error);
+  }
+}
+
+/**
+ * Saves the current conversation history to the persistent history file.
+ */
+async function saveHistory() {
+  try {
+    await fs.writeFile(HISTORY_FILE, JSON.stringify(conversationHistory, null, 2));
+  } catch (error) {
+    handleError("Failed to write conversation history", error);
+  }
+}
 
 /**
  * Logs and throws errors with a consistent formatted message.
@@ -51,8 +82,6 @@ function stringifyArg(arg) {
  * Provides standardized error messages for various invalid inputs such as NaN, booleans, null, undefined, objects, and arrays.
  * The error message always follows the pattern: 
  * "Invalid input: Expected a valid non-empty string command, but received <value>. Please provide a valid non-empty string, such as 'start' or 'info'."
- *
- * Note: For details on the CLI input validation and error response formatting, please refer to the README section "CLI Input Validation and Error Handling".
  *
  * @param {*} arg - CLI argument to validate.
  */
@@ -163,11 +192,11 @@ const infoCommand = {
 };
 
 /**
- * Chat command: Interact with OpenAI API using a prompt. Supports multi-turn conversations by maintaining conversation context in the session.
+ * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations by maintaining conversation context across sessions.
  */
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports multi-turn conversation)",
+  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation)",
   builder: (yargs) => {
     return yargs.option("prompt", {
       alias: "p",
@@ -181,6 +210,9 @@ const chatCommand = {
     // Validate the prompt
     validateArg(prompt);
     
+    // Load conversation history from file
+    await loadHistory();
+
     const apiKey = process.env.CHATGPT_API_SECRET_KEY;
     if (!apiKey) {
       handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
@@ -203,6 +235,8 @@ const chatCommand = {
       console.log(reply);
       // Append assistant's reply to the conversation history
       conversationHistory.push({ role: "assistant", content: reply });
+      // Save updated conversation history to persistent file
+      await saveHistory();
     } catch (error) {
       handleError("Error calling OpenAI API", error);
     }

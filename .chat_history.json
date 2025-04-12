@@ -1,0 +1,10 @@
+[
+  {
+    "role": "user",
+    "content": "Persistent prompt"
+  },
+  {
+    "role": "assistant",
+    "content": "Response from OpenAI"
+  }
+]
