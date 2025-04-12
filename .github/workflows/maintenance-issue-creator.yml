@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Create Maintenance Issue
-concurrency: create-maintenance-issue
+concurrency: agentic-lib-issue
 run-name: "Create Maintenance Issue"
 
 on:
