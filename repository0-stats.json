@@ -9,11 +9,11 @@
   "prDetails": [
     {
       "title": "Refactored CLI argument error handling to use a consolidated helper function for invalid inputs. (fixes #1410)",
-      "ageMinutes": 0
+      "ageMinutes": 1
     }
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 9,
+  "diffMinutesMain": 10,
   "commitsLastHour": 7,
   "commitsLastDay": 32,
   "lastFiveCommitMessages": [
@@ -43,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1410",
-        "minutesSinceLastCommit": 1
+        "minutesSinceLastCommit": 2
       }
     ]
   },
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T05:05:59.403Z"
+  "generatedAt": "2025-04-12T05:06:34.075Z"
 }
