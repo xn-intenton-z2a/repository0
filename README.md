@@ -41,7 +41,7 @@ The CLI validates all input arguments using Zod to ensure inputs are non-empty s
 
 ## Error Handling Improvements
 
-Error handling has been centralized to include a consistent JSON formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized keys (`error` and `message`).
+Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized keys (`error` and `message`).
 
 ## What’s Inside
 
