@@ -330,4 +330,23 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
     await fs.unlink(mdFile);
   });
+
+  // New test for configurable auto-summarization thresholds
+  test("chat command uses custom auto-summarization thresholds", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    // Create a conversation history with 4 messages
+    const sampleHistory = [
+      { role: "user", content: "Msg1" },
+      { role: "assistant", content: "Msg2" },
+      { role: "user", content: "Msg3" },
+      { role: "assistant", content: "Msg4" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    // Set custom thresholds: max-history-messages = 3 and recent-messages = 1
+    const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--recent-messages", "1"]));
+    expect(output).toContain("Response from OpenAI");
+    // Cleanup
+    await fs.unlink(historyFile);
+  });
 });
