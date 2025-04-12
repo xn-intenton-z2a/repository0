@@ -52,6 +52,9 @@
 </li>
 </ul>
 <p class="md-github">When the CLI is executed without any arguments, it first logs the default parameter message <code class="md-github">Run with: []</code> and then displays an error prompting you to specify a valid command.</p>
+<ul class="md-github">
+<li class="md-github"><strong class="md-github">Note:</strong> Passing non-string arguments (such as NaN) to the CLI will result in an error message: &quot;Invalid input: Expected a valid command, but received NaN&quot;.</li>
+</ul>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -60,7 +63,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory uti
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong><br>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands along with improved handling of missing arguments.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands, with improved error handling for invalid input such as non-string values.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong><br>
@@ -68,7 +71,7 @@ The <code class="md-github">package.json</code> file defines dependencies and sc
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong><br>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected, including proper handling of the default parameter when no arguments are provided.</p>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected, including proper handling of missing arguments and invalid non-string inputs.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Documentation:</strong><br>
@@ -97,7 +100,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T02:30:57.116Z</p>
+    <p>Generated on 2025-04-12T02:32:16.936Z</p>
   </footer>
 </body>
 </html>
