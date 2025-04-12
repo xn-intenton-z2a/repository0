@@ -58,8 +58,14 @@ footer {
     animation: glowAnimation 1s ease-out;
 }
 @keyframes glowAnimation {
-    from { box-shadow: 0 0 10px #ffd700; }
-    to { box-shadow: none; }
+    from { 
+        box-shadow: 0 0 10px #ffd700; 
+        background-color: #e0e0e0; /* dark background during glow start */
+    }
+    to { 
+        box-shadow: none; 
+        background-color: transparent; /* returns to normal */
+    }
 }
 
   </style>
@@ -99,13 +105,13 @@ const autoReloadSwitch = document.getElementById('autoReloadSwitch');
 function attachGlowObserver(tile) {
   const observer = new MutationObserver((mutations) => {
     mutations.forEach(mutation => {
-      if (mutation.type === 'childList') {
+      if (mutation.type === 'childList' || mutation.type === 'attributes') {
         tile.classList.add('glow');
         setTimeout(() => tile.classList.remove('glow'), 1000);
       }
     });
   });
-  observer.observe(tile, { childList: true, subtree: true });
+  observer.observe(tile, { childList: true, attributes: true, subtree: true });
 }
 
 // Generate grid tiles with templated content using EJS.
