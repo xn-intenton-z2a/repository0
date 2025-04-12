@@ -24,6 +24,8 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 
 When the CLI is executed without any arguments, it first logs the default parameter message `Run with: []` and then displays an error prompting you to specify a valid command.
 
+- **Error Handling:** All error messages are now output in a standardized format prefixed with "Error:" making them both human-readable and machine-parseable.
+
 - **Note:** Passing non-string arguments (such as NaN) to the CLI will result in an error message: "Invalid input: Expected a valid command, but received NaN".
 
 ## What’s Inside
