@@ -4,7 +4,7 @@
   "engine": "schedule-3",
   "lastActivityName": "Tests",
   "lastActivityBranchName": "main",
-  "nextIssue": "",
+  "nextIssue": "[1505] Add Streaming Option to Chat Command automated, feature",
   "openIssues": 4,
   "issuesClosedLastHour": 10,
   "issuesClosedLastDay": 100,
@@ -30,5 +30,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-12T19:52:42.003Z"
+  "statsGeneratedAt": "2025-04-12T19:53:09.484Z"
 }
