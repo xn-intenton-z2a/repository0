@@ -3,13 +3,13 @@
   "repo": "repository0",
   "engine": "schedule-3",
   "openIssues": 6,
-  "issuesClosedLastHour": 8,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 10,
-  "commitsLastHour": 4,
+  "diffMinutes": 2,
+  "diffMinutesMain": 12,
+  "commitsLastHour": 3,
   "commitsLastDay": 46,
   "lastFiveCommitMessages": [
     {
@@ -40,5 +40,5 @@
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T08:44:17.138Z"
+  "generatedAt": "2025-04-12T08:46:52.533Z"
 }
