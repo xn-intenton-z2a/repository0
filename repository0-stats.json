@@ -2,16 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
-  "issuesClosedLastHour": 4,
+  "openIssues": 2,
+  "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 17,
-  "commitsLastHour": 2,
-  "commitsLastDay": 16,
+  "diffMinutesMain": 0,
+  "commitsLastHour": 3,
+  "commitsLastDay": 17,
   "lastFiveCommitMessages": [
+    {
+      "time": "02:50",
+      "message": "Add new config subcommand with a show option to display default ..."
+    },
     {
       "time": "02:31",
       "message": "Enhance CLI error handling for non-string NaN input with clearer..."
@@ -27,23 +31,14 @@
     {
       "time": "01:44",
       "message": "Added a custom fail handler to yargs in main.js to ensure the ex..."
-    },
-    {
-      "time": "01:01",
-      "message": "Update from agentic-lib"
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1379",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T02:48:53.127Z"
+  "generatedAt": "2025-04-12T02:50:23.794Z"
 }

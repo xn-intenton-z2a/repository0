@@ -50,6 +50,11 @@
 <li class="md-github">Example: <code class="md-github">repository0 update</code></li>
 </ul>
 </li>
+<li class="md-github"><strong class="md-github">config:</strong> Displays configuration settings. Use the subcommand <strong class="md-github">show</strong> to view the current configuration.
+<ul class="md-github">
+<li class="md-github">Example: <code class="md-github">repository0 config show</code></li>
+</ul>
+</li>
 </ul>
 <p class="md-github">When the CLI is executed without any arguments, it first logs the default parameter message <code class="md-github">Run with: []</code> and then displays an error prompting you to specify a valid command.</p>
 <ul class="md-github">
@@ -63,7 +68,7 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory uti
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong><br>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, and update commands, with improved error handling for invalid input such as non-string values.</p>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, update commands, and the new config command for viewing configuration settings, with improved error handling for invalid input such as non-string values.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong><br>
@@ -100,7 +105,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T02:49:16.924Z</p>
+    <p>Generated on 2025-04-12T02:50:45.257Z</p>
   </footer>
 </body>
 </html>
