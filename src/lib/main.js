@@ -37,6 +37,13 @@ async function loadHistory() {
     if (existsSync(HISTORY_FILE)) {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
       conversationHistory = JSON.parse(data);
+      // Ensure each history entry has a tags property
+      conversationHistory = conversationHistory.map(entry => {
+        if (!entry.tags || !Array.isArray(entry.tags)) {
+          entry.tags = [];
+        }
+        return entry;
+      });
       debugLog(`Loaded conversation history with ${conversationHistory.length} entries.`);
     } else {
       conversationHistory = [];
@@ -282,8 +289,8 @@ const chatCommand = {
       handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
     }
 
-    // Append user prompt to conversation history
-    conversationHistory.push({ role: "user", content: prompt });
+    // Append user prompt to conversation history with tags initialized
+    conversationHistory.push({ role: "user", content: prompt, tags: [] });
     debugLog("User prompt appended to conversation history.");
 
     // Get configurable auto-summarization settings, using CLI option, then env, then persisted config, then default
@@ -318,13 +325,13 @@ const chatCommand = {
         const summary = summaryResponse.data.choices[0].message.content;
         debugLog("Auto-summarization completed.");
         conversationHistory = [
-          { role: "assistant", content: `Summary of previous conversation: ${summary}` },
+          { role: "assistant", content: `Summary of previous conversation: ${summary}`, tags: [] },
           ...conversationHistory.slice(conversationHistory.length - keepRecentMessages)
         ];
         // If a custom summarization prompt was provided, use the summary as the final reply
         if (customPrompt && customPrompt.trim() !== "") {
           console.log(summary);
-          conversationHistory.push({ role: "assistant", content: summary });
+          conversationHistory.push({ role: "assistant", content: summary, tags: [] });
           await saveHistory();
           return;
         }
@@ -345,8 +352,8 @@ const chatCommand = {
       const reply = response.data.choices[0].message.content;
       debugLog("Received reply from OpenAIApi.");
       console.log(reply);
-      // Append assistant's reply to the conversation history
-      conversationHistory.push({ role: "assistant", content: reply });
+      // Append assistant's reply to the conversation history with tags initialized
+      conversationHistory.push({ role: "assistant", content: reply, tags: [] });
       // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
@@ -748,6 +755,10 @@ const chatImportCommand = {
       if (typeof entry.content !== "string" || entry.content.trim() === "") {
         handleError("Invalid conversation entry: Missing or empty 'content' property.");
       }
+      // Initialize tags if not present
+      if (!entry.tags || !Array.isArray(entry.tags)) {
+        entry.tags = [];
+      }
     }
     
     // Load existing conversation history
@@ -923,6 +934,205 @@ const chatConfigUpdateCommand = {
   }
 };
 
+// New command to manage conversation tags
+const chatTagCommand = {
+  command: "chat-tag <action>",
+  describe: "Manage tags for conversation history entries",
+  builder: (yargs) => {
+    return yargs
+      .command({
+        command: "add",
+        describe: "Add a tag to a specific conversation entry",
+        builder: (yargs) =>
+          yargs
+            .option("index", {
+              alias: "i",
+              type: "number",
+              describe: "The 1-based index of the conversation entry",
+              demandOption: true
+            })
+            .option("tag", {
+              alias: "t",
+              type: "string",
+              describe: "The tag to add",
+              demandOption: true
+            }),
+        handler: async (argv) => {
+          const index = argv.index;
+          const tag = argv.tag;
+          validateArg(tag);
+          if (!existsSync(HISTORY_FILE)) {
+            handleError("No conversation history available.");
+          }
+          let history;
+          try {
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            history = JSON.parse(data);
+          } catch (error) {
+            handleError("Failed to read conversation history", error);
+          }
+          if (!Array.isArray(history) || history.length === 0) {
+            handleError("No conversation history available.");
+          }
+          if (index > history.length || index <= 0) {
+            handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
+          }
+          const entry = history[index - 1];
+          if (!entry.tags || !Array.isArray(entry.tags)) {
+            entry.tags = [];
+          }
+          if (entry.tags.includes(tag)) {
+            handleError(`Tag "${tag}" already exists for entry at index ${index}.`);
+          }
+          entry.tags.push(tag);
+          const tempFile = HISTORY_FILE + ".tmp";
+          try {
+            await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+            await fs.rename(tempFile, HISTORY_FILE);
+            console.log(`Tag "${tag}" added to conversation entry at index ${index}.`);
+          } catch (error) {
+            handleError("Failed to update conversation history", error);
+          }
+        }
+      })
+      .command({
+        command: "remove",
+        describe: "Remove a tag from a specific conversation entry",
+        builder: (yargs) =>
+          yargs
+            .option("index", {
+              alias: "i",
+              type: "number",
+              describe: "The 1-based index of the conversation entry",
+              demandOption: true
+            })
+            .option("tag", {
+              alias: "t",
+              type: "string",
+              describe: "The tag to remove",
+              demandOption: true
+            }),
+        handler: async (argv) => {
+          const index = argv.index;
+          const tag = argv.tag;
+          validateArg(tag);
+          if (!existsSync(HISTORY_FILE)) {
+            handleError("No conversation history available.");
+          }
+          let history;
+          try {
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            history = JSON.parse(data);
+          } catch (error) {
+            handleError("Failed to read conversation history", error);
+          }
+          if (!Array.isArray(history) || history.length === 0) {
+            handleError("No conversation history available.");
+          }
+          if (index > history.length || index <= 0) {
+            handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
+          }
+          const entry = history[index - 1];
+          if (!entry.tags || !Array.isArray(entry.tags)) {
+            entry.tags = [];
+          }
+          const tagIndex = entry.tags.indexOf(tag);
+          if (tagIndex === -1) {
+            handleError(`Tag "${tag}" does not exist for entry at index ${index}.`);
+          }
+          entry.tags.splice(tagIndex, 1);
+          const tempFile = HISTORY_FILE + ".tmp";
+          try {
+            await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+            await fs.rename(tempFile, HISTORY_FILE);
+            console.log(`Tag "${tag}" removed from conversation entry at index ${index}.`);
+          } catch (error) {
+            handleError("Failed to update conversation history", error);
+          }
+        }
+      })
+      .command({
+        command: "list",
+        describe: "List tags for a specific conversation entry",
+        builder: (yargs) =>
+          yargs.option("index", {
+            alias: "i",
+            type: "number",
+            describe: "The 1-based index of the conversation entry",
+            demandOption: true
+          }),
+        handler: async (argv) => {
+          const index = argv.index;
+          if (!existsSync(HISTORY_FILE)) {
+            console.log("No conversation history available.");
+            return;
+          }
+          let history;
+          try {
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            history = JSON.parse(data);
+          } catch (error) {
+            handleError("Failed to read conversation history", error);
+          }
+          if (!Array.isArray(history) || history.length === 0) {
+            console.log("No conversation history available.");
+            return;
+          }
+          if (index > history.length || index <= 0) {
+            handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
+          }
+          const entry = history[index - 1];
+          if (!entry.tags || !Array.isArray(entry.tags) || entry.tags.length === 0) {
+            console.log(`No tags for conversation entry at index ${index}.`);
+          } else {
+            console.log(`Tags for entry at index ${index}: ${entry.tags.join(", ")}`);
+          }
+        }
+      })
+      .command({
+        command: "filter",
+        describe: "Filter conversation history by a specific tag",
+        builder: (yargs) =>
+          yargs.option("tag", {
+            alias: "t",
+            type: "string",
+            describe: "The tag to filter by",
+            demandOption: true
+          }),
+        handler: async (argv) => {
+          const tag = argv.tag;
+          validateArg(tag);
+          if (!existsSync(HISTORY_FILE)) {
+            console.log("No conversation history available.");
+            return;
+          }
+          let history;
+          try {
+            const data = await fs.readFile(HISTORY_FILE, "utf-8");
+            history = JSON.parse(data);
+          } catch (error) {
+            handleError("Failed to read conversation history", error);
+          }
+          if (!Array.isArray(history) || history.length === 0) {
+            console.log("No conversation history available.");
+            return;
+          }
+          const filtered = history.filter(entry => entry.tags && Array.isArray(entry.tags) && entry.tags.includes(tag));
+          if (filtered.length === 0) {
+            console.log(`No conversation entries found with tag "${tag}".`);
+          } else {
+            console.log(`Conversation entries with tag "${tag}":`);
+            filtered.forEach((entry, index) => {
+              console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+            });
+          }
+        }
+      })
+      .demandCommand(1, "You need to specify a chat-tag subcommand (add, remove, list, filter)");
+  },
+  handler: () => {}
+};
+
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
@@ -968,6 +1178,7 @@ export function main(args = []) {
     .command(chatTranslateCommand)
     .command(chatPdfExportCommand)
     .command(chatConfigUpdateCommand)
+    .command(chatTagCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
