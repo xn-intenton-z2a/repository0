@@ -329,7 +329,7 @@ describe("CLI Commands", () => {
     await fs.unlink(mdFile);
   });
 
-  // New tests for chat-statistics command
+  // Tests for chat-statistics command
   test("chat-statistics command displays no history message when file does not exist", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     if (existsSync(historyFile)) {
@@ -413,6 +413,43 @@ describe("CLI Commands", () => {
       } catch {}
     });
     expect(output).toContain("No conversation history available.");
+    await fs.unlink(historyFile);
+  });
+
+  // Tests for chat-archive command
+  test("chat-archive command shows message when no history exists", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-archive"]));
+    expect(output).toContain("No conversation history available to archive.");
+  });
+
+  test("chat-archive command archives history and resets file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Archive test" },
+      { role: "assistant", content: "History to archive" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-archive"]));
+    // Check that archive message was printed
+    const archiveRegex = /Conversation history archived to chat_history-\d{14}\.json/;
+    expect(output).toMatch(archiveRegex);
+    // Extract archive file name from output
+    const match = output.match(archiveRegex);
+    if (match) {
+      const archiveFileName = match[0].replace('Conversation history archived to ', '');
+      // Check that the archive file exists and contains the sample history
+      const archivedData = JSON.parse(await fs.readFile(path.resolve(process.cwd(), archiveFileName), "utf-8"));
+      expect(archivedData).toEqual(sampleHistory);
+      // Clean up archive file
+      await fs.unlink(path.resolve(process.cwd(), archiveFileName));
+    }
+    // Check that the history file has been reset to an empty array
+    const newHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(newHistory).toEqual([]);
     await fs.unlink(historyFile);
   });
 });

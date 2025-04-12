@@ -532,6 +532,44 @@ const chatRemoveCommand = {
 };
 
 /**
+ * Chat Archive command: Archives the current conversation history into a timestamped file and resets the history.
+ */
+const chatArchiveCommand = {
+  command: "chat-archive",
+  describe: "Archive the current conversation history into a timestamped archive file and reset the history",
+  handler: async () => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history available to archive.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const history = JSON.parse(data);
+      if (!history || history.length === 0) {
+        console.log("No conversation history available to archive.");
+        return;
+      }
+      // Create timestamp in format YYYYMMDDHHmmss
+      const now = new Date();
+      const pad = (num) => String(num).padStart(2, '0');
+      const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      const archiveFileName = `chat_history-${timestamp}.json`;
+      
+      // Archive the existing history file using atomic operations
+      const tempArchive = archiveFileName + ".tmp";
+      await fs.writeFile(tempArchive, JSON.stringify(history, null, 2));
+      await fs.rename(tempArchive, archiveFileName);
+      
+      // Reset the conversation history by writing an empty array
+      await fs.writeFile(HISTORY_FILE, JSON.stringify([], null, 2));
+      console.log(`Conversation history archived to ${archiveFileName}`);
+    } catch (error) {
+      handleError("Failed to archive conversation history", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -557,6 +595,7 @@ export function main(args = []) {
     .command(chatExportCommand)
     .command(chatStatisticsCommand)
     .command(chatRemoveCommand)
+    .command(chatArchiveCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
