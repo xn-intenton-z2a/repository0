@@ -551,6 +551,64 @@ const chatRemoveCommand = {
 };
 
 /**
+ * Chat Edit command: Updates a specific conversation entry's message by index (1-based).
+ */
+const chatEditCommand = {
+  command: "chat-edit",
+  describe: "Edit a specific conversation entry by index (1-based) with a new message",
+  builder: (yargs) => {
+    return yargs
+      .option("index", {
+        alias: "i",
+        type: "number",
+        describe: "The 1-based index of the conversation entry to update",
+        demandOption: true
+      })
+      .option("message", {
+        alias: "m",
+        type: "string",
+        describe: "The new message content for the conversation entry",
+        demandOption: true
+      });
+  },
+  handler: async (argv) => {
+    const index = argv.index;
+    const newMessage = argv.message;
+    // Validate new message content
+    validateArg(newMessage);
+    if (typeof index !== "number" || index <= 0 || !Number.isInteger(index)) {
+      handleError(`Invalid input: Index should be a positive integer. Received ${index}`);
+    }
+    if (!existsSync(HISTORY_FILE)) {
+      handleError("No conversation history available.");
+    }
+    let history;
+    try {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      history = JSON.parse(data);
+    } catch (error) {
+      handleError("Failed to read conversation history", error);
+    }
+    if (!Array.isArray(history) || history.length === 0) {
+      handleError("No conversation history available.");
+    }
+    if (index > history.length) {
+      handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
+    }
+    // Update the content of the selected conversation entry
+    history[index - 1].content = newMessage;
+    const tempFile = HISTORY_FILE + ".tmp";
+    try {
+      await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+      await fs.rename(tempFile, HISTORY_FILE);
+      console.log(`Successfully updated conversation entry at index ${index}.`);
+    } catch (error) {
+      handleError("Failed to update conversation history", error);
+    }
+  }
+};
+
+/**
  * Chat Archive command: Archives the current conversation history into a timestamped file and resets the history.
  */
 const chatArchiveCommand = {
@@ -734,6 +792,7 @@ export function main(args = []) {
     .command(chatExportCommand)
     .command(chatStatisticsCommand)
     .command(chatRemoveCommand)
+    .command(chatEditCommand)
     .command(chatArchiveCommand)
     .command(chatImportCommand)
     .command(chatTranslateCommand)

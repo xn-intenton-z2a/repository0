@@ -422,6 +422,53 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
+  // Tests for chat-edit command
+  test("chat-edit command successfully updates a message", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Old message 1" },
+      { role: "assistant", content: "Old message 2" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const newMessage = "Updated message";
+    const output = await captureOutput(() => main(["chat-edit", "--index", "2", "--message", newMessage]));
+    expect(output).toContain("Successfully updated conversation entry at index 2.");
+    const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(updatedHistory[1].content).toBe(newMessage);
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-edit command error for out-of-bound index", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Only Entry" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-edit", "--index", "5", "--message", "New message"]);
+      } catch {}
+    });
+    expect(output).toContain("Error: Provided index 5 is out of bounds. Conversation history contains 1 entries.");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-edit command error for empty message", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Old message" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-edit", "--index", "1", "--message", ""]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
+    expect(output).toContain(suggestion);
+    await fs.unlink(historyFile);
+  });
+
   // Tests for chat-archive command
   test("chat-archive command shows message when no history exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -457,13 +504,11 @@ describe("CLI Commands", () => {
   // New tests for chat-import command
   test("chat-import command successfully imports valid conversation history", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Initialize existing history
     const initialHistory = [
       { role: "user", content: "Existing message" }
     ];
     await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
 
-    // Create a temporary import file with valid conversation data
     const importFile = path.resolve(process.cwd(), "test_import.json");
     const importData = [
       { role: "assistant", content: "Imported reply" },
@@ -477,8 +522,7 @@ describe("CLI Commands", () => {
     const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(updatedHistory.length).toBe(3);
     expect(updatedHistory).toEqual(initialHistory.concat(importData));
-
-    // Clean up temporary files
+    
     await fs.unlink(importFile);
     await fs.unlink(historyFile);
   });
@@ -521,7 +565,7 @@ describe("CLI Commands", () => {
     const importFile = path.resolve(process.cwd(), "invalid_entry.json");
     const importData = [
       { role: "user", content: "Valid message" },
-      { role: "assistant" }  // Missing content
+      { role: "assistant" }
     ];
     await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
     const output = await captureOutput(() => {

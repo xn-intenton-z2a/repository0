@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, remove, archive, import, and now translate conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, remove, archive, import, translate, and now edit conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -42,6 +42,10 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-statistics`
 - **chat-remove:** Removes a specific conversation entry from the history. It accepts a required numeric argument `--index` (alias `-i`) representing the 1-based index of the entry to remove.
   - Example: `repository0 chat-remove --index 2`
+- **chat-edit:** **New Command:** Updates a specific conversation entry's message. It accepts:
+    - `--index` or `-i`: The 1-based index of the conversation entry to update.
+    - `--message` or `-m`: The new message content.
+  - Example: `repository0 chat-edit --index 2 --message "Corrected message"`
 - **chat-archive:** Archives the current conversation history into a timestamped file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and resets the conversation history.
   - Example: `repository0 chat-archive`
 - **chat-import:** Imports conversation history from a JSON file and merges it with the existing history.
@@ -59,11 +63,7 @@ The CLI validates all input arguments using Zod to ensure that every command rec
 
   "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'."
 
-This behavior is consistent across all commands and aids in debugging and proper CLI usage. Here are some examples of invalid inputs and their corresponding error messages:
-
-- For an empty string: "Invalid input: Expected a valid non-empty string command, but received an empty string. Please provide a valid non-empty string, such as 'start' or 'info'."
-- For a boolean value (e.g., true): "Invalid input: Expected a valid non-empty string command, but received true. Please provide a valid non-empty string, such as 'start' or 'info'."
-- For null: "Invalid input: Expected a valid non-empty string command, but received null. Please provide a valid non-empty string, such as 'start' or 'info'."
+This behavior is consistent across all commands and aids in debugging and proper CLI usage.
 
 ## Error Handling Improvements
 
@@ -75,7 +75,7 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, and newly implemented `chat-translate` for translating conversation history.
+  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, and the newly implemented `chat-edit` for editing conversation messages.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
