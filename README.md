@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is intended as a template that includes:
+This repository is a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
 * Workflows from `agentic‑lib` which reference reusable workflows.
@@ -15,7 +15,7 @@ The CLI now employs yargs for robust subcommand parsing and improved input valid
 
 - **diagnostics:** Runs diagnostics. 
   - Example: `repository0 diagnostics`
-- **version:** Displays the current version.
+- **version:** Displays the current version dynamically retrieved from package.json.
   - Example: `repository0 version`
 - **update:** Initiates an update.
   - Example: `repository0 update`
@@ -38,7 +38,7 @@ The CLI now employs yargs for robust subcommand parsing and improved input valid
   Workflows in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  Main functionality is in `src/lib/main.js`. The file now includes detailed CLI argument validation with descriptive error messages.
+  Main functionality is in `src/lib/main.js`. The file now includes detailed CLI argument validation with descriptive error messages and dynamically retrieves the version from package.json.
 
 - **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.

@@ -34,6 +34,7 @@ describe("CLI Commands", () => {
     const output = captureOutput(() => {
       main(["version"]);
     });
+    // The version should match the one in package.json
     expect(output).toContain("Version 1.4.1-13");
   });
 

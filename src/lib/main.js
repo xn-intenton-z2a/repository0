@@ -4,6 +4,7 @@
 import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import packageData from "../../package.json" assert { type: "json" };
 
 /**
  * Handles errors in a consistent format and throws an error for the caller.
@@ -68,7 +69,7 @@ export function main(args = []) {
       "Show version",
       () => {},
       () => {
-        console.log("Version 1.4.1-13");
+        console.log(`Version ${packageData.version}`);
       }
     )
     .command(
