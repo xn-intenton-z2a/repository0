@@ -29,6 +29,9 @@ describe("CLI Commands", () => {
       main(["diagnostics"]);
     });
     expect(output).toContain("Diagnostics: running diagnostics");
+    expect(output).toContain("Node.js Version:");
+    expect(output).toContain("Package: @xn-intenton-z2a/repository0");
+    expect(output).toContain("Dependencies:");
   });
 
   test("version command", () => {

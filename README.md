@@ -6,13 +6,13 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 ## Overview
 
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Importantly, the package metadata is now imported using Node's built-in createRequire, which avoids deprecated JSON import assertions.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability. Package metadata is imported using Node's built-in createRequire, which avoids deprecated JSON import assertions.
 
 ## CLI Usage
 
 The CLI employs yargs for robust subcommand parsing and improved input validation. Key subcommands include:
 
-- **diagnostics:** Runs diagnostics. 
+- **diagnostics:** Runs diagnostics and provides detailed environment information including Node.js version, package metadata, and dependency versions.
   - Example: `repository0 diagnostics`
 - **version:** Displays the current version dynamically retrieved from package.json.
   - Example: `repository0 version`
@@ -42,13 +42,13 @@ The error handling has been refactored to provide uniform and clear error messag
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with standardized error messages.
+  The main functionality is provided in `src/lib/main.js`, which now uses Node's createRequire for importing package.json and includes enhanced CLI argument validation with detailed diagnostics information.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
 
 - **Tests:**
-  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for invalid inputs like NaN and empty strings.
+  Unit tests in the `tests/unit/` folder validate the CLI commands and error handling scenarios, including checks for enhanced diagnostics output along with invalid inputs like NaN and empty strings.
 
 - **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
