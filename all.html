@@ -54,20 +54,21 @@ footer {
 }
 
 /* Add glowing animation */
+/*
 .glow {
     animation: glowAnimation 1s ease-out;
 }
 @keyframes glowAnimation {
     from { 
         box-shadow: 0 0 10px #ffd700; 
-        background-color: #e0e0e0; /* dark background during glow start */
+        background-color: #e0e0e0;
     }
     to { 
         box-shadow: none; 
-        background-color: transparent; /* returns to normal */
+        background-color: transparent;
     }
 }
-
+*/
   </style>
 </head>
 <body>
@@ -101,17 +102,17 @@ const tileContainer = document.getElementById('tileContainer');
 const autoReloadSwitch = document.getElementById('autoReloadSwitch');
 
 // Helper: Attach a MutationObserver to a tile to add a glow effect on changes.
-function attachGlowObserver(tile) {
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-      if (mutation.type === 'childList' || mutation.type === 'attributes') {
-        tile.classList.add('glow');
-        setTimeout(() => tile.classList.remove('glow'), 1000);
-      }
-    });
-  });
-  observer.observe(tile, { childList: true, attributes: true, subtree: true });
-}
+//function attachGlowObserver(tile) {
+//  const observer = new MutationObserver((mutations) => {
+//    mutations.forEach(mutation => {
+//      if (mutation.type === 'childList' || mutation.type === 'attributes') {
+//        tile.classList.add('glow');
+//        setTimeout(() => tile.classList.remove('glow'), 1000);
+//      }
+//    });
+//  });
+//  observer.observe(tile, { childList: true, attributes: true, subtree: true });
+//}
 
 // Generate grid tiles with templated content using EJS.
 urls.forEach((jsonUrl, index) => {
@@ -128,7 +129,7 @@ urls.forEach((jsonUrl, index) => {
       // Use EJS to render the template with the JSON data.
       tile.innerHTML = ejs.render(template, statsData);
       // Attach the MutationObserver to this tile.
-      attachGlowObserver(tile);
+      //attachGlowObserver(tile);
     })
     .catch(err => {
       console.error('Error loading template or JSON:', err);
@@ -166,7 +167,7 @@ function autoReload() {
 
   currentTile = (currentTile + 1) % tiles.length;
 }
-setInterval(autoReload, 2000);
+setInterval(autoReload, 10000);
 
 // Update label on auto-reload switch change.
 autoReloadSwitch.addEventListener('change', () => {
