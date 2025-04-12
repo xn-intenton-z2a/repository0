@@ -828,6 +828,8 @@ const chatPdfExportCommand = {
 
       // Create a PDF document with compression disabled to expose text in output
       const doc = new PDFDocument({ compress: false });
+      // Set PDF metadata Title to ensure text appears in plain output
+      doc.info.Title = "Conversation History";
       let buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       const pdfPromise = new Promise((resolve, reject) => {
