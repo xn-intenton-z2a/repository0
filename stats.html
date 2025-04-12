@@ -20,7 +20,7 @@
   <section>
     <p>
       <span class="label">Open Pull Requests (<%= openPRs %>):</span>
-      <%= prDetails && prDetails.join('; ') || 'None' %>
+      <%= prDetails && prDetails.map(pr => `${pr.title} (${pr.age} minutes since creation)`).join(', ') || 'None' %>
     </p>
   </section>
   <section>
