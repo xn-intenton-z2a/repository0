@@ -18,6 +18,7 @@ const packageData = require("../../package.json");
 let conversationHistory = [];
 
 const HISTORY_FILE = ".chat_history.json";
+const CHAT_CONFIG_FILE = ".chat_config.json";
 
 // Global verbose flag
 global.verbose = false;
@@ -58,6 +59,39 @@ async function saveHistory() {
     debugLog("Conversation history saved successfully.");
   } catch (error) {
     handleError("Failed to write conversation history", error);
+  }
+}
+
+/**
+ * Loads chat configuration from the persistent configuration file (.chat_config.json).
+ */
+async function loadChatConfig() {
+  try {
+    if (existsSync(CHAT_CONFIG_FILE)) {
+      const data = await fs.readFile(CHAT_CONFIG_FILE, "utf-8");
+      const config = JSON.parse(data);
+      debugLog("Chat configuration loaded.");
+      return config;
+    } else {
+      debugLog("No existing chat configuration found; using defaults.");
+      return {};
+    }
+  } catch (error) {
+    handleError("Failed to read chat configuration", error);
+  }
+}
+
+/**
+ * Saves chat configuration to the persistent configuration file using atomic file operations.
+ */
+async function saveChatConfig(config) {
+  const tempFile = CHAT_CONFIG_FILE + ".tmp";
+  try {
+    await fs.writeFile(tempFile, JSON.stringify(config, null, 2));
+    await fs.rename(tempFile, CHAT_CONFIG_FILE);
+    debugLog("Chat configuration saved successfully.");
+  } catch (error) {
+    handleError("Failed to write chat configuration", error);
   }
 }
 
@@ -206,24 +240,24 @@ const chatCommand = {
       .option("max-history-messages", {
         type: "number",
         describe: "Maximum number of conversation messages before summarization",
-        default: 10
+        default: undefined
       })
       .option("recent-messages", {
         type: "number",
         describe: "Number of recent messages to retain after summarization",
-        default: 2
+        default: undefined
       })
       .option("model", {
         alias: "m",
         type: "string",
         describe: "The OpenAI model to use",
-        default: "gpt-3.5-turbo"
+        default: undefined
       })
       .option("temperature", {
         alias: "t",
         type: "number",
         describe: "Response randomness factor",
-        default: 0.7
+        default: undefined
       })
       .option("summarization-prompt", {
         type: "string",
@@ -235,6 +269,9 @@ const chatCommand = {
     debugLog(`Chat command invoked with prompt: ${prompt}`);
     // Validate the prompt
     validateArg(prompt);
+    
+    // Load persisted chat configuration
+    const chatConfig = await loadChatConfig();
     
     // Load conversation history from file
     await loadHistory();
@@ -249,19 +286,13 @@ const chatCommand = {
     conversationHistory.push({ role: "user", content: prompt });
     debugLog("User prompt appended to conversation history.");
 
-    // Get configurable auto-summarization settings
-    let maxHistoryMessages = parseInt(argv["max-history-messages"]);
-    if (isNaN(maxHistoryMessages)) {
-      maxHistoryMessages = process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : 10;
-    }
-    let keepRecentMessages = parseInt(argv["recent-messages"]);
-    if (isNaN(keepRecentMessages)) {
-      keepRecentMessages = process.env.CHAT_RECENT_MESSAGES ? parseInt(process.env.CHAT_RECENT_MESSAGES) : 2;
-    }
-
+    // Get configurable auto-summarization settings, using CLI option, then env, then persisted config, then default
+    let maxHistoryMessages = argv["max-history-messages"] !== undefined ? parseInt(argv["max-history-messages"]) : (process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : (chatConfig["max-history-messages"] || 10));
+    let keepRecentMessages = argv["recent-messages"] !== undefined ? parseInt(argv["recent-messages"]) : (process.env.CHAT_RECENT_MESSAGES ? parseInt(process.env.CHAT_RECENT_MESSAGES) : (chatConfig["recent-messages"] || 2));
+    
     // Get configurable model and temperature
-    const model = argv.model;
-    const temperature = parseFloat(argv.temperature);
+    const model = argv.model !== undefined ? argv.model : (process.env.CHAT_MODEL || chatConfig.model || "gpt-3.5-turbo");
+    const temperature = argv.temperature !== undefined ? parseFloat(argv.temperature) : (process.env.CHAT_TEMPERATURE ? parseFloat(process.env.CHAT_TEMPERATURE) : (chatConfig.temperature !== undefined ? chatConfig.temperature : 0.7));
 
     // Auto-summarization: if conversation history grows too long, summarize older messages
     if (conversationHistory.length > maxHistoryMessages) {
@@ -312,7 +343,7 @@ const chatCommand = {
         temperature
       });
       const reply = response.data.choices[0].message.content;
-      debugLog("Received reply from OpenAI API.");
+      debugLog("Received reply from OpenAIApi.");
       console.log(reply);
       // Append assistant's reply to the conversation history
       conversationHistory.push({ role: "assistant", content: reply });
@@ -845,6 +876,53 @@ const chatPdfExportCommand = {
   }
 };
 
+// New command to update persistent chat configuration
+const chatConfigUpdateCommand = {
+  command: "chat-config-update",
+  describe: "Persistently update chat configuration settings",
+  builder: (yargs) => {
+    return yargs
+      .option("model", {
+        alias: "m",
+        type: "string",
+        describe: "Update the default OpenAI model"
+      })
+      .option("temperature", {
+        alias: "t",
+        type: "number",
+        describe: "Update the default response randomness factor"
+      })
+      .option("max-history-messages", {
+        type: "number",
+        describe: "Update the default maximum conversation messages before auto-summarization"
+      })
+      .option("recent-messages", {
+        type: "number",
+        describe: "Update the default number of recent messages to retain after summarization"
+      });
+  },
+  handler: async (argv) => {
+    let newConfig = {};
+    if (argv.model !== undefined) newConfig.model = argv.model;
+    if (argv.temperature !== undefined) newConfig.temperature = argv.temperature;
+    if (argv["max-history-messages"] !== undefined) newConfig["max-history-messages"] = argv["max-history-messages"];
+    if (argv["recent-messages"] !== undefined) newConfig["recent-messages"] = argv["recent-messages"];
+
+    let existingConfig = {};
+    if (existsSync(CHAT_CONFIG_FILE)) {
+      try {
+        const data = await fs.readFile(CHAT_CONFIG_FILE, "utf-8");
+        existingConfig = JSON.parse(data);
+      } catch (error) {
+        handleError("Failed to read existing chat configuration", error);
+      }
+    }
+    const mergedConfig = { ...existingConfig, ...newConfig };
+    await saveChatConfig(mergedConfig);
+    console.log("Chat configuration updated successfully.");
+  }
+};
+
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
@@ -889,6 +967,7 @@ export function main(args = []) {
     .command(chatImportCommand)
     .command(chatTranslateCommand)
     .command(chatPdfExportCommand)
+    .command(chatConfigUpdateCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

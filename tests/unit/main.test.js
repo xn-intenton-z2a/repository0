@@ -703,4 +703,31 @@ describe("CLI Commands", () => {
     expect(output).toContain("Diagnostics: running diagnostics");
   });
 
+  // New tests for chat-config-update command
+  test("chat-config-update command creates a new configuration file when none exists", async () => {
+    const configFile = path.resolve(process.cwd(), ".chat_config.json");
+    if (existsSync(configFile)) {
+      await fs.unlink(configFile);
+    }
+    const output = await captureOutput(() => main(["chat-config-update", "--model", "gpt-4", "--temperature", "0.8", "--max-history-messages", "15", "--recent-messages", "3"]));
+    expect(output).toContain("Chat configuration updated successfully.");
+    const configData = JSON.parse(await fs.readFile(configFile, "utf-8"));
+    expect(configData.model).toBe("gpt-4");
+    expect(configData.temperature).toBe(0.8);
+    expect(configData["max-history-messages"]).toBe(15);
+    expect(configData["recent-messages"]).toBe(3);
+    await fs.unlink(configFile);
+  });
+
+  test("chat-config-update command merges with existing configuration", async () => {
+    const configFile = path.resolve(process.cwd(), ".chat_config.json");
+    const initialConfig = { model: "gpt-3.5-turbo", temperature: 0.7 };
+    await fs.writeFile(configFile, JSON.stringify(initialConfig, null, 2));
+    const output = await captureOutput(() => main(["chat-config-update", "--temperature", "0.9"]));
+    expect(output).toContain("Chat configuration updated successfully.");
+    const updatedConfig = JSON.parse(await fs.readFile(configFile, "utf-8"));
+    expect(updatedConfig.model).toBe("gpt-3.5-turbo");
+    expect(updatedConfig.temperature).toBe(0.9);
+    await fs.unlink(configFile);
+  });
 });
