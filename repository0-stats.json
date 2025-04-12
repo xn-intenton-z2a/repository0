@@ -2,13 +2,18 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 3,
+  "openIssues": 4,
   "issuesClosedLastHour": 9,
   "issuesClosedLastDay": 100,
-  "openPRs": 0,
-  "prDetails": [],
+  "openPRs": 1,
+  "prDetails": [
+    {
+      "title": "Enhanced CLI argument validation error messages and updated documentation accordingly. (fixes #1388)",
+      "ageMinutes": 0
+    }
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 11,
+  "diffMinutesMain": 12,
   "commitsLastHour": 5,
   "commitsLastDay": 21,
   "lastFiveCommitMessages": [
@@ -38,12 +43,12 @@
     "details": [
       {
         "branch": "agentic-lib-issue-1388",
-        "minutesSinceLastCommit": 0
+        "minutesSinceLastCommit": 1
       }
     ]
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T03:41:31.374Z"
+  "generatedAt": "2025-04-12T03:42:14.392Z"
 }
