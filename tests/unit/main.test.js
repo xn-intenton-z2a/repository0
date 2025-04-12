@@ -47,4 +47,16 @@ describe("CLI Commands", () => {
     });
     expect(output).toContain("You need to specify a valid command");
   });
+
+  test("default parameter when no arguments provided", () => {
+    const output = captureOutput(() => {
+      try {
+        // Call main with no arguments to rely on default parameter
+        main();
+      } catch (e) {
+        // Expected error due to missing command
+      }
+    });
+    expect(output).toContain("Run with: []");
+  });
 });
