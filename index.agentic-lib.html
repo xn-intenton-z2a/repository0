@@ -28,7 +28,8 @@
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-usage" href="#cli-usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Usage</h2>
-<p class="md-github">The CLI employs yargs for robust subcommand parsing and improved input validation. Key subcommands include:</p>
+<p class="md-github">The CLI employs yargs for robust subcommand parsing and improved input validation. It also now supports a global <code class="md-github">--verbose</code> flag that enables detailed debugging output for developers. When enabled, additional internal state and debugging information are logged to assist in troubleshooting and understanding the CLI's flow.</p>
+<p class="md-github">Key subcommands include:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">diagnostics:</strong> Runs diagnostics and provides detailed environment information including Node.js version, package metadata, and dependency versions.
 <ul class="md-github">
@@ -67,7 +68,7 @@
 <li class="md-github"><code class="md-github">--summarization-prompt</code>: Custom prompt to use for summarizing conversation history (optional). If provided, it overrides the default summarization prompt and its response will be used as the final output.</li>
 </ul>
 </li>
-<li class="md-github">Example with custom options: <code class="md-github">repository0 chat --prompt &quot;Hello, how are you?&quot; --model &quot;gpt-4&quot; --temperature 0.9 --summarization-prompt &quot;Custom summarize:&quot;</code></li>
+<li class="md-github">Example with custom options: <code class="md-github">repository0 chat --verbose --prompt &quot;Hello, how are you?&quot; --model &quot;gpt-4&quot; --temperature 0.9 --summarization-prompt &quot;Custom summarize:&quot;</code></li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format.
@@ -143,12 +144,17 @@
 </ul>
 </li>
 </ul>
+<h2 class="md-github"><a class="md-github__anchor" name="global-verbose-mode" href="#global-verbose-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global Verbose Mode</h2>
+<p class="md-github">A new global <code class="md-github">--verbose</code> flag has been added to assist developers with detailed debugging information. When enabled, the CLI logs additional internal state and processing details. For example:</p>
+<pre class="md-github"><code class="md-github language-bash">repository0 --verbose chat --prompt &quot;Hello, Debug me!&quot;
+</code></pre>
+<p class="md-github">In verbose mode, you will see messages such as &quot;Verbose mode enabled.&quot; and various debug logs prefixed with <code class="md-github">[DEBUG]</code> throughout the execution.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-input-validation-and-error-handling" href="#cli-input-validation-and-error-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Input Validation and Error Handling</h2>
 <p class="md-github">The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as an empty string, boolean, null, undefined, object, array, symbol, or bigint, the CLI returns a standardized error message. For example:</p>
 <p class="md-github">&quot;Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'.&quot;</p>
 <p class="md-github">This behavior is consistent across all commands and aids in debugging and proper CLI usage.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="error-handling-improvements" href="#error-handling-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error Handling Improvements</h2>
-<p class="md-github">Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized messages.</p>
+<p class="md-github">Error handling has been centralized to include a consistent formatted error output for all CLI errors. If verbose mode is enabled, additional error stack traces are output to assist in diagnosing issues.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -158,6 +164,10 @@ GitHub workflows located in the <code class="md-github">.github/workflows/</code
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
 The main functionality is provided in <code class="md-github">src/lib/main.js</code>, which now features new commands including the <code class="md-github">chat-archive</code>, <code class="md-github">chat-import</code>, <code class="md-github">chat-translate</code>, <code class="md-github">chat-edit</code>, <code class="md-github">chat-html-export</code>, and the newly implemented <code class="md-github">chat-pdf-export</code> for exporting conversation history to PDF.</p>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Global Verbose Mode:</strong>
+The CLI now supports a global <code class="md-github">--verbose</code> flag for detailed logging of internal operations, aiding debugging without affecting standard output in normal mode.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -191,7 +201,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T19:24:43.879Z</p>
+    <p>Generated on 2025-04-12T19:25:36.696Z</p>
   </footer>
 </body>
 </html>
