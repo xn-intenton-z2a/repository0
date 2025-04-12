@@ -11,16 +11,15 @@ on:
   pull_request:
   check_suite:
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - "Issue Worker"
-      - "Update"
-    types:
-      - completed
+  #workflow_run:
+  #  workflows:
+  #    - "Issue Worker"
+  #  types:
+  #    - completed
   schedule:
     #- cron: '30 */4 * * *' # schedule-1
     #- cron: '*/30 * * * *' # schedule-2
-    - cron: '*/10 * * * *' # schedule-3
+    - cron: '*/30 * * * *' # schedule-3
 
 env:
   pullRequestLabel: 'automerge'
