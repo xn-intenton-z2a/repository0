@@ -701,7 +701,6 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["--verbose", "diagnostics"]));
     expect(output).toContain("Verbose mode enabled.");
     expect(output).toContain("Diagnostics: running diagnostics");
-    // Also check for a debug message from one of the commands, e.g., in chat command debug logging
   });
 
 });
