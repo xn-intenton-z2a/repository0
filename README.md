@@ -11,7 +11,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## CLI Usage
-The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy flag usage is deprecated. The following subcommands are available:
+The CLI now employs yargs for robust subcommand parsing and improved input validation. Key points include:
 
 - **diagnostics:** Runs diagnostics. 
   - Example: `repository0 diagnostics`
@@ -24,29 +24,29 @@ The CLI has been enhanced to use yargs for robust subcommand parsing. Legacy fla
 
 **Input Validation:**
 
-- The CLI argument validation logic has been refactored to provide clear and robust error messages when non-string inputs (such as NaN) are provided.
+- All CLI arguments must be non-empty strings representing valid commands.
+- If a non-string argument (e.g. NaN) is provided, the CLI outputs a clear error message: "Invalid input: Expected a valid string command, but received {input}".
+- When executed without any arguments, the CLI logs `Run with: []` followed by an error message prompting for a valid command.
 
-When the CLI is executed without any arguments, it first logs the default parameter message `Run with: []` and then displays an error prompting you to specify a valid command.
+**Error Handling:**
 
-- **Error Handling:** 
-  - All error messages are output in a standardized format prefixed with "Error:" for both human-readability and machine parsing.
-  - **Invalid Input Handling:** If a non-string argument is provided (for example, NaN), the CLI will output an error message such as: "Invalid input: Expected a valid command, but received NaN".
+- Error messages are standardized and prefixed with "Error:" for both human-readability and machine parsing.
 
 ## What’s Inside
 
-- **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
+- **GitHub Workflows:**
+  Workflows in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
-- **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file now includes a yargs-based CLI that supports exclusive subcommand usage for diagnostics, version, update commands, and the new config command for viewing configuration settings, with improved error handling for invalid inputs such as non-string values.
+- **Source Code:**
+  Main functionality is in `src/lib/main.js`. The file now includes detailed CLI argument validation with descriptive error messages.
 
-- **Dependencies:**  
+- **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
-- **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected, including proper handling of missing arguments and invalid non-string inputs.
+- **Tests:**
+  Unit tests in the `tests/unit/` folder validate CLI commands and error handling, including checks for invalid inputs like NaN.
 
-- **Documentation:**  
+- **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
