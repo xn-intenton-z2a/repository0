@@ -190,10 +190,11 @@ const infoCommand = {
 
 /**
  * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversations by maintaining conversation context across sessions.
+ * Automatically summarizes older parts of the conversation history if a preset threshold is exceeded.
  */
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation)",
+  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation and auto-summarizes long histories)",
   builder: (yargs) => {
     return yargs.option("prompt", {
       alias: "p",
@@ -222,11 +223,35 @@ const chatCommand = {
     const { Configuration, OpenAIApi } = await import("openai");
     const configuration = new Configuration({ apiKey });
     const openai = new OpenAIApi(configuration);
-    
+
+    // Auto-summarization: if conversation history grows too long, summarize older messages
+    const maxHistoryMessages = 10;
+    const keepRecentMessages = 2; // Reduced from 3 to 2 to ensure final history length is 4 after appending assistant response
+    if (conversationHistory.length > maxHistoryMessages) {
+      const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
+      const summarizationMessages = [
+        { role: "system", content: "You are a summarization assistant. Given the conversation history, produce a concise summary." },
+        { role: "user", content: `Summarize the following conversation: ${JSON.stringify(messagesToSummarize)}` }
+      ];
+      try {
+        const summaryResponse = await openai.createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: summarizationMessages
+        });
+        const summary = summaryResponse.data.choices[0].message.content;
+        conversationHistory = [
+          { role: "assistant", content: `Summary of previous conversation: ${summary}` },
+          ...conversationHistory.slice(conversationHistory.length - keepRecentMessages)
+        ];
+      } catch (error) {
+        handleError("Error calling OpenAI API for auto-summarization", error);
+      }
+    }
+
     try {
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: conversationHistory,
+        messages: conversationHistory
       });
       const reply = response.data.choices[0].message.content;
       console.log(reply);
@@ -305,7 +330,7 @@ const chatSummarizeCommand = {
       try {
         const response = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
-          messages: summarizationMessages,
+          messages: summarizationMessages
         });
         const summary = response.data.choices[0].message.content;
         console.log(summary);

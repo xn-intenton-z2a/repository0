@@ -310,4 +310,24 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["chat-search", "--query", "test"]));
     expect(output).toContain("No conversation history available.");
   });
+
+  // New test for auto-summarization in chat command
+  test("chat command auto-summarizes long conversation history", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    // Create a long history exceeding the threshold
+    const longHistory = [];
+    for (let i = 0; i < 12; i++) {
+      longHistory.push({ role: "user", content: "Message " + (i + 1) });
+    }
+    await fs.writeFile(historyFile, JSON.stringify(longHistory, null, 2));
+    const output = await captureOutput(() => main(["chat", "--prompt", "New message after long history"]));
+    const updatedHistoryData = await fs.readFile(historyFile, "utf-8");
+    const updatedHistory = JSON.parse(updatedHistoryData);
+    // Expect history to be trimmed: 1 summary + 2 recent messages + 1 assistant reply = 4
+    expect(updatedHistory.length).toBe(4);
+    expect(updatedHistory[0].content).toContain("Summary of previous conversation:");
+    expect(output).toContain("Response from OpenAI");
+    await fs.unlink(historyFile);
+  });
 });
