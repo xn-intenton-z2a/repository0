@@ -22,22 +22,26 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
-- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command now supports multi-turn conversations by preserving conversation context for the duration of a single CLI session. Subsequent calls to the chat command will build upon previous interactions.
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command now supports multi-turn conversations by preserving conversation context within a single CLI session. Subsequent calls to the chat command will build upon previous interactions.
   - Example: `repository0 chat --prompt "Hello, how are you?"`
 
-## CLI Input Validation
+## CLI Input Validation and Error Handling
 
-The CLI validates all input arguments using Zod to ensure inputs are non-empty strings. If an invalid input is provided, such as:
+The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as:
 
-- **NaN:**
-  - Error: Structured JSON output with keys, for example:
-    ```json
-    { "error": "CLI Error", "message": "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'." }
-    ```
-- **Empty string:**
-  - Error: Structured JSON output with keys similar to the above.
-- **Boolean, null, undefined, object, or array:**
-  - Similar standardized JSON error messages are produced.
+- **NaN**
+- **Empty string**
+- **Boolean (true or false)**
+- **null or undefined**
+- **Object or Array**
+
+the system produces a standardized error message. For example, when a NaN value is provided the error may look like:
+
+```json
+{ "error": "CLI Error", "message": "Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'." }
+```
+
+This consistent formatting aids debugging and ensures seamless integration with downstream tools.
 
 ## Error Handling Improvements
 
