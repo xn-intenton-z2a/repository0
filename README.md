@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export, analyze, remove, archive, import, translate, and now edit conversation history.
+This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown and HTML), analyze, remove, archive, import, translate, and edit conversation history.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -38,11 +38,13 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 chat-search --query "search text"`
 - **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`).
   - Example: `repository0 chat-export`
+- **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`).
+  - Example: `repository0 chat-html-export`
 - **chat-statistics:** Provides analytics on the conversation history by computing total messages, counts per role, and average message length.
   - Example: `repository0 chat-statistics`
 - **chat-remove:** Removes a specific conversation entry from the history. It accepts a required numeric argument `--index` (alias `-i`) representing the 1-based index of the entry to remove.
   - Example: `repository0 chat-remove --index 2`
-- **chat-edit:** **New Command:** Updates a specific conversation entry's message. It accepts:
+- **chat-edit:** Updates a specific conversation entry's message. It accepts:
     - `--index` or `-i`: The 1-based index of the conversation entry to update.
     - `--message` or `-m`: The new message content.
   - Example: `repository0 chat-edit --index 2 --message "Corrected message"`
@@ -75,7 +77,7 @@ Error handling has been centralized to include a consistent formatted error outp
   GitHub workflows located in the `.github/workflows/` directory leverage reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, and the newly implemented `chat-edit` for editing conversation messages.
+  The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, and the newly implemented `chat-html-export` for exporting conversation history in HTML format.
 
 - **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.
