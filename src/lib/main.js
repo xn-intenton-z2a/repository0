@@ -830,6 +830,8 @@ const chatPdfExportCommand = {
       const doc = new PDFDocument({ compress: false });
       // Set PDF metadata Title to ensure text appears in plain output
       doc.info.Title = "Conversation History";
+      // Set default font to Helvetica to ensure text is rendered in plain text
+      doc.font('Helvetica');
       let buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       const pdfPromise = new Promise((resolve, reject) => {

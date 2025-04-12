@@ -658,7 +658,6 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["chat-pdf-export"]));
     expect(output).toContain("Conversation history exported to chat_history.pdf");
     const pdfData = await fs.readFile(pdfFile);
-    // Check for key text elements in the PDF data
     const pdfText = pdfData.toString();
     expect(pdfText).toContain("Conversation History");
     expect(pdfText).toContain("1. user: Hello PDF");
