@@ -6,6 +6,17 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 /**
+ * Handles errors in a consistent format and throws an error for the caller.
+ * @param {string} message - The error message to display.
+ * @param {Error} [err] - Optional original error to throw.
+ */
+function handleError(message, err) {
+  const formatted = `Error: ${message}`;
+  console.error(formatted);
+  throw err || new Error(formatted);
+}
+
+/**
  * Main function to parse CLI arguments and execute subcommands.
  * @param {Array} args - Array of command line arguments. Defaults to [] if not provided.
  */
@@ -19,11 +30,9 @@ export function main(args = []) {
   for (const arg of args) {
     if (typeof arg !== "string") {
       if (typeof arg === "number" && Number.isNaN(arg)) {
-        console.error("Invalid input: Expected a valid command, but received NaN");
-        throw new Error("Invalid input: Expected a valid command, but received NaN");
+        handleError("Invalid input: Expected a valid command, but received NaN");
       } else {
-        console.error(`Invalid input: Expected a valid command, but received ${arg}`);
-        throw new Error(`Invalid input: Expected a valid command, but received ${arg}`);
+        handleError(`Invalid input: Expected a valid command, but received ${arg}`);
       }
     }
   }
@@ -76,12 +85,11 @@ export function main(args = []) {
     .strict()
     .help()
     .fail((msg, err, yargsInstance) => {
-      if (msg && msg.includes("You need to specify a valid command")) {
-        console.log("You need to specify a valid command");
-      } else if (msg) {
-        console.error(msg);
+      if (msg) {
+        handleError(msg, err);
+      } else {
+        handleError("Command failed", err);
       }
-      throw err || new Error(msg || "Command failed");
     })
     .parse();
 }
