@@ -249,11 +249,6 @@ const chatCommand = {
     // Append user prompt to conversation history
     conversationHistory.push({ role: "user", content: prompt });
 
-    // Dynamically import the OpenAI module
-    const { Configuration, OpenAIApi } = await import("openai");
-    const configuration = new Configuration({ apiKey });
-    const openai = new OpenAIApi(configuration);
-
     // Get configurable auto-summarization settings from CLI options or environment variables
     let maxHistoryMessages = parseInt(argv["max-history-messages"]);
     if (isNaN(maxHistoryMessages)) {
@@ -280,6 +275,9 @@ const chatCommand = {
         { role: "user", content: summarizationUserMessage }
       ];
       try {
+        const { Configuration, OpenAIApi } = await import("openai");
+        const configuration = new Configuration({ apiKey });
+        const openai = new OpenAIApi(configuration);
         const summaryResponse = await openai.createChatCompletion({
           model,
           messages: summarizationMessages,
@@ -290,12 +288,22 @@ const chatCommand = {
           { role: "assistant", content: `Summary of previous conversation: ${summary}` },
           ...conversationHistory.slice(conversationHistory.length - keepRecentMessages)
         ];
+        // If a custom summarization prompt was provided, use the summary as the final reply
+        if (customPrompt && customPrompt.trim() !== "") {
+          console.log(summary);
+          conversationHistory.push({ role: "assistant", content: summary });
+          await saveHistory();
+          return;
+        }
       } catch (error) {
         handleError("Error calling OpenAI API for auto-summarization", error);
       }
     }
 
     try {
+      const { Configuration, OpenAIApi } = await import("openai");
+      const configuration = new Configuration({ apiKey });
+      const openai = new OpenAIApi(configuration);
       const response = await openai.createChatCompletion({
         model,
         messages: conversationHistory,

@@ -29,7 +29,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
     - `--recent-messages`: Number of recent messages to retain after summarization (default: 2) or via `CHAT_RECENT_MESSAGES` environment variable.
     - `--model` or `-m`: The OpenAI model to use (default: "gpt-3.5-turbo").
     - `--temperature` or `-t`: The response randomness factor (default: 0.7).
-    - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional). If provided, it overrides the default summarization prompt.
+    - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional). If provided, it overrides the default summarization prompt and its response will be used as the final output.
   - Example with custom options: `repository0 chat --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
 - **chat-history:** Displays the persistent conversation history in a human-readable format.
   - Example: `repository0 chat-history`
