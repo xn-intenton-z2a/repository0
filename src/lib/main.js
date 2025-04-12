@@ -804,8 +804,7 @@ const chatPdfExportCommand = {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
       const history = JSON.parse(data);
       if (!history || history.length === 0) {
-        console.log("No conversation history available to export.
-");
+        console.log("No conversation history available to export.");
         return;
       }
 
