@@ -646,4 +646,34 @@ describe("CLI Commands", () => {
     expect(output).toContain("Custom response from OpenAI with gpt-4");
   });
 
+  // New tests for chat-pdf-export command
+  test("chat-pdf-export command exports conversation history to PDF file", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
+    const sampleHistory = [
+      { role: "user", content: "Hello PDF" },
+      { role: "assistant", content: "Hi in PDF!" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-pdf-export"]));
+    expect(output).toContain("Conversation history exported to chat_history.pdf");
+    const pdfData = await fs.readFile(pdfFile);
+    // Check for key text elements in the PDF data
+    const pdfText = pdfData.toString();
+    expect(pdfText).toContain("Conversation History");
+    expect(pdfText).toContain("1. user: Hello PDF");
+    expect(pdfText).toContain("2. assistant: Hi in PDF!");
+    await fs.unlink(historyFile);
+    await fs.unlink(pdfFile);
+  });
+
+  test("chat-pdf-export command displays message when no history exists", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => main(["chat-pdf-export"]));
+    expect(output).toContain("No conversation history available to export.");
+  });
+
 });
