@@ -6,8 +6,12 @@ function captureOutput(fn) {
   let output = "";
   const originalLog = console.log;
   const originalError = console.error;
-  console.log = (msg) => { output += msg + "\n"; };
-  console.error = (msg) => { output += msg + "\n"; };
+  console.log = (msg) => {
+    output += msg + "\n";
+  };
+  console.error = (msg) => {
+    output += msg + "\n";
+  };
   try {
     fn();
   } catch (e) {

@@ -17,7 +17,7 @@ function handleError(message, err) {
 }
 
 /**
- * Validates all CLI arguments to ensure they are strings. 
+ * Validates all CLI arguments to ensure they are strings.
  * Provides explicit error messages for non-string or invalid inputs.
  * @param {Array} args - An array of CLI arguments.
  */
@@ -35,7 +35,7 @@ function validateArgs(args) {
 
 /**
  * Main function to parse CLI arguments and execute subcommands.
- * 
+ *
  * In addition to processing valid commands, this function checks for non-string inputs
  * and utilizes a dedicated argument validation function for improved clarity.
  * If an argument is not a string (for example, NaN), it will trigger an error with a descriptive
@@ -61,7 +61,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Diagnostics: running diagnostics");
-      }
+      },
     )
     .command(
       "version",
@@ -69,7 +69,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Version 1.4.1-13");
-      }
+      },
     )
     .command(
       "update",
@@ -77,7 +77,7 @@ export function main(args = []) {
       () => {},
       () => {
         console.log("Performing update...");
-      }
+      },
     )
     .command(
       "config",
@@ -90,11 +90,11 @@ export function main(args = []) {
             () => {},
             () => {
               console.log("Configuration: using default settings");
-            }
+            },
           )
           .demandCommand(1, "You need to specify a valid config subcommand");
       },
-      () => {}
+      () => {},
     )
     .demandCommand(1, "You need to specify a valid command")
     .strict()
