@@ -314,7 +314,6 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            onst label = ;
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
