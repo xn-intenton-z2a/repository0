@@ -198,12 +198,23 @@ const chatCommand = {
   command: "chat",
   describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation and auto-summarizes long histories). Conversation history is saved using atomic file operations.",
   builder: (yargs) => {
-    return yargs.option("prompt", {
-      alias: "p",
-      type: "string",
-      describe: "The prompt message to send",
-      demandOption: true
-    });
+    return yargs
+      .option("prompt", {
+        alias: "p",
+        type: "string",
+        describe: "The prompt message to send",
+        demandOption: true
+      })
+      .option("max-history-messages", {
+        type: "number",
+        describe: "Maximum number of conversation messages before summarization",
+        default: 10
+      })
+      .option("recent-messages", {
+        type: "number",
+        describe: "Number of recent messages to retain after summarization",
+        default: 2
+      });
   },
   handler: async (argv) => {
     const prompt = argv.prompt;
@@ -226,9 +237,17 @@ const chatCommand = {
     const configuration = new Configuration({ apiKey });
     const openai = new OpenAIApi(configuration);
 
+    // Get configurable auto-summarization settings from CLI options or environment variables
+    let maxHistoryMessages = parseInt(argv["max-history-messages"]);
+    if (isNaN(maxHistoryMessages)) {
+      maxHistoryMessages = process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : 10;
+    }
+    let keepRecentMessages = parseInt(argv["recent-messages"]);
+    if (isNaN(keepRecentMessages)) {
+      keepRecentMessages = process.env.CHAT_RECENT_MESSAGES ? parseInt(process.env.CHAT_RECENT_MESSAGES) : 2;
+    }
+
     // Auto-summarization: if conversation history grows too long, summarize older messages
-    const maxHistoryMessages = 10;
-    const keepRecentMessages = 2; // Reduced from 3 to 2 to ensure final history length is 4 after appending assistant response
     if (conversationHistory.length > maxHistoryMessages) {
       const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
       const summarizationMessages = [
