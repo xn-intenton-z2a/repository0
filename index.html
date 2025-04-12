@@ -66,23 +66,24 @@
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">NaN:</strong>
 <ul class="md-github">
-<li class="md-github">Error: &quot;Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'.&quot;</li>
+<li class="md-github">Error: Structured JSON output with keys, for example:<pre class="md-github"><code class="md-github language-json">{ &quot;error&quot;: &quot;CLI Error&quot;, &quot;message&quot;: &quot;Invalid input: Expected a valid non-empty string command, but received NaN. Please provide a valid non-empty string, such as 'start' or 'info'.&quot; }
+</code></pre>
+</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Empty string:</strong>
 <ul class="md-github">
-<li class="md-github">Error: &quot;Invalid input: Expected a valid non-empty string command, but received an empty string. Please provide a valid non-empty string, such as 'start' or 'info'.&quot;</li>
+<li class="md-github">Error: Structured JSON output with keys similar to the above.</li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">Boolean, null, undefined, object, or array:</strong>
 <ul class="md-github">
-<li class="md-github">Similar standardized error messages are produced.</li>
+<li class="md-github">Similar standardized JSON error messages are produced.</li>
 </ul>
 </li>
 </ul>
-<p class="md-github">These error messages help users quickly identify that the provided input does not meet the requirements. For further confirmation of these behaviors, please refer to the tests in <a href="./tests/unit/main.test.js" class="md-github">tests/unit/main.test.js</a>.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="error-handling-improvements" href="#error-handling-improvements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Error Handling Improvements</h2>
-<p class="md-github">Error handling has been centralized to include a consistent prefix (&quot;CLI Error:&quot;) for all error messages. This enhancement aids in debugging by clearly identifying CLI errors while preserving the original error information.</p>
+<p class="md-github">Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized keys (<code class="md-github">error</code> and <code class="md-github">message</code>).</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -128,7 +129,7 @@ This README provides essential project information. For contribution guidelines,
 
   </section>
   <footer>
-    <p>Generated on 2025-04-12T10:19:07.619Z</p>
+    <p>Generated on 2025-04-12T10:20:35.132Z</p>
   </footer>
 </body>
 </html>

@@ -2,21 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 10,
+  "openIssues": 8,
   "issuesClosedLastHour": 8,
   "issuesClosedLastDay": 100,
-  "openPRs": 1,
-  "prDetails": [
-    {
-      "title": "Refactored handleError to print plain error messages ensuring error outputs match test expectations. (fixes #1453)",
-      "ageMinutes": 1
-    }
-  ],
-  "diffMinutes": 1,
-  "diffMinutesMain": 28,
+  "openPRs": 0,
+  "prDetails": [],
+  "diffMinutes": 0,
+  "diffMinutesMain": 0,
   "commitsLastHour": 4,
-  "commitsLastDay": 51,
+  "commitsLastDay": 52,
   "lastFiveCommitMessages": [
+    {
+      "time": "10:20",
+      "message": "Refactored handleError to print plain error messages ensuring er..."
+    },
     {
       "time": "09:50",
       "message": "Enhance chat command to support multi-turn conversations by main..."
@@ -32,23 +31,14 @@
     {
       "time": "09:19",
       "message": "Clarified NaN input error feedback by adding explicit punctuatio..."
-    },
-    {
-      "time": "08:56",
-      "message": "Standardized error messages for invalid CLI inputs to ensure con..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1453",
-        "minutesSinceLastCommit": 1
-      }
-    ]
+    "count": 0,
+    "details": []
   },
-  "averagePRAge": 1,
+  "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T10:18:41.282Z"
+  "generatedAt": "2025-04-12T10:20:19.204Z"
 }
