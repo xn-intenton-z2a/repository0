@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { z } from "zod";
 
 // Using createRequire to load package.json avoids deprecated import assertions
 const require = createRequire(import.meta.url);
@@ -16,44 +17,54 @@ const packageData = require("../../package.json");
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  // Centralized error formatting with CLI Error prefix for clarity
   const fullMessage = "CLI Error: " + message;
   console.error(fullMessage);
   throw err || new Error(fullMessage);
 }
 
 /**
- * Validates that a CLI argument is a non-empty string.
- * If the argument is not a string or is empty, a standardized error is thrown.
- * This function now additionally handles booleans, null, undefined, objects and arrays.
+ * Helper function to stringify non-string CLI argument for error messages.
+ * @param {*} arg - The argument to stringify.
+ * @returns {string} - String representation of the argument.
+ */
+function stringifyArg(arg) {
+  if (arg === null) return "null";
+  if (arg === undefined) return "undefined";
+  if (typeof arg === "boolean") return arg.toString();
+  if (Array.isArray(arg)) return "Array";
+  if (typeof arg === "object") {
+    try {
+      return JSON.stringify(arg);
+    } catch (e) {
+      return String(arg);
+    }
+  }
+  if (typeof arg === "number" && Number.isNaN(arg)) return "NaN";
+  return JSON.stringify(arg);
+}
+
+/**
+ * Validates that a CLI argument is a non-empty string using Zod.
+ * Provides standardized error messages for various invalid inputs.
  * @param {*} arg - CLI argument to validate.
  */
 function validateArg(arg) {
-  if (typeof arg !== "string") {
-    let received;
-    if (arg === null) {
-      received = "null";
-    } else if (arg === undefined) {
-      received = "undefined";
-    } else if (typeof arg === "boolean") {
-      received = arg.toString();
-    } else if (Array.isArray(arg)) {
-      received = "Array";
-    } else if (typeof arg === "object") {
-      try {
-        received = JSON.stringify(arg);
-      } catch (e) {
-        received = String(arg);
-      }
-    } else if (typeof arg === "number" && Number.isNaN(arg)) {
-      received = "NaN";
+  try {
+    // Updated schema to include a custom required_error for undefined inputs
+    const schema = z.string({
+      required_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}`,
+      invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}`
+    }).refine(val => val.trim() !== "", {
+      message: "Invalid input: Expected a non-empty string command, but received an empty string"
+    });
+
+    schema.parse(arg);
+  } catch (error) {
+    if (error instanceof z.ZodError && error.errors && error.errors.length > 0) {
+      handleError(error.errors[0].message);
     } else {
-      received = JSON.stringify(arg);
+      handleError(String(error));
     }
-    handleError(`Invalid input: Expected a valid non-empty string command, but received ${received}`);
-  }
-  if (arg.trim() === "") {
-    handleError("Invalid input: Expected a non-empty string command, but received an empty string");
   }
 }
 
@@ -153,7 +164,7 @@ const chatCommand = {
   },
   handler: async (argv) => {
     const prompt = argv.prompt;
-    // Validate the prompt using existing validation
+    // Validate the prompt using Zod based validation
     validateArg(prompt);
     
     const apiKey = process.env.CHATGPT_API_SECRET_KEY;
@@ -185,6 +196,7 @@ const chatCommand = {
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
  */
 export function main(args = []) {
+  if (!args) args = [];
   if (args.length === 0) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
@@ -212,6 +224,5 @@ export function main(args = []) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  // Execute CLI with arguments from process.argv
   main(hideBin(process.argv));
 }
