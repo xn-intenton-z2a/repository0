@@ -65,7 +65,7 @@ function stringifyArg(arg) {
   if (arg === null) return "null";
   if (arg === undefined) return "undefined";
   if (typeof arg === "boolean") return arg.toString();
-  if (typeof arg === "symbol") return arg.toString();
+  if (typeof arg === "symbol") return `Symbol(${arg.description || ''})`;
   if (typeof arg === "bigint") return arg.toString() + "n";
   if (Array.isArray(arg)) return "Array";
   if (typeof arg === "object") {
