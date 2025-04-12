@@ -2,16 +2,20 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "openIssues": 6,
+  "openIssues": 5,
   "issuesClosedLastHour": 6,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "prDetails": [],
   "diffMinutes": 0,
-  "diffMinutesMain": 38,
+  "diffMinutesMain": 0,
   "commitsLastHour": 3,
-  "commitsLastDay": 70,
+  "commitsLastDay": 71,
   "lastFiveCommitMessages": [
+    {
+      "time": "14:46",
+      "message": "Expose configurable auto-summarization settings to chat command ..."
+    },
     {
       "time": "14:06",
       "message": "Added chat-export command to export conversation history to mark..."
@@ -27,23 +31,14 @@
     {
       "time": "13:32",
       "message": "Added the chat-search command to filter conversation history by ..."
-    },
-    {
-      "time": "13:22",
-      "message": "Added chat-summarize command to summarize conversation history u..."
     }
   ],
   "branches": {
-    "count": 1,
-    "details": [
-      {
-        "branch": "agentic-lib-issue-1484",
-        "minutesSinceLastCommit": 0
-      }
-    ]
+    "count": 0,
+    "details": []
   },
   "averagePRAge": 0,
   "testStatus": "PASS",
   "testsLastPassedMinutes": 15,
-  "generatedAt": "2025-04-12T14:45:47.930Z"
+  "generatedAt": "2025-04-12T14:47:19.451Z"
 }
