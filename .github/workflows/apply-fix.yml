@@ -485,9 +485,21 @@ jobs:
       gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (fixes #${{ needs.select-branch.outputs.issueNumber }})"
       label: 'automerge'
 
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.8.1'
+    with:
+      issueNumber: ''
+      selectionLabel: 'automated'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   stats:
     needs:
-        - apply-fix
+      - select-issue
+      - apply-fix
     if: ${{ always() }}
     permissions:
       contents: write
@@ -499,6 +511,7 @@ jobs:
       npmAuthOrganisation: '@xn-intenton-z2a'
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
+      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
       public: 'public'
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'

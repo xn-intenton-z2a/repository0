@@ -365,6 +365,7 @@ jobs:
 
   stats:
     needs:
+      - select-issue
       - apply-issue-resolution
     if: ${{ always() }}
     permissions:
@@ -377,6 +378,7 @@ jobs:
       npmAuthOrganisation: '@xn-intenton-z2a'
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
+      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
       public: 'public'
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
