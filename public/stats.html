@@ -27,7 +27,7 @@
   <section>
     <p>
       <span class="label">Open PRs (<%= openPRs %> of average age <%= averagePRAge %> minutes):</span><br/>
-      <%= prDetails && prDetails.map(pr => `${pr.title} (${pr.ageMinutes} minutes since creation)`).join(', ') || 'None' %>
+      <%= prDetails && prDetails.join(', ') || 'None' %>
     </p>
   </section>
   <section>
