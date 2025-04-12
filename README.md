@@ -10,7 +10,9 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 ## CLI Usage
 
-The CLI employs yargs for robust subcommand parsing and improved input validation. Key subcommands include:
+The CLI employs yargs for robust subcommand parsing and improved input validation. It also now supports a global `--verbose` flag that enables detailed debugging output for developers. When enabled, additional internal state and debugging information are logged to assist in troubleshooting and understanding the CLI's flow.
+
+Key subcommands include:
 
 - **diagnostics:** Runs diagnostics and provides detailed environment information including Node.js version, package metadata, and dependency versions.
   - Example: `repository0 diagnostics`
@@ -30,7 +32,7 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
     - `--model` or `-m`: The OpenAI model to use (default: "gpt-3.5-turbo").
     - `--temperature` or `-t`: The response randomness factor (default: 0.7).
     - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional). If provided, it overrides the default summarization prompt and its response will be used as the final output.
-  - Example with custom options: `repository0 chat --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
+  - Example with custom options: `repository0 chat --verbose --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
 - **chat-history:** Displays the persistent conversation history in a human-readable format.
   - Example: `repository0 chat-history`
 - **chat-summarize:** Generates a concise summary of the conversation history by using the OpenAI API.
@@ -62,6 +64,16 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
     - `--language` or `-l`: The target language for translation (required), e.g., 'Spanish' or 'French'.
   - Example: `repository0 chat-translate --language Spanish`
 
+## Global Verbose Mode
+
+A new global `--verbose` flag has been added to assist developers with detailed debugging information. When enabled, the CLI logs additional internal state and processing details. For example:
+
+```bash
+repository0 --verbose chat --prompt "Hello, Debug me!"
+```
+
+In verbose mode, you will see messages such as "Verbose mode enabled." and various debug logs prefixed with `[DEBUG]` throughout the execution.
+
 ## CLI Input Validation and Error Handling
 
 The CLI validates all input arguments using Zod to ensure that every command receives a valid non-empty string. When an invalid input is provided, such as an empty string, boolean, null, undefined, object, array, symbol, or bigint, the CLI returns a standardized error message. For example:
@@ -72,7 +84,7 @@ This behavior is consistent across all commands and aids in debugging and proper
 
 ## Error Handling Improvements
 
-Error handling has been centralized to include a consistent formatted error output for all CLI errors. This enhancement aids in debugging and integration with downstream tooling by clearly indicating CLI errors with standardized messages.
+Error handling has been centralized to include a consistent formatted error output for all CLI errors. If verbose mode is enabled, additional error stack traces are output to assist in diagnosing issues.
 
 ## What’s Inside
 
@@ -81,6 +93,9 @@ Error handling has been centralized to include a consistent formatted error outp
 
 - **Source Code:**
     The main functionality is provided in `src/lib/main.js`, which now features new commands including the `chat-archive`, `chat-import`, `chat-translate`, `chat-edit`, `chat-html-export`, and the newly implemented `chat-pdf-export` for exporting conversation history to PDF.
+
+- **Global Verbose Mode:**
+    The CLI now supports a global `--verbose` flag for detailed logging of internal operations, aiding debugging without affecting standard output in normal mode.
 
 - **Dependencies:**
     The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and CLI execution.

@@ -19,6 +19,15 @@ let conversationHistory = [];
 
 const HISTORY_FILE = ".chat_history.json";
 
+// Global verbose flag
+global.verbose = false;
+
+function debugLog(message) {
+  if (global.verbose) {
+    console.log("[DEBUG] " + message);
+  }
+}
+
 /**
  * Loads conversation history from the persistent history file.
  */
@@ -27,8 +36,10 @@ async function loadHistory() {
     if (existsSync(HISTORY_FILE)) {
       const data = await fs.readFile(HISTORY_FILE, "utf-8");
       conversationHistory = JSON.parse(data);
+      debugLog(`Loaded conversation history with ${conversationHistory.length} entries.`);
     } else {
       conversationHistory = [];
+      debugLog("No existing conversation history found; starting fresh.");
     }
   } catch (error) {
     handleError("Failed to read conversation history", error);
@@ -44,6 +55,7 @@ async function saveHistory() {
   try {
     await fs.writeFile(tempFile, JSON.stringify(conversationHistory, null, 2));
     await fs.rename(tempFile, HISTORY_FILE);
+    debugLog("Conversation history saved successfully.");
   } catch (error) {
     handleError("Failed to write conversation history", error);
   }
@@ -51,11 +63,14 @@ async function saveHistory() {
 
 /**
  * Logs and throws errors with a consistent formatted message.
+ * If verbose mode is enabled, additional error stack is printed.
  * @param {string} message - The error message to display.
  * @param {Error} [err] - Optional original error to include.
  */
 function handleError(message, err) {
-  // Log only the message for clearer output in tests
+  if (global.verbose && err) {
+    console.error(err.stack);
+  }
   console.error(message);
   throw err || new Error(message);
 }
@@ -122,9 +137,6 @@ function validateArgs(args) {
 
 // Modular command definitions
 
-/**
- * Diagnostics command: Runs diagnostics with detailed environment information.
- */
 const diagnosticsCommand = {
   command: "diagnostics",
   describe: "Run diagnostics with detailed environment information",
@@ -141,9 +153,6 @@ const diagnosticsCommand = {
   }
 };
 
-/**
- * Version command: Displays the current version.
- */
 const versionCommand = {
   command: "version",
   describe: "Show version",
@@ -152,9 +161,6 @@ const versionCommand = {
   }
 };
 
-/**
- * Update command: Initiates an update.
- */
 const updateCommand = {
   command: "update",
   describe: "Perform update",
@@ -163,9 +169,6 @@ const updateCommand = {
   }
 };
 
-/**
- * Config command: Displays configuration settings. Uses the 'show' subcommand.
- */
 const configCommand = {
   command: "config",
   describe: "View configuration settings",
@@ -181,9 +184,6 @@ const configCommand = {
   handler: () => {}
 };
 
-/**
- * Info command: Displays repository metadata.
- */
 const infoCommand = {
   command: "info",
   describe: "Display repository metadata",
@@ -192,9 +192,6 @@ const infoCommand = {
   }
 };
 
-/**
- * Chat command: Interact with OpenAI API using a prompt. Supports persistent multi-turn conversation.
- */
 const chatCommand = {
   command: "chat",
   describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, and configurable model/temperature).",
@@ -235,11 +232,13 @@ const chatCommand = {
   },
   handler: async (argv) => {
     const prompt = argv.prompt;
+    debugLog(`Chat command invoked with prompt: ${prompt}`);
     // Validate the prompt
     validateArg(prompt);
     
     // Load conversation history from file
     await loadHistory();
+    debugLog(`Post-load, conversation history length: ${conversationHistory.length}`);
 
     const apiKey = process.env.CHATGPT_API_SECRET_KEY;
     if (!apiKey) {
@@ -248,8 +247,9 @@ const chatCommand = {
 
     // Append user prompt to conversation history
     conversationHistory.push({ role: "user", content: prompt });
+    debugLog("User prompt appended to conversation history.");
 
-    // Get configurable auto-summarization settings from CLI options or environment variables
+    // Get configurable auto-summarization settings
     let maxHistoryMessages = parseInt(argv["max-history-messages"]);
     if (isNaN(maxHistoryMessages)) {
       maxHistoryMessages = process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : 10;
@@ -265,6 +265,7 @@ const chatCommand = {
 
     // Auto-summarization: if conversation history grows too long, summarize older messages
     if (conversationHistory.length > maxHistoryMessages) {
+      debugLog("Auto-summarization triggered.");
       const messagesToSummarize = conversationHistory.slice(0, conversationHistory.length - keepRecentMessages);
       const customPrompt = argv["summarization-prompt"];
       const summarizationUserMessage = customPrompt && customPrompt.trim() !== ""
@@ -284,6 +285,7 @@ const chatCommand = {
           temperature
         });
         const summary = summaryResponse.data.choices[0].message.content;
+        debugLog("Auto-summarization completed.");
         conversationHistory = [
           { role: "assistant", content: `Summary of previous conversation: ${summary}` },
           ...conversationHistory.slice(conversationHistory.length - keepRecentMessages)
@@ -296,7 +298,7 @@ const chatCommand = {
           return;
         }
       } catch (error) {
-        handleError("Error calling OpenAI API for auto-summarization", error);
+        handleError("Error calling OpenAIApi for auto-summarization", error);
       }
     }
 
@@ -310,6 +312,7 @@ const chatCommand = {
         temperature
       });
       const reply = response.data.choices[0].message.content;
+      debugLog("Received reply from OpenAI API.");
       console.log(reply);
       // Append assistant's reply to the conversation history
       conversationHistory.push({ role: "assistant", content: reply });
@@ -321,9 +324,6 @@ const chatCommand = {
   }
 };
 
-/**
- * Chat History command: Displays the conversation history in a formatted manner.
- */
 const chatHistoryCommand = {
   command: "chat-history",
   describe: "Display conversation history",
@@ -349,9 +349,6 @@ const chatHistoryCommand = {
   }
 };
 
-/**
- * Chat Summarize command: Summarizes the conversation history using OpenAI API or built-in logic.
- */
 const chatSummarizeCommand = {
   command: "chat-summarize",
   describe: "Summarize the conversation history",
@@ -373,7 +370,6 @@ const chatSummarizeCommand = {
         handleError("Missing environment variable CHATGPT_API_SECRET_KEY");
       }
 
-      // Prepare a summarization prompt
       const summarizationMessages = [
         { role: "system", content: "You are a summarization assistant. Given the conversation history, produce a concise summary." },
         { role: "user", content: `Summarize the following conversation: ${JSON.stringify(history)}` }
@@ -400,9 +396,6 @@ const chatSummarizeCommand = {
   }
 };
 
-/**
- * Chat Search command: Searches the conversation history for a given query keyword.
- */
 const chatSearchCommand = {
   command: "chat-search",
   describe: "Search conversation history for a query keyword",
@@ -449,9 +442,6 @@ const chatSearchCommand = {
   }
 };
 
-/**
- * Chat Export command: Exports the conversation history to a markdown file.
- */
 const chatExportCommand = {
   command: "chat-export",
   describe: "Export conversation history to a markdown file",
@@ -479,9 +469,6 @@ const chatExportCommand = {
   }
 };
 
-/**
- * Chat HTML Export command: Exports the conversation history to an HTML file.
- */
 const chatHtmlExportCommand = {
   command: "chat-html-export",
   describe: "Export conversation history to an HTML file",
@@ -519,9 +506,6 @@ const chatHtmlExportCommand = {
   }
 };
 
-/**
- * Chat Statistics command: Provides analytics on the conversation history.
- */
 const chatStatisticsCommand = {
   command: "chat-statistics",
   describe: "Display conversation analytics",
@@ -558,9 +542,6 @@ const chatStatisticsCommand = {
   }
 };
 
-/**
- * Chat Remove command: Removes a specific conversation entry by its 1-based index.
- */
 const chatRemoveCommand = {
   command: "chat-remove",
   describe: "Remove a specific conversation entry from history by index (1-based)",
@@ -607,9 +588,6 @@ const chatRemoveCommand = {
   }
 };
 
-/**
- * Chat Edit command: Updates a specific conversation entry's message by index (1-based).
- */
 const chatEditCommand = {
   command: "chat-edit",
   describe: "Edit a specific conversation entry by index (1-based) with a new message",
@@ -665,9 +643,6 @@ const chatEditCommand = {
   }
 };
 
-/**
- * Chat Archive command: Archives the current conversation history into a timestamped file and resets the history.
- */
 const chatArchiveCommand = {
   command: "chat-archive",
   describe: "Archive the current conversation history into a timestamped archive file and reset the history",
@@ -703,9 +678,6 @@ const chatArchiveCommand = {
   }
 };
 
-/**
- * Chat Import command: Imports conversation history from a JSON file and merges it with the existing history.
- */
 const chatImportCommand = {
   command: "chat-import",
   describe: "Import conversation history from a JSON file",
@@ -760,9 +732,6 @@ const chatImportCommand = {
   }
 };
 
-/**
- * Chat Translate command: Translates the conversation history into a specified target language.
- */
 const chatTranslateCommand = {
   command: "chat-translate",
   describe: "Translate conversation history into a target language",
@@ -823,9 +792,6 @@ const chatTranslateCommand = {
   }
 };
 
-/**
- * Chat PDF Export command: Exports the conversation history to a PDF file (chat_history.pdf).
- */
 const chatPdfExportCommand = {
   command: "chat-pdf-export",
   describe: "Export conversation history to a PDF file (chat_history.pdf)",
@@ -886,11 +852,23 @@ const chatPdfExportCommand = {
  */
 export function main(args = []) {
   if (!args) args = [];
+  // Global verbose flag detection
+  const verbose = args.includes("--verbose");
+  if (verbose) {
+    args = args.filter(arg => arg !== "--verbose");
+    global.verbose = true;
+    console.log("Verbose mode enabled.");
+  }
   if (args.length === 0) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
   validateArgs(args);
   return yargs(args)
+    .option("verbose", {
+      type: "boolean",
+      describe: "Enable verbose logging for debugging",
+      global: true
+    })
     .scriptName("repository0")
     .usage("$0 <command>")
     .command(diagnosticsCommand)
@@ -910,7 +888,7 @@ export function main(args = []) {
     .command(chatArchiveCommand)
     .command(chatImportCommand)
     .command(chatTranslateCommand)
-    .command(chatPdfExportCommand) // Registered chat-pdf-export command
+    .command(chatPdfExportCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()

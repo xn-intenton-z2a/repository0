@@ -660,7 +660,7 @@ describe("CLI Commands", () => {
       { role: "assistant", content: "Response 2" }
     ];
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    // Set max-history-messages to 3 so that with the additional prompt the summarization is triggered
+    // Set max-history-messages to 3 so that auto-summarization is triggered
     const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--summarization-prompt", "Custom summarize:" ]));
     expect(output).toContain("Custom summarization response");
     await fs.unlink(historyFile);
@@ -693,6 +693,15 @@ describe("CLI Commands", () => {
     }
     const output = await captureOutput(() => main(["chat-pdf-export"]));
     expect(output).toContain("No conversation history available to export.");
+  });
+
+  // New test for global verbose flag
+  test("global verbose flag enables detailed debug logging", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const output = await captureOutput(() => main(["--verbose", "diagnostics"]));
+    expect(output).toContain("Verbose mode enabled.");
+    expect(output).toContain("Diagnostics: running diagnostics");
+    // Also check for a debug message from one of the commands, e.g., in chat command debug logging
   });
 
 });
