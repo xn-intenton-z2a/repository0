@@ -355,4 +355,64 @@ describe("CLI Commands", () => {
     expect(output).toContain("Role assistant: 2 messages");
     await fs.unlink(historyFile);
   });
+
+  // Tests for chat-remove command
+  test("chat-remove command successfully removes an entry", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Entry 1" },
+      { role: "assistant", content: "Entry 2" },
+      { role: "user", content: "Entry 3" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-remove", "--index", "2"]));
+    expect(output).toContain("Successfully removed conversation entry at index 2.");
+    const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(updatedHistory.length).toBe(2);
+    expect(updatedHistory).toEqual([
+      { role: "user", content: "Entry 1" },
+      { role: "user", content: "Entry 3" }
+    ]);
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-remove command error for out-of-bound index", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = [
+      { role: "user", content: "Only Entry" }
+    ];
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-remove", "--index", "5"]);
+      } catch {}
+    });
+    expect(output).toContain("Error: Provided index 5 is out of bounds. Conversation history contains 1 entries.");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-remove command error when history file does not exist", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    if (existsSync(historyFile)) {
+      await fs.unlink(historyFile);
+    }
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-remove", "--index", "1"]);
+      } catch {}
+    });
+    expect(output).toContain("No conversation history available.");
+  });
+
+  test("chat-remove command error when history is empty", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    await fs.writeFile(historyFile, JSON.stringify([], null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-remove", "--index", "1"]);
+      } catch {}
+    });
+    expect(output).toContain("No conversation history available.");
+    await fs.unlink(historyFile);
+  });
 });

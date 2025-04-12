@@ -483,6 +483,55 @@ const chatStatisticsCommand = {
 };
 
 /**
+ * Chat Remove command: Removes a specific conversation entry by its 1-based index.
+ */
+const chatRemoveCommand = {
+  command: "chat-remove",
+  describe: "Remove a specific conversation entry from history by index (1-based)",
+  builder: (yargs) => {
+    return yargs.option("index", {
+      alias: "i",
+      type: "number",
+      describe: "The 1-based index of the conversation entry to remove",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const index = argv.index;
+    // Validate that index is a positive integer
+    if (typeof index !== "number" || index <= 0 || !Number.isInteger(index)) {
+      handleError(`Invalid input: Index should be a positive integer. Received ${index}`);
+    }
+    if (!existsSync(HISTORY_FILE)) {
+      handleError("No conversation history available.");
+    }
+    let history;
+    try {
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      history = JSON.parse(data);
+    } catch (error) {
+      handleError("Failed to read conversation history", error);
+    }
+    if (!Array.isArray(history) || history.length === 0) {
+      handleError("No conversation history available.");
+    }
+    if (index > history.length) {
+      handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${history.length} entries.`);
+    }
+    // Remove the target entry. Adjust for 1-based indexing.
+    history.splice(index - 1, 1);
+    const tempFile = HISTORY_FILE + ".tmp";
+    try {
+      await fs.writeFile(tempFile, JSON.stringify(history, null, 2));
+      await fs.rename(tempFile, HISTORY_FILE);
+      console.log(`Successfully removed conversation entry at index ${index}.`);
+    } catch (error) {
+      handleError("Failed to update conversation history", error);
+    }
+  }
+};
+
+/**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * Logs provided arguments (or default empty array) and validates inputs for robustness.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -507,6 +556,7 @@ export function main(args = []) {
     .command(chatSearchCommand)
     .command(chatExportCommand)
     .command(chatStatisticsCommand)
+    .command(chatRemoveCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
