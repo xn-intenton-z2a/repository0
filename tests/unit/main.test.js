@@ -34,7 +34,7 @@ describe("CLI Commands", () => {
     const output = captureOutput(() => {
       main(["version"]);
     });
-    // The version should match the one in package.json
+    // The version should match the one in package.json (see package.json for exact value)
     expect(output).toContain("Version 1.4.1-13");
   });
 
@@ -50,6 +50,16 @@ describe("CLI Commands", () => {
       main(["config", "show"]);
     });
     expect(output).toContain("Configuration: using default settings");
+  });
+
+  test("info command", () => {
+    const output = captureOutput(() => {
+      main(["info"]);
+    });
+    // Check for repository metadata: name, version, and description
+    expect(output).toContain("Repository: @xn-intenton-z2a/repository0");
+    expect(output).toContain("Version: 1.4.1-13");
+    expect(output).toContain("Demo repository showcasing agentic‑lib workflows");
   });
 
   test("no command provided shows error/help", () => {

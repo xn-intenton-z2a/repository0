@@ -20,6 +20,8 @@ The CLI employs yargs for robust subcommand parsing and improved input validatio
   - Example: `repository0 update`
 - **config:** Displays configuration settings. Use the subcommand **show** to view the current configuration.
   - Example: `repository0 config show`
+- **info:** Displays repository metadata including the repository name, version, and description.
+  - Example: `repository0 info`
 
 **Input Validation:**
 
