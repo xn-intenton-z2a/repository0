@@ -2,7 +2,7 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Review Issue",
+  "lastActivityName": "Issue Worker",
   "lastActivityBranchName": "main",
   "nextIssue": "[1564] Implement Automatic Recovery for Corrupted Conversation History automated, feature, issue-worker-14429949025",
   "openIssues": 5,
@@ -28,11 +28,11 @@
       "[1m] agentic-lib-issue-1564"
     ],
     "branchIssueDetails": [
-      "[1564] Implement Automatic Recovery for Corrupted Conversation History automated, feature, issue-worker-14429949025"
+      "[1564] Implement Automatic Recovery for Corrupted Conversation History automated, feature, issue-worker-14429949025, apply-fix-14429993340"
     ],
     "averageBranchAge": 1
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T13:38:35.927Z"
+  "statsGeneratedAt": "2025-04-13T13:38:45.941Z"
 }
