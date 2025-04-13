@@ -49,10 +49,13 @@ async function loadHistory() {
           conversationData.messages = [];
         }
       }
-      // Ensure each message has a tags property
+      // Ensure each message has a tags property and a timestamp
       conversationData.messages = conversationData.messages.map(entry => {
         if (!entry.tags || !Array.isArray(entry.tags)) {
           entry.tags = [];
+        }
+        if (!entry.timestamp) {
+          entry.timestamp = new Date().toISOString();
         }
         return entry;
       });
@@ -299,8 +302,8 @@ const chatCommand = {
                                (process.env.CHAT_AUTO_ARCHIVE_THRESHOLD ? parseInt(process.env.CHAT_AUTO_ARCHIVE_THRESHOLD) : 
                                (chatConfig.autoArchiveThreshold || 50));
 
-    // Append user prompt to conversation history with tags initialized
-    conversationData.messages.push({ role: "user", content: prompt, tags: [] });
+    // Append user prompt to conversation history with tags and timestamp initialized
+    conversationData.messages.push({ role: "user", content: prompt, tags: [], timestamp: new Date().toISOString() });
     debugLog("User prompt appended to conversation history.");
 
     // Auto-Archival: if the conversation history exceeds the autoArchiveThreshold, archive history
@@ -361,13 +364,13 @@ const chatCommand = {
         const summary = summaryResponse.data.choices[0].message.content;
         debugLog("Auto-summarization completed.");
         conversationData.messages = [
-          { role: "assistant", content: `Summary of previous conversation: ${summary}`, tags: [] },
+          { role: "assistant", content: `Summary of previous conversation: ${summary}`, tags: [], timestamp: new Date().toISOString() },
           ...conversationData.messages.slice(conversationData.messages.length - keepRecentMessages)
         ];
         // If a custom summarization prompt was provided, use the summary as the final reply
         if (customPrompt && customPrompt.trim() !== "") {
           console.log(summary);
-          conversationData.messages.push({ role: "assistant", content: summary, tags: [] });
+          conversationData.messages.push({ role: "assistant", content: summary, tags: [], timestamp: new Date().toISOString() });
           await saveHistory();
           return;
         }
@@ -388,8 +391,8 @@ const chatCommand = {
       const reply = response.data.choices[0].message.content;
       debugLog("Received reply from OpenAIApi.");
       console.log(reply);
-      // Append assistant's reply to the conversation history with tags initialized
-      conversationData.messages.push({ role: "assistant", content: reply, tags: [] });
+      // Append assistant's reply to the conversation history with tags and timestamp initialized
+      conversationData.messages.push({ role: "assistant", content: reply, tags: [], timestamp: new Date().toISOString() });
       // Save updated conversation history to persistent file with atomic operation
       await saveHistory();
     } catch (error) {
@@ -412,7 +415,7 @@ const chatHistoryCommand = {
         } else {
           console.log("Conversation History:");
           history.forEach((entry, index) => {
-            console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+            console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
           });
         }
       } else {
@@ -513,7 +516,7 @@ const chatSearchCommand = {
     } else {
       console.log("Search Results:");
       results.forEach((entry, index) => {
-        console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+        console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
       });
     }
   }
@@ -562,7 +565,8 @@ const chatExportCommand = {
 
       let mdContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n\n---\n\n`;
       history.forEach((entry, index) => {
-        mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n\n`;
+        mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n`;
+        mdContent += `**Timestamp:** ${entry.timestamp}\n\n`;
       });
       await fs.writeFile("chat_history.md", mdContent);
       console.log("Conversation history exported to chat_history.md");
@@ -616,13 +620,14 @@ const chatHtmlExportCommand = {
       let htmlContent = "<!DOCTYPE html>\n<html>\n<head>\n";
       htmlContent += "<meta charset=\"UTF-8\">\n";
       htmlContent += "<title>Conversation History</title>\n";
-      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; }</style>\n";
+      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; } .timestamp { color: #555; font-size: 0.9em; }</style>\n";
       htmlContent += "</head>\n<body>\n";
       htmlContent += "<h1>Conversation History</h1>\n";
       htmlContent += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p></div>\n`;
       history.forEach((entry, index) => {
         htmlContent += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
-        htmlContent += `<p class=\"message\">${entry.content}</p></div>\n`;
+        htmlContent += `<p class=\"message\">${entry.content}</p>`;
+        htmlContent += `<p class=\"timestamp\">Timestamp: ${entry.timestamp}</p></div>\n`;
       });
       htmlContent += "</body>\n</html>";
 
@@ -684,7 +689,7 @@ const chatPdfExportCommand = {
         pdfContent += `Session Title: ${sessionTitle}\n`;
         pdfContent += `Exported At: ${exportTimestamp}\n\n`;
         history.forEach((entry, index) => {
-          pdfContent += `${index + 1}. ${entry.role}: ${entry.content}\n`;
+          pdfContent += `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}\n`;
         });
         const tempFile = "chat_history.pdf.tmp";
         await fs.writeFile(tempFile, pdfContent);
@@ -697,7 +702,7 @@ const chatPdfExportCommand = {
       doc.info.Title = "Conversation History";
       // Embed session title into PDF metadata so that it's easily searchable in the output
       doc.info.Keywords = sessionTitle;
-      const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role}: ${entry.content}`).join('\n');
+      const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`).join('\n');
       doc.info.Subject = conversationText;
       doc.font('Helvetica');
       let buffers = [];
@@ -715,7 +720,7 @@ const chatPdfExportCommand = {
       doc.moveDown();
 
       history.forEach((entry, index) => {
-        doc.fontSize(12).text(`${index + 1}. ${entry.role}: ${entry.content}`);
+        doc.fontSize(12).text(`${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`);
         doc.moveDown(0.5);
       });
       doc.end();
@@ -914,6 +919,9 @@ const chatImportCommand = {
     for (const entry of imported) {
       if (!entry.content || typeof entry.content !== "string" || entry.content.trim() === "") {
         handleError("Invalid conversation entry: Missing or empty 'content' property.");
+      }
+      if (!entry.timestamp) {
+        entry.timestamp = new Date().toISOString();
       }
     }
     let existing = { sessionTitle: "", messages: [] };
@@ -1232,7 +1240,7 @@ const chatTagCommand = {
           } else {
             console.log(`Conversation entries with tag "${tag}":`);
             filtered.forEach((entry, index) => {
-              console.log(`${index + 1}. ${entry.role}: ${entry.content}`);
+              console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
             });
           }
         }
