@@ -45,8 +45,8 @@ on:
   #    - agentic-lib-*
   schedule:
     #- cron: '15 */12 * * *' # schedule-1
-    #- cron: '15 */4 * * *' # schedule-2
-    - cron: '15,30,45 */1 * * *' # schedule-3
+    - cron: '15 */4 * * *' # schedule-2
+    #- cron: '15,30,45 */1 * * *' # schedule-3
 
 jobs:
 

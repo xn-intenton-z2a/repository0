@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
   schedule:
     #- cron: '55 * * *  *' # schedule-1
-    #- cron: '55 * * * *' # schedule-2
-    - cron: '55 * * * *' # schedule-3
+    - cron: '55 * * * *' # schedule-2
+    #- cron: '55 * * * *' # schedule-3
 
 jobs:
 
