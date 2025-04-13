@@ -163,6 +163,10 @@ function validateArg(arg) {
   if (arg === undefined) {
     handleError(`Invalid input: Expected a valid non-empty string command, but received undefined.${suggestion}`);
   }
+  // Check specifically for NaN string input
+  if (typeof arg === "string" && arg.trim() === "NaN") {
+    handleError(`Invalid input: Expected a valid non-empty string command, but received NaN.${suggestion}`);
+  }
   const schema = z.string({
     invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}.${suggestion}`
   }).nonempty({
@@ -1770,7 +1774,6 @@ const chatCsvExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString();
       
-      // Build CSV content using the provided delimiter
       const delimiter = argv.delimiter || ",";
       let csvContent = ["Session Title", "Export Timestamp"].map(field => `"${field}"`).join(delimiter) + "\n";
       csvContent += [`"${sessionTitle}"`, `"${exportTimestamp}"`].join(delimiter) + "\n\n";

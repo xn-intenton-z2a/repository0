@@ -221,6 +221,18 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
+  // New test for NaN string input
+  test("chat command with 'NaN' prompt displays error", async () => {
+    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat", "--prompt", "NaN"]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN.");
+    expect(output).toContain(suggestion);
+  });
+
   // Tests for chat-export command without custom template
   test("chat-export command exports conversation history to markdown file with metadata", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
@@ -702,7 +714,7 @@ describe("CLI Commands", () => {
   test("chat-csv-export command applies date range filtering", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const csvFile = path.resolve(process.cwd(), "chat_history.csv");
-    const oldDate = new Date(Date.now() - 86400000).toISOString(); // 1 day ago
+    const oldDate = new Date(Date.now() - 86400000).toISOString();
     const newDate = new Date().toISOString();
     const sampleHistory = { sessionTitle: "CSV Date Filter", messages: [
       { role: "user", content: "Old message", tags: [], timestamp: oldDate },
