@@ -192,7 +192,7 @@ describe("CLI Commands", () => {
   test("array input displays error", async () => {
     const output = await captureOutput(() => {
       try {
-        return main([["array"]]);
+        return main([ ["array"] ]);
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
@@ -714,6 +714,25 @@ describe("CLI Commands", () => {
     const csvContent = await fs.readFile(csvFile, "utf-8");
     expect(csvContent).toContain("Recent message");
     expect(csvContent).not.toContain("Old message");
+    await fs.unlink(historyFile);
+    await fs.unlink(csvFile);
+  });
+
+  test("chat-csv-export command with custom delimiter ';'", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const csvFile = path.resolve(process.cwd(), "chat_history.csv");
+    const sampleHistory = { sessionTitle: "CSV Custom Delimiter", messages: [
+      { role: "user", content: "Hello;World", tags: ["custom"], timestamp: new Date().toISOString(), feedback: "positive" },
+      { role: "assistant", content: "Hi, there!", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-csv-export", "--delimiter", ";"]));
+    expect(output).toContain("Conversation history exported to chat_history.csv");
+    const csvContent = await fs.readFile(csvFile, "utf-8");
+    // Check that the header uses semicolon as delimiter
+    expect(csvContent).toContain('"Session Title";"Export Timestamp"');
+    // Check one of the rows
+    expect(csvContent).toContain('1;');
     await fs.unlink(historyFile);
     await fs.unlink(csvFile);
   });
