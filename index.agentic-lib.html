@@ -30,6 +30,7 @@
 <p class="md-github">A new <strong class="md-github">chat-feedback</strong> command has been introduced to allow users to attach, remove, and view feedback on individual conversation entries. This functionality enables users to annotate messages (for example, with 'positive' or 'negative' feedback) to aid in conversation analysis.</p>
 <p class="md-github">Additionally, the new <strong class="md-github">chat-restore</strong> command enables users to restore a previously archived conversation history from a specified archive file.</p>
 <p class="md-github"><strong class="md-github">New Feature:</strong> The <strong class="md-github">chat-search</strong> command now supports an optional <code class="md-github">--regex</code> flag, which allows users to provide a regular expression to filter conversation history. If the flag is activated, the query is interpreted as a regex pattern (case-insensitive). In case of an invalid regex pattern, an error is returned prompting the user to provide a valid one.</p>
+<p class="md-github"><strong class="md-github">Pagination:</strong> The <strong class="md-github">chat-history</strong> command has been enhanced with pagination support. Two new optional CLI parameters, <code class="md-github">--page</code> and <code class="md-github">--page-size</code>, allow users to specify which page of messages to display and how many messages per page to show (defaulting to page 1 and 10 messages per page). This makes it easier to navigate large conversation histories.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
@@ -78,9 +79,9 @@
 <li class="md-github">Example: <code class="md-github">repository0 chat --verbose --prompt &quot;Hello, how are you?&quot; --model &quot;gpt-4&quot; --temperature 0.9 --summarization-prompt &quot;Custom summarize:&quot;</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format, including timestamps for each message.
+<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format, including timestamps for each message. With the new pagination options, you can now limit the output using <code class="md-github">--page</code> (page number) and <code class="md-github">--page-size</code> (messages per page).
 <ul class="md-github">
-<li class="md-github">Example: <code class="md-github">repository0 chat-history</code></li>
+<li class="md-github">Example: <code class="md-github">repository0 chat-history --page 2 --page-size 10</code></li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history using the OpenAI API.
@@ -216,7 +217,7 @@ Enables detailed logging for debugging.</li>
 <li class="md-github"><strong class="md-github">Dependencies:</strong>
 Refer to <code class="md-github">package.json</code> for project dependencies and scripts.</li>
 <li class="md-github"><strong class="md-github">Tests:</strong>
-Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, custom template processing, auto archival, conversation restoration, chat session title management, feedback management, and now regex support for chat-search.</li>
+Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, custom template processing, auto archival, conversation restoration, chat session title management, feedback management, pagination, and regex support for chat-search.</li>
 <li class="md-github"><strong class="md-github">Documentation:</strong>
 This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.</li>
 </ul>
@@ -236,7 +237,7 @@ This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline 
 
   </section>
   <footer>
-    <p>Generated on 2025-04-13T09:08:17.733Z</p>
+    <p>Generated on 2025-04-13T09:09:30.272Z</p>
   </footer>
 </body>
 </html>
