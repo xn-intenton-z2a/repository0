@@ -742,4 +742,49 @@ describe("CLI Commands", () => {
     expect(data.sessionTitle).toBe("");
     await fs.unlink(historyFile);
   });
+
+  // New Tests for Enhanced Chat Search Command with Regex support
+  test("chat-search command with valid regex uses regex matching", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = { sessionTitle: "Regex Test", messages: [
+      { role: "user", content: "Find me", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Do not match", tags: [], timestamp: new Date().toISOString() },
+      { role: "admin", content: "Matching message", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    // Use regex to match entries containing 'Match' (case insensitive)
+    const output = await captureOutput(() => main(["chat-search", "--query", "Match", "--regex"]));
+    expect(output).toContain("Search Results:");
+    expect(output).toContain("admin: Matching message");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-search command with invalid regex pattern displays error", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = { sessionTitle: "Invalid Regex Test", messages: [
+      { role: "user", content: "Test message", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-search", "--query", "(*", "--regex"]);
+      } catch(e){}
+    });
+    expect(output).toContain("Invalid regex pattern: (*");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-search command without regex uses substring search", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleHistory = { sessionTitle: "Substring Test", messages: [
+      { role: "user", content: "This is a test", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Another message", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-search", "--query", "test"]));
+    expect(output).toContain("Search Results:");
+    expect(output).toContain("user: This is a test");
+    await fs.unlink(historyFile);
+  });
+
 });
