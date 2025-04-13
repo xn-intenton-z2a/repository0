@@ -50,6 +50,22 @@ on:
 
 jobs:
 
+  agentic-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: agentic-lib
+        id: agentic-lib
+        shell: bash
+        run: |
+          attemptsPerBranch=$(grep '^attemptsPerBranch:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "attemptsPerBranch=${attemptsPerBranch}"
+          echo "attemptsPerBranch=${attemptsPerBranch}" >> $GITHUB_OUTPUT
+    outputs:
+      attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
+
   select-branch:
     runs-on: ubuntu-latest
     env:
@@ -72,6 +88,7 @@ jobs:
         with:
           script: |
             const { execSync } = require('child_process');
+            const attemptsPerBranch = "${{ needs.agentic-lib.outputs.attemptsPerBranch }}";
 
             let branch;
             // Determine branch using schedule or ref
@@ -137,20 +154,76 @@ jobs:
             const prefix = process.env.branchPrefix || "agentic-lib-";
             const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
             const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
-            
-            // TODO: If attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
-            
-            
-          
-            
+
             core.setOutput("issueNumber", issueNumber);
             core.info(`Issue number: ${issueNumber}`);
     outputs:
       branch: ${{ steps.determine.outputs.branch }}
       issueNumber: ${{ steps.determine.outputs.issueNumber }}
 
+  check-attempts-limit:
+    needs:
+      - agentic-lib
+      - select-branch
+    runs-on: ubuntu-latest
+    env:
+      issueNumber: ${{ needs.select-branch.outputs.issueNumber }}
+      attemptsPerBranch: ${{ needs.agentic-lib.outputs.attemptsPerBranch }}
+    steps:
+      - name: check
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = "${{ needs.select-branch.outputs.issueNumber }}";
+            const attemptsPerBranch = parseInt("${{ env.attemptsPerBranch }}");
+            const branch = "${{ needs.select-branch.outputs.branch }}";
+            
+            // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and delete the branch.       
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueLabelsStartingWithApplyFix = issue.labels.filter(label => label.name.startsWith("apply-fix-"));
+            const issueLabelsStartingWithIssueWorker = issue.labels.filter(label => label.name.startsWith("issue-worker-"));
+            const attemptsOnBranch = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length
+            if(attemptsOnBranch > attemptsPerBranch) {
+               const message = `${branch} has exceeded the limit of ${attemptsPerBranch} attempts with ${attemptsOnBranch} attempts.`;
+            
+              // Delete the branch if it isn't main
+              if (branch === "main") {
+                core.info(`Skipping branch delete but ${message}`);
+              } else {
+                core.info(`Deleting branch ${branch} because ${message}`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${branch}`
+                });
+                core.info(`Deleted branch ${branch}.`);
+              }
+            
+              // Comment the issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: message
+              });
+            
+              core.setFailure(`${message}`);
+            }
+
+            core.setOutput("attemptsOnBranch", attemptsOnBranch);
+            core.info(`attemptsOnBranch: ${attemptsOnBranch}`);
+    outputs:
+      attemptsOnBranch: ${{ steps.check.outputs.attemptsOnBranch }}
+
   npm-test:
-    needs: select-branch
+    needs:
+      - select-branch
+      - check-attempts-limit
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -174,7 +247,9 @@ jobs:
       - run: npm run test:unit
 
   npm-build:
-    needs: select-branch
+    needs:
+      - select-branch
+      - check-attempts-limit
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -198,7 +273,9 @@ jobs:
       - run: npm run build
 
   npm-run:
-    needs: select-branch
+    needs:
+      - select-branch
+      - check-attempts-limit
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -224,6 +301,7 @@ jobs:
   needs-fix:
     needs:
       - select-branch
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run

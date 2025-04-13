@@ -44,6 +44,22 @@ on:
 
 jobs:
 
+  agentic-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: agentic-lib
+        id: agentic-lib
+        shell: bash
+        run: |
+          attemptsPerIssue=$(grep '^attemptsPerIssue:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "attemptsPerIssue=${attemptsPerIssue}"
+          echo "attemptsPerIssue=${attemptsPerIssue}" >> $GITHUB_OUTPUT
+    outputs:
+      attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
+
   select-issue:
     permissions:
       issues: read
