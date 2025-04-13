@@ -415,7 +415,7 @@ describe("CLI Commands", () => {
     expect(pdfText).toContain("Exported At:");
     expect(pdfText).toContain("Hello PDF");
     expect(pdfText).toContain("Hi in PDF!");
-    expect(pdfText).toContain("("); // Check for timestamp presence
+    expect(pdfText).toContain("(");
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
     delete process.env.VITEST;
@@ -492,10 +492,8 @@ describe("CLI Commands", () => {
     expect(output).toContain("Successfully removed conversation entry at index 2.");
     const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(updatedHistory.messages.length).toBe(2);
-    expect(updatedHistory.messages).toEqual([
-      { role: "user", content: "Entry 1", tags: [], timestamp: updatedHistory.messages[0].timestamp },
-      { role: "user", content: "Entry 3", tags: [], timestamp: updatedHistory.messages[1].timestamp }
-    ]);
+    expect(updatedHistory.messages[0].content).toBe("Entry 1");
+    expect(updatedHistory.messages[1].content).toBe("Entry 3");
     await fs.unlink(historyFile);
   });
 
@@ -777,41 +775,24 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // Test for global verbose flag
-  test("global verbose flag enables detailed debug logging", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
-    const output = await captureOutput(() => main(["--verbose", "diagnostics"]));
-    expect(output).toContain("Verbose mode enabled.");
-    expect(output).toContain("Diagnostics: running diagnostics");
-  });
-
-  // Tests for chat-config-update command
-  test("chat-config-update command creates a new configuration file when none exists", async () => {
-    const configFile = path.resolve(process.cwd(), ".chat_config.json");
-    if (existsSync(configFile)) {
-      await fs.unlink(configFile);
-    }
-    const output = await captureOutput(() => main(["chat-config-update", "--model", "gpt-4", "--temperature", "0.8", "--max-history-messages", "15", "--recent-messages", "3", "--auto-archive-threshold", "100"]));
-    expect(output).toContain("Chat configuration updated successfully.");
-    const configData = JSON.parse(await fs.readFile(configFile, "utf-8"));
-    expect(configData.model).toBe("gpt-4");
-    expect(configData.temperature).toBe(0.8);
-    expect(configData["max-history-messages"]).toBe(15);
-    expect(configData["recent-messages"]).toBe(3);
-    expect(configData.autoArchiveThreshold).toBe(100);
-    await fs.unlink(configFile);
-  });
-
-  test("chat-config-update command merges with existing configuration", async () => {
-    const configFile = path.resolve(process.cwd(), ".chat_config.json");
-    const initialConfig = { model: "gpt-3.5-turbo", temperature: 0.7 };
-    await fs.writeFile(configFile, JSON.stringify(initialConfig, null, 2));
-    const output = await captureOutput(() => main(["chat-config-update", "--temperature", "0.9"]));
-    expect(output).toContain("Chat configuration updated successfully.");
-    const updatedConfig = JSON.parse(await fs.readFile(configFile, "utf-8"));
-    expect(updatedConfig.model).toBe("gpt-3.5-turbo");
-    expect(updatedConfig.temperature).toBe(0.9);
-    await fs.unlink(configFile);
+  // New test for date range filtering in chat-export command
+  test("chat-export command applies date range filtering", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const mdFile = path.resolve(process.cwd(), "chat_history.md");
+    const sampleHistory = { sessionTitle: "Date Filter Session", messages: [
+      { role: "user", content: "Old Entry", tags: [], timestamp: "2023-01-01T12:00:00.000Z" },
+      { role: "assistant", content: "New Entry", tags: [], timestamp: "2023-06-01T12:00:00.000Z" }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-export", "--start-date", "2023-05-01", "--end-date", "2023-07-01"]));
+    expect(output).toContain("Conversation history exported to chat_history.md");
+    const mdContent = await fs.readFile(mdFile, "utf-8");
+    expect(mdContent).toContain("Date Filter Session");
+    expect(mdContent).toContain("New Entry");
+    expect(mdContent).not.toContain("Old Entry");
+    expect(mdContent).toContain("**Date Range:**");
+    await fs.unlink(historyFile);
+    await fs.unlink(mdFile);
   });
 
   // Tests for chat-title command

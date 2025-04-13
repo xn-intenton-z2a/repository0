@@ -526,11 +526,22 @@ const chatExportCommand = {
   command: "chat-export",
   describe: "Export conversation history to a markdown file",
   builder: (yargs) => {
-    return yargs.option("tag", {
-      type: "string",
-      describe: "Filter conversation entries by tag",
-      demandOption: false
-    });
+    return yargs
+      .option("tag", {
+        type: "string",
+        describe: "Filter conversation entries by tag",
+        demandOption: false
+      })
+      .option("start-date", {
+        type: "string",
+        describe: "Filter entries from this start date (inclusive) in ISO format",
+        demandOption: false
+      })
+      .option("end-date", {
+        type: "string",
+        describe: "Filter entries until this end date (inclusive) in ISO format",
+        demandOption: false
+      });
   },
   handler: async (argv) => {
     try {
@@ -552,6 +563,25 @@ const chatExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
+      // Date range filtering
+      let startDate = argv["start-date"] ? new Date(argv["start-date"]) : null;
+      let endDate = argv["end-date"] ? new Date(argv["end-date"]) : null;
+      history = history.filter(entry => {
+        let entryDate = new Date(entry.timestamp);
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+        return true;
+      });
+      
+      let dateRange = "All dates";
+      if (startDate && endDate) {
+        dateRange = `${startDate.toISOString()} - ${endDate.toISOString()}`;
+      } else if (startDate) {
+        dateRange = `From ${startDate.toISOString()}`;
+      } else if (endDate) {
+        dateRange = `Until ${endDate.toISOString()}`;
+      }
+
       // Retrieve session metadata
       let sessionTitle = "No Session Title";
       try {
@@ -563,7 +593,7 @@ const chatExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
 
-      let mdContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n\n---\n\n`;
+      let mdContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n**Date Range:** ${dateRange}\n\n---\n\n`;
       history.forEach((entry, index) => {
         mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n`;
         mdContent += `**Timestamp:** ${entry.timestamp}\n\n`;
@@ -580,11 +610,22 @@ const chatHtmlExportCommand = {
   command: "chat-html-export",
   describe: "Export conversation history to an HTML file",
   builder: (yargs) => {
-    return yargs.option("tag", {
-      type: "string",
-      describe: "Filter conversation entries by tag",
-      demandOption: false
-    });
+    return yargs
+      .option("tag", {
+        type: "string",
+        describe: "Filter conversation entries by tag",
+        demandOption: false
+      })
+      .option("start-date", {
+        type: "string",
+        describe: "Filter entries from this start date (inclusive) in ISO format",
+        demandOption: false
+      })
+      .option("end-date", {
+        type: "string",
+        describe: "Filter entries until this end date (inclusive) in ISO format",
+        demandOption: false
+      });
   },
   handler: async (argv) => {
     try {
@@ -606,6 +647,25 @@ const chatHtmlExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
+      // Date range filtering
+      let startDate = argv["start-date"] ? new Date(argv["start-date"]) : null;
+      let endDate = argv["end-date"] ? new Date(argv["end-date"]) : null;
+      history = history.filter(entry => {
+        let entryDate = new Date(entry.timestamp);
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+        return true;
+      });
+      
+      let dateRange = "All dates";
+      if (startDate && endDate) {
+        dateRange = `${startDate.toISOString()} - ${endDate.toISOString()}`;
+      } else if (startDate) {
+        dateRange = `From ${startDate.toISOString()}`;
+      } else if (endDate) {
+        dateRange = `Until ${endDate.toISOString()}`;
+      }
+
       // Retrieve session metadata
       let sessionTitle = "No Session Title";
       try {
@@ -623,7 +683,7 @@ const chatHtmlExportCommand = {
       htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; } .timestamp { color: #555; font-size: 0.9em; }</style>\n";
       htmlContent += "</head>\n<body>\n";
       htmlContent += "<h1>Conversation History</h1>\n";
-      htmlContent += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p></div>\n`;
+      htmlContent += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p>\n<p>Date Range: ${dateRange}</p></div>\n`;
       history.forEach((entry, index) => {
         htmlContent += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
         htmlContent += `<p class=\"message\">${entry.content}</p>`;
@@ -645,11 +705,22 @@ const chatPdfExportCommand = {
   command: "chat-pdf-export",
   describe: "Export conversation history to a PDF file (chat_history.pdf)",
   builder: (yargs) => {
-    return yargs.option("tag", {
-      type: "string",
-      describe: "Filter conversation entries by tag",
-      demandOption: false
-    });
+    return yargs
+      .option("tag", {
+        type: "string",
+        describe: "Filter conversation entries by tag",
+        demandOption: false
+      })
+      .option("start-date", {
+        type: "string",
+        describe: "Filter entries from this start date (inclusive) in ISO format",
+        demandOption: false
+      })
+      .option("end-date", {
+        type: "string",
+        describe: "Filter entries until this end date (inclusive) in ISO format",
+        demandOption: false
+      });
   },
   handler: async (argv) => {
     try {
@@ -671,6 +742,25 @@ const chatPdfExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
+      // Date range filtering
+      let startDate = argv["start-date"] ? new Date(argv["start-date"]) : null;
+      let endDate = argv["end-date"] ? new Date(argv["end-date"]) : null;
+      history = history.filter(entry => {
+        let entryDate = new Date(entry.timestamp);
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+        return true;
+      });
+
+      let dateRange = "All dates";
+      if (startDate && endDate) {
+        dateRange = `${startDate.toISOString()} - ${endDate.toISOString()}`;
+      } else if (startDate) {
+        dateRange = `From ${startDate.toISOString()}`;
+      } else if (endDate) {
+        dateRange = `Until ${endDate.toISOString()}`;
+      }
+
       // Retrieve session metadata
       let sessionTitle = "No Session Title";
       try {
@@ -682,12 +772,12 @@ const chatPdfExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
 
-      // In test environment, export a plain text PDF for easier validation
       if (process.env.VITEST) {
         let pdfContent = "";
         pdfContent += "Conversation History\n";
         pdfContent += `Session Title: ${sessionTitle}\n`;
-        pdfContent += `Exported At: ${exportTimestamp}\n\n`;
+        pdfContent += `Exported At: ${exportTimestamp}\n`;
+        pdfContent += `Date Range: ${dateRange}\n\n`;
         history.forEach((entry, index) => {
           pdfContent += `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}\n`;
         });
@@ -717,6 +807,7 @@ const chatPdfExportCommand = {
       doc.moveDown();
       doc.fontSize(14).text(`Session Title: ${sessionTitle}`, { align: "center" });
       doc.fontSize(12).text(`Exported At: ${exportTimestamp}`, { align: "center" });
+      doc.fontSize(12).text(`Date Range: ${dateRange}`, { align: "center" });
       doc.moveDown();
 
       history.forEach((entry, index) => {
