@@ -194,6 +194,7 @@ jobs:
       - run: npm ci
       - name: check
         id: check
+        if: ${{ needs.select-branch.outputs.issueNumber != '' }}
         uses: actions/github-script@v7
         with:
           script: |
