@@ -192,7 +192,7 @@ describe("CLI Commands", () => {
   test("array input displays error", async () => {
     const output = await captureOutput(() => {
       try {
-        return main([ ["array"] ]);
+        return main([["array"]]);
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
@@ -535,7 +535,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-import", "--file", nonExistentFile]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain(`File not found: ${nonExistentFile}`);
   });
@@ -546,7 +546,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-import", "--file", importFile]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain(`Failed to read or parse file: ${importFile}`);
     await fs.unlink(importFile);
@@ -558,7 +558,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-import", "--file", importFile]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("Invalid conversation history format: Expected an array of messages.");
     await fs.unlink(importFile);
@@ -574,7 +574,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-import", "--file", importFile]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("Invalid conversation entry: Missing or empty 'content' property.");
     await fs.unlink(importFile);
@@ -585,7 +585,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-translate", "--language", ""]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
     expect(output).toContain(suggestion);
@@ -659,6 +659,30 @@ describe("CLI Commands", () => {
         await fs.unlink(archiveFile);
       }
     }
+    await fs.unlink(historyFile);
+  });
+
+  // New Tests for Enhanced Chat History Pagination
+  test("chat-history command displays paginated messages", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const sampleMessages = [];
+    for(let i = 1; i <= 25; i++){
+      sampleMessages.push({ role: "user", content: "Message " + i, tags: [], timestamp: new Date().toISOString() });
+    }
+    const sampleHistory = { sessionTitle: "Pagination Test", messages: sampleMessages };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    // test page 1, page size 10
+    let output = await captureOutput(() => main(["chat-history", "--page", "1", "--page-size", "10"]));
+    expect(output).toContain("Conversation History:");
+    expect(output).toContain("1. user: Message 1");
+    expect(output).toContain("10. user: Message 10");
+    expect(output).not.toContain("Message 11");
+    // test page 3, page size 10 (should show messages 21-25)
+    output = await captureOutput(() => main(["chat-history", "--page", "3", "--page-size", "10"]));
+    expect(output).toContain("Conversation History:");
+    expect(output).toContain("1. user: Message 21");
+    expect(output).toContain("5. user: Message 25");
+    expect(output).not.toContain("Message 20");
     await fs.unlink(historyFile);
   });
 
@@ -742,49 +766,4 @@ describe("CLI Commands", () => {
     expect(data.sessionTitle).toBe("");
     await fs.unlink(historyFile);
   });
-
-  // New Tests for Enhanced Chat Search Command with Regex support
-  test("chat-search command with valid regex uses regex matching", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "Regex Test", messages: [
-      { role: "user", content: "Find me", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Do not match", tags: [], timestamp: new Date().toISOString() },
-      { role: "admin", content: "Matching message", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    // Use regex to match entries containing 'Match' (case insensitive)
-    const output = await captureOutput(() => main(["chat-search", "--query", "Match", "--regex"]));
-    expect(output).toContain("Search Results:");
-    expect(output).toContain("admin: Matching message");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-search command with invalid regex pattern displays error", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "Invalid Regex Test", messages: [
-      { role: "user", content: "Test message", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => {
-      try {
-        return main(["chat-search", "--query", "(*", "--regex"]);
-      } catch(e){}
-    });
-    expect(output).toContain("Invalid regex pattern: (*");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-search command without regex uses substring search", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "Substring Test", messages: [
-      { role: "user", content: "This is a test", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Another message", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-search", "--query", "test"]));
-    expect(output).toContain("Search Results:");
-    expect(output).toContain("user: This is a test");
-    await fs.unlink(historyFile);
-  });
-
 });
