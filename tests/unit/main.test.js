@@ -851,7 +851,7 @@ describe("CLI Commands", () => {
       { role: "assistant", content: "All good", tags: [], timestamp }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-search", "--query", "failed OR error"]));
+    const output = await captureOutput(() => main(["chat-search", "--query", "failed OR error", "--regex"]));
     expect(output).toContain("1. user: Failed to load resource");
     expect(output).toContain("2. assistant: An error occurred");
     expect(output).not.toContain("All good");

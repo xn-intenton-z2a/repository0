@@ -1,0 +1,23 @@
+{
+  "sessionTitle": "Test Session",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Failed to load resource",
+      "tags": [],
+      "timestamp": "2025-04-13T14:10:09.812Z"
+    },
+    {
+      "role": "assistant",
+      "content": "An error occurred",
+      "tags": [],
+      "timestamp": "2025-04-13T14:10:09.812Z"
+    },
+    {
+      "role": "assistant",
+      "content": "All good",
+      "tags": [],
+      "timestamp": "2025-04-13T14:10:09.812Z"
+    }
+  ]
+}
