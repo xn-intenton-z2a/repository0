@@ -1692,6 +1692,89 @@ const chatFeedbackCommand = {
 
 const chatTitleCommandFinal = chatTitleCommand; // Already defined above
 
+// New command: chat-csv-export
+const chatCsvExportCommand = {
+  command: "chat-csv-export",
+  describe: "Export conversation history to a CSV file (chat_history.csv)",
+  builder: (yargs) => {
+    return yargs
+      .option("tag", {
+        type: "string",
+        describe: "Filter conversation entries by a specific tag",
+        demandOption: false
+      })
+      .option("start-date", {
+        type: "string",
+        describe: "Filter entries from this start date (inclusive) in ISO format",
+        demandOption: false
+      })
+      .option("end-date", {
+        type: "string",
+        describe: "Filter entries until this end date (inclusive) in ISO format",
+        demandOption: false
+      });
+  },
+  handler: async (argv) => {
+    try {
+      if (!existsSync(HISTORY_FILE)) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      const data = await fs.readFile(HISTORY_FILE, "utf-8");
+      const historyObj = JSON.parse(data);
+      let history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+      if (argv.tag) {
+        history = history.filter(entry => entry.tags && entry.tags.includes(argv.tag));
+        if (history.length === 0) {
+          console.log(`No conversation entries found with tag "${argv.tag}" to export.`);
+          return;
+        }
+      }
+      if (!history || history.length === 0) {
+        console.log("No conversation history available to export.");
+        return;
+      }
+      let startDate = argv["start-date"] ? new Date(argv["start-date"]) : null;
+      let endDate = argv["end-date"] ? new Date(argv["end-date"]) : null;
+      history = history.filter(entry => {
+        let entryDate = new Date(entry.timestamp);
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+        return true;
+      });
+
+      let sessionTitle = "No Session Title";
+      try {
+        const histData = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(histData);
+        if (!Array.isArray(parsed) && parsed.sessionTitle) {
+          sessionTitle = parsed.sessionTitle.trim() !== "" ? parsed.sessionTitle : "No Session Title";
+        }
+      } catch(e){}
+      const exportTimestamp = new Date().toISOString();
+      
+      // Build CSV content
+      let csvContent = "Session Title,Export Timestamp\n";
+      csvContent += `"${sessionTitle}","${exportTimestamp}"\n\n`;
+      csvContent += "Index,Role,Content,Timestamp,Feedback,Tags\n";
+      history.forEach((entry, index) => {
+        let feedback = entry.feedback !== undefined ? entry.feedback : "";
+        let tags = Array.isArray(entry.tags) ? entry.tags.join(";") : "";
+        let role = `"${entry.role.replace(/"/g, '""')}"`;
+        let content = `"${entry.content.replace(/"/g, '""')}"`;
+        let timestamp = `"${entry.timestamp}"`;
+        let feedbackCSV = `"${String(feedback).replace(/"/g, '""')}"`;
+        let tagsCSV = `"${tags.replace(/"/g, '""')}"`;
+        csvContent += `${index + 1},${role},${content},${timestamp},${feedbackCSV},${tagsCSV}\n`;
+      });
+      await fs.writeFile("chat_history.csv", csvContent);
+      console.log("Conversation history exported to chat_history.csv");
+    } catch (error) {
+      handleError("Failed to export conversation history to CSV", error);
+    }
+  }
+};
+
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -1739,6 +1822,7 @@ export function main(args = []) {
     .command(chatTagCommand)
     .command(chatFeedbackCommand)
     .command(chatTitleCommandFinal)
+    .command(chatCsvExportCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
