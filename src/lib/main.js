@@ -549,7 +549,18 @@ const chatExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
-      let mdContent = "# Conversation History\n\n";
+      // Retrieve session metadata
+      let sessionTitle = "No Session Title";
+      try {
+        const histData = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(histData);
+        if (!Array.isArray(parsed) && parsed.sessionTitle) {
+          sessionTitle = parsed.sessionTitle.trim() !== "" ? parsed.sessionTitle : "No Session Title";
+        }
+      } catch(e){}
+      const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
+
+      let mdContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n\n---\n\n`;
       history.forEach((entry, index) => {
         mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n\n`;
       });
@@ -591,12 +602,24 @@ const chatHtmlExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
+      // Retrieve session metadata
+      let sessionTitle = "No Session Title";
+      try {
+        const histData = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(histData);
+        if (!Array.isArray(parsed) && parsed.sessionTitle) {
+          sessionTitle = parsed.sessionTitle.trim() !== "" ? parsed.sessionTitle : "No Session Title";
+        }
+      } catch(e){}
+      const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
+
       let htmlContent = "<!DOCTYPE html>\n<html>\n<head>\n";
       htmlContent += "<meta charset=\"UTF-8\">\n";
       htmlContent += "<title>Conversation History</title>\n";
-      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; }</style>\n";
+      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; }</style>\n";
       htmlContent += "</head>\n<body>\n";
       htmlContent += "<h1>Conversation History</h1>\n";
+      htmlContent += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p></div>\n`;
       history.forEach((entry, index) => {
         htmlContent += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
         htmlContent += `<p class=\"message\">${entry.content}</p></div>\n`;
@@ -643,6 +666,16 @@ const chatPdfExportCommand = {
         console.log("No conversation history available to export.");
         return;
       }
+      // Retrieve session metadata
+      let sessionTitle = "No Session Title";
+      try {
+        const histData = await fs.readFile(HISTORY_FILE, "utf-8");
+        const parsed = JSON.parse(histData);
+        if (!Array.isArray(parsed) && parsed.sessionTitle) {
+          sessionTitle = parsed.sessionTitle.trim() !== "" ? parsed.sessionTitle : "No Session Title";
+        }
+      } catch(e){}
+      const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
 
       const doc = new PDFDocument({ compress: false });
       doc.info.Title = "Conversation History";
@@ -656,8 +689,13 @@ const chatPdfExportCommand = {
         doc.on('error', reject);
       });
 
-      doc.fontSize(16).text("Conversation History", { align: "center" });
+      // Add header with session metadata
+      doc.fontSize(18).text("Conversation History", { align: "center" });
       doc.moveDown();
+      doc.fontSize(14).text(`Session Title: ${sessionTitle}`, { align: "center" });
+      doc.fontSize(12).text(`Exported At: ${exportTimestamp}`, { align: "center" });
+      doc.moveDown();
+
       history.forEach((entry, index) => {
         doc.fontSize(12).text(`${index + 1}. ${entry.role}: ${entry.content}`);
         doc.moveDown(0.5);
