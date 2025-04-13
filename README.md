@@ -12,7 +12,7 @@ A new **chat-feedback** command has been introduced to allow users to attach, re
 
 Additionally, the new **chat-restore** command enables users to restore a previously archived conversation history from a specified archive file.
 
-**New Feature in chat-search:** The **chat-search** command now supports logical operators (AND, OR) for multi-keyword filtering. For example, a query like "error AND timeout" returns only messages that contain both words, while "failed OR error" returns messages that contain either keyword.
+**New Feature in chat-search:** The **chat-search** command now supports logical operators (AND, OR) for multi-keyword filtering. For example, a query like "error AND timeout" returns only messages that contain both words, while "failed OR error" returns messages that contain either keyword. In cases where the query includes logical operators, the regular expression flag is ignored to properly process the logical criteria.
 
 **Pagination:** The **chat-history** command has been enhanced with pagination support. Two new optional CLI parameters, `--page` and `--page-size`, allow users to specify which page of messages to display and how many messages per page to show (defaulting to page 1 and 10 messages per page). This makes it easier to navigate large conversation histories.
 
