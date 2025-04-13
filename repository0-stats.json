@@ -2,21 +2,21 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Create Maintenance Issue",
+  "lastActivityName": "Issue Worker",
   "lastActivityBranchName": "main",
   "nextIssue": "[1559] Enhance chat-search: Support Logical Operators for Multi-Keyword Filtering automated, feature, issue-worker-14428735453, issue-worker-14428762782",
   "openIssues": 11,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 87,
   "openPRs": 1,
-  "averagePRAge": 0,
+  "averagePRAge": 1,
   "prDetails": [
-    "[0m] Enhanced chat-search command to support logical operators ANDOR for multi-keyword filtering. (fixes #1559)"
+    "[1m] Enhanced chat-search command to support logical operators ANDOR for multi-keyword filtering. (fixes #1559)"
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 7,
+  "diffMinutesMain": 8,
   "commitsLastHour": 3,
-  "commitsLastDay": 80,
+  "commitsLastDay": 79,
   "lastFiveCommitMessages": [
     "[10:54] - Update from agentic-lib",
     "[10:50] - Update from agentic-lib",
@@ -27,14 +27,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[0m] agentic-lib-issue-1559"
+      "[2m] agentic-lib-issue-1559"
     ],
     "branchIssueDetails": [
       "[1559] Enhance chat-search: Support Logical Operators for Multi-Keyword Filtering automated, feature, issue-worker-14428735453, issue-worker-14428762782"
     ],
-    "averageBranchAge": 0
+    "averageBranchAge": 2
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T11:01:30.337Z"
+  "statsGeneratedAt": "2025-04-13T11:02:47.334Z"
 }
