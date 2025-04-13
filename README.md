@@ -6,7 +6,7 @@ The CLI now includes a chat command integration with OpenAI's API featuring pers
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
-**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata. The exported files now contain the session title (if set) and the export timestamp, providing better traceability and context for archived conversations. In the test environment, the chat-pdf-export command outputs plain text content to ensure that metadata like "Exported At:" is clearly visible for validations.
+**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata. The exported files now contain the session title (if set) and the export timestamp, providing better traceability and context for archived conversations.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
