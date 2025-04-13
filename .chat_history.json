@@ -1,0 +1,29 @@
+{
+  "sessionTitle": "",
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello, how are you?",
+      "tags": [],
+      "timestamp": "2025-04-13T17:34:46.376Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Response from OpenAI",
+      "tags": [],
+      "timestamp": "2025-04-13T17:34:46.377Z"
+    },
+    {
+      "role": "user",
+      "content": "Hello interactive",
+      "tags": [],
+      "timestamp": "2025-04-13T17:34:46.388Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Response from OpenAI",
+      "tags": [],
+      "timestamp": "2025-04-13T17:34:46.389Z"
+    }
+  ]
+}
