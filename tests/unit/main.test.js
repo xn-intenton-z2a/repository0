@@ -1,7 +1,7 @@
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { main } from "@src/lib/main.js";
 import { promises as fs } from "fs";
-import { existsSync } from "fs";
+import { existsSync, unlinkSync } from "fs";
 import path from "path";
 import readline from "readline";
 
@@ -234,9 +234,7 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
-  // Existing export command tests omitted for brevity...
-
-  // New Tests for chat-interactive command
+  // New tests for chat-interactive command
   test("chat-interactive command terminates on exit", async () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
 
@@ -260,5 +258,45 @@ describe("CLI Commands", () => {
     readline.createInterface.mockRestore();
   });
 
-  // Additional tests for other chat commands remain...
+  // New tests for chat-config-update command
+  describe("chat-config-update command", () => {
+    const configFile = ".chat_config.json";
+    beforeEach(async () => {
+      if (existsSync(configFile)) {
+        await fs.unlink(configFile);
+      }
+    });
+    afterEach(async () => {
+      if (existsSync(configFile)) {
+        await fs.unlink(configFile);
+      }
+    });
+
+    test("chat-config-update command with valid options", async () => {
+      const output = await captureOutput(() => main([
+        "chat-config-update",
+        "--model", "gpt-4",
+        "--temperature", "0.8",
+        "--max-history-messages", "20",
+        "--recent-messages", "3",
+        "--auto-archive-threshold", "100"
+      ]));
+      expect(output).toContain("Chat configuration updated successfully.");
+      const configData = JSON.parse(await fs.readFile(configFile, "utf-8"));
+      expect(configData.model).toEqual("gpt-4");
+      expect(configData.temperature).toEqual(0.8);
+      expect(configData["max-history-messages"]).toEqual(20);
+      expect(configData["recent-messages"]).toEqual(3);
+      expect(configData.autoArchiveThreshold).toEqual(100);
+    });
+
+    test("chat-config-update command with invalid temperature", async () => {
+      const output = await captureOutput(() => {
+        try {
+          return main(["chat-config-update", "--temperature", "-0.5"]);
+        } catch (err) {}
+      });
+      expect(output).toContain("Temperature must be at least 0");
+    });
+  });
 });

@@ -6,15 +6,9 @@ The CLI now includes a chat command integration with OpenAI's API featuring pers
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
-**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export, and chat-csv-export) have been enhanced to include session metadata, individual message timestamps, and support filtering by a specified date range using the `--start-date` and `--end-date` options. In addition, they support a new `--template` option to allow users to provide a custom EJS template for export. Notably, the **chat-csv-export** command now includes a new `--delimiter` option that allows users to specify a custom CSV delimiter (default is a comma).
+**Enhancement:** A new CLI subcommand, **chat-config-update**, has been implemented to allow users to update and persist default chat configuration settings such as the OpenAI model, temperature, maximum history messages, recent messages, and auto-archive threshold. This ensures that subsequent commands (e.g., chat and chat-interactive) will immediately use the updated configuration settings.
 
-A new **chat-feedback** command has been introduced to allow users to attach, remove, and view feedback on individual conversation entries. This functionality enables users to annotate messages (e.g., with 'positive' or 'negative' feedback) to aid in conversation analysis.
-
-Additionally, the new **chat-restore** command enables users to restore a previously archived conversation history from a specified archive file.
-
-**New Feature: Interactive Chat Mode**
-
-A new subcommand, **chat-interactive**, has been implemented. This command provides a REPL-like interactive chat session with OpenAI's API. Upon starting, it displays an instruction banner and continuously accepts user input until the user types "exit". Each input is processed using the same logic as the non-interactive chat command, including validation, auto-summarization, auto-archival, and conversation history updates. When "exit" is entered, the session terminates gracefully with a summary message.
+A new **chat-interactive** command has been implemented to provide a REPL-like interactive chat session with OpenAI's API. It continuously accepts user input, processes each prompt using the existing chat logic (including validation, auto-summarization, and archival), and terminates gracefully when the user types "exit".
 
 ## Overview
 
@@ -43,6 +37,8 @@ Key subcommands include:
   - Example: `repository0 chat-interactive`
 - **chat-history:** Displays the persistent conversation history with timestamps and supports pagination via `--page` and `--page-size`.
   - Example: `repository0 chat-history --page 2 --page-size 10`
+- **chat-config-update:** Updates and persists default chat configuration settings. Options include: `--model`, `--temperature`, `--max-history-messages`, `--recent-messages`, and `--auto-archive-threshold`.
+  - Example: `repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100`
 - **chat-summarize:** Generates a concise summary of the conversation history using the OpenAI API.
   - Example: `repository0 chat-summarize`
 - **chat-search:** Searches the conversation history for entries matching a keyword or regex. Supports logical operators AND/OR.
@@ -70,11 +66,8 @@ Key subcommands include:
   - Example: `repository0 chat-restore --file chat_history-20230101120000.json`
 - **chat-translate:** Translates the conversation history into a specified target language.
   - Example: `repository0 chat-translate --language Spanish`
-- **chat-config-update:** Updates and persists default chat configuration settings.
-  - Example: `repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100`
-- **chat-tag:** Manage tags on conversation entries with subcommands: add, remove, list, and filter.
-- **chat-feedback:** Manage feedback on conversation entries with subcommands: add, remove, and list.
-- **chat-title:** Manage the chat session title with subcommands: set, get, and clear.
+- **chat-feedback:** Manage feedback on conversation entries (add, remove, list).
+- **chat-title:** Manage the chat session title (set, get, clear).
 
 ## Global Verbose Mode
 
