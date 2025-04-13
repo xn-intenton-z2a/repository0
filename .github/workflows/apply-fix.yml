@@ -211,8 +211,8 @@ jobs:
             const issueLabelsStartingWithApplyFix = issue.labels.filter(label => label.name.startsWith("apply-fix-"));
             const issueLabelsStartingWithIssueWorker = issue.labels.filter(label => label.name.startsWith("issue-worker-"));
             const attemptsOnBranch = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length
-            if(attemptsOnBranch > attemptsPerBranch) {
-               const message = `${branch} has exceeded the limit of ${attemptsPerBranch} attempts with ${attemptsOnBranch} attempts.`;
+            if(attemptsOnBranch >= attemptsPerBranch) {
+               const message = `${branch} has Reached the limit of ${attemptsPerBranch} attempts with ${attemptsOnBranch} attempts.`;
             
               // Delete the branch if it isn't main
               if (branch === "main") {

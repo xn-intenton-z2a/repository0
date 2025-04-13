@@ -128,8 +128,8 @@ jobs:
             const issueLabelsStartingWithApplyFix = issue.labels.filter(label => label.name.startsWith("apply-fix-"));
             const issueLabelsStartingWithIssueWorker = issue.labels.filter(label => label.name.startsWith("issue-worker-"));
             const attemptsOnIssue = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length
-            if(attemptsOnIssue > attemptsPerIssue) {
-               const message = `Exceeded the limit of ${attemptsPerIssue} attempts with ${attemptsOnIssue} attempts.`;
+            if(attemptsOnIssue >= attemptsPerIssue) {
+               const message = `Reached the limit of ${attemptsPerIssue} attempts with ${attemptsOnIssue} attempts.`;
   
               // Comment the issue
               await github.rest.issues.createComment({
