@@ -2,7 +2,7 @@
 
 This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. 
 
-The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search (with regex support and enhanced multi-keyword filtering using logical operators AND/OR), export (in markdown, HTML, PDF, and CSV – with optional tag filtering, date range filtering, and customizable export templates), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, manage chat feedback, and manage a chat session title.
+The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, with additional safeguards against invalid inputs such as NaN. It also includes commands to view, summarize, search (with regex support and enhanced multi-keyword filtering using logical operators AND/OR), export (in markdown, HTML, PDF, and CSV – with optional tag filtering, date range filtering, and customizable export templates), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, manage chat feedback, and manage a chat session title.
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
@@ -15,6 +15,8 @@ Additionally, the new **chat-restore** command enables users to restore a previo
 **New Feature in chat-search:** The **chat-search** command now supports logical operators (AND, OR) for multi-keyword filtering. For example, a query like "error AND timeout" returns only messages that contain both words, while "failed OR error" returns messages that contain either keyword.
 
 **Pagination:** The **chat-history** command has been enhanced with pagination support. Two new optional CLI parameters, `--page` and `--page-size`, allow users to specify which page of messages to display and how many messages per page to show (defaulting to page 1 and 10 messages per page). This makes it easier to navigate large conversation histories.
+
+Additionally, to avoid unintended issue creation, inputs that are not valid (e.g., NaN strings) are explicitly rejected by the CLI.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -100,7 +102,7 @@ The **chat-csv-export** command has been enhanced to allow users to specify a cu
 
 ## CLI Input Validation and Error Handling
 
-All inputs are validated using Zod. Invalid inputs result in standardized error messages to guide proper usage.
+All inputs are validated using Zod. Invalid inputs, including inputs such as "NaN", result in standardized error messages to guide proper usage.
 
 ## What’s Inside
 
