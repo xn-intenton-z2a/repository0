@@ -538,7 +538,8 @@ const chatSearchCommand = {
       return;
     }
     let results = [];
-    if (argv.regex) {
+    // If regex flag is provided and query does not contain logical operators, treat as regex directly
+    if (argv.regex && !(/\s+(AND|OR)\s+/i.test(query))) {
       let regex;
       try {
         regex = new RegExp(query, 'i');
