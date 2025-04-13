@@ -2,7 +2,7 @@
 
 This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. 
 
-The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search (with regex support), export (in markdown, HTML, PDF, and CSV – with optional tag filtering, date range filtering, and customizable export templates), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, manage chat feedback, and manage a chat session title.
+The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search (with regex support and enhanced multi-keyword filtering using logical operators AND/OR), export (in markdown, HTML, PDF, and CSV – with optional tag filtering, date range filtering, and customizable export templates), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, manage chat feedback, and manage a chat session title.
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
@@ -12,7 +12,7 @@ A new **chat-feedback** command has been introduced to allow users to attach, re
 
 Additionally, the new **chat-restore** command enables users to restore a previously archived conversation history from a specified archive file.
 
-**New Feature:** The **chat-search** command now supports an optional `--regex` flag, which allows users to provide a regular expression to filter conversation history. If the flag is activated, the query is interpreted as a regex pattern (case-insensitive). In case of an invalid regex pattern, an error is returned prompting the user to provide a valid one.
+**New Feature in chat-search:** The **chat-search** command now supports logical operators (AND, OR) for multi-keyword filtering. For example, a query like "error AND timeout" returns only messages that contain both words, while "failed OR error" returns messages that contain either keyword.
 
 **Pagination:** The **chat-history** command has been enhanced with pagination support. Two new optional CLI parameters, `--page` and `--page-size`, allow users to specify which page of messages to display and how many messages per page to show (defaulting to page 1 and 10 messages per page). This makes it easier to navigate large conversation histories.
 
@@ -45,8 +45,9 @@ Key subcommands include:
   - Example: `repository0 chat-history --page 2 --page-size 10`
 - **chat-summarize:** Generates a concise summary of the conversation history using the OpenAI API.
   - Example: `repository0 chat-summarize`
-- **chat-search:** Searches the conversation history for entries matching a keyword or regex. Use `--regex` to treat the query as a regular expression.
-  - Example: `repository0 chat-search --query "^User" --regex`
+- **chat-search:** Searches the conversation history for entries matching a keyword or regex. Use `--regex` to treat the query as a regular expression. Now also supports logical operators AND/OR for combining multiple keywords.
+  - Example: `repository0 chat-search --query "error AND timeout"`
+  - Example: `repository0 chat-search --query "failed OR error" --regex`
 - **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`), with optional filtering by tag and date range, and supports custom templates via `--template`.
   - Example: `repository0 chat-export --tag important --start-date 2023-05-01 --end-date 2023-06-01 --template ./custom_template.md`
 - **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`), with similar filtering and templating options.
@@ -104,10 +105,10 @@ All inputs are validated using Zod. Invalid inputs result in standardized error 
 ## What’s Inside
 
 - **GitHub Workflows:** Automated workflows from intentïon `agentic‑lib` manage CI/CD tasks.
-- **Source Code:** The CLI functionality, including the new CSV export command, is implemented in `src/lib/main.js`.
+- **Source Code:** The CLI functionality, including the new CSV export command and enhanced chat-search command, is implemented in `src/lib/main.js`.
 - **Global Verbose Mode:** Provides detailed logging when enabled.
 - **Dependencies:** See `package.json` for project dependencies and scripts.
-- **Tests:** Extensive unit tests cover all CLI commands and new export functionality.
+- **Tests:** Extensive unit tests cover all CLI commands and the new multi-keyword filtering and CSV export functionalities.
 - **Documentation:** This README, along with linked documents (MISSION.md, CONTRIBUTING.md, LICENSE), provide project details and usage instructions.
 
 ## Getting Started

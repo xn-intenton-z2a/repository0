@@ -729,9 +729,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => main(["chat-csv-export", "--delimiter", ";"]));
     expect(output).toContain("Conversation history exported to chat_history.csv");
     const csvContent = await fs.readFile(csvFile, "utf-8");
-    // Check that the header uses semicolon as delimiter
     expect(csvContent).toContain('"Session Title";"Export Timestamp"');
-    // Check one of the rows
     expect(csvContent).toContain('1;');
     await fs.unlink(historyFile);
     await fs.unlink(csvFile);
@@ -815,6 +813,36 @@ describe("CLI Commands", () => {
     expect(output).toContain("Session title cleared.");
     const data = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(data.sessionTitle).toBe("");
+    await fs.unlink(historyFile);
+  });
+
+  // New Tests for chat-search with logical operators
+  test("chat-search command with AND logical operator returns matching entries", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const timestamp = new Date().toISOString();
+    const sampleHistory = { sessionTitle: "Test Session", messages: [
+      { role: "user", content: "Error occurred due to timeout issue", tags: [], timestamp },
+      { role: "assistant", content: "Everything is fine", tags: [], timestamp }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-search", "--query", "error AND timeout"]));
+    expect(output).toContain("1. user: Error occurred due to timeout issue");
+    await fs.unlink(historyFile);
+  });
+
+  test("chat-search command with OR logical operator returns matching entries", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const timestamp = new Date().toISOString();
+    const sampleHistory = { sessionTitle: "Test Session", messages: [
+      { role: "user", content: "Failed to load resource", tags: [], timestamp },
+      { role: "assistant", content: "An error occurred", tags: [], timestamp },
+      { role: "assistant", content: "All good", tags: [], timestamp }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-search", "--query", "failed OR error"]));
+    expect(output).toContain("1. user: Failed to load resource");
+    expect(output).toContain("2. assistant: An error occurred");
+    expect(output).not.toContain("All good");
     await fs.unlink(historyFile);
   });
 });

@@ -499,13 +499,13 @@ const chatSummarizeCommand = {
 
 const chatSearchCommand = {
   command: "chat-search",
-  describe: "Search conversation history for a query keyword (supports regex with --regex flag)",
+  describe: "Search conversation history for a query keyword (supports regex with --regex flag and logical operators AND/OR for multi-keyword filtering)",
   builder: (yargs) => {
     return yargs
       .option("query", {
         alias: "q",
         type: "string",
-        describe: "The query keyword to search in conversation history",
+        describe: "The query keyword to search in conversation history. Use logical operators AND/OR to combine multiple keywords.",
         demandOption: true
       })
       .option("regex", {
@@ -533,7 +533,7 @@ const chatSearchCommand = {
       console.log("No conversation history available.");
       return;
     }
-    let results;
+    let results = [];
     if (argv.regex) {
       let regex;
       try {
@@ -546,11 +546,26 @@ const chatSearchCommand = {
         (entry.content && regex.test(entry.content))
       );
     } else {
-      const lowerQuery = query.toLowerCase();
-      results = history.filter(entry =>
-        (entry.role && String(entry.role).toLowerCase().includes(lowerQuery)) ||
-        (entry.content && String(entry.content).toLowerCase().includes(lowerQuery))
-      );
+      // Enhanced query processing for logical operators AND/OR
+      if (/\s+AND\s+/i.test(query)) {
+        const terms = query.split(/\s+AND\s+/i).map(term => term.trim().toLowerCase());
+        results = history.filter(entry => {
+          const text = ((entry.role || '') + " " + (entry.content || '')).toLowerCase();
+          return terms.every(term => text.includes(term));
+        });
+      } else if (/\s+OR\s+/i.test(query)) {
+        const terms = query.split(/\s+OR\s+/i).map(term => term.trim().toLowerCase());
+        results = history.filter(entry => {
+          const text = ((entry.role || '') + " " + (entry.content || '')).toLowerCase();
+          return terms.some(term => text.includes(term));
+        });
+      } else {
+        const lowerQuery = query.toLowerCase();
+        results = history.filter(entry =>
+          (entry.role && String(entry.role).toLowerCase().includes(lowerQuery)) ||
+          (entry.content && String(entry.content).toLowerCase().includes(lowerQuery))
+        );
+      }
     }
     if (results.length === 0) {
       console.log(`No results found for query: "${query}"`);
@@ -1765,8 +1780,8 @@ const chatCsvExportCommand = {
         let tags = Array.isArray(entry.tags) ? entry.tags.join(";") : "";
         const row = [
           (index + 1).toString(),
-          `"${entry.role.replace(/"/g, '""')}"`,
-          `"${entry.content.replace(/"/g, '""')}"`,
+          `"${(entry.role || '').replace(/"/g, '""')}"`,
+          `"${(entry.content || '').replace(/"/g, '""')}"`,
           `"${entry.timestamp}"`,
           `"${String(feedback).replace(/"/g, '""')}"`,
           `"${tags.replace(/"/g, '""')}"`
