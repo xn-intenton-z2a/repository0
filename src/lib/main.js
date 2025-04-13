@@ -1519,57 +1519,6 @@ const chatTagCommand = {
   handler: () => {}
 };
 
-const chatTitleCommand = {
-  command: "chat-title <action>",
-  describe: "Manage the session title for the current chat session",
-  builder: (yargs) => {
-    return yargs
-      .command({
-        command: "set",
-        describe: "Set the session title",
-        builder: (yargs) => yargs.option("title", {
-          alias: "t",
-          type: "string",
-          describe: "The title to set for the current session",
-          demandOption: true
-        }),
-        handler: async (argv) => {
-          const title = argv.title;
-          validateArg(title);
-          await loadHistory();
-          conversationData.sessionTitle = title;
-          await saveHistory();
-          console.log(`Session title set to: ${title}`);
-        }
-      })
-      .command({
-        command: "get",
-        describe: "Get the current session title",
-        handler: async () => {
-          await loadHistory();
-          if (conversationData.sessionTitle && conversationData.sessionTitle.trim() !== "") {
-            console.log(`Current session title: ${conversationData.sessionTitle}`);
-          } else {
-            console.log("No session title set.");
-          }
-        }
-      })
-      .command({
-        command: "clear",
-        describe: "Clear the current session title",
-        handler: async () => {
-          await loadHistory();
-          conversationData.sessionTitle = "";
-          await saveHistory();
-          console.log("Session title cleared.");
-        }
-      })
-      .demandCommand(1, "You need to specify a chat-title subcommand (set, get, clear)");
-  },
-  handler: () => {}
-};
-
-// New chat-feedback command
 const chatFeedbackCommand = {
   command: "chat-feedback <action>",
   describe: "Manage feedback for conversation entries",
@@ -1690,7 +1639,55 @@ const chatFeedbackCommand = {
   handler: () => {}
 };
 
-const chatTitleCommandFinal = chatTitleCommand; // Already defined above
+const chatTitleCommand = {
+  command: "chat-title <action>",
+  describe: "Manage the session title for the current chat session",
+  builder: (yargs) => {
+    return yargs
+      .command({
+        command: "set",
+        describe: "Set the session title",
+        builder: (yargs) => yargs.option("title", {
+          alias: "t",
+          type: "string",
+          describe: "The title to set for the current session",
+          demandOption: true
+        }),
+        handler: async (argv) => {
+          const title = argv.title;
+          validateArg(title);
+          await loadHistory();
+          conversationData.sessionTitle = title;
+          await saveHistory();
+          console.log(`Session title set to: ${title}`);
+        }
+      })
+      .command({
+        command: "get",
+        describe: "Get the current session title",
+        handler: async () => {
+          await loadHistory();
+          if (conversationData.sessionTitle && conversationData.sessionTitle.trim() !== "") {
+            console.log(`Current session title: ${conversationData.sessionTitle}`);
+          } else {
+            console.log("No session title set.");
+          }
+        }
+      })
+      .command({
+        command: "clear",
+        describe: "Clear the current session title",
+        handler: async () => {
+          await loadHistory();
+          conversationData.sessionTitle = "";
+          await saveHistory();
+          console.log("Session title cleared.");
+        }
+      })
+      .demandCommand(1, "You need to specify a chat-title subcommand (set, get, clear)");
+  },
+  handler: () => {}
+};
 
 // New command: chat-csv-export
 const chatCsvExportCommand = {
@@ -1712,6 +1709,11 @@ const chatCsvExportCommand = {
         type: "string",
         describe: "Filter entries until this end date (inclusive) in ISO format",
         demandOption: false
+      })
+      .option("delimiter", {
+        type: "string",
+        describe: "CSV delimiter to be used (default is a comma)",
+        default: ","
       });
   },
   handler: async (argv) => {
@@ -1753,19 +1755,23 @@ const chatCsvExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString();
       
-      // Build CSV content
-      let csvContent = "Session Title,Export Timestamp\n";
-      csvContent += `"${sessionTitle}","${exportTimestamp}"\n\n`;
-      csvContent += "Index,Role,Content,Timestamp,Feedback,Tags\n";
+      // Build CSV content using the provided delimiter
+      const delimiter = argv.delimiter || ",";
+      let csvContent = ["Session Title", "Export Timestamp"].map(field => `"${field}"`).join(delimiter) + "\n";
+      csvContent += [`"${sessionTitle}"`, `"${exportTimestamp}"`].join(delimiter) + "\n\n";
+      csvContent += ["Index", "Role", "Content", "Timestamp", "Feedback", "Tags"].map(field => `"${field}"`).join(delimiter) + "\n";
       history.forEach((entry, index) => {
         let feedback = entry.feedback !== undefined ? entry.feedback : "";
         let tags = Array.isArray(entry.tags) ? entry.tags.join(";") : "";
-        let role = `"${entry.role.replace(/"/g, '""')}"`;
-        let content = `"${entry.content.replace(/"/g, '""')}"`;
-        let timestamp = `"${entry.timestamp}"`;
-        let feedbackCSV = `"${String(feedback).replace(/"/g, '""')}"`;
-        let tagsCSV = `"${tags.replace(/"/g, '""')}"`;
-        csvContent += `${index + 1},${role},${content},${timestamp},${feedbackCSV},${tagsCSV}\n`;
+        const row = [
+          (index + 1).toString(),
+          `"${entry.role.replace(/"/g, '""')}"`,
+          `"${entry.content.replace(/"/g, '""')}"`,
+          `"${entry.timestamp}"`,
+          `"${String(feedback).replace(/"/g, '""')}"`,
+          `"${tags.replace(/"/g, '""')}"`
+        ];
+        csvContent += row.join(delimiter) + "\n";
       });
       await fs.writeFile("chat_history.csv", csvContent);
       console.log("Conversation history exported to chat_history.csv");
@@ -1821,7 +1827,7 @@ export function main(args = []) {
     .command(chatConfigUpdateCommand)
     .command(chatTagCommand)
     .command(chatFeedbackCommand)
-    .command(chatTitleCommandFinal)
+    .command(chatTitleCommand)
     .command(chatCsvExportCommand)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
