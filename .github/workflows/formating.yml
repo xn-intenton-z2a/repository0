@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ∞ Formatting
-concurrency: agentic-lib-commit
+concurrency: agentic-lib-commit-main
 run-name: "Formatting [${{ github.ref_name }}]"
 
 on:

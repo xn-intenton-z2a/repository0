@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Apply Fix on Fail
-concurrency: agentic-lib-commit
+concurrency: agentic-lib-commit-branch
 run-name: "Apply Fix on Fail [${{ github.ref_name }}]"
 
 on:
