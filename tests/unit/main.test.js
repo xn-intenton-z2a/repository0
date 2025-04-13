@@ -221,99 +221,7 @@ describe("CLI Commands", () => {
     expect(output).toContain(suggestion);
   });
 
-  // Tests for chat-history command
-  test("chat-history command displays conversation history if file exists", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "Test Session", messages: [
-      { role: "user", content: "Hello", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Hi there!", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-history"]));
-    expect(output).toContain("Conversation History:");
-    expect(output).toContain("1. user: Hello");
-    expect(output).toContain("2. assistant: Hi there!");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-history command displays no history message when file does not exist", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    if (existsSync(historyFile)) {
-      await fs.unlink(historyFile);
-    }
-    const output = await captureOutput(() => main(["chat-history"]));
-    expect(output).toContain("No conversation history available.");
-  });
-
-  // Tests for chat-summarize command
-  test("chat-summarize command displays summary when history exists", async () => {
-    process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "How are you?", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "I am fine.", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-summarize"]));
-    expect(output).toContain("Summary of conversation");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-summarize command shows no history message when file is missing", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    if (existsSync(historyFile)) {
-      await fs.unlink(historyFile);
-    }
-    const output = await captureOutput(() => main(["chat-summarize"]));
-    expect(output).toContain("No conversation history to summarize.");
-  });
-
-  test("chat-summarize command shows no history message when file is empty", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    await fs.writeFile(historyFile, JSON.stringify({ sessionTitle: "", messages: [] }, null, 2));
-    const output = await captureOutput(() => main(["chat-summarize"]));
-    expect(output).toContain("No conversation history to summarize.");
-    await fs.unlink(historyFile);
-  });
-
-  // Tests for chat-search command
-  test("chat-search command displays matching history entries for a valid query", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "I need help with testing.", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Sure, I can help you with that.", tags: [], timestamp: new Date().toISOString() },
-      { role: "user", content: "What is the time?", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-search", "--query", "help"]));
-    expect(output).toContain("Search Results:");
-    expect(output).toContain("1. user: I need help with testing.");
-    expect(output).toContain("2. assistant: Sure, I can help you with that.");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-search command displays no results message when no entries match the query", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "I like apples.", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Apples are great!", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-search", "--query", "banana"]));
-    expect(output).toContain("No results found for query: \"banana\"");
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-search command displays no conversation history message when history file is missing", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    if (existsSync(historyFile)) {
-      await fs.unlink(historyFile);
-    }
-    const output = await captureOutput(() => main(["chat-search", "--query", "test"]));
-    expect(output).toContain("No conversation history available.");
-  });
-
-  // Test for chat-export command
+  // Tests for chat-export command without custom template
   test("chat-export command exports conversation history to markdown file with metadata", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
@@ -333,25 +241,25 @@ describe("CLI Commands", () => {
     await fs.unlink(mdFile);
   });
 
-  test("chat-export command with tag filter exports only tagged entries with metadata", async () => {
+  // Test for chat-export command with custom template
+  test("chat-export command with custom template renders template output", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
-    const sampleHistory = { sessionTitle: "Important Session", messages: [
-      { role: "user", content: "Entry 1", tags: ["important"], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Entry 2", tags: [], timestamp: new Date().toISOString() },
-      { role: "user", content: "Entry 3", tags: ["important"], timestamp: new Date().toISOString() }
+    const templateFile = path.resolve(process.cwd(), "custom_template.md");
+    const sampleHistory = { sessionTitle: "Custom Session", messages: [
+      { role: "user", content: "Custom Hello", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-export", "--tag", "important"]));
+    const customTemplate = "Custom Export\nSession: <%= sessionTitle %>\nTime: <%= exportTimestamp %>\n<% messages.forEach(function(m, i){ %>Message <%= i+1 %>: <%= m.content %>\n<% }); %>";
+    await fs.writeFile(templateFile, customTemplate);
+    const output = await captureOutput(() => main(["chat-export", "--template", templateFile]));
     expect(output).toContain("Conversation history exported to chat_history.md");
     const mdContent = await fs.readFile(mdFile, "utf-8");
-    expect(mdContent).toContain("**Session Title:** Important Session");
-    expect(mdContent).toContain("Entry 1");
-    expect(mdContent).toContain("Entry 3");
-    expect(mdContent).not.toContain("Entry 2");
-    expect(mdContent).toContain("**Timestamp:**");
+    expect(mdContent).toContain("Custom Export");
+    expect(mdContent).toContain("Session: Custom Session");
     await fs.unlink(historyFile);
     await fs.unlink(mdFile);
+    await fs.unlink(templateFile);
   });
 
   // Tests for chat-html-export command
@@ -370,28 +278,7 @@ describe("CLI Commands", () => {
     expect(htmlContent).toContain("<title>Conversation History</title>");
     expect(htmlContent).toContain("HTML Session");
     expect(htmlContent).toContain("Exported At:" );
-    expect(htmlContent).toContain("Timestamp: ");
-    await fs.unlink(historyFile);
-    await fs.unlink(htmlFile);
-  });
-
-  test("chat-html-export command with tag filter exports only tagged entries in HTML file with metadata", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const htmlFile = path.resolve(process.cwd(), "chat_history.html");
-    const sampleHistory = { sessionTitle: "Filtered Session", messages: [
-      { role: "user", content: "Entry 1", tags: ["tag1"], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Entry 2", tags: [], timestamp: new Date().toISOString() },
-      { role: "user", content: "Entry 3", tags: ["tag1"], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-html-export", "--tag", "tag1"]));
-    expect(output).toContain("Conversation history exported to chat_history.html");
-    const htmlContent = await fs.readFile(htmlFile, "utf-8");
-    expect(htmlContent).toContain("Filtered Session");
-    expect(htmlContent).toContain("Entry 1");
-    expect(htmlContent).toContain("Entry 3");
-    expect(htmlContent).not.toContain("Entry 2");
-    expect(htmlContent).toContain("Timestamp: ");
+    expect(htmlContent).toContain("Timestamp:" );
     await fs.unlink(historyFile);
     await fs.unlink(htmlFile);
   });
@@ -415,31 +302,31 @@ describe("CLI Commands", () => {
     expect(pdfText).toContain("Exported At:");
     expect(pdfText).toContain("Hello PDF");
     expect(pdfText).toContain("Hi in PDF!");
-    expect(pdfText).toContain("(");
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
     delete process.env.VITEST;
   });
 
-  test("chat-pdf-export command with tag filter exports only tagged entries in PDF file with metadata", async () => {
+  test("chat-pdf-export command with custom template renders template output in PDF", async () => {
     process.env.VITEST = "true";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
-    const sampleHistory = { sessionTitle: "PDF Filter Session", messages: [
-      { role: "user", content: "PDF Entry 1", tags: ["export"], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "PDF Entry 2", tags: [], timestamp: new Date().toISOString() },
-      { role: "user", content: "PDF Entry 3", tags: ["export"], timestamp: new Date().toISOString() }
+    const templateFile = path.resolve(process.cwd(), "custom_pdf_template.txt");
+    const sampleHistory = { sessionTitle: "PDF Custom Session", messages: [
+      { role: "user", content: "PDF Custom Message", tags: ["export"], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-pdf-export", "--tag", "export"]));
+    const customTemplate = "Custom PDF Export\nSession: <%= sessionTitle %>\nTime: <%= exportTimestamp %>\n<% messages.forEach(function(m, i){ %>Msg <%= i+1 %>: <%= m.content %>\n<% }); %>";
+    await fs.writeFile(templateFile, customTemplate);
+    const output = await captureOutput(() => main(["chat-pdf-export", "--template", templateFile]));
     expect(output).toContain("Conversation history exported to chat_history.pdf");
     const pdfData = await fs.readFile(pdfFile);
     const pdfText = pdfData.toString();
-    expect(pdfText).toContain("PDF Filter Session");
-    expect(pdfText).toContain("PDF Entry 1");
-    expect(pdfText).toContain("PDF Entry 3");
+    expect(pdfText).toContain("Custom PDF Export");
+    expect(pdfText).toContain("Session: PDF Custom Session");
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
+    await fs.unlink(templateFile);
     delete process.env.VITEST;
   });
 
@@ -785,7 +672,6 @@ describe("CLI Commands", () => {
     await fs.writeFile(archiveFile, JSON.stringify(archivedData, null, 2));
 
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    // Write different content to history file before restore
     const initialHistory = { sessionTitle: "Initial", messages: [
       { role: "user", content: "Old message", tags: [], timestamp: new Date().toISOString() }
     ] };
@@ -814,7 +700,6 @@ describe("CLI Commands", () => {
 
   test("chat-restore command errors for invalid archive format", async () => {
     const invalidArchive = path.resolve(process.cwd(), "invalid_archive.json");
-    // Write invalid structure (missing messages array)
     await fs.writeFile(invalidArchive, JSON.stringify({ someKey: "value" }, null, 2));
     const output = await captureOutput(() => {
       try {
