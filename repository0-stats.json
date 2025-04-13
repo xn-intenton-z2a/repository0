@@ -2,9 +2,9 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Issue Worker",
+  "lastActivityName": "Automerge",
   "lastActivityBranchName": "main",
-  "nextIssue": "[1564] Implement Automatic Recovery for Corrupted Conversation History automated, feature, issue-worker-14429949025",
+  "nextIssue": "[1525] Implement Automatic Session Title Generation Command automated, feature, apply-fix-14423859341",
   "openIssues": 5,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 90,
@@ -12,7 +12,7 @@
   "averagePRAge": 0,
   "prDetails": [],
   "diffMinutes": 1,
-  "diffMinutesMain": 23,
+  "diffMinutesMain": 25,
   "commitsLastHour": 1,
   "commitsLastDay": 83,
   "lastFiveCommitMessages": [
@@ -25,14 +25,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[1m] agentic-lib-issue-1564"
+      "[3m] agentic-lib-issue-1564"
     ],
     "branchIssueDetails": [
       "[1564] Implement Automatic Recovery for Corrupted Conversation History automated, feature, issue-worker-14429949025, apply-fix-14429993340"
     ],
-    "averageBranchAge": 1
+    "averageBranchAge": 3
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T13:38:45.941Z"
+  "statsGeneratedAt": "2025-04-13T13:40:21.615Z"
 }
