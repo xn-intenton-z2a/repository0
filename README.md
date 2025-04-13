@@ -2,11 +2,11 @@
 
 This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. 
 
-The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.
+The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF – with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
-**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata. The exported files now contain the session title (if set) and the export timestamp, providing better traceability and context for archived conversations.
+**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata as well as the timestamp for each conversation message. The exported files now contain the session title, the export timestamp, and the individual message timestamps, providing better traceability and context for archived conversations.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -30,7 +30,7 @@ Key subcommands include:
   - Example: `repository0 config show`
 - **info:** Displays repository metadata including the repository name, version, and description.
   - Example: `repository0 info`
-- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
+- **chat:** Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context (with timestamps) in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
   - Options:
     - `--prompt` or `-p`: The prompt message to send (required).
     - `--max-history-messages`: Maximum number of messages before summarization (default: can be set via environment variable or persisted configuration).
@@ -40,17 +40,17 @@ Key subcommands include:
     - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional).
     - `--auto-archive-threshold`: Maximum number of messages before automatically archiving the conversation history (default: can be set via `CHAT_AUTO_ARCHIVE_THRESHOLD` environment variable, persisted configuration, or defaults to 50).
   - Example: `repository0 chat --verbose --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
-- **chat-history:** Displays the persistent conversation history in a human-readable format.
+- **chat-history:** Displays the persistent conversation history in a human-readable format, including timestamps for each message.
   - Example: `repository0 chat-history`
 - **chat-summarize:** Generates a concise summary of the conversation history using the OpenAI API.
   - Example: `repository0 chat-summarize`
 - **chat-search:** Searches the conversation history for entries that match a provided keyword (case-insensitive).
   - Example: `repository0 chat-search --query "search text"`
-- **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`). An optional `--tag` flag can be provided to export only entries that include the specified tag. The exported file now includes the session title and the export timestamp as header metadata.
+- **chat-export:** Exports the conversation history to a markdown file (`chat_history.md`). An optional `--tag` flag can be provided to export only entries that include the specified tag. The exported file now includes the session title, export timestamp, and individual message timestamps as header metadata.
   - Example: `repository0 chat-export --tag important`
-- **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`). Supports an optional `--tag` flag for filtered export. The HTML export now contains a header section with the session title and export timestamp.
+- **chat-html-export:** Exports the conversation history to an HTML file (`chat_history.html`). Supports an optional `--tag` flag for filtered export. The HTML export now contains a header section with the session title, export timestamp, and displays each message's timestamp.
   - Example: `repository0 chat-html-export --tag important`
-- **chat-pdf-export:** Exports the conversation history to a PDF file (`chat_history.pdf`). Supports an optional `--tag` flag for filtered export. The PDF export now includes a header with the session title and export timestamp. In the test environment, it outputs plain text for easier validation of metadata.
+- **chat-pdf-export:** Exports the conversation history to a PDF file (`chat_history.pdf`). Supports an optional `--tag` flag for filtered export. The PDF export now includes a header with the session title, export timestamp, and each message's timestamp in the output. In the test environment, it outputs plain text for easier validation of metadata.
   - Example: `repository0 chat-pdf-export --tag important`
 - **chat-statistics:** Provides analytics on the conversation history by computing total messages, counts per role, and average message length.
   - Example: `repository0 chat-statistics`
@@ -96,10 +96,11 @@ If the conversation history exceeds a certain threshold (configured via the `--a
 
 ## Export Metadata Enhancement
 
-The export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata in the exported files. Each export now features:
+The export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata as well as the timestamp for each conversation message. Each export now features:
 
 - **Session Title:** The title of the current chat session (or "No Session Title" if not set).
 - **Exported At:** A timestamp indicating when the export was performed (formatted as YYYY-MM-DD HH:mm:ss).
+- **Message Timestamps:** Each conversation message displays the time it was sent.
 
 This enhancement provides better context and traceability when reviewing or archiving conversation histories.
 
@@ -116,7 +117,7 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **GitHub Workflows:**
     Automated workflows from intentïon `agentic‑lib` handle CI/CD tasks.
 - **Source Code:**
-    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles, enhanced export commands with session metadata, and the new automatic archival mechanism for conversation history.
+    The CLI functionality is implemented in `src/lib/main.js` with modular commands including the new `chat-title` for managing session titles, enhanced export commands with session metadata and message timestamps, and the new automatic archival mechanism for conversation history.
 - **Global Verbose Mode:**
     Enables detailed logging for debugging.
 - **Dependencies:**

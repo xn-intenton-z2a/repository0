@@ -225,8 +225,8 @@ describe("CLI Commands", () => {
   test("chat-history command displays conversation history if file exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "Test Session", messages: [
-      { role: "user", content: "Hello", tags: [] },
-      { role: "assistant", content: "Hi there!", tags: [] }
+      { role: "user", content: "Hello", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi there!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-history"]));
@@ -250,8 +250,8 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "How are you?", tags: [] },
-      { role: "assistant", content: "I am fine.", tags: [] }
+      { role: "user", content: "How are you?", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "I am fine.", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-summarize"]));
@@ -280,9 +280,9 @@ describe("CLI Commands", () => {
   test("chat-search command displays matching history entries for a valid query", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "I need help with testing.", tags: [] },
-      { role: "assistant", content: "Sure, I can help you with that.", tags: [] },
-      { role: "user", content: "What is the time?", tags: [] }
+      { role: "user", content: "I need help with testing.", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Sure, I can help you with that.", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "What is the time?", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "help"]));
@@ -295,8 +295,8 @@ describe("CLI Commands", () => {
   test("chat-search command displays no results message when no entries match the query", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "I like apples.", tags: [] },
-      { role: "assistant", content: "Apples are great!", tags: [] }
+      { role: "user", content: "I like apples.", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Apples are great!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-search", "--query", "banana"]));
@@ -318,8 +318,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
     const sampleHistory = { sessionTitle: "My Session", messages: [
-      { role: "user", content: "Hello Markdown", tags: [] },
-      { role: "assistant", content: "Hi in Markdown!", tags: [] }
+      { role: "user", content: "Hello Markdown", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi in Markdown!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-export"]));
@@ -328,6 +328,7 @@ describe("CLI Commands", () => {
     expect(mdContent).toContain("# Conversation History");
     expect(mdContent).toContain("**Session Title:** My Session");
     expect(mdContent).toContain("**Exported At:**");
+    expect(mdContent).toContain("**Timestamp:**");
     await fs.unlink(historyFile);
     await fs.unlink(mdFile);
   });
@@ -336,9 +337,9 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const mdFile = path.resolve(process.cwd(), "chat_history.md");
     const sampleHistory = { sessionTitle: "Important Session", messages: [
-      { role: "user", content: "Entry 1", tags: ["important"] },
-      { role: "assistant", content: "Entry 2", tags: [] },
-      { role: "user", content: "Entry 3", tags: ["important"] }
+      { role: "user", content: "Entry 1", tags: ["important"], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Entry 2", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Entry 3", tags: ["important"], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-export", "--tag", "important"]));
@@ -348,6 +349,7 @@ describe("CLI Commands", () => {
     expect(mdContent).toContain("Entry 1");
     expect(mdContent).toContain("Entry 3");
     expect(mdContent).not.toContain("Entry 2");
+    expect(mdContent).toContain("**Timestamp:**");
     await fs.unlink(historyFile);
     await fs.unlink(mdFile);
   });
@@ -357,8 +359,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const htmlFile = path.resolve(process.cwd(), "chat_history.html");
     const sampleHistory = { sessionTitle: "HTML Session", messages: [
-      { role: "user", content: "Hello HTML", tags: [] },
-      { role: "assistant", content: "Hi in HTML!", tags: [] }
+      { role: "user", content: "Hello HTML", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi in HTML!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-html-export"]));
@@ -368,6 +370,7 @@ describe("CLI Commands", () => {
     expect(htmlContent).toContain("<title>Conversation History</title>");
     expect(htmlContent).toContain("HTML Session");
     expect(htmlContent).toContain("Exported At:" );
+    expect(htmlContent).toContain("Timestamp: ");
     await fs.unlink(historyFile);
     await fs.unlink(htmlFile);
   });
@@ -376,9 +379,9 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const htmlFile = path.resolve(process.cwd(), "chat_history.html");
     const sampleHistory = { sessionTitle: "Filtered Session", messages: [
-      { role: "user", content: "Entry 1", tags: ["tag1"] },
-      { role: "assistant", content: "Entry 2", tags: [] },
-      { role: "user", content: "Entry 3", tags: ["tag1"] }
+      { role: "user", content: "Entry 1", tags: ["tag1"], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Entry 2", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Entry 3", tags: ["tag1"], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-html-export", "--tag", "tag1"]));
@@ -388,6 +391,7 @@ describe("CLI Commands", () => {
     expect(htmlContent).toContain("Entry 1");
     expect(htmlContent).toContain("Entry 3");
     expect(htmlContent).not.toContain("Entry 2");
+    expect(htmlContent).toContain("Timestamp: ");
     await fs.unlink(historyFile);
     await fs.unlink(htmlFile);
   });
@@ -398,8 +402,8 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
     const sampleHistory = { sessionTitle: "PDF Session", messages: [
-      { role: "user", content: "Hello PDF", tags: [] },
-      { role: "assistant", content: "Hi in PDF!", tags: [] }
+      { role: "user", content: "Hello PDF", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi in PDF!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-pdf-export"]));
@@ -411,6 +415,7 @@ describe("CLI Commands", () => {
     expect(pdfText).toContain("Exported At:");
     expect(pdfText).toContain("Hello PDF");
     expect(pdfText).toContain("Hi in PDF!");
+    expect(pdfText).toContain("("); // Check for timestamp presence
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
     delete process.env.VITEST;
@@ -421,9 +426,9 @@ describe("CLI Commands", () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
     const sampleHistory = { sessionTitle: "PDF Filter Session", messages: [
-      { role: "user", content: "PDF Entry 1", tags: ["export"] },
-      { role: "assistant", content: "PDF Entry 2", tags: [] },
-      { role: "user", content: "PDF Entry 3", tags: ["export"] }
+      { role: "user", content: "PDF Entry 1", tags: ["export"], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "PDF Entry 2", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "PDF Entry 3", tags: ["export"], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-pdf-export", "--tag", "export"]));
@@ -460,10 +465,10 @@ describe("CLI Commands", () => {
   test("chat-statistics command displays statistics when history exists", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Hello", tags: [] },
-      { role: "assistant", content: "Hi there!", tags: [] },
-      { role: "user", content: "How are you doing today?", tags: [] },
-      { role: "assistant", content: "I'm doing well, thank you!", tags: [] }
+      { role: "user", content: "Hello", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi there!", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "How are you doing today?", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "I'm doing well, thank you!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-statistics"]));
@@ -478,9 +483,9 @@ describe("CLI Commands", () => {
   test("chat-remove command successfully removes an entry", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Entry 1", tags: [] },
-      { role: "assistant", content: "Entry 2", tags: [] },
-      { role: "user", content: "Entry 3", tags: [] }
+      { role: "user", content: "Entry 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Entry 2", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Entry 3", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-remove", "--index", "2"]));
@@ -488,8 +493,8 @@ describe("CLI Commands", () => {
     const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
     expect(updatedHistory.messages.length).toBe(2);
     expect(updatedHistory.messages).toEqual([
-      { role: "user", content: "Entry 1", tags: [] },
-      { role: "user", content: "Entry 3", tags: [] }
+      { role: "user", content: "Entry 1", tags: [], timestamp: updatedHistory.messages[0].timestamp },
+      { role: "user", content: "Entry 3", tags: [], timestamp: updatedHistory.messages[1].timestamp }
     ]);
     await fs.unlink(historyFile);
   });
@@ -497,7 +502,7 @@ describe("CLI Commands", () => {
   test("chat-remove command error for out-of-bound index", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Only Entry", tags: [] }
+      { role: "user", content: "Only Entry", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -538,8 +543,8 @@ describe("CLI Commands", () => {
   test("chat-edit command successfully updates a message", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Old message 1", tags: [] },
-      { role: "assistant", content: "Old message 2", tags: [] }
+      { role: "user", content: "Old message 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Old message 2", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const newMessage = "Updated message";
@@ -553,7 +558,7 @@ describe("CLI Commands", () => {
   test("chat-edit command error for out-of-bound index", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Only Entry", tags: [] }
+      { role: "user", content: "Only Entry", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -568,7 +573,7 @@ describe("CLI Commands", () => {
   test("chat-edit command error for empty message", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Old message", tags: [] }
+      { role: "user", content: "Old message", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => {
@@ -594,9 +599,9 @@ describe("CLI Commands", () => {
   test("chat-archive command archives history and resets file", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "Auto Archive Test", messages: [
-      { role: "user", content: "Old message 1", tags: [] },
-      { role: "assistant", content: "Old response 1", tags: [] },
-      { role: "user", content: "Old message 2", tags: [] }
+      { role: "user", content: "Old message 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Old response 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Old message 2", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat", "--prompt", "New auto archival test", "--auto-archive-threshold", "3"]));
@@ -619,14 +624,14 @@ describe("CLI Commands", () => {
   test("chat-import command successfully imports valid conversation history", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const initialHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Existing message", tags: [] }
+      { role: "user", content: "Existing message", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
 
     const importFile = path.resolve(process.cwd(), "test_import.json");
     const importData = [
-      { role: "assistant", content: "Imported reply", tags: [] },
-      { role: "user", content: "Imported question", tags: [] }
+      { role: "assistant", content: "Imported reply", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Imported question", tags: [], timestamp: new Date().toISOString() }
     ];
     await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
 
@@ -677,7 +682,7 @@ describe("CLI Commands", () => {
   test("chat-import command errors when an entry has invalid structure", async () => {
     const importFile = path.resolve(process.cwd(), "invalid_entry.json");
     const importData = [
-      { role: "user", content: "Valid message", tags: [] },
+      { role: "user", content: "Valid message", tags: [], timestamp: new Date().toISOString() },
       { role: "assistant" }
     ];
     await fs.writeFile(importFile, JSON.stringify(importData, null, 2));
@@ -714,8 +719,8 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Hello", tags: [] },
-      { role: "assistant", content: "Hi there!", tags: [] }
+      { role: "user", content: "Hello", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Hi there!", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat-translate", "--language", "Spanish"]));
@@ -735,10 +740,10 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "", messages: [
-      { role: "user", content: "Message 1", tags: [] },
-      { role: "assistant", content: "Response 1", tags: [] },
-      { role: "user", content: "Message 2", tags: [] },
-      { role: "assistant", content: "Response 2", tags: [] }
+      { role: "user", content: "Message 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Response 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Message 2", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Response 2", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat", "--prompt", "New message", "--max-history-messages", "3", "--summarization-prompt", "Custom summarize:" ]));
@@ -751,9 +756,9 @@ describe("CLI Commands", () => {
     process.env.CHATGPT_API_SECRET_KEY = "test-api-key";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const sampleHistory = { sessionTitle: "Auto Archive Test", messages: [
-      { role: "user", content: "Old message 1", tags: [] },
-      { role: "assistant", content: "Old response 1", tags: [] },
-      { role: "user", content: "Old message 2", tags: [] }
+      { role: "user", content: "Old message 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Old response 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "user", content: "Old message 2", tags: [], timestamp: new Date().toISOString() }
     ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
     const output = await captureOutput(() => main(["chat", "--prompt", "New auto archival test", "--auto-archive-threshold", "3"]));
