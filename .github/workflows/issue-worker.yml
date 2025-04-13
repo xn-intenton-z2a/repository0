@@ -72,6 +72,8 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   needs-resolution:
+    needs:
+      - select-issue
     runs-on: ubuntu-latest
     steps:
       - name: todo
@@ -79,10 +81,86 @@ jobs:
         run: |
           echo "TODO: Check if this issue has been resolved already by examining the current state and recent commits"
 
-  # TODO: if attempts to [work] an issue on an issue >= 2 (as per agentic-lib.yml), then comment and close the issue.
+  check-attempts-limit:
+    needs:
+      - agentic-lib
+      - select-issue
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+      id-token: write
+    env:
+      issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
+      attemptsPerIssue: ${{ needs.agentic-lib.outputs.attemptsPerIssue }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+        env:
+          npmAuthOrganisation: '@xn-intenton-z2a'
+      - run: npm ci
+      - name: check
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = "${{ env.issueNumber }}";
+            const attemptsPerIssue = parseInt("${{ env.attemptsPerIssue }}");
+            
+            // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and close it      
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+            const issueLabelsStartingWithApplyFix = issue.labels.filter(label => label.name.startsWith("apply-fix-"));
+            const issueLabelsStartingWithIssueWorker = issue.labels.filter(label => label.name.startsWith("issue-worker-"));
+            const attemptsOnIssue = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length
+            if(attemptsOnIssue > attemptsPerIssue) {
+               const message = `Exceeded the limit of ${attemptsPerIssue} attempts with ${attemptsOnIssue} attempts.`;
+  
+              // Comment the issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: message
+              });
+            
+              // Close the issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: "closed"
+              });
+            
+              core.setFailure(`${message}`);
+            }
+
+            core.setOutput("attemptsOnIssue", attemptsOnIssue);
+            core.info(`attemptsOnIssue: ${attemptsOnIssue}`);
+    outputs:
+      attemptsOnIssue: ${{ steps.check.outputs.attemptsOnIssue }}
 
   npm-test:
     name: 'npm test with coverage'
+    needs:
+      - select-issue
+      - needs-resolution
+      - check-attempts-limit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -106,6 +184,10 @@ jobs:
 
   npm-build:
     name: 'npm run build'
+    needs:
+      - select-issue
+      - needs-resolution
+      - check-attempts-limit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,6 +211,10 @@ jobs:
 
   npm-run:
     name: 'npm run start'
+    needs:
+      - select-issue
+      - needs-resolution
+      - check-attempts-limit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -153,10 +239,11 @@ jobs:
   check-branch:
     needs:
       - select-issue
+      - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
-      - needs-resolution
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     runs-on: ubuntu-latest
     permissions:
@@ -183,6 +270,7 @@ jobs:
   label-issue-before-attempt:
     needs:
       - select-issue
+      - check-attempts-limit
       - needs-resolution
       - npm-test
       - npm-build
@@ -230,6 +318,7 @@ jobs:
     needs:
       - select-issue
       - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
@@ -265,6 +354,7 @@ jobs:
   npm-test-after-issue-resolution:
     needs:
       - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
@@ -299,6 +389,7 @@ jobs:
   npm-build-after-issue-resolution:
     needs:
       - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
@@ -333,6 +424,7 @@ jobs:
   npm-run-after-issue-resolution:
     needs:
       - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
@@ -367,6 +459,7 @@ jobs:
   needs-fix-after-issue-resolution:
     needs:
       - needs-resolution
+      - check-attempts-limit
       - npm-test
       - npm-build
       - npm-run
@@ -410,6 +503,7 @@ jobs:
     needs:
       - select-issue
       - needs-resolution
+      - check-attempts-limit
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
     if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' }}
