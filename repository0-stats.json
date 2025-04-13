@@ -2,9 +2,9 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Issue Worker",
+  "lastActivityName": "Review Issue",
   "lastActivityBranchName": "main",
-  "nextIssue": "[1555] Implement Chat Export to CSV Command automated, feature",
+  "nextIssue": "[1555] Implement Chat Export to CSV Command automated, feature, issue-worker-14428196217",
   "openIssues": 10,
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
@@ -34,5 +34,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T09:35:12.839Z"
+  "statsGeneratedAt": "2025-04-13T09:35:37.187Z"
 }
