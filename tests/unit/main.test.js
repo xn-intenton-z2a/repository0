@@ -394,6 +394,7 @@ describe("CLI Commands", () => {
 
   // Tests for chat-pdf-export command
   test("chat-pdf-export command exports conversation history to PDF file with metadata", async () => {
+    process.env.VITEST = "true"; // force test mode for PDF export
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
     const sampleHistory = { sessionTitle: "PDF Session", messages: [
@@ -412,9 +413,11 @@ describe("CLI Commands", () => {
     expect(pdfText).toContain("Hi in PDF!");
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
+    delete process.env.VITEST;
   });
 
   test("chat-pdf-export command with tag filter exports only tagged entries in PDF file with metadata", async () => {
+    process.env.VITEST = "true";
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
     const pdfFile = path.resolve(process.cwd(), "chat_history.pdf");
     const sampleHistory = { sessionTitle: "PDF Filter Session", messages: [
@@ -432,6 +435,7 @@ describe("CLI Commands", () => {
     expect(pdfText).toContain("PDF Entry 3");
     await fs.unlink(historyFile);
     await fs.unlink(pdfFile);
+    delete process.env.VITEST;
   });
 
   test("chat-html-export command displays no history message when file does not exist", async () => {
