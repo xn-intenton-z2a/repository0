@@ -8,6 +8,8 @@ In addition, an automatic archival mechanism has been introduced. When the numbe
 
 **Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata as well as the timestamp for each conversation message. The exported files now contain the session title, the export timestamp, and the individual message timestamps, providing better traceability and context for archived conversations.
 
+No changes were required to handle NaN input or other non-string inputs since the current Zod-based validation already addresses these scenarios successfully.
+
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
