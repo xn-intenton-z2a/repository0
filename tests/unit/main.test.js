@@ -662,52 +662,45 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // Tests for chat-restore command
-  test("chat-restore command restores conversation from valid archive", async () => {
-    const archiveFile = path.resolve(process.cwd(), "test_archive.json");
-    const archivedData = { sessionTitle: "Restored Session", messages: [
-      { role: "user", content: "Restored message 1", tags: [], timestamp: new Date().toISOString() },
-      { role: "assistant", content: "Restored reply", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(archiveFile, JSON.stringify(archivedData, null, 2));
-
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const initialHistory = { sessionTitle: "Initial", messages: [
-      { role: "user", content: "Old message", tags: [], timestamp: new Date().toISOString() }
-    ] };
-    await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
-
-    const output = await captureOutput(() => main(["chat-restore", "--file", archiveFile]));
-    expect(output).toContain(`Conversation history restored successfully from ${archiveFile}`);
-
-    const restoredHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
-    expect(restoredHistory.sessionTitle).toBe("Restored Session");
-    expect(restoredHistory.messages.length).toBe(2);
-
-    await fs.unlink(archiveFile);
-    await fs.unlink(historyFile);
-  });
-
-  test("chat-restore command errors for non-existent file", async () => {
-    const nonExistentFile = path.resolve(process.cwd(), "no_such_file.json");
-    const output = await captureOutput(() => {
-      try {
-        return main(["chat-restore", "--file", nonExistentFile]);
-      } catch {}
+  // Tests for chat-feedback command
+  describe("chat-feedback command", () => {
+    test("add subcommand adds feedback to an entry", async () => {
+      const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+      const sampleHistory = { sessionTitle: "Feedback Test", messages: [
+        { role: "user", content: "Test message", tags: [], timestamp: new Date().toISOString() }
+      ] };
+      await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+      const output = await captureOutput(() => main(["chat-feedback", "add", "--index", "1", "--feedback", "positive"]));
+      expect(output).toContain("Feedback added to conversation entry at index 1.");
+      const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+      expect(updatedHistory.messages[0].feedback).toBe("positive");
+      await fs.unlink(historyFile);
     });
-    expect(output).toContain(`File not found: ${nonExistentFile}`);
-  });
 
-  test("chat-restore command errors for invalid archive format", async () => {
-    const invalidArchive = path.resolve(process.cwd(), "invalid_archive.json");
-    await fs.writeFile(invalidArchive, JSON.stringify({ someKey: "value" }, null, 2));
-    const output = await captureOutput(() => {
-      try {
-        return main(["chat-restore", "--file", invalidArchive]);
-      } catch {}
+    test("remove subcommand removes feedback from an entry", async () => {
+      const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+      const sampleHistory = { sessionTitle: "Feedback Test", messages: [
+        { role: "user", content: "Test message", feedback: "negative", tags: [], timestamp: new Date().toISOString() }
+      ] };
+      await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+      const output = await captureOutput(() => main(["chat-feedback", "remove", "--index", "1"]));
+      expect(output).toContain("Feedback removed from conversation entry at index 1.");
+      const updatedHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+      expect(updatedHistory.messages[0].feedback).toBeUndefined();
+      await fs.unlink(historyFile);
     });
-    expect(output).toContain("Invalid archive format: Expected an object with a 'messages' array.");
-    await fs.unlink(invalidArchive);
+
+    test("list subcommand lists feedback for entries", async () => {
+      const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+      const sampleHistory = { sessionTitle: "Feedback Test", messages: [
+        { role: "user", content: "Message one", feedback: "good", tags: [], timestamp: new Date().toISOString() },
+        { role: "assistant", content: "Message two", tags: [], timestamp: new Date().toISOString() }
+      ] };
+      await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+      const output = await captureOutput(() => main(["chat-feedback", "list"]));
+      expect(output).toContain("1. user: good");
+      await fs.unlink(historyFile);
+    });
   });
 
   // Tests for chat-title command

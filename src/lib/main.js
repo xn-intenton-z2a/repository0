@@ -602,7 +602,11 @@ const chatExportCommand = {
       let defaultContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n**Date Range:** ${dateRange}\n\n---\n\n`;
       history.forEach((entry, index) => {
         defaultContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n`;
-        defaultContent += `**Timestamp:** ${entry.timestamp}\n\n`;
+        defaultContent += `**Timestamp:** ${entry.timestamp}\n`;
+        if(entry.feedback !== undefined){
+          defaultContent += `**Feedback:** ${entry.feedback}\n`;
+        }
+        defaultContent += "\n";
       });
 
       let mdContent = defaultContent;
@@ -716,7 +720,11 @@ const chatHtmlExportCommand = {
       history.forEach((entry, index) => {
         defaultHtml += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
         defaultHtml += `<p class=\"message\">${entry.content}</p>`;
-        defaultHtml += `<p class=\"timestamp\">Timestamp: ${entry.timestamp}</p></div>\n`;
+        defaultHtml += `<p class=\"timestamp\">Timestamp: ${entry.timestamp}</p>`;
+        if(entry.feedback !== undefined){
+          defaultHtml += `<p class=\"feedback\">Feedback: ${entry.feedback}</p>`;
+        }
+        defaultHtml += `</div>\n`;
       });
       defaultHtml += "</body>\n</html>";
 
@@ -825,6 +833,9 @@ const chatPdfExportCommand = {
         pdfContent += `Date Range: ${dateRange}\n\n`;
         history.forEach((entry, index) => {
           pdfContent += `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}\n`;
+          if(entry.feedback !== undefined){
+            pdfContent += `Feedback: ${entry.feedback}\n`;
+          }
         });
         if (argv.template) {
           try {
@@ -875,7 +886,7 @@ const chatPdfExportCommand = {
         const doc = new PDFDocument({ compress: false });
         doc.info.Title = "Conversation History";
         doc.info.Keywords = sessionTitle;
-        const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`).join('\n');
+        const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}${entry.feedback !== undefined ? ' | Feedback: ' + entry.feedback : ''}`).join('\n');
         doc.info.Subject = conversationText;
         doc.font('Helvetica');
         let buffers = [];
@@ -894,7 +905,7 @@ const chatPdfExportCommand = {
         doc.moveDown();
 
         history.forEach((entry, index) => {
-          doc.fontSize(12).text(`${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`);
+          doc.fontSize(12).text(`${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}${entry.feedback !== undefined ? ' | Feedback: ' + entry.feedback : ''}`);
           doc.moveDown(0.5);
         });
         doc.end();
@@ -1518,6 +1529,129 @@ const chatTitleCommand = {
   handler: () => {}
 };
 
+// New chat-feedback command
+const chatFeedbackCommand = {
+  command: "chat-feedback <action>",
+  describe: "Manage feedback for conversation entries",
+  builder: (yargs) => {
+    return yargs
+      .command({
+        command: "add",
+        describe: "Attach feedback to a specific conversation entry",
+        builder: (yargs) =>
+          yargs
+            .option("index", {
+              alias: "i",
+              type: "number",
+              describe: "The 1-based index of the conversation entry to update",
+              demandOption: true
+            })
+            .option("feedback", {
+              alias: "f",
+              type: "string",
+              describe: "The feedback to attach (e.g., 'positive', 'negative', or a comment)",
+              demandOption: true
+            }),
+        handler: async (argv) => {
+          const index = argv.index;
+          const feedback = argv.feedback;
+          validateArg(feedback);
+          if (!existsSync(HISTORY_FILE)) {
+            console.log("No conversation history available.");
+            return;
+          }
+          const data = await fs.readFile(HISTORY_FILE, "utf-8");
+          let historyObj = JSON.parse(data);
+          let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+          if (!messages || messages.length === 0) {
+            console.log("No conversation history available.");
+            return;
+          }
+          if (index <= 0 || index > messages.length) {
+            handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${messages.length} entries.`);
+          }
+          messages[index - 1].feedback = feedback;
+          const tempFile = HISTORY_FILE + ".tmp";
+          let updatedData = Array.isArray(historyObj) ? messages : { ...historyObj, messages };
+          await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
+          await fs.rename(tempFile, HISTORY_FILE);
+          console.log(`Feedback added to conversation entry at index ${index}.`);
+        }
+      })
+      .command({
+        command: "remove",
+        describe: "Remove feedback from a specific conversation entry",
+        builder: (yargs) =>
+          yargs.option("index", {
+            alias: "i",
+            type: "number",
+            describe: "The 1-based index of the conversation entry from which to remove feedback",
+            demandOption: true
+          }),
+        handler: async (argv) => {
+          const index = argv.index;
+          if (!existsSync(HISTORY_FILE)) {
+            console.log("No conversation history available.");
+            return;
+          }
+          const data = await fs.readFile(HISTORY_FILE, "utf-8");
+          let historyObj = JSON.parse(data);
+          let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+          if (!messages || messages.length === 0) {
+            console.log("No conversation history available.");
+            return;
+          }
+          if (index <= 0 || index > messages.length) {
+            handleError(`Error: Provided index ${index} is out of bounds. Conversation history contains ${messages.length} entries.`);
+          }
+          if (messages[index - 1].feedback !== undefined) {
+            delete messages[index - 1].feedback;
+            const tempFile = HISTORY_FILE + ".tmp";
+            let updatedData = Array.isArray(historyObj) ? messages : { ...historyObj, messages };
+            await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
+            await fs.rename(tempFile, HISTORY_FILE);
+            console.log(`Feedback removed from conversation entry at index ${index}.`);
+          } else {
+            console.log(`No feedback to remove for conversation entry at index ${index}.`);
+          }
+        }
+      })
+      .command({
+        command: "list",
+        describe: "List feedback for all conversation entries",
+        builder: (yargs) => yargs,
+        handler: async () => {
+          if (!existsSync(HISTORY_FILE)) {
+            console.log("No conversation history available.");
+            return;
+          }
+          const data = await fs.readFile(HISTORY_FILE, "utf-8");
+          let historyObj = JSON.parse(data);
+          let messages = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+          if (!messages || messages.length === 0) {
+            console.log("No conversation history available.");
+            return;
+          }
+          console.log("Feedback for conversation entries:");
+          let found = false;
+          messages.forEach((msg, idx) => {
+            if (msg.feedback !== undefined) {
+              console.log(`${idx + 1}. ${msg.role}: ${msg.feedback}`);
+              found = true;
+            }
+          });
+          if (!found) {
+            console.log("No feedback found in any conversation entry.");
+          }
+        }
+      })
+      .demandCommand(1, "You need to specify a chat-feedback subcommand (add, remove, list)");
+  },
+  handler: () => {}
+};
+
+const chatTitleCommandFinal = chatTitleCommand; // Already defined above
+
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -1563,7 +1697,8 @@ export function main(args = []) {
     .command(chatTranslateCommand)
     .command(chatConfigUpdateCommand)
     .command(chatTagCommand)
-    .command(chatTitleCommand)
+    .command(chatFeedbackCommand)
+    .command(chatTitleCommandFinal)
     .demandCommand(1, "You need to specify a valid command")
     .strict()
     .help()
