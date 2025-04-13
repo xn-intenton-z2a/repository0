@@ -9,12 +9,12 @@
   "issuesClosedLastHour": 4,
   "issuesClosedLastDay": 100,
   "openPRs": 1,
-  "averagePRAge": 0,
+  "averagePRAge": 2,
   "prDetails": [
-    "[0m] Added pagination support --page and --page-size to the chat-history command (fixes #1553)"
+    "[2m] Added pagination support --page and --page-size to the chat-history command (fixes #1553)"
   ],
   "diffMinutes": 0,
-  "diffMinutesMain": 19,
+  "diffMinutesMain": 20,
   "commitsLastHour": 2,
   "commitsLastDay": 87,
   "lastFiveCommitMessages": [
@@ -27,14 +27,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[1m] agentic-lib-issue-1553"
+      "[2m] agentic-lib-issue-1553"
     ],
     "branchIssueDetails": [
       "[1553] Implement Pagination for Chat History Command automated, feature, issue-worker-14427890927"
     ],
-    "averageBranchAge": 1
+    "averageBranchAge": 2
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T09:02:07.692Z"
+  "statsGeneratedAt": "2025-04-13T09:03:26.262Z"
 }
