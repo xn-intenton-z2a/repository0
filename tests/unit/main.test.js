@@ -192,7 +192,7 @@ describe("CLI Commands", () => {
   test("array input displays error", async () => {
     const output = await captureOutput(() => {
       try {
-        return main([ ["array"] ]);
+        return main([["array"]]);
       } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
@@ -227,7 +227,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat", "--prompt", "NaN"]);
-      } catch {}
+      } catch {} 
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN.");
     expect(output).toContain(suggestion);
@@ -419,7 +419,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-remove", "--index", "1"]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("No conversation history available.");
   });
@@ -430,7 +430,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-remove", "--index", "1"]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("No conversation history available.");
     await fs.unlink(historyFile);
@@ -461,7 +461,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-edit", "--index", "5", "--message", "New message"]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("Error: Provided index 5 is out of bounds. Conversation history contains 1 entries.");
     await fs.unlink(historyFile);
@@ -476,7 +476,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat-edit", "--index", "1", "--message", ""]);
-      } catch {}
+      } catch(e){}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received an empty string");
     expect(output).toContain(suggestion);
