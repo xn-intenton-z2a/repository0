@@ -2,17 +2,19 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-3",
-  "lastActivityName": "Issue Worker",
+  "lastActivityName": "Create Maintenance Issue",
   "lastActivityBranchName": "main",
-  "nextIssue": "[1559] Enhance chat-search: Support Logical Operators for Multi-Keyword Filtering automated, feature, issue-worker-14428735453",
-  "openIssues": 10,
+  "nextIssue": "[1559] Enhance chat-search: Support Logical Operators for Multi-Keyword Filtering automated, feature, issue-worker-14428735453, issue-worker-14428762782",
+  "openIssues": 11,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 87,
-  "openPRs": 0,
+  "openPRs": 1,
   "averagePRAge": 0,
-  "prDetails": [],
+  "prDetails": [
+    "[0m] Enhanced chat-search command to support logical operators ANDOR for multi-keyword filtering. (fixes #1559)"
+  ],
   "diffMinutes": 0,
-  "diffMinutesMain": 6,
+  "diffMinutesMain": 7,
   "commitsLastHour": 3,
   "commitsLastDay": 80,
   "lastFiveCommitMessages": [
@@ -34,5 +36,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T11:01:05.232Z"
+  "statsGeneratedAt": "2025-04-13T11:01:30.337Z"
 }
