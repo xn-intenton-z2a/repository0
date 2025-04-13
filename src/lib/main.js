@@ -328,7 +328,80 @@ async function interactiveChatHandler() {
   }
 }
 
-// Modular command definitions
+// New command: chat-config-update
+const chatConfigUpdateCommand = {
+  command: "chat-config-update",
+  describe: "Update and persist default chat configuration settings",
+  builder: (yargs) => {
+    return yargs
+      .option("model", {
+        type: "string",
+        describe: "Default OpenAI model to use"
+      })
+      .option("temperature", {
+        type: "number",
+        describe: "Default temperature for OpenAI responses"
+      })
+      .option("max-history-messages", {
+        type: "number",
+        describe: "Default maximum number of conversation messages before summarization"
+      })
+      .option("recent-messages", {
+        type: "number",
+        describe: "Default number of recent messages to retain after summarization"
+      })
+      .option("auto-archive-threshold", {
+        type: "number",
+        describe: "Default threshold for auto-archival of conversation history"
+      });
+  },
+  handler: async (argv) => {
+    const currentConfig = (await loadChatConfig()) || {};
+    const newConfig = { ...currentConfig };
+    if (argv.model !== undefined) {
+      const schema = z.string().nonempty({ message: "Model must be a non-empty string" });
+      try {
+        newConfig.model = schema.parse(argv.model);
+      } catch (error) {
+        handleError(error.errors[0].message);
+      }
+    }
+    if (argv.temperature !== undefined) {
+      const schema = z.number().min(0, { message: "Temperature must be at least 0" }).max(1, { message: "Temperature cannot exceed 1" });
+      try {
+        newConfig.temperature = schema.parse(argv.temperature);
+      } catch (error) {
+        handleError(error.errors[0].message);
+      }
+    }
+    if (argv["max-history-messages"] !== undefined) {
+      const schema = z.number().int().positive({ message: "Max history messages must be a positive integer" });
+      try {
+        newConfig["max-history-messages"] = schema.parse(argv["max-history-messages"]);
+      } catch (error) {
+        handleError(error.errors[0].message);
+      }
+    }
+    if (argv["recent-messages"] !== undefined) {
+      const schema = z.number().int().positive({ message: "Recent messages must be a positive integer" });
+      try {
+        newConfig["recent-messages"] = schema.parse(argv["recent-messages"]);
+      } catch (error) {
+        handleError(error.errors[0].message);
+      }
+    }
+    if (argv["auto-archive-threshold"] !== undefined) {
+      const schema = z.number().int().positive({ message: "Auto archive threshold must be a positive integer" });
+      try {
+        newConfig.autoArchiveThreshold = schema.parse(argv["auto-archive-threshold"]);
+      } catch (error) {
+        handleError(error.errors[0].message);
+      }
+    }
+    await saveChatConfig(newConfig);
+    console.log("Chat configuration updated successfully.");
+  }
+};
 
 const diagnosticsCommand = {
   command: "diagnostics",
@@ -440,8 +513,6 @@ const chatInteractiveCommand = {
   handler: interactiveChatHandler
 };
 
-// ... (rest of the command definitions remain unchanged; omitting for brevity, they continue as before)
-
 const chatHistoryCommand = {
   command: "chat-history",
   describe: "Display conversation history with pagination support",
@@ -491,10 +562,6 @@ const chatHistoryCommand = {
 
 // ... (Other commands remain unchanged)
 
-// For brevity, the rest of the command definitions from chatSummarizeCommand through chatCsvExportCommand, chat-statistics, chat-remove, etc., remain unmodified.
-
-// New commands and registrations continue...
-
 /**
  * Main function to parse CLI arguments and execute the appropriate subcommand.
  * @param {Array} args - CLI arguments. Defaults to an empty array if not provided.
@@ -527,6 +594,7 @@ export function main(args = []) {
     .command(chatCommand)
     .command(chatInteractiveCommand)
     .command(chatHistoryCommand)
+    .command(chatConfigUpdateCommand)
     // ... register the rest of the commands as in the original code
     .demandCommand(1, "You need to specify a valid command")
     .strict()
