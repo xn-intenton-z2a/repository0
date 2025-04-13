@@ -679,6 +679,8 @@ const chatPdfExportCommand = {
 
       const doc = new PDFDocument({ compress: false });
       doc.info.Title = "Conversation History";
+      // Embed session title into PDF metadata so that it's easily searchable in the output
+      doc.info.Keywords = sessionTitle;
       const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role}: ${entry.content}`).join('\n');
       doc.info.Subject = conversationText;
       doc.font('Helvetica');
