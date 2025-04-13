@@ -404,21 +404,42 @@ const chatCommand = {
 
 const chatHistoryCommand = {
   command: "chat-history",
-  describe: "Display conversation history",
-  handler: async () => {
+  describe: "Display conversation history with pagination support",
+  builder: (yargs) => {
+    return yargs
+      .option("page", {
+        type: "number",
+        describe: "Page number to display",
+        default: 1
+      })
+      .option("page-size", {
+        type: "number",
+        describe: "Number of messages per page",
+        default: 10
+      });
+  },
+  handler: async (argv) => {
     try {
       if (existsSync(HISTORY_FILE)) {
         const data = await fs.readFile(HISTORY_FILE, "utf-8");
         const historyObj = JSON.parse(data);
-        const history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
+        let history = Array.isArray(historyObj) ? historyObj : historyObj.messages;
         if (!history || history.length === 0) {
           console.log("No conversation history available.");
-        } else {
-          console.log("Conversation History:");
-          history.forEach((entry, index) => {
-            console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
-          });
+          return;
         }
+        const page = argv.page ? parseInt(argv.page) : 1;
+        const pageSize = argv["page-size"] ? parseInt(argv["page-size"]) : 10;
+        const startIndex = (page - 1) * pageSize;
+        const paginatedHistory = history.slice(startIndex, startIndex + pageSize);
+        if (paginatedHistory.length === 0) {
+          console.log(`No messages to display for page ${page}.`);
+          return;
+        }
+        console.log("Conversation History:");
+        paginatedHistory.forEach((entry, index) => {
+          console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
+        });
       } else {
         console.log("No conversation history available.");
       }
@@ -1326,7 +1347,7 @@ const chatTagCommand = {
             entry.tags = [];
           }
           if (entry.tags.includes(tag)) {
-            handleError(`Tag "${tag}" already exists for entry at index ${index}.`);
+            handleError(`Tag \"${tag}\" already exists for entry at index ${index}.`);
           }
           entry.tags.push(tag);
           const tempFile = HISTORY_FILE + ".tmp";
@@ -1342,7 +1363,7 @@ const chatTagCommand = {
             }
             await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
             await fs.rename(tempFile, HISTORY_FILE);
-            console.log(`Tag "${tag}" added to conversation entry at index ${index}.`);
+            console.log(`Tag \"${tag}\" added to conversation entry at index ${index}.`);
           } catch (error) {
             handleError("Failed to update conversation history", error);
           }
@@ -1392,7 +1413,7 @@ const chatTagCommand = {
           }
           const tagIndex = entry.tags.indexOf(tag);
           if (tagIndex === -1) {
-            handleError(`Tag "${tag}" does not exist for entry at index ${index}.`);
+            handleError(`Tag \"${tag}\" does not exist for entry at index ${index}.`);
           }
           entry.tags.splice(tagIndex, 1);
           const tempFile = HISTORY_FILE + ".tmp";
@@ -1408,7 +1429,7 @@ const chatTagCommand = {
             }
             await fs.writeFile(tempFile, JSON.stringify(updatedData, null, 2));
             await fs.rename(tempFile, HISTORY_FILE);
-            console.log(`Tag "${tag}" removed from conversation entry at index ${index}.`);
+            console.log(`Tag \"${tag}\" removed from conversation entry at index ${index}.`);
           } catch (error) {
             handleError("Failed to update conversation history", error);
           }
@@ -1484,9 +1505,9 @@ const chatTagCommand = {
           }
           const filtered = history.filter(entry => entry.tags && Array.isArray(entry.tags) && entry.tags.includes(tag));
           if (filtered.length === 0) {
-            console.log(`No conversation entries found with tag "${tag}".`);
+            console.log(`No conversation entries found with tag \"${tag}\".`);
           } else {
-            console.log(`Conversation entries with tag "${tag}":`);
+            console.log(`Conversation entries with tag \"${tag}\":`);
             filtered.forEach((entry, index) => {
               console.log(`${index + 1}. ${entry.role}: ${entry.content} (Timestamp: ${entry.timestamp})`);
             });

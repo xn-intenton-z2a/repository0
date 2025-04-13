@@ -14,6 +14,8 @@ Additionally, the new **chat-restore** command enables users to restore a previo
 
 **New Feature:** The **chat-search** command now supports an optional `--regex` flag, which allows users to provide a regular expression to filter conversation history. If the flag is activated, the query is interpreted as a regex pattern (case-insensitive). In case of an invalid regex pattern, an error is returned prompting the user to provide a valid one.
 
+**Pagination:** The **chat-history** command has been enhanced with pagination support. Two new optional CLI parameters, `--page` and `--page-size`, allow users to specify which page of messages to display and how many messages per page to show (defaulting to page 1 and 10 messages per page). This makes it easier to navigate large conversation histories.
+
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
@@ -46,8 +48,8 @@ Key subcommands include:
     - `--summarization-prompt`: Custom prompt to use for summarizing conversation history (optional).
     - `--auto-archive-threshold`: Maximum number of messages before automatically archiving the conversation history (default: can be set via `CHAT_AUTO_ARCHIVE_THRESHOLD` environment variable, persisted configuration, or defaults to 50).
   - Example: `repository0 chat --verbose --prompt "Hello, how are you?" --model "gpt-4" --temperature 0.9 --summarization-prompt "Custom summarize:"`
-- **chat-history:** Displays the persistent conversation history in a human-readable format, including timestamps for each message.
-  - Example: `repository0 chat-history`
+- **chat-history:** Displays the persistent conversation history in a human-readable format, including timestamps for each message. With the new pagination options, you can now limit the output using `--page` (page number) and `--page-size` (messages per page).
+  - Example: `repository0 chat-history --page 2 --page-size 10`
 - **chat-summarize:** Generates a concise summary of the conversation history using the OpenAI API.
   - Example: `repository0 chat-summarize`
 - **chat-search:** Searches the conversation history for entries that match a provided keyword. With the optional `--regex` flag, the query is treated as a regular expression (case-insensitive) for advanced filtering.
@@ -140,7 +142,7 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **Dependencies:**
     Refer to `package.json` for project dependencies and scripts.
 - **Tests:**
-    Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, custom template processing, auto archival, conversation restoration, chat session title management, feedback management, and now regex support for chat-search.
+    Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, custom template processing, auto archival, conversation restoration, chat session title management, feedback management, pagination, and regex support for chat-search.
 - **Documentation:**
     This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.
 
