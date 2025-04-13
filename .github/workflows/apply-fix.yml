@@ -137,6 +137,12 @@ jobs:
             const prefix = process.env.branchPrefix || "agentic-lib-";
             const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
             const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
+            
+            // TODO: If attempts to [work++fix] a branch on an issue to 3 (as per agentic-lib.yml), then comment the issue and delete the branch.
+            
+            
+          
+            
             core.setOutput("issueNumber", issueNumber);
             core.info(`Issue number: ${issueNumber}`);
     outputs:

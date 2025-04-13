@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Issue Worker
-concurrency: agentic-lib-commit
+concurrency: agentic-lib-commit-worker
 run-name: "Issue Worker [${{ github.ref_name }}]"
 
 on:
@@ -62,6 +62,8 @@ jobs:
         shell: bash
         run: |
           echo "TODO: Check if this issue has been resolved already by examining the current state and recent commits"
+
+  # TODO: if attempts to [work] an issue on an issue >= 2 (as per agentic-lib.yml), then comment and close the issue.
 
   npm-test:
     name: 'npm test with coverage'

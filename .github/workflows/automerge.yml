@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: Automerge
-concurrency: agentic-lib-commit
+concurrency: agentic-lib-commit-automerge
 run-name: "Automerge [${{ github.ref_name }}]"
 
 on:
