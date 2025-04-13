@@ -4,7 +4,7 @@
   "engine": "schedule-2",
   "lastActivityName": "Issue Worker",
   "lastActivityBranchName": "main",
-  "nextIssue": "[1576] Implement Arithmetic CLI Commands (gcd, lcm, prime) automated, feature",
+  "nextIssue": "[1577] Improve CLI User Feedback for Missing Arguments automated, maintenance",
   "openIssues": 3,
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 66,
@@ -12,7 +12,7 @@
   "averagePRAge": 0,
   "prDetails": [],
   "diffMinutes": 1,
-  "diffMinutesMain": 2,
+  "diffMinutesMain": 4,
   "commitsLastHour": 5,
   "commitsLastDay": 60,
   "lastFiveCommitMessages": [
@@ -25,14 +25,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[18m] agentic-lib-issue-1575"
+      "[19m] agentic-lib-issue-1575"
     ],
     "branchIssueDetails": [
       "[1575] Implement Multi-turn Chat CLI Command with Session Titling and Export automated, feature, issue-worker-14432616150"
     ],
-    "averageBranchAge": 18
+    "averageBranchAge": 19
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T19:46:08.374Z"
+  "statsGeneratedAt": "2025-04-13T19:47:52.526Z"
 }
