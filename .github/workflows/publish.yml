@@ -147,7 +147,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@3.8.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@3.8.3'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       #githubRelease: true
@@ -168,7 +168,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@3.8.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@3.8.3'
     with:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
@@ -186,7 +186,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.8.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.8.3'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -203,7 +203,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.8.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.8.3'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
