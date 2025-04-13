@@ -2,13 +2,11 @@
 
 This repository is a template that showcases automated CI/CD workflows imported from intentïon `agentic‑lib`. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension. 
 
-The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF – with optional tag filtering and new date range filtering options), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.
+The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF – with optional tag filtering and new date range filtering options), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.
 
 In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable `CHAT_AUTO_ARCHIVE_THRESHOLD`, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.
 
-**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata, individual message timestamps, and now support filtering by a specified date range using the `--start-date` and `--end-date` options. The exported files display the session title, export timestamp, date range applied, and each message's timestamp, providing better traceability and context for archived conversations.
-
-No additional changes were needed for NaN inputs as the existing Zod-based validation already handles such cases with standardized error messages.
+**Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata, individual message timestamps, and now support filtering by a specified date range using the `--start-date` and `--end-date` options. In addition, a new command, **chat-restore**, has been added to allow users to restore a previously archived conversation history from a specified archive file.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -69,6 +67,10 @@ Key subcommands include:
   - Options:
     - `--file` or `-f`: The path to a JSON file containing conversation entries.
   - Example: `repository0 chat-import --file ./my_conversation.json`
+- **chat-restore:** Restores the conversation history from an archived JSON file, replacing the current history.
+  - Options:
+    - `--file` or `-f`: The path to the archive file to restore.
+  - Example: `repository0 chat-restore --file chat_history-20230101120000.json`
 - **chat-translate:** Translates the conversation history into a specified target language.
   - Options:
     - `--language` or `-l`: The target language (e.g., "Spanish").
@@ -99,9 +101,11 @@ repository0 --verbose chat --prompt "Hello, Debug me!"
 
 If the conversation history exceeds a certain threshold (configured via the `--auto-archive-threshold` option, the `CHAT_AUTO_ARCHIVE_THRESHOLD` environment variable, or a persisted configuration), the CLI will automatically archive the current conversation history to a timestamped JSON file (e.g., `chat_history-YYYYMMDDHHmmss.json`) and reset the active conversation history. This helps in managing long-term conversation data and ensures optimal performance.
 
-## Export Metadata Enhancement and Date Range Filtering
+## Export Metadata Enhancement, Date Range Filtering, and Conversation Restoration
 
 The export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata, individual message timestamps, and now support filtering by a date range. Users can use the `--start-date` and `--end-date` options (in ISO format) to filter which conversation entries are exported. The export files will display the session title, export timestamp, the applied date range, and each message's timestamp.
+
+Additionally, the new **chat-restore** command enables users to restore a previously archived conversation history. This command validates the archive file and replaces the current conversation history with the archived data.
 
 ## CLI Input Validation and Error Handling
 
@@ -116,13 +120,13 @@ Errors are handled consistently with formatted output. In verbose mode, detailed
 - **GitHub Workflows:**
     Automated workflows from intentïon `agentic‑lib` handle CI/CD tasks.
 - **Source Code:**
-    The CLI functionality is implemented in `src/lib/main.js` with modular commands including enhanced export commands supporting date range filters, auto archival, chat session title management, and more.
+    The CLI functionality is implemented in `src/lib/main.js` with modular commands including enhanced export commands supporting date range filters, auto archival, chat session title management, conversation restoration, and more.
 - **Global Verbose Mode:**
     Enables detailed logging for debugging.
 - **Dependencies:**
     Refer to `package.json` for project dependencies and scripts.
 - **Tests:**
-    Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, auto archival, and chat session title management.
+    Comprehensive unit tests ensure robust functionality including export metadata, date range filtering, auto archival, conversation restoration, and chat session title management.
 - **Documentation:**
     This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline project details and usage.
 

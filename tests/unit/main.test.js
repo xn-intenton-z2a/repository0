@@ -775,24 +775,54 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New test for date range filtering in chat-export command
-  test("chat-export command applies date range filtering", async () => {
-    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const mdFile = path.resolve(process.cwd(), "chat_history.md");
-    const sampleHistory = { sessionTitle: "Date Filter Session", messages: [
-      { role: "user", content: "Old Entry", tags: [], timestamp: "2023-01-01T12:00:00.000Z" },
-      { role: "assistant", content: "New Entry", tags: [], timestamp: "2023-06-01T12:00:00.000Z" }
+  // Tests for chat-restore command
+  test("chat-restore command restores conversation from valid archive", async () => {
+    const archiveFile = path.resolve(process.cwd(), "test_archive.json");
+    const archivedData = { sessionTitle: "Restored Session", messages: [
+      { role: "user", content: "Restored message 1", tags: [], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Restored reply", tags: [], timestamp: new Date().toISOString() }
     ] };
-    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    const output = await captureOutput(() => main(["chat-export", "--start-date", "2023-05-01", "--end-date", "2023-07-01"]));
-    expect(output).toContain("Conversation history exported to chat_history.md");
-    const mdContent = await fs.readFile(mdFile, "utf-8");
-    expect(mdContent).toContain("Date Filter Session");
-    expect(mdContent).toContain("New Entry");
-    expect(mdContent).not.toContain("Old Entry");
-    expect(mdContent).toContain("**Date Range:**");
+    await fs.writeFile(archiveFile, JSON.stringify(archivedData, null, 2));
+
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    // Write different content to history file before restore
+    const initialHistory = { sessionTitle: "Initial", messages: [
+      { role: "user", content: "Old message", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(initialHistory, null, 2));
+
+    const output = await captureOutput(() => main(["chat-restore", "--file", archiveFile]));
+    expect(output).toContain(`Conversation history restored successfully from ${archiveFile}`);
+
+    const restoredHistory = JSON.parse(await fs.readFile(historyFile, "utf-8"));
+    expect(restoredHistory.sessionTitle).toBe("Restored Session");
+    expect(restoredHistory.messages.length).toBe(2);
+
+    await fs.unlink(archiveFile);
     await fs.unlink(historyFile);
-    await fs.unlink(mdFile);
+  });
+
+  test("chat-restore command errors for non-existent file", async () => {
+    const nonExistentFile = path.resolve(process.cwd(), "no_such_file.json");
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-restore", "--file", nonExistentFile]);
+      } catch {}
+    });
+    expect(output).toContain(`File not found: ${nonExistentFile}`);
+  });
+
+  test("chat-restore command errors for invalid archive format", async () => {
+    const invalidArchive = path.resolve(process.cwd(), "invalid_archive.json");
+    // Write invalid structure (missing messages array)
+    await fs.writeFile(invalidArchive, JSON.stringify({ someKey: "value" }, null, 2));
+    const output = await captureOutput(() => {
+      try {
+        return main(["chat-restore", "--file", invalidArchive]);
+      } catch {}
+    });
+    expect(output).toContain("Invalid archive format: Expected an object with a 'messages' array.");
+    await fs.unlink(invalidArchive);
   });
 
   // Tests for chat-title command

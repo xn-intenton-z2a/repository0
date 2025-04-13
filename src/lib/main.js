@@ -1034,6 +1034,50 @@ const chatImportCommand = {
   }
 };
 
+// Newly added chat-restore command
+const chatRestoreCommand = {
+  command: "chat-restore",
+  describe: "Restore a previously archived conversation history from a specified file",
+  builder: (yargs) => {
+    return yargs.option("file", {
+      alias: "f",
+      type: "string",
+      describe: "The path to the archive file to restore",
+      demandOption: true
+    });
+  },
+  handler: async (argv) => {
+    const file = argv.file;
+    if (!existsSync(file)) {
+      handleError(`File not found: ${file}`);
+    }
+    let archived;
+    try {
+      const data = await fs.readFile(file, "utf-8");
+      archived = JSON.parse(data);
+    } catch (error) {
+      handleError(`Failed to read or parse archive file: ${file}`, error);
+    }
+    if (typeof archived !== "object" || archived === null || !('messages' in archived) || !Array.isArray(archived.messages)) {
+      handleError("Invalid archive format: Expected an object with a 'messages' array.");
+    }
+    for (const entry of archived.messages) {
+      if (!entry.content || typeof entry.content !== "string" || entry.content.trim() === "") {
+        handleError("Invalid archive entry: Each message must have non-empty 'content'.");
+      }
+      if (!entry.timestamp) {
+        handleError("Invalid archive entry: Each message must have a 'timestamp'.");
+      }
+    }
+    try {
+      await fs.writeFile(HISTORY_FILE, JSON.stringify(archived, null, 2));
+      console.log(`Conversation history restored successfully from ${file}`);
+    } catch (error) {
+      handleError("Failed to restore conversation history", error);
+    }
+  }
+};
+
 const chatTranslateCommand = {
   command: "chat-translate",
   describe: "Translate conversation history into a specified target language",
@@ -1432,6 +1476,7 @@ export function main(args = []) {
     .command(chatEditCommand)
     .command(chatArchiveCommand)
     .command(chatImportCommand)
+    .command(chatRestoreCommand)
     .command(chatTranslateCommand)
     .command(chatConfigUpdateCommand)
     .command(chatTagCommand)
