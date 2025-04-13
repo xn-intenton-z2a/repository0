@@ -26,11 +26,8 @@
 <p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension.</p>
 <p class="md-github">The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, with additional safeguards against invalid inputs such as NaN. It includes commands to view, summarize, search (with regex support and enhanced multi-keyword filtering using logical operators AND/OR), export (in markdown, HTML, PDF, and CSV – with optional tag filtering, date range filtering, and customizable export templates), analyze, remove, archive, import, restore, translate, edit conversation history, update persistent chat configuration, manage conversation tags, manage chat feedback, and manage a chat session title.</p>
 <p class="md-github">In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code>, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.</p>
-<p class="md-github"><strong class="md-github">Enhancement:</strong> The conversation history export commands (chat-export, chat-html-export, chat-pdf-export, and chat-csv-export) have been enhanced to include session metadata, individual message timestamps, and support filtering by a specified date range using the <code class="md-github">--start-date</code> and <code class="md-github">--end-date</code> options. In addition, they support a new <code class="md-github">--template</code> option to allow users to provide a custom EJS template for export. Notably, the <strong class="md-github">chat-csv-export</strong> command now includes a new <code class="md-github">--delimiter</code> option that allows users to specify a custom CSV delimiter (default is a comma).</p>
-<p class="md-github">A new <strong class="md-github">chat-feedback</strong> command has been introduced to allow users to attach, remove, and view feedback on individual conversation entries. This functionality enables users to annotate messages (e.g., with 'positive' or 'negative' feedback) to aid in conversation analysis.</p>
-<p class="md-github">Additionally, the new <strong class="md-github">chat-restore</strong> command enables users to restore a previously archived conversation history from a specified archive file.</p>
-<p class="md-github"><strong class="md-github">New Feature: Interactive Chat Mode</strong></p>
-<p class="md-github">A new subcommand, <strong class="md-github">chat-interactive</strong>, has been implemented. This command provides a REPL-like interactive chat session with OpenAI's API. Upon starting, it displays an instruction banner and continuously accepts user input until the user types &quot;exit&quot;. Each input is processed using the same logic as the non-interactive chat command, including validation, auto-summarization, auto-archival, and conversation history updates. When &quot;exit&quot; is entered, the session terminates gracefully with a summary message.</p>
+<p class="md-github"><strong class="md-github">Enhancement:</strong> A new CLI subcommand, <strong class="md-github">chat-config-update</strong>, has been implemented to allow users to update and persist default chat configuration settings such as the OpenAI model, temperature, maximum history messages, recent messages, and auto-archive threshold. This ensures that subsequent commands (e.g., chat and chat-interactive) will immediately use the updated configuration settings.</p>
+<p class="md-github">A new <strong class="md-github">chat-interactive</strong> command has been implemented to provide a REPL-like interactive chat session with OpenAI's API. It continuously accepts user input, processes each prompt using the existing chat logic (including validation, auto-summarization, and archival), and terminates gracefully when the user types &quot;exit&quot;.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-usage" href="#cli-usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Usage</h2>
@@ -76,6 +73,11 @@
 <li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history with timestamps and supports pagination via <code class="md-github">--page</code> and <code class="md-github">--page-size</code>.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-history --page 2 --page-size 10</code></li>
+</ul>
+</li>
+<li class="md-github"><strong class="md-github">chat-config-update:</strong> Updates and persists default chat configuration settings. Options include: <code class="md-github">--model</code>, <code class="md-github">--temperature</code>, <code class="md-github">--max-history-messages</code>, <code class="md-github">--recent-messages</code>, and <code class="md-github">--auto-archive-threshold</code>.
+<ul class="md-github">
+<li class="md-github">Example: <code class="md-github">repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100</code></li>
 </ul>
 </li>
 <li class="md-github"><strong class="md-github">chat-summarize:</strong> Generates a concise summary of the conversation history using the OpenAI API.
@@ -144,14 +146,8 @@
 <li class="md-github">Example: <code class="md-github">repository0 chat-translate --language Spanish</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-config-update:</strong> Updates and persists default chat configuration settings.
-<ul class="md-github">
-<li class="md-github">Example: <code class="md-github">repository0 chat-config-update --model gpt-4 --temperature 0.8 --max-history-messages 15 --recent-messages 3 --auto-archive-threshold 100</code></li>
-</ul>
-</li>
-<li class="md-github"><strong class="md-github">chat-tag:</strong> Manage tags on conversation entries with subcommands: add, remove, list, and filter.</li>
-<li class="md-github"><strong class="md-github">chat-feedback:</strong> Manage feedback on conversation entries with subcommands: add, remove, and list.</li>
-<li class="md-github"><strong class="md-github">chat-title:</strong> Manage the chat session title with subcommands: set, get, and clear.</li>
+<li class="md-github"><strong class="md-github">chat-feedback:</strong> Manage feedback on conversation entries (add, remove, list).</li>
+<li class="md-github"><strong class="md-github">chat-title:</strong> Manage the chat session title (set, get, clear).</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="global-verbose-mode" href="#global-verbose-mode"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Global Verbose Mode</h2>
 <p class="md-github">A global <code class="md-github">--verbose</code> flag is available to output detailed debugging information.</p>
@@ -174,7 +170,7 @@
 
   </section>
   <footer>
-    <p>Generated on 2025-04-13T18:09:10.733Z</p>
+    <p>Generated on 2025-04-13T18:10:45.718Z</p>
   </footer>
 </body>
 </html>
