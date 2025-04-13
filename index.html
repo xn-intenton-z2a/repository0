@@ -24,9 +24,9 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
 <p class="md-github">This repository is a template that showcases automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code>. It provides a modular CLI demonstration with commands refactored into discrete functions for enhanced maintainability and ease of extension.</p>
-<p class="md-github">The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json), robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF - with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.</p>
+<p class="md-github">The CLI now includes a chat command integration with OpenAI's API featuring persistent multi-turn conversation support by storing conversation history in a file (.chat_history.json). Each conversation message now includes a timestamp (in ISO format) indicating when the message was sent. The CLI also features robust and standardized CLI input validation powered by Zod, and additional commands to view, summarize, search, export (in markdown, HTML, and PDF – with optional tag filtering), analyze, remove, archive, import, translate, edit conversation history, update persistent chat configuration, manage conversation tags, and manage a chat session title.</p>
 <p class="md-github">In addition, an automatic archival mechanism has been introduced. When the number of messages in the conversation history exceeds a configurable threshold (set via environment variable <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code>, persisted configuration, or defaulting to 50), the conversation history is automatically archived to a timestamped JSON file and then reset.</p>
-<p class="md-github"><strong class="md-github">Enhancement:</strong> The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata. The exported files now contain the session title (if set) and the export timestamp, providing better traceability and context for archived conversations.</p>
+<p class="md-github"><strong class="md-github">Enhancement:</strong> The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata as well as the timestamp for each conversation message. The exported files now contain the session title, the export timestamp, and the individual message timestamps, providing better traceability and context for archived conversations.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/repository0/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows and serve as an example for future development. The CLI functionality has been refactored to separate command registration into modular functions, improving maintainability.</p>
@@ -59,7 +59,7 @@
 <li class="md-github">Example: <code class="md-github">repository0 info</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
+<li class="md-github"><strong class="md-github">chat:</strong> Interact with OpenAI's API by sending a prompt and receiving a generated response. This command supports persistent multi-turn conversations by preserving conversation context (with timestamps) in a file (.chat_history.json) across CLI sessions. It also automatically summarizes older parts of the conversation history if a configurable threshold is exceeded. Furthermore, if the number of messages exceeds a configurable auto archive threshold, the conversation history is automatically archived and reset.
 <ul class="md-github">
 <li class="md-github">Options:
 <ul class="md-github">
@@ -75,7 +75,7 @@
 <li class="md-github">Example: <code class="md-github">repository0 chat --verbose --prompt &quot;Hello, how are you?&quot; --model &quot;gpt-4&quot; --temperature 0.9 --summarization-prompt &quot;Custom summarize:&quot;</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format.
+<li class="md-github"><strong class="md-github">chat-history:</strong> Displays the persistent conversation history in a human-readable format, including timestamps for each message.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-history</code></li>
 </ul>
@@ -90,17 +90,17 @@
 <li class="md-github">Example: <code class="md-github">repository0 chat-search --query &quot;search text&quot;</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-export:</strong> Exports the conversation history to a markdown file (<code class="md-github">chat_history.md</code>). An optional <code class="md-github">--tag</code> flag can be provided to export only entries that include the specified tag. The exported file now includes the session title and the export timestamp as header metadata.
+<li class="md-github"><strong class="md-github">chat-export:</strong> Exports the conversation history to a markdown file (<code class="md-github">chat_history.md</code>). An optional <code class="md-github">--tag</code> flag can be provided to export only entries that include the specified tag. The exported file now includes the session title, export timestamp, and individual message timestamps as header metadata.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-export --tag important</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-html-export:</strong> Exports the conversation history to an HTML file (<code class="md-github">chat_history.html</code>). Supports an optional <code class="md-github">--tag</code> flag for filtered export. The HTML export now contains a header section with the session title and export timestamp.
+<li class="md-github"><strong class="md-github">chat-html-export:</strong> Exports the conversation history to an HTML file (<code class="md-github">chat_history.html</code>). Supports an optional <code class="md-github">--tag</code> flag for filtered export. The HTML export now contains a header section with the session title, export timestamp, and displays each message's timestamp.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-html-export --tag important</code></li>
 </ul>
 </li>
-<li class="md-github"><strong class="md-github">chat-pdf-export:</strong> Exports the conversation history to a PDF file (<code class="md-github">chat_history.pdf</code>). Supports an optional <code class="md-github">--tag</code> flag for filtered export. The PDF export now includes a header with the session title and export timestamp. In the test environment, it outputs plain text for easier validation of metadata.
+<li class="md-github"><strong class="md-github">chat-pdf-export:</strong> Exports the conversation history to a PDF file (<code class="md-github">chat_history.pdf</code>). Supports an optional <code class="md-github">--tag</code> flag for filtered export. The PDF export now includes a header with the session title, export timestamp, and each message's timestamp in the output. In the test environment, it outputs plain text for easier validation of metadata.
 <ul class="md-github">
 <li class="md-github">Example: <code class="md-github">repository0 chat-pdf-export --tag important</code></li>
 </ul>
@@ -174,10 +174,11 @@
 <h2 class="md-github"><a class="md-github__anchor" name="automatic-conversation-archival" href="#automatic-conversation-archival"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Automatic Conversation Archival</h2>
 <p class="md-github">If the conversation history exceeds a certain threshold (configured via the <code class="md-github">--auto-archive-threshold</code> option, the <code class="md-github">CHAT_AUTO_ARCHIVE_THRESHOLD</code> environment variable, or a persisted configuration), the CLI will automatically archive the current conversation history to a timestamped JSON file (e.g., <code class="md-github">chat_history-YYYYMMDDHHmmss.json</code>) and reset the active conversation history. This helps in managing long-term conversation data and ensures optimal performance.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="export-metadata-enhancement" href="#export-metadata-enhancement"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Export Metadata Enhancement</h2>
-<p class="md-github">The export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata in the exported files. Each export now features:</p>
+<p class="md-github">The export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata as well as the timestamp for each conversation message. Each export now features:</p>
 <ul class="md-github">
 <li class="md-github"><strong class="md-github">Session Title:</strong> The title of the current chat session (or &quot;No Session Title&quot; if not set).</li>
 <li class="md-github"><strong class="md-github">Exported At:</strong> A timestamp indicating when the export was performed (formatted as YYYY-MM-DD HH:mm:ss).</li>
+<li class="md-github"><strong class="md-github">Message Timestamps:</strong> Each conversation message displays the time it was sent.</li>
 </ul>
 <p class="md-github">This enhancement provides better context and traceability when reviewing or archiving conversation histories.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="cli-input-validation-and-error-handling" href="#cli-input-validation-and-error-handling"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Input Validation and Error Handling</h2>
@@ -189,7 +190,7 @@
 <li class="md-github"><strong class="md-github">GitHub Workflows:</strong>
 Automated workflows from intentïon <code class="md-github">agentic‑lib</code> handle CI/CD tasks.</li>
 <li class="md-github"><strong class="md-github">Source Code:</strong>
-The CLI functionality is implemented in <code class="md-github">src/lib/main.js</code> with modular commands including the new <code class="md-github">chat-title</code> for managing session titles, enhanced export commands with session metadata, and the new automatic archival mechanism for conversation history.</li>
+The CLI functionality is implemented in <code class="md-github">src/lib/main.js</code> with modular commands including the new <code class="md-github">chat-title</code> for managing session titles, enhanced export commands with session metadata and message timestamps, and the new automatic archival mechanism for conversation history.</li>
 <li class="md-github"><strong class="md-github">Global Verbose Mode:</strong>
 Enables detailed logging for debugging.</li>
 <li class="md-github"><strong class="md-github">Dependencies:</strong>
@@ -215,7 +216,7 @@ This README and linked documents (MISSION.md, CONTRIBUTING.md, LICENSE) outline 
 
   </section>
   <footer>
-    <p>Generated on 2025-04-13T05:12:54.107Z</p>
+    <p>Generated on 2025-04-13T05:14:23.009Z</p>
   </footer>
 </body>
 </html>
