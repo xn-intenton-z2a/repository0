@@ -478,14 +478,19 @@ const chatSummarizeCommand = {
 
 const chatSearchCommand = {
   command: "chat-search",
-  describe: "Search conversation history for a query keyword",
+  describe: "Search conversation history for a query keyword (supports regex with --regex flag)",
   builder: (yargs) => {
-    return yargs.option("query", {
-      alias: "q",
-      type: "string",
-      describe: "The query keyword to search in conversation history",
-      demandOption: true
-    });
+    return yargs
+      .option("query", {
+        alias: "q",
+        type: "string",
+        describe: "The query keyword to search in conversation history",
+        demandOption: true
+      })
+      .option("regex", {
+        type: "boolean",
+        describe: "Treat the query as a regular expression"
+      });
   },
   handler: async (argv) => {
     const query = argv.query;
@@ -507,11 +512,25 @@ const chatSearchCommand = {
       console.log("No conversation history available.");
       return;
     }
-    const lowerQuery = query.toLowerCase();
-    const results = history.filter(entry =>
-      (entry.role && String(entry.role).toLowerCase().includes(lowerQuery)) ||
-      (entry.content && String(entry.content).toLowerCase().includes(lowerQuery))
-    );
+    let results;
+    if (argv.regex) {
+      let regex;
+      try {
+        regex = new RegExp(query, 'i');
+      } catch (e) {
+        handleError(`Invalid regex pattern: ${query}`, e);
+      }
+      results = history.filter(entry =>
+        (entry.role && regex.test(entry.role)) ||
+        (entry.content && regex.test(entry.content))
+      );
+    } else {
+      const lowerQuery = query.toLowerCase();
+      results = history.filter(entry =>
+        (entry.role && String(entry.role).toLowerCase().includes(lowerQuery)) ||
+        (entry.content && String(entry.content).toLowerCase().includes(lowerQuery))
+      );
+    }
     if (results.length === 0) {
       console.log(`No results found for query: "${query}"`);
     } else {
