@@ -8,7 +8,7 @@ In addition, an automatic archival mechanism has been introduced. When the numbe
 
 **Enhancement:** The conversation history export commands (chat-export, chat-html-export, chat-pdf-export) have been enhanced to include session metadata, individual message timestamps, and now support filtering by a specified date range using the `--start-date` and `--end-date` options. The exported files display the session title, export timestamp, date range applied, and each message's timestamp, providing better traceability and context for archived conversations.
 
-No changes were required to handle NaN input or other non-string inputs since the current Zod-based validation already addresses these scenarios successfully.
+No additional changes were needed for NaN inputs as the existing Zod-based validation already handles such cases with standardized error messages.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
