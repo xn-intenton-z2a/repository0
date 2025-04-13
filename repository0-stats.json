@@ -2,7 +2,7 @@
   "owner": "xn-intenton-z2a",
   "repo": "repository0",
   "engine": "schedule-2",
-  "lastActivityName": "Automerge",
+  "lastActivityName": "Apply Fix on Fail",
   "lastActivityBranchName": "main",
   "nextIssue": "[1577] Improve CLI User Feedback for Missing Arguments automated, maintenance",
   "openIssues": 3,
@@ -11,8 +11,8 @@
   "openPRs": 0,
   "averagePRAge": 0,
   "prDetails": [],
-  "diffMinutes": 16,
-  "diffMinutesMain": 31,
+  "diffMinutes": 0,
+  "diffMinutesMain": 39,
   "commitsLastHour": 4,
   "commitsLastDay": 53,
   "lastFiveCommitMessages": [
@@ -25,14 +25,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[47m] agentic-lib-issue-1575"
+      "[0m] agentic-lib-issue-1575"
     ],
     "branchIssueDetails": [
-      "[1575] Implement Multi-turn Chat CLI Command with Session Titling and Export automated, feature, issue-worker-14432616150"
+      "[1575] Implement Multi-turn Chat CLI Command with Session Titling and Export automated, feature, issue-worker-14432616150, apply-fix-14433002550"
     ],
-    "averageBranchAge": 47
+    "averageBranchAge": 0
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T20:15:33.750Z"
+  "statsGeneratedAt": "2025-04-13T20:23:28.571Z"
 }
