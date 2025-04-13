@@ -40,7 +40,7 @@ on:
   schedule:
     #- cron: '15 */4 * * *' # schedule-1
     #- cron: '* */2 * * *' # schedule-2
-    - cron: '*/15 * * * *' # schedule-3
+    - cron: '*/30 * * * *' # schedule-3
 
 jobs:
 
