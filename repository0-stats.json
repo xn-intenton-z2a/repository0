@@ -4,15 +4,15 @@
   "engine": "schedule-3",
   "lastActivityName": "Issue Worker",
   "lastActivityBranchName": "main",
-  "nextIssue": "[1530] Enhance Conversation History Exports with Session Metadata automated, feature",
+  "nextIssue": "[1530] Enhance Conversation History Exports with Session Metadata automated, feature, issue-worker-14424399286",
   "openIssues": 7,
   "issuesClosedLastHour": 2,
   "issuesClosedLastDay": 100,
   "openPRs": 0,
   "averagePRAge": 0,
   "prDetails": [],
-  "diffMinutes": 0,
-  "diffMinutesMain": 11,
+  "diffMinutes": 17,
+  "diffMinutesMain": 29,
   "commitsLastHour": 1,
   "commitsLastDay": 100,
   "lastFiveCommitMessages": [
@@ -25,14 +25,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[0m] agentic-lib-issue-1530"
+      "[18m] agentic-lib-issue-1530"
     ],
     "branchIssueDetails": [
       "[1530] Enhance Conversation History Exports with Session Metadata automated, feature, issue-worker-14424399286"
     ],
-    "averageBranchAge": 0
+    "averageBranchAge": 18
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-13T00:00:30.133Z"
+  "statsGeneratedAt": "2025-04-13T00:18:28.184Z"
 }
