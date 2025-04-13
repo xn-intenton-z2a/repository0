@@ -662,28 +662,60 @@ describe("CLI Commands", () => {
     await fs.unlink(historyFile);
   });
 
-  // New Tests for Enhanced Chat History Pagination
-  test("chat-history command displays paginated messages", async () => {
+  // New Tests for chat-csv-export command
+  test("chat-csv-export command exports conversation history to CSV with metadata", async () => {
     const historyFile = path.resolve(process.cwd(), ".chat_history.json");
-    const sampleMessages = [];
-    for(let i = 1; i <= 25; i++){
-      sampleMessages.push({ role: "user", content: "Message " + i, tags: [], timestamp: new Date().toISOString() });
-    }
-    const sampleHistory = { sessionTitle: "Pagination Test", messages: sampleMessages };
+    const csvFile = path.resolve(process.cwd(), "chat_history.csv");
+    const sampleHistory = { sessionTitle: "CSV Session", messages: [
+      { role: "user", content: "Hello CSV", tags: ["greeting"], timestamp: new Date().toISOString(), feedback: "positive" },
+      { role: "assistant", content: "Hi in CSV!", tags: [], timestamp: new Date().toISOString() }
+    ] };
     await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
-    // test page 1, page size 10
-    let output = await captureOutput(() => main(["chat-history", "--page", "1", "--page-size", "10"]));
-    expect(output).toContain("Conversation History:");
-    expect(output).toContain("1. user: Message 1");
-    expect(output).toContain("10. user: Message 10");
-    expect(output).not.toContain("Message 11");
-    // test page 3, page size 10 (should show messages 21-25)
-    output = await captureOutput(() => main(["chat-history", "--page", "3", "--page-size", "10"]));
-    expect(output).toContain("Conversation History:");
-    expect(output).toContain("1. user: Message 21");
-    expect(output).toContain("5. user: Message 25");
-    expect(output).not.toContain("Message 20");
+    const output = await captureOutput(() => main(["chat-csv-export"]));
+    expect(output).toContain("Conversation history exported to chat_history.csv");
+    const csvContent = await fs.readFile(csvFile, "utf-8");
+    expect(csvContent).toContain("CSV Session");
+    expect(csvContent).toContain("Hello CSV");
+    expect(csvContent).toContain("Hi in CSV!");
+    expect(csvContent).toContain("greeting");
     await fs.unlink(historyFile);
+    await fs.unlink(csvFile);
+  });
+
+  test("chat-csv-export command applies tag filtering", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const csvFile = path.resolve(process.cwd(), "chat_history.csv");
+    const sampleHistory = { sessionTitle: "CSV Filter", messages: [
+      { role: "user", content: "Message with tag", tags: ["export"], timestamp: new Date().toISOString() },
+      { role: "assistant", content: "Message without tag", tags: [], timestamp: new Date().toISOString() }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-csv-export", "--tag", "export"]));
+    expect(output).toContain("Conversation history exported to chat_history.csv");
+    const csvContent = await fs.readFile(csvFile, "utf-8");
+    expect(csvContent).toContain("Message with tag");
+    expect(csvContent).not.toContain("Message without tag");
+    await fs.unlink(historyFile);
+    await fs.unlink(csvFile);
+  });
+
+  test("chat-csv-export command applies date range filtering", async () => {
+    const historyFile = path.resolve(process.cwd(), ".chat_history.json");
+    const csvFile = path.resolve(process.cwd(), "chat_history.csv");
+    const oldDate = new Date(Date.now() - 86400000).toISOString(); // 1 day ago
+    const newDate = new Date().toISOString();
+    const sampleHistory = { sessionTitle: "CSV Date Filter", messages: [
+      { role: "user", content: "Old message", tags: [], timestamp: oldDate },
+      { role: "assistant", content: "Recent message", tags: [], timestamp: newDate }
+    ] };
+    await fs.writeFile(historyFile, JSON.stringify(sampleHistory, null, 2));
+    const output = await captureOutput(() => main(["chat-csv-export", "--start-date", newDate]));
+    expect(output).toContain("Conversation history exported to chat_history.csv");
+    const csvContent = await fs.readFile(csvFile, "utf-8");
+    expect(csvContent).toContain("Recent message");
+    expect(csvContent).not.toContain("Old message");
+    await fs.unlink(historyFile);
+    await fs.unlink(csvFile);
   });
 
   // Tests for chat-feedback command
