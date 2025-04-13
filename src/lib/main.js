@@ -6,6 +6,7 @@ import { createRequire } from "module";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { z } from "zod"; // Integrated Zod for enhanced CLI input validation
+import ejs from "ejs"; // Added EJS for customizable export templates
 import { promises as fs } from "fs";
 import { existsSync } from "fs";
 import PDFDocument from "pdfkit"; // Added PDFKit for PDF export functionality
@@ -541,6 +542,11 @@ const chatExportCommand = {
         type: "string",
         describe: "Filter entries until this end date (inclusive) in ISO format",
         demandOption: false
+      })
+      .option("template", {
+        type: "string",
+        describe: "Path to a custom EJS template file for markdown export",
+        demandOption: false
       });
   },
   handler: async (argv) => {
@@ -593,11 +599,29 @@ const chatExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
 
-      let mdContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n**Date Range:** ${dateRange}\n\n---\n\n`;
+      let defaultContent = `# Conversation History\n\n**Session Title:** ${sessionTitle}\n**Exported At:** ${exportTimestamp}\n**Date Range:** ${dateRange}\n\n---\n\n`;
       history.forEach((entry, index) => {
-        mdContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n`;
-        mdContent += `**Timestamp:** ${entry.timestamp}\n\n`;
+        defaultContent += `**${index + 1}. ${entry.role}**: ${entry.content}\n`;
+        defaultContent += `**Timestamp:** ${entry.timestamp}\n\n`;
       });
+
+      let mdContent = defaultContent;
+      // If a custom template is provided, use EJS to render the template with data
+      if (argv.template) {
+        try {
+          const templateContent = await fs.readFile(argv.template, "utf-8");
+          const renderData = {
+            sessionTitle,
+            exportTimestamp,
+            dateRange,
+            messages: history
+          };
+          mdContent = ejs.render(templateContent, renderData);
+        } catch (tmplError) {
+          handleError("Failed to load or render the custom template", tmplError);
+        }
+      }
+
       await fs.writeFile("chat_history.md", mdContent);
       console.log("Conversation history exported to chat_history.md");
     } catch (error) {
@@ -625,6 +649,11 @@ const chatHtmlExportCommand = {
         type: "string",
         describe: "Filter entries until this end date (inclusive) in ISO format",
         demandOption: false
+      })
+      .option("template", {
+        type: "string",
+        describe: "Path to a custom EJS template file for HTML export",
+        demandOption: false
       });
   },
   handler: async (argv) => {
@@ -677,19 +706,30 @@ const chatHtmlExportCommand = {
       } catch(e){}
       const exportTimestamp = new Date().toISOString().replace("T", " ").split(".")[0];
 
-      let htmlContent = "<!DOCTYPE html>\n<html>\n<head>\n";
-      htmlContent += "<meta charset=\"UTF-8\">\n";
-      htmlContent += "<title>Conversation History</title>\n";
-      htmlContent += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; } .timestamp { color: #555; font-size: 0.9em; }</style>\n";
-      htmlContent += "</head>\n<body>\n";
-      htmlContent += "<h1>Conversation History</h1>\n";
-      htmlContent += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p>\n<p>Date Range: ${dateRange}</p></div>\n`;
+      let defaultHtml = "<!DOCTYPE html>\n<html>\n<head>\n";
+      defaultHtml += "<meta charset=\"UTF-8\">\n";
+      defaultHtml += "<title>Conversation History</title>\n";
+      defaultHtml += "<style>body { font-family: Arial, sans-serif; margin: 20px; } .header { margin-bottom: 20px; } .entry { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; } .role { font-weight: bold; } .timestamp { color: #555; font-size: 0.9em; }</style>\n";
+      defaultHtml += "</head>\n<body>\n";
+      defaultHtml += "<h1>Conversation History</h1>\n";
+      defaultHtml += `<div class=\"header\"><h2>Session Title: ${sessionTitle}</h2>\n<p>Exported At: ${exportTimestamp}</p>\n<p>Date Range: ${dateRange}</p></div>\n`;
       history.forEach((entry, index) => {
-        htmlContent += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
-        htmlContent += `<p class=\"message\">${entry.content}</p>`;
-        htmlContent += `<p class=\"timestamp\">Timestamp: ${entry.timestamp}</p></div>\n`;
+        defaultHtml += `<div class=\"entry\"><p class=\"role\">${index + 1}. ${entry.role}:</p>`;
+        defaultHtml += `<p class=\"message\">${entry.content}</p>`;
+        defaultHtml += `<p class=\"timestamp\">Timestamp: ${entry.timestamp}</p></div>\n`;
       });
-      htmlContent += "</body>\n</html>";
+      defaultHtml += "</body>\n</html>";
+
+      let htmlContent = defaultHtml;
+      if (argv.template) {
+        try {
+          const templateContent = await fs.readFile(argv.template, "utf-8");
+          const renderData = { sessionTitle, exportTimestamp, dateRange, messages: history };
+          htmlContent = ejs.render(templateContent, renderData);
+        } catch (tmplError) {
+          handleError("Failed to load or render the custom template", tmplError);
+        }
+      }
 
       const tempFile = "chat_history.html.tmp";
       await fs.writeFile(tempFile, htmlContent);
@@ -719,6 +759,11 @@ const chatPdfExportCommand = {
       .option("end-date", {
         type: "string",
         describe: "Filter entries until this end date (inclusive) in ISO format",
+        demandOption: false
+      })
+      .option("template", {
+        type: "string",
+        describe: "Path to a custom EJS template file for PDF export",
         demandOption: false
       });
   },
@@ -781,6 +826,15 @@ const chatPdfExportCommand = {
         history.forEach((entry, index) => {
           pdfContent += `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}\n`;
         });
+        if (argv.template) {
+          try {
+            const templateContent = await fs.readFile(argv.template, "utf-8");
+            const renderData = { sessionTitle, exportTimestamp, dateRange, messages: history };
+            pdfContent = ejs.render(templateContent, renderData);
+          } catch (tmplError) {
+            handleError("Failed to load or render the custom template", tmplError);
+          }
+        }
         const tempFile = "chat_history.pdf.tmp";
         await fs.writeFile(tempFile, pdfContent);
         await fs.rename(tempFile, "chat_history.pdf");
@@ -788,40 +842,70 @@ const chatPdfExportCommand = {
         return;
       }
 
-      const doc = new PDFDocument({ compress: false });
-      doc.info.Title = "Conversation History";
-      // Embed session title into PDF metadata so that it's easily searchable in the output
-      doc.info.Keywords = sessionTitle;
-      const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`).join('\n');
-      doc.info.Subject = conversationText;
-      doc.font('Helvetica');
-      let buffers = [];
-      doc.on('data', buffers.push.bind(buffers));
-      const pdfPromise = new Promise((resolve, reject) => {
-        doc.on('end', resolve);
-        doc.on('error', reject);
-      });
+      if (argv.template) {
+        let renderedContent = "";
+        try {
+          const templateContent = await fs.readFile(argv.template, "utf-8");
+          const renderData = { sessionTitle, exportTimestamp, dateRange, messages: history };
+          renderedContent = ejs.render(templateContent, renderData);
+        } catch (tmplError) {
+          handleError("Failed to load or render the custom template", tmplError);
+        }
+        const doc = new PDFDocument({ compress: false });
+        doc.info.Title = "Conversation History";
+        doc.info.Keywords = sessionTitle;
+        doc.info.Subject = renderedContent;
+        doc.font('Helvetica');
+        let buffers = [];
+        doc.on('data', buffers.push.bind(buffers));
+        const pdfPromise = new Promise((resolve, reject) => {
+          doc.on('end', resolve);
+          doc.on('error', reject);
+        });
+        doc.fontSize(18).text(renderedContent, { align: "left" });
+        doc.end();
+        await pdfPromise;
+        const pdfData = Buffer.concat(buffers);
+        const tempFile = "chat_history.pdf.tmp";
+        await fs.writeFile(tempFile, pdfData);
+        await fs.rename(tempFile, "chat_history.pdf");
+        console.log("Conversation history exported to chat_history.pdf");
+        return;
+      } else {
+        const doc = new PDFDocument({ compress: false });
+        doc.info.Title = "Conversation History";
+        doc.info.Keywords = sessionTitle;
+        const conversationText = history.map((entry, index) => `${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`).join('\n');
+        doc.info.Subject = conversationText;
+        doc.font('Helvetica');
+        let buffers = [];
+        doc.on('data', buffers.push.bind(buffers));
+        const pdfPromise = new Promise((resolve, reject) => {
+          doc.on('end', resolve);
+          doc.on('error', reject);
+        });
 
-      // Add header with session metadata
-      doc.fontSize(18).text("Conversation History", { align: "center" });
-      doc.moveDown();
-      doc.fontSize(14).text(`Session Title: ${sessionTitle}`, { align: "center" });
-      doc.fontSize(12).text(`Exported At: ${exportTimestamp}`, { align: "center" });
-      doc.fontSize(12).text(`Date Range: ${dateRange}`, { align: "center" });
-      doc.moveDown();
+        // Add header with session metadata
+        doc.fontSize(18).text("Conversation History", { align: "center" });
+        doc.moveDown();
+        doc.fontSize(14).text(`Session Title: ${sessionTitle}`, { align: "center" });
+        doc.fontSize(12).text(`Exported At: ${exportTimestamp}`, { align: "center" });
+        doc.fontSize(12).text(`Date Range: ${dateRange}`, { align: "center" });
+        doc.moveDown();
 
-      history.forEach((entry, index) => {
-        doc.fontSize(12).text(`${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`);
-        doc.moveDown(0.5);
-      });
-      doc.end();
+        history.forEach((entry, index) => {
+          doc.fontSize(12).text(`${index + 1}. ${entry.role} (${entry.timestamp}): ${entry.content}`);
+          doc.moveDown(0.5);
+        });
+        doc.end();
 
-      await pdfPromise;
-      const pdfData = Buffer.concat(buffers);
-      const tempFile = "chat_history.pdf.tmp";
-      await fs.writeFile(tempFile, pdfData);
-      await fs.rename(tempFile, "chat_history.pdf");
-      console.log("Conversation history exported to chat_history.pdf");
+        await pdfPromise;
+        const pdfData = Buffer.concat(buffers);
+        const tempFile = "chat_history.pdf.tmp";
+        await fs.writeFile(tempFile, pdfData);
+        await fs.rename(tempFile, "chat_history.pdf");
+        console.log("Conversation history exported to chat_history.pdf");
+      }
     } catch (error) {
       handleError("Failed to export conversation history to PDF", error);
     }
@@ -1034,7 +1118,6 @@ const chatImportCommand = {
   }
 };
 
-// Newly added chat-restore command
 const chatRestoreCommand = {
   command: "chat-restore",
   describe: "Restore a previously archived conversation history from a specified file",
