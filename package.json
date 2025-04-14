@@ -25,7 +25,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "dotenv": "^16.4.7",
+    "dotenv": "^16.5.0",
     "openai": "^4.93.0",
     "ejs": "^3.1.10",
     "zod": "^3.24.2",
