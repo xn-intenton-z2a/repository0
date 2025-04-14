@@ -10,6 +10,21 @@ const chatHistoryFile = ".chat_history.json";
 export function main(args) {
   // Handle 'chat' command
   if (args[0] === "chat") {
+    // New stats command
+    if (args[1] === "stats") {
+      try {
+        if (!fs.existsSync(chatHistoryFile)) {
+          console.log("No chat history available.");
+        } else {
+          const history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+          console.log(`Session '${history.sessionTitle}' contains ${history.messages.length} messages.`);
+        }
+      } catch (e) {
+        console.error("No chat history available.");
+      }
+      return;
+    }
+    
     // Check if export option is provided
     if (args[1] === "export") {
       const formatSchema = z.enum(["markdown", "html", "pdf", "csv"]);
@@ -65,7 +80,7 @@ export function main(args) {
         try {
           historyData = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
           // Update session title if provided
-          if (args[1]) {
+          if (args[1] && args[1] !== "stats") {
             historyData.sessionTitle = sessionTitle;
           }
         } catch (err) {
