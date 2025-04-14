@@ -1,35 +1,38 @@
 # ARG_VALIDATION Feature Specification
 
-This feature enhances the CLI tool by introducing robust argument parsing and validation. By integrating existing libraries like yargs and zod, the tool will provide clear error messages when an unknown or malformed command is used. This update ensures that only supported commands (e.g., help, diagnostics, version, update, export, import, chat) are processed, and adds graceful error handling with suggestions for proper usage.
+This feature refines the CLI argument parsing and validation by integrating robust libraries (yargs and zod) to ensure that only supported commands are processed and that any invalid or malformed input is clearly reported to the user.
 
 ## Overview
 
-The ARG_VALIDATION feature upgrades the minimal CLI processing currently implemented in `src/lib/main.js`. Leveraging yargs for command-line argument parsing and zod for validation, the CLI will now:
-- Parse command-line arguments into a structured format.
-- Validate the input against a defined schema to ensure only supported commands and options are accepted.
-- Provide an informative error message along with usage hints if the input is invalid or unsupported.
+The updated ARG_VALIDATION feature will improve the CLI tool by:
+- Replacing the basic argument handling with a structured parser using yargs.
+- Defining and enforcing a validation schema with zod to allow only known commands and options.
+- Providing descriptive error messages and usage hints when invalid input is detected.
+- Maintaining support for all existing commands including `greet`, and preparing the CLI for future commands like `help`, `chat`, `export`, `import`, `diagnostics`, `version`, and `update` as documented in other feature specs.
 
 ## Implementation Details
 
 ### Source File (src/lib/main.js):
-- Import and configure yargs to handle CLI argument parsing.
-- Define a schema using zod to validate commands and options.
-- Update the main function to dispatch supported commands, while displaying a clear error and guidance for unknown commands.
-- Ensure that built-in commands (help, diagnostics, version, update, export, import, chat) remain supported.
+- **Integrate yargs**: Replace the current if-else branch with a yargs-based parser to handle CLI arguments in a structured manner.
+- **Define a Zod Schema**: Use zod to define a schema that strictly allows commands such as `greet`, `help`, `chat`, `export`, `import`, `diagnostics`, `version`, and `update`.
+- **Error Handling**: If the input does not match the schema, display a clear error message with guidance on proper usage.
+- **Command Routing**: Maintain the current functionality for `greet` while setting up the framework for additional commands in the future.
 
 ### Test File (tests/unit/main.test.js):
-- Add test cases to simulate invalid or unsupported CLI commands. For instance, verify that an unrecognized command returns a specific error message that suggests using the help command.
-- Ensure tests still cover the default output for cases when no arguments or valid commands are provided.
+- **Existing Tests Update**: Update tests to account for the new argument parsing and validation behavior.
+- **New Test Cases**: Add tests to simulate invalid input, ensuring that errors are properly thrown and that the user is provided with usage hints.
 
 ### README File (README.md):
-- Update the Usage section to reflect the improved command-line argument validation and error messaging.
-- Document examples showing both valid commands and example error messages when an invalid command is provided.
+- **Usage Section Update**: Document the improved argument parsing and provide examples of both valid commands (e.g., `greet`, `help`) and error cases when an unknown command is used.
+- **Error Messaging**: Explain that in the event of invalid commands, the user will receive a descriptive error message advising on available commands.
 
 ### Dependencies File (package.json):
-- No new dependencies are required; the feature utilizes the already included yargs and zod libraries.
+- **No New Dependencies**: The feature uses the already included libraries (yargs and zod) to implement validation.
 
 ## Benefits
 
-- **Improved Usability:** Users receive immediate feedback with guidance when entering unsupported commands.
-- **Robustness:** Ensures that the CLI behaves predictably, only processing valid commands and options.
-- **Consistency:** Aligns with the repository’s mission by enhancing the CLI’s reliability with minimal yet valuable code changes.
+- **Improved Usability**: Users will receive immediate and clear feedback if they enter an unsupported command or malformed arguments, reducing user error.
+- **Enhanced Robustness**: The CLI will process only valid input, which enhances stability and reduces unexpected behavior.
+- **Extensibility**: This update provides the groundwork for future commands and features, making the CLI easier to extend and maintain.
+
+This refined ARG_VALIDATION feature aligns with the repository's mission of providing handy CLI utilities in Node.js, ensuring that even as new commands are added, the CLI maintains a high standard of input validation and user guidance.
