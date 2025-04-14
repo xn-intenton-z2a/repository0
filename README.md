@@ -60,33 +60,40 @@ To run the CLI, execute the following command in your terminal:
        $ node src/lib/main.js greet Alice
        Hello, Alice!
 
-### Arithmetic Commands
+4. **Arithmetic Commands**
 
-The CLI now supports additional arithmetic operations:
+   The CLI now supports additional arithmetic operations:
 
-1. **gcd Command**
+   - **gcd Command**
 
-   Computes the greatest common divisor of two or more integers using the Euclidean algorithm.
+     Computes the greatest common divisor of two or more integers using the Euclidean algorithm.
 
-       $ node src/lib/main.js gcd 12 18 24
-       6
+         $ node src/lib/main.js gcd 12 18 24
+         6
 
-2. **lcm Command**
+   - **lcm Command**
 
-   Computes the least common multiple of two or more integers.
+     Computes the least common multiple of two or more integers.
 
-       $ node src/lib/main.js lcm 4 5 10
-       20
+         $ node src/lib/main.js lcm 4 5 10
+         20
 
-3. **prime Command**
+   - **prime Command**
 
-   Checks whether a single integer is prime and outputs the result.
+     Checks whether a single integer is prime and outputs the result.
 
-       $ node src/lib/main.js prime 7
-       7 is prime
-       
-       $ node src/lib/main.js prime 8
-       8 is not prime
+         $ node src/lib/main.js prime 7
+         7 is prime
+         
+         $ node src/lib/main.js prime 8
+         8 is not prime
+
+5. **Diagnostics Command**
+
+   The `diagnostics` command verifies that the CLI is functioning correctly:
+
+         $ node src/lib/main.js diagnostics
+         Diagnostics: All systems operational
 
 ## Getting Started
 

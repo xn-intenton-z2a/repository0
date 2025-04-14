@@ -71,3 +71,12 @@ describe("Arithmetic Commands", () => {
     spy.mockRestore();
   });
 });
+
+describe("Diagnostics Command", () => {
+  test("should output diagnostics message", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["diagnostics"]);
+    expect(spy).toHaveBeenCalledWith("Diagnostics: All systems operational");
+    spy.mockRestore();
+  });
+});

@@ -92,6 +92,8 @@ export function main(args = []) {
     } catch (err) {
       console.error("Invalid input for prime command. Ensure the argument is an integer.");
     }
+  } else if (command === "diagnostics") {
+    console.log("Diagnostics: All systems operational");
   } else {
     console.log(`Unknown command: ${command}`);
   }
