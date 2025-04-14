@@ -41,40 +41,52 @@ To run the CLI, execute the following command in your terminal:
        $ node src/lib/main.js
        No CLI arguments provided
 
-2. **Single Argument (Non-Greet Command)**
+2. **Single Argument (Unknown Command)**
 
-   When a single argument (other than `greet`) is provided, the CLI will display the arguments in JSON format:
+   When an unknown command is provided, the CLI echoes an error message:
 
        $ node src/lib/main.js hello
-       Run with: ["hello"]
+       Unknown command: hello
 
-3. **Multiple Arguments (Non-Greet Command)**
-
-   When multiple arguments are provided (and not starting with `greet`), they are displayed as a JSON array:
-
-       $ node src/lib/main.js hello world
-       Run with: ["hello","world"]
-
-4. **Greet Command Default**
+3. **Greet Command**
 
    The `greet` command outputs a greeting. When used without specifying a name, it will greet "world":
 
        $ node src/lib/main.js greet
        Hello, world!
 
-5. **Greet Command with Name**
-
    When a name is provided with the `greet` command, the greeting reflects the provided name:
 
        $ node src/lib/main.js greet Alice
        Hello, Alice!
 
-### Additional CLI Scenarios
+### Arithmetic Commands
 
-- If an unknown command is provided (other than `greet`), the CLI simply echoes back the arguments in JSON format:
+The CLI now supports additional arithmetic operations:
 
-       $ node src/lib/main.js diagnostics
-       Run with: ["diagnostics"]
+1. **gcd Command**
+
+   Computes the greatest common divisor of two or more integers using the Euclidean algorithm.
+
+       $ node src/lib/main.js gcd 12 18 24
+       6
+
+2. **lcm Command**
+
+   Computes the least common multiple of two or more integers.
+
+       $ node src/lib/main.js lcm 4 5 10
+       20
+
+3. **prime Command**
+
+   Checks whether a single integer is prime and outputs the result.
+
+       $ node src/lib/main.js prime 7
+       7 is prime
+       
+       $ node src/lib/main.js prime 8
+       8 is not prime
 
 ## Getting Started
 
