@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, as well as a new stats subcommand to view chat history summary.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling and export functionality with human-readable formats.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, and a new stats command to summarize the chat session history.
 
 ## What’s Inside
 
@@ -13,7 +13,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intention `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations and enhanced export capabilities.
+  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations, enhanced export capabilities, and a new 'stats' subcommand to summarize chat history.
 
 - **Chat Command:**
   The `chat` command allows you to start a new chat session or resume an existing one. Conversation history is stored persistently in a file named `.chat_history.json`.
@@ -29,20 +29,23 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat export <format>
     ```
     where `<format>` is one of:
-    - **markdown:** Exports with a markdown header and a list for each message. Example:
-      ```
-      # Chat History: My Session
-      - 2025-04-14T22:46:05.856Z: Simulated chat message received.
-      ```
+    - **markdown:** Exports with a markdown header and a list for each message.
     - **html:** Exports as an HTML snippet with an `<h1>` header and `<p>` tags for each message.
     - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
-    - **pdf:** Simulates PDF export as a plain text representation listing the session and messages clearly.
+    - **pdf:** Simulates PDF export as a plain text representation.
+
+  - To view a summary of the current chat session, run:
+    ```
+    node src/lib/main.js chat stats
+    ```
+    This command reads the stored chat history and prints a summary in the format:
+    "Session '<sessionTitle>' contains <number> messages." If no chat history is available, it outputs "No chat history available.".
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new `chat` command and enhanced export functionality, behave as expected.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new enhancements, behave as expected.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

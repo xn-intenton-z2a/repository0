@@ -108,4 +108,20 @@ describe("Chat Command", () => {
     expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid export format. Please use one of: markdown, html, pdf, csv.");
     consoleErrorSpy.mockRestore();
   });
+
+  test("should output no chat history available when stats command is used and no history exists", () => {
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "stats"]);
+    expect(consoleSpy).toHaveBeenCalledWith("No chat history available.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should output stats correctly when chat history exists", () => {
+    main(["chat", "Stats Session"]);
+    const data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "stats"]);
+    expect(consoleSpy).toHaveBeenCalledWith(`Session '${data.sessionTitle}' contains ${data.messages.length} messages.`);
+    consoleSpy.mockRestore();
+  });
 });
