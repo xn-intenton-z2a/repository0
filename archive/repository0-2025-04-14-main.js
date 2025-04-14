@@ -61,7 +61,7 @@ export function main(args = []) {
     }
     try {
       const numberSchema = z.preprocess((val) => Number(val), z.number().int());
-      const parsedNumbers = args.slice(1).map(num => numberSchema.parse(num));
+      const parsedNumbers = args.slice(1).map((num) => numberSchema.parse(num));
       const result = gcdArray(parsedNumbers);
       console.log(result);
     } catch (err) {
@@ -74,7 +74,7 @@ export function main(args = []) {
     }
     try {
       const numberSchema = z.preprocess((val) => Number(val), z.number().int());
-      const parsedNumbers = args.slice(1).map(num => numberSchema.parse(num));
+      const parsedNumbers = args.slice(1).map((num) => numberSchema.parse(num));
       const result = lcmArray(parsedNumbers);
       console.log(result);
     } catch (err) {

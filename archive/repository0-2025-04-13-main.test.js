@@ -13,11 +13,11 @@ vi.mock("openai", () => {
     async createChatCompletion(params) {
       if (params.messages && Array.isArray(params.messages)) {
         const lastMessage = params.messages[params.messages.length - 1].content;
-        if (lastMessage.startsWith('Custom summarize:')) {
+        if (lastMessage.startsWith("Custom summarize:")) {
           return { data: { choices: [{ message: { content: "Custom summarization response" } }] } };
-        } else if (lastMessage.startsWith('Summarize the following conversation:')) {
+        } else if (lastMessage.startsWith("Summarize the following conversation:")) {
           return { data: { choices: [{ message: { content: "Summary of conversation" } }] } };
-        } else if (lastMessage.startsWith('Translate the following conversation history')) {
+        } else if (lastMessage.startsWith("Translate the following conversation history")) {
           return { data: { choices: [{ message: { content: `Translated conversation to target language` } }] } };
         }
       }
@@ -144,7 +144,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([true]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received true");
     expect(output).toContain(suggestion);
@@ -154,7 +154,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([false]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received false");
     expect(output).toContain(suggestion);
@@ -164,7 +164,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([null]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received null");
     expect(output).toContain(suggestion);
@@ -174,7 +174,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([undefined]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received undefined");
     expect(output).toContain(suggestion);
@@ -184,9 +184,11 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([{ command: "test" }]);
-      } catch {} 
+      } catch {}
     });
-    expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received {\"command\":\"test\"}");
+    expect(output).toContain(
+      'Invalid input: Expected a valid non-empty string command, but received {"command":"test"}',
+    );
     expect(output).toContain(suggestion);
   });
 
@@ -194,7 +196,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([["array"]]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received Array");
     expect(output).toContain(suggestion);
@@ -205,9 +207,11 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([sym]);
-      } catch {} 
+      } catch {}
     });
-    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received Symbol(testSymbol)`);
+    expect(output).toContain(
+      `Invalid input: Expected a valid non-empty string command, but received Symbol(testSymbol)`,
+    );
     expect(output).toContain(suggestion);
   });
 
@@ -216,9 +220,11 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main([big]);
-      } catch {} 
+      } catch {}
     });
-    expect(output).toContain(`Invalid input: Expected a valid non-empty string command, but received ${big.toString()}n`);
+    expect(output).toContain(
+      `Invalid input: Expected a valid non-empty string command, but received ${big.toString()}n`,
+    );
     expect(output).toContain(suggestion);
   });
 
@@ -228,7 +234,7 @@ describe("CLI Commands", () => {
     const output = await captureOutput(() => {
       try {
         return main(["chat", "--prompt", "NaN"]);
-      } catch {} 
+      } catch {}
     });
     expect(output).toContain("Invalid input: Expected a valid non-empty string command, but received NaN.");
     expect(output).toContain(suggestion);
@@ -241,7 +247,7 @@ describe("CLI Commands", () => {
     // Fake the readline interface
     const fakeInterface = {
       question: vi.fn(),
-      close: vi.fn()
+      close: vi.fn(),
     };
     const responses = ["Hello interactive", "exit"];
     let callCount = 0;
@@ -249,7 +255,7 @@ describe("CLI Commands", () => {
       cb(responses[callCount]);
       callCount++;
     });
-    vi.spyOn(readline, 'createInterface').mockReturnValue(fakeInterface);
+    vi.spyOn(readline, "createInterface").mockReturnValue(fakeInterface);
 
     const output = await captureOutput(() => main(["chat-interactive"]));
     expect(output).toContain("Entering interactive chat mode");
@@ -273,14 +279,21 @@ describe("CLI Commands", () => {
     });
 
     test("chat-config-update command with valid options", async () => {
-      const output = await captureOutput(() => main([
-        "chat-config-update",
-        "--model", "gpt-4",
-        "--temperature", "0.8",
-        "--max-history-messages", "20",
-        "--recent-messages", "3",
-        "--auto-archive-threshold", "100"
-      ]));
+      const output = await captureOutput(() =>
+        main([
+          "chat-config-update",
+          "--model",
+          "gpt-4",
+          "--temperature",
+          "0.8",
+          "--max-history-messages",
+          "20",
+          "--recent-messages",
+          "3",
+          "--auto-archive-threshold",
+          "100",
+        ]),
+      );
       expect(output).toContain("Chat configuration updated successfully.");
       const configData = JSON.parse(await fs.readFile(configFile, "utf-8"));
       expect(configData.model).toEqual("gpt-4");
