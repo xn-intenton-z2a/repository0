@@ -86,7 +86,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.10.2'
     with:
       prompt: ${{ needs.select-prompt.outputs.prompt }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
@@ -113,7 +113,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.10.2'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
@@ -123,7 +123,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.10.2'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -139,7 +139,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.10.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'

@@ -80,11 +80,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@3.10.2'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@3.10.2'
 
   ls:
     needs: label
@@ -171,7 +171,7 @@ jobs:
       contents: write
       pull-requests: read
       issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@3.10.2'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'agentic-lib-issue-'
@@ -183,7 +183,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@3.10.2'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -196,7 +196,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@3.10.2'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'agentic-lib-issue-'
@@ -206,7 +206,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.10.2'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -223,7 +223,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.10.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.10.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
