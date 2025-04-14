@@ -9,12 +9,12 @@
   "issuesClosedLastHour": 0,
   "issuesClosedLastDay": 51,
   "openPRs": 1,
-  "averagePRAge": 116,
+  "averagePRAge": 161,
   "prDetails": [
-    "[116m] Improve CLI feedback for missing arguments by adding a default message and updating docs and tests accordingly. (fixes #1577)"
+    "[161m] Improve CLI feedback for missing arguments by adding a default message and updating docs and tests accordingly. (fixes #1577)"
   ],
-  "diffMinutes": 48,
-  "diffMinutesMain": 118,
+  "diffMinutes": 43,
+  "diffMinutesMain": 162,
   "commitsLastHour": 0,
   "commitsLastDay": 41,
   "lastFiveCommitMessages": [
@@ -27,14 +27,14 @@
   "branches": {
     "count": 1,
     "details": [
-      "[117m] agentic-lib-issue-1577"
+      "[161m] agentic-lib-issue-1577"
     ],
     "branchIssueDetails": [
       "[1577] Improve CLI User Feedback for Missing Arguments automated, maintenance, issue-worker-14435367979"
     ],
-    "averageBranchAge": 117
+    "averageBranchAge": 161
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T03:14:48.217Z"
+  "statsGeneratedAt": "2025-04-14T03:59:02.465Z"
 }
