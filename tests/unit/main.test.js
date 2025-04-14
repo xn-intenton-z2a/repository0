@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 
@@ -9,9 +9,18 @@ describe("Main Module Import", () => {
 });
 
 describe("Default Demo Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    // Provide an empty array as default argument
+  test("should output default message when no arguments provided", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main([]);
+    expect(spy).toHaveBeenCalledWith("No CLI arguments provided");
+    spy.mockRestore();
+  });
+
+  test("should output expected message when arguments are provided", () => {
+    const testArgs = ["example"];
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(testArgs);
+    expect(spy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(testArgs)}`);
+    spy.mockRestore();
   });
 });

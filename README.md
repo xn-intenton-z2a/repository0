@@ -30,7 +30,17 @@ To run the CLI, execute the following command in your terminal:
 
   node src/lib/main.js [args]
 
-The script will output the provided arguments as a JSON array. If no arguments are provided, it defaults to an empty array.
+If no arguments are provided, the program will output:
+
+  No CLI arguments provided
+
+If arguments are provided, they will be displayed in JSON format. For example:
+
+  node src/lib/main.js hello world
+  
+This will output:
+
+  Run with: ["hello","world"]
 
 ## Getting Started
 
