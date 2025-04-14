@@ -26,41 +26,55 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 ## Usage
 
+### Running the CLI
+
 To run the CLI, execute the following command in your terminal:
 
-  node src/lib/main.js [args]
+    node src/lib/main.js [args]
 
-### Default Behavior
-If no arguments are provided, the program will output:
+### Examples
 
-  No CLI arguments provided
+1. **No Arguments Provided**
 
-If arguments are provided (other than the new greet command), they will be displayed in JSON format. For example:
+   When no arguments are provided, the CLI outputs a default message:
 
-  node src/lib/main.js hello world
-  
-This will output:
+       $ node src/lib/main.js
+       No CLI arguments provided
 
-  Run with: ["hello","world"]
+2. **Single Argument (Non-Greet Command)**
 
-### Greet Command
-A new CLI command `greet` has been implemented to provide a greeting message.
+   When a single argument (other than `greet`) is provided, the CLI will display the arguments in JSON format:
 
-- Running the command without a name:
+       $ node src/lib/main.js hello
+       Run with: ["hello"]
 
-    node src/lib/main.js greet
+3. **Multiple Arguments (Non-Greet Command)**
 
-  will output:
+   When multiple arguments are provided (and not starting with `greet`), they are displayed as a JSON array:
 
-    Hello, world!
+       $ node src/lib/main.js hello world
+       Run with: ["hello","world"]
 
-- Running the command with a name (e.g., Alice):
+4. **Greet Command Default**
 
-    node src/lib/main.js greet Alice
+   The `greet` command outputs a greeting. When used without specifying a name, it will greet "world":
 
-  will output:
+       $ node src/lib/main.js greet
+       Hello, world!
 
-    Hello, Alice!
+5. **Greet Command with Name**
+
+   When a name is provided with the `greet` command, the greeting reflects the provided name:
+
+       $ node src/lib/main.js greet Alice
+       Hello, Alice!
+
+### Additional CLI Scenarios
+
+- If an unknown command is provided (other than `greet`), the CLI simply echoes back the arguments in JSON format:
+
+       $ node src/lib/main.js diagnostics
+       Run with: ["diagnostics"]
 
 ## Getting Started
 
