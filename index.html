@@ -65,43 +65,52 @@ No CLI arguments provided
 </code></pre>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Single Argument (Non-Greet Command)</strong></p>
-<p class="md-github">When a single argument (other than <code class="md-github">greet</code>) is provided, the CLI will display the arguments in JSON format:</p>
+<p class="md-github"><strong class="md-github">Single Argument (Unknown Command)</strong></p>
+<p class="md-github">When an unknown command is provided, the CLI echoes an error message:</p>
 <pre class="md-github"><code class="md-github">$ node src/lib/main.js hello
-Run with: [&quot;hello&quot;]
+Unknown command: hello
 </code></pre>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Multiple Arguments (Non-Greet Command)</strong></p>
-<p class="md-github">When multiple arguments are provided (and not starting with <code class="md-github">greet</code>), they are displayed as a JSON array:</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js hello world
-Run with: [&quot;hello&quot;,&quot;world&quot;]
-</code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Greet Command Default</strong></p>
+<p class="md-github"><strong class="md-github">Greet Command</strong></p>
 <p class="md-github">The <code class="md-github">greet</code> command outputs a greeting. When used without specifying a name, it will greet &quot;world&quot;:</p>
 <pre class="md-github"><code class="md-github">$ node src/lib/main.js greet
 Hello, world!
 </code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Greet Command with Name</strong></p>
 <p class="md-github">When a name is provided with the <code class="md-github">greet</code> command, the greeting reflects the provided name:</p>
 <pre class="md-github"><code class="md-github">$ node src/lib/main.js greet Alice
 Hello, Alice!
 </code></pre>
 </li>
 </ol>
-<h3 class="md-github"><a class="md-github__anchor" name="additional-cli-scenarios" href="#additional-cli-scenarios"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Additional CLI Scenarios</h3>
-<ul class="md-github">
+<h3 class="md-github"><a class="md-github__anchor" name="arithmetic-commands" href="#arithmetic-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arithmetic Commands</h3>
+<p class="md-github">The CLI now supports additional arithmetic operations:</p>
+<ol class="md-github">
 <li class="md-github">
-<p class="md-github">If an unknown command is provided (other than <code class="md-github">greet</code>), the CLI simply echoes back the arguments in JSON format:</p>
-<pre class="md-github"><code class="md-github"> $ node src/lib/main.js diagnostics
- Run with: [&quot;diagnostics&quot;]
+<p class="md-github"><strong class="md-github">gcd Command</strong></p>
+<p class="md-github">Computes the greatest common divisor of two or more integers using the Euclidean algorithm.</p>
+<pre class="md-github"><code class="md-github">$ node src/lib/main.js gcd 12 18 24
+6
 </code></pre>
 </li>
-</ul>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">lcm Command</strong></p>
+<p class="md-github">Computes the least common multiple of two or more integers.</p>
+<pre class="md-github"><code class="md-github">$ node src/lib/main.js lcm 4 5 10
+20
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">prime Command</strong></p>
+<p class="md-github">Checks whether a single integer is prime and outputs the result.</p>
+<pre class="md-github"><code class="md-github">$ node src/lib/main.js prime 7
+7 is prime
+
+$ node src/lib/main.js prime 8
+8 is not prime
+</code></pre>
+</li>
+</ol>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
 <p class="md-github">This repository is already set up with the necessary workflows and scripts but you need to supply the following secrets:</p>
 <ul class="md-github">
@@ -117,7 +126,7 @@ Hello, Alice!
 
   </section>
   <footer>
-    <p>Generated on 2025-04-14T15:58:25.330Z</p>
+    <p>Generated on 2025-04-14T16:16:38.874Z</p>
   </footer>
 </body>
 </html>
