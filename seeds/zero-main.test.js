@@ -8,7 +8,7 @@ describe("Main Module Import", () => {
   });
 });
 
-describe("Default Demo Output", () => {
+describe("Main Output", () => {
   test("should terminate without error", () => {
     process.argv = ["node", "src/lib/main.js"];
     main();
