@@ -11,6 +11,7 @@ describe("Main Module Import", () => {
 describe("Default Demo Output", () => {
   test("should terminate without error", () => {
     process.argv = ["node", "src/lib/main.js"];
-    main();
+    // Provide an empty array as default argument
+    main([]);
   });
 });

@@ -1,31 +1,36 @@
 # `repository0`
 
-The repository is intended as a template that includes:
-* A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic‑lib` which reference reusable workflows.
+This repository template showcases the GitHub workflows imported from intentïon `agentic‑lib` and demonstrates a minimal CLI implementation. It uses automated workflows for CI/CD while providing a simple Node.js CLI utility.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that demonstrates the GitHub workflows from intentïon `agentic‑lib`. Its primary purpose is to showcase automated CI/CD workflows along with a basic CLI tool implemented in Node.js.
 
 ## What’s Inside
 
-- **GitHub Workflows:**  
+- **GitHub Workflows:**
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
-- **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to adhere to the project’s mission and coding standards.
+- **Source Code:**
+  The main functionality is in `src/lib/main.js`. This file is maintained to adhere to the project’s mission and coding standards and exports the CLI functionality as library functions.
 
-- **Dependencies:**  
+- **Dependencies:**
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
-- **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities.
+- **Tests:**
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected.
 
-- **Documentation:**  
+- **Documentation:**
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## Usage
+
+To run the CLI, execute the following command in your terminal:
+
+  node src/lib/main.js [args]
+
+The script will output the provided arguments as a JSON array. If no arguments are provided, it defaults to an empty array.
 
 ## Getting Started
 
@@ -40,10 +45,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
-START_README_END
-### Contributing
-
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
+[CONTRIBUTING.md](./CONTRIBUTING.md) | [MISSION.md](./MISSION.md) | [LICENSE](./LICENSE) | [agentic‑lib on GitHub](https://github.com/xn-intenton-z2a/agentic-lib)
 
 ## License
 
