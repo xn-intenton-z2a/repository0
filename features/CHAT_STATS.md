@@ -1,35 +1,27 @@
 # CHAT_STATS Feature
 
-This feature enhances the existing `chat stats` subcommand to provide more insightful analytics of the current chat session. In addition to displaying the session title and the total number of messages (as previously implemented), this update will also output the timestamp of the most recent message, if available.
+This update enhances the existing `chat stats` subcommand by providing additional analytics on the current chat session. In addition to displaying the session title, total message count, and the timestamp of the last message, this update computes the average interval between consecutive messages when there are at least two messages in the chat history.
 
 ## Changes in Source File (src/lib/main.js)
-- Add a new condition to handle the `stats` subcommand under the `chat` command.
-- When the user runs `node src/lib/main.js chat stats`, the CLI will attempt to read the `.chat_history.json` file.
-  - If the file exists and is valid JSON, the CLI will report:
-    - The session title
-    - The total count of messages
-    - The timestamp of the last message (if there is at least one message)
-  - If no chat history is found or if the message list is empty, a suitable message is printed.
-- Maintain robust error handling so that if the chat history file cannot be parsed, appropriate error messages are logged.
+- Update the logic for handling the `chat stats` subcommand to include the following:
+  - After reading and parsing `.chat_history.json`, check if the messages array contains more than one message.
+  - If so, parse the `timestamp` of each message and compute the average time interval (in seconds) between successive messages.
+  - Append the computed average interval in the CLI output along with the existing session title, message count, and last message timestamp.
+  - Maintain robust error handling: if any timestamp is missing or cannot be parsed, the average interval calculation is skipped, and a note is printed about incomplete data.
 
 ## Changes in Test File (tests/unit/main.test.js)
-- Update existing unit tests for the `stats` subcommand to also verify that the output includes the last message timestamp when applicable.
-- Add tests that simulate scenarios with a valid chat history (including non-empty messages) and with no chat history.
-- Ensure that edge cases (e.g., corrupted file content) are handled gracefully.
+- Extend the unit tests for the `chat stats` subcommand:
+  - Add tests that simulate chat histories with exactly one message to ensure no average interval is reported.
+  - Add tests that simulate chat histories with multiple messages so that the calculated average interval is validated (e.g., using known timestamps and computed expected interval).
+  - Ensure tests also cover edge cases, such as when a message's timestamp is in an invalid format.
 
 ## Changes in README.md
-- Update the documentation in the Chat Command section to reflect the new detail provided by the `stats` command. For example:
-  ```
-  node src/lib/main.js chat stats
-  ```
-  This command now displays the session title, the number of messages, and the timestamp of the latest message.
+- Update the Chat Command documentation to mention that the `chat stats` command now also reports the average interval between messages when applicable.
 
 ## Rationale
-- Provides users with deeper insight into their current chat session by showing not just the count of messages but also the timing information of the latest update.
-- Continues the repository mission of offering valuable and handy CLI utilities in a single source file.
-- Enhances the consistency and usability of the chat functionality by complementing existing features such as clear and export.
+- This enhancement provides users with deeper and more actionable insights into their chat sessions, enabling them to understand the cadence of interactions.
+- It aligns with the repository’s mission to offer valuable CLI utilities in Node.js by extending the functionality within a single source file without adding extraneous complexity.
 
 ## Implementation Considerations
-- All changes will be localized to modifications within the source file, test file, and README.md.
-- Ensure backward compatibility with existing usage of `chat stats` by preserving current functionality while adding the new detail.
-- Tests should remain isolated and ensure no interference with other functionalities.
+- Ensure the additional computation does not introduce performance overhead, particularly for small to moderate-sized chat histories.
+- Use standard JavaScript date parsing methods to compute time differences and gracefully handle any irregularities in data formatting.
