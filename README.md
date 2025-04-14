@@ -1,14 +1,11 @@
 # `repository0`
 
-The repository is intended as a template that includes:
-* A Template Base: A starting point for new projects.
-* A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic‑lib` which reference reusable workflows.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json).
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intentïon `agentic‑lib`. The repository now supports a persistent multi-turn conversation chat feature with optional session titling and export functionality.
 
 ## What’s Inside
 
@@ -16,13 +13,28 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to adhere to the project’s mission and coding standards.
+  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations.
+
+- **Chat Command:**
+  The `chat` command allows you to start a new chat session or resume an existing one. Conversation history is stored persistently in a file named `.chat_history.json`.
+  
+  - To start or update a chat session, run:
+    ```
+    node src/lib/main.js chat [session title]
+    ```
+    (If no session title is provided, "Default Session" is used.)
+  
+  - To export the conversation history, run:
+    ```
+    node src/lib/main.js chat export <format>
+    ```
+    where `<format>` is one of: `markdown`, `html`, `pdf`, or `csv`.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new `chat` command, behave as expected.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -40,10 +52,13 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
-START_README_END
-### Contributing
+## Links
 
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
+- [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
+- [MISSION.md](./MISSION.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [LICENSE](./LICENSE)
+- [agentic‑lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 
 ## License
 
