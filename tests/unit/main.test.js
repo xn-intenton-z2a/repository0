@@ -11,7 +11,7 @@ describe("Main Module Import", () => {
   });
 });
 
-describe("Default Demo Output", () => {
+describe("Main Output", () => {
   test("should terminate without error", () => {
     const consoleSpy = vi.spyOn(console, "log");
     // Passing empty args to get default behavior
