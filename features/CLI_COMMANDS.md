@@ -1,50 +1,42 @@
 # CLI_COMMANDS Feature Specification Update
 
-This update enhances the CLI tool's command routing mechanism by adding support for the additional commands: diagnostics, version, and update. The goal is to deliver immediate value by ensuring that the commands defined in package.json are fully supported in the CLI tool, eliminating the current fallback to an unknown command message.
+This update enhances the CLI tool's command routing mechanism by fully supporting the commands defined in package.json. In addition to the existing diagnostics command, this update adds implementations for the "version" and "update" commands. These additions ensure that when users invoke the CLI tool with these commands, they receive clear and appropriate responses.
 
 ## Overview
 
-This feature update augments the existing CLI_COMMANDS feature specification so that the commands "diagnostics", "version", and "update" are processed correctly in the main CLI entry point. When users invoke these commands, the CLI will:
+The updated CLI_COMMANDS feature now includes:
+- **diagnostics:** Outputs a message indicating system health (already implemented).
+- **version:** Outputs the repository version (hard-coded to match package.json, e.g., "Version: 1.4.1-13").
+- **update:** Simulates an update check by printing a message such as "Checking for updates... No updates available".
 
-- **diagnostics:** Output a message indicating system health, e.g., "Diagnostics: System operational".
-- **version:** Display the repository version (e.g., "Version: 1.4.1-13").
-- **update:** Simulate an update check by printing a message such as "Checking for updates... No updates available".
-
-This update ensures that the CLI adheres to the documented behavior in CLI_COMMANDS.md and aligns with the repository's mission of providing handy CLI utilities in Node.js.
+These changes align with the repository's mission of offering handy CLI utilities in Node.js and ensure that all commands defined in the documentation and package scripts are consistently handled in the main CLI entry point.
 
 ## Implementation Details
 
-### Source File (src/lib/main.js):
-- **Command Routing Update:**
-  - Detect when the first argument matches "diagnostics", "version", or "update".
-  - For "diagnostics": Output `Diagnostics: System operational`.
-  - For "version": Output `Version: 1.4.1-13` (hard-coded to match the current version in package.json).
-  - For "update": Print `Checking for updates... No updates available`.
-  - Retain the existing implementations for commands such as `greet`, `gcd`, `lcm`, and `prime`.
-  - Continue providing an error message for any unknown command other than the three new commands.
+### Source File (src/lib/main.js)
+- **Command Routing:**
+  - Update the main function to detect when the first argument matches "version" or "update".
+  - For "version":
+    - Print the version string (e.g., "Version: 1.4.1-13").
+  - For "update":
+    - Print the message "Checking for updates... No updates available".
+  - Retain the implementation of the diagnostics command and ensure the unknown command branch continues to function for any unsupported commands.
 
-### Test File (tests/unit/main.test.js):
+### Test File (tests/unit/main.test.js)
 - **New Test Cases:**
-  - Add tests to simulate running the CLI with the "diagnostics" command and verify that the correct diagnostics message is printed.
-  - Add tests for the "version" command to check that the expected version output is displayed.
-  - Add tests for the "update" command to ensure that the simulated update check message is printed.
-  - Ensure that these additions do not interfere with the existing tests for other commands.
+  - Add test cases to simulate running the CLI with the "version" command and verify it outputs the correct version string.
+  - Add test cases for the "update" command to check that the proper update check message is printed.
 
-### README File (README.md):
-- **Usage Documentation Update:**
-  - Update the CLI usage section to include examples for the three new commands:
-    - `node src/lib/main.js diagnostics`
-    - `node src/lib/main.js version`
-    - `node src/lib/main.js update`
-  - Clearly document the expected outputs for these commands.
+### README File (README.md)
+- **Usage Section Update:**
+  - Update the examples to include usage of the "version" and "update" commands, explaining their outputs.
 
-### Dependencies File (package.json):
-- **No New Dependencies:**
-  - Utilize the same libraries and mechanisms already present in the repository.
-  - Ensure consistency with the existing scripts that reference these commands (diagnostics, version, check-update).
+### Dependencies File (package.json)
+- **No Additional Dependencies:**
+  - The feature utilizes existing libraries and aligns with the current scripts provided in package.json.
 
 ## Benefits
 
-- **Enhanced CLI Functionality:** Users receive clear, dedicated outputs for diagnostics, version, and update commands, ensuring that package.json scripts work as intended.
-- **Improved User Experience:** Immediate feedback for these common queries increases the usability and professionalism of the CLI tool.
-- **Consistency:** The implementation is aligned with the repository's mission of providing handy CLI utilities in Node.js and consolidates the command routing logic in a single, well-defined module.
+- **Enhanced CLI Functionality:** Users receive dedicated outputs for diagnostics, version, and update commands, ensuring a more polished CLI experience.
+- **Improved User Experience:** Clear feedback for frequently used commands increases usability and professionalism.
+- **Consistency:** The implementation consolidates command routing logic, ensuring all supported commands are handled as documented.
