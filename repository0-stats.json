@@ -7,14 +7,14 @@
   "nextIssue": "[]  ",
   "openIssues": 0,
   "issuesClosedLastHour": 0,
-  "issuesClosedLastDay": 20,
+  "issuesClosedLastDay": 11,
   "openPRs": 0,
   "averagePRAge": 0,
   "prDetails": [],
-  "diffMinutes": 24,
-  "diffMinutesMain": 24,
-  "commitsLastHour": 1,
-  "commitsLastDay": 20,
+  "diffMinutes": 59,
+  "diffMinutesMain": 84,
+  "commitsLastHour": 0,
+  "commitsLastDay": 17,
   "lastFiveCommitMessages": [
     "[17:33] - Update from agentic-lib",
     "[16:55] - Maintain CLI_COMMANDS",
@@ -30,5 +30,5 @@
   },
   "testStatusOnBranch": "PASS",
   "testsLastPassedMinutes": 15,
-  "statsGeneratedAt": "2025-04-14T17:57:59.755Z"
+  "statsGeneratedAt": "2025-04-14T18:57:58.912Z"
 }
