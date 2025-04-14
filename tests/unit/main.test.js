@@ -16,11 +16,11 @@ describe("Default Demo Output", () => {
     spy.mockRestore();
   });
 
-  test("should output expected message when arguments are provided", () => {
+  test("should output expected message when unknown command is provided", () => {
     const testArgs = ["example"];
     const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(testArgs);
-    expect(spy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(testArgs)}`);
+    expect(spy).toHaveBeenCalledWith(`Unknown command: example`);
     spy.mockRestore();
   });
 });
@@ -43,5 +43,31 @@ describe("Greet Command", () => {
   test("greet function returns correct greeting", () => {
     expect(greet()).toBe("Hello, world!");
     expect(greet("Bob")).toBe("Hello, Bob!");
+  });
+});
+
+describe("Arithmetic Commands", () => {
+  test("gcd command should compute the greatest common divisor", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["gcd", "12", "18", "24"]);
+    expect(spy).toHaveBeenCalledWith(6);
+    spy.mockRestore();
+  });
+
+  test("lcm command should compute the least common multiple", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["lcm", "4", "5", "10"]);
+    expect(spy).toHaveBeenCalledWith(20);
+    spy.mockRestore();
+  });
+
+  test("prime command should confirm prime and non-prime numbers", () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    main(["prime", "7"]);
+    expect(spy).toHaveBeenCalledWith("7 is prime");
+    spy.mockClear();
+    main(["prime", "8"]);
+    expect(spy).toHaveBeenCalledWith("8 is not prime");
+    spy.mockRestore();
   });
 });
