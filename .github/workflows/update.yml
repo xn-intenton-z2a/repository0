@@ -56,6 +56,50 @@ jobs:
             echo "No existing branch with the prefix found."
           fi
 
+  pom-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - uses: actions/setup-java@v4
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: package
+        id: package
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw validate
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+    outputs:
+      pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
+
+
   update-npm:
     needs:
       - check-branch
@@ -82,7 +126,8 @@ jobs:
     needs:
       - check-branch
       - update-npm
-    if: ${{ needs.update-npm.outputs.updatedFiles != 'true' }}
+      - pom-check
+    if: ${{ needs.update-npm.outputs.updatedFiles != 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
     permissions:
       contents: write
       pull-requests: write
@@ -121,7 +166,8 @@ jobs:
   create-pr-mvn:
     needs:
       - update-mvn
-    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' }}
+      - pom-check
+    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
     permissions:
       contents: write
       packages: write
