@@ -20,6 +20,7 @@ on:
     #- cron: '10 */12 * * *' # schedule-1
     - cron: '10 */4 * * *' # schedule-2
     #- cron: '10,25,40,55 */1 * * *' # schedule-3
+    #- cron: '10,25,40,55 */1 * * *' # schedule-4
 
 env:
   pullRequestLabel: 'automerge'

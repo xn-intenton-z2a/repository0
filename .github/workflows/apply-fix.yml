@@ -47,6 +47,7 @@ on:
     #- cron: '15 */12 * * *' # schedule-1
     - cron: '15 */4 * * *' # schedule-2
     #- cron: '15,30,45 */1 * * *' # schedule-3
+    #- cron: '15,30,45 */1 * * *' # schedule-4
 
 jobs:
 
@@ -89,7 +90,9 @@ jobs:
           script: |
             const { execSync } = require('child_process');
             const attemptsPerBranch = "${{ needs.agentic-lib.outputs.attemptsPerBranch }}";
-
+            // Use the branch prefix from env (ensure process.env.branchPrefix is defined)
+            const prefix = process.env.branchPrefix || "agentic-lib-";
+            
             let branch;
             // Determine branch using schedule or ref
             if (context.eventName === "schedule" || context.eventName === "workflow_run" || "${{ inputs.scanForBranches }}" === "true") {
@@ -98,13 +101,24 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               });
-              // Use the branch prefix from env (ensure process.env.branchPrefix is defined)
-              const prefix = process.env.branchPrefix || "agentic-lib-";
               const matchingBranches = branchesResp.data
                 .filter(b => new RegExp(`^${prefix}`).test(b.name))
                 .map(b => b.name);
               core.info(`Matching branches: ${matchingBranches}`);
-              branch = matchingBranches.length > 0 ? matchingBranches[0] : context.payload.repository?.default_branch || "main";
+              
+              // Check if any of the matching branches have a PR open
+              const openPRs = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+              });
+              const matchingBranchesWithNoPRs = matchingBranches.filter(b => !openPRs.data.some(pr => pr.head.ref === b));
+              if(matchingBranchesWithNoPRs.length > 0) {
+                core.info(`Matching branches with ${prefix} and no PRs: ${matchingBranchesWithNoPRs}`);
+                branch = matchingBranchesWithNoPRs[0];
+              } else {
+                core.info(`No matching branches with ${prefix} but without PRs found.`);
+              }
             } else {
               branch = context.ref.startsWith("refs/heads/") ? context.ref.substring("refs/heads/".length) : context.ref;
             }

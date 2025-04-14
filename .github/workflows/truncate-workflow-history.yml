@@ -12,6 +12,7 @@ on:
     #- cron: '52 7 */7 * *' # schedule-1
     - cron: '52 7 * * *' # schedule-2
     #- cron: '52 7 * * *' # schedule-3
+    #- cron: '52 7 * * *' # schedule-4
 
 jobs:
   cleanup:

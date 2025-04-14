@@ -42,6 +42,7 @@ on:
     #- cron: '50 8 15 1 *' # schedule-1
     - cron: '50 8 */28 * *' # schedule-2
     #- cron: '50 8 */7 * *' # schedule-3
+    #- cron: '50 8 */7 * *' # schedule-4
 
 jobs:
 
