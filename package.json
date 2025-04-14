@@ -30,7 +30,7 @@
     "ejs": "^3.1.10",
     "zod": "^3.24.2",
     "yargs": "^17.7.2",
-    "pdfkit": "^0.13.0"
+    "pdfkit": "^0.17.0"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
