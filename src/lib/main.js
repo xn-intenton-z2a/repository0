@@ -16,11 +16,43 @@ export function main(args) {
       try {
         const format = formatSchema.parse(args[2]);
         // Load existing chat history if available
-        let history = [];
+        let history = { sessionTitle: "Default Session", messages: [] };
         if (fs.existsSync(chatHistoryFile)) {
           history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
         }
-        console.log(`Exporting chat history in ${format} format. History: ${JSON.stringify(history)}`);
+
+        let formattedOutput = "";
+        switch (format) {
+          case "markdown":
+            formattedOutput = `# Chat History: ${history.sessionTitle}\n`;
+            history.messages.forEach(msg => {
+              formattedOutput += `- ${msg.timestamp}: ${msg.message}\n`;
+            });
+            break;
+          case "html":
+            formattedOutput = `<h1>${history.sessionTitle}</h1>\n`;
+            history.messages.forEach(msg => {
+              formattedOutput += `<p>${msg.timestamp}: ${msg.message}</p>\n`;
+            });
+            break;
+          case "csv":
+            formattedOutput = "timestamp,message\n";
+            history.messages.forEach(msg => {
+              // Wrap fields in quotes in case of commas
+              formattedOutput += `"${msg.timestamp}","${msg.message}"\n`;
+            });
+            break;
+          case "pdf":
+            // Simulate PDF export as a plain text representation
+            formattedOutput = `PDF Export\nSession: ${history.sessionTitle}\n`;
+            history.messages.forEach(msg => {
+              formattedOutput += `Time: ${msg.timestamp}, Message: ${msg.message}\n`;
+            });
+            break;
+          default:
+            break;
+        }
+        console.log(`Exporting chat history in ${format} format:\n${formattedOutput}`);
       } catch (e) {
         console.error("Invalid export format. Please use one of: markdown, html, pdf, csv.");
       }

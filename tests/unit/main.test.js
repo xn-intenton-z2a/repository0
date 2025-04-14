@@ -70,7 +70,35 @@ describe("Chat Command", () => {
     main(["chat", "Export Session"]);
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "export", "markdown"]);
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Exporting chat history in markdown format"));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Exporting chat history in markdown format:"));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("# Chat History: Export Session"));
+    consoleSpy.mockRestore();
+  });
+
+  test("should export chat history in html format", () => {
+    main(["chat", "HTML Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "html"]);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Exporting chat history in html format:"));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("<h1>HTML Session</h1>"));
+    consoleSpy.mockRestore();
+  });
+
+  test("should export chat history in csv format", () => {
+    main(["chat", "CSV Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "csv"]);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Exporting chat history in csv format:"));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("timestamp,message"));
+    consoleSpy.mockRestore();
+  });
+
+  test("should export chat history in pdf format", () => {
+    main(["chat", "PDF Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "pdf"]);
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Exporting chat history in pdf format:"));
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("PDF Export"));
     consoleSpy.mockRestore();
   });
 
