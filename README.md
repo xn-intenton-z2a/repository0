@@ -30,17 +30,37 @@ To run the CLI, execute the following command in your terminal:
 
   node src/lib/main.js [args]
 
+### Default Behavior
 If no arguments are provided, the program will output:
 
   No CLI arguments provided
 
-If arguments are provided, they will be displayed in JSON format. For example:
+If arguments are provided (other than the new greet command), they will be displayed in JSON format. For example:
 
   node src/lib/main.js hello world
   
 This will output:
 
   Run with: ["hello","world"]
+
+### Greet Command
+A new CLI command `greet` has been implemented to provide a greeting message.
+
+- Running the command without a name:
+
+    node src/lib/main.js greet
+
+  will output:
+
+    Hello, world!
+
+- Running the command with a name (e.g., Alice):
+
+    node src/lib/main.js greet Alice
+
+  will output:
+
+    Hello, Alice!
 
 ## Getting Started
 
