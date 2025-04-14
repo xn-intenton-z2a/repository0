@@ -165,7 +165,6 @@ jobs:
             }
 
             // Extract issue number from branch name using branchPrefix.
-            const prefix = process.env.branchPrefix || "agentic-lib-";
             const issueNumberMatch = branch.match(new RegExp(`${prefix}issue-(\\d+)`));
             const issueNumber = issueNumberMatch ? issueNumberMatch[1] : '';
 
