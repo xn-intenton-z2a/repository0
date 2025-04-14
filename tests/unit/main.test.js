@@ -102,10 +102,28 @@ describe("Chat Command", () => {
     consoleSpy.mockRestore();
   });
 
+  test("should export chat history in json format", () => {
+    // First, establish a chat session
+    main(["chat", "JSON Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "json"]);
+    // Capture the output
+    const output = consoleSpy.mock.calls.map(call => call.join(" ")).join(" ");
+    expect(output).toContain("Exporting chat history in json format:");
+    // Extract the JSON part from the output
+    const jsonStart = output.indexOf('{');
+    expect(jsonStart).toBeGreaterThan(-1);
+    const jsonString = output.slice(jsonStart);
+    const history = JSON.parse(jsonString);
+    expect(history).toHaveProperty("sessionTitle", "JSON Session");
+    expect(history).toHaveProperty("messages");
+    consoleSpy.mockRestore();
+  });
+
   test("should error on invalid export format", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
     main(["chat", "export", "invalidformat"]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid export format. Please use one of: markdown, html, pdf, csv.");
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid export format. Please use one of: markdown, html, pdf, csv, json.");
     consoleErrorSpy.mockRestore();
   });
 
