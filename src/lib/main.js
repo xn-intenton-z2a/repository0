@@ -44,7 +44,7 @@ export function main(args) {
       // Append a simulated chat message
       historyData.messages.push({
         timestamp: new Date().toISOString(),
-        message: "Simulated chat message received."
+        message: "Simulated chat message received.",
       });
       try {
         fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));

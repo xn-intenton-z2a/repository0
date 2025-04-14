@@ -16,7 +16,7 @@ describe("Default Demo Output", () => {
     const consoleSpy = vi.spyOn(console, "log");
     // Passing empty args to get default behavior
     main([]);
-    expect(consoleSpy).toHaveBeenCalledWith('Run with: []');
+    expect(consoleSpy).toHaveBeenCalledWith("Run with: []");
     consoleSpy.mockRestore();
   });
 });

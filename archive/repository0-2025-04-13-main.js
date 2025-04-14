@@ -52,7 +52,7 @@ async function loadHistory() {
         }
       }
       // Ensure each message has a tags property and a timestamp
-      conversationData.messages = conversationData.messages.map(entry => {
+      conversationData.messages = conversationData.messages.map((entry) => {
         if (!entry.tags || !Array.isArray(entry.tags)) {
           entry.tags = [];
         }
@@ -141,7 +141,7 @@ function stringifyArg(arg) {
   if (arg === null) return "null";
   if (arg === undefined) return "undefined";
   if (typeof arg === "boolean") return arg.toString();
-  if (typeof arg === "symbol") return `Symbol(${arg.description || ''})`;
+  if (typeof arg === "symbol") return `Symbol(${arg.description || ""})`;
   if (typeof arg === "bigint") return arg.toString() + "n";
   if (Array.isArray(arg)) return "Array";
   if (typeof arg === "object") {
@@ -168,11 +168,13 @@ function validateArg(arg) {
   if (typeof arg === "string" && arg.trim() === "NaN") {
     handleError(`Invalid input: Expected a valid non-empty string command, but received NaN.${suggestion}`);
   }
-  const schema = z.string({
-    invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}.${suggestion}`
-  }).nonempty({
-    message: `Invalid input: Expected a valid non-empty string command, but received an empty string.${suggestion}`
-  });
+  const schema = z
+    .string({
+      invalid_type_error: `Invalid input: Expected a valid non-empty string command, but received ${stringifyArg(arg)}.${suggestion}`,
+    })
+    .nonempty({
+      message: `Invalid input: Expected a valid non-empty string command, but received an empty string.${suggestion}`,
+    });
   try {
     schema.parse(arg);
   } catch (error) {
@@ -204,9 +206,12 @@ async function processChat(prompt, argvOptions = {}) {
   debugLog(`Post-load, conversation history length: ${conversationData.messages.length}`);
 
   // Determine auto archive threshold
-  let autoArchiveThreshold = argvOptions["auto-archive-threshold"] !== undefined ? parseInt(argvOptions["auto-archive-threshold"]) : 
-                             (process.env.CHAT_AUTO_ARCHIVE_THRESHOLD ? parseInt(process.env.CHAT_AUTO_ARCHIVE_THRESHOLD) : 
-                             (chatConfig.autoArchiveThreshold || 50));
+  let autoArchiveThreshold =
+    argvOptions["auto-archive-threshold"] !== undefined
+      ? parseInt(argvOptions["auto-archive-threshold"])
+      : process.env.CHAT_AUTO_ARCHIVE_THRESHOLD
+        ? parseInt(process.env.CHAT_AUTO_ARCHIVE_THRESHOLD)
+        : chatConfig.autoArchiveThreshold || 50;
 
   // Append user prompt to conversation history with tags and timestamp
   conversationData.messages.push({ role: "user", content: prompt, tags: [], timestamp: new Date().toISOString() });
@@ -216,7 +221,10 @@ async function processChat(prompt, argvOptions = {}) {
   if (conversationData.messages.length > autoArchiveThreshold) {
     debugLog("Auto-archive triggered due to conversation length exceeding threshold.");
     const archiveContent = { ...conversationData };
-    const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-:.TZ]/g, "")
+      .slice(0, 14);
     const archiveFile = `chat_history-${timestamp}.json`;
     const tempArchiveFile = archiveFile + ".tmp";
     try {
@@ -239,24 +247,49 @@ async function processChat(prompt, argvOptions = {}) {
   }
 
   // Get configurable auto-summarization settings
-  let maxHistoryMessages = argvOptions["max-history-messages"] !== undefined ? parseInt(argvOptions["max-history-messages"]) : (process.env.CHAT_MAX_HISTORY_MESSAGES ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES) : (chatConfig["max-history-messages"] || 10));
-  let keepRecentMessages = argvOptions["recent-messages"] !== undefined ? parseInt(argvOptions["recent-messages"]) : (process.env.CHAT_RECENT_MESSAGES ? parseInt(process.env.CHAT_RECENT_MESSAGES) : (chatConfig["recent-messages"] || 2));
+  let maxHistoryMessages =
+    argvOptions["max-history-messages"] !== undefined
+      ? parseInt(argvOptions["max-history-messages"])
+      : process.env.CHAT_MAX_HISTORY_MESSAGES
+        ? parseInt(process.env.CHAT_MAX_HISTORY_MESSAGES)
+        : chatConfig["max-history-messages"] || 10;
+  let keepRecentMessages =
+    argvOptions["recent-messages"] !== undefined
+      ? parseInt(argvOptions["recent-messages"])
+      : process.env.CHAT_RECENT_MESSAGES
+        ? parseInt(process.env.CHAT_RECENT_MESSAGES)
+        : chatConfig["recent-messages"] || 2;
 
   // Get configurable model and temperature
-  const model = argvOptions.model !== undefined ? argvOptions.model : (process.env.CHAT_MODEL || chatConfig.model || "gpt-3.5-turbo");
-  const temperature = argvOptions.temperature !== undefined ? parseFloat(argvOptions.temperature) : (process.env.CHAT_TEMPERATURE ? parseFloat(process.env.CHAT_TEMPERATURE) : (chatConfig.temperature !== undefined ? chatConfig.temperature : 0.7));
+  const model =
+    argvOptions.model !== undefined ? argvOptions.model : process.env.CHAT_MODEL || chatConfig.model || "gpt-3.5-turbo";
+  const temperature =
+    argvOptions.temperature !== undefined
+      ? parseFloat(argvOptions.temperature)
+      : process.env.CHAT_TEMPERATURE
+        ? parseFloat(process.env.CHAT_TEMPERATURE)
+        : chatConfig.temperature !== undefined
+          ? chatConfig.temperature
+          : 0.7;
 
   // Auto-summarization: if conversation history grows too long, summarize older messages
   if (conversationData.messages.length > maxHistoryMessages) {
     debugLog("Auto-summarization triggered.");
-    const messagesToSummarize = conversationData.messages.slice(0, conversationData.messages.length - keepRecentMessages);
+    const messagesToSummarize = conversationData.messages.slice(
+      0,
+      conversationData.messages.length - keepRecentMessages,
+    );
     const customPrompt = argvOptions["summarization-prompt"];
-    const summarizationUserMessage = customPrompt && customPrompt.trim() !== ""
-      ? `${customPrompt} ${JSON.stringify(messagesToSummarize)}`
-      : `Summarize the following conversation: ${JSON.stringify(messagesToSummarize)}`;
+    const summarizationUserMessage =
+      customPrompt && customPrompt.trim() !== ""
+        ? `${customPrompt} ${JSON.stringify(messagesToSummarize)}`
+        : `Summarize the following conversation: ${JSON.stringify(messagesToSummarize)}`;
     const summarizationMessages = [
-      { role: "system", content: "You are a summarization assistant. Given the conversation history, produce a concise summary." },
-      { role: "user", content: summarizationUserMessage }
+      {
+        role: "system",
+        content: "You are a summarization assistant. Given the conversation history, produce a concise summary.",
+      },
+      { role: "user", content: summarizationUserMessage },
     ];
     try {
       const { Configuration, OpenAIApi } = await import("openai");
@@ -265,17 +298,27 @@ async function processChat(prompt, argvOptions = {}) {
       const summaryResponse = await openai.createChatCompletion({
         model,
         messages: summarizationMessages,
-        temperature
+        temperature,
       });
       const summary = summaryResponse.data.choices[0].message.content;
       debugLog("Auto-summarization completed.");
       conversationData.messages = [
-        { role: "assistant", content: `Summary of previous conversation: ${summary}`, tags: [], timestamp: new Date().toISOString() },
-        ...conversationData.messages.slice(conversationData.messages.length - keepRecentMessages)
+        {
+          role: "assistant",
+          content: `Summary of previous conversation: ${summary}`,
+          tags: [],
+          timestamp: new Date().toISOString(),
+        },
+        ...conversationData.messages.slice(conversationData.messages.length - keepRecentMessages),
       ];
       if (customPrompt && customPrompt.trim() !== "") {
         console.log(summary);
-        conversationData.messages.push({ role: "assistant", content: summary, tags: [], timestamp: new Date().toISOString() });
+        conversationData.messages.push({
+          role: "assistant",
+          content: summary,
+          tags: [],
+          timestamp: new Date().toISOString(),
+        });
         await saveHistory();
         return;
       }
@@ -291,12 +334,17 @@ async function processChat(prompt, argvOptions = {}) {
     const response = await openai.createChatCompletion({
       model,
       messages: conversationData.messages,
-      temperature
+      temperature,
     });
     const reply = response.data.choices[0].message.content;
     debugLog("Received reply from OpenAIApi.");
     console.log(reply);
-    conversationData.messages.push({ role: "assistant", content: reply, tags: [], timestamp: new Date().toISOString() });
+    conversationData.messages.push({
+      role: "assistant",
+      content: reply,
+      tags: [],
+      timestamp: new Date().toISOString(),
+    });
     await saveHistory();
   } catch (error) {
     handleError("Error calling OpenAIApi", error);
@@ -310,12 +358,12 @@ async function interactiveChatHandler() {
 
   // Promisify the question method
   const question = (q) => {
-    return new Promise(resolve => rl.question(q, resolve));
+    return new Promise((resolve) => rl.question(q, resolve));
   };
 
   while (true) {
     const userInput = await question("Enter your message (type 'exit' to quit): ");
-    if (userInput.trim().toLowerCase() === 'exit') {
+    if (userInput.trim().toLowerCase() === "exit") {
       console.log("Exiting interactive chat session.");
       rl.close();
       break;
@@ -336,23 +384,23 @@ const chatConfigUpdateCommand = {
     return yargs
       .option("model", {
         type: "string",
-        describe: "Default OpenAI model to use"
+        describe: "Default OpenAI model to use",
       })
       .option("temperature", {
         type: "number",
-        describe: "Default temperature for OpenAI responses"
+        describe: "Default temperature for OpenAI responses",
       })
       .option("max-history-messages", {
         type: "number",
-        describe: "Default maximum number of conversation messages before summarization"
+        describe: "Default maximum number of conversation messages before summarization",
       })
       .option("recent-messages", {
         type: "number",
-        describe: "Default number of recent messages to retain after summarization"
+        describe: "Default number of recent messages to retain after summarization",
       })
       .option("auto-archive-threshold", {
         type: "number",
-        describe: "Default threshold for auto-archival of conversation history"
+        describe: "Default threshold for auto-archival of conversation history",
       });
   },
   handler: async (argv) => {
@@ -367,7 +415,10 @@ const chatConfigUpdateCommand = {
       }
     }
     if (argv.temperature !== undefined) {
-      const schema = z.number().min(0, { message: "Temperature must be at least 0" }).max(1, { message: "Temperature cannot exceed 1" });
+      const schema = z
+        .number()
+        .min(0, { message: "Temperature must be at least 0" })
+        .max(1, { message: "Temperature cannot exceed 1" });
       try {
         newConfig.temperature = schema.parse(argv.temperature);
       } catch (error) {
@@ -400,7 +451,7 @@ const chatConfigUpdateCommand = {
     }
     await saveChatConfig(newConfig);
     console.log("Chat configuration updated successfully.");
-  }
+  },
 };
 
 const diagnosticsCommand = {
@@ -416,7 +467,7 @@ const diagnosticsCommand = {
     for (const [dep, ver] of Object.entries(packageData.dependencies || {})) {
       console.log(`  ${dep}: ${ver}`);
     }
-  }
+  },
 };
 
 const versionCommand = {
@@ -424,7 +475,7 @@ const versionCommand = {
   describe: "Show version",
   handler: () => {
     console.log(`Version ${packageData.version}`);
-  }
+  },
 };
 
 const updateCommand = {
@@ -432,85 +483,91 @@ const updateCommand = {
   describe: "Perform update",
   handler: () => {
     console.log("Performing update...");
-  }
+  },
 };
 
 const configCommand = {
   command: "config",
   describe: "View configuration settings",
-  builder: (yargs) => yargs.command({
-    command: "show",
-    describe: "Display configuration",
-    handler: () => {
-      console.log("Configuration: using default settings");
-    }
-  }).demandCommand(1, "You need to specify a valid config subcommand"),
-  handler: () => {}
+  builder: (yargs) =>
+    yargs
+      .command({
+        command: "show",
+        describe: "Display configuration",
+        handler: () => {
+          console.log("Configuration: using default settings");
+        },
+      })
+      .demandCommand(1, "You need to specify a valid config subcommand"),
+  handler: () => {},
 };
 
 const infoCommand = {
   command: "info",
   describe: "Display repository metadata",
   handler: () => {
-    console.log(`Repository: ${packageData.name}\nVersion: ${packageData.version}\nDescription: ${packageData.description}`);
-  }
+    console.log(
+      `Repository: ${packageData.name}\nVersion: ${packageData.version}\nDescription: ${packageData.description}`,
+    );
+  },
 };
 
 const chatCommand = {
   command: "chat",
-  describe: "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, auto-archival, and configurable model/temperature).",
+  describe:
+    "Chat with OpenAI API using a prompt (supports persistent multi-turn conversation, auto-summarization, auto-archival, and configurable model/temperature).",
   builder: (yargs) => {
     return yargs
       .option("prompt", {
         alias: "p",
         type: "string",
         describe: "The prompt message to send",
-        demandOption: true
+        demandOption: true,
       })
       .option("max-history-messages", {
         type: "number",
         describe: "Maximum number of conversation messages before summarization",
-        default: undefined
+        default: undefined,
       })
       .option("recent-messages", {
         type: "number",
         describe: "Number of recent messages to retain after summarization",
-        default: undefined
+        default: undefined,
       })
       .option("model", {
         alias: "m",
         type: "string",
         describe: "The OpenAI model to use",
-        default: undefined
+        default: undefined,
       })
       .option("temperature", {
         alias: "t",
         type: "number",
         describe: "Response randomness factor",
-        default: undefined
+        default: undefined,
       })
       .option("summarization-prompt", {
         type: "string",
-        describe: "Custom prompt to use for summarizing conversation history (optional)"
+        describe: "Custom prompt to use for summarizing conversation history (optional)",
       })
-      .option("auto-archive-threshold", { 
+      .option("auto-archive-threshold", {
         type: "number",
         describe: "Maximum number of messages before auto archiving the conversation history",
-        default: undefined
+        default: undefined,
       });
   },
   handler: async (argv) => {
     const prompt = argv.prompt;
     debugLog(`Chat command invoked with prompt: ${prompt}`);
     await processChat(prompt, argv);
-  }
+  },
 };
 
 const chatInteractiveCommand = {
   command: "chat-interactive",
   describe: "Start an interactive chat session with OpenAI's API",
   builder: (yargs) => yargs,
-  handler: interactiveChatHandler
+  handler: interactiveChatHandler,
 };
 
 const chatHistoryCommand = {
@@ -521,12 +578,12 @@ const chatHistoryCommand = {
       .option("page", {
         type: "number",
         describe: "Page number to display",
-        default: 1
+        default: 1,
       })
       .option("page-size", {
         type: "number",
         describe: "Number of messages per page",
-        default: 10
+        default: 10,
       });
   },
   handler: async (argv) => {
@@ -557,7 +614,7 @@ const chatHistoryCommand = {
     } catch (error) {
       handleError("Failed to load conversation history", error);
     }
-  }
+  },
 };
 
 // ... (Other commands remain unchanged)
@@ -570,7 +627,7 @@ export function main(args = []) {
   if (!args) args = [];
   const verbose = args.includes("--verbose");
   if (verbose) {
-    args = args.filter(arg => arg !== "--verbose");
+    args = args.filter((arg) => arg !== "--verbose");
     global.verbose = true;
     console.log("Verbose mode enabled.");
   }
@@ -578,35 +635,37 @@ export function main(args = []) {
     console.log(`Run with: ${JSON.stringify(args)}`);
   }
   validateArgs(args);
-  return yargs(args)
-    .option("verbose", {
-      type: "boolean",
-      describe: "Enable verbose logging for debugging",
-      global: true
-    })
-    .scriptName("repository0")
-    .usage("$0 <command>")
-    .command(diagnosticsCommand)
-    .command(versionCommand)
-    .command(updateCommand)
-    .command(configCommand)
-    .command(infoCommand)
-    .command(chatCommand)
-    .command(chatInteractiveCommand)
-    .command(chatHistoryCommand)
-    .command(chatConfigUpdateCommand)
-    // ... register the rest of the commands as in the original code
-    .demandCommand(1, "You need to specify a valid command")
-    .strict()
-    .help()
-    .fail((msg, err, yargsInstance) => {
-      if (msg) {
-        handleError(msg, err);
-      } else {
-        handleError("Command failed", err);
-      }
-    })
-    .parseAsync();
+  return (
+    yargs(args)
+      .option("verbose", {
+        type: "boolean",
+        describe: "Enable verbose logging for debugging",
+        global: true,
+      })
+      .scriptName("repository0")
+      .usage("$0 <command>")
+      .command(diagnosticsCommand)
+      .command(versionCommand)
+      .command(updateCommand)
+      .command(configCommand)
+      .command(infoCommand)
+      .command(chatCommand)
+      .command(chatInteractiveCommand)
+      .command(chatHistoryCommand)
+      .command(chatConfigUpdateCommand)
+      // ... register the rest of the commands as in the original code
+      .demandCommand(1, "You need to specify a valid command")
+      .strict()
+      .help()
+      .fail((msg, err, yargsInstance) => {
+        if (msg) {
+          handleError(msg, err);
+        } else {
+          handleError("Command failed", err);
+        }
+      })
+      .parseAsync()
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
