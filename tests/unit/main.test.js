@@ -118,7 +118,7 @@ describe("Chat Command", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
     main(["chat", "export", "invalidformat"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Invalid export format. Please use one of: markdown, html, pdf, csv, json.",
+      "Invalid export format. Please use one of: markdown, html, pdf, csv, json."
     );
     consoleErrorSpy.mockRestore();
   });
@@ -136,7 +136,7 @@ describe("Chat Command", () => {
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "stats"]);
     expect(consoleSpy).toHaveBeenCalledWith(
-      `Session '${data.sessionTitle}' contains ${data.messages.length} messages.`,
+      `Session '${data.sessionTitle}' contains ${data.messages.length} messages.`
     );
     consoleSpy.mockRestore();
   });
