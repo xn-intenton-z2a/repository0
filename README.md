@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change, and a new search subcommand to search within the chat history.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change, a search subcommand to search within the chat history, and a new list subcommand to display all chat messages with their indexes.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert the last modification, and a search command to find messages containing a specific keyword.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert the last modification, a search command to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
 
 ## What’s Inside
 
@@ -20,7 +20,8 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Editing a specific message via `edit` (by index) or `edit-last` (editing the most recent message)
   - Deleting a specific message
   - Undoing the last modification with the `undo` command
-  - **Searching chat history** with the `search` command
+  - Searching chat history with the `search` command
+  - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
 
 - **Chat Command Usage:**
 
@@ -35,11 +36,11 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat export <format>
     ```
     where `<format>` is one of:
-    - **markdown:** Exports with a markdown header and a list for each message.
-    - **html:** Exports as an HTML snippet with an `<h1>` header and `<p>` tags for each message.
-    - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
-    - **pdf:** Simulates PDF export as a plain text representation. NOTE: This is a simulation and does not produce an actual PDF file.
-    - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
+      - **markdown:** Exports with a markdown header and a list for each message.
+      - **html:** Exports as an HTML snippet with an `<h1>` header and `<p>` tags for each message.
+      - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
+      - **pdf:** Simulates PDF export as a plain text representation. NOTE: This is a simulation and does not produce an actual PDF file.
+      - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
 
   - To view a summary of the current chat session, run:
     ```
@@ -76,6 +77,12 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat search <keyword>
     ```
     This command searches for the provided `<keyword>` in all messages and prints any matching messages. If no matches are found, it outputs "No matching messages found.".
+
+  - To list all chat messages with their indexes and timestamps, run:
+    ```
+    node src/lib/main.js chat list
+    ```
+    This command displays every recorded message in the format: "[index] timestamp: message".
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.

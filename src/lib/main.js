@@ -34,6 +34,25 @@ export function main(args) {
       return;
     }
 
+    // List command
+    if (args[1] === "list") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.log("No chat history available for listing.");
+      } else {
+        let history;
+        try {
+          history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+        } catch (e) {
+          console.error("Error reading chat history file.");
+          return;
+        }
+        history.messages.forEach((msg, index) => {
+          console.log(`[${index}] ${msg.timestamp}: ${msg.message}`);
+        });
+      }
+      return;
+    }
+
     // Export command
     if (args[1] === "export") {
       const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json"]);
