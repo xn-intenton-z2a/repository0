@@ -304,3 +304,57 @@ describe("Undo Command", () => {
     consoleErrorSpy.mockRestore();
   });
 });
+
+// Tests for the search command
+describe("Search Command", () => {
+  beforeEach(() => {
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+  });
+
+  test("should handle search when no chat history exists", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    main(["chat", "search", "test"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for search.");
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("should find matching messages with search command", () => {
+    const sessionTitle = "Search Test";
+    const historyData = {
+      sessionTitle: sessionTitle,
+      messages: [
+        { timestamp: "2021-01-01T00:00:00.000Z", message: "hello world" },
+        { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" }
+      ]
+    };
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "search", "hello"]);
+    expect(consoleSpy).toHaveBeenCalledWith("2021-01-01T00:00:00.000Z: hello world");
+    consoleSpy.mockRestore();
+  });
+
+  test("should return no matching messages for search command", () => {
+    const sessionTitle = "Search Test";
+    const historyData = {
+      sessionTitle: sessionTitle,
+      messages: [
+        { timestamp: "2021-01-01T00:00:00.000Z", message: "hello world" },
+        { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" }
+      ]
+    };
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "search", "notfound"]);
+    expect(consoleSpy).toHaveBeenCalledWith("No matching messages found.");
+    consoleSpy.mockRestore();
+  });
+});
