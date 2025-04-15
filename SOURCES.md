@@ -3,9 +3,9 @@
 This official documentation explains the usage of ECMAScript Modules in Node.js, covering features like dynamic import and module resolution. It is essential for projects using modern JavaScript and ECMAScript modules.
 ## OpenJS Foundation
 
-# GitHub Actions Documentation
-## https://docs.github.com/en/actions
-A comprehensive guide and reference for building, configuring, and reusing GitHub Actions workflows. This source is invaluable for any project that integrates CI/CD automation via GitHub Actions.
+# GitHub Developer Documentation
+## https://docs.github.com/en
+This source provides comprehensive documentation for GitHub's developer tools, including GitHub Actions workflows for CI/CD automation and the GitHub REST API for repository management. It is continuously updated and is considered highly authoritative, with information regularly refreshed as of late 2023.
 ## N/A
 
 # Vitest Testing Framework Documentation
