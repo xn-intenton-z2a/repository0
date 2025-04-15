@@ -12,6 +12,8 @@ defaultIntention=$(find seeds -maxdepth 1 -type f -name 'MISSION-*.md' | shuf -n
 
 intention="${1-$defaultIntention}"
 
+mkdir -p prompts
+mkdir -p features
 cp -fv "seeds/MISSION-${intention?}.md" MISSION.md
 cp -fv "seeds/zero-README.md"  README.md
 cp -fv "seeds/zero-package.json"  package.json
@@ -20,6 +22,7 @@ cp -fv "seeds/zero-main.test.js" tests/unit/main.test.js
 rm -f features/*.md
 rm -f prompts/*.md
 cp -fv seeds/prompts/*.md prompts/
+cp -fv seeds/features/*.md features/
 #rm -rfv node_modules
 #rm -rfv package-lock.json
 #npm install
