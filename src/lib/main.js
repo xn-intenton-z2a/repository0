@@ -235,6 +235,21 @@ export function main(args) {
       return;
     }
 
+    // Clear command for removing the chat history file
+    if (args[1] === "clear") {
+      if (fs.existsSync(chatHistoryFile)) {
+        try {
+          fs.unlinkSync(chatHistoryFile);
+          console.log("Chat history cleared.");
+        } catch (e) {
+          console.error("Error clearing chat history.");
+        }
+      } else {
+        console.log("No chat history to clear.");
+      }
+      return;
+    }
+
     // Undo command to revert last change
     if (args[1] === "undo") {
       if (!fs.existsSync(chatHistoryFile)) {
