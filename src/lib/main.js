@@ -58,7 +58,7 @@ export function main(args) {
             });
             break;
           case "pdf":
-            // Simulate PDF export as a plain text representation
+            // NOTE: This PDF export is simulated as a plain text representation and does not generate an actual PDF file.
             formattedOutput = `PDF Export\nSession: ${history.sessionTitle}\n`;
             history.messages.forEach(msg => {
               formattedOutput += `Time: ${msg.timestamp}, Message: ${msg.message}\n`;

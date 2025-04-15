@@ -36,7 +36,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     - **markdown:** Exports with a markdown header and a list for each message.
     - **html:** Exports as an HTML snippet with an `<h1>` header and `<p>` tags for each message.
     - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
-    - **pdf:** Simulates PDF export as a plain text representation.
+    - **pdf:** Simulates PDF export as a plain text representation. NOTE: This is a simulation and does not produce an actual PDF file.
     - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
 
   - To view a summary of the current chat session, run:
