@@ -76,35 +76,69 @@ export function main(args) {
         console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json.");
       }
       return;
-    } else {
-      // Chat session handling
-      const sessionTitle = args[1] || "Default Session";
-      let historyData = { sessionTitle: sessionTitle, messages: [] };
-      if (fs.existsSync(chatHistoryFile)) {
-        try {
-          historyData = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-          // Update session title if provided
-          if (args[1] && args[1] !== "stats") {
-            historyData.sessionTitle = sessionTitle;
-          }
-        } catch (err) {
-          console.error("Error reading chat history file. Starting a new chat session.");
-          historyData = { sessionTitle: sessionTitle, messages: [] };
-        }
+    }
+    
+    // New edit command for updating a chat message
+    if (args[1] === "edit") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.error("No chat history available for editing.");
+        return;
       }
-      // Append a simulated chat message
-      historyData.messages.push({
-        timestamp: new Date().toISOString(),
-        message: "Simulated chat message received."
-      });
+      let history;
       try {
-        fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
-        console.log(`Chat message received, session "${historyData.sessionTitle}" updated.`);
+        history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      } catch (e) {
+        console.error("Error reading chat history file.");
+        return;
+      }
+      const index = parseInt(args[2], 10);
+      if (isNaN(index) || index < 0 || index >= history.messages.length) {
+        console.error("Invalid message index.");
+        return;
+      }
+      const newMessage = args.slice(3).join(" ");
+      if (!newMessage) {
+        console.error("No new message provided.");
+        return;
+      }
+      history.messages[index].message = newMessage;
+      history.messages[index].timestamp = new Date().toISOString();
+      try {
+        fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+        console.log(`Message at index ${index} updated.`);
       } catch (e) {
         console.error("Error writing chat history file.");
       }
       return;
     }
+
+    // Chat session handling
+    const sessionTitle = args[1] || "Default Session";
+    let historyData = { sessionTitle: sessionTitle, messages: [] };
+    if (fs.existsSync(chatHistoryFile)) {
+      try {
+        historyData = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+        // Update session title if provided
+        if (args[1] && args[1] !== "stats") {
+          historyData.sessionTitle = sessionTitle;
+        }
+      } catch (err) {
+        console.error("Error reading chat history file. Starting a new chat session.");
+        historyData = { sessionTitle: sessionTitle, messages: [] };
+      }
+    }
+    // Append a simulated chat message
+    historyData.messages.push({
+      timestamp: new Date().toISOString(),
+      message: "Simulated chat message received."
+    });
+    try {
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      console.log(`Chat message received, session "${historyData.sessionTitle}" updated.`);
+    } catch (e) {
+      console.error("Error writing chat history file.");
+    }
+    return;
   }
   // Default behavior
   console.log(`Run with: ${JSON.stringify(args)}`);

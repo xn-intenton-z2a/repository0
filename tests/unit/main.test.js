@@ -107,10 +107,8 @@ describe("Chat Command", () => {
     main(["chat", "JSON Session"]);
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "export", "json"]);
-    // Capture the output
     const output = consoleSpy.mock.calls.map(call => call.join(" ")).join(" ");
     expect(output).toContain("Exporting chat history in json format:");
-    // Extract the JSON part from the output
     const jsonStart = output.indexOf('{');
     expect(jsonStart).toBeGreaterThan(-1);
     const jsonString = output.slice(jsonStart);
@@ -141,5 +139,42 @@ describe("Chat Command", () => {
     main(["chat", "stats"]);
     expect(consoleSpy).toHaveBeenCalledWith(`Session '${data.sessionTitle}' contains ${data.messages.length} messages.`);
     consoleSpy.mockRestore();
+  });
+
+  // New tests for the edit command
+  test("should update a chat message with valid edit command", () => {
+    // Create a session with one message
+    main(["chat", "Edit Session"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(1);
+
+    const consoleSpy = vi.spyOn(console, "log");
+    // Edit the first message
+    main(["chat", "edit", "0", "updated message content"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages[0].message).toBe("updated message content");
+    expect(consoleSpy).toHaveBeenCalledWith("Message at index 0 updated.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should error when editing with invalid message index", () => {
+    // Create a session with one message
+    main(["chat", "Edit Invalid Index"]);
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    // Attempt to edit non-existent index
+    main(["chat", "edit", "10", "new message"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid message index.");
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("should error when editing with no chat history available", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    // Ensure chat history does not exist
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+    main(["chat", "edit", "0", "new message"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for editing.");
+    consoleErrorSpy.mockRestore();
   });
 });

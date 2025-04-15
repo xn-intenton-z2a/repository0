@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, including a new JSON export option, as well as a new stats subcommand to view chat history summary.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a new stats subcommand to view chat history summary, and an edit subcommand to update a specific chat message.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, and a new stats command to summarize the chat session history.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a new stats command to summarize the chat session history, and now an edit command to update a previously recorded message.
 
 ## What’s Inside
 
@@ -13,7 +13,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intention `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations, enhanced export capabilities, and a new 'stats' subcommand to summarize chat history.
+  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations, export capabilities, stats, and now an 'edit' subcommand to update a specific message.
 
 - **Chat Command:**
   The `chat` command allows you to start a new chat session or resume an existing one. Conversation history is stored persistently in a file named `.chat_history.json`.
@@ -34,13 +34,19 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
     - **pdf:** Simulates PDF export as a plain text representation.
     - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
-
+  
   - To view a summary of the current chat session, run:
     ```
     node src/lib/main.js chat stats
     ```
     This command reads the stored chat history and prints a summary in the format:
     "Session '<sessionTitle>' contains <number> messages." If no chat history is available, it outputs "No chat history available.".
+
+  - To edit a previously recorded chat message, run:
+    ```
+    node src/lib/main.js chat edit <index> <new_message>
+    ```
+    Where `<index>` is the zero-based index of the message and `<new_message>` is the updated text. It updates the specified message and refreshes its timestamp.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
