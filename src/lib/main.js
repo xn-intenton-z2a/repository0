@@ -482,7 +482,7 @@ function handleEditByTimestamp(args) {
   }
 }
 
-// New function to handle analytics of chat history
+// Enhanced function to handle analytics of chat history
 function handleAnalytics() {
   if (!fs.existsSync(chatHistoryFile)) {
     console.log("No chat history available for analytics.");
@@ -498,12 +498,24 @@ function handleAnalytics() {
   const messages = history.messages || [];
   const totalMessages = messages.length;
   if (totalMessages === 0) {
-    console.log("Total messages: 0, Average message length: 0");
+    console.log("Total messages: 0, Average message length: 0, Total words: 0, Longest message: '', Average word count: 0");
     return;
   }
   const totalLength = messages.reduce((acc, msg) => acc + (msg.message.length || 0), 0);
-  const average = (totalLength / totalMessages).toFixed(2);
-  console.log(`Total messages: ${totalMessages}, Average message length: ${average}`);
+  const averageLength = (totalLength / totalMessages).toFixed(2);
+
+  let totalWords = 0;
+  let longestMessage = "";
+  messages.forEach(msg => {
+    const words = msg.message.trim().split(/\s+/).filter(Boolean);
+    totalWords += words.length;
+    if (msg.message.length > longestMessage.length) {
+      longestMessage = msg.message;
+    }
+  });
+  const averageWordCount = (totalWords / totalMessages).toFixed(2);
+
+  console.log(`Total messages: ${totalMessages}, Average message length: ${averageLength}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`);
 }
 
 export function main(args) {

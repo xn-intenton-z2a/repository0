@@ -22,7 +22,6 @@ describe("Main Output", () => {
 });
 
 
-
 describe("Chat Command", () => {
   beforeEach(() => {
     if (fs.existsSync(chatHistoryFile)) {
@@ -148,13 +147,20 @@ describe("Chat Command", () => {
   });
 
   test("should output stats correctly when chat history exists", () => {
-    main(["chat", "Stats Session"]);
-    const data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    const historyData = {
+      sessionTitle: "Analytics Test",
+      messages: [
+        { timestamp: "2021-01-01T00:00:00.000Z", message: "Hello" },
+        { timestamp: "2021-01-01T00:01:00.000Z", message: "This is a test." },
+        { timestamp: "2021-01-01T00:02:00.000Z", message: "Another message here." }
+      ]
+    };
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
     const consoleSpy = vi.spyOn(console, "log");
-    main(["chat", "stats"]);
-    expect(consoleSpy).toHaveBeenCalledWith(
-      `Session '${data.sessionTitle}' contains ${data.messages.length} messages.`
-    );
+    main(["chat", "analytics"]);
+    // Total messages: 3, average length = (5+15+21)/3 = 13.67
+    // Total words: 1 + 4 + 3 = 8, longest message: "Another message here.", average word count: 8/3 = 2.67
+    expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
     consoleSpy.mockRestore();
   });
 
@@ -620,8 +626,8 @@ describe("Chat Command", () => {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
       main(["chat", "analytics"]);
-      // Hello (5), This is a test. (15), Another message here. (21) -> average = 41/3 = 13.67
-      expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67");
+      // Total messages: 3, average message length = 13.67, total words = 8, longest message = "Another message here.", average word count = 2.67
+      expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
       consoleSpy.mockRestore();
     });
   });
