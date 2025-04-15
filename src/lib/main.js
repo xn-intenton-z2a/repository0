@@ -85,6 +85,35 @@ export function main(args) {
       return;
     }
 
+    // Search command for chat history
+    if (args[1] === "search") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.error("No chat history available for search.");
+        return;
+      }
+      let history;
+      try {
+        history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      } catch (e) {
+        console.error("Error reading chat history file.");
+        return;
+      }
+      const keyword = args.slice(2).join(" ");
+      if (!keyword) {
+        console.error("No search keyword provided.");
+        return;
+      }
+      const results = history.messages.filter(msg => msg.message.includes(keyword));
+      if (results.length > 0) {
+        results.forEach(msg => {
+          console.log(`${msg.timestamp}: ${msg.message}`);
+        });
+      } else {
+        console.log("No matching messages found.");
+      }
+      return;
+    }
+
     // Edit command for updating a chat message
     if (args[1] === "edit") {
       if (!fs.existsSync(chatHistoryFile)) {
