@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a new stats subcommand to view chat history summary, and an edit subcommand to update a specific chat message.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a new stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, and a new delete subcommand to remove a specific chat message.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a new stats command to summarize the chat session history, and now an edit command to update a previously recorded message.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, and a delete command to remove a specified chat message.
 
 ## What’s Inside
 
@@ -13,17 +13,21 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   Workflows in the `.github/workflows/` directory utilize reusable workflows from intention `agentic‑lib` to automate project tasks.
 
 - **Source Code:**  
-  The CLI functionality is implemented in `src/lib/main.js`, including a new 'chat' command for interactive multi-turn conversations, export capabilities, stats, and now an 'edit' subcommand to update a specific message.
+  The CLI functionality is implemented in `src/lib/main.js`, including a 'chat' command for interactive multi-turn conversations. The chat command now supports:
+  - Starting/resuming a chat session
+  - Exporting chat history in `markdown`, `html`, `csv`, `pdf`, or `json` formats
+  - Showing session stats
+  - Editing a specific message
+  - Deleting a specific message
 
-- **Chat Command:**
-  The `chat` command allows you to start a new chat session or resume an existing one. Conversation history is stored persistently in a file named `.chat_history.json`.
-  
+- **Chat Command Usage:**
+
   - To start or update a chat session, run:
     ```
     node src/lib/main.js chat [session title]
     ```
     (If no session title is provided, "Default Session" is used.)
-  
+
   - To export the conversation history in a formatted output, run:
     ```
     node src/lib/main.js chat export <format>
@@ -34,7 +38,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
     - **pdf:** Simulates PDF export as a plain text representation.
     - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
-  
+
   - To view a summary of the current chat session, run:
     ```
     node src/lib/main.js chat stats
@@ -47,6 +51,12 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat edit <index> <new_message>
     ```
     Where `<index>` is the zero-based index of the message and `<new_message>` is the updated text. It updates the specified message and refreshes its timestamp.
+
+  - To delete a chat message, run:
+    ```
+    node src/lib/main.js chat delete <index>
+    ```
+    Where `<index>` is the zero-based index of the message to be removed. The command validates the index and, if valid, deletes the message and updates the chat history.
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
