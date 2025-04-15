@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, and now an import subcommand to load chat history from an external JSON file.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, an import subcommand to load chat history from an external JSON file, and now a rename subcommand to update the chat session title without adding a new chat message.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic‑lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, and a new import command to import chat history from an external JSON file.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, an import command to import chat history from an external JSON file, and a new rename command to update the session title.
 
 ## What’s Inside
 
@@ -25,6 +25,11 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Searching chat history (case-insensitive) with the `search` command
   - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
   - **Importing chat history:** Replace the current chat history with data from an external JSON file. The command expects a file path, validates the JSON structure (must include a `sessionTitle` and a `messages` array with objects containing `timestamp` and `message`), backs up the existing history, and imports the new data.
+  - **Renaming chat session:** Update the current session title without adding a new message by running:
+    ```
+    node src/lib/main.js chat rename <new session title>
+    ```
+    This command backs up the current chat history and updates the session title, logging a confirmation message on success.
 
 - **Chat Command Usage:**
 
@@ -51,6 +56,12 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat import <filePath>
     ```
     This command reads the specified JSON file, validates its structure, backs up the current chat history (if any), and replaces it with the imported data.
+
+  - To rename the current session title without adding a new chat message, run:
+    ```
+    node src/lib/main.js chat rename <new session title>
+    ```
+    This command backs up the current history and updates the session title, confirming the change with a log message.
 
   - To view a summary of the current chat session, run:
     ```
@@ -110,7 +121,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 ## Tests
-Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality, case-insensitive search, and import functionality behave as expected.
+Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality, case-insensitive search, import functionality, and the new rename command behave as expected.
 
 ## Documentation
 This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -134,7 +145,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 - [MISSION.md](./MISSION.md)
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [LICENSE](./LICENSE)
-- [agentic‑lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic‑lib)
+- [agentic‑lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 
 ## License
 

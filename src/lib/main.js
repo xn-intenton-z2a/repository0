@@ -365,7 +365,34 @@ function handleChatSession(args) {
   }
 }
 
-// New function to handle importing chat history
+// New function to handle renaming the chat session title
+function handleRename(args) {
+  if (!fs.existsSync(chatHistoryFile)) {
+    console.error("No chat history available for renaming.");
+    return;
+  }
+  let history;
+  try {
+    history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+  } catch {
+    console.error("Error reading chat history file.");
+    return;
+  }
+  const newTitle = args.slice(2).join(" ");
+  if (!newTitle) {
+    console.error("No new session title provided.");
+    return;
+  }
+  backupHistory(history);
+  history.sessionTitle = newTitle;
+  try {
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+    console.log(`Session title renamed to "${newTitle}".`);
+  } catch {
+    console.error("Error writing chat history file.");
+  }
+}
+
 function handleImport(args) {
   const importFilePath = args[2];
   if (!importFilePath) {
@@ -454,6 +481,9 @@ export function main(args) {
       break;
     case "import":
       handleImport(args);
+      break;
+    case "rename":
+      handleRename(args);
       break;
     default:
       handleChatSession(args);
