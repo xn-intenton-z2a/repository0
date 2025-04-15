@@ -20,6 +20,7 @@ describe("Main Output", () => {
   });
 });
 
+
 describe("Chat Command", () => {
   beforeEach(() => {
     if (fs.existsSync(chatHistoryFile)) {
