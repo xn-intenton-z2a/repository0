@@ -12,7 +12,7 @@ function backupHistory(history) {
   // Create a deep copy of sessionTitle and messages as backup to avoid mutation
   history._backup = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.map(msg => ({ ...msg }))
+    messages: history.messages.map((msg) => ({ ...msg })),
   };
 }
 
@@ -68,26 +68,26 @@ export function main(args) {
         switch (format) {
           case "markdown":
             formattedOutput = `# Chat History: ${history.sessionTitle}\n`;
-            history.messages.forEach(msg => {
+            history.messages.forEach((msg) => {
               formattedOutput += `- ${msg.timestamp}: ${msg.message}\n`;
             });
             break;
           case "html":
             formattedOutput = `<h1>${history.sessionTitle}</h1>\n`;
-            history.messages.forEach(msg => {
+            history.messages.forEach((msg) => {
               formattedOutput += `<p>${msg.timestamp}: ${msg.message}</p>\n`;
             });
             break;
           case "csv":
             formattedOutput = "timestamp,message\n";
-            history.messages.forEach(msg => {
+            history.messages.forEach((msg) => {
               formattedOutput += `"${msg.timestamp}","${msg.message}"\n`;
             });
             break;
           case "pdf":
             // Simulated PDF export
             formattedOutput = `PDF Export\nSession: ${history.sessionTitle}\n`;
-            history.messages.forEach(msg => {
+            history.messages.forEach((msg) => {
               formattedOutput += `Time: ${msg.timestamp}, Message: ${msg.message}\n`;
             });
             break;
@@ -122,9 +122,9 @@ export function main(args) {
         console.error("No search keyword provided.");
         return;
       }
-      const results = history.messages.filter(msg => msg.message.includes(keyword));
+      const results = history.messages.filter((msg) => msg.message.includes(keyword));
       if (results.length > 0) {
-        results.forEach(msg => {
+        results.forEach((msg) => {
           console.log(`${msg.timestamp}: ${msg.message}`);
         });
       } else {
@@ -282,7 +282,7 @@ export function main(args) {
     // Append a simulated chat message
     historyData.messages.push({
       timestamp: new Date().toISOString(),
-      message: "Simulated chat message received."
+      message: "Simulated chat message received.",
     });
     try {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
