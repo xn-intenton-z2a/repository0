@@ -24,10 +24,10 @@ export function main(args) {
       }
       return;
     }
-    
+
     // Check if export option is provided
     if (args[1] === "export") {
-      const formatSchema = z.enum(["markdown", "html", "pdf", "csv"]);
+      const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json"]);
       try {
         const format = formatSchema.parse(args[2]);
         // Load existing chat history if available
@@ -64,12 +64,16 @@ export function main(args) {
               formattedOutput += `Time: ${msg.timestamp}, Message: ${msg.message}\n`;
             });
             break;
+          case "json":
+            // Export as pretty printed JSON
+            formattedOutput = JSON.stringify(history, null, 2);
+            break;
           default:
             break;
         }
         console.log(`Exporting chat history in ${format} format:\n${formattedOutput}`);
       } catch (e) {
-        console.error("Invalid export format. Please use one of: markdown, html, pdf, csv.");
+        console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json.");
       }
       return;
     } else {
