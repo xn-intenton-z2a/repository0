@@ -5,7 +5,7 @@ This repository template showcases the GitHub workflows imported from intention 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a search command to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a search command (case-insensitive) to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
 
 ## What’s Inside
 
@@ -21,7 +21,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Editing a specific message via `edit` (by index) or `edit-last` (editing the most recent message)
   - Deleting a specific message
   - **Multi-level Undo:** Revert multiple actions sequentially by invoking the `undo` command repeatedly. Each modifying action (addition, edit, delete, clear) pushes the previous state onto an undo stack, allowing you to revert step-by-step.
-  - Searching chat history with the `search` command
+  - Searching chat history (case-insensitive) with the `search` command
   - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
 
 - **Chat Command Usage:**
@@ -84,7 +84,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     node src/lib/main.js chat search <keyword>
     ```
-    This command searches for the provided `<keyword>` in all messages and prints any matching messages. If no matches are found, it outputs "No matching messages found.".
+    This command searches for the provided `<keyword>` (case-insensitively) in all messages and prints any matching messages. If no matches are found, it outputs "No matching messages found.".
 
   - To list all chat messages with their indexes and timestamps, run:
     ```
@@ -96,7 +96,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 ## Tests
-Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo functionality, behave as expected.
+Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo functionality and case-insensitive search, behave as expected.
 
 ## Documentation
 This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

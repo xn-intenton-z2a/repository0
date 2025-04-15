@@ -135,7 +135,8 @@ function handleSearch(args) {
     console.error("No search keyword provided.");
     return;
   }
-  const results = history.messages.filter((msg) => msg.message.includes(keyword));
+  const keywordLower = keyword.toLowerCase();
+  const results = history.messages.filter((msg) => msg.message.toLowerCase().includes(keywordLower));
   if (results.length > 0) {
     results.forEach((msg) => {
       console.log(`${msg.timestamp}: ${msg.message}`);
