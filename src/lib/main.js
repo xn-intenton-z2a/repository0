@@ -482,6 +482,30 @@ function handleEditByTimestamp(args) {
   }
 }
 
+// New function to handle analytics of chat history
+function handleAnalytics() {
+  if (!fs.existsSync(chatHistoryFile)) {
+    console.log("No chat history available for analytics.");
+    return;
+  }
+  let history;
+  try {
+    history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+  } catch (e) {
+    console.error("No chat history available for analytics.");
+    return;
+  }
+  const messages = history.messages || [];
+  const totalMessages = messages.length;
+  if (totalMessages === 0) {
+    console.log("Total messages: 0, Average message length: 0");
+    return;
+  }
+  const totalLength = messages.reduce((acc, msg) => acc + (msg.message.length || 0), 0);
+  const average = (totalLength / totalMessages).toFixed(2);
+  console.log(`Total messages: ${totalMessages}, Average message length: ${average}`);
+}
+
 export function main(args) {
   if (args[0] !== "chat") {
     console.log("Run with: " + JSON.stringify(args));
@@ -527,6 +551,9 @@ export function main(args) {
       break;
     case "edit-ts":
       handleEditByTimestamp(args);
+      break;
+    case "analytics":
+      handleAnalytics();
       break;
     default:
       handleChatSession(args);

@@ -584,5 +584,42 @@ describe("Chat Command", () => {
     });
   });
 
-  // New tests for Import Command are already present above
+  // New tests for Analytics Command
+  describe("Analytics Command", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+    
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should output no chat history available when analytics command is used and no history exists", () => {
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "analytics"]);
+      expect(consoleSpy).toHaveBeenCalledWith("No chat history available for analytics.");
+      consoleSpy.mockRestore();
+    });
+
+    test("should display correct analytics when chat history exists", () => {
+      const historyData = {
+        sessionTitle: "Analytics Test",
+        messages: [
+          { timestamp: "2021-01-01T00:00:00.000Z", message: "Hello" },
+          { timestamp: "2021-01-01T00:01:00.000Z", message: "This is a test." },
+          { timestamp: "2021-01-01T00:02:00.000Z", message: "Another message here." }
+        ]
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "analytics"]);
+      // Hello (5), This is a test. (15), Another message here. (21) -> average = 41/3 = 13.67
+      expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67");
+      consoleSpy.mockRestore();
+    });
+  });
 });
