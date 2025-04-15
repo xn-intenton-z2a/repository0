@@ -20,7 +20,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Clearing the entire chat history with the `clear` command
   - Editing a specific message via `edit` (by index), `edit-last` (editing the most recent message), or **edit-ts** (editing by timestamp)
   - Deleting a specific message
-  - **Multi-level Undo:** Revert multiple actions sequentially by invoking the `undo` command repeatedly. Each modifying action (addition, edit, delete, clear) pushes the previous state onto an undo stack, allowing you to revert step-by-step.
+  - **Multi-level Undo:** Revert multiple actions sequentially by invoking the `undo` command repeatedly. Each modifying action (addition, edit, delete, clear) pushes the previous state onto an undo stack. Repeatedly executing the undo command will revert the chat history step by step. If no more backup states are available, it outputs "No more actions to undo.".
   - **Redo Command:** Reapply an action that was undone by the `undo` command. The redo functionality uses a redo stack to restore the most recently undone state, and any new modification clears the redo history.
   - Searching chat history (case-insensitive) with the `search` command
   - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
@@ -83,7 +83,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     node src/lib/main.js chat edit-ts <timestamp> <new_message>
     ```
-    This command searches for a message with the exact provided ISO timestamp, updates its content and timestamp.
+    This command searches for the message with the exact provided ISO timestamp and updates its content and timestamp.
 
   - To view a summary of the current chat session, run:
     ```
