@@ -77,7 +77,7 @@ export function main(args) {
       }
       return;
     }
-    
+
     // New edit command for updating a chat message
     if (args[1] === "edit") {
       if (!fs.existsSync(chatHistoryFile)) {
@@ -106,6 +106,34 @@ export function main(args) {
       try {
         fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
         console.log(`Message at index ${index} updated.`);
+      } catch (e) {
+        console.error("Error writing chat history file.");
+      }
+      return;
+    }
+
+    // New delete command for removing a chat message
+    if (args[1] === "delete") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.error("No chat history available for deletion.");
+        return;
+      }
+      let history;
+      try {
+        history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      } catch (e) {
+        console.error("Error reading chat history file.");
+        return;
+      }
+      const index = parseInt(args[2], 10);
+      if (isNaN(index) || index < 0 || index >= history.messages.length) {
+        console.error("Invalid message index.");
+        return;
+      }
+      history.messages.splice(index, 1);
+      try {
+        fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+        console.log(`Message at index ${index} deleted.`);
       } catch (e) {
         console.error("Error writing chat history file.");
       }

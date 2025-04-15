@@ -177,4 +177,41 @@ describe("Chat Command", () => {
     expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for editing.");
     consoleErrorSpy.mockRestore();
   });
+
+  // New tests for the delete command
+  test("should delete an existing chat message", () => {
+    // Create a session with two messages
+    main(["chat", "Delete Session"]);
+    main(["chat", "Delete Session"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(2);
+    
+    const consoleSpy = vi.spyOn(console, "log");
+    // Delete the first message (index 0)
+    main(["chat", "delete", "0"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(1);
+    expect(consoleSpy).toHaveBeenCalledWith("Message at index 0 deleted.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should error when deleting with invalid message index", () => {
+    main(["chat", "Delete Invalid Index"]);
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    // Attempt to delete non-existent index
+    main(["chat", "delete", "10"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid message index.");
+    consoleErrorSpy.mockRestore();
+  });
+
+  test("should error when deleting with no chat history available", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    // Ensure chat history does not exist
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+    main(["chat", "delete", "0"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for deletion.");
+    consoleErrorSpy.mockRestore();
+  });
 });
