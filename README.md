@@ -25,7 +25,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Searching chat history (case-insensitive) with the `search` command
   - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
   - **Importing chat history:** Replace the current chat history with data from an external JSON file. The command expects a file path, validates the JSON structure (must include a `sessionTitle` and a `messages` array with objects containing `timestamp` and `message`), backs up the existing history, and imports the new data.
-  - **Renaming chat session:** Update the current session title without adding a new message by running:
+  - **Renaming chat session:** Update the current session title without adding a new chat message by running:
     ```
     node src/lib/main.js chat rename <new session title>
     ```
@@ -34,7 +34,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     node src/lib/main.js chat edit-ts <timestamp> <new_message>
     ```
-    This command searches for an existing message that exactly matches the provided timestamp, updates its content, and refreshes its timestamp with the current time.
+    This command searches for a message with the exact provided ISO timestamp, updates its content and timestamp.
 
 - **Chat Command Usage:**
 

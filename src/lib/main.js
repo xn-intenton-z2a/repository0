@@ -445,6 +445,16 @@ function handleImport(args) {
 
 // New function to handle editing a chat message by its timestamp
 function handleEditByTimestamp(args) {
+  const targetTimestamp = args[2];
+  if (!targetTimestamp) {
+    console.error("No timestamp provided.");
+    return;
+  }
+  const newMessage = args.slice(3).join(" ");
+  if (!newMessage) {
+    console.error("No new message provided.");
+    return;
+  }
   if (!fs.existsSync(chatHistoryFile)) {
     console.error("No chat history available for editing by timestamp.");
     return;
@@ -454,16 +464,6 @@ function handleEditByTimestamp(args) {
     history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
   } catch {
     console.error("Error reading chat history file.");
-    return;
-  }
-  const targetTimestamp = args[2];
-  if (!targetTimestamp) {
-    console.error("No timestamp provided.");
-    return;
-  }
-  const newMessage = args.slice(3).join(" ");
-  if (!newMessage) {
-    console.error("No new message provided.");
     return;
   }
   const index = history.messages.findIndex(msg => msg.timestamp === targetTimestamp);
