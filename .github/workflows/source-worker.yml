@@ -8,9 +8,9 @@ concurrency: source-worker
 run-name: "Source Worker"
 
 on:
-  push:
-    paths:
-      - '**/*.yml'
+  #push:
+  #  paths:
+  #    - '**/*.yml'
   workflow_dispatch:
     inputs:
       source:
