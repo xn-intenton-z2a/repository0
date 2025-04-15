@@ -345,8 +345,59 @@ describe("Chat Command", () => {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(data, null, 2));
       const consoleErrorSpy = vi.spyOn(console, "error");
       main(["chat", "undo"]);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("No backup available for undo.");
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No more actions to undo.");
       consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe("Multi-Level Undo", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+    
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should support multi-level undo with sequential modifications", () => {
+      // Start session with one message
+      main(["chat", "MultiUndo"]);
+      let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages.length).toBe(1);
+
+      // Append a new message
+      main(["chat", "MultiUndo"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages.length).toBe(2);
+
+      // Edit first message
+      main(["chat", "edit", "0", "edited first message"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages[0].message).toBe("edited first message");
+
+      // Undo the edit
+      main(["chat", "undo"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages[0].message).toBe("Simulated chat message received.");
+
+      // Delete second message
+      main(["chat", "delete", "1"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages.length).toBe(1);
+
+      // Undo the delete, message count should be restored to 2
+      main(["chat", "undo"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages.length).toBe(2);
+
+      // Undo the addition (second message), count becomes 1
+      main(["chat", "undo"]);
+      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages.length).toBe(1);
     });
   });
 
