@@ -112,6 +112,41 @@ export function main(args) {
       return;
     }
 
+    // New 'edit-last' command for updating the most recent message
+    if (args[1] === "edit-last") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.error("No chat history available for editing.");
+        return;
+      }
+      let history;
+      try {
+        history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      } catch (e) {
+        console.error("Error reading chat history file.");
+        return;
+      }
+      if (!history.messages || history.messages.length === 0) {
+        console.error("No chat history available for editing.");
+        return;
+      }
+      const newMessage = args.slice(2).join(" ");
+      if (!newMessage) {
+        console.error("No new message provided.");
+        return;
+      }
+      // Update the last message
+      const lastIndex = history.messages.length - 1;
+      history.messages[lastIndex].message = newMessage;
+      history.messages[lastIndex].timestamp = new Date().toISOString();
+      try {
+        fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+        console.log("Last message updated.");
+      } catch (e) {
+        console.error("Error writing chat history file.");
+      }
+      return;
+    }
+
     // New delete command for removing a chat message
     if (args[1] === "delete") {
       if (!fs.existsSync(chatHistoryFile)) {
