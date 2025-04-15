@@ -44,7 +44,7 @@ The analytics command now computes and reports the median message length in addi
     ```
     node src/lib/main.js chat export <format>
     ```
-    where `<format>` is one of: markdown, html, csv, pdf, json, xml, yaml.
+    where `<format>` is one of: markdown, html, pdf, csv, json, xml, yaml.
 
   - To import chat history from an external JSON file, run:
     ```
