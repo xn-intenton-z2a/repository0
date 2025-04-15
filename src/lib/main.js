@@ -505,11 +505,20 @@ function handleAnalytics() {
   const messages = history.messages || [];
   const totalMessages = messages.length;
   if (totalMessages === 0) {
-    console.log("Total messages: 0, Average message length: 0, Total words: 0, Longest message: '', Average word count: 0");
+    console.log("Total messages: 0, Average message length: 0, Median message length: 0, Total words: 0, Longest message: '', Average word count: 0");
     return;
   }
   const totalLength = messages.reduce((acc, msg) => acc + (msg.message.length || 0), 0);
   const averageLength = (totalLength / totalMessages).toFixed(2);
+
+  // Calculate median message length
+  const lengths = messages.map(msg => msg.message.length).sort((a, b) => a - b);
+  let median;
+  if (totalMessages % 2 === 1) {
+    median = lengths[Math.floor(totalMessages / 2)];
+  } else {
+    median = ((lengths[totalMessages / 2 - 1] + lengths[totalMessages / 2]) / 2).toFixed(2);
+  }
 
   let totalWords = 0;
   let longestMessage = "";
@@ -522,7 +531,7 @@ function handleAnalytics() {
   });
   const averageWordCount = (totalWords / totalMessages).toFixed(2);
 
-  console.log(`Total messages: ${totalMessages}, Average message length: ${averageLength}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`);
+  console.log(`Total messages: ${totalMessages}, Average message length: ${averageLength}, Median message length: ${median}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`);
 }
 
 export function main(args) {
