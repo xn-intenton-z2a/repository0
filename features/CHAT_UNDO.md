@@ -1,37 +1,29 @@
 # CHAT_UNDO Feature
 
-This feature introduces a new subcommand, `undo`, for the chat CLI utility. The purpose of the `chat undo` command is to remove the last appended message from the persistent chat history file (`.chat_history.json`). This functionality helps users quickly revert accidental entries or unwanted messages without having to manually edit the file.
-
-## Overview
-
-- **Subcommand:** `chat undo`
-- **Functionality:** Removes the most recent message from the chat history. If there are no messages or the history file does not exist, an informative message is displayed.
+This feature adds an "undo" subcommand to the chat CLI utility. It allows the user to remove the last appended message from the persistent chat history file (.chat_history.json). This functionality is useful for quickly reverting any accidental chat message without manually editing the file.
 
 ## Source File Changes (src/lib/main.js)
-
-- Add a new conditional branch within the `chat` command to check for the `undo` subcommand.
-- Check if the chat history file exists. If not, output a message stating "No chat history available."
-- If the file exists, parse the chat history and verify that at least one message is present.
-  - If messages exist, remove the last message from the array and write the updated history back to the file. Display a confirmation message such as "Last message undone." 
-  - If no messages remain after attempting to undo, notify the user with "No messages to undo." 
+- Add a new branch for the `chat undo` subcommand under the main `chat` command.
+- Check if the chat history file exists. If not, output "No chat history available.".
+- If the file exists, parse the JSON data and check whether there is at least one message.
+  - If there are messages, remove the last message from the messages array and write the updated history back to the file. Display a confirmation message such as "Last message undone.".
+  - If no messages remain, display a message indicating that there are no messages to undo.
+- Ensure proper error handling if the file cannot be read or written.
 
 ## Test File Changes (tests/unit/main.test.js)
-
-- Add unit tests covering the following scenarios:
-  - When the `chat undo` command is invoked and no chat history exists, the command outputs the appropriate message.
-  - When chat history exists and contains one or more messages, verify that invoking `chat undo` removes the last message and updates the history file accordingly.
-  - Test the case where multiple undo operations are performed until no messages remain, ensuring that the appropriate message is shown once all messages are undone.
+- Add unit tests for the `chat undo` subcommand:
+  - Test that when `chat undo` is invoked with no chat history file, the output correctly indicates the absence of chat history.
+  - Test that when the chat history exists and contains one or more messages, invoking `chat undo` removes the last message and updates the file accordingly.
+  - Test the scenario where the chat history contains a single message. After undoing, verify that the output indicates that no messages remain to be undone.
 
 ## README.md Updates
-
-- Update the documentation in the Chat Command section to include usage of the new `chat undo` subcommand. Example:
+- Update the Chat Command section to document the new `chat undo` subcommand. Include an example command:
   ```
   node src/lib/main.js chat undo
   ```
-- Document that this command removes the last appended message from the chat history, allowing users to easily revert accidental entries.
+- Explain that the command removes the last appended message from the chat history, enabling users to quickly revert their last entry.
 
 ## Rationale
-
-- **User Mistakes:** Allows users to quickly fix mistakes by reverting the last chat message.
-- **Simplicity:** Enhances the existing chat functionality with minimal changes to the codebase, without adding new files.
-- **Consistency:** Supports the repository's mission by providing a handy and simple CLI utility in Node.js.
+- **Usability:** Provides an easy way for users to correct accidental or unwanted chat entries.
+- **Consistency:** Complements existing chat functionalities while maintaining simplicity by modifying only the source, test, and documentation files.
+- **Mission Alignment:** Enhances the repository's mission to offer handy CLI utilities in Node.js by improving chat session management.
