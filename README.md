@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change, a search subcommand to search within the chat history, and a new list subcommand to display all chat messages with their indexes.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change, a search subcommand to search within the chat history, and a new list subcommand to display all chat messages with their indexes.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert the last modification, a search command to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert the last modification, a search command to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
 
 ## What’s Inside
 
@@ -17,6 +17,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Starting/resuming a chat session
   - Exporting chat history in `markdown`, `html`, `csv`, `pdf`, or `json` formats
   - Showing session stats
+  - Clearing the entire chat history with the `clear` command
   - Editing a specific message via `edit` (by index) or `edit-last` (editing the most recent message)
   - Deleting a specific message
   - Undoing the last modification with the `undo` command
@@ -48,6 +49,12 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     This command prints a summary in the format:
     "Session '<sessionTitle>' contains <number> messages." If no chat history is available, it outputs "No chat history available.".
+
+  - To clear the chat history, run:
+    ```
+    node src/lib/main.js chat clear
+    ```
+    This command deletes the `.chat_history.json` file if it exists and prints a confirmation message.
 
   - To edit a previously recorded chat message by index, run:
     ```
