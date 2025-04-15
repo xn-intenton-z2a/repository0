@@ -250,7 +250,7 @@ describe("Chat Command", () => {
         fs.unlinkSync(chatHistoryFile);
       }
     });
-
+    
     test("should clear the chat history file if it exists", () => {
       const dummyData = {
         sessionTitle: "Dummy Session",
@@ -265,7 +265,7 @@ describe("Chat Command", () => {
       expect(consoleSpy).toHaveBeenCalledWith("Chat history cleared.");
       consoleSpy.mockRestore();
     });
-
+    
     test("should inform when no chat history exists to clear", () => {
       if (fs.existsSync(chatHistoryFile)) {
         fs.unlinkSync(chatHistoryFile);
@@ -494,6 +494,53 @@ describe("Chat Command", () => {
         expect(consoleSpy).toHaveBeenCalledWith("[1] 2021-01-01T00:01:00.000Z: second message");
         consoleSpy.mockRestore();
       });
+    });
+  });
+
+  // New tests for Import Command
+  describe("Import Command", () => {
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should import chat history from valid JSON file", () => {
+      const tempFilePath = '.temp_import.json';
+      const importData = {
+        sessionTitle: "Imported Session",
+        messages: [
+          { timestamp: "2023-01-01T00:00:00.000Z", message: "imported message" }
+        ]
+      };
+      fs.writeFileSync(tempFilePath, JSON.stringify(importData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "import", tempFilePath]);
+      expect(fs.existsSync(chatHistoryFile)).toBe(true);
+      const data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.sessionTitle).toBe("Imported Session");
+      expect(data.messages.length).toBe(1);
+      expect(data.messages[0].message).toBe("imported message");
+      expect(consoleSpy).toHaveBeenCalledWith("Chat history imported successfully.");
+      consoleSpy.mockRestore();
+      fs.unlinkSync(tempFilePath);
+    });
+
+    test("should error when import file does not exist", () => {
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "import", "nonexistent.json"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Import file not found: nonexistent.json");
+      consoleErrorSpy.mockRestore();
+    });
+
+    test("should error when import file has invalid structure", () => {
+      const tempFilePath = '.temp_invalid_import.json';
+      fs.writeFileSync(tempFilePath, JSON.stringify({ wrongField: "bad" }));
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "import", tempFilePath]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid import file structure.");
+      consoleErrorSpy.mockRestore();
+      fs.unlinkSync(tempFilePath);
     });
   });
 });
