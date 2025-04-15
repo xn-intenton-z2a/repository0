@@ -169,7 +169,8 @@ describe("Chat Command", () => {
     fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "analytics"]);
-    expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
+    // Expected median of lengths: [5, 15, 21] => 15
+    expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Median message length: 15, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
     consoleSpy.mockRestore();
   });
 
@@ -623,7 +624,7 @@ describe("Chat Command", () => {
       consoleSpy.mockRestore();
     });
 
-    test("should display correct analytics when chat history exists", () => {
+    test("should display correct analytics when chat history exists including median message length", () => {
       const historyData = {
         sessionTitle: "Analytics Test",
         messages: [
@@ -635,7 +636,7 @@ describe("Chat Command", () => {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
       main(["chat", "analytics"]);
-      expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
+      expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Median message length: 15, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
       consoleSpy.mockRestore();
     });
   });
