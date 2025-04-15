@@ -7,10 +7,19 @@ import { z } from "zod";
 
 const chatHistoryFile = ".chat_history.json";
 
+// Helper function to backup chat history before a modifying operation
+function backupHistory(history) {
+  // Create a shallow copy of sessionTitle and messages as backup
+  history._backup = {
+    sessionTitle: history.sessionTitle,
+    messages: history.messages.slice()
+  };
+}
+
 export function main(args) {
   // Handle 'chat' command
   if (args[0] === "chat") {
-    // New stats command
+    // Stats command
     if (args[1] === "stats") {
       try {
         if (!fs.existsSync(chatHistoryFile)) {
@@ -25,7 +34,7 @@ export function main(args) {
       return;
     }
 
-    // Check if export option is provided
+    // Export command
     if (args[1] === "export") {
       const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json"]);
       try {
@@ -53,19 +62,17 @@ export function main(args) {
           case "csv":
             formattedOutput = "timestamp,message\n";
             history.messages.forEach(msg => {
-              // Wrap fields in quotes in case of commas
               formattedOutput += `"${msg.timestamp}","${msg.message}"\n`;
             });
             break;
           case "pdf":
-            // NOTE: This PDF export is simulated as a plain text representation and does not generate an actual PDF file.
+            // Simulated PDF export
             formattedOutput = `PDF Export\nSession: ${history.sessionTitle}\n`;
             history.messages.forEach(msg => {
               formattedOutput += `Time: ${msg.timestamp}, Message: ${msg.message}\n`;
             });
             break;
           case "json":
-            // Export as pretty printed JSON
             formattedOutput = JSON.stringify(history, null, 2);
             break;
           default:
@@ -78,7 +85,7 @@ export function main(args) {
       return;
     }
 
-    // New edit command for updating a chat message
+    // Edit command for updating a chat message
     if (args[1] === "edit") {
       if (!fs.existsSync(chatHistoryFile)) {
         console.error("No chat history available for editing.");
@@ -101,6 +108,8 @@ export function main(args) {
         console.error("No new message provided.");
         return;
       }
+      // Backup before modifying
+      backupHistory(history);
       history.messages[index].message = newMessage;
       history.messages[index].timestamp = new Date().toISOString();
       try {
@@ -112,7 +121,7 @@ export function main(args) {
       return;
     }
 
-    // New 'edit-last' command for updating the most recent message
+    // Edit-last command for updating the most recent message
     if (args[1] === "edit-last") {
       if (!fs.existsSync(chatHistoryFile)) {
         console.error("No chat history available for editing.");
@@ -134,7 +143,8 @@ export function main(args) {
         console.error("No new message provided.");
         return;
       }
-      // Update the last message
+      // Backup before modifying
+      backupHistory(history);
       const lastIndex = history.messages.length - 1;
       history.messages[lastIndex].message = newMessage;
       history.messages[lastIndex].timestamp = new Date().toISOString();
@@ -147,7 +157,7 @@ export function main(args) {
       return;
     }
 
-    // New delete command for removing a chat message
+    // Delete command for removing a chat message
     if (args[1] === "delete") {
       if (!fs.existsSync(chatHistoryFile)) {
         console.error("No chat history available for deletion.");
@@ -165,6 +175,8 @@ export function main(args) {
         console.error("Invalid message index.");
         return;
       }
+      // Backup before modifying
+      backupHistory(history);
       history.messages.splice(index, 1);
       try {
         fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
@@ -175,16 +187,45 @@ export function main(args) {
       return;
     }
 
-    // Chat session handling
+    // Undo command to revert last change
+    if (args[1] === "undo") {
+      if (!fs.existsSync(chatHistoryFile)) {
+        console.error("No chat history available for undo.");
+        return;
+      }
+      let history;
+      try {
+        history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      } catch (e) {
+        console.error("Error reading chat history file.");
+        return;
+      }
+      if (!history._backup) {
+        console.error("No backup available for undo.");
+        return;
+      }
+      const backupData = history._backup;
+      try {
+        fs.writeFileSync(chatHistoryFile, JSON.stringify(backupData, null, 2));
+        console.log("Undo successful.");
+      } catch (e) {
+        console.error("Error writing chat history file.");
+      }
+      return;
+    }
+
+    // Chat session handling (adding new messages)
     const sessionTitle = args[1] || "Default Session";
     let historyData = { sessionTitle: sessionTitle, messages: [] };
     if (fs.existsSync(chatHistoryFile)) {
       try {
         historyData = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-        // Update session title if provided
+        // Update session title if provided (and not a subcommand)
         if (args[1] && args[1] !== "stats") {
           historyData.sessionTitle = sessionTitle;
         }
+        // Backup current state before appending new message
+        backupHistory(historyData);
       } catch (err) {
         console.error("Error reading chat history file. Starting a new chat session.");
         historyData = { sessionTitle: sessionTitle, messages: [] };

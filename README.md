@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, and a new edit-last subcommand to update the most recent message.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a new JSON export option, a stats subcommand to view chat history summary, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, and now an undo subcommand to revert the last change.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, and an edit-last command to quickly update the most recent message.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, and an undo command to revert the last modification.
 
 ## What’s Inside
 
@@ -19,6 +19,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - Showing session stats
   - Editing a specific message via `edit` (by index) or `edit-last` (editing the most recent message)
   - Deleting a specific message
+  - Undoing the last modification with the `undo` command
 
 - **Chat Command Usage:**
 
@@ -43,26 +44,31 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     node src/lib/main.js chat stats
     ```
-    This command reads the stored chat history and prints a summary in the format:
+    This command prints a summary in the format:
     "Session '<sessionTitle>' contains <number> messages." If no chat history is available, it outputs "No chat history available.".
 
   - To edit a previously recorded chat message by index, run:
     ```
     node src/lib/main.js chat edit <index> <new_message>
     ```
-    Where `<index>` is the zero-based index of the message and `<new_message>` is the updated text. It updates the specified message and refreshes its timestamp.
+    Updates the specified message and refreshes its timestamp.
 
   - To update the most recent chat message quickly, run:
     ```
     node src/lib/main.js chat edit-last <new_message>
     ```
-    This command updates the last message in the current chat session with the provided new text.
 
   - To delete a chat message, run:
     ```
     node src/lib/main.js chat delete <index>
     ```
-    Where `<index>` is the zero-based index of the message to be removed. The command validates the index and, if valid, deletes the message and updates the chat history.
+    Validates the index and deletes the specified message upon success.
+
+  - To undo the last modification (whether it's an addition, edit, or deletion), run:
+    ```
+    node src/lib/main.js chat undo
+    ```
+    This command restores the previous state of the chat history if a backup is available. If no backup is found, it outputs "No backup available for undo.".
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
