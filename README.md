@@ -15,7 +15,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **Source Code:**  
   The CLI functionality is implemented in `src/lib/main.js`, including a 'chat' command for interactive multi-turn conversations. The chat command now supports:
   - Starting/resuming a chat session
-  - Exporting chat history in `markdown`, `html`, `csv`, `pdf`, or `json` formats
+  - Exporting chat history in `markdown`, `html`, `csv`, `pdf`, `json`, or **xml** formats
   - Showing session stats
   - Clearing the entire chat history with the `clear` command
   - Editing a specific message via `edit` (by index) or `edit-last` (editing the most recent message)
@@ -42,6 +42,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
       - **csv:** Exports as CSV with a header row (`timestamp,message`) and each message as a new row.
       - **pdf:** Simulates PDF export as a plain text representation. NOTE: This is a simulation and does not produce an actual PDF file.
       - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
+      - **xml:** Exports the chat history in XML format. The XML structure includes a `<chatHistory>` root element with a `<sessionTitle>` child for the session name and a `<messages>` container that wraps individual `<message>` elements. Each `<message>` element contains a `<timestamp>` element and a `<content>` element.
 
   - To view a summary of the current chat session, run:
     ```
@@ -91,14 +92,14 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     This command displays every recorded message in the format: "[index] timestamp: message".
 
-- **Dependencies:**  
-  The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
+## Dependencies
+The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
-- **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new enhancements, behave as expected.
+## Tests
+Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new enhancements, behave as expected.
 
-- **Documentation:**  
-  This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+## Documentation
+This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Getting Started
 

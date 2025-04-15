@@ -12,7 +12,7 @@ function backupHistory(history) {
   // Create a deep copy of sessionTitle and messages as backup to avoid mutation
   history._backup = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.map((msg) => ({ ...msg })),
+    messages: history.messages.map((msg) => ({ ...msg }))
   };
 }
 
@@ -55,7 +55,7 @@ export function main(args) {
 
     // Export command
     if (args[1] === "export") {
-      const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json"]);
+      const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json", "xml"]);
       try {
         const format = formatSchema.parse(args[2]);
         // Load existing chat history if available
@@ -94,12 +94,19 @@ export function main(args) {
           case "json":
             formattedOutput = JSON.stringify(history, null, 2);
             break;
+          case "xml":
+            formattedOutput = `<chatHistory>\n  <sessionTitle>${history.sessionTitle}</sessionTitle>\n  <messages>\n`;
+            history.messages.forEach((msg) => {
+              formattedOutput += `    <message>\n      <timestamp>${msg.timestamp}</timestamp>\n      <content>${msg.message}</content>\n    </message>\n`;
+            });
+            formattedOutput += "  </messages>\n</chatHistory>";
+            break;
           default:
             break;
         }
         console.log(`Exporting chat history in ${format} format:\n${formattedOutput}`);
       } catch (e) {
-        console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json.");
+        console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml.");
       }
       return;
     }
@@ -297,7 +304,7 @@ export function main(args) {
     // Append a simulated chat message
     historyData.messages.push({
       timestamp: new Date().toISOString(),
-      message: "Simulated chat message received.",
+      message: "Simulated chat message received."
     });
     try {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
