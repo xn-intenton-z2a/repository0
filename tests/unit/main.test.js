@@ -178,6 +178,33 @@ describe("Chat Command", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  // New tests for the edit-last command
+  test("should update the last chat message with valid edit-last command", () => {
+    main(["chat", "Edit Last Session"]);
+    // Append another message to ensure there is a last message to edit
+    main(["chat", "Edit Last Session"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    const lastIndex = data.messages.length - 1;
+    const originalMessage = data.messages[lastIndex].message;
+    const consoleSpy = vi.spyOn(console, "log");
+    // Edit the last message
+    main(["chat", "edit-last", "updated last message"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages[data.messages.length - 1].message).toBe("updated last message");
+    expect(consoleSpy).toHaveBeenCalledWith("Last message updated.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should error when editing last message with no chat history available", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+    main(["chat", "edit-last", "new message"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for editing.");
+    consoleErrorSpy.mockRestore();
+  });
+
   // New tests for the delete command
   test("should delete an existing chat message", () => {
     // Create a session with two messages
