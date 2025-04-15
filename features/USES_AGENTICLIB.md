@@ -1,36 +1,36 @@
-# Uses intentïon `agentic-lib` Feature
+# Uses intentïon -agentic-lib- Feature
 
-The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your 
+The **intentïon -agentic-lib-** is a collection of reusable GitHub Actions workflows that enable your 
 repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and 
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using 
-GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, using this
+GitHub’s -workflow_call- event, so they can be composed together like an SDK. This project itself is evolving, using this
 tool and the reusable workflows shall become bundled actions in due course.
 
 *Warning:* Executing these workflows shall incur charges on your OpenAI account and consume chargeable GitHub Actions resources minutes.
 
 *Warning:* Experimental. This coding system has generated a few interesting examples (I have been educated) but nothing of personal utility.
 
-*Warning:* This project is not yet ready for production use. You should not point the `agentic-lib` workflows a repository containing existing intellectual property.
+*Warning:* This project is not yet ready for production use. You should not point the -agentic-lib- workflows a repository containing existing intellectual property.
 
 Mixed licensing:
 * This project is licensed under the GNU General Public License (GPL).
-* This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+* This file is part of the example suite for -agentic-lib- see: https://github.com/xn-intenton-z2a/agentic-lib
 * This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 [Start using the Repository Template](https://github.com/xn-intenton-z2a/repository0)
 
 Examples:
-* [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib) - A CLI generating SVG and novel formats plots for formulae. 
-* Send a PR to add your example, either descending from `repository0` or using the `agentic-lib` SDK directly.
+* [-repository0-plot-code-lib-](https://github.com/xn-intenton-z2a/repository0-plot-code-lib) - A CLI generating SVG and novel formats plots for formulae. 
+* Send a PR to add your example, either descending from -repository0- or using the -agentic-lib- SDK directly.
 
-## Should you use the `agentic-lib` Coding System?
+## Should you use the -agentic-lib- Coding System?
 
-* Can you access an OpenAI account with API keys that can access at least `o3-mini` ?
+* Can you access an OpenAI account with API keys that can access at least -o3-mini- ?
 * Are you willing to incur charges the resources consumed by the OpenAI API and GitHub Actions ?
 * Are you curious as to where self-evolving code might lead ?
 * Would you like to see how such a system can be built and has been built ?
 * Do you like that it's OpenAI and GitHub API calls wired together in JS (GitHub Script) and packaged as GitHub Workflows* ?
-* Do you appreciate that you need `dotenv, openai, zod` in your `package.json` because the JS has dependencies on them ?
+* Do you appreciate that you need -dotenv, openai, zod- in your -package.json- because the JS has dependencies on them ?
 
 *Actions with bundled JS coming soon.
 
@@ -47,7 +47,7 @@ Run the action "Create Issue" and enter some text to create an issue. This will 
 automatically merged. The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
 Development Workflows:
-```
+---
 On timer / Manual: Create Issue (new issue opened) 
 -> Issue Worker (code changed, issue updated) 
 -> Automerge (code merged)
@@ -61,23 +61,23 @@ On timer: Automerge (code merged)
 -> Review Issue (issue reviewed and closed)
 
 On timer: Review Issue (issue reviewed and closed)
-```
+---
 (Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
 
 ### Tuning the agentic coding system
 
 The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
-- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
-- `eslint.config.js` - Code style rules and additional plugins can be added here.
+- -CONTRIBUTING.md- - The workflow is itself a contributor and will be asked to follow these guidelines. Start by writing your owm mission statement.
+- -eslint.config.js- - Code style rules and additional plugins can be added here.
 
 The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
-- `README.md`
-- `package.json`
-- `src/lib/main.js`
-- `tests/unit/main.test.js`
+- -README.md-
+- -package.json-
+- -src/lib/main.js-
+- -tests/unit/main.test.js-
 
 **Chain Workflows Together:**  
-   Use outputs from one workflow as inputs for another. For example, if an issue review workflow outputs `fixed`, then trigger an automerge workflow based on that flag.
+   Use outputs from one workflow as inputs for another. For example, if an issue review workflow outputs -fixed-, then trigger an automerge workflow based on that flag.
 
 **Customize Parameters:**  
    Each workflow accepts parameters with sensible defaults. Override them as needed to fit your project’s structure and requirements.
@@ -96,41 +96,41 @@ This guide explains how the various workflows of the Agentic Coding Systems work
 ## Issue Management Workflows
 These workflows generalize the concept of work items as “tasks” rather than platform-specific issues.
 
-### Issue Creator (`issue-creator.yml`)
+### Issue Creator (-issue-creator.yml-)
 - **Function:** Creates a new task based on predefined prompts.
-- **Reusable Workflow:** [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0)
+- **Reusable Workflow:** [-wfr-create-issue.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0)
 - **Trigger:** Manual dispatch or scheduled events with input parameters.
 
-### Issue Worker (`issue-worker.yml`)
+### Issue Worker (-issue-worker.yml-)
 - **Function:** Selects, validates, and initiates work on existing tasks.
 - **Reusable Workflows:**
-  - [`wfr-select-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
-  - [`wfr-apply-issue-resolution.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@1.2.0)
-  - [`wfr-create-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
+  - [-wfr-select-issue.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-select-issue.yml@1.2.0)
+  - [-wfr-apply-issue-resolution.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-apply-issue-resolution.yml@1.2.0)
+  - [-wfr-create-pr.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-pr.yml@1.2.0)
 
-### Issue Reviewer (`issue-reviewer.yml`)
+### Issue Reviewer (-issue-reviewer.yml-)
 - **Function:** Reviews and finalizes tasks once work is complete.
-- **Reusable Workflow:** [`wfr-review-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@1.2.0)
+- **Reusable Workflow:** [-wfr-review-issue.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-review-issue.yml@1.2.0)
 
-### Automerge Workflow (`automerge.yml`)
+### Automerge Workflow (-automerge.yml-)
 - **Function:** Automatically merges pull requests when criteria are met.
 - **Reusable Workflows:**
-  - [`wfr-automerge-find-pr-from-pull-request.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.2.0)
-  - [`wfr-automerge-find-pr-in-check-suite.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.2.0)
-  - [`wfr-automerge-label-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.2.0)
-  - [`wfr-automerge-merge-pr.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.2.0)
+  - [-wfr-automerge-find-pr-from-pull-request.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-from-pull-request.yml@1.2.0)
+  - [-wfr-automerge-find-pr-in-check-suite.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-find-pr-in-check-suite.yml@1.2.0)
+  - [-wfr-automerge-label-issue.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-label-issue.yml@1.2.0)
+  - [-wfr-automerge-merge-pr.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-automerge-merge-pr.yml@1.2.0)
 
 ---
 
 ## Reusable Workflows SDK Guide
 
 Think of each reusable workflow as a function in an SDK:
-- **Inputs:** Parameters (e.g., `versionIncrement`, `buildScript`, `issueTitle`) customize workflow behavior.
+- **Inputs:** Parameters (e.g., -versionIncrement-, -buildScript-, -issueTitle-) customize workflow behavior.
 - **Outputs:** Results such as task status, pull request numbers, or merge status.
 - **Integration:** Invoke these workflows via GitHub Actions workflow calls, schedule triggers, or manual dispatch. They encapsulate complex operations into modular, reusable components.
 
 ### Example: Invoking the Issue Creator Workflow
-```yaml
+---yaml
 on:
   workflow_dispatch:
     inputs:
@@ -138,8 +138,8 @@ on:
         description: 'Title for the new task'
         required: false
         default: 'house choice'
-```
-Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0) to generate an issue template based on provided parameters.
+---
+Internally, this triggers [-wfr-create-issue.yml@1.2.0-](https://github.com/xn-intenton-z2a/agentic-lib/.github/workflows/wfr-create-issue.yml@1.2.0) to generate an issue template based on provided parameters.
 
 ---
 
@@ -148,16 +148,16 @@ Internally, this triggers [`wfr-create-issue.yml@1.2.0`](https://github.com/xn-i
 Follow these steps to set up your repository using the agentic development system:
 
 1. **Create a Repository from Template:**
-   - Begin with a repository template that includes the top-level workflows (e.g., `publish.yml`, `test.yml`, `issue-creator.yml`, etc.).
+   - Begin with a repository template that includes the top-level workflows (e.g., -publish.yml-, -test.yml-, -issue-creator.yml-, etc.).
    - Clone the repository locally.
 
 2. **Configure Repository Settings:**
    - Ensure your repository supports Node.js (v20+).
-   - Add necessary secrets (e.g., `CHATGPT_API_SECRET_KEY`, `GITHUB_TOKEN`) via your repository settings.
+   - Add necessary secrets (e.g., -CHATGPT_API_SECRET_KEY-, -GITHUB_TOKEN-) via your repository settings.
 
 3. **Customize Workflow Inputs:**
-   - Edit workflow files under `.github/workflows/` to match your project specifics (e.g., branch names, file paths).
-   - Update configuration files such as `dependabot.yml` and `FUNDING.yml` as needed.
+   - Edit workflow files under -.github/workflows/- to match your project specifics (e.g., branch names, file paths).
+   - Update configuration files such as -dependabot.yml- and -FUNDING.yml- as needed.
 
 ---
 
@@ -173,7 +173,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Licensing:**  
   The core workflows are released under GPL‑3 and include an attribution requirement for any derived work.
 - **Location:**  
-  Find these in the `.github/workflows/` directory.
+  Find these in the -.github/workflows/- directory.
 
 ### 2. Example Workflows (Demonstrative Content)
 - **Purpose:**  
@@ -183,7 +183,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Licensing:**  
   The example workflows are covered by the MIT license to allow for broader use and modification.
 - **Location:**  
-  Look in the `examples/` directory for sample implementations.
+  Look in the -examples/- directory for sample implementations.
 
 ### 3. The Evolving main.js (Experimental Work in Progress)
 - **Purpose:**  
@@ -193,7 +193,7 @@ This repository is organized into three distinct areas to help you understand th
 - **Licensing:**  
   As part of the core project, it is under GPL‑3 with the attribution clause.
 - **Location:**  
-  The experimental code is located in `src/lib/main.js`.
+  The experimental code is located in -src/lib/main.js-.
 
 Each of these components is documented separately to ensure you can quickly determine which parts are ready for use and which are intended as examples or experimental features.
 
@@ -203,7 +203,7 @@ Each of these components is documented separately to ensure you can quickly dete
 
 The key components of the project are organized as follows:
 
-```text
+---text
 .
 ├── Dockerfile
 ├── package.json
@@ -215,9 +215,9 @@ The key components of the project are organized as follows:
 ├── aws/main/java/com/intention/AgenticLib/AgenticLibStack.java
 ├── aws/test/java/com/intentïon/AgenticLib/AgenticLibStackTest.java
 └── tests/unit/main.test.js
-```
+---
 
-Additional files include GitHub workflows (for CI/CD and maintenance scripts) and various helper scripts under the `scripts/` directory.
+Additional files include GitHub workflows (for CI/CD and maintenance scripts) and various helper scripts under the -scripts/- directory.
 
 ---
 
@@ -239,34 +239,34 @@ Additional files include GitHub workflows (for CI/CD and maintenance scripts) an
 
 ### Clone the Repository
 
-```bash
+---bash
 
 git clone https://github.com/xn-intenton-z2a/agentic-lib.git
 cd agentic-lib
-```
+---
 
 ### Install Node.js dependencies and test
 
-```bash
+---bash
 
 npm install
 npm test
-```
+---
 
 ### Build and test the Java Application
 
-```bash
+---bash
 ./mvnw clean package
-```
+---
 
 ## Setup for AWS CDK
 
-You'll need to have run `cdk bootstrap` to set up the environment for the CDK. This is a one-time setup per AWS account and region.
+You'll need to have run -cdk bootstrap- to set up the environment for the CDK. This is a one-time setup per AWS account and region.
 General administrative permissions are required to run this command. (NPM installed the CDK.)
 
-In this example for a user `antony-local-user` and a role `agentic-lib-github-actions-role` (create them if you need to)
-we would add the following trust policy so that they can assume the role: `agentic-lib-deployment-role`:
-```json
+In this example for a user -antony-local-user- and a role -agentic-lib-github-actions-role- (create them if you need to)
+we would add the following trust policy so that they can assume the role: -agentic-lib-deployment-role-:
+---json
 {
 	"Version": "2012-10-17",
 	"Statement": [
@@ -278,10 +278,10 @@ we would add the following trust policy so that they can assume the role: `agent
 		}
 	]
 }
-```
+---
 
-The `agentic-lib-github-actions-role` also needs the following trust entity to allow GitHub Actions to assume the role:
-```json
+The -agentic-lib-github-actions-role- also needs the following trust entity to allow GitHub Actions to assume the role:
+---json
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -302,10 +302,10 @@ The `agentic-lib-github-actions-role` also needs the following trust entity to a
         }
     ]
 }
-```
+---
 
 Create the IAM role with the necessary permissions to assume role from your authenticated user:
-```bash
+---bash
 
 cat <<'EOF' > agentic-lib-deployment-trust-policy.json
 {
@@ -327,10 +327,10 @@ EOF
 aws iam create-role \
   --role-name agentic-lib-deployment-role \
   --assume-role-policy-document file://agentic-lib-deployment-trust-policy.json
-```
+---
 
-Add the necessary permissions to deploy `agentic-lib`:
-```bash
+Add the necessary permissions to deploy -agentic-lib-:
+---bash
 
 cat <<'EOF' > agentic-lib-deployment-permissions-policy.json
 {
@@ -359,10 +359,10 @@ aws iam put-role-policy \
   --role-name agentic-lib-deployment-role \
   --policy-name agentic-lib-deployment-permissions-policy \
   --policy-document file://agentic-lib-deployment-permissions-policy.json
-```
+---
 
 Assume the deployment role:
-```bash
+---bash
 
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
@@ -379,44 +379,44 @@ export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.
 export AWS_SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
 EXPIRATION=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.Expiration')
 echo "Assumed role successfully. Credentials valid until: $EXPIRATION"
-```
+---
 Output:
-```log
+---log
 Assumed role successfully. Credentials valid until: 2025-03-25T02:27:18+00:00
-```
+---
 
 Check the session:
-```bash
+---bash
 
 aws sts get-caller-identity
-```
+---
 
 Output:
-```json
+---json
 {
   "UserId": "AROAX37RDWOM7ZHORNHKD:3-sqs-bridge-deployment-session",
   "Account": "541134664601",
   "Arn": "arn:aws:sts::541134664601:assumed-role/agentic-lib-deployment-role/3-sqs-bridge-deployment-session"
 }
-```
+---
 
 Check the permissions of the role:
-```bash
+---bash
 
 aws iam list-role-policies \
   --role-name agentic-lib-deployment-role
-```
+---
 Output (the policy we created above):
-```json
+---json
 {
   "PolicyNames": [
     "agentic-lib-deployment-permissions-policy"
   ]
 }
-```
+---
 
 An example of the GitHub Actions role being assumed in a GitHub Actions Workflow:
-```yaml
+---yaml
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -428,7 +428,7 @@ An example of the GitHub Actions role being assumed in a GitHub Actions Workflow
           node-version: '20'
       - run: npm install -g aws-cdk
       - run: aws s3 ls --region eu-west-2
-```
+---
 
 ## Deployment to AWS
 
@@ -437,13 +437,13 @@ See also:
 * Debugging notes for the AWS deployment here [DEBUGGING](DEBUGGING.md).
 
 Package the CDK, deploy the CDK stack which rebuilds the Docker image, and deploy the AWS infrastructure:
-```bash
+---bash
 
 ./mvnw clean package
-```
+---
 
 Maven build output:
-```log
+---log
 ...truncated...
 [INFO] 
 [INFO] Results:
@@ -460,38 +460,38 @@ Maven build output:
 [INFO] Finished at: 2025-04-02T00:59:55+01:00
 [INFO] ------------------------------------------------------------------------
 Unexpected error in background thread "software.amazon.jsii.JsiiRuntime.ErrorStreamSink": java.lang.NullPointerException: Cannot read field "stderr" because "consoleOutput" is null
-```
+---
 (Yes... the last line, the error "is a bug in the CDK, but it doesn't affect the deployment", according to Copilot.)
 
 Destroy a previous stack and delete related log groups:
-```bash
+---bash
 
 npx cdk destroy
-```
+---
 (The commands go in separately because the CDK can be interactive.)
-```bash
+---bash
 
 aws logs delete-log-group \
   --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
 aws logs delete-log-group \
   --log-group-name "/aws/lambda/agentic-lib-digest-function"
-```
+---
 
-Create a file `secrets.env` with the following content:
-```bash
+Create a file -secrets.env- with the following content:
+---bash
 
 export PERSONAL_ACCESS_TOKEN=Your Personal Access Token with packages:read
-```
+---
 
 Deploys the AWS infrastructure including an App Runner service, an SQS queue, Lambda functions, and a PostgreSQL table.
-```bash
+---bash
 
 . ./secrets.env
 npx cdk deploy
-```
+---
 
 Example output:
-```log
+---log
 ...truncated...
 AgenticLibStack: deploying... [1/1]
 AgenticLibStack: creating CloudFormation changeset...
@@ -515,10 +515,10 @@ arn:aws:cloudformation:eu-west-2:541134664601:stack/AgenticLibStack/62d89c60-0f6
 
 ✨  Total time: 116.49s
 
-```
+---
 
 Write to S3 (2 keys, 2 times each, interleaved):
-```bash
+---bash
 
 aws s3 ls agentic-lib-telemetry-bucket/events/
 for value in $(seq 1 2); do
@@ -528,20 +528,20 @@ for value in $(seq 1 2); do
   done
 done
 aws s3 ls agentic-lib-telemetry-bucket/events/
-```
+---
 
 Output:
-```
+---
 upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json    
 upload: ./1.json to s3://agentic-lib-telemetry-bucket/events/1.json   
 ...
 upload: ./2.json to s3://agentic-lib-telemetry-bucket/events/2.json   
 2025-03-19 23:47:07         31 1.json
 2025-03-19 23:52:12         31 2.json
-```
+---
 
 List the versions of all s3 objects:
-```bash
+---bash
 
 aws s3api list-object-versions \
   --bucket agentic-lib-telemetry-bucket \
@@ -549,48 +549,48 @@ aws s3api list-object-versions \
   | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"' \
   | head -5 \
   | tail -r
-```
+---
 
 Output (note grouping by key, requiring a merge by LastModified to get the Put Event order):
-```log
+---log
 2025-03-23T02:37:10+00:00 events/2.json NGxS.PCWdSlxMPVIRreb_ra_WsTjc4L5 false
 2025-03-23T02:37:12+00:00 events/2.json 7SDSiqco1dgFGKZmRk8bjSoyi5eD5ZLW true
 2025-03-23T02:37:09+00:00 events/1.json cxY1weJ62JNq4DvqrgfvIWKJEYDQinly false
 2025-03-23T02:37:11+00:00 events/1.json wHEhP8RdXTD8JUsrrUlMfSANzm7ahDlv true
-```
+---
 
 Check the projections table:
-```bash
+---bash
 
 aws dynamodb scan \
   --table-name agentic-lib-projections-table \
   --output json \
   | jq --compact-output '.Items[] | with_entries(if (.value | has("S")) then .value = .value.S else . end)' \
   | tail --lines=5
-```
+---
 
 Output:
-```json lines
+---json lines
 {"id":"events/1.json","value":"{\"id\": \"1\", \"value\": \"0000000002\"}\n"}
 {"id":"events/2.json","value":"{\"id\": \"2\", \"value\": \"0000000002\"}\n"}
-```
+---
 
 Count the attributes on the digest queue:
-```bash
+---bash
 
 aws sqs get-queue-attributes \
   --queue-url https://sqs.eu-west-2.amazonaws.com/541134664601/agentic-lib-digest-queue \
   --attribute-names ApproximateNumberOfMessages
-```
+---
 
 Output:
-```json
+---json
 {
   "Attributes": {
     "ApproximateNumberOfMessages": "4"
   }
 }
-```
+---
 
 ---
 
@@ -691,7 +691,7 @@ Marketplace GitHub Actions:
 This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE) for details.
 
 License notice:
-```
+---
 agentic-lib
 Copyright (C) 2025 Polycode Limited
 
@@ -710,7 +710,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 IMPORTANT: Any derived work must include the following attribution:
 "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
-```
+---
 
 *IMPORTANT*: The project README and any derived work should always include the following attribution:
 _"This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"_
