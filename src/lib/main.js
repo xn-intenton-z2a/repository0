@@ -9,10 +9,10 @@ const chatHistoryFile = ".chat_history.json";
 
 // Helper function to backup chat history before a modifying operation
 function backupHistory(history) {
-  // Create a shallow copy of sessionTitle and messages as backup
+  // Create a deep copy of sessionTitle and messages as backup to avoid mutation
   history._backup = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.slice()
+    messages: history.messages.map(msg => ({ ...msg }))
   };
 }
 
