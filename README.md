@@ -1,14 +1,23 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, an import subcommand to load chat history from an external JSON file, a rename subcommand to update the chat session title, an edit-ts subcommand to update a chat message by its ISO timestamp, a new analytics subcommand to display comprehensive conversation metrics including a median message length metric, and a new YAML export format.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, an import subcommand to load chat history from an external JSON file, a rename subcommand to update the chat session title, an edit-ts subcommand to update a chat message by its ISO timestamp, a new analytics subcommand to display comprehensive conversation metrics including a median message length metric, a new diagnostics command to report repository health and environment details, and a new YAML export format.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic‑lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, an import command to import chat history from an external JSON file, a rename command to update the session title, an **edit-ts** command to update a chat message by specifying its exact ISO timestamp, a **analytics** command to reveal key conversation metrics, and a **yaml** export format.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, an import command to import chat history from an external JSON file, a rename command to update the session title, an **edit-ts** command to update a chat message by specifying its exact ISO timestamp, an **analytics** command to reveal key conversation metrics, a **diagnostics** command for detailed repository health checks, and a **yaml** export format.
 
-### Analytics Command Enhancement
-The analytics command now computes and reports the median message length in addition to total messages, average message length, total word count, the longest message, and average word count per message. The median is calculated by sorting the lengths of all messages and selecting the middle value (or averaging the two middle values if there is an even number of messages). This additional metric provides a better understanding of the distribution of message lengths in your chat session.
+### Diagnostics Command
+The diagnostics command provides a quick health check of your repository and environment. When you run:
+
+```
+node src/lib/main.js diagnostics
+```
+
+you will see:
+- The Node.js version in use.
+- A report on the chat history file (if present), including the session title, number of messages, and the status of backup stacks (_undoStack and _redoStack).
+- Process version details (from Node's process.versions), giving you insight into your runtime environment.
 
 ## What’s Inside
 
@@ -30,6 +39,7 @@ The analytics command now computes and reports the median message length in addi
   - **Importing chat history:** Replace the current chat history with data from an external JSON file.
   - **Renaming chat session:** Update the session title without adding a new chat message.
   - **Analytics:** Get an enhanced overview of your chat session with key metrics including total messages, average message length, **median message length**, total word count, the longest message, and average word count per message.
+  - **Diagnostics:** Quickly assess the repository and environment health by reporting the Node.js version, chat history details, and process version information.
   - **YAML Export:** Export chat history in YAML format.
 
 - **Chat Command Usage:**
@@ -111,11 +121,16 @@ The analytics command now computes and reports the median message length in addi
     node src/lib/main.js chat analytics
     ```
 
+  - To run diagnostics and check repository health, run:
+    ```
+    node src/lib/main.js diagnostics
+    ```
+
 ## Dependencies
 The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 ## Tests
-Unit tests in the `tests/unit/` folder ensure that all CLI commands, including the updated analytics command, operate as expected.
+Unit tests in the `tests/unit/` folder ensure that all CLI commands, including the updated diagnostics command, operate as expected.
 
 ## Documentation
 This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

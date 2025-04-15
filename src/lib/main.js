@@ -534,7 +534,33 @@ function handleAnalytics() {
   console.log(`Total messages: ${totalMessages}, Average message length: ${averageLength}, Median message length: ${median}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`);
 }
 
+// New function to handle diagnostics of repository health
+function handleDiagnostics() {
+  console.log("Diagnostics Report:");
+  console.log("Node.js version: " + process.version);
+  if (fs.existsSync(chatHistoryFile)) {
+    try {
+      const history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      console.log("Chat History Found:");
+      console.log(" - Session Title: " + history.sessionTitle);
+      console.log(" - Number of messages: " + (history.messages ? history.messages.length : 0));
+      console.log(" - Undo Stack exists: " + (!!history._undoStack));
+      console.log(" - Redo Stack exists: " + (!!history._redoStack));
+    } catch (e) {
+      console.error("Failed to parse chat history file.");
+    }
+  } else {
+    console.log("Chat history file does not exist.");
+  }
+  console.log("Process Versions:");
+  console.log(process.versions);
+}
+
 export function main(args) {
+  if (args[0] === "diagnostics") {
+    handleDiagnostics();
+    return;
+  }
   if (args[0] !== "chat") {
     console.log("Run with: " + JSON.stringify(args));
     return;

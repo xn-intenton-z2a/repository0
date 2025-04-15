@@ -169,7 +169,6 @@ describe("Chat Command", () => {
     fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "analytics"]);
-    // Expected median of lengths: [5, 15, 21] => 15
     expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Median message length: 15, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
     consoleSpy.mockRestore();
   });
@@ -637,6 +636,48 @@ describe("Chat Command", () => {
       const consoleSpy = vi.spyOn(console, "log");
       main(["chat", "analytics"]);
       expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Median message length: 15, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
+      consoleSpy.mockRestore();
+    });
+  });
+
+  // New tests for Diagnostics Command
+  describe("Diagnostics Command", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+    
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should display Node.js version and note absence of chat history file", () => {
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["diagnostics"]);
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Node.js version: " + process.version));
+      expect(consoleSpy).toHaveBeenCalledWith("Chat history file does not exist.");
+      consoleSpy.mockRestore();
+    });
+
+    test("should display chat history details if chat history file exists", () => {
+      const historyData = {
+        sessionTitle: "Diagnostics Session",
+        messages: [{ timestamp: "2021-01-01T00:00:00.000Z", message: "Diagnostic message" }],
+        _undoStack: [{ sessionTitle: "Backup", messages: [] }],
+        _redoStack: []
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["diagnostics"]);
+      expect(consoleSpy).toHaveBeenCalledWith("Chat History Found:");
+      expect(consoleSpy).toHaveBeenCalledWith(" - Session Title: Diagnostics Session");
+      expect(consoleSpy).toHaveBeenCalledWith(" - Number of messages: 1");
+      expect(consoleSpy).toHaveBeenCalledWith(" - Undo Stack exists: true");
+      expect(consoleSpy).toHaveBeenCalledWith(" - Redo Stack exists: true");
+      fs.unlinkSync(chatHistoryFile);
       consoleSpy.mockRestore();
     });
   });
