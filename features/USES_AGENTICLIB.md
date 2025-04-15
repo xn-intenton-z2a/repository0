@@ -267,62 +267,62 @@ General administrative permissions are required to run this command. (NPM instal
 In this example for a user -antony-local-user- and a role -agentic-lib-github-actions-role- (create them if you need to)
 we would add the following trust policy so that they can assume the role: -agentic-lib-deployment-role-:
 ---json
-{
+-
 	"Version": "2012-10-17",
 	"Statement": [
-		{
+		-
 			"Sid": "Statement1",
 			"Effect": "Allow",
 			"Action": ["sts:AssumeRole", "sts:TagSession"],
 			"Resource": ["arn:aws:iam::541134664601:role/agentic-lib-deployment-role"]
-		}
+		-
 	]
-}
+-
 ---
 
 The -agentic-lib-github-actions-role- also needs the following trust entity to allow GitHub Actions to assume the role:
 ---json
-{
+-
     "Version": "2012-10-17",
     "Statement": [
-        {
+        -
             "Effect": "Allow",
-            "Principal": {
+            "Principal": -
                 "Federated": "arn:aws:iam::541134664601:oidc-provider/token.actions.githubusercontent.com"
-            },
+            -,
             "Action": "sts:AssumeRoleWithWebIdentity",
-            "Condition": {
-                "StringEquals": {
+            "Condition": -
+                "StringEquals": -
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-                },
-                "StringLike": {
+                -,
+                "StringLike": -
                     "token.actions.githubusercontent.com:sub": "repo:xn-intenton-z2a/agentic-lib:*"
-                }
-            }
-        }
+                -
+            -
+        -
     ]
-}
+-
 ---
 
 Create the IAM role with the necessary permissions to assume role from your authenticated user:
 ---bash
 
 cat <<'EOF' > agentic-lib-deployment-trust-policy.json
-{
+-
   "Version": "2012-10-17",
   "Statement": [
-    {
+    -
       "Effect": "Allow",
-      "Principal": {
+      "Principal": -
         "AWS": [
           "arn:aws:iam::541134664601:user/antony-local-user",
           "arn:aws:iam::541134664601:role/agentic-lib-github-actions-role"
         ]
-      },
+      -,
       "Action": "sts:AssumeRole"
-    }
+    -
   ]
-}
+-
 EOF
 aws iam create-role \
   --role-name agentic-lib-deployment-role \
@@ -333,10 +333,10 @@ Add the necessary permissions to deploy -agentic-lib-:
 ---bash
 
 cat <<'EOF' > agentic-lib-deployment-permissions-policy.json
-{
+-
   "Version": "2012-10-17",
   "Statement": [
-    {
+    -
       "Effect": "Allow",
       "Action": [
         "cloudformation:*",
@@ -351,9 +351,9 @@ cat <<'EOF' > agentic-lib-deployment-permissions-policy.json
         "sts:AssumeRole"
       ],
       "Resource": "*"
-    }
+    -
   ]
-}
+-
 EOF
 aws iam put-role-policy \
   --role-name agentic-lib-deployment-role \
@@ -393,11 +393,11 @@ aws sts get-caller-identity
 
 Output:
 ---json
-{
+-
   "UserId": "AROAX37RDWOM7ZHORNHKD:3-sqs-bridge-deployment-session",
   "Account": "541134664601",
   "Arn": "arn:aws:sts::541134664601:assumed-role/agentic-lib-deployment-role/3-sqs-bridge-deployment-session"
-}
+-
 ---
 
 Check the permissions of the role:
@@ -408,11 +408,11 @@ aws iam list-role-policies \
 ---
 Output (the policy we created above):
 ---json
-{
+-
   "PolicyNames": [
     "agentic-lib-deployment-permissions-policy"
   ]
-}
+-
 ---
 
 An example of the GitHub Actions role being assumed in a GitHub Actions Workflow:
@@ -523,8 +523,8 @@ Write to S3 (2 keys, 2 times each, interleaved):
 aws s3 ls agentic-lib-telemetry-bucket/events/
 for value in $(seq 1 2); do
   for id in $(seq 1 2); do
-    echo "{\"id\": \"${id?}\", \"value\": \"$(printf "%010d" "${value?}")\"}" > "${id?}.json"
-    aws s3 cp "${id?}.json" s3://agentic-lib-telemetry-bucket/events/"${id?}.json"
+    echo "-\"id\": \"$-id?-\", \"value\": \"$(printf "%010d" "$-value?-")\"-" > "$-id?-.json"
+    aws s3 cp "$-id?-.json" s3://agentic-lib-telemetry-bucket/events/"$-id?-.json"
   done
 done
 aws s3 ls agentic-lib-telemetry-bucket/events/
@@ -571,8 +571,8 @@ aws dynamodb scan \
 
 Output:
 ---json lines
-{"id":"events/1.json","value":"{\"id\": \"1\", \"value\": \"0000000002\"}\n"}
-{"id":"events/2.json","value":"{\"id\": \"2\", \"value\": \"0000000002\"}\n"}
+-"id":"events/1.json","value":"-\"id\": \"1\", \"value\": \"0000000002\"-\n"-
+-"id":"events/2.json","value":"-\"id\": \"2\", \"value\": \"0000000002\"-\n"-
 ---
 
 Count the attributes on the digest queue:
@@ -585,11 +585,11 @@ aws sqs get-queue-attributes \
 
 Output:
 ---json
-{
-  "Attributes": {
+-
+  "Attributes": -
     "ApproximateNumberOfMessages": "4"
-  }
-}
+  -
+-
 ---
 
 ---
@@ -655,7 +655,7 @@ Supervisor:
 - [x] Before trying to apply fix a make sure there isn't an open PR.
 - [x] In auto-merge, close PRs and delete branches which have conflicts.
 - [x] Expose check states in the stats.
-- [ ] Do this everywhere:  echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+- [ ] Do this everywhere:  echo "$-- env.npmAuthOrganisation --:registry=https://npm.pkg.github.com" >> .npmrc
 - [ ] Place all AWS config in repository variables and handle blank by skipping the steps if blank.
 - [ ] Set repository0 to skip github pages and s3 by default
 - [ ] Set s3-sqs-bridge to be github pages only
