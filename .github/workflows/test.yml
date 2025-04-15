@@ -17,11 +17,6 @@ on:
       - '**/pom.xml'
       - '**/*.properties'
       - '!exports/**'
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
   workflow_dispatch:
   #workflow_run:
   #  workflows:
