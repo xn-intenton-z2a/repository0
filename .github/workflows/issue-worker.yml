@@ -306,7 +306,7 @@ jobs:
       - name: Add "issueWorker-<run-id>" label
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
