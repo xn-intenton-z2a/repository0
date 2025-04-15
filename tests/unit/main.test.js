@@ -357,4 +357,42 @@ describe("Search Command", () => {
     expect(consoleSpy).toHaveBeenCalledWith("No matching messages found.");
     consoleSpy.mockRestore();
   });
+
+  // Tests for the list command
+  describe("List Command", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should output no chat history available when listing and no history exists", () => {
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "list"]);
+      expect(consoleSpy).toHaveBeenCalledWith("No chat history available for listing.");
+      consoleSpy.mockRestore();
+    });
+
+    test("should list all chat messages with proper indexing", () => {
+      const historyData = {
+        sessionTitle: "List Test",
+        messages: [
+          { timestamp: "2021-01-01T00:00:00.000Z", message: "first message" },
+          { timestamp: "2021-01-01T00:01:00.000Z", message: "second message" }
+        ]
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "list"]);
+      expect(consoleSpy).toHaveBeenCalledWith("[0] 2021-01-01T00:00:00.000Z: first message");
+      expect(consoleSpy).toHaveBeenCalledWith("[1] 2021-01-01T00:01:00.000Z: second message");
+      consoleSpy.mockRestore();
+    });
+  });
 });
