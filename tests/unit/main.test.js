@@ -362,18 +362,15 @@ describe("Chat Command", () => {
     });
 
     test("should redo an undone edit command", () => {
-      // Start session and edit message
       main(["chat", "Redo Session"]);
       main(["chat", "edit", "0", "edited message"]);
       let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
       expect(data.messages[0].message).toBe("edited message");
       
-      // Undo the edit
       main(["chat", "undo"]);
       data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
       expect(data.messages[0].message).toBe("Simulated chat message received.");
 
-      // Redo the edit
       const consoleSpy = vi.spyOn(console, "log");
       main(["chat", "redo"]);
       data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
@@ -497,50 +494,40 @@ describe("Chat Command", () => {
     });
   });
 
-  // New tests for Import Command
-  describe("Import Command", () => {
+  // New tests for Rename Command
+  describe("Rename Command", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+      // Create an initial chat history
+      main(["chat", "Initial Session"]);
+    });
+
     afterEach(() => {
       if (fs.existsSync(chatHistoryFile)) {
         fs.unlinkSync(chatHistoryFile);
       }
     });
 
-    test("should import chat history from valid JSON file", () => {
-      const tempFilePath = '.temp_import.json';
-      const importData = {
-        sessionTitle: "Imported Session",
-        messages: [
-          { timestamp: "2023-01-01T00:00:00.000Z", message: "imported message" }
-        ]
-      };
-      fs.writeFileSync(tempFilePath, JSON.stringify(importData, null, 2));
+    test("should rename session title when a valid new title is provided", () => {
       const consoleSpy = vi.spyOn(console, "log");
-      main(["chat", "import", tempFilePath]);
-      expect(fs.existsSync(chatHistoryFile)).toBe(true);
+      main(["chat", "rename", "Renamed Session"]);
       const data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.sessionTitle).toBe("Imported Session");
-      expect(data.messages.length).toBe(1);
-      expect(data.messages[0].message).toBe("imported message");
-      expect(consoleSpy).toHaveBeenCalledWith("Chat history imported successfully.");
+      expect(data.sessionTitle).toBe("Renamed Session");
+      // Check that backup was created
+      expect(data._undoStack && data._undoStack.length).toBeGreaterThan(0);
+      expect(consoleSpy).toHaveBeenCalledWith('Session title renamed to "Renamed Session".');
       consoleSpy.mockRestore();
-      fs.unlinkSync(tempFilePath);
     });
 
-    test("should error when import file does not exist", () => {
+    test("should error when no new title is provided", () => {
       const consoleErrorSpy = vi.spyOn(console, "error");
-      main(["chat", "import", "nonexistent.json"]);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Import file not found: nonexistent.json");
+      main(["chat", "rename"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No new session title provided.");
       consoleErrorSpy.mockRestore();
-    });
-
-    test("should error when import file has invalid structure", () => {
-      const tempFilePath = '.temp_invalid_import.json';
-      fs.writeFileSync(tempFilePath, JSON.stringify({ wrongField: "bad" }));
-      const consoleErrorSpy = vi.spyOn(console, "error");
-      main(["chat", "import", tempFilePath]);
-      expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid import file structure.");
-      consoleErrorSpy.mockRestore();
-      fs.unlinkSync(tempFilePath);
     });
   });
+
+  // New tests for Import Command are already present above
 });
