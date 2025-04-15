@@ -494,6 +494,61 @@ describe("Chat Command", () => {
     });
   });
 
+  // New tests for edit-by-timestamp (edit-ts) subcommand
+  describe("Edit-By-Timestamp Command", () => {
+    beforeEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+    
+    afterEach(() => {
+      if (fs.existsSync(chatHistoryFile)) {
+        fs.unlinkSync(chatHistoryFile);
+      }
+    });
+
+    test("should update a chat message with valid edit-ts command", () => {
+      const historyData = {
+        sessionTitle: "Timestamp Test",
+        messages: [{ timestamp: "2021-01-01T00:00:00.000Z", message: "Original message" }]
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "edit-ts", "2021-01-01T00:00:00.000Z", "Updated by timestamp"]);
+      const data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      expect(data.messages[0].message).toBe("Updated by timestamp");
+      expect(consoleSpy).toHaveBeenCalledWith('Message with timestamp 2021-01-01T00:00:00.000Z updated.');
+      consoleSpy.mockRestore();
+    });
+
+    test("should log error when no matching timestamp is found", () => {
+      const historyData = {
+        sessionTitle: "Timestamp Test",
+        messages: [{ timestamp: "2021-01-01T00:00:00.000Z", message: "Original message" }]
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "edit-ts", "2022-01-01T00:00:00.000Z", "Updated message"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No message found with the provided timestamp.");
+      consoleErrorSpy.mockRestore();
+    });
+
+    test("should log error when timestamp is missing", () => {
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "edit-ts"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No timestamp provided.");
+      consoleErrorSpy.mockRestore();
+    });
+
+    test("should log error when new message content is missing", () => {
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "edit-ts", "2021-01-01T00:00:00.000Z"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No new message provided.");
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
   // New tests for Rename Command
   describe("Rename Command", () => {
     beforeEach(() => {

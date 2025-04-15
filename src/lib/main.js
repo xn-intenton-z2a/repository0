@@ -393,6 +393,7 @@ function handleRename(args) {
   }
 }
 
+// New function to handle importing chat history from an external JSON file
 function handleImport(args) {
   const importFilePath = args[2];
   if (!importFilePath) {
@@ -442,6 +443,45 @@ function handleImport(args) {
   }
 }
 
+// New function to handle editing a chat message by its timestamp
+function handleEditByTimestamp(args) {
+  const targetTimestamp = args[2];
+  if (!targetTimestamp) {
+    console.error("No timestamp provided.");
+    return;
+  }
+  const newMessage = args.slice(3).join(" ");
+  if (!newMessage) {
+    console.error("No new message provided.");
+    return;
+  }
+  if (!fs.existsSync(chatHistoryFile)) {
+    console.error("No chat history available for editing by timestamp.");
+    return;
+  }
+  let history;
+  try {
+    history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+  } catch {
+    console.error("Error reading chat history file.");
+    return;
+  }
+  const index = history.messages.findIndex(msg => msg.timestamp === targetTimestamp);
+  if (index === -1) {
+    console.error("No message found with the provided timestamp.");
+    return;
+  }
+  backupHistory(history);
+  history.messages[index].message = newMessage;
+  history.messages[index].timestamp = new Date().toISOString();
+  try {
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+    console.log(`Message with timestamp ${targetTimestamp} updated.`);
+  } catch {
+    console.error("Error writing chat history file.");
+  }
+}
+
 export function main(args) {
   if (args[0] !== "chat") {
     console.log("Run with: " + JSON.stringify(args));
@@ -484,6 +524,9 @@ export function main(args) {
       break;
     case "rename":
       handleRename(args);
+      break;
+    case "edit-ts":
+      handleEditByTimestamp(args);
       break;
     default:
       handleChatSession(args);
