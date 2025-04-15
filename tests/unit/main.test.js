@@ -453,6 +453,23 @@ describe("Chat Command", () => {
       consoleSpy.mockRestore();
     });
 
+    test("should find matching messages regardless of case", () => {
+      const sessionTitle = "Search Test Case";
+      const historyData = {
+        sessionTitle: sessionTitle,
+        messages: [
+          { timestamp: "2021-01-01T00:00:00.000Z", message: "Hello World" }
+        ]
+      };
+      fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
+      const consoleSpy = vi.spyOn(console, "log");
+      // Searching with different cases
+      main(["chat", "search", "hello"]);
+      main(["chat", "search", "WORLD"]);
+      expect(consoleSpy).toHaveBeenCalledWith("2021-01-01T00:00:00.000Z: Hello World");
+      consoleSpy.mockRestore();
+    });
+
     describe("List Command", () => {
       beforeEach(() => {
         if (fs.existsSync(chatHistoryFile)) {
