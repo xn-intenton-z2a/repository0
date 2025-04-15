@@ -8,11 +8,16 @@ import { z } from "zod";
 const chatHistoryFile = ".chat_history.json";
 
 function backupHistory(history) {
-  // Create a deep copy of sessionTitle and messages as backup
-  history._backup = {
+  // Initialize undo stack if not exists
+  if (!history._undoStack) {
+    history._undoStack = [];
+  }
+  // Create a deep copy of the current state (only sessionTitle and messages) for backup
+  const backup = {
     sessionTitle: history.sessionTitle,
     messages: history.messages.map((msg) => ({ ...msg }))
   };
+  history._undoStack.push(backup);
 }
 
 function handleStats() {
@@ -235,6 +240,13 @@ function handleDelete(args) {
 
 function handleClear() {
   if (fs.existsSync(chatHistoryFile)) {
+    let history;
+    try {
+      history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      backupHistory(history);
+    } catch (e) {
+      // If parsing fails, we proceed with clearing
+    }
     try {
       fs.unlinkSync(chatHistoryFile);
       console.log("Chat history cleared.");
@@ -258,13 +270,16 @@ function handleUndo() {
     console.error("Error reading chat history file.");
     return;
   }
-  if (!history._backup) {
-    console.error("No backup available for undo.");
+  if (!history._undoStack || history._undoStack.length === 0) {
+    console.error("No more actions to undo.");
     return;
   }
-  const backupData = history._backup;
+  const previousState = history._undoStack.pop();
+  // Instead of replacing the entire file, update the current state while preserving the existing undo stack
+  history.sessionTitle = previousState.sessionTitle;
+  history.messages = previousState.messages;
   try {
-    fs.writeFileSync(chatHistoryFile, JSON.stringify(backupData, null, 2));
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
     console.log("Undo successful.");
   } catch {
     console.error("Error writing chat history file.");
