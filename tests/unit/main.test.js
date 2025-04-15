@@ -11,6 +11,7 @@ describe("Main Module Import", () => {
   });
 });
 
+
 describe("Main Output", () => {
   test("should terminate without error", () => {
     const consoleSpy = vi.spyOn(console, "log");
@@ -19,6 +20,7 @@ describe("Main Output", () => {
     consoleSpy.mockRestore();
   });
 });
+
 
 
 describe("Chat Command", () => {
