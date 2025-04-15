@@ -57,12 +57,12 @@ function handleList() {
 
 function handleExport(args) {
   const formatArg = args[2];
-  const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json", "xml"]);
+  const formatSchema = z.enum(["markdown", "html", "pdf", "csv", "json", "xml", "yaml"]);
   let format;
   try {
     format = formatSchema.parse(formatArg);
   } catch {
-    console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml.");
+    console.error("Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml, yaml.");
     return;
   }
 
@@ -115,6 +115,13 @@ function handleExport(args) {
         formattedOutput += `    <message>\n      <timestamp>${msg.timestamp}</timestamp>\n      <content>${msg.message}</content>\n    </message>\n`;
       });
       formattedOutput += "  </messages>\n</chatHistory>";
+      break;
+    }
+    case "yaml": {
+      formattedOutput = `sessionTitle: "${history.sessionTitle}"\nmessages:\n`;
+      history.messages.forEach((msg) => {
+        formattedOutput += `  - timestamp: "${msg.timestamp}"\n    message: "${msg.message}"\n`;
+      });
       break;
     }
     default:

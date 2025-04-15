@@ -130,11 +130,22 @@ describe("Chat Command", () => {
     consoleSpy.mockRestore();
   });
 
+  test("should export chat history in yaml format", () => {
+    main(["chat", "YAML Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "yaml"]);
+    const output = consoleSpy.mock.calls.map((call) => call.join(" ")).join(" ");
+    expect(output).toContain("Exporting chat history in yaml format:");
+    expect(output).toContain("sessionTitle: \"YAML Session\"");
+    expect(output).toContain("messages:");
+    consoleSpy.mockRestore();
+  });
+
   test("should error on invalid export format", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
     main(["chat", "export", "invalidformat"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml."
+      "Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml, yaml."
     );
     consoleErrorSpy.mockRestore();
   });
