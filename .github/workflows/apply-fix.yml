@@ -671,6 +671,8 @@ jobs:
     needs:
       - select-issue
       - apply-fix
+      - needs-fix-after-fix
+      - create-pr
     if: ${{ always() }}
     permissions:
       contents: write

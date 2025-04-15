@@ -197,8 +197,8 @@ jobs:
     needs:
       - select-issue
       - check-branch
-      - update-npm
-      - update-mvn
+      - create-pr-npm
+      - create-pr-mvn
     if: ${{ always() }}
     permissions:
       contents: write

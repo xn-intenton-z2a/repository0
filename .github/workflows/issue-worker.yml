@@ -526,6 +526,7 @@ jobs:
     needs:
       - select-issue
       - apply-issue-resolution
+      - create-pr
     if: ${{ always() }}
     permissions:
       contents: write
