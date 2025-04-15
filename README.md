@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, and a new list subcommand to display all chat messages with their indexes.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a new list subcommand to display all chat messages with their indexes, and now an import subcommand to load chat history from an external JSON file.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, and a new list command to display the complete chat history with indexed messages.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, and a new import command to import chat history from an external JSON file.
 
 ## What’s Inside
 
@@ -24,6 +24,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   - **Redo Command:** Reapply an action that was undone by the `undo` command. The redo functionality uses a redo stack to restore the most recently undone state, and any new modification clears the redo history.
   - Searching chat history (case-insensitive) with the `search` command
   - **Listing chat history** with the `list` command, which displays all messages with their indexes and timestamps
+  - **Importing chat history:** Replace the current chat history with data from an external JSON file. The command expects a file path, validates the JSON structure (must include a `sessionTitle` and a `messages` array with objects containing `timestamp` and `message`), backs up the existing history, and imports the new data.
 
 - **Chat Command Usage:**
 
@@ -44,6 +45,12 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
       - **pdf:** Simulates PDF export as a plain text representation. NOTE: This is a simulation and does not produce an actual PDF file.
       - **json:** Exports the chat history as a pretty-printed JSON string, ideal for programmatic consumption.
       - **xml:** Exports the chat history in XML format. The XML structure includes a `<chatHistory>` root element with a `<sessionTitle>` child for the session name and a `<messages>` container that wraps individual `<message>` elements. Each `<message>` element contains a `<timestamp>` element and a `<content>` element.
+
+  - To import chat history from an external JSON file, run:
+    ```
+    node src/lib/main.js chat import <filePath>
+    ```
+    This command reads the specified JSON file, validates its structure, backs up the current chat history (if any), and replaces it with the imported data.
 
   - To view a summary of the current chat session, run:
     ```
@@ -103,7 +110,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 ## Tests
-Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality and case-insensitive search, behave as expected.
+Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality, case-insensitive search, and import functionality behave as expected.
 
 ## Documentation
 This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).

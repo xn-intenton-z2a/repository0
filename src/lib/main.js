@@ -365,6 +365,56 @@ function handleChatSession(args) {
   }
 }
 
+// New function to handle importing chat history
+function handleImport(args) {
+  const importFilePath = args[2];
+  if (!importFilePath) {
+    console.error("No import file path provided.");
+    return;
+  }
+  if (!fs.existsSync(importFilePath)) {
+    console.error(`Import file not found: ${importFilePath}`);
+    return;
+  }
+  let importedData;
+  try {
+    const fileContent = fs.readFileSync(importFilePath, "utf-8");
+    importedData = JSON.parse(fileContent);
+  } catch (e) {
+    console.error("Failed to parse import file.");
+    return;
+  }
+  // Validate structure: must have sessionTitle string and messages array with objects having timestamp and message.
+  const importSchema = z.object({
+    sessionTitle: z.string(),
+    messages: z.array(z.object({
+      timestamp: z.string(),
+      message: z.string()
+    }))
+  });
+  try {
+    importSchema.parse(importedData);
+  } catch (e) {
+    console.error("Invalid import file structure.");
+    return;
+  }
+  // Backup current history if exists
+  if (fs.existsSync(chatHistoryFile)) {
+    try {
+      const currentHistory = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+      backupHistory(currentHistory);
+    } catch (e) {
+      // ignore backup if parsing fails
+    }
+  }
+  try {
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(importedData, null, 2));
+    console.log("Chat history imported successfully.");
+  } catch (e) {
+    console.error("Error writing chat history file.");
+  }
+}
+
 export function main(args) {
   if (args[0] !== "chat") {
     console.log("Run with: " + JSON.stringify(args));
@@ -401,6 +451,9 @@ export function main(args) {
       break;
     case "redo":
       handleRedo();
+      break;
+    case "import":
+      handleImport(args);
       break;
     default:
       handleChatSession(args);
