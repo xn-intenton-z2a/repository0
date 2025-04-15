@@ -12,7 +12,7 @@ function backupHistory(history) {
   if (!history._undoStack) {
     history._undoStack = [];
   }
-  // Push a deep copy of the current history (only sessionTitle and messages) onto the stack
+  // Create a deep copy of the current state (only sessionTitle and messages) for backup
   const backup = {
     sessionTitle: history.sessionTitle,
     messages: history.messages.map((msg) => ({ ...msg }))
@@ -275,8 +275,11 @@ function handleUndo() {
     return;
   }
   const previousState = history._undoStack.pop();
+  // Instead of replacing the entire file, update the current state while preserving the existing undo stack
+  history.sessionTitle = previousState.sessionTitle;
+  history.messages = previousState.messages;
   try {
-    fs.writeFileSync(chatHistoryFile, JSON.stringify(previousState, null, 2));
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
     console.log("Undo successful.");
   } catch {
     console.error("Error writing chat history file.");
