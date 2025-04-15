@@ -158,8 +158,6 @@ describe("Chat Command", () => {
     fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "analytics"]);
-    // Total messages: 3, average length = (5+15+21)/3 = 13.67
-    // Total words: 1 + 4 + 3 = 8, longest message: "Another message here.", average word count: 8/3 = 2.67
     expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
     consoleSpy.mockRestore();
   });
@@ -626,7 +624,6 @@ describe("Chat Command", () => {
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
       main(["chat", "analytics"]);
-      // Total messages: 3, average message length = 13.67, total words = 8, longest message = "Another message here.", average word count = 2.67
       expect(consoleSpy).toHaveBeenCalledWith("Total messages: 3, Average message length: 13.67, Total words: 8, Longest message: 'Another message here.', Average word count: 2.67");
       consoleSpy.mockRestore();
     });
