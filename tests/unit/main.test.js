@@ -14,7 +14,6 @@ describe("Main Module Import", () => {
 describe("Main Output", () => {
   test("should terminate without error", () => {
     const consoleSpy = vi.spyOn(console, "log");
-    // Passing empty args to get default behavior
     main([]);
     expect(consoleSpy).toHaveBeenCalledWith("Run with: []");
     consoleSpy.mockRestore();
@@ -23,7 +22,6 @@ describe("Main Output", () => {
 
 describe("Chat Command", () => {
   beforeEach(() => {
-    // Remove chat history file if it exists
     if (fs.existsSync(chatHistoryFile)) {
       fs.unlinkSync(chatHistoryFile);
     }
@@ -66,7 +64,6 @@ describe("Chat Command", () => {
   });
 
   test("should export chat history in markdown format", () => {
-    // First, create a chat history
     main(["chat", "Export Session"]);
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "export", "markdown"]);
@@ -103,7 +100,6 @@ describe("Chat Command", () => {
   });
 
   test("should export chat history in json format", () => {
-    // First, establish a chat session
     main(["chat", "JSON Session"]);
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "export", "json"]);
@@ -141,15 +137,13 @@ describe("Chat Command", () => {
     consoleSpy.mockRestore();
   });
 
-  // New tests for the edit command
+  // Tests for the edit command
   test("should update a chat message with valid edit command", () => {
-    // Create a session with one message
     main(["chat", "Edit Session"]);
     let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages.length).toBe(1);
 
     const consoleSpy = vi.spyOn(console, "log");
-    // Edit the first message
     main(["chat", "edit", "0", "updated message content"]);
     data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages[0].message).toBe("updated message content");
@@ -158,10 +152,8 @@ describe("Chat Command", () => {
   });
 
   test("should error when editing with invalid message index", () => {
-    // Create a session with one message
     main(["chat", "Edit Invalid Index"]);
     const consoleErrorSpy = vi.spyOn(console, "error");
-    // Attempt to edit non-existent index
     main(["chat", "edit", "10", "new message"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid message index.");
     consoleErrorSpy.mockRestore();
@@ -169,7 +161,6 @@ describe("Chat Command", () => {
 
   test("should error when editing with no chat history available", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
-    // Ensure chat history does not exist
     if (fs.existsSync(chatHistoryFile)) {
       fs.unlinkSync(chatHistoryFile);
     }
@@ -178,16 +169,12 @@ describe("Chat Command", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  // New tests for the edit-last command
+  // Tests for the edit-last command
   test("should update the last chat message with valid edit-last command", () => {
     main(["chat", "Edit Last Session"]);
-    // Append another message to ensure there is a last message to edit
     main(["chat", "Edit Last Session"]);
     let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-    const lastIndex = data.messages.length - 1;
-    const originalMessage = data.messages[lastIndex].message;
     const consoleSpy = vi.spyOn(console, "log");
-    // Edit the last message
     main(["chat", "edit-last", "updated last message"]);
     data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages[data.messages.length - 1].message).toBe("updated last message");
@@ -205,16 +192,14 @@ describe("Chat Command", () => {
     consoleErrorSpy.mockRestore();
   });
 
-  // New tests for the delete command
+  // Tests for the delete command
   test("should delete an existing chat message", () => {
-    // Create a session with two messages
     main(["chat", "Delete Session"]);
     main(["chat", "Delete Session"]);
     let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages.length).toBe(2);
-    
+
     const consoleSpy = vi.spyOn(console, "log");
-    // Delete the first message (index 0)
     main(["chat", "delete", "0"]);
     data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages.length).toBe(1);
@@ -225,7 +210,6 @@ describe("Chat Command", () => {
   test("should error when deleting with invalid message index", () => {
     main(["chat", "Delete Invalid Index"]);
     const consoleErrorSpy = vi.spyOn(console, "error");
-    // Attempt to delete non-existent index
     main(["chat", "delete", "10"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith("Invalid message index.");
     consoleErrorSpy.mockRestore();
@@ -233,12 +217,90 @@ describe("Chat Command", () => {
 
   test("should error when deleting with no chat history available", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
-    // Ensure chat history does not exist
     if (fs.existsSync(chatHistoryFile)) {
       fs.unlinkSync(chatHistoryFile);
     }
     main(["chat", "delete", "0"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith("No chat history available for deletion.");
+    consoleErrorSpy.mockRestore();
+  });
+});
+
+// Tests for the undo command
+describe("Undo Command", () => {
+  beforeEach(() => {
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(chatHistoryFile)) {
+      fs.unlinkSync(chatHistoryFile);
+    }
+  });
+
+  test("should revert an edit command", () => {
+    // Create a session and edit a message
+    main(["chat", "Undo Edit Session"]);
+    main(["chat", "edit", "0", "edited message"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages[0].message).toBe("edited message");
+    // Perform undo
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "undo"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    // Should revert to state before edit: original simulated message
+    expect(data.messages[0].message).toBe("Simulated chat message received.");
+    expect(consoleSpy).toHaveBeenCalledWith("Undo successful.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should revert a delete command", () => {
+    main(["chat", "Undo Delete Session"]);
+    main(["chat", "Delete Undo Session"]);
+    // Add second message to ensure deletion has effect
+    main(["chat", "Delete Undo Session"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    const initialCount = data.messages.length;
+    // Delete first message
+    main(["chat", "delete", "0"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(initialCount - 1);
+    // Undo the deletion
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "undo"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(initialCount);
+    expect(consoleSpy).toHaveBeenCalledWith("Undo successful.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should revert an addition (new message) command", () => {
+    // Create initial session
+    main(["chat", "Undo Addition Session"]);
+    let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    const initialCount = data.messages.length;
+    // Append new message
+    main(["chat", "Undo Addition Session"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(initialCount + 1);
+    // Undo the addition
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "undo"]);
+    data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+    expect(data.messages.length).toBe(initialCount);
+    expect(consoleSpy).toHaveBeenCalledWith("Undo successful.");
+    consoleSpy.mockRestore();
+  });
+
+  test("should error when no backup available for undo", () => {
+    // Create a chat history without a backup by writing directly
+    const data = { sessionTitle: "No Backup Session", messages: [{ timestamp: new Date().toISOString(), message: "Test message" }] };
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(data, null, 2));
+    const consoleErrorSpy = vi.spyOn(console, "error");
+    main(["chat", "undo"]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith("No backup available for undo.");
     consoleErrorSpy.mockRestore();
   });
 });
