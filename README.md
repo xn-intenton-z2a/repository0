@@ -34,7 +34,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     node src/lib/main.js chat edit-ts <timestamp> <new_message>
     ```
-    This command searches for a message with the exact provided ISO timestamp, updates its content and timestamp.
+    This command searches for the message with the exact provided ISO timestamp, updates its content and timestamp.
 
 - **Chat Command Usage:**
 
