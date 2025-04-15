@@ -114,11 +114,25 @@ describe("Chat Command", () => {
     consoleSpy.mockRestore();
   });
 
+  test("should export chat history in xml format", () => {
+    main(["chat", "XML Session"]);
+    const consoleSpy = vi.spyOn(console, "log");
+    main(["chat", "export", "xml"]);
+    const output = consoleSpy.mock.calls.map((call) => call.join(" ")).join(" ");
+    expect(output).toContain("<chatHistory>");
+    expect(output).toContain("<sessionTitle>XML Session</sessionTitle>");
+    expect(output).toContain("<messages>");
+    expect(output).toContain("<message>");
+    expect(output).toContain("<timestamp>");
+    expect(output).toContain("<content>Simulated chat message received.</content>");
+    consoleSpy.mockRestore();
+  });
+
   test("should error on invalid export format", () => {
     const consoleErrorSpy = vi.spyOn(console, "error");
     main(["chat", "export", "invalidformat"]);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Invalid export format. Please use one of: markdown, html, pdf, csv, json."
+      "Invalid export format. Please use one of: markdown, html, pdf, csv, json, xml."
     );
     consoleErrorSpy.mockRestore();
   });
@@ -339,7 +353,7 @@ describe("Chat Command", () => {
       // Create a chat history without a backup by writing directly
       const data = {
         sessionTitle: "No Backup Session",
-        messages: [{ timestamp: new Date().toISOString(), message: "Test message" }],
+        messages: [{ timestamp: new Date().toISOString(), message: "Test message" }]
       };
       fs.writeFileSync(chatHistoryFile, JSON.stringify(data, null, 2));
       const consoleErrorSpy = vi.spyOn(console, "error");
@@ -376,8 +390,8 @@ describe("Chat Command", () => {
         sessionTitle: sessionTitle,
         messages: [
           { timestamp: "2021-01-01T00:00:00.000Z", message: "hello world" },
-          { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" },
-        ],
+          { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" }
+        ]
       };
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
@@ -392,8 +406,8 @@ describe("Chat Command", () => {
         sessionTitle: sessionTitle,
         messages: [
           { timestamp: "2021-01-01T00:00:00.000Z", message: "hello world" },
-          { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" },
-        ],
+          { timestamp: "2021-01-01T00:01:00.000Z", message: "another message" }
+        ]
       };
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
@@ -428,8 +442,8 @@ describe("Chat Command", () => {
           sessionTitle: "List Test",
           messages: [
             { timestamp: "2021-01-01T00:00:00.000Z", message: "first message" },
-            { timestamp: "2021-01-01T00:01:00.000Z", message: "second message" },
-          ],
+            { timestamp: "2021-01-01T00:01:00.000Z", message: "second message" }
+          ]
         };
         fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
         const consoleSpy = vi.spyOn(console, "log");
