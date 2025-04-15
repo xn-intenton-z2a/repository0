@@ -8,11 +8,16 @@ import { z } from "zod";
 const chatHistoryFile = ".chat_history.json";
 
 function backupHistory(history) {
-  // Initialize undo stack if not exists
+  // Initialize undo and redo stacks if they don't exist
   if (!history._undoStack) {
     history._undoStack = [];
   }
-  // Create a deep copy of the current state (only sessionTitle and messages) for backup
+  if (!history._redoStack) {
+    history._redoStack = [];
+  }
+  // Clear redo stack on new modification
+  history._redoStack = [];
+  // Create a deep copy of the current state for backup (only sessionTitle and messages)
   const backup = {
     sessionTitle: history.sessionTitle,
     messages: history.messages.map((msg) => ({ ...msg }))
@@ -275,13 +280,59 @@ function handleUndo() {
     console.error("No more actions to undo.");
     return;
   }
+  // Push the current state onto redo stack before undo
+  if (!history._redoStack) {
+    history._redoStack = [];
+  }
+  const currentState = {
+    sessionTitle: history.sessionTitle,
+    messages: history.messages.map((msg) => ({ ...msg }))
+  };
+  history._redoStack.push(currentState);
+
   const previousState = history._undoStack.pop();
-  // Instead of replacing the entire file, update the current state while preserving the existing undo stack
   history.sessionTitle = previousState.sessionTitle;
   history.messages = previousState.messages;
   try {
     fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
     console.log("Undo successful.");
+  } catch {
+    console.error("Error writing chat history file.");
+  }
+}
+
+function handleRedo() {
+  if (!fs.existsSync(chatHistoryFile)) {
+    console.error("No chat history available for redo.");
+    return;
+  }
+  let history;
+  try {
+    history = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
+  } catch {
+    console.error("Error reading chat history file.");
+    return;
+  }
+  if (!history._redoStack || history._redoStack.length === 0) {
+    console.error("No actions to redo.");
+    return;
+  }
+  // Backup current state into undo stack before redoing
+  if (!history._undoStack) {
+    history._undoStack = [];
+  }
+  const currentState = {
+    sessionTitle: history.sessionTitle,
+    messages: history.messages.map((msg) => ({ ...msg }))
+  };
+  history._undoStack.push(currentState);
+
+  const redoState = history._redoStack.pop();
+  history.sessionTitle = redoState.sessionTitle;
+  history.messages = redoState.messages;
+  try {
+    fs.writeFileSync(chatHistoryFile, JSON.stringify(history, null, 2));
+    console.log("Redo successful.");
   } catch {
     console.error("Error writing chat history file.");
   }
@@ -347,6 +398,9 @@ export function main(args) {
       break;
     case "undo":
       handleUndo();
+      break;
+    case "redo":
+      handleRedo();
       break;
     default:
       handleChatSession(args);

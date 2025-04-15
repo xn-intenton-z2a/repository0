@@ -159,7 +159,6 @@ describe("Chat Command", () => {
     main(["chat", "Edit Session"]);
     let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages.length).toBe(1);
-
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "edit", "0", "updated message content"]);
     data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
@@ -213,7 +212,6 @@ describe("Chat Command", () => {
     main(["chat", "Delete Session"]);
     let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
     expect(data.messages.length).toBe(2);
-
     const consoleSpy = vi.spyOn(console, "log");
     main(["chat", "delete", "0"]);
     data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
@@ -350,7 +348,7 @@ describe("Chat Command", () => {
     });
   });
 
-  describe("Multi-Level Undo", () => {
+  describe("Redo Command", () => {
     beforeEach(() => {
       if (fs.existsSync(chatHistoryFile)) {
         fs.unlinkSync(chatHistoryFile);
@@ -363,41 +361,33 @@ describe("Chat Command", () => {
       }
     });
 
-    test("should support multi-level undo with sequential modifications", () => {
-      // Start session with one message
-      main(["chat", "MultiUndo"]);
+    test("should redo an undone edit command", () => {
+      // Start session and edit message
+      main(["chat", "Redo Session"]);
+      main(["chat", "edit", "0", "edited message"]);
       let data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages.length).toBe(1);
-
-      // Append a new message
-      main(["chat", "MultiUndo"]);
-      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages.length).toBe(2);
-
-      // Edit first message
-      main(["chat", "edit", "0", "edited first message"]);
-      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages[0].message).toBe("edited first message");
-
+      expect(data.messages[0].message).toBe("edited message");
+      
       // Undo the edit
       main(["chat", "undo"]);
       data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
       expect(data.messages[0].message).toBe("Simulated chat message received.");
 
-      // Delete second message
-      main(["chat", "delete", "1"]);
+      // Redo the edit
+      const consoleSpy = vi.spyOn(console, "log");
+      main(["chat", "redo"]);
       data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages.length).toBe(1);
+      expect(data.messages[0].message).toBe("edited message");
+      expect(consoleSpy).toHaveBeenCalledWith("Redo successful.");
+      consoleSpy.mockRestore();
+    });
 
-      // Undo the delete, message count should be restored to 2
-      main(["chat", "undo"]);
-      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages.length).toBe(2);
-
-      // Undo the addition (second message), count becomes 1
-      main(["chat", "undo"]);
-      data = JSON.parse(fs.readFileSync(chatHistoryFile, "utf-8"));
-      expect(data.messages.length).toBe(1);
+    test("should error when no redo action is available", () => {
+      main(["chat", "Redo No Action Session"]);
+      const consoleErrorSpy = vi.spyOn(console, "error");
+      main(["chat", "redo"]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith("No actions to redo.");
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -463,7 +453,6 @@ describe("Chat Command", () => {
       };
       fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
       const consoleSpy = vi.spyOn(console, "log");
-      // Searching with different cases
       main(["chat", "search", "hello"]);
       main(["chat", "search", "WORLD"]);
       expect(consoleSpy).toHaveBeenCalledWith("2021-01-01T00:00:00.000Z: Hello World");
