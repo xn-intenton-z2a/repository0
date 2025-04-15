@@ -1,11 +1,11 @@
 # `repository0`
 
-This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, an import subcommand to load chat history from an external JSON file, a rename subcommand to update the chat session title, an edit-ts subcommand to update a chat message by its ISO timestamp, and a new analytics subcommand to display conversation metrics.
+This repository template showcases the GitHub workflows imported from intention `agentic‑lib`, including automated CI/CD workflows and handy CLI utilities. It now includes a persistent multi-turn conversation ('chat') command that stores conversation history in a file (.chat_history.json) and offers enhanced export functionality with multiple formatted outputs, a stats subcommand to view chat history summary, a clear subcommand to reset the chat history, an edit subcommand to update a specific chat message, a delete subcommand to remove a specific chat message, an edit-last subcommand to update the most recent message, an undo subcommand to revert the last change (with multi-level undo support), a redo subcommand to reapply an undone change, a search subcommand to search within the chat history, a list subcommand to display all chat messages with their indexes, an import subcommand to load chat history from an external JSON file, a rename subcommand to update the chat session title, an edit-ts subcommand to update a chat message by its ISO timestamp, and a new analytics subcommand to display comprehensive conversation metrics.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic‑lib/blob/main/TEMPLATE-README.md)
 
 ## Overview
-`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, an import command to import chat history from an external JSON file, a rename command to update the session title, an **edit-ts** command to update a chat message by specifying its exact ISO timestamp, and an **analytics** command to reveal key conversation metrics such as total messages and average message length.
+`repository0` is a demo repository that demonstrates the automated GitHub workflows and CLI utilities derived from intention `agentic‑lib`. The repository now supports a persistent multi-turn chat feature with optional session titling, export functionality with human-readable formats, a stats command to summarize the chat session history, a clear command to reset the chat history, an edit command to update a previously recorded message, a delete command to remove a specified chat message, an edit-last command to quickly update the most recent message, an undo command to revert one or more modifications (multi-level undo), a redo command to reapply undone actions, a search command (case-insensitive) to find messages containing a specific keyword, a list command to display the complete chat history with indexed messages, an import command to import chat history from an external JSON file, a rename command to update the session title, an **edit-ts** command to update a chat message by specifying its exact ISO timestamp, and an **analytics** command to reveal key conversation metrics.
 
 ## What’s Inside
 
@@ -35,10 +35,18 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     node src/lib/main.js chat edit-ts <timestamp> <new_message>
     ```
     This command searches for the message with the exact provided ISO timestamp and updates its content and timestamp.
-  - **Analytics:** Get an overview of your chat session with key metrics including the total number of messages and the average character length per message by running:
+  - **Analytics:** Get an enhanced overview of your chat session with key metrics including:
+      - Total messages
+      - Average message length
+      - Total word count across all messages
+      - The longest message (by character length)
+      - Average word count per message
+    Run:
     ```
     node src/lib/main.js chat analytics
     ```
+    The output will be formatted as:
+    "Total messages: <number>, Average message length: <number>, Total words: <number>, Longest message: '<message>', Average word count: <number>"
 
 - **Chat Command Usage:**
 
@@ -132,17 +140,24 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
     ```
     This command displays every recorded message in the format: "[index] timestamp: message".
 
-  - To display analytics of your current chat session, run:
+  - To display enhanced analytics of your current chat session, run:
     ```
     node src/lib/main.js chat analytics
     ```
-    This command shows key metrics including the total number of messages and the average character length per message.
+    This command shows key metrics including:
+      - Total messages
+      - Average message length
+      - Total word count
+      - The longest message
+      - Average word count per message
+    The output will look like:
+    "Total messages: <number>, Average message length: <number>, Total words: <number>, Longest message: '<message>', Average word count: <number>"
 
 ## Dependencies
 The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 ## Tests
-Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality, case-insensitive search, import functionality, the rename command, the edit-ts command, and the new analytics command behave as expected.
+Unit tests in the `tests/unit/` folder ensure that the CLI commands, including the new multi-level undo/redo functionality, case-insensitive search, import functionality, the rename command, the edit-ts command, and the new enhanced analytics command behave as expected.
 
 ## Documentation
 This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
