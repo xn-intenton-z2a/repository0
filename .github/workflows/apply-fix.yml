@@ -92,7 +92,7 @@ jobs:
             const attemptsPerBranch = "${{ needs.agentic-lib.outputs.attemptsPerBranch }}";
             // Use the branch prefix from env (ensure process.env.branchPrefix is defined)
             const prefix = process.env.branchPrefix || "agentic-lib-";
-            
+
             let branch;
             // Determine branch using schedule or ref
             if (context.eventName === "schedule" || context.eventName === "workflow_run" || "${{ inputs.scanForBranches }}" === "true") {
@@ -105,7 +105,7 @@ jobs:
                 .filter(b => new RegExp(`^${prefix}`).test(b.name))
                 .map(b => b.name);
               core.info(`Matching branches: ${matchingBranches}`);
-              
+
               // Check if any of the matching branches have a PR open
               const openPRs = await github.rest.pulls.list({
                 owner: context.repo.owner,
@@ -214,7 +214,7 @@ jobs:
             const issueNumber = "${{ env.issueNumber }}";
             const attemptsPerBranch = parseInt("${{ env.attemptsPerBranch }}");
             const branch = "${{ env.branch }}";
-            
+
             // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and delete the branch.       
             const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
@@ -226,7 +226,7 @@ jobs:
             const attemptsOnBranch = issueLabelsStartingWithApplyFix.length + issueLabelsStartingWithIssueWorker.length
             if(attemptsOnBranch >= attemptsPerBranch) {
                const message = `${branch} has Reached the limit of ${attemptsPerBranch} attempts with ${attemptsOnBranch} attempts.`;
-            
+
               // Delete the branch if it isn't main
               if (branch === "main") {
                 core.info(`Skipping branch delete but ${message}`);
@@ -239,7 +239,7 @@ jobs:
                 });
                 core.info(`Deleted branch ${branch}.`);
               }
-            
+
               // Comment the issue
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -247,7 +247,7 @@ jobs:
                 issue_number: issueNumber,
                 body: message
               });
-            
+
               core.setFailure(`${message}`);
             }
 
@@ -454,7 +454,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.12.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.13.1'
     with:
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
@@ -608,13 +608,13 @@ jobs:
             const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}" === "true";
             const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}" === "true";
             const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
-            
+
             core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);
             core.setOutput("fixedFromTheBeginning", fixedFromTheBeginning);
             core.setOutput("anySkipped", anySkipped);
             core.setOutput("anyDidntSucceed", anyDidntSucceed);
             core.setOutput("readyToMerge", readyToMerge);     
-            
+
             core.info(`Apply fix even if tests pass: ${applyFixEvenIfTestsPass}`);
             core.info(`Fixed from the beginning: ${fixedFromTheBeginning}`);
             core.info(`Any skipped: ${anySkipped}`);
@@ -649,7 +649,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.12.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.13.1'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -660,7 +660,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.12.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.13.1'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -678,7 +678,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@3.12.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.13.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'

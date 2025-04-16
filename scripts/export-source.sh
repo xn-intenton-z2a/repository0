@@ -19,6 +19,7 @@ find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of 
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "features" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-FEATURES.md"
 find "prompts" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-PROMPTS.md"
+find "library" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-LIBRARY.md"
 if [[ -e "Dockerfile" ]] ; then echo "==== Content of Dockerfile ====" > "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat Dockerfile >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
 if [[ -e "compose.yml" ]] ; then echo "==== Content of compose.yml ====" >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; cat compose.yml >> "exports/$(date +%Y-%m-%d)-docker-cat.txt" ; fi
 if [[ -e "pom.xml" ]] ; then echo "==== Content of pom.xml ====" > "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; cat pom.xml >> "exports/$(date +%Y-%m-%d)-aws-cat.txt" ; fi

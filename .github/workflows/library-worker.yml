@@ -1,25 +1,25 @@
-# .github/workflows/feature-worker.yml
+# .github/workflows/library-worker.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Feature Worker
-concurrency: feature-worker
-run-name: "Feature Worker"
+name: Library Worker
+concurrency: library-worker
+run-name: "Library Worker"
 
 on:
   workflow_dispatch:
     inputs:
-      feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+      document:
+        description: 'Text to drive the library maintenance (if "house choice", the repository will be assessed and an action chosen). e.g. "Get a document about agents."'
         required: false
         type: string
         default: 'house choice'
   schedule:
-    - cron: '50 11 */7 * *' # schedule-1
-    #- cron: '50 */4 * * *' # schedule-2
-    #- cron: '50 */1 * * *' # schedule-3
-    #- cron: '50 */1 * * *' # schedule-4
+    - cron: '15 4 */7 * *' # schedule-1
+    #- cron: '15 4 * * *' # schedule-2
+    #- cron: '15 */1 * * *' # schedule-3
+    #- cron: '*/5 * * * *' # schedule-4
 
 jobs:
 
@@ -33,25 +33,35 @@ jobs:
         id: agentic-lib
         shell: bash
         run: |
-          featuresWipLimit=$(grep '^featuresWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "featuresWipLimit=${featuresWipLimit}"
-          echo "featuresWipLimit=${featuresWipLimit}" >> $GITHUB_OUTPUT
+          if [ -f ".github/agentic-lib.yml" ]; then
+            documentsLimit=$(grep '^documentsLimit:' .github/agentic-lib.yml | awk '{print $2}')
+            if [ -z "$documentsLimit" ]; then
+              documentsLimit="3"
+              echo "Warning: documentsLimit not found in .github/agentic-lib.yml, using default value: ${documentsLimit}"
+            fi
+          else
+            documentsLimit="3"
+            echo "Warning: .github/agentic-lib.yml file not found, using default documentsLimit: ${documentsLimit}"
+          fi
+          echo "documentsLimit=${documentsLimit}"
+          echo "documentsLimit=${documentsLimit}" >> $GITHUB_OUTPUT
     outputs:
-      featuresWipLimit: ${{ steps.agentic-lib.outputs.featuresWipLimit }}
+      documentsLimit: ${{ steps.agentic-lib.outputs.documentsLimit }}
 
-  # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
-  maintain-features:
+  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
+  maintain-library:
     needs:
       - agentic-lib
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@3.13.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@3.13.1'
     with:
-      feature: ${{ inputs.feature }}
-      featuresDir: 'features/'
-      featuresWipLimit: '${{ needs.agentic-lib.outputs.featuresWipLimit }}'
+      document: ${{ inputs.document }}
+      libraryDir: 'library/'
+      sourcesFile: 'SOURCES.md'
+      documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
@@ -83,7 +93,7 @@ jobs:
   stats:
     needs:
       - select-issue
-      - maintain-features
+      - maintain-library
     if: ${{ always() }}
     permissions:
       contents: write

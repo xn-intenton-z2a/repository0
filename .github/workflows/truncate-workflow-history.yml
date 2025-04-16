@@ -118,7 +118,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@main'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
