@@ -32,4 +32,8 @@ describe("GCD Function", () => {
     expect(() => gcd(0, 10)).toThrow("gcd function requires two positive integers");
     expect(() => gcd(10, 0)).toThrow("gcd function requires two positive integers");
   });
+  test("should throw error on non-integer inputs (fractional numbers)", () => {
+    expect(() => gcd(4.5, 2)).toThrow("gcd function requires two positive integers");
+    expect(() => gcd(10, 2.5)).toThrow("gcd function requires two positive integers");
+  });
 });

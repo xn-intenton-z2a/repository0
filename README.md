@@ -32,13 +32,14 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   console.log(result); // Outputs: 6
   ```
 
-  The gcd function is also integrated with the CLI and can be used as part of automated workflows.
+  **Important:** The gcd function only accepts positive integers. Acceptable inputs include natural numbers like 1, 2, 3, etc. 
+  If non-integer inputs (such as fractional numbers) or non-positive values are provided, the function will throw an error with the message: "gcd function requires two positive integers".
 
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands and utility functions behave as expected. Recent updates have extended the test coverage to include the gcd functionality.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands and utility functions behave as expected. Recent updates have extended the test coverage to include the gcd functionality, including tests for fractional inputs.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
