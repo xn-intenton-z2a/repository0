@@ -20,6 +20,7 @@ on:
     #- cron: '15 4 * * *' # schedule-2
     #- cron: '15 */1 * * *' # schedule-3
     #- cron: '15 * * * *' # schedule-4
+    #- cron: '*/5 * * * *' # schedule-5
 
 jobs:
 
@@ -56,7 +57,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@3.14.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@3.14.4'
     with:
       document: ${{ inputs.document }}
       libraryDir: 'library/'
@@ -74,7 +75,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.14.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.14.4'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -90,7 +91,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.14.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.14.4'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
