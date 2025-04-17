@@ -19,6 +19,7 @@ cp -fv "seeds/zero-README.md"  README.md
 cp -fv "seeds/zero-package.json"  package.json
 cp -fv "seeds/zero-main.js" src/lib/main.js
 cp -fv "seeds/zero-main.test.js" tests/unit/main.test.js
+rm -f library/*.md
 rm -f features/*.md
 rm -f prompts/*.md
 cp -fv seeds/prompts/*.md prompts/

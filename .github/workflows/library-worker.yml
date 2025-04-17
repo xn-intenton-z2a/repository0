@@ -19,7 +19,7 @@ on:
     - cron: '15 4 */7 * *' # schedule-1
     #- cron: '15 4 * * *' # schedule-2
     #- cron: '15 */1 * * *' # schedule-3
-    #- cron: '*/5 * * * *' # schedule-4
+    #- cron: '15 * * * *' # schedule-4
 
 jobs:
 
@@ -56,21 +56,12 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@3.13.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@3.14.0'
     with:
       document: ${{ inputs.document }}
       libraryDir: 'library/'
       sourcesFile: 'SOURCES.md'
       documentsLimit: '${{ needs.agentic-lib.outputs.documentsLimit }}'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
-      readmeFile: 'README.md'
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
-      buildScript: 'npm run build'
-      testScript: 'npm test'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
@@ -83,7 +74,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.13.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.14.0'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -99,7 +90,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.13.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.14.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: '@xn-intenton-z2a'
