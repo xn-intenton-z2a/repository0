@@ -4,6 +4,9 @@
   "description": "Add repository description here",
   "type": "module",
   "main": "src/lib/main.js",
+  "imports": {
+    "@src/*": "./src/*"
+  },
   "scripts": {
     "build": "echo 'Nothing to build'",
     "formatting": "prettier --check .",
