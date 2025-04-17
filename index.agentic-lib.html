@@ -23,94 +23,49 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository template showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code> and demonstrates a minimal CLI implementation. It uses automated workflows for CI/CD while providing a simple Node.js CLI utility.</p>
+<p class="md-github">The repository is intended as a template that includes:</p>
+<ul class="md-github">
+<li class="md-github">A Template Base: A starting point for new projects.</li>
+<li class="md-github">A Running Experiment: An example implementation that demonstrates one way to use the template.</li>
+<li class="md-github">Workflows from <code class="md-github">agentic‑lib</code> which reference reusable workflows.</li>
+</ul>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github"><code class="md-github">repository0</code> is a demo repository that demonstrates the GitHub workflows from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to showcase automated CI/CD workflows along with a basic CLI tool implemented in Node.js.</p>
+<p class="md-github"><code class="md-github">repository0</code> is a demo repository that showcases the GitHub workflows imported from intentïon <code class="md-github">agentic‑lib</code>. Its primary purpose is to demonstrate these automated CI/CD workflows.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
-<p class="md-github"><strong class="md-github">GitHub Workflows:</strong>
+<p class="md-github"><strong class="md-github">GitHub Workflows:</strong><br>
 Workflows in the <code class="md-github">.github/workflows/</code> directory utilize reusable workflows from intentïon <code class="md-github">agentic‑lib</code> to automate project tasks.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Source Code:</strong>
-The main functionality is in <code class="md-github">src/lib/main.js</code>. This file is maintained to adhere to the project’s mission and coding standards and exports the CLI functionality as library functions.</p>
+<p class="md-github"><strong class="md-github">Source Code:</strong><br>
+The main functionality is in <code class="md-github">src/lib/main.js</code>. This file is the focus of the workflow and is maintained to adhere to the project’s mission and coding standards.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Dependencies:</strong>
+<p class="md-github"><strong class="md-github">GCD Utility Function:</strong>
+The repository now provides a handy utility function for computing the greatest common divisor (gcd) of two integers.</p>
+<h3 class="md-github"><a class="md-github__anchor" name="usage-example" href="#usage-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage Example</h3>
+<p class="md-github">You can import and use the function in your JavaScript code as follows:</p>
+<pre class="md-github"><code class="md-github language-javascript">import { gcd } from '@src/lib/main.js';
+
+const result = gcd(48, 18);
+console.log(result); // Outputs: 6
+</code></pre>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">Dependencies:</strong><br>
 The <code class="md-github">package.json</code> file defines dependencies and scripts for testing, formatting, linting, and running the CLI.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Tests:</strong>
-Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands behave as expected.</p>
+<p class="md-github"><strong class="md-github">Tests:</strong><br>
+Unit tests in the <code class="md-github">tests/unit/</code> folder ensure that the CLI commands and utility functions behave as expected. Recent updates have extended the test coverage to include the gcd functionality.</p>
 </li>
 <li class="md-github">
-<p class="md-github"><strong class="md-github">Documentation:</strong>
+<p class="md-github"><strong class="md-github">Documentation:</strong><br>
 This README provides essential project information. For contribution guidelines, please see <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a>.</p>
 </li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="usage" href="#usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage</h2>
-<h3 class="md-github"><a class="md-github__anchor" name="running-the-cli" href="#running-the-cli"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Running the CLI</h3>
-<p class="md-github">To run the CLI, execute the following command in your terminal:</p>
-<pre class="md-github"><code class="md-github">node src/lib/main.js [args]
-</code></pre>
-<h3 class="md-github"><a class="md-github__anchor" name="examples" href="#examples"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h3>
-<ol class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">No Arguments Provided</strong></p>
-<p class="md-github">When no arguments are provided, the CLI outputs a default message:</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js
-No CLI arguments provided
-</code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Single Argument (Unknown Command)</strong></p>
-<p class="md-github">When an unknown command is provided, the CLI echoes an error message:</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js hello
-Unknown command: hello
-</code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">Greet Command</strong></p>
-<p class="md-github">The <code class="md-github">greet</code> command outputs a greeting. When used without specifying a name, it will greet &quot;world&quot;:</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js greet
-Hello, world!
-</code></pre>
-<p class="md-github">When a name is provided with the <code class="md-github">greet</code> command, the greeting reflects the provided name:</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js greet Alice
-Hello, Alice!
-</code></pre>
-</li>
-</ol>
-<h3 class="md-github"><a class="md-github__anchor" name="arithmetic-commands" href="#arithmetic-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arithmetic Commands</h3>
-<p class="md-github">The CLI now supports additional arithmetic operations:</p>
-<ol class="md-github">
-<li class="md-github">
-<p class="md-github"><strong class="md-github">gcd Command</strong></p>
-<p class="md-github">Computes the greatest common divisor of two or more integers using the Euclidean algorithm.</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js gcd 12 18 24
-6
-</code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">lcm Command</strong></p>
-<p class="md-github">Computes the least common multiple of two or more integers.</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js lcm 4 5 10
-20
-</code></pre>
-</li>
-<li class="md-github">
-<p class="md-github"><strong class="md-github">prime Command</strong></p>
-<p class="md-github">Checks whether a single integer is prime and outputs the result.</p>
-<pre class="md-github"><code class="md-github">$ node src/lib/main.js prime 7
-7 is prime
-
-$ node src/lib/main.js prime 8
-8 is not prime
-</code></pre>
-</li>
-</ol>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
 <p class="md-github">This repository is already set up with the necessary workflows and scripts but you need to supply the following secrets:</p>
 <ul class="md-github">
@@ -120,13 +75,16 @@ $ node src/lib/main.js prime 8
 <h2 class="md-github"><a class="md-github__anchor" name="intentïon-agenticlib" href="#intentïon-agenticlib"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>intentïon <code class="md-github">agentic‑lib</code></h2>
 <p class="md-github">The <strong class="md-github">intentïon <code class="md-github">agentic‑lib</code></strong> is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s <code class="md-github">workflow_call</code> event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.</p>
 <p class="md-github"><em class="md-github">Warning:</em> Running these workflows may incur resource usage and charges.</p>
-<p class="md-github"><a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> | <a href="./MISSION.md" class="md-github">MISSION.md</a> | <a href="./LICENSE" class="md-github">LICENSE</a> | <a href="https://github.com/xn-intenton-z2a/agentic-lib" class="md-github">agentic‑lib on GitHub</a></p>
-<h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
-<p class="md-github">Released under the MIT License (see <a href="./LICENSE" class="md-github">LICENSE</a>).</p>
+<p class="md-github">For more details, please refer to the <a href="./MISSION.md" class="md-github">MISSION.md</a>, <a href="./CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a>, and <a href="./LICENSE" class="md-github">LICENSE</a>.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="additional-resources" href="#additional-resources"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Additional Resources</h2>
+<ul class="md-github">
+<li class="md-github"><a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></li>
+<li class="md-github"><a href="https://github.com/xn-intenton-z2a/agentic-lib" class="md-github">intentïon agentic‑lib</a></li>
+</ul>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-14T18:58:13.276Z</p>
+    <p>Generated on 2025-04-17T12:23:22.736Z</p>
   </footer>
 </body>
 </html>
