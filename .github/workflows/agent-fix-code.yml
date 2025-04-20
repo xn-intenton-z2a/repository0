@@ -68,43 +68,85 @@ jobs:
 
       - name: agentic-lib
         id: agentic-lib
-        shell: bash
-        run: |
-          attemptsPerBranch=$(grep '^attemptsPerBranch:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "attemptsPerBranch=${attemptsPerBranch}"
-          echo "attemptsPerBranch=${attemptsPerBranch}" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
 
-          # Extract writeable filepaths from writeableFilepaths values
-          writeableFilepaths=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*[a-zA-Z0-9_-]+:/) print $2}' .github/agentic-lib.yml | sed 's/"//g' | jq -R . | jq -s .)
-          echo "writeableFilepaths=${writeableFilepaths}"
-          echo "writeableFilepaths=${writeableFilepaths}" >> $GITHUB_OUTPUT
+            // Default values
+            let attemptsPerBranch = "2";
+            let srcPath = "src/lib/";
+            let testsPath = "tests/unit/";
+            let docsPath = "docs/";
+            let writeableFilepaths = [];
 
-          # Extract src path from writeableFilepaths
-          srcPath=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*src:/) print $2}' .github/agentic-lib.yml | sed 's/"//g')
-          if [ -z "$srcPath" ]; then
-            srcPath="src/lib/"
-            echo "Warning: src path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${srcPath}"
-          fi
-          echo "srcPath=${srcPath}"
-          echo "srcPath=${srcPath}" >> $GITHUB_OUTPUT
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
 
-          # Extract tests path from writeableFilepaths
-          testsPath=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*tests:/) print $2}' .github/agentic-lib.yml | sed 's/"//g')
-          if [ -z "$testsPath" ]; then
-            testsPath="tests/unit/"
-            echo "Warning: tests path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${testsPath}"
-          fi
-          echo "testsPath=${testsPath}"
-          echo "testsPath=${testsPath}" >> $GITHUB_OUTPUT
+                // Extract attemptsPerBranch
+                if (config.attemptsPerBranch) {
+                  attemptsPerBranch = config.attemptsPerBranch.toString();
+                } else {
+                  console.log(`Warning: attemptsPerBranch not found in .github/agentic-lib.yml, using default value: ${attemptsPerBranch}`);
+                }
 
-          # Extract docs path from writeableFilepaths (for README.md)
-          docsPath=$(awk '/^writeableFilepaths:/,/^[^[:space:]]/ {if ($0 ~ /^[[:space:]]*docs:/) print $2}' .github/agentic-lib.yml | sed 's/"//g')
-          if [ -z "$docsPath" ]; then
-            docsPath="docs/"
-            echo "Warning: docs path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${docsPath}"
-          fi
-          echo "docsPath=${docsPath}"
-          echo "docsPath=${docsPath}" >> $GITHUB_OUTPUT
+                // Extract src path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.src) {
+                  srcPath = config.writeableFilepaths.src.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: src path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${srcPath}`);
+                }
+
+                // Extract tests path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.tests) {
+                  testsPath = config.writeableFilepaths.tests.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${testsPath}`);
+                }
+
+                // Extract docs path from writeableFilepaths
+                if (config.writeableFilepaths && config.writeableFilepaths.docs) {
+                  docsPath = config.writeableFilepaths.docs.replace(/"/g, '');
+                } else {
+                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${docsPath}`);
+                }
+
+                // Extract all writeable filepaths
+                if (config.writeableFilepaths) {
+                  writeableFilepaths = Object.values(config.writeableFilepaths)
+                    .filter(value => value && value.trim() !== '')
+                    .map(value => value.replace(/"/g, ''));
+                }
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default values: attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: attemptsPerBranch=${attemptsPerBranch}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
+            }
+
+            // Set outputs
+            console.log(`attemptsPerBranch=${attemptsPerBranch}`);
+            core.setOutput('attemptsPerBranch', attemptsPerBranch);
+
+            console.log(`srcPath=${srcPath}`);
+            core.setOutput('srcPath', srcPath);
+
+            console.log(`testsPath=${testsPath}`);
+            core.setOutput('testsPath', testsPath);
+
+            console.log(`docsPath=${docsPath}`);
+            core.setOutput('docsPath', docsPath);
+
+            console.log(`writeableFilepaths=${JSON.stringify(writeableFilepaths)}`);
+            core.setOutput('writeableFilepaths', JSON.stringify(writeableFilepaths));
     outputs:
       attemptsPerBranch: ${{ steps.agentic-lib.outputs.attemptsPerBranch }}
       writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
@@ -503,7 +545,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.15.2'
     with:
       target: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
       testFile: ${{ inputs.testFile || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
@@ -697,7 +739,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.15.2'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -708,7 +750,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -726,7 +768,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

@@ -40,11 +40,41 @@ jobs:
 
       - name: agentic-lib
         id: agentic-lib
-        shell: bash
-        run: |
-          maintenanceIssuesWipLimit=$(grep '^maintenanceIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}"
-          echo "maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            // Default value
+            let maintenanceIssuesWipLimit = "3";
+
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
+
+                // Extract maintenanceIssuesWipLimit
+                if (config.maintenanceIssuesWipLimit) {
+                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
+                }
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            }
+
+            // Set output
+            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
     outputs:
       maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
 
@@ -95,7 +125,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@3.15.2'
     with:
       prompt: ${{ needs.select-prompt.outputs.prompt }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
@@ -123,7 +153,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.15.2'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
@@ -133,7 +163,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -149,7 +179,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

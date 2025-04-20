@@ -40,11 +40,41 @@ jobs:
 
       - name: agentic-lib
         id: agentic-lib
-        shell: bash
-        run: |
-          featureDevelopmentIssuesWipLimit=$(grep '^featureDevelopmentIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
-          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}"
-          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const yaml = require('js-yaml');
+
+            // Default value
+            let featureDevelopmentIssuesWipLimit = "3";
+
+            // Check if agentic-lib.yml exists
+            const configPath = path.join('.github', 'agentic-lib.yml');
+            if (fs.existsSync(configPath)) {
+              try {
+                // Read and parse the YAML file
+                const fileContents = fs.readFileSync(configPath, 'utf8');
+                const config = yaml.load(fileContents);
+
+                // Extract featureDevelopmentIssuesWipLimit
+                if (config.featureDevelopmentIssuesWipLimit) {
+                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
+                } else {
+                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
+                }
+              } catch (error) {
+                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
+                console.log(`Using default value: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+              }
+            } else {
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default value: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            }
+
+            // Set output
+            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
     outputs:
       featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
 
@@ -94,7 +124,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@3.15.2'
     with:
       featureName: ${{ needs.select-feature.outputs.featureName }}
       featuresDir: './features'
@@ -123,7 +153,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.15.2'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -133,7 +163,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -149,7 +179,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
