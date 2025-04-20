@@ -15,6 +15,7 @@ echo "Workflow schedule: schedule-${schedule?}"
 git add .github/workflows/*
 git add scripts/*
 git add public/*
+git add AGENT-*
 git commit -m 'Update from agentic-lib'
 git pull
 git push
