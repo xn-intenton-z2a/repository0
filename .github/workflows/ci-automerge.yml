@@ -14,13 +14,14 @@ on:
   workflow_run:
     workflows:
       - agent-issue-to-code
+      - agent-fix-code
     types:
       - completed
-  schedule:
-    #- cron: '10 */12 * * *' # schedule-1
-    - cron: '10 */4 * * *' # schedule-2
-    #- cron: '10,25,40,55 */1 * * *' # schedule-3
-    #- cron: '10,25,40,55 */1 * * *' # schedule-4
+  #schedule:
+    #- cron: '10 */12 * * *' # schedule-see-workflow_run-1
+    #- cron: '10 */4 * * *' # schedule-see-workflow_run-2
+    #- cron: '10,25,40,55 */1 * * *' # schedule-see-workflow_run-3
+    #- cron: '10,25,40,55 */1 * * *' # schedule-see-workflow_run-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -87,11 +88,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@4.0.1'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@4.0.1'
 
   ls:
     needs: label
@@ -178,7 +179,7 @@ jobs:
       contents: write
       pull-requests: read
       issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.0.1'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'agentic-lib-issue-'
@@ -191,7 +192,7 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@4.0.1'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -204,7 +205,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.0.1'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'agentic-lib-issue-'
@@ -214,7 +215,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.1'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -232,7 +233,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
