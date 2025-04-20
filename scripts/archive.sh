@@ -13,7 +13,7 @@ find "library" -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exe
 cp -fv MISSION.md "archive/${intention?}-$(date +%Y-%m-%d)-MISSION.md"
 cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
 # Archive all SOURCES*.md files
-find . -maxdepth 1 -type f -name 'SOURCES*.md' -print -exec bash -c 'cp -fv "$0" "archive/${intention?}-$(date +%Y-%m-%d)-$(basename $0)"' {} \;
+find . -maxdepth 1 -type f -name 'SOURCES*.md' -print -exec bash -c 'cp -fv "$0" "archive/'"${intention?}"'-$(date +%Y-%m-%d)-$(basename $0)"' {} \;
 cp -fv package.json "archive/${intention?}-$(date +%Y-%m-%d)-package.json"
 cp -fv src/lib/main.js "archive/${intention?}-$(date +%Y-%m-%d)-main.js"
 cp -fv tests/unit/main.test.js "archive/${intention?}-$(date +%Y-%m-%d)-main.test.js"
