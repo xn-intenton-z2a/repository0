@@ -3,7 +3,7 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: Publish Web
+name: publish-web
 
 on:
   workflow_dispatch:
@@ -13,13 +13,16 @@ on:
     #- cron: '15 * * * *' # schedule-3
     #- cron: '15 * * * *' # schedule-4
 
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+
 jobs:
 
   select-issue:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.14.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.0'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -33,10 +36,10 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml@3.14.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml@3.15.0'
     with:
       cache: 'npm'
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
       lastActivityName: ${{ github.workflow }}
       lastActivityBranchName: ${{ github.ref_name }}
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"

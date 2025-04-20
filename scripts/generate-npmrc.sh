@@ -3,6 +3,7 @@
 # Usage: ./scripts/generate-npmrc.sh
 rm -f ~/.npmrc
 source secrets.env
-echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+NPM_AUTH_ORGANISATION='@xn-intenton-z2a'
+echo "${NPM_AUTH_ORGANISATION?}:registry=https://npm.pkg.github.com" >> ~/.npmrc
 echo "//npm.pkg.github.com/:_authToken=${PERSONAL_ACCESS_TOKEN?}" >> ~/.npmrc
 echo "always-auth=true" >> ~/.npmrc

@@ -1,0 +1,166 @@
+# .github/workflows/agent-feature-to-issue.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: agent-feature-to-issue
+concurrency: agentic-lib-issue
+run-name: "agent-feature-to-issue"
+
+on:
+  workflow_dispatch:
+    inputs:
+      featureName:
+        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+        required: false
+        type: string
+        default: 'house choice'
+  schedule:
+    - cron: '0 4 */7 * *' # schedule-1
+    #- cron: '0 4 * * *' # schedule-2
+    #- cron: '0 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-3
+    #- cron: '0,27,43 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-4
+
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+  public: ${{ vars.public || 'public' }}
+  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
+  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
+  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}§
+  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
+  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
+
+jobs:
+
+  agentic-lib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: agentic-lib
+        id: agentic-lib
+        shell: bash
+        run: |
+          featureDevelopmentIssuesWipLimit=$(grep '^featureDevelopmentIssuesWipLimit:' .github/agentic-lib.yml | awk '{print $2}')
+          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}"
+          echo "featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}" >> $GITHUB_OUTPUT
+    outputs:
+      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+
+  # If the prompt is "house choice", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
+  select-feature:
+    runs-on: ubuntu-latest
+    outputs:
+      featureName: ${{ steps.select.outputs.featureName }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Select feature from ./features
+        id: select
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            let featureName = '${{ inputs.featureName }}';
+            if (featureName === 'house choice') {
+              const promptsDir = './features';
+              // Get all items in the directory
+              const items = fs.readdirSync(promptsDir);
+              // Filter only the files (exclude directories)
+              const files = items.filter(item => {
+                const filePath = path.join(promptsDir, item);
+                return fs.lstatSync(filePath).isFile();
+              });
+
+              if (files.length === 0) {
+                core.setFailed('No prompt files found in the prompts directory.');
+              } else {
+                // Select a random file
+                const randomFile = files[Math.floor(Math.random() * files.length)];
+                featureName = randomFile.replace('.md', '');
+              }
+            }
+
+            core.setOutput('featureName', featureName);
+            core.info(`featureName: ${featureName}`);
+
+  generate-feature-development-issue:
+    needs:
+      - select-feature
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@3.15.0'
+    with:
+      featureName: ${{ needs.select-feature.outputs.featureName }}
+      featuresDir: './features'
+      libraryDir: 'library/'
+      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
+      target: ${{ inputs.target || 'src/lib/main.js' }}
+      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      readmeFile: 'README.md'
+      missionFile: 'MISSION.md'
+      contributingFile: 'CONTRIBUTING.md'
+      dependenciesFile: 'package.json'
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      issueSelectionLabel: 'feature'
+      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      npmAuthOrganisation: '@xn-intenton-z2a'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  create-issue:
+    needs:
+      - select-feature
+      - generate-feature-development-issue
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@3.15.0'
+    with:
+      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+      issueLabels: 'feature, automated'
+
+  select-issue:
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.0'
+    with:
+      issueNumber: ''
+      selectionLabel: 'automated'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  stats:
+    needs:
+      - select-issue
+      - create-issue
+    if: ${{ always() }}
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.0'
+    with:
+      cache: 'npm'
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+      lastActivityName: "${{ github.workflow }}"
+      lastActivityBranchName: "${{ github.ref_name }}"
+      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
+      public: 'public'
+      s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
+      s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
+      iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
+      iamStatsBucketWriterRoleArn: "${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}"
+      iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
