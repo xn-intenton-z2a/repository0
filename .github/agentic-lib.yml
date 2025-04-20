@@ -11,3 +11,14 @@ featureDevelopmentIssuesWipLimit: 2
 maintenanceIssuesWipLimit: 2
 attemptsPerBranch: 2
 attemptsPerIssue: 1
+# Mapping for writeable filepaths
+# These are used as defaults when invoking workflows and as allowed patterns for agents
+writeableFilepaths:
+  docs:         "docs/"
+  features:     "features/"
+  library:      "library/"
+  src:          "src/lib/"
+  tests:        "tests/unit/"
+  dependencies: "package.json"
+  readme:       "README.md"
+  sources:      "SOURCES*.md"
