@@ -8,6 +8,8 @@ run-name: 'ci-test [${{ github.ref_name }}] [${{ github.event.head_commit.messag
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '**/*.sh'
       - '**/*.java'
@@ -18,9 +20,16 @@ on:
       - '**/*.properties'
       - '!exports/**'
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "ci-automerge"
+    types:
+      - completed
+    branches:
+      - main
   schedule:
-    - cron: '17 */12 * * *' # schedule-1
-    #- cron: '17 */4 * * *' # schedule-2
+    #- cron: '17 */12 * * *' # schedule-1
+    - cron: '17 */4 * * *' # schedule-2
     #- cron: '2,17,32,47 */1 * * *' # schedule-3
     #- cron: '2,17,32,47 */1 * * *' # schedule-4
 
@@ -35,8 +44,25 @@ env:
 
 jobs:
 
+  check-workflow-run:
+    name: 'Check workflow run trigger'
+    runs-on: ubuntu-latest
+    outputs:
+      is_workflow_run: ${{ steps.check.outputs.is_workflow_run }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            echo "is_workflow_run=true" >> $GITHUB_OUTPUT
+            echo "This workflow was triggered by a workflow_run event"
+          else
+            echo "is_workflow_run=false" >> $GITHUB_OUTPUT
+            echo "This workflow was triggered by a ${{ github.event_name }} event"
+          fi
+
   npm-test:
     name: 'npm test'
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -44,8 +70,6 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -66,14 +90,13 @@ jobs:
 
   npm-unit-test:
     name: 'npm unit test with coverage'
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -93,14 +116,13 @@ jobs:
       - run: npm run test:unit
 
   npm-build-test-and-run-main:
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -133,14 +155,13 @@ jobs:
         run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
 
   mvn-package-cdk-synth:
+    needs: check-workflow-run
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -203,10 +224,11 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   select-issue:
+    needs: check-workflow-run
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.0'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -216,12 +238,16 @@ jobs:
   stats:
     needs:
       - select-issue
+      - npm-test
+      - npm-unit-test
+      - npm-build-test-and-run-main
+      - mvn-package-cdk-synth
     if: ${{ always() }}
     permissions:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

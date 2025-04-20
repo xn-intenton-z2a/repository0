@@ -1,25 +1,25 @@
-# .github/workflows/agent-feature-to-issue.yml
+# .github/workflows/agent-maintenance-activity-to-issue.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: agent-feature-to-issue
+name: agent-maintenance-activity-to-issue
 concurrency: agentic-lib-issue
-run-name: "agent-feature-to-issue"
+run-name: "agent-maintenance-activity-to-issue"
 
 on:
   workflow_dispatch:
     inputs:
-      featureName:
-        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+      prompt:
+        description: 'Text to drive the issue creation (if "house choice", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
         required: false
         type: string
         default: 'house choice'
   schedule:
-    #- cron: '0 4 */7 * *' # schedule-1
-    - cron: '0 4 * * *' # schedule-2
-    #- cron: '0 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-3
-    #- cron: '0,27,43 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-4
+    #- cron: '0 5 */7 * *' # schedule-1
+    - cron: '0 5 * * *' # schedule-2
+    #- cron: '0 */1 4-31/4 * *' # schedule-3
+    #- cron: '0,27,43 */1 4-31/4 * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -63,7 +63,7 @@ jobs:
             const yaml = require('js-yaml');
 
             // Default value
-            let featureDevelopmentIssuesWipLimit = "3";
+            let maintenanceIssuesWipLimit = "3";
 
             // Check if agentic-lib.yml exists
             const configPath = path.join('.github', 'agentic-lib.yml');
@@ -73,87 +73,45 @@ jobs:
                 const fileContents = fs.readFileSync(configPath, 'utf8');
                 const config = yaml.load(fileContents);
 
-                // Extract featureDevelopmentIssuesWipLimit
-                if (config.featureDevelopmentIssuesWipLimit) {
-                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
+                // Extract maintenanceIssuesWipLimit
+                if (config.maintenanceIssuesWipLimit) {
+                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
                 } else {
-                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
+                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
                 }
               } catch (error) {
                 console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default value: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+                console.log(`Using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
               }
             } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default value: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
+              console.log(`Warning: .github/agentic-lib.yml file not found, using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
             }
 
             // Set output
-            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
-            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
+            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
+            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
     outputs:
-      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
+      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
 
-  # If the prompt is "house choice", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
-  select-feature:
-    runs-on: ubuntu-latest
-    outputs:
-      featureName: ${{ steps.select.outputs.featureName }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Select feature from ./features
-        id: select
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            let featureName = '${{ inputs.featureName }}';
-            if (featureName === 'house choice') {
-              const promptsDir = './features';
-              // Get all items in the directory
-              const items = fs.readdirSync(promptsDir);
-              // Filter only the files (exclude directories)
-              const files = items.filter(item => {
-                const filePath = path.join(promptsDir, item);
-                return fs.lstatSync(filePath).isFile();
-              });
-
-              if (files.length === 0) {
-                core.setFailed('No prompt files found in the prompts directory.');
-              } else {
-                // Select a random file
-                const randomFile = files[Math.floor(Math.random() * files.length)];
-                featureName = randomFile.replace('.md', '');
-              }
-            }
-
-            core.setOutput('featureName', featureName);
-            core.info(`featureName: ${featureName}`);
-
-  generate-feature-development-issue:
-    needs:
-      - select-feature
+  generate-maintenance-issue:
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@4.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.0.0'
     with:
-      featureName: ${{ needs.select-feature.outputs.featureName }}
-      featuresDir: './features'
-      libraryDir: 'library/'
-      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
+      promptHint: ${{ inputs.prompt || 'house choice' }}
+      maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
       target: ${{ inputs.target || 'src/lib/main.js' }}
       testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
+      libraryDir: 'library/'
       buildScript: 'npm run build'
       testScript: 'npm test'
-      issueSelectionLabel: 'feature'
+      issueSelectionLabel: 'maintenance'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: '@xn-intenton-z2a'
@@ -163,16 +121,15 @@ jobs:
 
   create-issue:
     needs:
-      - select-feature
-      - generate-feature-development-issue
+      - generate-maintenance-issue
     permissions:
       issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.0.0'
     with:
-      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
+      issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
+      issueLabels: 'maintenance, automated'
 
   select-issue:
     permissions:

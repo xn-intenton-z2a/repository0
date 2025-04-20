@@ -25,8 +25,8 @@ on:
   #    - '!results/**'
   workflow_dispatch:
   schedule:
-    - cron: '22 */12 */7 * *' # schedule-1
-    #- cron: '22 */12 * * *' # schedule-2
+    #- cron: '22 */12 */7 * *' # schedule-1
+    - cron: '22 */12 * * *' # schedule-2
     #- cron: '22 */3 * * *' # schedule-3
     #- cron: '22 */3 * * *' # schedule-4
 
@@ -266,7 +266,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.0'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -282,7 +282,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

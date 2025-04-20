@@ -22,7 +22,6 @@ cp -fv "seeds/zero-main.test.js" tests/unit/main.test.js
 rm -f library/*.md
 rm -f features/*.md
 rm -f prompts/*.md
-cp -fv seeds/prompts/*.md prompts/
 cp -fv seeds/features/*.md features/
 #rm -rfv node_modules
 #rm -rfv package-lock.json
@@ -32,3 +31,4 @@ cp -fv seeds/features/*.md features/
 
 # Update the first line of CONTRIBUTING.md with the intention so it works on macOS or Linux
 sed -i.bak "1s/.*/# ${intention?}/" CONTRIBUTING.md
+rm -f CONTRIBUTING.md.bak

@@ -35,17 +35,17 @@ on:
         required: false
         type: boolean
         default: false
-  #workflow_run:
-  #  workflows:
+  workflow_run:
+    workflows:
   #    - 'ci-test'
-  #    - 'agent-issue-to-code'
-  #  types:
-  #    - completed
-  #  branches:
-  #    - agentic-lib-*
+      - 'agent-issue-to-code'
+    types:
+      - completed
+    branches:
+      - agentic-lib-*
   schedule:
-    - cron: '15 */12 * * *' # schedule-1
-    #- cron: '15 */4 * * *' # schedule-2
+    #- cron: '15 */12 * * *' # schedule-1
+    - cron: '15 */4 * * *' # schedule-2
     #- cron: '15,30,45 */1 * * *' # schedule-3
     #- cron: '15,30,45 */1 * * *' # schedule-4
 
@@ -65,6 +65,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Configure npm for GitHub Packages
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: agentic-lib
         id: agentic-lib
@@ -458,38 +473,9 @@ jobs:
     outputs:
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
-  branch-for-fix:
-    needs:
-      - select-branch
-      - needs-fix
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    env:
-      branchPrefix: 'agentic-lib-'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.select-branch.outputs.branch }}
-          fetch-depth: 0
-      - name: create-branch-if-required
-        id: create-branch-if-required
-        run: |
-          if [[ '${{ needs.select-branch.outputs.branch }}' == 'main' && '${{ needs.needs-fix.outputs.needsFix }}' == 'true' ]] ; then
-            echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}fix-main'
-            git switch --force-create '${{ env.branchPrefix }}fix-main'
-            git push -v --force origin '${{ env.branchPrefix }}fix-main'
-            echo 'branch=${{ env.branchPrefix }}fix-main' >> $GITHUB_OUTPUT
-          else
-            echo 'Retaining existing branch: ${{ needs.select-branch.outputs.branch }}'
-            echo 'branch=${{ needs.select-branch.outputs.branch }}' >> $GITHUB_OUTPUT
-          fi
-    outputs:
-      branch: ${{ steps.create-branch-if-required.outputs.branch }}
-
   label-issue-before-attempt:
     needs:
       - select-branch
-      - branch-for-fix
       - npm-test
       - npm-build
       - npm-run
@@ -531,10 +517,37 @@ jobs:
               labels: [`apply-fix-${{ github.run_id }}`]
             });
 
+  branch-for-fix:
+    needs:
+      - select-branch
+      - needs-fix
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.select-branch.outputs.branch }}
+          fetch-depth: 0
+      - name: create-branch-if-required
+        id: create-branch-if-required
+        run: |
+          if [[ '${{ needs.select-branch.outputs.branch }}' == 'main' && '${{ needs.needs-fix.outputs.needsFix }}' == 'true' ]] ; then
+            echo 'Creating or force pushing to branch: ${{ env.branchPrefix }}fix-main'
+            git switch --force-create '${{ env.branchPrefix }}fix-main'
+            git push -v --force origin '${{ env.branchPrefix }}fix-main'
+            echo 'branch=${{ env.branchPrefix }}fix-main' >> $GITHUB_OUTPUT
+          else
+            echo 'Retaining existing branch: ${{ needs.select-branch.outputs.branch }}'
+            echo 'branch=${{ needs.select-branch.outputs.branch }}' >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      branch: ${{ steps.create-branch-if-required.outputs.branch }}
+
   apply-fix:
     needs:
       - agentic-lib
-      - branch-for-fix
       - branch-for-fix
       - npm-test
       - npm-build
@@ -545,7 +558,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-fix.yml@4.0.0'
     with:
       target: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
       testFile: ${{ inputs.testFile || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
@@ -561,6 +574,7 @@ jobs:
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       branch: ${{ needs.branch-for-fix.outputs.branch }}
+      issueNumber: ${{ needs.select-branch.outputs.issueNumber }}
       npmAuthOrganisation: '@xn-intenton-z2a'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
@@ -739,7 +753,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.0.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -750,7 +764,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.0'
     with:
       issueNumber: ''
       selectionLabel: 'automated'
@@ -768,7 +782,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

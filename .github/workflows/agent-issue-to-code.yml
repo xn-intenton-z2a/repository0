@@ -26,21 +26,21 @@ on:
         type: string
         default: 'tests/unit/main.test.js'
       selectionLabel:
-        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        description: 'Label used to filter issues for resolution. e.g. "ready"'
         required: false
         type: string
-        default: 'automated'
+        default: 'ready'
   workflow_run:
     workflows:
-      - agent-feature-to-issue
-      - agent-prompt-to-issue
-      - agent-linting-to-issue
-      #- agent-issue-to-ready-issue
+      #- agent-feature-to-issue
+      #- agent-maintenance-activity-to-issue
+      #- agent-linting-to-issue
+      - agent-issue-to-ready-issue
     types:
       - completed
   schedule:
-    - cron: '50 */12 * * *' # schedule-1
-    #- cron: '50 */4 * * *' # schedule-2
+    #- cron: '50 */12 * * *' # schedule-1
+    - cron: '50 */4 * * *' # schedule-2
     #- cron: '50 */1 * * *' # schedule-3
     #- cron: '50 */1 * * *' # schedule-4
 
@@ -168,10 +168,10 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
+      selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -201,7 +201,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -270,7 +269,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -296,7 +294,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -322,7 +319,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -355,7 +351,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: ${{ github.ref }}
       - name: Ensure there isn't already a branch for this prefix
         shell: bash
@@ -387,7 +382,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -429,7 +423,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@4.0.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       target: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
@@ -468,7 +462,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -502,7 +495,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -536,7 +528,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -614,7 +605,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.0.0'
     with:
       branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'
@@ -631,7 +622,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@3.15.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.0.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
