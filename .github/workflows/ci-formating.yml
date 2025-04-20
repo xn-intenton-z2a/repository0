@@ -5,7 +5,7 @@
 
 name: ci-formating
 concurrency: agentic-lib-commit-main
-run-name: "ci-formating [${{ github.ref_name }}]"
+run-name: "ci formating [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:

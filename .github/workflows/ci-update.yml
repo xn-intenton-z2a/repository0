@@ -5,7 +5,7 @@
 
 name: ci-update
 concurrency: agentic-lib-commit-main
-run-name: "ci-update [${{ github.ref_name }}]"
+run-name: "ci update [${{ github.ref_name }}]"
 
 on:
   repository_dispatch:

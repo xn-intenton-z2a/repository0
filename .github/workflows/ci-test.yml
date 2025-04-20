@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ci-test
-run-name: 'ci-test [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+run-name: 'ci test [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
 on:
   push:
@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - "ci-automerge"
+      - ci-automerge
     types:
       - completed
     branches:

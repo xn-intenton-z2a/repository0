@@ -5,7 +5,7 @@
 
 name: agent-issue-to-code
 concurrency: agentic-lib-commit-main
-run-name: "agent-issue-to-code [${{ github.ref_name }}]"
+run-name: "agent issue to code [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -32,9 +32,6 @@ on:
         default: 'ready'
   workflow_run:
     workflows:
-      #- agent-feature-to-issue
-      #- agent-maintenance-activity-to-issue
-      #- agent-linting-to-issue
       - agent-issue-to-ready-issue
     types:
       - completed

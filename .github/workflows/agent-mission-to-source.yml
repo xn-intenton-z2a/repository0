@@ -5,7 +5,7 @@
 
 name: agent-mission-to-source
 concurrency: agent-mission-to-source
-run-name: "agent-mission-to-source"
+run-name: "agent mission to source"
 
 on:
   #push:

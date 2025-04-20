@@ -5,7 +5,7 @@
 
 name: agent-library-to-feature
 concurrency: agent-library-to-feature
-run-name: "agent-library-to-feature"
+run-name: "agent library to feature"
 
 on:
   workflow_dispatch:

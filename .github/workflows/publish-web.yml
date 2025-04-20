@@ -4,6 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: publish-web
+run-name: "publish web [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]"
 
 on:
   workflow_dispatch:

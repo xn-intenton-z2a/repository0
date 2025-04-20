@@ -5,7 +5,7 @@
 
 name: agent-fix-code
 concurrency: agentic-lib-commit-branch
-run-name: "agent-fix-code [${{ github.ref_name }}]"
+run-name: "agent fix code [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
@@ -37,7 +37,6 @@ on:
         default: false
   workflow_run:
     workflows:
-  #    - 'ci-test'
       - 'agent-issue-to-code'
     types:
       - completed

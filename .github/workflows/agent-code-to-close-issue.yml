@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-code-to-close-issue
-run-name: "agent-code-to-close-issue"
+run-name: "agent code to close issue"
 
 on:
   workflow_dispatch:
@@ -29,11 +29,11 @@ on:
         required: false
         type: string
         default: 'tests/unit/main.test.js'
-  #workflow_run:
-  #  workflows:
-  #    - "ci-automerge"
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows:
+      - ci-automerge
+    types:
+      - completed
   schedule:
     #- cron: '20 */12 * * *' # schedule-1
     - cron: '20 */4 * * *' # schedule-2

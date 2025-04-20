@@ -5,6 +5,7 @@
 
 name: ∞ Truncate Issue History
 concurrency: truncate-issue-history
+run-name: "truncate issue history"
 
 on:
   workflow_dispatch:

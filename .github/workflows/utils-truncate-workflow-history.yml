@@ -5,6 +5,7 @@
 
 name: ∞ Truncate Workflow Runs
 concurrency: truncate-workflow-runs
+run-name: "truncate workflow runs"
 
 on:
   workflow_dispatch:

@@ -5,7 +5,7 @@
 
 name: agent-feature-to-issue
 concurrency: agentic-lib-issue
-run-name: "agent-feature-to-issue"
+run-name: "agent feature to issue"
 
 on:
   workflow_dispatch:

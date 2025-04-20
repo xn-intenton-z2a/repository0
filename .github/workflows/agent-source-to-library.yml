@@ -5,7 +5,7 @@
 
 name: agent-source-to-library
 concurrency: agent-source-to-library
-run-name: "agent-source-to-library"
+run-name: "agent source to library"
 
 on:
   workflow_dispatch:

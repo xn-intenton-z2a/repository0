@@ -5,7 +5,7 @@
 
 name: agent-maintenance-activity-to-issue
 concurrency: agentic-lib-issue
-run-name: "agent-maintenance-activity-to-issue"
+run-name: "agent maintenance activity to issue"
 
 on:
   workflow_dispatch:

@@ -4,8 +4,8 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ci-deploy
-run-name: 'ci-deploy [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 concurrency: agentic-lib-deploy
+run-name: 'ci deploy [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
 on:
   #push:

@@ -13,8 +13,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - "agent-issue-to-code"
-      - "agent-fix-code"
+      - agent-issue-to-code
     types:
       - completed
   schedule:

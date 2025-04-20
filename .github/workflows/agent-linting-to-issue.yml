@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-linting-to-issue
-run-name: "agent-linting-to-issue [${{ github.ref_name }}]"
+run-name: "agent linting to issue [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:

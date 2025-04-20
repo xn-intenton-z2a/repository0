@@ -5,7 +5,7 @@
 
 name: publish-packages
 concurrency: agentic-lib-commit
-run-name: 'publish-packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+run-name: 'publish packages [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
 
 on:
   #push:
