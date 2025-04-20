@@ -15,6 +15,11 @@ on:
         required: false
         type: string
         default: 'house choice'
+  workflow_run:
+    workflows:
+      - agent-library-to-feature
+    types:
+      - completed
   schedule:
     #- cron: '0 4 */7 * *' # schedule-1
     - cron: '0 4 * * *' # schedule-2

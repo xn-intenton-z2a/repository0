@@ -9,6 +9,11 @@ run-name: "agent-source-to-library"
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - agent-mission-to-source
+    types:
+      - completed
   schedule:
     #- cron: '15 4 */7 * *' # schedule-1
     - cron: '15 4 * * *' # schedule-2
