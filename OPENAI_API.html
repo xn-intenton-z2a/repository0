@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="openai_api" href="#openai_api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OPENAI_API</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Endpoint: POST /v1/completions (URL: https://api.openai.com/v1/completions). Request parameters include model (string), prompt (string), max_tokens (number), temperature (number), and top_p (number). Response includes id, object, created, model, and a choices array with text, index, logprobs, and finish_reason. Node.js SDK example using axios, configuration defaults, and troubleshooting steps using curl are provided.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Endpoints and Methods
+<ul class="md-github">
+<li class="md-github">URL: https://api.openai.com/v1/completions</li>
+<li class="md-github">HTTP Method: POST</li>
+<li class="md-github">Required Headers: Content-Type: application/json, Authorization: Bearer YOUR_API_KEY</li>
+</ul>
+</li>
+<li class="md-github">Request Parameters
+<ul class="md-github">
+<li class="md-github">model: string (e.g., 'text-davinci-003')</li>
+<li class="md-github">prompt: string</li>
+<li class="md-github">max_tokens: number (default 100)</li>
+<li class="md-github">temperature: number (default 0.7)</li>
+<li class="md-github">top_p: number (default 1)</li>
+</ul>
+</li>
+<li class="md-github">Response Structure
+<ul class="md-github">
+<li class="md-github">id: string</li>
+<li class="md-github">object: string</li>
+<li class="md-github">created: number</li>
+<li class="md-github">model: string</li>
+<li class="md-github">choices: Array of objects with properties (text, index, logprobs, finish_reason)</li>
+</ul>
+</li>
+<li class="md-github">SDK Method Example
+<ul class="md-github">
+<li class="md-github">Function: createCompletion(prompt: string)</li>
+<li class="md-github">Returns a Promise resolving to the API response object</li>
+</ul>
+</li>
+<li class="md-github">Configuration Options
+<ul class="md-github">
+<li class="md-github">API_BASE_URL: https://api.openai.com/v1</li>
+<li class="md-github">DEFAULT_MODEL: text-davinci-003</li>
+<li class="md-github">DEFAULT_MAX_TOKENS: 100</li>
+<li class="md-github">DEFAULT_TEMPERATURE: 0.7</li>
+<li class="md-github">DEFAULT_TOP_P: 1</li>
+</ul>
+</li>
+<li class="md-github">Troubleshooting Procedures
+<ul class="md-github">
+<li class="md-github">Verify API key validity</li>
+<li class="md-github">Check rate limits</li>
+<li class="md-github">Use curl commands for debugging</li>
+</ul>
+</li>
+</ol>
+<p class="md-github">Detailed Information:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">Endpoints and Methods:</p>
+<ul class="md-github">
+<li class="md-github">POST endpoint at https://api.openai.com/v1/completions requires proper authorization.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Request Parameters:</p>
+<ul class="md-github">
+<li class="md-github">JSON object containing: model, prompt, max_tokens, temperature, top_p.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Response Structure:</p>
+<ul class="md-github">
+<li class="md-github">JSON object with fields id, object, created, model, and choices (with text, index, logprobs, finish_reason).</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">SDK Method Example (Node.js):</p>
+<ul class="md-github">
+<li class="md-github">Uses axios to make an HTTP POST request. Handles errors with try/catch.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Configuration Options:</p>
+<ul class="md-github">
+<li class="md-github">Set defaults for model, max_tokens, temperature, and top_p for consistent API calls.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Troubleshooting Procedures:</p>
+<ul class="md-github">
+<li class="md-github">Utilize curl to test endpoints and verify header and JSON payload correctness.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">Technical Specifications:</p>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github">Parameter Details:</p>
+<ul class="md-github">
+<li class="md-github">model: Use 'text-davinci-003' as default. Other models like 'text-curie-001' may also be used.</li>
+<li class="md-github">prompt: A required string for text generation.</li>
+<li class="md-github">max_tokens: Determines the maximum length of the generated text, default set to 100.</li>
+<li class="md-github">temperature: Controls randomness (0 = deterministic, 1 = creative), default is 0.7.</li>
+<li class="md-github">top_p: Used for nucleus sampling, default is 1.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Implementation Steps:</p>
+<ol class="md-github">
+<li class="md-github">Configure HTTP POST request to https://api.openai.com/v1/completions.</li>
+<li class="md-github">Set headers: 'Content-Type' to application/json and 'Authorization' with your API key.</li>
+<li class="md-github">Construct the JSON payload with required parameters.</li>
+<li class="md-github">Execute the request and parse the JSON response.</li>
+<li class="md-github">Implement error handling to catch and log failures.</li>
+</ol>
+</li>
+<li class="md-github">
+<p class="md-github">Node.js Code Example:</p>
+</li>
+</ul>
+<pre class="md-github"><code class="md-github language-javascript">const axios = require('axios');
+
+async function createCompletion(prompt) {
+  try {
+    const response = await axios.post('https://api.openai.com/v1/completions', {
+      model: 'text-davinci-003',
+      prompt: prompt,
+      max_tokens: 100,
+      temperature: 0.7,
+      top_p: 1
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer YOUR_API_KEY`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+module.exports = { createCompletion };
+</code></pre>
+<ul class="md-github">
+<li class="md-github">Troubleshooting Command Example:</li>
+</ul>
+<pre class="md-github"><code class="md-github language-bash">curl https://api.openai.com/v1/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -d '{&quot;model&quot;: &quot;text-davinci-003&quot;, &quot;prompt&quot;: &quot;Hello world!&quot;, &quot;max_tokens&quot;: 100, &quot;temperature&quot;: 0.7, &quot;top_p&quot;: 1}'
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">Complete API Specifications:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">Endpoint:
+POST https://api.openai.com/v1/completions</p>
+</li>
+<li class="md-github">
+<p class="md-github">Required HTTP Headers:</p>
+<ul class="md-github">
+<li class="md-github">Content-Type: application/json</li>
+<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Request Body Schema:
+{
+model: string,        // e.g., &quot;text-davinci-003&quot;
+prompt: string,       // Text input provided by user
+max_tokens: number,   // Optional, default 100
+temperature: number,  // Optional, default 0.7 (range: 0 to 1)
+top_p: number         // Optional, default 1
+}</p>
+</li>
+<li class="md-github">
+<p class="md-github">Response Body Schema:
+{
+id: string,
+object: string,
+created: number,
+model: string,
+choices: [
+{
+text: string,
+index: number,
+logprobs: object|null,
+finish_reason: string
+}
+]
+}</p>
+</li>
+<li class="md-github">
+<p class="md-github">SDK Method Signature (Node.js):</p>
+</li>
+</ol>
+<p class="md-github">/**</p>
+<ul class="md-github">
+<li class="md-github">Create a completion using the OpenAI API.</li>
+<li class="md-github">@param {string} prompt - The prompt string for text generation.</li>
+<li class="md-github">@returns {Promise&lt;{</li>
+<li class="md-github">id: string,</li>
+<li class="md-github">object: string,</li>
+<li class="md-github">created: number,</li>
+<li class="md-github">model: string,</li>
+<li class="md-github">choices: Array&lt;{ text: string, index: number, logprobs: object|null, finish_reason: string }&gt;</li>
+<li class="md-github">}&gt;} Promise resolving to the API response object.
+*/
+async function createCompletion(prompt) { ... }</li>
+</ul>
+<ol start="6" class="md-github">
+<li class="md-github">Full Code Example:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-javascript">const axios = require('axios');
+
+async function createCompletion(prompt) {
+  const response = await axios.post('https://api.openai.com/v1/completions', {
+    model: 'text-davinci-003',
+    prompt: prompt,
+    max_tokens: 100,
+    temperature: 0.7,
+    top_p: 1
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer YOUR_API_KEY`
+    }
+  });
+  return response.data;
+}
+
+module.exports = { createCompletion };
+</code></pre>
+<ol start="7" class="md-github">
+<li class="md-github">
+<p class="md-github">Configuration Options and Defaults:</p>
+<ul class="md-github">
+<li class="md-github">API_BASE_URL: &quot;https://api.openai.com/v1&quot;</li>
+<li class="md-github">DEFAULT_MODEL: &quot;text-davinci-003&quot;</li>
+<li class="md-github">DEFAULT_MAX_TOKENS: 100</li>
+<li class="md-github">DEFAULT_TEMPERATURE: 0.7</li>
+<li class="md-github">DEFAULT_TOP_P: 1</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Securely manage your API key.</li>
+<li class="md-github">Implement robust error handling and logging.</li>
+<li class="md-github">Use retry mechanisms for transient errors.</li>
+<li class="md-github">Test using curl or Postman prior to integration.</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Troubleshooting Procedures:</p>
+<ul class="md-github">
+<li class="md-github">Validate API endpoint and parameters.</li>
+<li class="md-github">Check for proper API key scope and usage limits.</li>
+<li class="md-github">Use commands similar to the provided curl example to debug.</li>
+<li class="md-github">Inspect error messages and HTTP status codes for precise issues.</li>
+</ul>
+</li>
+</ol>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">OpenAI API Documentation
+https://platform.openai.com/docs/api-reference</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-openai_api" href="#digest-of-openai_api"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of OPENAI_API</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="openai-api-documentation" href="#openai-api-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>OpenAI API Documentation</h1>
+<p class="md-github"><em class="md-github">Retrieved on: 2023-10-04</em></p>
+<p class="md-github">Attribution: Data sourced from https://platform.openai.com/docs/api-reference</p>
+<h2 class="md-github"><a class="md-github__anchor" name="endpoints" href="#endpoints"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Endpoints</h2>
+<p class="md-github"><strong class="md-github">POST /v1/completions</strong></p>
+<ul class="md-github">
+<li class="md-github">URL: https://api.openai.com/v1/completions</li>
+<li class="md-github">Method: POST</li>
+<li class="md-github">Headers:
+<ul class="md-github">
+<li class="md-github">Content-Type: application/json</li>
+<li class="md-github">Authorization: Bearer YOUR_API_KEY</li>
+</ul>
+</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="request-parameters" href="#request-parameters"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Request Parameters</h2>
+<pre class="md-github"><code class="md-github language-json">{
+  &quot;model&quot;: &quot;text-davinci-003&quot;,  // string, e.g., 'text-davinci-003'
+  &quot;prompt&quot;: &quot;Your prompt text here&quot;,  // string
+  &quot;max_tokens&quot;: 100,              // number, default 100
+  &quot;temperature&quot;: 0.7,             // number, range 0 to 1
+  &quot;top_p&quot;: 1                      // number, typically 1
+}
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="response-structure" href="#response-structure"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Response Structure</h2>
+<pre class="md-github"><code class="md-github language-json">{
+  &quot;id&quot;: &quot;cmpl-xxxxxxxxxxxx&quot;,
+  &quot;object&quot;: &quot;text_completion&quot;,
+  &quot;created&quot;: 1610078130,
+  &quot;model&quot;: &quot;text-davinci-003&quot;,
+  &quot;choices&quot;: [
+    {
+      &quot;text&quot;: &quot;Generated text...&quot;,
+      &quot;index&quot;: 0,
+      &quot;logprobs&quot;: null,
+      &quot;finish_reason&quot;: &quot;length&quot;
+    }
+  ]
+}
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="sdk-methods" href="#sdk-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>SDK Methods</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="nodejs-example-using-axios" href="#nodejs-example-using-axios"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Node.js Example using Axios</h3>
+<pre class="md-github"><code class="md-github language-javascript">const axios = require('axios');
+
+/**
+ * Create a text completion using OpenAI API.
+ * @param {string} prompt - The prompt string for completion.
+ * @returns {Promise&lt;Object&gt;} The API response object containing completion details.
+ */
+async function createCompletion(prompt) {
+  try {
+    const response = await axios.post('https://api.openai.com/v1/completions', {
+      model: 'text-davinci-003',
+      prompt: prompt,
+      max_tokens: 100,
+      temperature: 0.7,
+      top_p: 1
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer YOUR_API_KEY`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+module.exports = { createCompletion };
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="configuration-options" href="#configuration-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration Options</h2>
+<ul class="md-github">
+<li class="md-github">API_BASE_URL: &quot;https://api.openai.com/v1&quot;</li>
+<li class="md-github">DEFAULT_MODEL: &quot;text-davinci-003&quot;</li>
+<li class="md-github">DEFAULT_MAX_TOKENS: 100</li>
+<li class="md-github">DEFAULT_TEMPERATURE: 0.7</li>
+<li class="md-github">DEFAULT_TOP_P: 1</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting" href="#troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting</h2>
+<ol class="md-github">
+<li class="md-github">Verify that your API key is valid and has the necessary permissions.</li>
+<li class="md-github">Check rate limiting and ensure you are not exceeding usage quotas.</li>
+<li class="md-github">Debug using curl:</li>
+</ol>
+<pre class="md-github"><code class="md-github language-bash">curl https://api.openai.com/v1/completions \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer YOUR_API_KEY' \
+  -d '{&quot;model&quot;: &quot;text-davinci-003&quot;, &quot;prompt&quot;: &quot;Hello, world!&quot;, &quot;max_tokens&quot;: 100, &quot;temperature&quot;: 0.7, &quot;top_p&quot;: 1}'
+</code></pre>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: OpenAI API Documentation</li>
+<li class="md-github">URL: https://platform.openai.com/docs/api-reference</li>
+<li class="md-github">License: N/A</li>
+<li class="md-github">Crawl Date: 2025-04-20T20:27:02.624Z</li>
+<li class="md-github">Data Size: 0 bytes</li>
+<li class="md-github">Links Found: 0</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-20</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-20T21:20:13.703Z</p>
+  </footer>
+</body>
+</html>
