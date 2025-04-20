@@ -18,11 +18,25 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is maintained to adhere to the project’s mission and coding standards.
 
+- **GCD Utility Function:**
+  The repository now provides a handy utility function for computing the greatest common divisor (gcd) of two integers.
+
+  ### Usage Example
+
+  You can import and use the function in your JavaScript code as follows:
+
+  ```javascript
+  import { gcd } from '@src/lib/main.js';
+
+  const result = gcd(48, 18);
+  console.log(result); // Outputs: 6
+  ```
+
 - **Dependencies:**  
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands and utility functions behave as expected. Recent updates have extended the test coverage to include the gcd functionality.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -40,11 +54,8 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
-START_README_END
-### Contributing
+For more details, please refer to the [MISSION.md](./MISSION.md), [CONTRIBUTING.md](./CONTRIBUTING.md), and [LICENSE](./LICENSE).
 
-We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
-
-## License
-
-Released under the MIT License (see [LICENSE](./LICENSE)).
+## Additional Resources
+- [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
+- [intentïon agentic‑lib](https://github.com/xn-intenton-z2a/agentic-lib)
