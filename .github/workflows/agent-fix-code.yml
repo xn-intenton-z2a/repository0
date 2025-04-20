@@ -213,12 +213,23 @@ jobs:
                 repo: context.repo.repo,
                 state: 'open',
               });
-              const matchingBranchesWithNoPRs = matchingBranches.filter(b => !openPRs.data.some(pr => pr.head.ref === b));
-              if(matchingBranchesWithNoPRs.length > 0) {
-                core.info(`Matching branches with ${prefix} and no PRs: ${matchingBranchesWithNoPRs}`);
-                branch = matchingBranchesWithNoPRs[0];
+              if (matchingBranches && matchingBranches.length <= 0) {
+                core.info("No matching branches found.");
               } else {
-                core.info(`No matching branches with ${prefix} but without PRs found.`);
+                core.info(`Matching branches count: ${matchingBranches.length}`);
+                if (openPRs.data.length <= 0) {
+                  core.info("No open PRs found using first matching branch.");
+                  branch = matchingBranches[0];
+                } else {
+                  core.info(`Open PRs: ${openPRs.data.map(pr => pr.head.ref)}`);
+                  const matchingBranchesWithNoPRs = matchingBranches.filter(b => !openPRs.data.some(pr => pr.head.ref === b));
+                  if(matchingBranchesWithNoPRs.length > 0) {
+                    core.info(`Matching branches with ${prefix} and no PRs: ${matchingBranchesWithNoPRs}`);
+                    branch = matchingBranchesWithNoPRs[0];
+                  } else {
+                    core.info(`No matching branches with ${prefix} but without PRs found.`);
+                  }
+                }
               }
             } else {
               branch = context.ref.startsWith("refs/heads/") ? context.ref.substring("refs/heads/".length) : context.ref;
