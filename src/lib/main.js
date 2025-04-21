@@ -14,7 +14,7 @@ Examples:
   node src/lib/main.js --help
   node src/lib/main.js help
   node src/lib/main.js 3 4
-  node src/lib/main.js ${featureName}
+  node src/lib/main.js \${featureName}
 
 For more details, refer to the documentation (docs/USAGE.md).`);
 }
@@ -25,9 +25,9 @@ export function main(args) {
     return;
   }
 
-  // New feature: check if the first argument equals '${featureName}'
-  if (args && args[0] === "${featureName}") {
-    console.log("Feature ${featureName} activated");
+  // New feature: check if the first argument equals '\${featureName}'
+  if (args && args[0] === "\${featureName}") {
+    console.log("Feature \${featureName} activated");
     return;
   }
 
