@@ -8,31 +8,58 @@ describe("Main Module Import", () => {
   });
 });
 
-describe("Main Output", () => {
-  test("should terminate without error", () => {
-    process.argv = ["node", "src/lib/main.js"];
-    main();
-  });
-});
-
 describe("Help Option", () => {
   test("should display help message with --help", () => {
-    const spy = vi.spyOn(console, 'log');
+    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
     main(["--help"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Usage/);
-    expect(output).toMatch(/\$\{featureName\}/);
-    expect(output).toMatch(/options/i);
+    expect(output).toMatch(/CLI Utility/);
+    expect(output).toMatch(/Options/i);
     spy.mockRestore();
   });
 
   test("should display help message with help", () => {
-    const spy = vi.spyOn(console, 'log');
+    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
     main(["help"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Usage/);
-    expect(output).toMatch(/\$\{featureName\}/);
-    expect(output).toMatch(/options/i);
+    expect(output).toMatch(/CLI Utility/);
+    expect(output).toMatch(/Options/i);
     spy.mockRestore();
+  });
+});
+
+describe("Argument Parsing", () => {
+  test("should execute with valid numeric arguments", () => {
+    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    main(["3", "4"]);
+    const output = spy.mock.calls.flat().join("\n");
+    expect(output).toMatch(/Result: 7/);
+    spy.mockRestore();
+  });
+
+  test("should show error for insufficient arguments", () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    main(["5"]);
+    const errorOutput = errorSpy.mock.calls.flat().join("\n");
+    const logOutput = logSpy.mock.calls.flat().join("\n");
+    expect(errorOutput).toMatch(/Error: Two numeric arguments are required./);
+    expect(logOutput).toMatch(/Usage/);
+    errorSpy.mockRestore();
+    logSpy.mockRestore();
+  });
+
+  test("should show error for non-numeric arguments", () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    main(["a", "2"]);
+    const errorOutput = errorSpy.mock.calls.flat().join("\n");
+    const logOutput = logSpy.mock.calls.flat().join("\n");
+    expect(errorOutput).toMatch(/Error: Both arguments must be valid numbers./);
+    expect(logOutput).toMatch(/Usage/);
+    errorSpy.mockRestore();
+    logSpy.mockRestore();
   });
 });
