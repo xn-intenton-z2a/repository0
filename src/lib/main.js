@@ -25,9 +25,9 @@ export function main(args) {
     return;
   }
 
-  // New feature: check if the first argument equals '${featureName}'
-  if (args && args[0] === "${featureName}") {
-    console.log("Feature ${featureName} activated");
+  // New feature: check if the first argument equals '\${featureName}'
+  if (args && args[0] === "\${featureName}") {
+    console.log("Feature \${featureName} activated");
     return;
   }
 
