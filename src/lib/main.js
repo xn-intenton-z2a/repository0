@@ -3,6 +3,8 @@
 
 import { fileURLToPath } from "url";
 
+const featureName = "${featureName}"; // Defined featureName to avoid ReferenceError
+
 function displayHelp() {
   console.log(`Usage: node src/lib/main.js [options] [arguments]
 
@@ -30,8 +32,8 @@ export function main(args) {
   }
 
   // Feature activation
-  if (args && args[0] === "${featureName}") {
-    console.log("Feature ${featureName} activated");
+  if (args && args[0] === featureName) {
+    console.log(`Feature ${featureName} activated`);
     return;
   }
 
