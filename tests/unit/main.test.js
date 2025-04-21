@@ -30,6 +30,16 @@ describe("Help Option", () => {
   });
 });
 
+describe("Feature Command", () => {
+  test("should activate feature when '${featureName}' is provided", () => {
+    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    main(["${featureName}"]);
+    const output = spy.mock.calls.flat().join("\n");
+    expect(output).toMatch(/Feature \${featureName} activated/);
+    spy.mockRestore();
+  });
+});
+
 describe("Argument Parsing", () => {
   test("should execute with valid numeric arguments", () => {
     const spy = vi.spyOn(console, 'log').mockImplementation(() => {});

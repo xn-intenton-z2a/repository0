@@ -26,9 +26,21 @@ When invoked with the help flag, the CLI will display a message that includes:
 - **Options**: A list of available options with descriptions.
 - **Examples**: Example command invocations.
 
+## Feature Command
+
+A new CLI command has been added to activate a specific feature. To use this command, run:
+
+  node src/lib/main.js ${featureName}
+
+This command will activate the '${featureName}' feature by outputting:
+
+  Feature ${featureName} activated
+
+This is useful for triggering feature-specific behaviors without engaging the numeric addition functionality.
+
 ## Argument Validation
 
-The CLI command requires two numeric arguments. If fewer than two arguments are provided, or if any argument is not a valid number, the CLI will display an error message along with the usage instructions and exit gracefully. For example:
+The CLI command requires two numeric arguments for addition. If fewer than two arguments are provided, or if any argument is not a valid number, the CLI will display an error message along with the usage instructions and exit gracefully. For example:
 
 - Valid Input:
     node src/lib/main.js 3 4

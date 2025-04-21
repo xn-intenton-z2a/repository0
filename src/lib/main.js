@@ -9,11 +9,12 @@ function displayHelp() {
 This CLI command implements the 'CLI Utility' feature.
 Options:
   --help, help      Display this help message.
-  
+
 Examples:
   node src/lib/main.js --help
   node src/lib/main.js help
   node src/lib/main.js 3 4
+  node src/lib/main.js ${featureName}
 
 For more details, refer to the documentation (docs/USAGE.md).`);
 }
@@ -21,6 +22,12 @@ For more details, refer to the documentation (docs/USAGE.md).`);
 export function main(args) {
   if (args && (args.includes("--help") || args.includes("help"))) {
     displayHelp();
+    return;
+  }
+
+  // New feature: check if the first argument equals '${featureName}'
+  if (args && args[0] === "${featureName}") {
+    console.log("Feature ${featureName} activated");
     return;
   }
 
