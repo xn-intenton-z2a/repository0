@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 function displayHelp() {
   console.log(`Usage: node src/lib/main.js [options] [arguments]
 
-This CLI command implements the '${featureName}' feature.
+This CLI command implements the '\${featureName}' feature.
 Options:
   --help, help      Display this help message.
   
