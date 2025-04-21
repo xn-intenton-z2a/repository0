@@ -30,13 +30,11 @@ When invoked with the help flag, the CLI will display a message that includes:
 
 A new CLI command has been added to activate a specific feature. To use this command, run:
 
-  node src/lib/main.js ${featureName}
+  node src/lib/main.js \${featureName}
 
-This command will activate the '${featureName}' feature by outputting:
+This command will activate the '\${featureName}' feature by outputting:
 
-  Feature ${featureName} activated
-
-This is useful for triggering feature-specific behaviors without engaging the numeric addition functionality.
+  Feature \${featureName} activated
 
 ## Argument Validation
 
