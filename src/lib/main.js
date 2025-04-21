@@ -14,7 +14,7 @@ Examples:
   node src/lib/main.js --help
   node src/lib/main.js help
   node src/lib/main.js 3 4
-  node src/lib/main.js \${featureName}
+  node src/lib/main.js ${featureName}
 
 For more details, refer to the documentation (docs/USAGE.md).`);
 }
