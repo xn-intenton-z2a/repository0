@@ -1,54 +1,65 @@
 # Usage Documentation
 
-This document explains how to use the CLI command provided in `src/lib/main.js`. The command supports basic numeric addition and feature activation options.
+This document explains how to use the CLI command provided in `src/lib/main.js`. The command supports basic arithmetic operations with advanced features.
 
-**Note:** This CLI utility currently supports only numeric addition and help commands. Outdated functionalities like gcd, lcm, and prime operations are not implemented.
+**Note:** This CLI utility supports numeric operations including addition, subtraction, multiplication, and division, as well as a feature activation command.
 
 ## Basic Usage
 
-To perform a numeric addition, provide two numeric arguments. For example:
+To perform a numeric operation, provide two numeric arguments. By default, the CLI performs addition. For example:
 
   node src/lib/main.js 3 4
 
-This will output the sum of the two numbers, for example:
+This will output:
 
   Result: 7
 
+## Operation Flag (--op)
+
+You can specify an arithmetic operation using the `--op` (or `-o`) flag. Supported operations:
+  - add: Addition (default)
+  - sub: Subtraction
+  - mul: Multiplication (you can also use '*' instead of 'mul')
+  - div: Division
+
+### Examples
+
+- **Subtraction:**
+    node src/lib/main.js 8 2 --op sub
+    Output: Result: 6
+
+- **Multiplication:**
+    node src/lib/main.js 8 2 --op mul
+    Output: Result: 16
+
+- **Division:**
+    node src/lib/main.js 8 2 --op div
+    Output: Result: 4
+
+**Note:** Division by zero is not allowed and will result in an error message.
+
 ## Help Option
 
-For detailed usage instructions, you can use the help flag as follows:
+For detailed usage instructions and examples, you can invoke the help flag:
 
   node src/lib/main.js --help
   node src/lib/main.js help
 
-When invoked with the help flag, the CLI will display a message that includes:
-
-- **Usage Instructions**: How to run the command with available options and arguments.
-- **Feature Description**: Details about the 'CLI Utility' feature.
-- **Options**: A list of available options with descriptions.
-- **Examples**: Example command invocations.
+The help message displays usage instructions, supported operations, and examples.
 
 ## Feature Command
 
-A new CLI command has been added to activate a specific feature. To use this command, run:
+A special feature command exists. Running:
 
   node src/lib/main.js ${featureName}
 
-This command will activate the '${featureName}' feature by outputting:
+will activate the '${featureName}' feature by outputting:
 
   Feature ${featureName} activated
 
 ## Argument Validation
 
-The CLI command requires two numeric arguments for addition. If fewer than two arguments are provided, or if any argument is not a valid number, the CLI will display an error message along with the usage instructions and exit gracefully. For example:
+- The CLI requires exactly two numeric arguments if not using the feature command.
+- If fewer than two arguments are provided, or if any argument is non-numeric, an error message and help instructions will be displayed.
 
-- **Valid Input:**
-    node src/lib/main.js 3 4
-
-- **Invalid Input (insufficient arguments):**
-    node src/lib/main.js 3
-
-- **Invalid Input (non-numeric value):**
-    node src/lib/main.js a 4
-
-For more details, please refer to this documentation.
+For more details on usage, refer to this documentation.
