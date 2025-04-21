@@ -22,7 +22,8 @@
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js diagnostics",
     "version": "node src/lib/main.js version",
-    "check-update": "node src/lib/main.js update"
+    "check-update": "node src/lib/main.js update",
+    "feature": "node src/lib/main.js ${featureName}"
   },
   "keywords": [],
   "author": "",
