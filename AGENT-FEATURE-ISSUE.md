@@ -1,5 +1,5 @@
-Please generate the title and description of a GitHub issue to which will be used to further the development of the ${featureName} feature.
-You may only give instructions in the issues to only change the source file, test file, README file, and dependencies file content. You may not create issues that request new files, delete existing files, or change the other files provided in the prompt context.
+Please generate the title and description of a GitHub issue to which will be used to further the development of the named feature.
+You may only give instructions in the issues to only change the source file, test file, README file, and dependency file content. You may not create issues that request new files, delete existing files, or change the other files provided in the prompt context.
 Examine the details in the named feature in the current feature names and specifications, and evaluate the current state of the repository to determine which changes will implement the feature and allow its value to be realised.
 The issue will be resolved by an LLM which can process over 200,000 tokens of context, and it will provide completed source files in the response.
 Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
