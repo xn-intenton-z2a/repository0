@@ -16,7 +16,6 @@ Source description. This can be several sentences long and should be a summary o
 Include last known publication dates if you can and view you have on how authoritative the source is (and how you know this).
 ## License if known
 END_OF_FORMAT
-If there are more than the maximum number of ${sourcesLimit} sources in the repository, you must merge similar sources into a single source.
 Always return the whole modified sources file content (not just the changed parts).
 The source directory should be a multiline markdown with a few level 1 (#) headings for a source name then level 2 (##) with the url of a document source 
 followed by a description and license.

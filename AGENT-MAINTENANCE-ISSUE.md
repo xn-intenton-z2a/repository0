@@ -2,7 +2,6 @@ Please generate the title and description of a GitHub issue to which will be use
 You may only give instructions in the issues to only change the source file, test file, README file and dependencies file content. You may not create issues that request new files, delete existing files, or change the other files provided in the prompt context.
 The issue will be resolved by an LLM which can process over 200,000 tokens of context and it will provide completed source files in the response.
 Do not include steps that would need to be taken manually by a human and expect to "dry-run" without an execution environment.
-The maximum number of maintenance issues that should be open at any one time is ${maintenanceIssuesWipLimit}, if there are already ${maintenanceIssuesWipLimit} open issues fail this request.
 Do not add valueless layers of validation, configuration, and abstraction. In particular, do not create issues related to NaNs.
 Pre-fix the issue title suggesting which maintenance activity type this is.
 
