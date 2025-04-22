@@ -1,37 +1,35 @@
 # ARG_PARSER Feature Enhancement
 
-This feature refines the existing argument parser in the repository's CLI entry point to support differentiated commands. In addition to the basic command echo, the parser will now dispatch special commands such as `diagnostics`, `version`, and `update`. This update aligns with the repository mission of adding handy CLI utilities in Node.js and adheres to the guidelines in CONTRIBUTING.md.
+This feature updates the existing argument parser logic in the CLI entry point (`src/lib/main.js`) to recognize and dispatch common commands. It enhances functionality by adding specific behaviors for the following commands:
 
-## Overview
-
-The CLI utility in `src/lib/main.js` will be enhanced to:
-
-- Parse command-line arguments more clearly.
-- Dispatch to dedicated functions based on recognized commands (e.g. `diagnostics`, `version`, `update`).
-- Fall back to displaying a usage/help message when no argument or an invalid argument is provided.
-- Ensure that running the commands via npm scripts (`npm run diagnostics`, `npm run version`, `npm run check-update`) triggers the appropriate behavior based on the provided argument.
+- **diagnostics**: Display diagnostic information or status messages.
+- **version**: Report the current version of the application (sourced from `package.json`).
+- **update**: Trigger an update check (or placeholder for future update logic).
 
 ## Implementation Details
 
 1. **Source File (`src/lib/main.js`):**
-   - Update the `main` function to inspect the first argument from `args`.
-   - If the argument matches `diagnostics`, `version`, or `update`, call respective stub functions that log a message indicating the command was recognized (this can be expanded later to include actual command functions).
-   - If no command is provided or the command is unrecognized, print a help message that lists the valid commands.
+   - Update the `main` function to inspect the first command-line argument.
+   - When the argument matches `diagnostics`, call a function or log a message indicating that diagnostics have been initiated.
+   - When the argument matches `version`, read and display the version number from `package.json` (or a hard-coded version placeholder) and log it.
+   - When the argument matches `update`, provide a stub for update actions (e.g., logging that an update check is in progress).
+   - For no or unrecognized commands, display a help/usage message listing the valid commands.
 
 2. **Tests (`tests/unit/main.test.js`):**
-   - Update tests to simulate process arguments with each of the valid commands and verify that the output indicates the corresponding behavior.
-   - Ensure that the basic loading of the main module is still intact.
+   - Add tests to simulate passing each of the valid commands (`diagnostics`, `version`, `update`) and verify that the output reflects the correct behavior for each.
+   - Ensure that the default case (no argument or invalid argument) results in a help message output.
 
 3. **README Update (`README.md`):**
-   - Add a section that explains the CLI usage with examples. For instance, document how to run `npm run diagnostics` to trigger the diagnostics command, etc.
-   
-4. **Dependencies and Scripts (`package.json`):**
-   - The npm scripts already reference the commands (`diagnostics`, `version`, `update`). No changes to dependencies are required, but this update reinforces their purpose by making the CLI dispatch logic more robust.
+   - Include a new section under CLI Usage that explains the available commands and how to invoke them via npm scripts (e.g., `npm run diagnostics`, `npm run version`, `npm run check-update`).
+
+4. **Dependencies and Scripts Update (`package.json`):**
+   - Confirm that the npm scripts for `diagnostics`, `version`, and `check-update` properly point to `src/lib/main.js` with the respective arguments.
+   - No additional dependencies are required.
 
 ## Benefits
 
-- **Clarity:** Users will have clear, documented commands available through the CLI.
-- **Extensibility:** The structure allows future enhancements to each command without altering the basic parsing structure.
-- **Consistency:** Aligns with the repository's mission and the guidelines in CONTRIBUTING.md, ensuring that enhancements are accompanied by tests and updated documentation.
+- **Improved Clarity:** The CLI now provides clear feedback regarding the actions executed based on user input, aligning with best practices in CLI design.
+- **Extensibility:** The updated parser structure allows for easy addition of new commands in the future without disrupting the existing logic.
+- **Consistency:** The implementation adheres to the guidelines provided in CONTRIBUTING.md and supports the repository's mission by enhancing the core CLI utility.
 
-This feature improvement is a focused iteration on the existing ARG_PARSER to deliver tangible value with minimal changes in a single repository.
+This updated feature ensures that the repository's CLI interface is both user-friendly and aligned with the project's overall automated workflows and CI/CD integration.
