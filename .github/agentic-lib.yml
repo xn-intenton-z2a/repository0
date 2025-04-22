@@ -1,5 +1,5 @@
 # Which agentic-lib workflow schedule should be used?
-schedule: schedule-2
+schedule: schedule-1
 # How many sources should exist for document fetching?
 sourcesLimit: 8
 # How many documents should exist in the library?

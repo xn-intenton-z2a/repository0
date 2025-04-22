@@ -22,19 +22,18 @@
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js diagnostics",
     "version": "node src/lib/main.js version",
-    "check-update": "node src/lib/main.js update",
-    "feature": "node src/lib/main.js ${featureName}"
+    "check-update": "node src/lib/main.js update"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
     "dotenv": "^16.5.0",
-    "openai": "^4.95.1",
+    "openai": "^4.94.0",
     "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
-    "minimatch": "^10.0.1",
-    "zod": "^3.24.3"
+    "minimatch": "^9.0.5",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
@@ -50,9 +49,9 @@
     "eslint": "^9.24.0",
     "markdown-it": "^14.1.0",
     "markdown-it-github": "^0.5.0",
-    "npm-check-updates": "^18.0.0",
+    "npm-check-updates": "^17.1.18",
     "prettier": "^3.5.3",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.1"
   },
   "overrides": {
     "rimraf": "^4.0.0",
