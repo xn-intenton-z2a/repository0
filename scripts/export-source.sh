@@ -17,6 +17,7 @@ find "." -maxdepth 1 -type f -name 'eslint.config.js' -print -exec echo "==== Co
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name 'LICENSE' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
 find "." -maxdepth 1 -type f -name '.prettierrc' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; >> "exports/$(date +%Y-%m-%d)-root-cat.txt"
+find "docs" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-DOCS.md"
 find "features" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-FEATURES.md"
 find "prompts" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-PROMPTS.md"
 find "library" -maxdepth 2 -type f -name '*.md' -print -exec echo "==== Content of {} ====" \; -exec cat {} \; > "exports/$(date +%Y-%m-%d)-LIBRARY.md"

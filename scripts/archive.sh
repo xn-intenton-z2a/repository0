@@ -10,6 +10,7 @@ mkdir -p 'archive/'
 find "features" -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-FEATURES.md"
 find "prompts" -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-PROMPTS.md"
 find "library" -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-LIBRARY.md"
+find "docs" -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "archive/${intention?}-$(date +%Y-%m-%d)-DOCS.md"
 cp -fv MISSION.md "archive/${intention?}-$(date +%Y-%m-%d)-MISSION.md"
 cp -fv README.md "archive/${intention?}-$(date +%Y-%m-%d)-README.md"
 # Archive all SOURCES*.md files
