@@ -59,5 +59,3 @@ This document describes how to use the CLI provided by our repository. The prima
 - The CLI behavior is adjusted based on the number and value of the arguments provided.
 - For a single recognized command (diagnostics, version, check-update), specific messages are logged.
 - For all other cases (no arguments or multiple generic arguments), the CLI logs the arguments array as a JSON string.
-
-This covers the CLI usage as verified by unit, integration, and feature tests in our test suite.
