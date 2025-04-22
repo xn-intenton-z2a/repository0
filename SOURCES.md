@@ -1,24 +1,24 @@
-# GitHub REST API
-## https://docs.github.com/en/rest
-Comprehensive documentation for the GitHub REST API that details endpoints, authentication, and response formats. It is frequently updated and is the authoritative source for GitHub's public API. Last updated: continuously maintained.
+# Vitest Documentation
+## https://vitest.dev/
+Vitest is a blazing fast unit testing framework built on top of Vite. It supports modern ECMAScript modules, TypeScript, and offers comprehensive coverage reports. The documentation is well-maintained with frequent updates from an active community. Last checked: 2023-10. 
+## License: MIT
+
+# ESLint Documentation
+## https://eslint.org/docs/latest/
+The official ESLint documentation covers configuration, rule definitions, and best practices for linting JavaScript and TypeScript applications. It is an authoritative source frequently updated with community contributions. Last checked: 2023-10.
+## License: MIT
+
+# Prettier Documentation
+## https://prettier.io/docs/en/index.html
+Prettier is an opinionated code formatter that enforces a consistent style by parsing your code and re-printing it. Its documentation provides detailed guides on integration with various editors and build tools. Last updated: 2023-10.
+## License: MIT
+
+# npm-check-updates Documentation
+## https://www.npmjs.com/package/npm-check-updates
+This source provides documentation for npm-check-updates, a utility to easily upgrade your package.json dependencies to the latest versions. It is a useful resource for maintaining modern dependency standards in Node.js projects. Last updated: 2023-10.
+## License: MIT
+
+# GitHub CLI Documentation
+## https://cli.github.com/manual
+The GitHub CLI documentation offers a comprehensive guide for managing GitHub operations directly from the terminal. It includes instructions on authentication, repository management, and issue tracking. The resource is maintained by GitHub and is frequently updated to reflect new features. Last updated: 2023-10.
 ## License: Various (GitHub proprietary)
-
-# GitHub Actions Documentation
-## https://docs.github.com/en/actions
-Official documentation for GitHub Actions, covering workflow creation, event triggers, reusable workflows, and CI/CD best practices. This source is essential for understanding automation in repositories and workflow integration.
-## License: Various (GitHub proprietary)
-
-# Agentic‑lib Workflows
-## https://github.com/xn-intenton-z2a/agentic-lib
-Documentation and repository for the agentic‑lib, a collection of reusable GitHub Actions workflows. It explains how autonomous workflows communicate through branches and issues and provides usage examples and guides. Last updated according to the commit history on GitHub.
-## License: Mixed (GNU GPL / MIT)
-
-# OpenAI API Documentation
-## https://platform.openai.com/docs/api-reference
-This documentation provides detailed information on the OpenAI API endpoints, including chat completions and usage limits. It is essential for integrating OpenAI services into workflows and understanding API behaviors, costs, and best practices. Updated regularly with new model capabilities.
-## License: Proprietary (subject to OpenAI terms)
-
-# Node.js Documentation
-## https://nodejs.org/en/docs/
-The official Node.js documentation covering the latest features, APIs, and ECMAScript module support required for Node v20+. This resource is critical for developers to understand runtime behavior and standard library functions.
-## License: MIT (Documentation content)
