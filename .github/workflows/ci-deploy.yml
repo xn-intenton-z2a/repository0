@@ -25,8 +25,8 @@ on:
   #    - '!results/**'
   workflow_dispatch:
   schedule:
-    #- cron: '22 */12 */7 * *' # schedule-1
-    - cron: '22 */12 * * *' # schedule-2
+    - cron: '22 */12 */7 * *' # schedule-1
+    #- cron: '22 */12 * * *' # schedule-2
     #- cron: '22 */3 * * *' # schedule-3
     #- cron: '22 */3 * * *' # schedule-4
 
@@ -269,7 +269,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

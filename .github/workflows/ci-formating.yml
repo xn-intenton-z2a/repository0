@@ -10,8 +10,8 @@ run-name: "ci formating [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '30 5 */14 * *' # schedule-1
-    - cron: '30 5 */3 * *' # schedule-2
+    - cron: '30 5 */14 * *' # schedule-1
+    #- cron: '30 5 */3 * *' # schedule-2
     #- cron: '30 5 * * *' # schedule-3
     #- cron: '30 5 * * *' # schedule-4
 
@@ -91,7 +91,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

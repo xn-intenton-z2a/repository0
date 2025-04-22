@@ -21,8 +21,8 @@ on:
     types:
       - completed
   schedule:
-    #- cron: '0 4 */7 * *' # schedule-1
-    - cron: '0 4 * * *' # schedule-2
+    - cron: '0 4 */7 * *' # schedule-1
+    #- cron: '0 4 * * *' # schedule-2
     #- cron: '0 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-3
     #- cron: '0,27,43 */1 1-3,5-7,9-11,13-15,17-19,21-23,25-27,29-31 * *' # schedule-4
 
@@ -110,11 +110,13 @@ jobs:
       - name: Select feature from ./features
         id: select
         uses: actions/github-script@v7
+        env:
+          featureName: ${{ inputs.featureName || 'house choice' }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
-            let featureName = '${{ inputs.featureName }}';
+            let featureName = process.env.featureName;
             if (featureName === 'house choice') {
               const promptsDir = './features';
               // Get all items in the directory
@@ -186,7 +188,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

@@ -39,8 +39,8 @@ on:
           - preminor
           - prepatch
   schedule:
-    #- cron: '50 8 15 1 *' # schedule-1
-    - cron: '50 8 15 1 *' # schedule-2
+    - cron: '50 8 15 1 *' # schedule-1
+    #- cron: '50 8 15 1 *' # schedule-2
     #- cron: '50 8 15 1 *' # schedule-3
     #- cron: '50 8 15 1 *' # schedule-4
 
@@ -204,7 +204,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

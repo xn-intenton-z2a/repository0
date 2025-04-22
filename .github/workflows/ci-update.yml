@@ -11,8 +11,8 @@ on:
   repository_dispatch:
     types: [package-published]
   schedule:
-    #- cron: '30 7 */28 * *' # schedule-1
-    - cron: '30 7 */7 * *' # schedule-2
+    - cron: '30 7 */28 * *' # schedule-1
+    #- cron: '30 7 */7 * *' # schedule-2
     #- cron: '30 7 * * *' # schedule-3
     #- cron: '30 7 * * *' # schedule-4
 
@@ -198,7 +198,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

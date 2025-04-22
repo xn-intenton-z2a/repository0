@@ -19,8 +19,8 @@ on:
         type: string
         default: 'house choice'
   schedule:
-    #- cron: '40 4 */7 * *' # schedule-1
-    - cron: '40 4 * * *' # schedule-2
+    - cron: '40 4 */7 * *' # schedule-1
+    #- cron: '40 4 * * *' # schedule-2
     #- cron: '40 */1 * * *' # schedule-3
     #- cron: '40 * * * *' # schedule-4
 
@@ -130,7 +130,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

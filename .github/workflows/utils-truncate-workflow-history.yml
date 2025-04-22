@@ -10,8 +10,8 @@ run-name: "truncate workflow runs"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '52 7 */7 * *' # schedule-1
-    - cron: '52 7 * * *' # schedule-2
+    - cron: '52 7 */7 * *' # schedule-1
+    #- cron: '52 7 * * *' # schedule-2
     #- cron: '52 7 * * *' # schedule-3
     #- cron: '52 7 * * *' # schedule-4
 
@@ -115,7 +115,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@main'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 

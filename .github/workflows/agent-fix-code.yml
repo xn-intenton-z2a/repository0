@@ -43,8 +43,8 @@ on:
   #  branches:
   #    - agentic-lib-*
   schedule:
-    #- cron: '15 */12 * * *' # schedule-1
-    - cron: '15 */4 * * *' # schedule-2
+    - cron: '15 */12 * * *' # schedule-1
+    #- cron: '15 */4 * * *' # schedule-2
     #- cron: '15,30,45 */1 * * *' # schedule-3
     #- cron: '15,30,45 */1 * * *' # schedule-4
 
@@ -777,7 +777,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.0.4'
     with:
       issueNumber: ''
-      selectionLabel: 'automated'
+      selectionLabel: 'ready'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
