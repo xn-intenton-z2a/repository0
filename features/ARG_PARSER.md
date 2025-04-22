@@ -1,35 +1,15 @@
-# ARG_PARSER Feature Enhancement
+# ARG_PARSER Enhancement
 
 ## Overview
-This enhancement refines the argument parser logic in `src/lib/main.js` to support a more robust CLI interface. The updated parser will recognize and dispatch the following commands:
-
-- **diagnostics**: Outputs diagnostic information about the runtime environment and current configuration.
-- **version**: Reads and displays the current version of the application (sourced from `package.json`).
-- **update**: Initiates a stub update check and logs an update in progress message.
-- **default/invalid**: Displays a help message describing the available commands.
-
-These changes improve usability and provide clear feedback to users, aligning with the repository's mission to deliver useful CLI utilities in a streamlined and maintainable manner.
+This enhancement refines the main function in src/lib/main.js to transform the trivial logging of arguments into a full-fledged command dispatcher. The updated CLI will recognize and process the following commands: diagnostics, version, and update.
 
 ## Implementation Details
-- **Source File (`src/lib/main.js`)**
-  - Update the `main` function to inspect the first command-line argument and dispatch based on its value.
-  - For the `version` command, read the version from `package.json` (or use a hard-coded version if file reading is not applicable) and print it.
-  - For the `diagnostics` command, log key information that may include environment variables or a status message.
-  - For the `update` command, log a message indicating that an update check is in progress.
-  - For any unrecognized or missing arguments, print a help/usage message listing the supported commands.
+- Modify main to inspect the first command-line argument. If it is 'version', read the version from package.json (or use a hard-coded version) and print it. If it is 'diagnostics', log key environment information and runtime diagnostics. If it is 'update', log a message indicating that an update check is in progress. For any other argument or when no argument is provided, display a help/usage message listing the supported commands.
+- Update tests in tests/unit/main.test.js to simulate each of the commands (diagnostics, version, update) and validate that the output message conforms to expectations.
+- Update the README.md CLI Usage section to document the new commands, along with examples of how to invoke them via the npm scripts (diagnostics, version, check-update).
+- Adjust package.json if needed to confirm that the necessary npm scripts are configured for these commands.
 
-- **Test File (`tests/unit/main.test.js`)**
-  - Add tests that simulate passing `diagnostics`, `version`, and `update` as command-line arguments.
-  - Verify that the output includes the expected messages for each command.
-  - Ensure the default case prints a help message.
-
-- **Documentation (`README.md`)**
-  - Update the CLI Usage section to document the new commands and provide examples of how to invoke them via npm scripts.
-
-- **Dependencies File (`package.json`)**
-  - Confirm that the npm scripts are correctly configured to pass the required arguments for `diagnostics`, `version`, and `update` commands.
-
-## Benefits
-- **Clarity and Feedback:** Users receive clear responses and guidance depending on the command used.
-- **Maintainability:** The structure allows for easy addition of further commands in the future without disrupting existing functionality.
-- **Alignment:** The enhancement supports the repository's mission by providing a handy CLI utility backed by unit tests and clear documentation.
+## Benefits and Alignment
+- Provides clear command dispatch and feedback to users, adhering to the repository mission of supplying useful CLI utilities in Node.js.
+- Ensures maintainability by modularizing command-specific logic that can be easily extended in the future.
+- Enhances test coverage and documentation, ensuring the feature’s usability and reliability in an automated workflow system.
