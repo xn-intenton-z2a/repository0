@@ -40,6 +40,7 @@ Valid commands:
   diagnostics
   version
   check-update
+  greet [name]
   gcd <num1> <num2>
   lcm <num1> <num2>
   isprime <num>
@@ -53,8 +54,20 @@ export function main(args) {
   }
 
   const cmd = args[0];
-  
-  // Basic commands handling
+
+  // Handle greet command
+  if (cmd === "greet") {
+    if (args.length === 1) {
+      console.log("Hello, World!");
+    } else if (args.length === 2) {
+      console.log(`Hello, ${args[1]}!`);
+    } else {
+      printHelp();
+    }
+    return;
+  }
+
+  // Basic commands handling for single argument
   if (args.length === 1) {
     if (cmd === "diagnostics") {
       console.log("Diagnostics: System check initiated.");

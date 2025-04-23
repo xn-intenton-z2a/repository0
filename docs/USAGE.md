@@ -7,7 +7,7 @@ This document describes how to use the CLI provided by our repository. The prima
 1. Running without any arguments (default usage):
    
    Command:
-   
+
        npm run start
    
    Expected output:
@@ -17,7 +17,7 @@ This document describes how to use the CLI provided by our repository. The prima
 2. Running diagnostics:
    
    Command:
-   
+
        npm run diagnostics
    
    Expected output:
@@ -27,7 +27,7 @@ This document describes how to use the CLI provided by our repository. The prima
 3. Checking version:
    
    Command:
-   
+
        npm run version
    
    Expected output:
@@ -37,7 +37,7 @@ This document describes how to use the CLI provided by our repository. The prima
 4. Checking for updates:
    
    Command:
-   
+
        npm run check-update
    
    Expected output:
@@ -47,12 +47,36 @@ This document describes how to use the CLI provided by our repository. The prima
 5. Passing multiple generic arguments manually:
    
    Command:
-   
+
        node src/lib/main.js arg1 arg2
    
    Expected output:
    
        Run with: ["arg1","arg2"]
+
+6. Greet Command:
+
+   The CLI now supports a greet command which outputs a customizable greeting.
+
+   a. Default greeting:
+      
+      Command:
+
+          npm run start greet
+      
+      Expected output:
+      
+          Hello, World!
+
+   b. Personalized greeting:
+      
+      Command:
+
+          npm run start greet Alice
+      
+      Expected output:
+      
+          Hello, Alice!
 
 ## Arithmetic Utility Commands
 
@@ -86,8 +110,6 @@ The CLI now supports arithmetic operations. Below are the available arithmetic c
 
        60
 
-   (The implementation ensures that lcm(a, b) * gcd(a, b) equals a * b.)
-
 3. Prime Number Check:
 
    Command:
@@ -112,11 +134,12 @@ The CLI now supports arithmetic operations. Below are the available arithmetic c
 
 For any invalid command or incorrect number of arguments, the CLI will display a help message listing the valid commands and their expected formats:
 
-  diagnostics, version, check-update, gcd <num1> <num2>, lcm <num1> <num2>, isprime <num>
+  diagnostics, version, check-update, greet [name], gcd <num1> <num2>, lcm <num1> <num2>, isprime <num>
 
 ## Notes
 
 - The CLI behavior is adjusted based on the number and value of arguments provided.
 - For single recognized commands (diagnostics, version, check-update), specific messages are logged.
 - For arithmetic commands, ensure to pass the correct number of numeric arguments.
+- For the greet command, if no name is provided, a default greeting is shown; if a name is provided, the greeting is personalized.
 - For all other cases, the CLI logs a generic help message or the arguments array as a JSON string.

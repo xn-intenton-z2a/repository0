@@ -14,13 +14,11 @@ function captureConsole(callback) {
   return logs;
 }
 
-
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(main).not.toBeNull();
   });
 });
-
 
 describe("Unit Tests for main() function output", () => {
   test("should output for empty arguments", () => {
@@ -68,7 +66,6 @@ describe("Unit Tests for main() function output", () => {
   });
 });
 
-
 describe("Arithmetic Utility Commands", () => {
   test("gcd: should compute the greatest common divisor correctly (48, 180 => 12)", () => {
     const logs = captureConsole(() => {
@@ -115,6 +112,29 @@ describe("Arithmetic Utility Commands", () => {
   test("isprime: should display help message when given incorrect number of arguments", () => {
     const logs = captureConsole(() => {
       main(["isprime", "17", "extra"]);
+    });
+    expect(logs[0]).toContain("Valid commands:");
+  });
+});
+
+describe("Greet Command", () => {
+  test("should output default greeting when no name is provided", () => {
+    const logs = captureConsole(() => {
+      main(["greet"]);
+    });
+    expect(logs[0]).toBe("Hello, World!");
+  });
+
+  test("should output personalized greeting when a name is provided", () => {
+    const logs = captureConsole(() => {
+      main(["greet", "Alice"]);
+    });
+    expect(logs[0]).toBe("Hello, Alice!");
+  });
+
+  test("should display help message for greet with extra arguments", () => {
+    const logs = captureConsole(() => {
+      main(["greet", "Alice", "Bob"]);
     });
     expect(logs[0]).toContain("Valid commands:");
   });
