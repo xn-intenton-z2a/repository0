@@ -8,7 +8,7 @@ This document describes how to use the CLI provided by our repository. The prima
    
    Command:
 
-       npm run start
+       npm start
    
    Expected output:
    
@@ -18,7 +18,7 @@ This document describes how to use the CLI provided by our repository. The prima
    
    Command:
 
-       npm run diagnostics
+       npm start diagnostics
    
    Expected output:
    
@@ -28,7 +28,7 @@ This document describes how to use the CLI provided by our repository. The prima
    
    Command:
 
-       npm run version
+       npm start version
    
    Expected output:
    
@@ -38,7 +38,7 @@ This document describes how to use the CLI provided by our repository. The prima
    
    Command:
 
-       npm run check-update
+       npm start check-update
    
    Expected output:
    
@@ -62,7 +62,7 @@ This document describes how to use the CLI provided by our repository. The prima
       
       Command:
 
-          npm run start greet
+          npm start greet
       
       Expected output:
       
@@ -72,7 +72,7 @@ This document describes how to use the CLI provided by our repository. The prima
       
       Command:
 
-          npm run start greet Alice
+          npm start greet Alice
       
       Expected output:
       
