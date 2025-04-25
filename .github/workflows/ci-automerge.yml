@@ -90,11 +90,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@4.3.2'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@4.3.2'
 
   ls:
     needs: label
@@ -104,9 +104,12 @@ jobs:
       - name: Determine pull request number
         id: get-pull
         uses: actions/github-script@v7
+        env:
+          pullRequestLabel: ${{ needs.label.outputs.pullRequestLabel }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const pullRequestLabel = process.env.pullRequestLabel;
             let pullRequest;
             let pullNumber;
             const { data: pullRequests } = await github.rest.pulls.list({
@@ -118,13 +121,13 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === '${{ needs.label.outputs.pullRequestLabel }}' ));
+              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === pullRequestLabel ));
               if (filteredPRs.length > 0) {
                 pullRequest = filteredPRs[0];
-                core.info(`Found open pull request with label ${{ needs.label.outputs.pullRequestLabel }}: #${pullRequest.number}.`);
+                core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number}.`);
                 core.info(JSON.stringify(pullRequest));
               } else {
-                core.info(`No open pull request found with label ${{ needs.label.outputs.pullRequestLabel }}.`);
+                core.info(`No open pull request found with label ${pullRequestLabel}.`);
                 pullRequest = null;
               }
             } else {
@@ -154,13 +157,17 @@ jobs:
       - name: set-outputs
         id: set-outputs
         uses: actions/github-script@v7
+        env:
+          prMerged: ${{ needs.pr.outputs.prMerged || 'false' }}
+          pullNumber: ${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}
+          shouldSkipMerge: ${{ needs.pr.outputs.shouldSkipMerge || 'false' }}
         with:
           script: |
             // Merge outputs from pr-check, cs-check, and determine-ls.
             // Only one of pr-check or cs-check should have run.
-            let prMerged = '${{ needs.pr.outputs.prMerged || needs.cs.outputs.prMerged || 'false' }}';
-            let pullNumber = '${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}';
-            let shouldSkipMerge = '${{ needs.pr.outputs.shouldSkipMerge || needs.cs.outputs.shouldSkipMerge || 'false' }}';
+            let prMerged = process.env.prMerged;
+            let pullNumber = process.env.pullNumber;
+            let shouldSkipMerge = process.env.shouldSkipMerge;
             core.setOutput('prMerged', `${prMerged}`);
             core.setOutput('pullNumber', `${pullNumber}`);
             core.setOutput('shouldSkipMerge', `${shouldSkipMerge}`);
@@ -181,7 +188,7 @@ jobs:
       contents: write
       pull-requests: read
       issues: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.3.2'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
       branchPrefix: 'agentic-lib-issue-'
@@ -194,7 +201,7 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@4.3.2'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -207,7 +214,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.3.2'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       branchPrefix: 'agentic-lib-issue-'
@@ -217,7 +224,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.2'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -235,7 +242,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

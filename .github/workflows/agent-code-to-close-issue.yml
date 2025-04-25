@@ -36,11 +36,18 @@ env:
 
 jobs:
 
+  agentic-lib:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.2'
+    with:
+      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
   select-issue:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.2'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'merged'
@@ -49,13 +56,14 @@ jobs:
 
   review-issue:
     needs:
+      - agentic-lib
       - select-issue
     if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.select-issue.outputs.merged == 'true' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@4.3.2'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
@@ -64,10 +72,11 @@ jobs:
       dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      testScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -76,7 +85,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.2'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -92,7 +101,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

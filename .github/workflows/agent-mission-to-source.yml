@@ -36,24 +36,11 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.2'
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-    #outputs:
-    #  attemptsPerIssue:
-    #  writeableFilepaths:
-    #  srcPath:
-    #  testsPath:
-    #  docsPath:
-    #  documentsLimit
-    #  libraryDir
-    #  sourcesFile
-    #  sourcesLimit
-    #  featureDevelopmentIssuesWipLimit
-    #  maintenanceIssuesWipLimit
-    #  featuresWipLimit
 
   # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
@@ -63,7 +50,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@4.3.2'
     with:
       source: ${{ inputs.source }}
       sourcesFile: 'SOURCES.md'
@@ -79,6 +66,7 @@ jobs:
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
+      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -87,7 +75,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.2'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -103,7 +91,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.2'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
