@@ -33,77 +33,34 @@ env:
 jobs:
 
   agentic-lib:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Configure npm for GitHub Packages
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: agentic-lib
-        id: agentic-lib
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const yaml = require('js-yaml');
-
-            // Default value
-            let maintenanceIssuesWipLimit = "3";
-
-            // Check if agentic-lib.yml exists
-            const configPath = path.join('.github', 'agentic-lib.yml');
-            if (fs.existsSync(configPath)) {
-              try {
-                // Read and parse the YAML file
-                const fileContents = fs.readFileSync(configPath, 'utf8');
-                const config = yaml.load(fileContents);
-
-                // Extract maintenanceIssuesWipLimit
-                if (config.maintenanceIssuesWipLimit) {
-                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
-                } else {
-                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
-                }
-              } catch (error) {
-                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-              }
-            } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default value: maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-            }
-
-            // Set output
-            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
-    outputs:
-      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.2.0'
+    with:
+      configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
+    #outputs:
+    #  attemptsPerIssue:
+    #  writeableFilepaths:
+    #  srcPath:
+    #  testsPath:
+    #  docsPath:
+    #  documentsLimit
+    #  libraryDir
+    #  sourcesFile
+    #  sourcesLimit
+    #  featureDevelopmentIssuesWipLimit
+    #  maintenanceIssuesWipLimit
+    #  featuresWipLimit
 
   generate-maintenance-issue:
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.2.0'
     with:
       promptHint: ${{ inputs.prompt || 'house choice' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
@@ -114,7 +71,7 @@ jobs:
       issueSelectionLabel: 'maintenance'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -125,7 +82,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.2.0'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
@@ -135,7 +92,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -151,7 +108,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

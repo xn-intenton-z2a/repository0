@@ -15,16 +15,6 @@ on:
         required: false
         type: string
         default: ''
-      target:
-        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
-        required: false
-        type: string
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
-        required: false
-        type: string
-        default: 'tests/unit/main.test.js'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "automated"'
         required: false
@@ -55,83 +45,30 @@ env:
 jobs:
 
   agentic-lib:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Configure npm for GitHub Packages
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: agentic-lib
-        id: agentic-lib
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const yaml = require('js-yaml');
-
-            // Default values
-            let featureDevelopmentIssuesWipLimit = "3";
-            let maintenanceIssuesWipLimit = "3";
-
-            // Check if agentic-lib.yml exists
-            const configPath = path.join('.github', 'agentic-lib.yml');
-            if (fs.existsSync(configPath)) {
-              try {
-                // Read and parse the YAML file
-                const fileContents = fs.readFileSync(configPath, 'utf8');
-                const config = yaml.load(fileContents);
-
-                // Extract featureDevelopmentIssuesWipLimit
-                if (config.featureDevelopmentIssuesWipLimit) {
-                  featureDevelopmentIssuesWipLimit = config.featureDevelopmentIssuesWipLimit.toString();
-                } else {
-                  console.log(`Warning: featureDevelopmentIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${featureDevelopmentIssuesWipLimit}`);
-                }
-
-                // Extract maintenanceIssuesWipLimit
-                if (config.maintenanceIssuesWipLimit) {
-                  maintenanceIssuesWipLimit = config.maintenanceIssuesWipLimit.toString();
-                } else {
-                  console.log(`Warning: maintenanceIssuesWipLimit not found in .github/agentic-lib.yml, using default value: ${maintenanceIssuesWipLimit}`);
-                }
-              } catch (error) {
-                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default values: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}, maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-              }
-            } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}, maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-            }
-
-            // Set outputs
-            console.log(`featureDevelopmentIssuesWipLimit=${featureDevelopmentIssuesWipLimit}`);
-            core.setOutput('featureDevelopmentIssuesWipLimit', featureDevelopmentIssuesWipLimit);
-
-            console.log(`maintenanceIssuesWipLimit=${maintenanceIssuesWipLimit}`);
-            core.setOutput('maintenanceIssuesWipLimit', maintenanceIssuesWipLimit);
-    outputs:
-      featureDevelopmentIssuesWipLimit: ${{ steps.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}
-      maintenanceIssuesWipLimit: ${{ steps.agentic-lib.outputs.maintenanceIssuesWipLimit }}
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.2.0'
+    with:
+      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #outputs:
+    #  attemptsPerIssue:
+    #  writeableFilepaths:
+    #  srcPath:
+    #  testsPath:
+    #  docsPath:
+    #  documentsLimit
+    #  libraryDir
+    #  sourcesFile
+    #  sourcesLimit
+    #  featureDevelopmentIssuesWipLimit
+    #  maintenanceIssuesWipLimit
+    #  featuresWipLimit
 
   select-issue:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'automated' }}
@@ -147,13 +84,13 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@4.2.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       featuresDir: './features'
       libraryDir: 'library/'
-      target: ${{ inputs.target || 'src/lib/main.js' }}
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
+      srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
@@ -177,7 +114,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

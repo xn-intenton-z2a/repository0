@@ -14,21 +14,6 @@ on:
         required: false
         type: string
         default: ''
-      selectionLabel:
-        description: 'Label used to filter issues for review. e.g. "merged"'
-        required: false
-        type: string
-        default: 'merged'
-      target:
-        description: 'The source file whose content was used in the resolution prompt. e.g. "src/lib/main.js"'
-        required: false
-        type: string
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
-        required: false
-        type: string
-        default: 'tests/unit/main.test.js'
   workflow_run:
     workflows:
       - ci-automerge
@@ -55,10 +40,10 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
-      selectionLabel: ${{ inputs.selectionLabel || 'merged' }}
+      selectionLabel: 'merged'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -70,12 +55,10 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@4.2.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      target: ${{ inputs.target || 'src/lib/main.js' }}
       missionFile: 'MISSION.md'
-      testFile: ${{ inputs.testFile || 'tests/unit/main.test.js' }}
       readmeFile: 'README.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
@@ -92,7 +75,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -108,7 +91,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

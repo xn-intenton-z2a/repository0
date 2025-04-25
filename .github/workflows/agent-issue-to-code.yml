@@ -15,16 +15,16 @@ on:
         required: false
         type: string
         default: ''
-      target:
-        description: 'The source file whose content is used in the resolution prompt. e.g. "src/lib/main.js"'
+      srcPath:
+        description: 'The source file(s) whose content is used in the resolution prompt. e.g. "src/lib/main.js" or multiple files separated by semicolons "src/lib/main.js;src/lib/utils.js"'
         required: false
         type: string
-        default: 'src/lib/main.js'
-      testFile:
-        description: 'The test file to run to validate the resolution. e.g. "tests/unit/main.test.js"'
+        default: 'src/lib/'
+      testsPath:
+        description: 'The test file(s) to run to validate the resolution. e.g. "tests/unit/main.test.js" or multiple files separated by semicolons "tests/unit/main.test.js;tests/unit/utils.test.js"'
         required: false
         type: string
-        default: 'tests/unit/main.test.js'
+        default: 'tests/unit/'
       selectionLabel:
         description: 'Label used to filter issues for resolution. e.g. "ready"'
         required: false
@@ -42,6 +42,10 @@ on:
     #- cron: '20,50 */1 * * *' # schedule-4
 
 env:
+  issueNumber: ${{ inputs.issueNumber || '' }}
+  srcPath: ${{ inputs.srcPath || '' }}
+  testsPath: ${{ inputs.testsPath || '' }}
+  selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   public: ${{ vars.public || 'public' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
@@ -53,119 +57,30 @@ env:
 jobs:
 
   agentic-lib:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Configure npm for GitHub Packages
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: agentic-lib
-        id: agentic-lib
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            const yaml = require('js-yaml');
-
-            // Default values
-            let attemptsPerIssue = "2";
-            let srcPath = "src/lib/";
-            let testsPath = "tests/unit/";
-            let docsPath = "docs/";
-            let writeableFilepaths = [];
-
-            // Check if agentic-lib.yml exists
-            const configPath = path.join('.github', 'agentic-lib.yml');
-            if (fs.existsSync(configPath)) {
-              try {
-                // Read and parse the YAML file
-                const fileContents = fs.readFileSync(configPath, 'utf8');
-                const config = yaml.load(fileContents);
-
-                // Extract attemptsPerIssue
-                if (config.attemptsPerIssue) {
-                  attemptsPerIssue = config.attemptsPerIssue.toString();
-                } else {
-                  console.log(`Warning: attemptsPerIssue not found in .github/agentic-lib.yml, using default value: ${attemptsPerIssue}`);
-                }
-
-                // Extract src path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.src) {
-                  srcPath = config.writeableFilepaths.src.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: src path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${srcPath}`);
-                }
-
-                // Extract tests path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.tests) {
-                  testsPath = config.writeableFilepaths.tests.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: tests path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${testsPath}`);
-                }
-
-                // Extract docs path from writeableFilepaths
-                if (config.writeableFilepaths && config.writeableFilepaths.docs) {
-                  docsPath = config.writeableFilepaths.docs.replace(/"/g, '');
-                } else {
-                  console.log(`Warning: docs path not found in writeableFilepaths in .github/agentic-lib.yml, using default value: ${docsPath}`);
-                }
-
-                // Extract all writeable filepaths
-                if (config.writeableFilepaths) {
-                  writeableFilepaths = Object.values(config.writeableFilepaths)
-                    .filter(value => value && value.trim() !== '')
-                    .map(value => value.replace(/"/g, ''));
-                }
-              } catch (error) {
-                console.log(`Error parsing .github/agentic-lib.yml: ${error.message}`);
-                console.log(`Using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
-              }
-            } else {
-              console.log(`Warning: .github/agentic-lib.yml file not found, using default values: attemptsPerIssue=${attemptsPerIssue}, srcPath=${srcPath}, testsPath=${testsPath}, docsPath=${docsPath}`);
-            }
-
-            // Set outputs
-            console.log(`attemptsPerIssue=${attemptsPerIssue}`);
-            core.setOutput('attemptsPerIssue', attemptsPerIssue);
-
-            console.log(`srcPath=${srcPath}`);
-            core.setOutput('srcPath', srcPath);
-
-            console.log(`testsPath=${testsPath}`);
-            core.setOutput('testsPath', testsPath);
-
-            console.log(`docsPath=${docsPath}`);
-            core.setOutput('docsPath', docsPath);
-
-            console.log(`writeableFilepaths=${JSON.stringify(writeableFilepaths)}`);
-            core.setOutput('writeableFilepaths', JSON.stringify(writeableFilepaths));
-    outputs:
-      attemptsPerIssue: ${{ steps.agentic-lib.outputs.attemptsPerIssue }}
-      writeableFilepaths: ${{ steps.agentic-lib.outputs.writeableFilepaths }}
-      srcPath: ${{ steps.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ steps.agentic-lib.outputs.testsPath }}
-      docsPath: ${{ steps.agentic-lib.outputs.docsPath }}
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.2.0'
+    with:
+      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    #outputs:
+    #  attemptsPerIssue:
+    #  writeableFilepaths:
+    #  srcPath:
+    #  testsPath:
+    #  docsPath:
+    #  documentsLimit
+    #  libraryDir
+    #  sourcesFile
+    #  sourcesLimit
+    #  featureDevelopmentIssuesWipLimit
+    #  maintenanceIssuesWipLimit
+    #  featuresWipLimit
 
   select-issue:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
@@ -420,13 +335,13 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-apply-issue-resolution.yml@4.2.0'
     with:
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
-      target: ${{ inputs.target || format('{0}main.js', needs.agentic-lib.outputs.srcPath) }}
-      testFile: ${{ inputs.testFile || format('{0}main.test.js', needs.agentic-lib.outputs.testsPath) }}
+      srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
+      testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
       readmeFile: 'README.md'
-      docsFile: ${{ format('{0}USAGE.md', needs.agentic-lib.outputs.docsPath) }}
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
       missionFile: 'MISSION.md'
       contributingFile: 'CONTRIBUTING.md'
       dependenciesFile: 'package.json'
@@ -437,7 +352,7 @@ jobs:
       testScript: 'npm test'
       mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
-      npmAuthOrganisation: '@xn-intenton-z2a'
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       allowedFilepathPatterns: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
@@ -602,7 +517,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.2.0'
     with:
       branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'
@@ -619,7 +534,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
