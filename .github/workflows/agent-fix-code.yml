@@ -60,7 +60,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.7'
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
@@ -477,7 +477,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.7'
     with:
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
@@ -625,12 +625,17 @@ jobs:
       - name: set-needs-fix
         id: set-needs-fix
         uses: actions/github-script@v7
+        env:
+          applyFixEvenIfTestsPass: ${{ inputs.applyFixEvenIfTestsPass }}
+          needsFix: ${{ needs.needs-fix.outputs.needsFix }}
+          anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
+          anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
         with:
           script: |
-            const applyFixEvenIfTestsPass = "${{ inputs.applyFixEvenIfTestsPass }}" === "true";
-            const fixedFromTheBeginning = "${{ needs.needs-fix.outputs.needsFix }}" === "false";
-            const anySkipped = "${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}" === "true";
-            const anyDidntSucceed = "${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}" === "true";
+            const applyFixEvenIfTestsPass = process.env.applyFixEvenIfTestsPass === "true";
+            const fixedFromTheBeginning = process.env.needsFix === "false";
+            const anySkipped = process.env.anySkipped === "true";
+            const anyDidntSucceed = process.env.anyDidntSucceed === "true";
             const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
 
             core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);
@@ -673,7 +678,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.7'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -684,7 +689,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.7'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -702,7 +707,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.6'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.7'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
