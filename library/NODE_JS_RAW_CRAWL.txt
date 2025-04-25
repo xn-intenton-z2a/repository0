@@ -1,0 +1,3373 @@
+Node.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v23.11.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v23.11.0
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v23.11.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v23.11.0
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nJSConfGeneral Admission Tickets are on sale now!Run JavaScript EverywhereNode.js® is a free, open-source, cross-platform JavaScript runtime environment
+that lets developers create servers, web apps, command line tools and scripts.Download Node.js (LTS)Download Node.js (LTS)Downloads Node.js v22.15.01 with long-term support. Node.js can also be installed via version managers.Want new features sooner? Get Node.js v23.11.01 instead.
+Create an HTTP ServerWrite TestsRead and Hash a FileStreams PipelineWork with Threads// server.mjs
+import { createServer } from 'node:http';
+
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World!\n');
+});
+
+// starts a simple http server locally on port 3000
+server.listen(3000, '127.0.0.1', () => {
+  console.log('Listening on 127.0.0.1:3000');
+});
+
+// run with `node server.mjs`
+JavaScriptCopy to clipboardLearn more what Node.js is able to offer with our Learning materials.\n\n\n\nNode.js Releases
+Major Node.js versions enter Current release status for six months, which gives library authors time to add support for them.
+After six months, odd-numbered releases (9, 11, etc.) become unsupported, and even-numbered releases (10, 12, etc.) move to Active LTS status and are ready for general use.
+LTS release status is "long-term support", which typically guarantees that critical bugs will be fixed for a total of 30 months.
+Production applications should only use Active LTS or Maintenance LTS releases.
+Release Schedule
+
+Full details regarding the Node.js release schedule are available on GitHub.
+Commercial Support
+Commercial support for versions past the Maintenance phase is available through our OpenJS Ecosystem Sustainability Program partner HeroDevs.
+Looking for the latest release of a version branch?
+Node.jsN-APICodenameReleased atnpmv23.11.0v131-2025-04-01v10.9.2ReleasesChangelogDocsv22.15.0v127Jod2025-04-22v10.9.2ReleasesChangelogDocsv21.7.3v120-2024-04-10v10.5.0ReleasesChangelogDocsv20.19.1v115Iron2025-04-22v10.8.2ReleasesChangelogDocsv19.9.0v111-2023-04-10v9.6.3ReleasesChangelogDocsv18.20.8v108Hydrogen2025-03-27v10.8.2ReleasesChangelogDocsv17.9.1v102-2022-06-01v8.11.0ReleasesChangelogDocsv16.20.2v93Gallium2023-08-08v8.19.4ReleasesChangelogDocsv15.14.0v88-2021-04-06v7.7.6ReleasesChangelogDocsv14.21.3v83Fermium2023-02-16v6.14.18ReleasesChangelogDocsv13.14.0v79-2020-04-29v6.14.4ReleasesChangelogDocsv12.22.12v72Erbium2022-04-05v6.14.16ReleasesChangelogDocsv11.15.0v67-2019-04-30v6.7.0ReleasesChangelogDocsv10.24.1v64Dubnium2021-04-06v6.14.12ReleasesChangelogDocsv9.11.2v59-2018-06-12v5.6.0ReleasesChangelogDocsv8.17.0v57Carbon2019-12-17v6.13.4ReleasesChangelogDocsv7.10.1v51-2017-07-11v4.2.0ReleasesChangelogDocsv6.17.1v48Boron2019-04-03v3.10.10ReleasesChangelogDocsv5.12.0v47-2016-06-23v3.8.6ReleasesChangelogDocsv4.9.1v46Argon2018-03-29v2.15.11ReleasesChangelogDocsv0.12.18v14-2017-02-22v2.15.11ReleasesChangelogDocs
+Official vs. Community Installation Methods
+The Node.js website provides several non-interactive installation methods, including command-line interfaces (CLIs), operating system (OS) package managers (e.g., brew), and Node.js version managers (e.g., nvm).
+To highlight and promote community contributions, the Node.js project introduced a revised Downloads page categorizing installation methods as either “Official” or “Community.” This provides users with increased flexibility and choice. To ensure clarity, we’ve defined criteria for each category.
+Official Installation Methods
+Installation methods designated as “Official” must meet the following requirements:
+Requirements (Official Installation Methods)New Node.js releases must be available simultaneously with the official release.Project maintainers must have a close relationship with the Node.js project, including direct communication channels.Installation method must download official binaries bundled by the Node.js project.Installation method must not build from source when pre-built binaries are available, nor should it alter the official binaries.
+Community Installation Methods
+Community installation methods included on the self-service download page (/download) must also adhere to a minimum set of criteria:
+
+Version Support: Must support all currently supported, non-End-of-Life (EOL) Node.js versions.
+OS Compatibility: Must function on at least one officially supported Operating System (OS).
+Broad OS Support: Cannot be limited to a subset of OS distributions or versions.
+
+For example, an installation method claiming compatibility with “Windows” must function on “Windows 10”, “Windows 11”, and all their editions (including server versions).
+Similarly, an installation method claiming compatibility with “Linux” must be installable on all major Linux distributions, not just a specific subset. It cannot rely on distribution-specific package managers like apt or dnf.
+
+
+Free and Open Source: Must be free to use and open source, must not be sold as a commercial product, and must not be a paid service.\n\n\n\nJSConfGeneral Admission Tickets are on sale now!Run JavaScript EverywhereNode.js® is a free, open-source, cross-platform JavaScript runtime environment
+that lets developers create servers, web apps, command line tools and scripts.Download Node.js (LTS)Download Node.js (LTS)Downloads Node.js v22.15.01 with long-term support. Node.js can also be installed via version managers.Want new features sooner? Get Node.js v23.11.01 instead.
+Create an HTTP ServerWrite TestsRead and Hash a FileStreams PipelineWork with Threads// server.mjs
+import { createServer } from 'node:http';
+
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World!\n');
+});
+
+// starts a simple http server locally on port 3000
+server.listen(3000, '127.0.0.1', () => {
+  console.log('Listening on 127.0.0.1:3000');
+});
+
+// run with `node server.mjs`
+JavaScriptCopy to clipboardLearn more what Node.js is able to offer with our Learning materials.\n\n\n\nIntroduction to Node.js
+Node.js is an open-source and cross-platform JavaScript runtime environment. It is a popular tool for almost any kind of project!
+Node.js runs the V8 JavaScript engine, the core of Google Chrome, outside of the browser. This allows Node.js to be very performant.
+A Node.js app runs in a single process, without creating a new thread for every request. Node.js provides a set of asynchronous I/O primitives in its standard library that prevent JavaScript code from blocking and generally, libraries in Node.js are written using non-blocking paradigms, making blocking behavior the exception rather than the norm.
+When Node.js performs an I/O operation, like reading from the network, accessing a database or the filesystem, instead of blocking the thread and wasting CPU cycles waiting, Node.js will resume the operations when the response comes back.
+This allows Node.js to handle thousands of concurrent connections with a single server without introducing the burden of managing thread concurrency, which could be a significant source of bugs.
+Node.js has a unique advantage because millions of frontend developers that write JavaScript for the browser are now able to write the server-side code in addition to the client-side code without the need to learn a completely different language.
+In Node.js the new ECMAScript standards can be used without problems, as you don't have to wait for all your users to update their browsers - you are in charge of deciding which ECMAScript version to use by changing the Node.js version, and you can also enable specific experimental features by running Node.js with flags.
+An Example Node.js Application
+The most common example Hello World of Node.js is a web server:
+CJSMJSconst { createServer } = require('node:http');
+
+const hostname = '127.0.0.1';
+const port = 3000;
+
+const server = createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello World');
+});
+
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
+JavaScriptCopy to clipboardTo run this snippet, save it as a server.js file and run node server.js in your terminal.
+If you use mjs version of the code, you should save it as a server.mjs file and run node server.mjs in your terminal.
+This code first includes the Node.js http module.
+Node.js has a fantastic standard library, including first-class support for networking.
+The createServer() method of http creates a new HTTP server and returns it.
+The server is set to listen on the specified port and host name. When the server is ready, the callback function is called, in this case informing us that the server is running.
+Whenever a new request is received, the request event is called, providing two objects: a request (an http.IncomingMessage object) and a response (an http.ServerResponse object).
+Those 2 objects are essential to handle the HTTP call.
+The first provides the request details. In this simple example, this is not used, but you could access the request headers and request data.
+The second is used to return data to the caller.
+In this case with:
+res.statusCode = 200;
+JavaScriptCopy to clipboard
+we set the statusCode property to 200, to indicate a successful response.
+We set the Content-Type header:
+res.setHeader('Content-Type', 'text/plain');
+JavaScriptCopy to clipboard
+and we close the response, adding the content as an argument to end():
+res.end('Hello World\n');
+JavaScriptCopy to clipboard
+If you haven't already done so, download Node.js.NextHow much JavaScript do you need to know to use Node.js?\n\n\n\nAbout Node.js®
+As an asynchronous event-driven JavaScript runtime, Node.js is designed to build
+scalable network applications. In the following "hello world" example, many
+connections can be handled concurrently. Upon each connection, the callback is
+fired, but if there is no work to be done, Node.js will sleep.
+CJSMJSconst { createServer } = require('node:http');
+
+const hostname = '127.0.0.1';
+const port = 3000;
+
+const server = createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello World');
+});
+
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
+JavaScriptCopy to clipboardThis is in contrast to today's more common concurrency model, in which OS threads
+are employed. Thread-based networking is relatively inefficient and very
+difficult to use. Furthermore, users of Node.js are free from worries of
+dead-locking the process, since there are no locks. Almost no function in
+Node.js directly performs I/O, so the process never blocks except when the I/O is performed using
+synchronous methods of Node.js standard library. Because nothing blocks, scalable systems are very
+reasonable to develop in Node.js.
+If some of this language is unfamiliar, there is a full article on
+Blocking vs. Non-Blocking.
+
+Node.js is similar in design to, and influenced by, systems like Ruby's
+Event Machine and Python's Twisted. Node.js takes the event model a bit
+further. It presents an event loop as a runtime construct instead of as a library. In other systems,
+there is always a blocking call to start the event-loop.
+Typically, behavior is defined through callbacks at the beginning of a script, and
+at the end a server is started through a blocking call like EventMachine::run().
+In Node.js, there is no such start-the-event-loop call. Node.js simply enters the event loop after executing the input script. Node.js
+exits the event loop when there are no more callbacks to perform. This behavior
+is like browser JavaScript — the event loop is hidden from the user.
+HTTP is a first-class citizen in Node.js, designed with streaming and low
+latency in mind. This makes Node.js well suited for the foundation of a web
+library or framework.
+Node.js being designed without threads doesn't mean you can't take
+advantage of multiple cores in your environment. Child processes can be spawned
+by using our child_process.fork() API, and are designed to be easy to
+communicate with. Built upon that same interface is the cluster module,
+which allows you to share sockets between processes to enable load balancing
+over your cores.
+Official Node.js Resources
+To ensure authenticity and security when working with Node.js, always use official sources. Avoid trusting emails,
+binaries, or downloads from unofficial sources.
+Official Node.js Domains
+For downloading Node.js binaries and accessing official documentation, use only these domains:
+
+nodejs.org
+nodejs.dev (Redirects to https://nodejs.org)
+iojs.org (Redirects to https://nodejs.org)
+
+Official npm Packages
+The Node.js team maintains the following official npm package scopes:
+
+@node-core
+@pkgjs
+
+Additionally, the Node.js team maintains packages published by the nodejs-foundation npm account,
+though other Node.js-related packages (like undici) may also be maintained by contributors closely
+tied to the project.
+Using packages from the Node.js team guarantees that you are working with officially supported Node.js components.
+Official GitHub Organizations
+Node.js and related projects are maintained under these official GitHub organizations:
+
+nodejs
+pkgjs
+
+Official Communication Channels
+Node.js and the OpenJS Foundation communicate through various official and community-supported channels. You can find details on
+how to get involved on the Get Involved page.
+Reporting Website Issues & Downtime
+If you encounter issues with the Node.js website, report them at the Node.js website repository.
+For real-time updates on outages, visit the Node.js Status Page.\n\n\n\nDownload Node.js®Get Node.js® v22.15.0 (LTS) for Unknown using  with npmBashCopy to clipboard and their installation scripts are not maintained by the Node.js project. If you encounter any issues please visit 's websiteOr get a prebuilt Node.js® for Unknown running a Unknown architecture.N/A Installer (.gz)Standalone Binary (.gz)
+Read the changelog or blog post for this version.Learn more about Node.js releases, including the release schedule and LTS status.Learn how to verify signed SHASUMS.Looking for Node.js source? Download a signed Node.js source tarball.Check out our nightly binaries or
+all previous releases
+or the unofficial binaries for other platforms.\n\n\n\nNode.js Test CI Security IncidentVulnerabilitiesNode.js Test CI Security IncidentNode.js Technical Steering CommitteeApr 23, 2025Node v22.15.0 (LTS)ReleasesNode v22.15.0 (LTS)Ulises GascónApr 23, 2025Node v20.19.1 (LTS)ReleasesNode v20.19.1 (LTS)Ulises GascónApr 22, 2025Making Node.js Downloads ReliableAnnouncementsMaking Node.js Downloads Reliableflakey5Apr 05, 2025Node v23.11.0 (Current)ReleasesNode v23.11.0 (Current)Antoine du HamelApr 01, 2025Node v18.20.8 (LTS)ReleasesNode v18.20.8 (LTS)Richard LauMar 27, 2025\n\nBlogThe latest Node.js news, case studies, tutorials, and resources.EverythingAnnouncementsReleasesVulnerabilitiesEventsCategoriesEverythingNode.js Test CI Security IncidentVulnerabilitiesNode.js Test CI Security IncidentNode.js Technical Steering CommitteeApr 23, 2025Node v22.15.0 (LTS)ReleasesNode v22.15.0 (LTS)Ulises GascónApr 23, 2025Node v20.19.1 (LTS)ReleasesNode v20.19.1 (LTS)Ulises GascónApr 22, 2025Making Node.js Downloads ReliableAnnouncementsMaking Node.js Downloads Reliableflakey5Apr 05, 2025Node v23.11.0 (Current)ReleasesNode v23.11.0 (Current)Antoine du HamelApr 01, 2025Node v18.20.8 (LTS)ReleasesNode v18.20.8 (LTS)Richard LauMar 27, 2025Previous12345...158Next\n\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v23.11.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v23.11.0
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nNode.js Releases
+Major Node.js versions enter Current release status for six months, which gives library authors time to add support for them.
+After six months, odd-numbered releases (9, 11, etc.) become unsupported, and even-numbered releases (10, 12, etc.) move to Active LTS status and are ready for general use.
+LTS release status is "long-term support", which typically guarantees that critical bugs will be fixed for a total of 30 months.
+Production applications should only use Active LTS or Maintenance LTS releases.
+Release Schedule
+
+Full details regarding the Node.js release schedule are available on GitHub.
+Commercial Support
+Commercial support for versions past the Maintenance phase is available through our OpenJS Ecosystem Sustainability Program partner HeroDevs.
+Looking for the latest release of a version branch?
+Node.jsN-APICodenameReleased atnpmv23.11.0v131-2025-04-01v10.9.2ReleasesChangelogDocsv22.15.0v127Jod2025-04-22v10.9.2ReleasesChangelogDocsv21.7.3v120-2024-04-10v10.5.0ReleasesChangelogDocsv20.19.1v115Iron2025-04-22v10.8.2ReleasesChangelogDocsv19.9.0v111-2023-04-10v9.6.3ReleasesChangelogDocsv18.20.8v108Hydrogen2025-03-27v10.8.2ReleasesChangelogDocsv17.9.1v102-2022-06-01v8.11.0ReleasesChangelogDocsv16.20.2v93Gallium2023-08-08v8.19.4ReleasesChangelogDocsv15.14.0v88-2021-04-06v7.7.6ReleasesChangelogDocsv14.21.3v83Fermium2023-02-16v6.14.18ReleasesChangelogDocsv13.14.0v79-2020-04-29v6.14.4ReleasesChangelogDocsv12.22.12v72Erbium2022-04-05v6.14.16ReleasesChangelogDocsv11.15.0v67-2019-04-30v6.7.0ReleasesChangelogDocsv10.24.1v64Dubnium2021-04-06v6.14.12ReleasesChangelogDocsv9.11.2v59-2018-06-12v5.6.0ReleasesChangelogDocsv8.17.0v57Carbon2019-12-17v6.13.4ReleasesChangelogDocsv7.10.1v51-2017-07-11v4.2.0ReleasesChangelogDocsv6.17.1v48Boron2019-04-03v3.10.10ReleasesChangelogDocsv5.12.0v47-2016-06-23v3.8.6ReleasesChangelogDocsv4.9.1v46Argon2018-03-29v2.15.11ReleasesChangelogDocsv0.12.18v14-2017-02-22v2.15.11ReleasesChangelogDocs
+Official vs. Community Installation Methods
+The Node.js website provides several non-interactive installation methods, including command-line interfaces (CLIs), operating system (OS) package managers (e.g., brew), and Node.js version managers (e.g., nvm).
+To highlight and promote community contributions, the Node.js project introduced a revised Downloads page categorizing installation methods as either “Official” or “Community.” This provides users with increased flexibility and choice. To ensure clarity, we’ve defined criteria for each category.
+Official Installation Methods
+Installation methods designated as “Official” must meet the following requirements:
+Requirements (Official Installation Methods)New Node.js releases must be available simultaneously with the official release.Project maintainers must have a close relationship with the Node.js project, including direct communication channels.Installation method must download official binaries bundled by the Node.js project.Installation method must not build from source when pre-built binaries are available, nor should it alter the official binaries.
+Community Installation Methods
+Community installation methods included on the self-service download page (/download) must also adhere to a minimum set of criteria:
+
+Version Support: Must support all currently supported, non-End-of-Life (EOL) Node.js versions.
+OS Compatibility: Must function on at least one officially supported Operating System (OS).
+Broad OS Support: Cannot be limited to a subset of OS distributions or versions.
+
+For example, an installation method claiming compatibility with “Windows” must function on “Windows 10”, “Windows 11”, and all their editions (including server versions).
+Similarly, an installation method claiming compatibility with “Linux” must be installable on all major Linux distributions, not just a specific subset. It cannot rely on distribution-specific package managers like apt or dnf.
+
+
+Free and Open Source: Must be free to use and open source, must not be sold as a commercial product, and must not be a paid service.\n\n\n\n\n\nBranding of Node.js
+Please review the trademark policy for information about permissible use of Node.js® logos and marks.
+Node.js® Mascot
+Credit to Angela Angelini for designing and contributing the Rocket Turtle.
+
+Node.js® Logo
+Node.js® Horizontal Logo
+
+Node.js® Stacked Logo
+
+JS Icons\n\n\n\nProject Governance
+Consensus Seeking Process
+The Node.js project follows a Consensus Seeking decision making model.
+Collaborators
+The nodejs/node core GitHub repository is maintained by the Collaborators
+who are nominated by other existing Collaborators on an ongoing basis.
+Individuals making significant and valuable contributions are made Collaborators
+and given commit-access to the project. These individuals are identified by other
+Collaborators and their nomination is discussed with the existing Collaborators.
+For the current list of Collaborators, see the project's README.md.
+A guide for Collaborators is maintained at collaborator-guide.md.
+Technical Steering Committee
+The project is governed by the Technical Steering Committee (TSC)
+which is responsible for high-level guidance of the project. TSC is a
+subset of active Collaborators who are nominated by other existing TSC
+members.\n\n\n\nSecurity Reporting
+For more details on active Security Policies, checkout this page.
+Reporting a bug in Node.js
+Report security bugs in Node.js via HackerOne.
+Your report will be acknowledged within 5 days, and you'll receive a more
+detailed response to your report within 10 days indicating the next steps in
+handling your submission.
+After the initial reply to your report, the security team will endeavor to keep
+you informed of the progress being made towards a fix and full announcement,
+and may ask for additional information or guidance surrounding the reported
+issue.
+Node.js bug bounty program
+The Node.js project engages in an official bug bounty program for security
+researchers and responsible public disclosures. The program is managed through
+the HackerOne platform. See https://hackerone.com/nodejs for further details.
+Reporting a bug in a third party module
+Security bugs in third party modules should be reported to their respective
+maintainers.
+Disclosure policy
+Here is the security disclosure policy for Node.js
+
+
+The security report is received and is assigned a primary handler. This
+person will coordinate the fix and release process. The problem is confirmed
+and a list of all affected versions is determined. Code is audited to find
+any potential similar problems. Fixes are prepared for all releases which are
+still under maintenance. These fixes are not committed to the public
+repository but rather held locally pending the announcement.
+
+
+A suggested embargo date for this vulnerability is chosen and a CVE (Common
+Vulnerabilities and Exposures (CVE®)) is requested for the vulnerability.
+
+
+On the embargo date, the Node.js security mailing list is sent a copy of the
+announcement. The changes are pushed to the public repository and new builds
+are deployed to nodejs.org. Within 6 hours of the mailing list being
+notified, a copy of the advisory will be published on the Node.js blog.
+
+
+Typically the embargo date will be set 72 hours from the time the CVE is
+issued. However, this may vary depending on the severity of the bug or
+difficulty in applying a fix.
+
+
+This process can take some time, especially when coordination is required
+with maintainers of other projects. Every effort will be made to handle the
+bug in as timely a manner as possible; however, it's important that we follow
+the release process above to ensure that the disclosure is handled in a
+consistent manner.
+
+
+Receiving security updates
+Security notifications will be distributed via the following methods.
+
+Google Group
+Node.js Blog
+
+Comments on this policy
+If you have suggestions on how this process could be improved please submit a
+pull request or
+file an issue to discuss.
+OpenSSF Best Practices
+
+The Open Source Security Foundation (OpenSSF) Best Practices badge is a way for Free/Libre and Open Source Software (FLOSS) projects to show that they follow best practices. Projects can voluntarily self-certify how they follow each best practice. Consumers of the badge can quickly assess which FLOSS projects are following best practices and as a result are more likely to produce higher-quality secure software.\n\n\n\nGet Involved
+If you are interested in getting involved with the Node.js community, there are many ways to do so. The Node.js project is a large and diverse community with many ways to contribute beyond just writing code.
+Community Discussion
+
+The nodejs/node GitHub repository is the place to discuss Node.js core features and reporting issues.
+The nodejs/help GitHub repository is the official place to ask questions about Node.js.
+Node.js's official Discord server is a place to chat with other Node.js developers and get official news from the Node.js project.
+Node.js's project calendar with all public Node.js team meetings.
+
+Learning Materials
+If you are looking to learn more about Node.js, there are many resources available to you.
+
+Node.js's official learning materials.
+Node.js's official API reference documentation.
+NodeSchool.io teaches Node.js concepts via interactive command-line games.
+StackOverflow's Node.js tag contains a large number of threads with helpful resources.
+The DEV Community Node.js's tag contains articles and content related to Node.js.
+
+Unofficial Discussion Areas
+There are several unofficial discussion areas if you are looking for a more informal place to discuss Node.js.
+Please note that the Node.js project does not officially endorse these. Please follow their respective codes of conduct/rules.
+
+Node Slackers is a Node.js-focused Slack community.
+OpenJSF Slack is a Slack workspace for the OpenJS Foundation. There are several channels related to Node.js. (channels prefixed by #nodejs- are related to the project)
+irc.libera.chat in the #node.js channel with an IRC client or connect in your web browser to the channel using a web client.\n\n\n\nCollaboration Summit
+Node.js's Collaboration Summit is an un-conference for bringing current and
+potential contributors together to discuss Node.js with lively collaboration,
+education, and knowledge sharing. Teams, working groups and contributors
+from the community come together twice per year to have discussions that
+help decision-making while also working on some exciting efforts they
+want to push forward in-person.
+Who attends?
+The Collaboration Summit is primarily attended by existing contributors and
+community members, but it also welcomes those who are not yet a contributor
+and want to get onboard. If you are new to contributing to Node.js, the
+Collaboration Summit can be a good opportunity to help you learn what is
+happening within the community and contribute with the skills you have
+and would like to hone.
+Prior to the summit, contributors and community members send session proposals to
+create a schedule. Attendees can familiarize themselves with the session before
+getting onsite, having the general collaborator discussions, and then diving
+into sessions. There will also be plenty of opportunities for hallway tracks
+and brainstorms.
+For information about upcoming and past Collaboration Summits, check out the
+Summit repo. Have a look at the
+issues filed that share what
+contributors and community members are proposing to discuss in-person.\n\n\n\nUpcoming Events
+Node.js events are open and available to the public. Anyone is welcome to join and participate.
+Upcoming Node.js® Meetings
+The Node.js project holds numerous meetings throughout the year to discuss and plan aspects of the project.
+The following meetings are upcoming in the next 7 days.
+April 302:00 PM-3:00 PM(UTC)Node.js Next 10 years10:00 AM-11:00 AM(UTC)Node.js TSC MeetingMay 23:00 PM-4:00 PM(UTC)Node API team meeting\n\n\n\nNode.js Releases
+Major Node.js versions enter Current release status for six months, which gives library authors time to add support for them.
+After six months, odd-numbered releases (9, 11, etc.) become unsupported, and even-numbered releases (10, 12, etc.) move to Active LTS status and are ready for general use.
+LTS release status is "long-term support", which typically guarantees that critical bugs will be fixed for a total of 30 months.
+Production applications should only use Active LTS or Maintenance LTS releases.
+Release Schedule
+
+Full details regarding the Node.js release schedule are available on GitHub.
+Commercial Support
+Commercial support for versions past the Maintenance phase is available through our OpenJS Ecosystem Sustainability Program partner HeroDevs.
+Looking for the latest release of a version branch?
+Node.jsN-APICodenameReleased atnpmv23.11.0v131-2025-04-01v10.9.2ReleasesChangelogDocsv22.15.0v127Jod2025-04-22v10.9.2ReleasesChangelogDocsv21.7.3v120-2024-04-10v10.5.0ReleasesChangelogDocsv20.19.1v115Iron2025-04-22v10.8.2ReleasesChangelogDocsv19.9.0v111-2023-04-10v9.6.3ReleasesChangelogDocsv18.20.8v108Hydrogen2025-03-27v10.8.2ReleasesChangelogDocsv17.9.1v102-2022-06-01v8.11.0ReleasesChangelogDocsv16.20.2v93Gallium2023-08-08v8.19.4ReleasesChangelogDocsv15.14.0v88-2021-04-06v7.7.6ReleasesChangelogDocsv14.21.3v83Fermium2023-02-16v6.14.18ReleasesChangelogDocsv13.14.0v79-2020-04-29v6.14.4ReleasesChangelogDocsv12.22.12v72Erbium2022-04-05v6.14.16ReleasesChangelogDocsv11.15.0v67-2019-04-30v6.7.0ReleasesChangelogDocsv10.24.1v64Dubnium2021-04-06v6.14.12ReleasesChangelogDocsv9.11.2v59-2018-06-12v5.6.0ReleasesChangelogDocsv8.17.0v57Carbon2019-12-17v6.13.4ReleasesChangelogDocsv7.10.1v51-2017-07-11v4.2.0ReleasesChangelogDocsv6.17.1v48Boron2019-04-03v3.10.10ReleasesChangelogDocsv5.12.0v47-2016-06-23v3.8.6ReleasesChangelogDocsv4.9.1v46Argon2018-03-29v2.15.11ReleasesChangelogDocsv0.12.18v14-2017-02-22v2.15.11ReleasesChangelogDocs
+Official vs. Community Installation Methods
+The Node.js website provides several non-interactive installation methods, including command-line interfaces (CLIs), operating system (OS) package managers (e.g., brew), and Node.js version managers (e.g., nvm).
+To highlight and promote community contributions, the Node.js project introduced a revised Downloads page categorizing installation methods as either “Official” or “Community.” This provides users with increased flexibility and choice. To ensure clarity, we’ve defined criteria for each category.
+Official Installation Methods
+Installation methods designated as “Official” must meet the following requirements:
+Requirements (Official Installation Methods)New Node.js releases must be available simultaneously with the official release.Project maintainers must have a close relationship with the Node.js project, including direct communication channels.Installation method must download official binaries bundled by the Node.js project.Installation method must not build from source when pre-built binaries are available, nor should it alter the official binaries.
+Community Installation Methods
+Community installation methods included on the self-service download page (/download) must also adhere to a minimum set of criteria:
+
+Version Support: Must support all currently supported, non-End-of-Life (EOL) Node.js versions.
+OS Compatibility: Must function on at least one officially supported Operating System (OS).
+Broad OS Support: Cannot be limited to a subset of OS distributions or versions.
+
+For example, an installation method claiming compatibility with “Windows” must function on “Windows 10”, “Windows 11”, and all their editions (including server versions).
+Similarly, an installation method claiming compatibility with “Linux” must be installable on all major Linux distributions, not just a specific subset. It cannot rely on distribution-specific package managers like apt or dnf.
+
+
+Free and Open Source: Must be free to use and open source, must not be sold as a commercial product, and must not be a paid service.\n\n\n\nNode.js Releases
+Major Node.js versions enter Current release status for six months, which gives library authors time to add support for them.
+After six months, odd-numbered releases (9, 11, etc.) become unsupported, and even-numbered releases (10, 12, etc.) move to Active LTS status and are ready for general use.
+LTS release status is "long-term support", which typically guarantees that critical bugs will be fixed for a total of 30 months.
+Production applications should only use Active LTS or Maintenance LTS releases.
+Release Schedule
+
+Full details regarding the Node.js release schedule are available on GitHub.
+Commercial Support
+Commercial support for versions past the Maintenance phase is available through our OpenJS Ecosystem Sustainability Program partner HeroDevs.
+Looking for the latest release of a version branch?
+Node.jsN-APICodenameReleased atnpmv23.11.0v131-2025-04-01v10.9.2ReleasesChangelogDocsv22.15.0v127Jod2025-04-22v10.9.2ReleasesChangelogDocsv21.7.3v120-2024-04-10v10.5.0ReleasesChangelogDocsv20.19.1v115Iron2025-04-22v10.8.2ReleasesChangelogDocsv19.9.0v111-2023-04-10v9.6.3ReleasesChangelogDocsv18.20.8v108Hydrogen2025-03-27v10.8.2ReleasesChangelogDocsv17.9.1v102-2022-06-01v8.11.0ReleasesChangelogDocsv16.20.2v93Gallium2023-08-08v8.19.4ReleasesChangelogDocsv15.14.0v88-2021-04-06v7.7.6ReleasesChangelogDocsv14.21.3v83Fermium2023-02-16v6.14.18ReleasesChangelogDocsv13.14.0v79-2020-04-29v6.14.4ReleasesChangelogDocsv12.22.12v72Erbium2022-04-05v6.14.16ReleasesChangelogDocsv11.15.0v67-2019-04-30v6.7.0ReleasesChangelogDocsv10.24.1v64Dubnium2021-04-06v6.14.12ReleasesChangelogDocsv9.11.2v59-2018-06-12v5.6.0ReleasesChangelogDocsv8.17.0v57Carbon2019-12-17v6.13.4ReleasesChangelogDocsv7.10.1v51-2017-07-11v4.2.0ReleasesChangelogDocsv6.17.1v48Boron2019-04-03v3.10.10ReleasesChangelogDocsv5.12.0v47-2016-06-23v3.8.6ReleasesChangelogDocsv4.9.1v46Argon2018-03-29v2.15.11ReleasesChangelogDocsv0.12.18v14-2017-02-22v2.15.11ReleasesChangelogDocs
+Official vs. Community Installation Methods
+The Node.js website provides several non-interactive installation methods, including command-line interfaces (CLIs), operating system (OS) package managers (e.g., brew), and Node.js version managers (e.g., nvm).
+To highlight and promote community contributions, the Node.js project introduced a revised Downloads page categorizing installation methods as either “Official” or “Community.” This provides users with increased flexibility and choice. To ensure clarity, we’ve defined criteria for each category.
+Official Installation Methods
+Installation methods designated as “Official” must meet the following requirements:
+Requirements (Official Installation Methods)New Node.js releases must be available simultaneously with the official release.Project maintainers must have a close relationship with the Node.js project, including direct communication channels.Installation method must download official binaries bundled by the Node.js project.Installation method must not build from source when pre-built binaries are available, nor should it alter the official binaries.
+Community Installation Methods
+Community installation methods included on the self-service download page (/download) must also adhere to a minimum set of criteria:
+
+Version Support: Must support all currently supported, non-End-of-Life (EOL) Node.js versions.
+OS Compatibility: Must function on at least one officially supported Operating System (OS).
+Broad OS Support: Cannot be limited to a subset of OS distributions or versions.
+
+For example, an installation method claiming compatibility with “Windows” must function on “Windows 10”, “Windows 11”, and all their editions (including server versions).
+Similarly, an installation method claiming compatibility with “Linux” must be installable on all major Linux distributions, not just a specific subset. It cannot rely on distribution-specific package managers like apt or dnf.
+
+
+Free and Open Source: Must be free to use and open source, must not be sold as a commercial product, and must not be a paid service.\n\n\n\nNode.js Releases
+Major Node.js versions enter Current release status for six months, which gives library authors time to add support for them.
+After six months, odd-numbered releases (9, 11, etc.) become unsupported, and even-numbered releases (10, 12, etc.) move to Active LTS status and are ready for general use.
+LTS release status is "long-term support", which typically guarantees that critical bugs will be fixed for a total of 30 months.
+Production applications should only use Active LTS or Maintenance LTS releases.
+Release Schedule
+
+Full details regarding the Node.js release schedule are available on GitHub.
+Commercial Support
+Commercial support for versions past the Maintenance phase is available through our OpenJS Ecosystem Sustainability Program partner HeroDevs.
+Looking for the latest release of a version branch?
+Node.jsN-APICodenameReleased atnpmv23.11.0v131-2025-04-01v10.9.2ReleasesChangelogDocsv22.15.0v127Jod2025-04-22v10.9.2ReleasesChangelogDocsv21.7.3v120-2024-04-10v10.5.0ReleasesChangelogDocsv20.19.1v115Iron2025-04-22v10.8.2ReleasesChangelogDocsv19.9.0v111-2023-04-10v9.6.3ReleasesChangelogDocsv18.20.8v108Hydrogen2025-03-27v10.8.2ReleasesChangelogDocsv17.9.1v102-2022-06-01v8.11.0ReleasesChangelogDocsv16.20.2v93Gallium2023-08-08v8.19.4ReleasesChangelogDocsv15.14.0v88-2021-04-06v7.7.6ReleasesChangelogDocsv14.21.3v83Fermium2023-02-16v6.14.18ReleasesChangelogDocsv13.14.0v79-2020-04-29v6.14.4ReleasesChangelogDocsv12.22.12v72Erbium2022-04-05v6.14.16ReleasesChangelogDocsv11.15.0v67-2019-04-30v6.7.0ReleasesChangelogDocsv10.24.1v64Dubnium2021-04-06v6.14.12ReleasesChangelogDocsv9.11.2v59-2018-06-12v5.6.0ReleasesChangelogDocsv8.17.0v57Carbon2019-12-17v6.13.4ReleasesChangelogDocsv7.10.1v51-2017-07-11v4.2.0ReleasesChangelogDocsv6.17.1v48Boron2019-04-03v3.10.10ReleasesChangelogDocsv5.12.0v47-2016-06-23v3.8.6ReleasesChangelogDocsv4.9.1v46Argon2018-03-29v2.15.11ReleasesChangelogDocsv0.12.18v14-2017-02-22v2.15.11ReleasesChangelogDocs
+Official vs. Community Installation Methods
+The Node.js website provides several non-interactive installation methods, including command-line interfaces (CLIs), operating system (OS) package managers (e.g., brew), and Node.js version managers (e.g., nvm).
+To highlight and promote community contributions, the Node.js project introduced a revised Downloads page categorizing installation methods as either “Official” or “Community.” This provides users with increased flexibility and choice. To ensure clarity, we’ve defined criteria for each category.
+Official Installation Methods
+Installation methods designated as “Official” must meet the following requirements:
+Requirements (Official Installation Methods)New Node.js releases must be available simultaneously with the official release.Project maintainers must have a close relationship with the Node.js project, including direct communication channels.Installation method must download official binaries bundled by the Node.js project.Installation method must not build from source when pre-built binaries are available, nor should it alter the official binaries.
+Community Installation Methods
+Community installation methods included on the self-service download page (/download) must also adhere to a minimum set of criteria:
+
+Version Support: Must support all currently supported, non-End-of-Life (EOL) Node.js versions.
+OS Compatibility: Must function on at least one officially supported Operating System (OS).
+Broad OS Support: Cannot be limited to a subset of OS distributions or versions.
+
+For example, an installation method claiming compatibility with “Windows” must function on “Windows 10”, “Windows 11”, and all their editions (including server versions).
+Similarly, an installation method claiming compatibility with “Linux” must be installable on all major Linux distributions, not just a specific subset. It cannot rely on distribution-specific package managers like apt or dnf.
+
+
+Free and Open Source: Must be free to use and open source, must not be sold as a commercial product, and must not be a paid service.\n\n\n\nIndex of /download/release/v23.11.0/\nnode-v23.11.0-aix-ppc64.tar.gz\nnode-v23.11.0-arm64.msi\nnode-v23.11.0-darwin-arm64.tar.gz\nnode-v23.11.0-darwin-arm64.tar.xz\nnode-v23.11.0-darwin-x64.tar.gz\nnode-v23.11.0-darwin-x64.tar.xz\nnode-v23.11.0-headers.tar.gz\nnode-v23.11.0-headers.tar.xz\nnode-v23.11.0-linux-arm64.tar.gz\nnode-v23.11.0-linux-arm64.tar.xz\nnode-v23.11.0-linux-armv7l.tar.gz\nnode-v23.11.0-linux-armv7l.tar.xz\nnode-v23.11.0-linux-ppc64le.tar.gz\nnode-v23.11.0-linux-ppc64le.tar.xz\nnode-v23.11.0-linux-s390x.tar.gz\nnode-v23.11.0-linux-s390x.tar.xz\nnode-v23.11.0-linux-x64.tar.gz\nnode-v23.11.0-linux-x64.tar.xz\nnode-v23.11.0-win-arm64.7z\nnode-v23.11.0-win-arm64.zip\nnode-v23.11.0-win-x64.7z\nnode-v23.11.0-win-x64.zip\nnode-v23.11.0-x64.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v23.11.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v23.11.0
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+QUIC
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v22.15.0/\nnode-v22.15.0-aix-ppc64.tar.gz\nnode-v22.15.0-arm64.msi\nnode-v22.15.0-darwin-arm64.tar.gz\nnode-v22.15.0-darwin-arm64.tar.xz\nnode-v22.15.0-darwin-x64.tar.gz\nnode-v22.15.0-darwin-x64.tar.xz\nnode-v22.15.0-headers.tar.gz\nnode-v22.15.0-headers.tar.xz\nnode-v22.15.0-linux-arm64.tar.gz\nnode-v22.15.0-linux-arm64.tar.xz\nnode-v22.15.0-linux-armv7l.tar.gz\nnode-v22.15.0-linux-armv7l.tar.xz\nnode-v22.15.0-linux-ppc64le.tar.gz\nnode-v22.15.0-linux-ppc64le.tar.xz\nnode-v22.15.0-linux-s390x.tar.gz\nnode-v22.15.0-linux-s390x.tar.xz\nnode-v22.15.0-linux-x64.tar.gz\nnode-v22.15.0-linux-x64.tar.xz\nnode-v22.15.0-win-arm64.7z\nnode-v22.15.0-win-arm64.zip\nnode-v22.15.0-win-x64.7z\nnode-v22.15.0-win-x64.zip\nnode-v22.15.0-win-x86.7z\nnode-v22.15.0-win-x86.zip\nnode-v22.15.0-x64.msi\nnode-v22.15.0-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v22.15.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v22.15.0
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Modules: TypeScript
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+SQLite
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v21.7.3/\nnode-v21.7.3-aix-ppc64.tar.gz\nnode-v21.7.3-arm64.msi\nnode-v21.7.3-darwin-arm64.tar.gz\nnode-v21.7.3-darwin-arm64.tar.xz\nnode-v21.7.3-darwin-x64.tar.gz\nnode-v21.7.3-darwin-x64.tar.xz\nnode-v21.7.3-headers.tar.gz\nnode-v21.7.3-headers.tar.xz\nnode-v21.7.3-linux-arm64.tar.gz\nnode-v21.7.3-linux-arm64.tar.xz\nnode-v21.7.3-linux-armv7l.tar.gz\nnode-v21.7.3-linux-armv7l.tar.xz\nnode-v21.7.3-linux-ppc64le.tar.gz\nnode-v21.7.3-linux-ppc64le.tar.xz\nnode-v21.7.3-linux-s390x.tar.gz\nnode-v21.7.3-linux-s390x.tar.xz\nnode-v21.7.3-linux-x64.tar.gz\nnode-v21.7.3-linux-x64.tar.xz\nnode-v21.7.3-win-arm64.7z\nnode-v21.7.3-win-arm64.zip\nnode-v21.7.3-win-x64.7z\nnode-v21.7.3-win-x64.zip\nnode-v21.7.3-win-x86.7z\nnode-v21.7.3-win-x86.zip\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v21.7.3 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v21.7.3
+            
+            
+            
+    
+      
+        ►▼
+        Other versions
+      
+      21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                ►▼
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v20.19.1/\nnode-v20.19.1-aix-ppc64.tar.gz\nnode-v20.19.1-arm64.msi\nnode-v20.19.1-darwin-arm64.tar.gz\nnode-v20.19.1-darwin-arm64.tar.xz\nnode-v20.19.1-darwin-x64.tar.gz\nnode-v20.19.1-darwin-x64.tar.xz\nnode-v20.19.1-headers.tar.gz\nnode-v20.19.1-headers.tar.xz\nnode-v20.19.1-linux-arm64.tar.gz\nnode-v20.19.1-linux-arm64.tar.xz\nnode-v20.19.1-linux-armv7l.tar.gz\nnode-v20.19.1-linux-armv7l.tar.xz\nnode-v20.19.1-linux-ppc64le.tar.gz\nnode-v20.19.1-linux-ppc64le.tar.xz\nnode-v20.19.1-linux-s390x.tar.gz\nnode-v20.19.1-linux-s390x.tar.xz\nnode-v20.19.1-linux-x64.tar.gz\nnode-v20.19.1-linux-x64.tar.xz\nnode-v20.19.1-win-arm64.7z\nnode-v20.19.1-win-arm64.zip\nnode-v20.19.1-win-x64.7z\nnode-v20.19.1-win-x64.zip\nnode-v20.19.1-win-x86.7z\nnode-v20.19.1-win-x86.zip\nnode-v20.19.1-x64.msi\nnode-v20.19.1-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v20.19.1 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v20.19.1
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v19.9.0/\nnode-v19.9.0-aix-ppc64.tar.gz\nnode-v19.9.0-arm64.msi\nnode-v19.9.0-darwin-arm64.tar.gz\nnode-v19.9.0-darwin-arm64.tar.xz\nnode-v19.9.0-darwin-x64.tar.gz\nnode-v19.9.0-darwin-x64.tar.xz\nnode-v19.9.0-headers.tar.gz\nnode-v19.9.0-headers.tar.xz\nnode-v19.9.0-linux-arm64.tar.gz\nnode-v19.9.0-linux-arm64.tar.xz\nnode-v19.9.0-linux-armv7l.tar.gz\nnode-v19.9.0-linux-armv7l.tar.xz\nnode-v19.9.0-linux-ppc64le.tar.gz\nnode-v19.9.0-linux-ppc64le.tar.xz\nnode-v19.9.0-linux-s390x.tar.gz\nnode-v19.9.0-linux-s390x.tar.xz\nnode-v19.9.0-linux-x64.tar.gz\nnode-v19.9.0-linux-x64.tar.xz\nnode-v19.9.0-win-arm64.7z\nnode-v19.9.0-win-arm64.zip\nnode-v19.9.0-win-x64.7z\nnode-v19.9.0-win-x64.zip\nnode-v19.9.0-win-x86.7z\nnode-v19.9.0-win-x86.zip\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v19.9.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v19.9.0
+            
+            
+            
+    
+      
+        ►▼
+        Other versions
+      
+      19.x
+18.x LTS
+17.x
+16.x LTS
+15.x
+14.x LTS
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                ►▼
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v18.20.8/\nnode-v18.20.8-aix-ppc64.tar.gz\nnode-v18.20.8-darwin-arm64.tar.gz\nnode-v18.20.8-darwin-arm64.tar.xz\nnode-v18.20.8-darwin-x64.tar.gz\nnode-v18.20.8-darwin-x64.tar.xz\nnode-v18.20.8-headers.tar.gz\nnode-v18.20.8-headers.tar.xz\nnode-v18.20.8-linux-arm64.tar.gz\nnode-v18.20.8-linux-arm64.tar.xz\nnode-v18.20.8-linux-armv7l.tar.gz\nnode-v18.20.8-linux-armv7l.tar.xz\nnode-v18.20.8-linux-ppc64le.tar.gz\nnode-v18.20.8-linux-ppc64le.tar.xz\nnode-v18.20.8-linux-s390x.tar.gz\nnode-v18.20.8-linux-s390x.tar.xz\nnode-v18.20.8-linux-x64.tar.gz\nnode-v18.20.8-linux-x64.tar.xz\nnode-v18.20.8-win-x64.7z\nnode-v18.20.8-win-x64.zip\nnode-v18.20.8-win-x86.7z\nnode-v18.20.8-win-x86.zip\nnode-v18.20.8-x64.msi\nnode-v18.20.8-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v18.20.8 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v18.20.8
+            
+            
+            
+    
+      
+        
+        Other versions
+      
+      23.x
+22.x LTS
+21.x
+20.x LTS
+19.x
+18.x LTS
+17.x
+16.x
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Single executable applications
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v17.9.1/\nnode-v17.9.1-aix-ppc64.tar.gz\nnode-v17.9.1-darwin-arm64.tar.gz\nnode-v17.9.1-darwin-arm64.tar.xz\nnode-v17.9.1-darwin-x64.tar.gz\nnode-v17.9.1-darwin-x64.tar.xz\nnode-v17.9.1-headers.tar.gz\nnode-v17.9.1-headers.tar.xz\nnode-v17.9.1-linux-arm64.tar.gz\nnode-v17.9.1-linux-arm64.tar.xz\nnode-v17.9.1-linux-armv7l.tar.gz\nnode-v17.9.1-linux-armv7l.tar.xz\nnode-v17.9.1-linux-ppc64le.tar.gz\nnode-v17.9.1-linux-ppc64le.tar.xz\nnode-v17.9.1-linux-s390x.tar.gz\nnode-v17.9.1-linux-s390x.tar.xz\nnode-v17.9.1-linux-x64.tar.gz\nnode-v17.9.1-linux-x64.tar.xz\nnode-v17.9.1-win-x64.7z\nnode-v17.9.1-win-x64.zip\nnode-v17.9.1-win-x86.7z\nnode-v17.9.1-win-x86.zip\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v17.9.1 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v17.9.1
+            
+            
+            
+    
+      
+        ►▼
+        Other versions
+      
+      18.x
+17.x
+16.x LTS
+15.x
+14.x LTS
+13.x
+12.x LTS
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                ►▼
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v16.20.2/\nnode-v16.20.2-aix-ppc64.tar.gz\nnode-v16.20.2-darwin-arm64.tar.gz\nnode-v16.20.2-darwin-arm64.tar.xz\nnode-v16.20.2-darwin-x64.tar.gz\nnode-v16.20.2-darwin-x64.tar.xz\nnode-v16.20.2-headers.tar.gz\nnode-v16.20.2-headers.tar.xz\nnode-v16.20.2-linux-arm64.tar.gz\nnode-v16.20.2-linux-arm64.tar.xz\nnode-v16.20.2-linux-armv7l.tar.gz\nnode-v16.20.2-linux-armv7l.tar.xz\nnode-v16.20.2-linux-ppc64le.tar.gz\nnode-v16.20.2-linux-ppc64le.tar.xz\nnode-v16.20.2-linux-s390x.tar.gz\nnode-v16.20.2-linux-s390x.tar.xz\nnode-v16.20.2-linux-x64.tar.gz\nnode-v16.20.2-linux-x64.tar.xz\nnode-v16.20.2-win-x64.7z\nnode-v16.20.2-win-x64.zip\nnode-v16.20.2-win-x86.7z\nnode-v16.20.2-win-x86.zip\nnode-v16.20.2-x64.msi\nnode-v16.20.2-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v16.20.2 documentation
+          
+            
+            
+          
+        
+        
+          
+            Node.js v16.20.2
+            
+            
+            
+    
+      
+        ►▼
+        Other versions
+      
+      20.x
+19.x
+18.x LTS
+17.x
+16.x LTS
+15.x
+14.x
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            
+              
+                ►▼
+                Options
+              
+        
+              
+                
+                  
+                    View on single page
+                  
+                  
+                    View as JSON
+                  
+                  Edit on GitHub    
+                
+              
+            
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Asynchronous context tracking
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: node:module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Permissions
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Test runner
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Web Streams API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v15.14.0/\nnode-v15.14.0-aix-ppc64.tar.gz\nnode-v15.14.0-darwin-x64.tar.gz\nnode-v15.14.0-darwin-x64.tar.xz\nnode-v15.14.0-headers.tar.gz\nnode-v15.14.0-headers.tar.xz\nnode-v15.14.0-linux-arm64.tar.gz\nnode-v15.14.0-linux-arm64.tar.xz\nnode-v15.14.0-linux-armv7l.tar.gz\nnode-v15.14.0-linux-armv7l.tar.xz\nnode-v15.14.0-linux-ppc64le.tar.gz\nnode-v15.14.0-linux-ppc64le.tar.xz\nnode-v15.14.0-linux-s390x.tar.gz\nnode-v15.14.0-linux-s390x.tar.xz\nnode-v15.14.0-linux-x64.tar.gz\nnode-v15.14.0-linux-x64.tar.xz\nnode-v15.14.0-win-x64.7z\nnode-v15.14.0-win-x64.zip\nnode-v15.14.0-win-x86.7z\nnode-v15.14.0-win-x86.zip\nnode-v15.14.0-x64.msi\nnode-v15.14.0-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v15.14.0 documentation
+          
+            
+            
+          
+        
+        
+          
+            
+              Index
+            
+            
+              View on single page
+            
+            
+              View as JSON
+            
+            
+    
+      View another version ▼
+      15.x
+14.x LTS
+13.x
+12.x LTS
+11.x
+10.x LTS
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            Edit on GitHub
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Web Crypto API
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v14.21.3/\nnode-v14.21.3-aix-ppc64.tar.gz\nnode-v14.21.3-darwin-x64.tar.gz\nnode-v14.21.3-darwin-x64.tar.xz\nnode-v14.21.3-headers.tar.gz\nnode-v14.21.3-headers.tar.xz\nnode-v14.21.3-linux-arm64.tar.gz\nnode-v14.21.3-linux-arm64.tar.xz\nnode-v14.21.3-linux-armv7l.tar.gz\nnode-v14.21.3-linux-armv7l.tar.xz\nnode-v14.21.3-linux-ppc64le.tar.gz\nnode-v14.21.3-linux-ppc64le.tar.xz\nnode-v14.21.3-linux-s390x.tar.gz\nnode-v14.21.3-linux-s390x.tar.xz\nnode-v14.21.3-linux-x64.tar.gz\nnode-v14.21.3-linux-x64.tar.xz\nnode-v14.21.3-win-x64.7z\nnode-v14.21.3-win-x64.zip\nnode-v14.21.3-win-x86.7z\nnode-v14.21.3-win-x86.zip\nnode-v14.21.3-x64.msi\nnode-v14.21.3-x86.msi\n\n\nNode.js
+        
+      
+      
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker
+
+    
+
+    
+      
+        
+          Node.js v14.21.3 documentation
+          
+            
+            
+          
+        
+        
+          
+            
+              Index
+            
+            
+              View on single page
+            
+            
+              View as JSON
+            
+            
+    
+      View another version ▼
+      19.x
+18.x LTS
+17.x
+16.x LTS
+15.x
+14.x LTS
+13.x
+12.x
+11.x
+10.x
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            Edit on GitHub
+          
+        
+        
+      
+
+      
+
+      
+        
+
+
+About this documentation
+Usage and example
+
+
+
+Assertion testing
+Async hooks
+Buffer
+C++ addons
+C/C++ addons with Node-API
+C++ embedder API
+Child processes
+Cluster
+Command-line options
+Console
+Corepack
+Crypto
+Debugger
+Deprecated APIs
+Diagnostics Channel
+DNS
+Domain
+Errors
+Events
+File system
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules: CommonJS modules
+Modules: ECMAScript modules
+Modules: module API
+Modules: Packages
+Net
+OS
+Path
+Performance hooks
+Policies
+Process
+Punycode
+Query strings
+Readline
+REPL
+Report
+Stream
+String decoder
+Timers
+TLS/SSL
+Trace events
+TTY
+UDP/datagram
+URL
+Utilities
+V8
+VM
+WASI
+Worker threads
+Zlib
+
+
+
+Code repository and issue tracker\n\n\n\nIndex of /download/release/v13.14.0/\nnode-v13.14.0-aix-ppc64.tar.gz\nnode-v13.14.0-darwin-x64.tar.gz\nnode-v13.14.0-darwin-x64.tar.xz\nnode-v13.14.0-headers.tar.gz\nnode-v13.14.0-headers.tar.xz\nnode-v13.14.0-linux-arm64.tar.gz\nnode-v13.14.0-linux-arm64.tar.xz\nnode-v13.14.0-linux-armv7l.tar.gz\nnode-v13.14.0-linux-armv7l.tar.xz\nnode-v13.14.0-linux-ppc64le.tar.gz\nnode-v13.14.0-linux-ppc64le.tar.xz\nnode-v13.14.0-linux-s390x.tar.gz\nnode-v13.14.0-linux-s390x.tar.xz\nnode-v13.14.0-linux-x64.tar.gz\nnode-v13.14.0-linux-x64.tar.xz\nnode-v13.14.0-sunos-x64.tar.gz\nnode-v13.14.0-sunos-x64.tar.xz\nnode-v13.14.0-win-x64.7z\nnode-v13.14.0-win-x64.zip\nnode-v13.14.0-win-x86.7z\nnode-v13.14.0-win-x86.zip\nnode-v13.14.0-x64.msi\nnode-v13.14.0-x86.msi\n\n\nNode.js
+        
+      
+      
+About these Docs
+Usage & Example
+
+
+
+Assertion Testing
+Async Hooks
+Buffer
+C++ Addons
+C/C++ Addons with N-API
+Child Processes
+Cluster
+Command Line Options
+Console
+Crypto
+Debugger
+Deprecated APIs
+DNS
+Domain
+ECMAScript Modules
+Errors
+Events
+File System
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules
+Net
+OS
+Path
+Performance Hooks
+Policies
+Process
+Punycode
+Query Strings
+Readline
+REPL
+Report
+Stream
+String Decoder
+Timers
+TLS/SSL
+Trace Events
+TTY
+UDP/Datagram
+URL
+Utilities
+V8
+VM
+WASI
+Worker Threads
+Zlib
+
+
+
+GitHub Repo & Issue Tracker
+
+    
+
+    
+      
+        Node.js v13.14.0 Documentation
+        
+          
+            
+              Index
+            
+            
+              View on single page
+            
+            
+              View as JSON
+            
+            
+    
+      View another version ▼
+      14.x
+13.x
+12.x LTS
+11.x
+10.x LTS
+9.x
+8.x
+7.x
+6.x
+5.x
+4.x
+0.12.x
+0.10.x
+    
+  
+            Edit on GitHub
+          
+        
+        
+      
+
+      
+        Table of Contents
+        
+      
+
+      
+        
+
+
+About these Docs
+Usage & Example
+
+
+
+Assertion Testing
+Async Hooks
+Buffer
+C++ Addons
+C/C++ Addons with N-API
+Child Processes
+Cluster
+Command Line Options
+Console
+Crypto
+Debugger
+Deprecated APIs
+DNS
+Domain
+ECMAScript Modules
+Errors
+Events
+File System
+Globals
+HTTP
+HTTP/2
+HTTPS
+Inspector
+Internationalization
+Modules
+Net
+OS
+Path
+Performance Hooks
+Policies
+Process
+Punycode
+Query Strings
+Readline
+REPL
+Report
+Stream
+String Decoder
+Timers
+TLS/SSL
+Trace Events
+TTY
+UDP/Datagram
+URL
+Utilities
+V8
+VM
+WASI
+Worker Threads
+Zlib
+
+
+
+GitHub Repo & Issue Tracker\n\n\n\n
