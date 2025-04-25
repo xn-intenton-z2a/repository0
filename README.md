@@ -10,6 +10,14 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 ## Overview
 `repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
+### CLI Utilities
+The main functionality is in `src/lib/main.js`, which now includes additional flags for detailed version and diagnostics information:
+
+- **--version:** Outputs the application version and a timestamp.
+- **--diagnostics:** Provides a detailed diagnostic report including the version, timestamp, Node.js version, platform, and memory usage.
+
+For more details on these commands, please refer to the [Usage Documentation](./docs/USAGE.md).
+
 ## What’s Inside
 
 - **GitHub Workflows:**  
@@ -22,7 +30,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
   The `package.json` file defines dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include gcd, lcm, and prime functionalities.
+  Unit tests in the `tests/unit/` folder ensure that the CLI commands behave as expected. Recent updates have extended the test coverage to include version and diagnostics functionalities.
 
 - **Documentation:**  
   This README provides essential project information. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
@@ -40,8 +48,7 @@ The **intentïon `agentic‑lib`** is a collection of reusable GitHub Actions wo
 
 *Warning:* Running these workflows may incur resource usage and charges.
 
-START_README_END
-### Contributing
+## Contributing
 
 We welcome contributions! Please review our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to contribute effectively.
 

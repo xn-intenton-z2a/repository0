@@ -5,6 +5,7 @@
 
 import { fileURLToPath } from "url";
 import inquirer from "inquirer";
+import { readFile } from "fs/promises";
 
 // Define the commands object to be used in various outputs
 const commands = {
@@ -35,6 +36,16 @@ function printCliUtils() {
   console.log(JSON.stringify(commands, null, 2));
 }
 
+async function getVersionDetails() {
+  // Read version from package.json (located two levels up from src/lib)
+  const packageUrl = new URL("../../package.json", import.meta.url);
+  const pkgContent = await readFile(packageUrl, "utf8");
+  const pkg = JSON.parse(pkgContent);
+  const version = pkg.version || "unknown";
+  const timestamp = new Date().toISOString();
+  return { version, timestamp };
+}
+
 export async function main(args) {
   // If no args or help flag is provided, display dynamic help message
   if (!args.length || args.includes("--help")) {
@@ -42,7 +53,26 @@ export async function main(args) {
     return;
   }
 
-  // If --interactive flag is provided, launch the interactive prompt
+  // Version flag: outputs version and timestamp in one line
+  if (args.includes("--version")) {
+    const { version, timestamp } = await getVersionDetails();
+    console.log(`Version: ${version}, Timestamp: ${timestamp}`);
+    return;
+  }
+
+  // Diagnostics flag: outputs detailed runtime information
+  if (args.includes("--diagnostics")) {
+    const { version, timestamp } = await getVersionDetails();
+    console.log(`Version: ${version}`);
+    console.log(`Timestamp: ${timestamp}`);
+    console.log(`Node.js Version: ${process.version}`);
+    console.log(`Platform: ${process.platform}`);
+    const memory = process.memoryUsage();
+    console.log(`Memory Usage: ${JSON.stringify(memory)}`);
+    return;
+  }
+
+  // Interactive mode
   if (args.includes("--interactive")) {
     const choices = Object.keys(commands);
     const answer = await inquirer.prompt([
@@ -57,7 +87,7 @@ export async function main(args) {
     return;
   }
 
-  // If --cli-utils flag is provided, output JSON formatted commands
+  // CLI utils: output JSON formatted commands
   if (args.includes("--cli-utils")) {
     printCliUtils();
     return;

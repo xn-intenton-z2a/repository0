@@ -11,10 +11,9 @@ describe("Main Module Import", () => {
 });
 
 describe("Main Output", () => {
-  test("should terminate without error when no arguments are provided", () => {
-    // This test now expects the help message to be displayed
+  test("should terminate without error when no arguments are provided", async () => {
     const spy = vi.spyOn(console, "log");
-    main([]);
+    await main([]);
     const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     spy.mockRestore();
@@ -22,9 +21,9 @@ describe("Main Output", () => {
 });
 
 describe("Help Message", () => {
-  test("should display dynamic help message with no arguments", () => {
+  test("should display dynamic help message with no arguments", async () => {
     const spy = vi.spyOn(console, "log");
-    main([]);
+    await main([]);
     const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     expect(output).toContain("--agentic:");
@@ -32,9 +31,9 @@ describe("Help Message", () => {
     spy.mockRestore();
   });
 
-  test("should display dynamic help message with --help flag", () => {
+  test("should display dynamic help message with --help flag", async () => {
     const spy = vi.spyOn(console, "log");
-    main(["--help"]);
+    await main(["--help"]);
     const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     expect(output).toContain("--simulate-load <ms>:");
@@ -43,10 +42,9 @@ describe("Help Message", () => {
 });
 
 describe("CLI Utils Output (JSON)", () => {
-  test("should output JSON formatted list of CLI commands when '--cli-utils' is provided", () => {
+  test("should output JSON formatted list of CLI commands when '--cli-utils' is provided", async () => {
     const spy = vi.spyOn(console, "log");
-    main(["--cli-utils"]);
-    // Capture the JSON output
+    await main(["--cli-utils"]);
     const jsonOutput = spy.mock.calls[0][0];
     let parsed;
     try {
@@ -70,5 +68,29 @@ describe("Interactive Mode", () => {
     expect(spyLog).toHaveBeenCalledWith(expect.stringContaining("You selected: --agentic"));
     promptMock.mockRestore();
     spyLog.mockRestore();
+  });
+});
+
+describe("Version and Diagnostics Flags", () => {
+  test("should output version info in correct format with --version flag", async () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--version"]);
+    // Expect one call with output like "Version: x.y.z, Timestamp: ISO8601"
+    const output = spy.mock.calls[0][0];
+    const versionRegex = /^Version: (\d+\.\d+\.\d+(?:-[\w.]+)?), Timestamp: (.+)$/;
+    expect(output).toMatch(versionRegex);
+    spy.mockRestore();
+  });
+
+  test("should output diagnostics info with --diagnostics flag", async () => {
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--diagnostics"]);
+    // There should be multiple log calls
+    const calls = spy.mock.calls.map(call => call[0]);
+    expect(calls.some(line => line.startsWith("Version:"))).toBe(true);
+    expect(calls.some(line => line.startsWith("Timestamp:"))).toBe(true);
+    expect(calls.some(line => line.startsWith("Node.js Version:"))).toBe(true);
+    expect(calls.some(line => line.startsWith("Platform:"))).toBe(true);
+    spy.mockRestore();
   });
 });

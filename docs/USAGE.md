@@ -10,9 +10,18 @@ When you run the CLI without any arguments, or with the `--help` flag, the appli
 
 - **--agentic:** Processes command(s) as JSON payload.
 - **--dry-run:** Executes without action.
-- **--version:** Outputs version info and timestamp.
+- **--version:** Outputs version info and timestamp in the format:
+  
+        Version: <semver>, Timestamp: <ISO8601>
+  
+  This output is generated dynamically by reading the version from `package.json` and using the current time.
 - **--verbose:** Enables detailed logging.
-- **--diagnostics:** Provides diagnostic report including configuration and Node.js version.
+- **--diagnostics:** Provides a diagnostic report including:
+  - Version (from `package.json`)
+  - Timestamp (current ISO8601 format)
+  - Node.js Version
+  - Platform
+  - Memory usage report
 - **--status:** Outputs runtime health summary.
 - **--digest:** Initiates SQS event simulation and processing via digestLambdaHandler.
 - **--simulate-error:** Triggers error simulation with immediate exit.
@@ -21,6 +30,36 @@ When you run the CLI without any arguments, or with the `--help` flag, the appli
 - **--apply-fix:** Applies fix and logs success, stops execution.
 - **--cli-utils:** Outputs all CLI commands and their descriptions in a structured JSON format.
 - **--interactive:** Launches an interactive prompt where you can select a command from a list. Upon selection, the CLI confirms your choice.
+
+## Version and Diagnostics
+
+The following flags provide detailed information about the runtime environment:
+
+### Version Flag
+
+Invoking the CLI with the `--version` flag will output a single line containing the version and timestamp. For example:
+
+    node src/lib/main.js --version
+
+Expected output:
+
+    Version: 2.1.0-0, Timestamp: 2025-04-25T22:44:19.123Z
+
+### Diagnostics Flag
+
+Invoking the CLI with the `--diagnostics` flag will output a multi-line diagnostic report. For example:
+
+    node src/lib/main.js --diagnostics
+
+Expected output:
+
+    Version: 2.1.0-0
+    Timestamp: 2025-04-25T22:44:19.123Z
+    Node.js Version: v20.x.x
+    Platform: linux
+    Memory Usage: { ... }
+
+This information helps in assessing the current runtime state as well as system details.
 
 ## How to Invoke
 
@@ -49,5 +88,3 @@ Interactive mode improves the user experience by letting you choose a command fr
 You will be presented with a list of available commands. After making a selection, the CLI will display a confirmation message such as:
 
     You selected: --agentic
-
-This feature is useful for quickly exploring the available commands without having to remember them.
