@@ -1,129 +1,125 @@
 # GITHUB_DOCS
 
 ## Crawl Summary
-GitHub docs provide detailed technical instructions for SSH setup, repository management, pull request workflows, authentication (including two-factor and personal access tokens), and Codespaces configuration. Additionally, GitHub Copilot integration instructions for multiple IDEs include plugin installation, keystroke shortcuts, and inline suggestion acceptance. The content includes REST API endpoints specifications and sample SDK method signatures for interacting with GitHub resources.
+GitHub documentation crawl delivers detailed technical instructions on Git integration, SSH key generation and troubleshooting, personal access token management, repository creation and branch protection rules, configuration and usage of Codespaces, GitHub Copilot integration in IDEs, and REST API endpoints for repository and pull request management.
 
 ## Normalised Extract
 Table of Contents:
-1. Git and SSH Setup
-   - Command: ssh-keygen -t rsa -b 4096
-   - Add key to ssh-agent and GitHub account; verify with ssh -T git@github.com
-2. Repository Management
-   - Create, clone (git clone <url>), and restore repositories
-   - Use branch protection rules to enforce review and status checks
-3. Pull Requests and Merge Conflicts
-   - Create pull requests, amend commit messages, and resolve conflicts via command line
-4. Authentication and Security
-   - Use personal access tokens in place of passwords
-   - Configure two-factor authentication and recovery codes
-   - Setup GPG keys for commit signature verification
+1. Git and GitHub Integration
+   - Global Git configuration commands for username and email
+2. SSH Configuration and Troubleshooting
+   - Command: ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+   - Start agent with: eval $(ssh-agent -s) and add key with: ssh-add ~/.ssh/id_rsa
+   - Troubleshoot "Permission denied (publickey)" using ls ~/.ssh and ssh -T git@github.com
+3. Personal Access Tokens (PAT) Management
+   - Create tokens via GitHub settings, recommended scopes: repo, admin:org, workflow
+4. Repository Management and Best Practices
+   - Create repository either via GitHub UI or API (POST /user/repos), enforce branch protection, handle pull requests
+   - Sample command: git pull --rebase origin main
 5. Codespaces Configuration
-   - Create codespaces from a repository branch
-   - Configure custom dev container files for languages (Node.js, Python, Java, C#)
-   - Troubleshoot connection (e.g., port forwarding, prebuild logs)
+   - Enable Codespaces, use devcontainer.json with keys like "image", "settings", "extensions"
+   - Example devcontainer.json with Node image and ESLint extension
 6. GitHub Copilot Integration
-   - Install Copilot plugin via JetBrains Marketplace or VS Code
-   - Keyboard shortcuts: Option+[ and Option+] for macOS; Alt+[ and Alt+] for Windows/Linux
-   - Accept suggestions using Tab, or using commands for next word/line
-7. REST API and SDK Specifications
-   - API: GET /repos/{owner}/{repo}, POST /repos/{owner}/{repo}/issues with parameters (title, body, assignees, labels)
-   - SDK Signature Example: public String getCodeSuggestion(String context) throws CopilotException
-
-Each section provides exact command lines, configuration parameters, and step-by-step troubleshooting instructions exactly as specified.
+   - Install plugin in VS Code/JetBrains, use Tab to accept suggestions, shortcuts for alternative suggestions
+7. API and CLI Specifications
+   - REST API endpoints for repository details (GET /repos/{owner}/{repo}), repository creation (POST /user/repos), and pull request creation (POST /repos/{owner}/{repo}/pulls)
+   - SDK method examples for GitHub client usage
 
 ## Supplementary Details
-Agentic-lib configuration details from .github/agentic-lib.yml:
-- schedule: schedule-1
-- readOnlyFilepaths: mission: MISSION.md, contributing: CONTRIBUTING.md, formattingFile: .prettierrc, lintingFile: eslint.config.js
-- writeableFilepaths: docs: docs/, features: features/, library: library/, src: src/lib/, tests: tests/unit/, dependencies: package.json, readme: README.md, sources: SOURCES*.md
-- buildScript: npm run build
-- testScript: npm test
-- mainScript: npm run start
-
-Authentication and SSH details:
-- Use ssh-keygen to generate keys; verify with ssh -T git@github.com
-- Enable and verify two-factor authentication and GPG for commit signing
-
-Codespaces and Copilot:
-- For Codespaces, configure a custom dev container file with language-specific settings
-- For GitHub Copilot, ensure proper installation in IDEs and use provided shortcuts for inline code suggestions
-
-REST API details:
-- GET /repos/{owner}/{repo} returns JSON with repository id, name, full_name, owner, etc.
-- POST /repos/{owner}/{repo}/issues requires title (string), body (string), optional assignees (array of strings), and labels (array of strings) and returns issue details in JSON
+SSH Key Configuration:
+   Command: ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+   Saves to: ~/.ssh/id_rsa with optional passphrase
+   Start ssh-agent: eval $(ssh-agent -s)
+   Add key: ssh-add ~/.ssh/id_rsa
+PAT Setup:
+   Create tokens in GitHub Settings > Developer Settings > Personal access tokens
+   Recommended scopes: repo, admin:org, workflow
+Repository Creation:
+   API: POST /user/repos with JSON { "name": "RepoName", "description": "Desc", "private": false }
+Codespaces:
+   Dev container configuration (devcontainer.json) sample:
+   {"image": "node:14", "settings": {"terminal.integrated.shell.linux": "/bin/bash"}, "extensions": ["dbaeumer.vscode-eslint"]}
+GitHub Copilot Setup:
+   Install plugin from marketplace, authenticate with GitHub, use Tab or configured shortcuts to accept suggestions
+Troubleshooting SSH:
+   Check key existence with ls -al ~/.ssh, test connection with ssh -T git@github.com, examine error outputs for missing key or incorrect permissions
 
 ## Reference Details
 API Specifications:
-- GET /repos/{owner}/{repo}
-  Parameters: owner (string), repo (string)
-  Returns: JSON object with keys: id (number), name (string), full_name (string), owner (object)
-  Exceptions: 404 if repository not found
+GET /repos/{owner}/{repo}:
+   Method: GET
+   Parameters:
+      owner: string (GitHub username, e.g., "octocat")
+      repo: string (Repository name, e.g., "Hello-World")
+   Returns: 200 OK with JSON { id: int, name: string, full_name: string, private: boolean, owner: { login: string } }
 
-- POST /repos/{owner}/{repo}/issues
-  Parameters: owner (string), repo (string), title (string), body (string), assignees (string[] - optional), labels (string[] - optional)
-  Returns: JSON object with issue details
-  Method Signature Example in Java:
-    public Issue createIssue(String owner, String repo, String title, String body, List<String> assignees, List<String> labels) throws ApiException
+POST /user/repos:
+   Method: POST
+   Payload: { name: string, description: string, private: boolean }
+   Returns: 201 Created with full repository details
 
-GitHub Copilot SDK Example (Java):
-  public String getCodeSuggestion(String context) throws CopilotException {
-      // Implementation: send context to Copilot service and return suggestion
-      // Parameters: context - code context as string
-      // Returns: Suggested code snippet as string
-  }
+POST /repos/{owner}/{repo}/pulls:
+   Method: POST
+   Payload: { title: string, head: string, base: string }
+   Returns: JSON object with pull request information (id: number, state: string)
 
-Troubleshooting Procedures:
-1. SSH Connection Issues:
-   - Command: ssh -T git@github.com
-   - Expected Output: "Hi username! You've successfully authenticated, but GitHub does not provide shell access."
-   - If error: 'Permission denied (publickey)', ensure the public key is added to your GitHub account
-2. Codespaces Troubleshooting:
-   - Check logs via GitHub Codespaces dashboard
-   - Verify dev container configuration file syntax
-3. Copilot Issues:
-   - Ensure plugin installation from the official marketplace
-   - Use keyboard shortcuts to cycle suggestions and refer to command palette for error logs
+SDK Method Signatures (Hypothetical GitHub Client):
+   GitHubClient.getRepository(owner: string, repo: string): Repository
+   GitHubClient.createRepository(name: string, description: string, isPrivate: boolean): Repository
+   GitHubClient.createPullRequest(owner: string, repo: string, title: string, head: string, base: string): PullRequest
 
-Best Practices:
-- Use two-factor authentication and personal access tokens for secure operations
-- Regularly update branch protection rules and review SSH key fingerprints using: ssh-keygen -lf <keyfile>
-- In Codespaces, prebuild frequently used configurations to reduce setup time
-- Configure IDE keyboard shortcuts to optimize GitHub Copilot usage
+Code Example:
+   // Initialize GitHub client with authentication token
+   const client = new GitHubClient(authToken);
+   // Retrieve repository information
+   const repo = client.getRepository('octocat', 'Hello-World');
+   // Create a new repository
+   const newRepo = client.createRepository('NewRepo', 'Repository description', false);
+   // Create a pull request
+   const pr = client.createPullRequest('octocat', 'Hello-World', 'Feature Update', 'feature-branch', 'main');
 
 Configuration Options:
-- Agentic-lib YAML details as listed in supplementaryDetails section
-- GitHub API endpoint parameters and expected JSON structure provided above
+   SSH Configuration file (~/.ssh/config):
+      Host github.com
+         IdentityFile ~/.ssh/id_rsa
+         User git
+   PAT recommended scopes: repo, admin:org, workflow
+
+Troubleshooting Procedures:
+   - SSH Connection Test: ssh -T git@github.com
+   - List SSH keys: ls -al ~/.ssh
+   - API debug using curl: curl -H 'Authorization: token <YOUR_TOKEN>' https://api.github.com/repos/octocat/Hello-World
+
+Best Practices:
+   - Use two-factor authentication
+   - Rotate personal access tokens periodically
+   - Enforce branch protection via API calls
+   - Validate SSH keys with: ssh-keygen -lf ~/.ssh/id_rsa.pub
 
 ## Information Dense Extract
-GitHub Docs: SSH key generation (ssh-keygen -t rsa -b 4096), verify with ssh -T git@github.com; Repository management via git clone, branch protection rules; Pull request creation, merge conflict resolution steps; Authentication using personal access tokens, two-factor authentication, GPG commit signing; Codespaces creation with custom dev container configs for Node.js, Python, Java, C#; GitHub Copilot plugin installation and inline suggestion keyboard shortcuts (macOS Option+[ / Option+], Windows/Linux Alt+[ / Alt+]); API: GET /repos/{owner}/{repo} returns id, name, full_name, owner; POST /repos/{owner}/{repo}/issues accepts title, body, assignees, labels; SDK method: public String getCodeSuggestion(String context) throws CopilotException; Agentic-lib config: schedule: schedule-1, readOnlyFilepaths: mission: MISSION.md, contributing: CONTRIBUTING.md, formattingFile: .prettierrc, lintingFile: eslint.config.js; writeableFilepaths: docs/, features/, library/, src/lib/, tests/unit/, dependencies: package.json, readme: README.md, sources: SOURCES*.md; buildScript: npm run build, testScript: npm test, mainScript: npm run start; Troubleshooting: SSH key fingerprint check with ssh-keygen -lf, Codespaces logs, Copilot plugin diagnostic via command palette.
+GIT CONFIG: git config --global user.name/email; SSH: ssh-keygen -t rsa -b 4096, eval $(ssh-agent -s), ssh-add ~/.ssh/id_rsa, verify with ls and ssh -T git@github.com; PAT: Create in GitHub settings with scopes repo, admin:org, workflow; REPO API: POST /user/repos {name, description, private}, GET /repos/{owner}/{repo} returns {id, name, full_name, private}; PULL API: POST /repos/{owner}/{repo}/pulls {title, head, base}; SDK: GitHubClient.getRepository(string, string): Repository, createRepository(string, string, boolean): Repository, createPullRequest(string, string, string, string, string): PullRequest; CODESPACES: Enable via settings, use devcontainer.json with image, settings, extensions; COPILOT: Install plugin, accept suggestions with Tab, keyboard shortcuts for alternatives; TROUBLESHOOT: ssh -T git@github.com, curl API with token.
 
 ## Sanitised Extract
 Table of Contents:
-1. Git and SSH Setup
-   - Command: ssh-keygen -t rsa -b 4096
-   - Add key to ssh-agent and GitHub account; verify with ssh -T git@github.com
-2. Repository Management
-   - Create, clone (git clone <url>), and restore repositories
-   - Use branch protection rules to enforce review and status checks
-3. Pull Requests and Merge Conflicts
-   - Create pull requests, amend commit messages, and resolve conflicts via command line
-4. Authentication and Security
-   - Use personal access tokens in place of passwords
-   - Configure two-factor authentication and recovery codes
-   - Setup GPG keys for commit signature verification
+1. Git and GitHub Integration
+   - Global Git configuration commands for username and email
+2. SSH Configuration and Troubleshooting
+   - Command: ssh-keygen -t rsa -b 4096 -C 'your_email@example.com'
+   - Start agent with: eval $(ssh-agent -s) and add key with: ssh-add ~/.ssh/id_rsa
+   - Troubleshoot 'Permission denied (publickey)' using ls ~/.ssh and ssh -T git@github.com
+3. Personal Access Tokens (PAT) Management
+   - Create tokens via GitHub settings, recommended scopes: repo, admin:org, workflow
+4. Repository Management and Best Practices
+   - Create repository either via GitHub UI or API (POST /user/repos), enforce branch protection, handle pull requests
+   - Sample command: git pull --rebase origin main
 5. Codespaces Configuration
-   - Create codespaces from a repository branch
-   - Configure custom dev container files for languages (Node.js, Python, Java, C#)
-   - Troubleshoot connection (e.g., port forwarding, prebuild logs)
+   - Enable Codespaces, use devcontainer.json with keys like 'image', 'settings', 'extensions'
+   - Example devcontainer.json with Node image and ESLint extension
 6. GitHub Copilot Integration
-   - Install Copilot plugin via JetBrains Marketplace or VS Code
-   - Keyboard shortcuts: Option+[ and Option+] for macOS; Alt+[ and Alt+] for Windows/Linux
-   - Accept suggestions using Tab, or using commands for next word/line
-7. REST API and SDK Specifications
-   - API: GET /repos/{owner}/{repo}, POST /repos/{owner}/{repo}/issues with parameters (title, body, assignees, labels)
-   - SDK Signature Example: public String getCodeSuggestion(String context) throws CopilotException
-
-Each section provides exact command lines, configuration parameters, and step-by-step troubleshooting instructions exactly as specified.
+   - Install plugin in VS Code/JetBrains, use Tab to accept suggestions, shortcuts for alternative suggestions
+7. API and CLI Specifications
+   - REST API endpoints for repository details (GET /repos/{owner}/{repo}), repository creation (POST /user/repos), and pull request creation (POST /repos/{owner}/{repo}/pulls)
+   - SDK method examples for GitHub client usage
 
 ## Original Source
 GitHub Documentation
@@ -133,51 +129,98 @@ https://docs.github.com/en
 
 # GitHub Documentation
 
-Date Retrieved: 2023-10-06
+Retrieved Date: 2023-11-24
+Data Size: 544071 bytes
+Links Found: 12604
 
-## Connecting with SSH
-- To connect securely, generate a new SSH key using: ssh-keygen -t rsa -b 4096
-- Add the key to the ssh-agent and then to your GitHub account via the Git settings
-- Verify connectivity with: ssh -T git@github.com
+## Git and GitHub Overview
+Git is the core version control system used by GitHub. Configure Git by setting your global username and email:
 
-## Repository Management
-- Create a repository on GitHub, clone it locally using: git clone <repository-url>
-- Use branch protection rules to enforce review and status check requirements
-- Restore deleted repositories if necessary
+   git config --global user.name "Your Name"
+   git config --global user.email "you@example.com"
 
-## Pull Requests and Merge Conflicts
-- Create pull requests to propose changes and review via inline comments
-- Amend commit messages if corrections are needed and resolve merge conflicts using the command line
+## SSH Setup and Troubleshooting
+To securely connect to GitHub using SSH:
 
-## Authentication and Security
-- Generate and manage personal access tokens to use in place of passwords
-- Configure two-factor authentication with recovery codes
-- For commit signature verification, generate a new GPG key and add it via GitHub settings
+1. Generate a new SSH Key:
+   ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 
-## Codespaces
-- Create a codespace for a repository branch to develop in an isolated environment
-- Configure custom dev container configurations for different project types (Node.js, Python, Java, C#)
-- Troubleshoot connection, port forwarding, and prebuild issues with detailed logs
+2. Start the ssh-agent in the background:
+   eval $(ssh-agent -s)
+
+3. Add your SSH private key to the ssh-agent:
+   ssh-add ~/.ssh/id_rsa
+
+Common troubleshooting:
+- Error: Permission denied (publickey) 
+   Verify the key exists with ls -al ~/.ssh and test connection: ssh -T git@github.com
+
+## Personal Access Tokens (PAT)
+Generate and manage PATs in GitHub Settings > Developer Settings. Use tokens as a password substitute in CLI operations when HTTPS is used.
+
+Example scopes: repo, admin:org, workflow.
+
+## Repository Management and Best Practices
+- Create repositories via the GitHub UI or using the REST API (POST /user/repos).
+- Enforce branch protection rules to avoid unauthorized force pushes. Example command on command line:
+   git pull --rebase origin main
+- Use pull requests for code review and merging with required approvals.
+
+## Codespaces Configuration
+Codespaces provide a cloud development environment. Key steps:
+
+- Enable Codespaces in your organization or repository settings.
+- Configure a dev container (devcontainer.json) with properties:
+    {
+       "image": "node:14",
+       "settings": { "terminal.integrated.shell.linux": "/bin/bash" },
+       "extensions": ["dbaeumer.vscode-eslint"]
+    }
+- Use GitHub CLI to create and manage codespaces.
 
 ## GitHub Copilot Integration
-- Install the GitHub Copilot plugin from the JetBrains Marketplace or Visual Studio Code extensions
-- In JetBrains IDEs, after authentication, GitHub Copilot provides inline suggestions as you type
-- Use keyboard shortcuts (e.g., macOS Option+[ for previous, Option+] for next) to navigate suggestions
-- Accept suggestions via Tab or use commands to accept single words or lines
+For AI-assisted coding, install the Copilot plugin from your IDE marketplace. Key points include:
+- In Visual Studio Code or JetBrains IDEs, accept suggestions using the Tab key.
+- Use keyboard shortcuts to cycle through alternative suggestions (macOS: Option+[ / Option+], Windows/Linux: Alt+[ / Alt+]).
+- Customize Copilot settings via the plugin configuration.
 
-## API and SDK Specifications
-- REST API Endpoints: e.g., GET /repos/{owner}/{repo} returns repository details; POST /repos/{owner}/{repo}/issues creates an issue with parameters such as title (string), body (string), assignees (array), labels (array)
-- SDK method signature example for Copilot integration in Java: public String getCodeSuggestion(String context) throws CopilotException
-- Detailed troubleshooting commands include verifying SSH key fingerprints and using logs for Codespaces authentication issues
+## API and CLI Specifications
+### REST API Example: Get Repository Details
+Endpoint: GET /repos/{owner}/{repo}
+Parameters:
+   owner: string (e.g., "octocat")
+   repo: string (e.g., "Hello-World")
+Returns:
+   JSON with fields: id (int), name (string), full_name (string), private (boolean), owner (object with login string)
 
+### Creating a Repository via API
+Method: POST /user/repos
+Payload:
+   {
+     "name": "NewRepo",
+     "description": "Repository description",
+     "private": false
+   }
+Returns: 201 Created with repository details.
+
+### Creating a Pull Request
+Endpoint: POST /repos/{owner}/{repo}/pulls
+Payload Fields:
+   title: string
+   head: string (branch name with proposed changes)
+   base: string (target branch)
+Returns: JSON with pull request id and state.
+
+## Attribution
+Extracted from GitHub Docs at https://docs.github.com/en
 
 ## Attribution
 - Source: GitHub Documentation
 - URL: https://docs.github.com/en
 - License: License: Not specified
-- Crawl Date: 2025-04-25T21:33:40.468Z
-- Data Size: 689239 bytes
-- Links Found: 15069
+- Crawl Date: 2025-04-25T22:09:09.406Z
+- Data Size: 544071 bytes
+- Links Found: 12604
 
 ## Retrieved
 2025-04-25
