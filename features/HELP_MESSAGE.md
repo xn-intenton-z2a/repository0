@@ -1,19 +1,19 @@
 # Overview
-This feature enhances the CLI experience by providing a helpful usage message when the user runs the command without any arguments or with the keyword help. The help message will list the available commands and provide guidance on how to use the repository.
+This update refines the command-line help feature to not only provide a usage message when no arguments or the 'help' keyword is passed, but also to support additional commands such as 'version' and 'diagnostics'. The aim is to make the CLI more self-explanatory and in line with the repository mission of delivering handy Node.js CLI utilities.
 
-# Implementation Details
-The main source file (src/lib/main.js) will be updated to check if no arguments are provided or if the first argument is 'help'. In that case, it will output a clear usage message. Otherwise, it will continue with the existing behavior of logging the provided arguments.
-
-The following changes will be made:
-- In src/lib/main.js, update the main function to conditionally display the help message.
-- In tests/unit/main.test.js, add a test case to verify that running the CLI without arguments outputs the help message without error.
-- Update the README.md to include a section about the usage message and instructions for new users, ensuring that basic usage scenarios are documented.
+# Implementation
+- In src/lib/main.js, update the main function so that:
+  - When no arguments or 'help' is provided, a detailed usage message is printed covering available commands.
+  - When the argument 'version' is provided, the application reads the version field from package.json and outputs the current version.
+  - When 'diagnostics' is provided, the CLI outputs diagnostic information such as environment details (e.g., Node version) along with a brief status summary.
+- Modify the logic so that all recognized flags ('help', 'version', 'diagnostics', and an existing update trigger) are handled before falling back to the default argument log.
 
 # Tests
-The test file (tests/unit/main.test.js) will include an additional test to simulate calling the main function with no parameters and verifying that the help message is printed. This ensures that the functionality does not break during future updates.
+- Update tests/unit/main.test.js to include new test cases that simulate the CLI being called with no arguments, with 'help', with 'version', and with 'diagnostics'.
+- Verify that the help message is correctly printed, the version number matches the package.json value, and that diagnostics output is produced without errors.
 
-# Dependencies
-No additional dependencies are required for this feature as it utilizes existing libraries and Node.js features.
+# Documentation
+- Amend README.md to add a section documenting the enhanced CLI usage. This section should clearly describe the functions of the 'help', 'version', and 'diagnostics' commands and provide instructions for local testing as well as CI/CD invocation.
 
 # Impact
-By adding this feature, the repository becomes more user-friendly for new users and developers. This aligns with the mission of providing a clear and usable template for automated workflows and CLI utilities.
+- New and existing users will have immediate access to guidance on using the repository through the CLI. The added version and diagnostics options help ensure that users and automated workflows can quickly determine the status and configuration of the repository, promoting reliability and transparency.
