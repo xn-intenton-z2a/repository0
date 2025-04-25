@@ -33,8 +33,7 @@
     "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
     "minimatch": "^9.0.5",
-    "zod": "^3.24.2",
-    "inquirer": "^9.1.5"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
