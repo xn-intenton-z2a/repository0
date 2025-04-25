@@ -30,5 +30,10 @@ An authoritative resource covering Node.js runtime, APIs, and best practices for
 
 # CLI Tools & Best Practices Documentation
 ## https://oclif.io/docs/introduction
-This source consolidates advanced insights into building command-line interfaces in Node.js. Merged with supplementary insights from [Node.js CLI Best Practices](https://nodejs.dev/learn/command-line-interfaces), it covers CLI command structure, argument parsing, plugin architectures, and testing practices. It provides actionable guidelines for developing sophisticated CLI utilities, aligned with the repository’s unified CLI functionality (updated in 2023).
+This source consolidates advanced insights into building command-line interfaces in Node.js. Merged with supplementary insights from Node.js CLI Best Practices (https://nodejs.dev/learn/command-line-interfaces), it covers CLI command structure, argument parsing, plugin architectures, and testing practices. It provides actionable guidelines for developing sophisticated CLI utilities, aligned with the repository’s unified CLI functionality (updated in 2023).
 ## License: Oclif (MIT), Commander.js (MIT)
+
+# MDN ES Modules Guide
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+This source from MDN offers an in-depth guide to ECMAScript Modules, including syntax, best practices for import/export, and dynamic module loading in both browser and Node.js environments. It provides practical examples and technical specifications that are essential for modern, ESM-based application development. Regularly updated by MDN, it is a key reference for ensuring code compatibility and optimal module performance.
+## License: CC BY-SA 2.5
