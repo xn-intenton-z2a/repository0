@@ -9,7 +9,7 @@ run-name: "publish stats [${{ github.ref_name }}] [${{ github.event.head_commit.
 on:
   workflow_dispatch:
   schedule:
-    - cron: '55 */12 * *  *' # schedule-1
+    - cron: '55 */12 * * *' # schedule-1
     #- cron: '55 * * * *' # schedule-2
     #- cron: '55 * * * *' # schedule-3
     #- cron: '55 * * * *' # schedule-4
