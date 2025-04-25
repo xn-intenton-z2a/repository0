@@ -39,3 +39,22 @@ describe("Help Message", () => {
     spy.mockRestore();
   });
 });
+
+describe("CLI Utils Output (JSON)", () => {
+  test("should output JSON formatted list of CLI commands when '--cli-utils' is provided", () => {
+    const spy = vi.spyOn(console, "log");
+    main(["--cli-utils"]);
+    // Capture the JSON output
+    const jsonOutput = spy.mock.calls[0][0];
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonOutput);
+    } catch (e) {
+      parsed = null;
+    }
+    expect(parsed).not.toBeNull();
+    expect(parsed).toHaveProperty("--agentic");
+    expect(parsed).toHaveProperty("--cli-utils");
+    spy.mockRestore();
+  });
+});
