@@ -1,3 +1,5 @@
+docs/USAGE.md
+# docs/USAGE.md
 # CLI Usage Examples
 
 This document describes how to use the CLI provided by our repository. The primary command is executed through the Node.js CLI in the file `src/lib/main.js`.
