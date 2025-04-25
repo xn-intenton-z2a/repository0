@@ -1,2 +1,2 @@
 Does the combination source file, test file, README file and dependencies file show a solution
-with a reasonable likelihood of including a resolution to the following issue?
+with a reasonable likelihood of including a high-impact resolution to the following issue? Evaluate whether the solution delivers substantial user value, addresses core functionality needs, and directly enhances the product's primary purpose rather than implementing superficial improvements or excessive validation.
