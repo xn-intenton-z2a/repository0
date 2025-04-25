@@ -196,6 +196,7 @@ jobs:
   automerge:
     needs:
       - merge-check
+      - branch-to-issue
     if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
