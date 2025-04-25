@@ -183,8 +183,7 @@ jobs:
   branch-to-issue:
     needs:
       - merge-check
-      - automerge
-    if: needs.merge-check.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != ''
+    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
       issues: write
