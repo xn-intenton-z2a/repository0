@@ -19,7 +19,7 @@ When you run the CLI without any arguments, or with the `--help` flag, the appli
 - **--simulate-delay <ms>:** Delays command execution.
 - **--simulate-load <ms>:** Simulates CPU load.
 - **--apply-fix:** Applies fix and logs success, stops execution.
-- **--cli-utils:** Lists all CLI commands with descriptions.
+- **--cli-utils:** Outputs all CLI commands and their descriptions in a structured JSON format.
 
 ## How to Invoke
 
@@ -33,8 +33,18 @@ Or simply:
 
 Both methods will display the available commands, ensuring you always have an up-to-date overview of CLI options.
 
+To get the list in a JSON formatted output, run:
+
+    node src/lib/main.js --cli-utils
+
+This will output a structured JSON string of the commands which can be programmatically processed if required.
+
 ## Example
 
 To see the help message in action, run:
 
     node src/lib/main.js --help
+
+To see the JSON formatted command list, run:
+
+    node src/lib/main.js --cli-utils
