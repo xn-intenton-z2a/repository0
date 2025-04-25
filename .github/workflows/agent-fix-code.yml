@@ -60,7 +60,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.8'
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
@@ -266,6 +266,16 @@ jobs:
                   ref: `heads/${branch}`
                 });
                 core.info(`Deleted branch ${branch}.`);
+              }
+
+              // Remove the issueLabelsStartingWithApplyFix labels now that the branch has been deleted
+              for (const label of issueLabelsStartingWithApplyFix) {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNumber,
+                    name: label.name
+                  });
               }
 
               // Comment the issue
@@ -477,7 +487,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.8'
     with:
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
@@ -678,7 +688,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.8'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -689,7 +699,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.8'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -707,7 +717,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.8'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
