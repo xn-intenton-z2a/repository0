@@ -1,6 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
+import inquirer from "inquirer";
+
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -56,5 +58,17 @@ describe("CLI Utils Output (JSON)", () => {
     expect(parsed).toHaveProperty("--agentic");
     expect(parsed).toHaveProperty("--cli-utils");
     spy.mockRestore();
+  });
+});
+
+describe("Interactive Mode", () => {
+  test("should output confirmation message after selecting a command via interactive prompt", async () => {
+    const promptMock = vi.spyOn(inquirer, "prompt").mockResolvedValue({ selectedCommand: "--agentic" });
+    const spyLog = vi.spyOn(console, "log").mockImplementation(() => {});
+    await main(["--interactive"]);
+    expect(promptMock).toHaveBeenCalled();
+    expect(spyLog).toHaveBeenCalledWith(expect.stringContaining("You selected: --agentic"));
+    promptMock.mockRestore();
+    spyLog.mockRestore();
   });
 });
