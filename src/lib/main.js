@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 // src/lib/main.js
+// This CLI utility prints a dynamic help message when run with no args or with '--help' flag.
+// Usage example: node src/lib/main.js --help
 
 import { fileURLToPath } from "url";
 

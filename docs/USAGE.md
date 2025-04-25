@@ -32,3 +32,9 @@ Or simply:
     node src/lib/main.js
 
 Both methods will display the available commands, ensuring you always have an up-to-date overview of CLI options.
+
+## Example
+
+To see the help message in action, run:
+
+    node src/lib/main.js --help
