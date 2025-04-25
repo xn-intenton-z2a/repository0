@@ -117,11 +117,11 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.3.1'
     with:
-      buildScript: 'npm run build'
-      testScript: 'npm test'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
       branch: 'agentic-lib-update'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -142,7 +142,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.3.1'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'
@@ -165,7 +165,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.1'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -184,7 +184,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.1'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -195,7 +195,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -213,7 +213,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

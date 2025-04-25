@@ -38,7 +38,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.1'
     with:
       configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
     secrets:
@@ -65,17 +65,18 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@4.3.1'
     with:
       feature: ${{ inputs.feature }}
-      featuresDir: 'features/'
+      featuresPath: 'features/'
       featuresWipLimit: '${{ needs.agentic-lib.outputs.featuresWipLimit }}'
       srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
-      readmeFile: 'README.md'
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
+      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
+      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
+      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
+      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
@@ -88,7 +89,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -104,7 +105,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

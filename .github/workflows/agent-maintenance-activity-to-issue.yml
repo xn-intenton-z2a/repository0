@@ -33,7 +33,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.1'
     with:
       configPath: ${{ env.configPath || '.github/agentic-lib.yml' }}
     #outputs:
@@ -55,21 +55,22 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.3.1'
     with:
       promptHint: ${{ inputs.prompt || 'house choice' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
       srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
-      readmeFile: 'README.md'
-      missionFile: 'MISSION.md'
-      contributingFile: 'CONTRIBUTING.md'
-      dependenciesFile: 'package.json'
+      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
+      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
+      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
+      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
+      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
       libraryDir: 'library/'
-      buildScript: 'npm run build'
-      testScript: 'npm test'
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
       issueSelectionLabel: 'maintenance'
-      mainScript: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
     secrets:
@@ -82,7 +83,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.3.1'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
@@ -92,7 +93,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.1'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -108,7 +109,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
