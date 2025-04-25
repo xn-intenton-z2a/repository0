@@ -20,6 +20,7 @@ When you run the CLI without any arguments, or with the `--help` flag, the appli
 - **--simulate-load <ms>:** Simulates CPU load.
 - **--apply-fix:** Applies fix and logs success, stops execution.
 - **--cli-utils:** Outputs all CLI commands and their descriptions in a structured JSON format.
+- **--interactive:** Launches an interactive prompt where you can select a command from a list. Upon selection, the CLI confirms your choice.
 
 ## How to Invoke
 
@@ -39,12 +40,14 @@ To get the list in a JSON formatted output, run:
 
 This will output a structured JSON string of the commands which can be programmatically processed if required.
 
-## Example
+### Interactive Mode
 
-To see the help message in action, run:
+Interactive mode improves the user experience by letting you choose a command from a list. Run the CLI with the `--interactive` flag:
 
-    node src/lib/main.js --help
+    node src/lib/main.js --interactive
 
-To see the JSON formatted command list, run:
+You will be presented with a list of available commands. After making a selection, the CLI will display a confirmation message such as:
 
-    node src/lib/main.js --cli-utils
+    You selected: --agentic
+
+This feature is useful for quickly exploring the available commands without having to remember them.

@@ -4,6 +4,7 @@
 // Usage example: node src/lib/main.js --help
 
 import { fileURLToPath } from "url";
+import inquirer from "inquirer";
 
 // Define the commands object to be used in various outputs
 const commands = {
@@ -18,7 +19,8 @@ const commands = {
   "--simulate-delay <ms>": "Delays command execution.",
   "--simulate-load <ms>": "Simulates CPU load.",
   "--apply-fix": "Applies fix and logs success, stops execution.",
-  "--cli-utils": "Lists all CLI commands with descriptions in JSON format."
+  "--cli-utils": "Lists all CLI commands with descriptions in JSON format.",
+  "--interactive": "Launches an interactive prompt to select a command."
 };
 
 function printHelp() {
@@ -33,10 +35,25 @@ function printCliUtils() {
   console.log(JSON.stringify(commands, null, 2));
 }
 
-export function main(args) {
+export async function main(args) {
   // If no args or help flag is provided, display dynamic help message
   if (!args.length || args.includes("--help")) {
     printHelp();
+    return;
+  }
+
+  // If --interactive flag is provided, launch the interactive prompt
+  if (args.includes("--interactive")) {
+    const choices = Object.keys(commands);
+    const answer = await inquirer.prompt([
+      {
+        name: 'selectedCommand',
+        message: 'Select a command:',
+        type: 'list',
+        choices
+      }
+    ]);
+    console.log(`You selected: ${answer.selectedCommand}`);
     return;
   }
 
@@ -51,5 +68,8 @@ export function main(args) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  main(args);
+  main(args).catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
 }
