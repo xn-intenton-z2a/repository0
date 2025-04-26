@@ -13,7 +13,7 @@ fi
 echo "Workflow schedule: schedule-${schedule?}"
 ./scripts/activate-schedule.sh "${schedule?}"
 git add .github/agents/*
-git add .github/*
+git add .github/agentic-lib.yml
 git add .github/workflows/*
 git add scripts/*
 git add public/*
