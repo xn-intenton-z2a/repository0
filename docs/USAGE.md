@@ -30,7 +30,7 @@ This repository serves as a flexible template for new projects integrating autom
 
   ```json
   {
-    "nodeVersion": "vXX.XX.X",
+    "nodeVersion": "v<your_node_version>",
     "message": "Diagnostics info: all systems operational"
   }
   ```

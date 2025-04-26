@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check version, system diagnostics, and usage help, making it easy to test and extend CLI functionality.
+This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check the version, system diagnostics, and usage help, making it easy to test and extend CLI functionality.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -9,7 +9,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` along with a simple CLI tool. The CLI functionality is implemented in `src/lib/main.js` and provides the following commands:
 
 - **version**: Prints the current version (currently `2.1.0-0`).
-- **diagnostics**: Displays diagnostic information including the Node.js version and a system message.
+- **diagnostics**: Displays diagnostic information including the Node.js version and a system status message.
 - **help**: Shows a help message with usage instructions.
 
 For any unrecognized command or when no command is provided, the CLI defaults to displaying the help message.
@@ -47,7 +47,7 @@ You can interact with the CLI using the following commands:
   - Usage: `npm run diagnostics` or `node src/lib/main.js diagnostics`
   - Example Output:
     ```json
-    { "nodeVersion": "vXX.XX.X", "message": "Diagnostics info: all systems operational" }
+    { "nodeVersion": "v<your_node_version>", "message": "Diagnostics info: all systems operational" }
     ```
 
 - **help**
@@ -65,7 +65,7 @@ You can interact with the CLI using the following commands:
 
 ## Getting Started
 
-The repository is pre-configured with necessary workflows, scripts, and tests. To run the CLI locally, make sure to set the required secret if you are using the automated workflows:
+The repository is pre-configured with necessary workflows, scripts, and tests. To run the CLI locally, make sure you have Node.js (version 20 or later) installed and set any required secrets if using automated workflows:
 
 - `CHATGPT_API_SECRET_KEY` – A key for accessing account services via the OpenAI chat completions API (model `o3-mini`).
 
