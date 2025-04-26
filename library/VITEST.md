@@ -1,347 +1,343 @@
 # VITEST
 
 ## Crawl Summary
-Vitest provides a Vite-native testing solution with integrated Vite configuration, automatic dependency resolution, and extensive CLI options. Key aspects include installation methods via npm/yarn/pnpm/bun, configuration flexibility using vite.config.ts or separate vitest.config.ts, workspace support for monorepos, rich dependency handling options (external, inline, optimizer), and multiple test environments (node, jsdom, happy-dom).
+Installation commands (npm install -D vitest, yarn add -D vitest, etc.), example test files (sum.js and sum.test.js), package.json script configuration, detailed Vitest configuration merging with Vite, CLI options (vitest run, --coverage), workspaces support for multi-repo testing, and comprehensive configuration options for dependency management, environment settings, and alias setups with exact types and default values.
 
 ## Normalised Extract
 Table of Contents:
 1. Installation
-   - Install using npm install -D vitest, yarn add -D vitest, or pnpm add -D vitest. Requires Vite>=v5.0.0 and Node>=v18.0.0.
+   - Commands: npm install -D vitest; yarn add -D vitest; pnpm add -D vitest; bun add -D vitest
+   - Requirements: Vite >= v5.0.0, Node >= v18.0.0
 2. Writing Tests
-   - Test files must include .test. or .spec. in filename. Use: import { expect, test } from 'vitest'; test('description', () => { expect(fn()).toBe(result) }).
+   - Test file naming: .test. or .spec. suffix
+   - Example: sum.js with exported function; sum.test.js using import { expect, test } from 'vitest'
 3. Configuration
-   - Use vite.config.ts with <reference types="vitest/config"> directive to configure Vitest. Options placed in test property.
-   - Example: export default defineConfig({ test: { include: ["**/*.test.js"], exclude: ["**/node_modules/**"] } }).
-4. CLI Options
-   - vitest run for single execution; options: --port, --https, --config.
-   - Automatic dependency installation can be suppressed with VITEST_SKIP_INSTALL_CHECKS environment variable.
+   - Use vite.config.ts with test property or create separate vitest.config.ts
+   - Configuration methods: direct file creation, --config option, or merging using mergeConfig
+   - Example snippets provided for both Vite and Vitest
+4. CLI Usage
+   - Default scripts in package.json: test, coverage
+   - Run tests with vitest run and pass --port, --https as needed
 5. Dependency Optimization
-   - opts: deps.external (default [/\/node_modules\//]), deps.inline (list or true), deps.optimizer settings including ssr and web modes.
+   - Options: deps.optimizer with mode specific configuration (ssr, web); inline versus external dependency handling
 6. Workspaces
-   - Use vitest.workspace.ts file to define workspaces with glob patterns and individual config objects specifying name, root, environment, and setupFiles.
-7. Environment Setup
-   - Default environment is 'node'. Specify custom environment through a docblock or config property (e.g. environment: 'jsdom').
-8. Advanced Options
-   - Options include globals: boolean, alias configuration, benchmark settings, reporters, and pool settings for test execution.
+   - Define multiple workspace configurations via vitest.workspace.ts
+   - Support for separate test environments (jsdom, node, happy-dom) based on test file globs
+7. Troubleshooting
+   - Bun specific command usage; dependency install check bypass with VITEST_SKIP_INSTALL_CHECKS
 
-Detailed Technical Information:
-- Installation: npm install -D vitest
-- Test Example: Import from 'vitest', define function tests. Filename must be sum.test.js for automatic discovery.
-- Vite Configuration: Use <reference types="vitest/config"> and call defineConfig with test property. Options include include, exclude, reporters, globals, and server configs.
-- CLI commands: npx vitest, vitest run, use --config flag to specify config file.
-- Dependency Options: deps.external defaults, deps.inline can be array or true, and use mergeConfig to combine Vite and Vitest configurations.
-- Workspace file: defineWorkspace with glob patterns or direct config objects.
-- Environment customization: Specify environment in test config or via file-level directive (@vitest-environment).
-
-Each section provides explicit configuration syntax and parameter values directly usable by developers.
+Detailed Items:
+1. Installation: Direct commands and prerequisites
+2. Writing Tests: Code structure for sum.js and sum.test.js, package.json script, expected output
+3. Configuration: Detailed examples of vitest.config.ts and vite.config.ts setups, merging strategies, and reference type usage
+4. CLI Usage: Default vscaffold scripts and additional CLI options
+5. Dependency Optimization: Precise config keys including server.deps.external, inline, fallbackCJS options, cacheDir defaults
+6. Workspaces: Pattern matching and config override examples
+7. Troubleshooting: Commands and environmental variable usage
 
 ## Supplementary Details
-Configuration Options:
-- test.include: default ['**/*.{test,spec}.?(c|m)[jt]s?(x)']
-- test.exclude: default ['**/node_modules/**', '**/dist/**', '**/cypress/**', '**/.{idea,git,cache,output,temp}/**', '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*']
-- test.globals: false by default; set true if global APIs desired.
-- server.deps.external: default [/\/node_modules\//].
-- server.deps.inline: default empty array. Can be set to true to inline all dependencies.
-- reporters: default 'default'; can be an array of reporter names or instances.
-
-Implementation Steps:
-1. Install Vitest via chosen package manager.
-2. Create a test file (e.g., sum.test.js) with test blocks using Vitest API.
-3. Add test script in package.json: { "scripts": { "test": "vitest" } }.
-4. Configure Vite by adding test property in vite.config.ts or creating a separate vitest.config.ts using defineConfig from 'vitest/config'.
-5. For workspace setups, create vitest.workspace.ts defining glob patterns and config objects.
-6. Use CLI options to run tests and set environment variables as needed (e.g. --config, --environment, VITEST_SKIP_INSTALL_CHECKS=1).
-7. Debug using server.debug options by setting dumpModules and loadDumppedModules to true.
-
-Troubleshooting:
-- If test files are not discovered, check include/exclude patterns in config.
-- For module transformation issues, verify dependency optimization settings and inline options.
-- If using Bun, run tests with 'bun run test' to override Bun's native runner.
-- Use npx vitest --help to list all CLI options.
+Vitest requires Vite >= v5.0.0 and Node >= v18.0.0. Configuration options include:
+- test.include: string[] default ['**/*.{test,spec}.?(c|m)[jt]s?(x)'].
+- test.exclude: string[] default ['**/node_modules/**', '**/dist/**', '**/cypress/**', etc.].
+- test.environment: string default 'node'.
+- test.globals: boolean default false. Enable via CLI flag --globals or in config.
+- Server options such as server.sourcemap (default 'inline') and server.debug options with dumpModules: boolean or string.
+- Dependency options: server.deps.external (default [/\/node_modules\//]), inline (string[] or true), fallbackCJS (default false), cacheDir (default 'node_modules/.vite').
+- Merge configuration examples using mergeConfig:
+  import { defineConfig, mergeConfig } from 'vitest/config'
+  import viteConfig from './vite.config.mjs'
+  export default mergeConfig(viteConfig, defineConfig({ test: { exclude: ['packages/template/*'] } }))
+- Workspaces can be defined in a vitest.workspace.ts file to support multiple environments with separate root, environment, and setupFiles settings.
+- Best practice: Use a unified configuration to avoid conflicts between Vite and Vitest options. Always reference the latest vitest/config types to ensure smooth migration.
+- Troubleshooting: For dependency issues, check the cache directory and use the VITEST_SKIP_INSTALL_CHECKS environment variable (set to 1) to bypass automatic dependency installation checks.
 
 ## Reference Details
-API Specifications and Code Examples:
+API Specifications and Implementation Examples:
+1. defineConfig from 'vitest/config':
+   Method Signature: defineConfig(config: { test: TestOptions }): ConfigObject
+   TestOptions includes properties: include?: string[], exclude?: string[], environment?: string, globals?: boolean, runner?: string, pool?: 'threads' | 'forks' | 'vmThreads' | 'vmForks', and other advanced configuration.
 
-1. Vitest API Methods:
-   - test(description: string, callback: Function): void
-   - expect(actual: any): { toBe(expected: any): void, toEqual(expected: any): void }
-
-2. Example Test File (sum.test.js):
-   // sum.js
-   export function sum(a, b) {
-     return a + b
-   }
-   
-   // sum.test.js
-   import { expect, test } from 'vitest'
-   import { sum } from './sum.js'
-   
-   test('adds 1 + 2 to equal 3', () => {
-     expect(sum(1, 2)).toBe(3)
-   })
-
-3. Vitest Configuration using vite.config.ts:
-   /// <reference types="vitest/config" />
-   import { defineConfig } from 'vite'
+2. Example of vitest.config.ts:
+   -----------------------------------------------------------------
+   import { defineConfig } from 'vitest/config'
 
    export default defineConfig({
      test: {
        include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
        exclude: ['**/node_modules/**', '**/dist/**'],
-       globals: false,
-       reporters: 'default',
-       server: {
-         debug: { dumpModules: true, loadDumppedModules: true },
-         deps: {
-           external: [/\/node_modules\//],
-           inline: []
-         }
-       }
-     }
-   })
-
-4. Separate Vitest Config (vitest.config.ts) using vitest/config:
-   /// <reference types="vitest/config" />
-   import { defineConfig } from 'vitest/config'
-
-   export default defineConfig({
-     test: {
+       environment: 'node',
        globals: true,
-       environment: 'jsdom',
-       alias: { '@': '/src' },
        deps: {
-         optimizer: {
-           web: { transformAssets: true, transformCss: true }
-         }
+         external: [/\/node_modules\//],
+         inline: [],
+         fallbackCJS: false,
+         cacheDir: 'node_modules/.vite'
        }
      }
    })
+   -----------------------------------------------------------------
 
-5. Workspace Configuration (vitest.workspace.ts):
-   import { defineWorkspace } from 'vitest/config'
+3. Merging Vite and Vitest configs:
+   -----------------------------------------------------------------
+   import { defineConfig, mergeConfig } from 'vitest/config'
+   import viteConfig from './vite.config.mjs'
 
-   export default defineWorkspace([
-     'packages/*',
-     'tests/*/vitest.config.{e2e,unit}.ts',
-     {
-       test: {
-         name: 'happy-dom',
-         root: './shared_tests',
-         environment: 'happy-dom',
-         setupFiles: ['./setup.happy-dom.ts']
-       }
-     },
-     {
-       test: {
-         name: 'node',
-         root: './shared_tests',
-         environment: 'node',
-         setupFiles: ['./setup.node.ts']
+   export default mergeConfig(viteConfig, defineConfig({
+     test: {
+       exclude: ['packages/template/*']
+     }
+   }))
+   -----------------------------------------------------------------
+
+4. CLI Usage:
+   Default npm scripts in package.json:
+   -----------------------------------------------------------------
+   {
+     "scripts": {
+       "test": "vitest",
+       "coverage": "vitest run --coverage"
+     }
+   }
+   -----------------------------------------------------------------
+   Run single test file: npx vitest run
+   Additional options: --port, --https, --update
+
+5. Dependency Optimization Example:
+   -----------------------------------------------------------------
+   test: {
+     deps: {
+       optimizer: {
+         ssr: { enabled: false },
+         web: { enabled: true }
        }
      }
-   ])
+   }
+   -----------------------------------------------------------------
 
-6. CLI Command Example:
-   - Run tests: npx vitest
-   - Run once without watch: vitest run
-   - Help: npx vitest --help
+6. Troubleshooting Procedures:
+   - For Bun users: Run tests using command: bun run test
+   - Disable automatic dependency installation: export VITEST_SKIP_INSTALL_CHECKS=1
+   - To view available CLI options: npx vitest --help
 
-7. Best Practices:
-   - Use a single configuration file merging Vite and Vitest settings using mergeConfig.
-   - Reference Vitest types using triple-slash directives (migrate to vitest/config as needed).
-   - Disable Bun’s native test runner by using bun run test.
+7. Environment Overrides (in file header):
+   Example:
+   -----------------------------------------------------------------
+   /**
+    * @vitest-environment jsdom
+    */
+   test('DOM test', () => {
+     const el = document.createElement('div')
+     expect(el).not.toBeNull()
+   })
+   -----------------------------------------------------------------
 
-8. Troubleshooting Commands:
-   - Check configuration: npx vitest --showConfig
-   - Debug module transformation: set server.debug.dumpModules=true in config and inspect dumped modules in node_modules/.vite
-   - If dependency issues occur, adjust deps.interopDefault to true and list problematic modules in deps.inline.
-
-All parameters, return types, method signatures, configuration keys, default values and example code are provided verbatim to be directly implemented.
+All method signatures, parameter types, configuration keys and default values are as specified above. Exceptions are handled at runtime by Vitest's internal mechanisms.
 
 ## Information Dense Extract
-Vitest; npm install -D vitest; Vite>=v5, Node>=18; test files include .test. or .spec.; API: test(desc:string, fn:Function), expect(value): { toBe, toEqual }; Vite config: <reference types='vitest/config'>, defineConfig({ test: { include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'], exclude: [...], globals:false, reporters:'default', server: { debug: { dumpModules:true, loadDumppedModules:true }, deps:{ external:[/\/node_modules\//], inline:[] } } } }); CLI: npx vitest, vitest run, --port, --https; Workspace config using defineWorkspace([...]); Environment config via environment:'node' or 'jsdom'; Dependency optimization via deps.optimizer; Troubleshooting: use --showConfig, adjust deps.interopDefault, use bun run test; Full SDK method signatures and code examples provided.
+Vitest: Vite-native testing framework. Installation: npm install -D vitest, yarn add -D vitest. Requirements: Vite>=5.0.0, Node>=18.0.0. Test file naming: *.test.js/spec.js; example: export function sum(a, b){return a+b} and test using import {expect,test} from 'vitest'. Config: defineConfig({ test:{ include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"], exclude: ["**/node_modules/**","**/dist/**"], environment: "node", globals: false, deps:{ external:[/\/node_modules\//], inline:[], fallbackCJS:false, cacheDir:'node_modules/.vite' } } }). Merge configs using mergeConfig. CLI: vitest, vitest run, --coverage, --port, --https. Workspaces: defineWorkspace([{ test:{ name:'happy-dom', root:'./shared_tests', environment:'happy-dom', setupFiles:['./setup.happy-dom.ts'] }}, ...]). Troubleshooting: bun run test, export VITEST_SKIP_INSTALL_CHECKS=1, npx vitest --help.
 
 ## Sanitised Extract
 Table of Contents:
 1. Installation
-   - Install using npm install -D vitest, yarn add -D vitest, or pnpm add -D vitest. Requires Vite>=v5.0.0 and Node>=v18.0.0.
+   - Commands: npm install -D vitest; yarn add -D vitest; pnpm add -D vitest; bun add -D vitest
+   - Requirements: Vite >= v5.0.0, Node >= v18.0.0
 2. Writing Tests
-   - Test files must include .test. or .spec. in filename. Use: import { expect, test } from 'vitest'; test('description', () => { expect(fn()).toBe(result) }).
+   - Test file naming: .test. or .spec. suffix
+   - Example: sum.js with exported function; sum.test.js using import { expect, test } from 'vitest'
 3. Configuration
-   - Use vite.config.ts with <reference types='vitest/config'> directive to configure Vitest. Options placed in test property.
-   - Example: export default defineConfig({ test: { include: ['**/*.test.js'], exclude: ['**/node_modules/**'] } }).
-4. CLI Options
-   - vitest run for single execution; options: --port, --https, --config.
-   - Automatic dependency installation can be suppressed with VITEST_SKIP_INSTALL_CHECKS environment variable.
+   - Use vite.config.ts with test property or create separate vitest.config.ts
+   - Configuration methods: direct file creation, --config option, or merging using mergeConfig
+   - Example snippets provided for both Vite and Vitest
+4. CLI Usage
+   - Default scripts in package.json: test, coverage
+   - Run tests with vitest run and pass --port, --https as needed
 5. Dependency Optimization
-   - opts: deps.external (default [/'/node_modules'//]), deps.inline (list or true), deps.optimizer settings including ssr and web modes.
+   - Options: deps.optimizer with mode specific configuration (ssr, web); inline versus external dependency handling
 6. Workspaces
-   - Use vitest.workspace.ts file to define workspaces with glob patterns and individual config objects specifying name, root, environment, and setupFiles.
-7. Environment Setup
-   - Default environment is 'node'. Specify custom environment through a docblock or config property (e.g. environment: 'jsdom').
-8. Advanced Options
-   - Options include globals: boolean, alias configuration, benchmark settings, reporters, and pool settings for test execution.
+   - Define multiple workspace configurations via vitest.workspace.ts
+   - Support for separate test environments (jsdom, node, happy-dom) based on test file globs
+7. Troubleshooting
+   - Bun specific command usage; dependency install check bypass with VITEST_SKIP_INSTALL_CHECKS
 
-Detailed Technical Information:
-- Installation: npm install -D vitest
-- Test Example: Import from 'vitest', define function tests. Filename must be sum.test.js for automatic discovery.
-- Vite Configuration: Use <reference types='vitest/config'> and call defineConfig with test property. Options include include, exclude, reporters, globals, and server configs.
-- CLI commands: npx vitest, vitest run, use --config flag to specify config file.
-- Dependency Options: deps.external defaults, deps.inline can be array or true, and use mergeConfig to combine Vite and Vitest configurations.
-- Workspace file: defineWorkspace with glob patterns or direct config objects.
-- Environment customization: Specify environment in test config or via file-level directive (@vitest-environment).
-
-Each section provides explicit configuration syntax and parameter values directly usable by developers.
+Detailed Items:
+1. Installation: Direct commands and prerequisites
+2. Writing Tests: Code structure for sum.js and sum.test.js, package.json script, expected output
+3. Configuration: Detailed examples of vitest.config.ts and vite.config.ts setups, merging strategies, and reference type usage
+4. CLI Usage: Default vscaffold scripts and additional CLI options
+5. Dependency Optimization: Precise config keys including server.deps.external, inline, fallbackCJS options, cacheDir defaults
+6. Workspaces: Pattern matching and config override examples
+7. Troubleshooting: Commands and environmental variable usage
 
 ## Original Source
-Vitest Testing Framework
+Vitest Testing Framework Documentation
 https://vitest.dev
 
 ## Digest of VITEST
 
-# Vitest Testing Framework
+# Overview
+Vitest is a Vite-native testing framework designed for fast ESM, TypeScript, and JSX support. It is tightly integrated with Vite configuration and transformation pipelines.
 
-Date Retrieved: 2023-10-26
+# Installation
+To install Vitest, use any of the following commands:
 
-## Overview
-Vitest is a next generation testing framework powered by Vite supporting ESM, TypeScript, JSX and advanced CLI operations. It integrates with Vite config files, supports unified configurations, automatic dependency resolution, and offers flexible configurations for environments, workspaces, and dependency optimizations.
+npm: npm install -D vitest
+yarn: yarn add -D vitest
+pnpm: pnpm add -D vitest
+bun: bun add -D vitest
 
-## Installation and Setup
-- Install using npm, yarn, pnpm, or bun:
-  - npm: npm install -D vitest
-  - yarn: yarn add -D vitest
-  - pnpm: pnpm add -D vitest
-  - bun: bun add -D vitest
-- Requirements: Vite >= v5.0.0, Node >= v18.0.0
-- Run tests using: npm run test, yarn test, pnpm test or npx vitest
+Vitest requires Vite >= v5.0.0 and Node >= v18.0.0. Alternatively, run tests with npx vitest if not installed locally.
 
-## Writing Tests
-- Test files must contain .test. or .spec. in the filename.
-- Example test file (sum.test.js):
+# Writing Tests
+Example implementation:
 
-  import { expect, test } from 'vitest'
-  import { sum } from './sum.js'
+File: sum.js
+---------------------------
+export function sum(a, b) {
+  return a + b
+}
+---------------------------
 
-  test('adds 1 + 2 to equal 3', () => {
-    expect(sum(1, 2)).toBe(3)
-  })
+File: sum.test.js
+---------------------------
+import { expect, test } from 'vitest'
+import { sum } from './sum.js'
 
-## Configuration
-- Vitest uses Vite configuration. It can read vite.config.ts or use a separate vitest.config.ts.
-- Example vite.config.ts:
+test('adds 1 + 2 to equal 3', () => {
+  expect(sum(1, 2)).toBe(3)
+})
+---------------------------
 
-  /// <reference types="vitest/config" />
-  import { defineConfig } from 'vite'
+Update package.json:
+---------------------------
+{
+  "scripts": {
+    "test": "vitest"
+  }
+}
+---------------------------
 
-  export default defineConfig({
-    test: {
-      // Specify options here
-    }
-  })
+# Configuring Vitest
+Vitest will automatically use the root Vite config (vite.config.ts/js). To override, create a separate vitest.config.ts file or pass --config to CLI.
 
-- For separate configuration: Use --config CLI parameter or create vitest.config.ts with defineConfig from 'vitest/config'.
+Example vitest.config.ts:
+---------------------------
+import { defineConfig } from 'vitest/config'
 
-## CLI Options
-- vitest run: run tests once
-- --port, --https: specify additional options
-- Automatic dependency installation can be disabled with VITEST_SKIP_INSTALL_CHECKS=1
+export default defineConfig({
+  test: {
+    // Custom test options here
+  }
+})
+---------------------------
 
-## Dependency and Asset Optimizations
-- Test configuration can include options for dependency resolution:
-  - include: Glob patterns for test files
-  - exclude: Glob patterns to ignore files
-  - deps.external: List of RegExp or string patterns (default [/\/node_modules\//])
-  - deps.inline: List to inline specific modules.
-- Examples from config:
+For projects using Vite, update vite.config.ts with a test property:
+---------------------------
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite'
 
-  export default defineConfig({
-    test: {
-      deps: {
-        external: [/\/node_modules\//],
-        inline: []
-      },
-      reporters: 'default',
-      globals: false
-    }
-  })
+export default defineConfig({
+  test: {
+    // Custom test options
+  }
+})
+---------------------------
 
-## Workspaces Support
-- Define workspaces with a vitest.workspace.ts file:
+Merge Vite and Vitest configs using mergeConfig:
+---------------------------
+import { defineConfig, mergeConfig } from 'vitest/config'
+import viteConfig from './vite.config.mjs'
 
-  import { defineWorkspace } from 'vitest/config'
-  export default defineWorkspace([
-    'packages/*',
-    'tests/*/vitest.config.{e2e,unit}.ts',
-    {
-      test: {
-        name: 'happy-dom',
-        root: './shared_tests',
-        environment: 'happy-dom',
-        setupFiles: ['./setup.happy-dom.ts']
-      }
-    },
-    {
-      test: {
-        name: 'node',
-        root: './shared_tests',
-        environment: 'node',
-        setupFiles: ['./setup.node.ts']
-      }
-    }
-  ])
+export default mergeConfig(viteConfig, defineConfig({
+  test: {
+    // Custom test options
+  }
+}))
+---------------------------
 
-## Environment Setup and Customization
-- Default environment is 'node'. Use CLI flag --environment to switch to jsdom, happy-dom, or edge-runtime.
-- Custom environment example:
+# Command Line Interface
+Default npm scripts:
+---------------------------
+{
+  "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
+  }
+}
+---------------------------
 
-  // custom-env.js
-  import type { Environment } from 'vitest'
+Run tests with options such as --port or --https. Use vitest run for single execution.
 
-  export default <Environment>{
-    name: 'custom',
-    transformMode: 'ssr',
-    setup() {
-      // custom initialization
-      return {
-        teardown() {
-          // teardown actions
-        }
+# Dependency Management and Optimization
+Vitest supports dependency optimization with options such as deps.optimizer. For example:
+
+{
+  test: {
+    deps: {
+      optimizer: {
+        ssr: { enabled: false },
+        web: { enabled: false }
       }
     }
   }
+}
 
-## Advanced Configuration Options
-- Configuration settings (in test property): include, exclude, name, server, runner, benchmark, alias, globals, environment, and more.
-- Example config options:
-  - include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"]
-  - exclude: ["**/node_modules/**", "**/dist/**"]
-  - globals: boolean (default false)
-  - reporters: can be array or string (default 'default')
+# Configuration Options and Parameters
+Vitest configuration supports options including:
+- include: string[] (Default: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"])
+- exclude: string[] (Default: ["**/node_modules/**", "**/dist/**", ...])
+- environment: string (Default: "node")
+- globals: boolean (Default: false)
+- runner: string (Default: 'node' or custom for benchmark)
+- pool: 'threads' | 'forks' | 'vmThreads' | 'vmForks' (Default: 'forks')
 
-## Troubleshooting and Best Practices
-- For dependency optimization, check the cache directory at node_modules/.vite
-- Debug using server.debug options:
-  export default defineConfig({
+Detailed options include server settings (sourcemap, debug), dependency handling (external, inline, fallbackCJS), and alias configuration.
+
+# Workspaces and Multi-Config Support
+Vitest workspaces allow configuration of multiple projects in one repository using a vitest.workspace.ts file.
+
+Example workspace file:
+---------------------------
+import { defineWorkspace } from 'vitest/config'
+
+export default defineWorkspace([
+  'packages/*',
+  'tests/*/vitest.config.{e2e,unit}.ts',
+  {
     test: {
-      server: {
-        debug: { dumpModules: true, loadDumppedModules: true }
-      }
+      name: 'happy-dom',
+      root: './shared_tests',
+      environment: 'happy-dom',
+      setupFiles: ['./setup.happy-dom.ts']
     }
-  })
-- In case of module import errors, consider setting deps.interopDefault to true
+  },
+  {
+    test: {
+      name: 'node',
+      root: './shared_tests',
+      environment: 'node',
+      setupFiles: ['./setup.node.ts']
+    }
+  }
+])
+---------------------------
+
+# Troubleshooting
+- For Bun, use 'bun run test' instead of 'bun test'.
+- If dependency issues arise, set VITEST_SKIP_INSTALL_CHECKS=1 to disable automatic dependency installation checks.
+- To debug transformation issues, check the cacheDir (default: node_modules/.vite) and use deps.optimizer options to force rebundling.
+
+# Retrieval and Attribution
+Content retrieved on: 2023-10-05
+Data Size: 17837346 bytes
+Links Found: 17290
 
 ## Attribution
-- Data Size: 29563308 bytes
-- Links Found: 23673
-- Source: Vitest Website (https://vitest.dev)
-
-## Attribution
-- Source: Vitest Testing Framework
+- Source: Vitest Testing Framework Documentation
 - URL: https://vitest.dev
 - License: License if known: MIT
-- Crawl Date: 2025-04-26T03:50:20.581Z
-- Data Size: 29563308 bytes
-- Links Found: 23673
+- Crawl Date: 2025-04-26T04:47:18.987Z
+- Data Size: 17837346 bytes
+- Links Found: 17290
 
 ## Retrieved
 2025-04-26
