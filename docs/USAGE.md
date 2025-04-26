@@ -1,6 +1,6 @@
 # Repository Template CLI Usage
 
-This repository provides a basic CLI built with Node.js. The CLI now supports additional commands to improve user feedback and onboarding.
+This repository provides a basic CLI built with Node.js. The CLI now includes an enhanced help command to assist users in understanding the available commands.
 
 ## Commands
 
@@ -35,7 +35,26 @@ This repository provides a basic CLI built with Node.js. The CLI now supports ad
   }
   ```
 
-- **Unrecognized or No Command**: The CLI will output the received arguments.
+- **help**: Displays a help message with usage instructions and available commands.
+
+  **Example:**
+
+  ```bash
+  node src/lib/main.js help
+  ```
+
+  **Expected Output:**
+
+  ```
+  Available commands:
+    version      - Prints the version number.
+    diagnostics  - Prints diagnostics information.
+    help         - Displays this help message.
+
+  Usage: node src/lib/main.js [command]
+  ```
+
+- **Unrecognized Command or No Command**: If an unrecognized command is provided or no command is given, the CLI defaults to displaying the help message.
 
   **Example:**
 
@@ -46,7 +65,12 @@ This repository provides a basic CLI built with Node.js. The CLI now supports ad
   **Expected Output:**
 
   ```
-  Run with: []
+  Available commands:
+    version      - Prints the version number.
+    diagnostics  - Prints diagnostics information.
+    help         - Displays this help message.
+
+  Usage: node src/lib/main.js [command]
   ```
 
 ## Running the CLI
