@@ -6,6 +6,13 @@ import process from "process";
 
 const VERSION = "2.1.0-0";
 
+const helpMessage = `Available commands:
+  version      - Prints the version number.
+  diagnostics  - Prints diagnostics information.
+  help         - Displays this help message.
+
+Usage: node src/lib/main.js [command]`;
+
 export function main(args) {
   if (args.length > 0) {
     const command = args[0];
@@ -19,9 +26,17 @@ export function main(args) {
       };
       console.log(JSON.stringify(diagnostics));
       return;
+    } else if (command === "help") {
+      console.log(helpMessage);
+      return;
+    } else {
+      // For any unrecognized command, default to help message
+      console.log(helpMessage);
+      return;
     }
   }
-  console.log(`Run with: ${JSON.stringify(args)}`);
+  // If no arguments provided, display help message
+  console.log(helpMessage);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
