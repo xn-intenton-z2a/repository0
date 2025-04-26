@@ -25,15 +25,15 @@ This source offers comprehensive documentation on using Zod for runtime schema v
 
 # Node.js and npm Ecosystem Documentation
 ## https://nodejs.org/api/esm.html
-A combined resource covering key aspects of Node.js development and npm package management. It details ECMAScript Modules, core Node APIs, and provides actionable insights on package.json configuration, dependency resolution, and reproducible builds critical for modern development environments.
+A combined resource covering key aspects of Node.js development and npm package management. It details ECMAScript Modules, core Node APIs, and provides actionable insights on package configuration, dependency resolution, and reproducible builds critical for modern development environments.
 ## License if known: MIT / Mixed
 
-# Versioning & Commit Practices
+# Versioning, Commit Practices & Conventional Commits Guidelines
 ## https://semver.org
-This source explains the principles of Semantic Versioning and Conventional Commits, offering actionable guidelines to maintain consistent repository versioning and accurate commit messages. It is critical for automated deployment, CI/CD workflows, and ensuring transparent release practices.
+This source explains the principles of Semantic Versioning and offers actionable guidelines to maintain consistent repository versioning and accurate commit messages. It also integrates best practices from the Conventional Commits specification (see https://www.conventionalcommits.org/en/v1.0.0/) to ensure transparent release practices and effective version control strategies. This is critical for automated deployment and CI/CD workflows.
 ## License if known: Not specified
 
-# EJS Templating Documentation
-## https://ejs.co
-EJS provides in-depth documentation for integrating the EJS templating engine into Node.js projects. It offers detailed examples, syntax references, and best practices for dynamic HTML generation, making it a valuable resource for adding templating functionality to your repository. Updated regularly, this resource is known for its clarity and robustness.
+# npm-check-updates Documentation
+## https://www.npmjs.com/package/npm-check-updates
+This documentation provides detailed insights into using npm-check-updates for automating npm dependency upgrades. It includes command-line usage examples, configuration instructions, and integration guidelines that align with automated workflow strategies, ensuring that dependency management remains up-to-date and robust.
 ## License if known: MIT
