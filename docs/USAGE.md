@@ -35,7 +35,7 @@ This repository serves as a flexible template for new projects integrating autom
   }
   ```
 
-- **help**: Displays a help message with usage instructions and available commands. This is also returned for any unrecognized command or when no command is provided.
+- **help**: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or no command is provided.
 
   **Example:**
 
