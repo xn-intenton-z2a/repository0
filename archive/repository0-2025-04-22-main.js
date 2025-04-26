@@ -39,7 +39,7 @@ export function main(args) {
 
   let operation = "add";
   // Look for --op or -o flag and extract its value
-  const opIndex = args.findIndex(arg => arg === "--op" || arg === "-o");
+  const opIndex = args.findIndex((arg) => arg === "--op" || arg === "-o");
   if (opIndex !== -1) {
     if (args.length <= opIndex + 1) {
       console.error("Error: Operation flag provided without an operation.");
@@ -49,7 +49,7 @@ export function main(args) {
     operation = args[opIndex + 1];
     // Remove the flag and its value from args
     args.splice(opIndex, 2);
-    
+
     const validOps = new Set(["add", "sub", "mul", "*", "div"]);
     if (!validOps.has(operation)) {
       console.error(`Error: Invalid operation '${operation}'. Supported operations are add, sub, mul, div.`);

@@ -10,7 +10,7 @@ describe("Main Module Import", () => {
 
 describe("Help Option", () => {
   test("should display help message with --help and include --op flag", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["--help"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Usage/);
@@ -20,7 +20,7 @@ describe("Help Option", () => {
   });
 
   test("should display help message with help and include --op flag", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["help"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Usage/);
@@ -32,7 +32,7 @@ describe("Help Option", () => {
 
 describe("Feature Command", () => {
   test("should activate feature when '${featureName}' is provided", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["${featureName}"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Feature \${featureName} activated/);
@@ -42,7 +42,7 @@ describe("Feature Command", () => {
 
 describe("Argument Parsing and Operations", () => {
   test("should execute default addition with valid numeric arguments", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["3", "4"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Result: 7/);
@@ -50,7 +50,7 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should perform subtraction when --op sub is provided", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["8", "2", "--op", "sub"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Result: 6/);
@@ -58,7 +58,7 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should perform multiplication when --op mul is provided", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["8", "2", "--op", "mul"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Result: 16/);
@@ -66,7 +66,7 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should perform division when --op div is provided", () => {
-    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     main(["8", "2", "--op", "div"]);
     const output = spy.mock.calls.flat().join("\n");
     expect(output).toMatch(/Result: 4/);
@@ -74,8 +74,8 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should show error for division by zero with --op div", () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     main(["5", "0", "--op", "div"]);
     const errorOutput = errorSpy.mock.calls.flat().join("\n");
     expect(errorOutput).toMatch(/Division by zero is not allowed/);
@@ -84,8 +84,8 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should show error for invalid operation flag", () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     main(["5", "2", "--op", "invalid"]);
     const errorOutput = errorSpy.mock.calls.flat().join("\n");
     expect(errorOutput).toMatch(/Invalid operation 'invalid'/);
@@ -94,8 +94,8 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should show error for insufficient arguments", () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     main(["5"]);
     const errorOutput = errorSpy.mock.calls.flat().join("\n");
     const logOutput = logSpy.mock.calls.flat().join("\n");
@@ -106,8 +106,8 @@ describe("Argument Parsing and Operations", () => {
   });
 
   test("should show error for non-numeric arguments", () => {
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     main(["a", "2"]);
     const errorOutput = errorSpy.mock.calls.flat().join("\n");
     const logOutput = logSpy.mock.calls.flat().join("\n");

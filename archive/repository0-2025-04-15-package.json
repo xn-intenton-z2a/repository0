@@ -57,17 +57,8 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": [
-    "package.json"
-  ],
-  "eslintIgnore": [
-    "archive/**",
-    "exports/**",
-    "build/**",
-    "coverage/**",
-    "dist/**",
-    "node_modules/**"
-  ],
+  "files": ["package.json"],
+  "eslintIgnore": ["archive/**", "exports/**", "build/**", "coverage/**", "dist/**", "node_modules/**"],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

@@ -21,7 +21,7 @@ const commands = {
   "--simulate-load <ms>": "Simulates CPU load.",
   "--apply-fix": "Applies fix and logs success, stops execution.",
   "--cli-utils": "Lists all CLI commands with descriptions in JSON format.",
-  "--interactive": "Launches an interactive prompt to select a command."
+  "--interactive": "Launches an interactive prompt to select a command.",
 };
 
 function printHelp() {
@@ -77,11 +77,11 @@ export async function main(args) {
     const choices = Object.keys(commands);
     const answer = await inquirer.prompt([
       {
-        name: 'selectedCommand',
-        message: 'Select a command:',
-        type: 'list',
-        choices
-      }
+        name: "selectedCommand",
+        message: "Select a command:",
+        type: "list",
+        choices,
+      },
     ]);
     console.log(`You selected: ${answer.selectedCommand}`);
     return;
@@ -98,7 +98,7 @@ export async function main(args) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  main(args).catch(err => {
+  main(args).catch((err) => {
     console.error(err);
     process.exit(1);
   });
