@@ -4,7 +4,7 @@ This repository serves as a flexible template for new projects integrating autom
 
 ## Commands
 
-- **version**: Prints the repository version.
+- **version**: Prints the repository version (currently `2.1.0-0`).
 
   **Example:**
 
