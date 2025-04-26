@@ -1,5 +1,5 @@
 # Which agentic-lib workflow schedule should be used?
-schedule: schedule-3
+schedule: schedule-1
 
 # Mapping for read-only filepaths
 # These are used as defaults when invoking workflows

@@ -9,9 +9,9 @@ run-name: "agent linting to issue [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '30 6 */14 * *' # schedule-1
+    - cron: '30 6 */14 * *' # schedule-1
     #- cron: '30 6 */3 * *' # schedule-2
-    - cron: '30 6 * * *' # schedule-3
+    #- cron: '30 6 * * *' # schedule-3
     #- cron: '30 6 * * *' # schedule-4
 
 env:
