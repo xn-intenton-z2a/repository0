@@ -26,11 +26,8 @@ export function main(args) {
       };
       console.log(JSON.stringify(diagnostics));
       return;
-    } else if (command === "help") {
-      console.log(helpMessage);
-      return;
     } else {
-      // For any unrecognized command, default to help message
+      // For 'help' or any unrecognized command, display the help message
       console.log(helpMessage);
       return;
     }
