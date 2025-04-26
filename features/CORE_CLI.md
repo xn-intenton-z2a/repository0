@@ -1,28 +1,21 @@
-# CORE_CLI Feature Update
+# CORE CLI Feature Update
 
-This update enhances the CLI functionality by fully implementing the update command. In addition to the existing commands (version, diagnostics, help), the CLI now explicitly recognizes the update command.
+## Overview
+This update enhances the CLI functionality by fully integrating the update command alongside the existing commands: version, diagnostics, and help. The update command is designed to notify the user that no update is available, maintaining a consistent user experience with the rest of the CLI.
 
-# Implementation Overview
+## Implementation Details
+- In the source file (src/lib/main.js), add a new condition to check if the input command is update. When the command is update, the script will output "No update available" and exit immediately.
+- Preserve the existing command behaviors and default to the help message for unrecognized commands.
 
-The update command will be integrated into the main CLI executor in the source file. When a user invokes the update command, the CLI will output the text No update available and exit without performing any further operations.
+## Testing
+- In tests/unit/main.test.js, introduce a new test case that invokes the update command and verifies that the console output is exactly "No update available".
+- This test will mirror the testing approach for the version, diagnostics, and help commands to ensure consistent behavior.
 
-# Changes to Source File (src/lib/main.js)
+## Documentation
+- Update the CLI Commands section in README.md and docs/USAGE.md to include the update command. Document its usage (e.g., via npm script check-update or node src/lib/main.js update) and the expected output.
 
-- Add a new condition to check if the input command is update.
-- If the command is update, log No update available and exit immediately.
-- Maintain the existing functionality for version, diagnostics, help, and default cases.
+## Dependencies and Scripts
+- In package.json, ensure that the script check-update is mapped to "node src/lib/main.js update" so that users can conveniently invoke the update command.
+- No additional dependencies are required.
 
-# Updates to Test File (tests/unit/main.test.js)
-
-- Introduce a new test case that calls the main function with the update command.
-- Verify that the output is exactly No update available to ensure the new branch functions correctly.
-
-# Documentation and README Updates
-
-- Update the README.md CLI Commands section to document the new update command. It should describe the command, its usage (such as via npm run check-update or node src/lib/main.js update), and its expected output.
-
-# Dependencies and Scripts
-
-- Confirm that package.json includes the script check-update mapped to node src/lib/main.js update. No additional dependency changes are necessary.
-
-By implementing these changes, the CLI will provide clear feedback regarding updates and further reinforce the repository template's commitment to robust, automated workflows.
+This update meets the repository's goal of providing robust CLI functionality and aligns with the mission of delivering a reliable, automated coding system.
