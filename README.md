@@ -10,9 +10,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 - **version**: Prints the current version (currently `2.1.0-0`).
 - **diagnostics**: Displays diagnostic information including the Node.js version and a system status message.
-- **help**: Shows a help message with usage instructions.
-
-For any unrecognized command or when no command is provided, the CLI defaults to displaying the help message.
+- **help**: Shows a help message with usage instructions. This command is also the default when an unrecognized command is provided or no command is given.
 
 This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project. The CLI and its associated tests verify that each command behaves as expected.
 
@@ -51,7 +49,7 @@ You can interact with the CLI using the following commands:
     ```
 
 - **help**
-  - Description: Displays a help message with usage instructions and available commands. This is also used as the default display when an unrecognized command is entered or no command is provided.
+  - Description: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or no command is provided.
   - Usage: `npm run start` or `node src/lib/main.js help`
   - Example Output:
     ```
@@ -59,23 +57,41 @@ You can interact with the CLI using the following commands:
       version      - Prints the version number.
       diagnostics  - Prints diagnostics information.
       help         - Displays this help message.
-    
+
     Usage: node src/lib/main.js [command]
     ```
 
 ## Getting Started
 
-The repository is pre-configured with necessary workflows, scripts, and tests. To run the CLI locally, make sure you have Node.js (version 20 or later) installed and set any required secrets if using automated workflows:
+The repository is pre-configured with necessary workflows, scripts, and tests.
 
-- `CHATGPT_API_SECRET_KEY` – A key for accessing account services via the OpenAI chat completions API (model `o3-mini`).
+### Prerequisites
 
-Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
+- Node.js v20 or later
 
-Run the CLI with the following npm script:
+### Running the CLI Locally
 
-```bash
-npm run start
-```
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Run the CLI:
+
+   ```bash
+   npm run start
+   ```
+
+   Running without any command will display the help message.
+
+### Environment Variables
+
+If using automated workflows, set any required secrets such as:
+
+- `CHATGPT_API_SECRET_KEY` – Used for accessing account services via the OpenAI chat completions API.
+
+Set these in your repository settings under *Settings > Secrets and Variables > Actions*.
 
 ## intentïon `agentic‑lib`
 
