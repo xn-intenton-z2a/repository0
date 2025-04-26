@@ -11,9 +11,9 @@ on:
   repository_dispatch:
     types: [package-published]
   schedule:
-    - cron: '30 7 */28 * *' # schedule-1
+    #- cron: '30 7 */28 * *' # schedule-1
     #- cron: '30 7 */7 * *' # schedule-2
-    #- cron: '30 7 * * *' # schedule-3
+    - cron: '30 7 * * *' # schedule-3
     #- cron: '30 7 * * *' # schedule-4
 
   workflow_dispatch:
