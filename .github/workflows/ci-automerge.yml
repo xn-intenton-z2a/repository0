@@ -110,8 +110,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pullRequestLabel = process.env.pullRequestLabel;
-            let pullRequest;
-            let pullNumber;
+            let pullNumber = ''
+            let branchName = '';
+            let issueNumber = '';
             const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -123,19 +124,14 @@ jobs:
             if (pullRequests.length > 0) {
               const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === pullRequestLabel ));
               if (filteredPRs.length > 0) {
-                pullRequest = filteredPRs[0];
+                const pullRequest = filteredPRs[0];
+                pullNumber = pullRequest.number;
                 core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number}.`);
                 core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No open pull request found with label ${pullRequestLabel}.`);
-                pullRequest = null;
+                pullNumber = '';
               }
-            } else {
-              pullRequest = null;
-              core.info('No open pull requests found.');
-            }
-            if (pullRequests.length > 0) {
-              pullNumber = pullRequests[0].number;
             } else {
               pullNumber = '';
               core.info('No open pull requests found.');
@@ -154,8 +150,8 @@ jobs:
       - ls
     runs-on: ubuntu-latest
     steps:
-      - name: set-outputs
-        id: set-outputs
+      - name: get-pull
+        id: get-pull
         uses: actions/github-script@v7
         env:
           prMerged: ${{ needs.pr.outputs.prMerged || 'false' }}
@@ -165,38 +161,46 @@ jobs:
           script: |
             // Merge outputs from pr-check, cs-check, and determine-ls.
             // Only one of pr-check or cs-check should have run.
-            let prMerged = process.env.prMerged;
-            let pullNumber = process.env.pullNumber;
-            let shouldSkipMerge = process.env.shouldSkipMerge;
+            const prMerged = process.env.prMerged;
+            const pullNumber = process.env.pullNumber;
+            const branchPrefix = process.env.branchPrefix;
+            const shouldSkipMerge = process.env.shouldSkipMerge;
+            
             core.setOutput('prMerged', `${prMerged}`);
             core.setOutput('pullNumber', `${pullNumber}`);
             core.setOutput('shouldSkipMerge', `${shouldSkipMerge}`);
             core.info(`prMerged: '${prMerged}'`);
             core.info(`pullNumber: '${pullNumber}'`);
             core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
+            core.info(`branchPrefix '${branchPrefix}'`);
+            
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+            const branchName = pullRequest.head.ref;
+            core.info(`branchName '${branchName}'`);
+            const issueNumberMatch = branchName.match(/${branchPrefix}(\d+)/);
+            let issueNumber;
+            if (issueNumberMatch) {
+              issueNumber = issueNumberMatch[1];
+            } else {
+              issueNumber = '';
+            }
+            core.setOutput('issueNumber', issueNumber);
+            core.info(`issueNumber '${issueNumber}'`);
           result-encoding: string
     outputs:
-      prMerged: ${{ steps.set-outputs.outputs.prMerged }}
-      pullNumber: ${{ steps.set-outputs.outputs.pullNumber }}
-      shouldSkipMerge: ${{ steps.set-outputs.outputs.shouldSkipMerge }}
-
-  branch-to-issue:
-    needs:
-      - merge-check
-    if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-branch-to-issue.yml@4.3.9'
-    with:
-      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
-      branchPrefix: 'agentic-lib-issue-'
+      prMerged: ${{ steps.get-pull.outputs.prMerged }}
+      pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.get-pull.outputs.shouldSkipMerge }}
+      branchName: ${{ steps.get-pull.outputs.branchName }}
+      issueNumber: ${{ steps.get-pull.outputs.issueNumber }}
 
   automerge:
     needs:
       - merge-check
-      - branch-to-issue
     if: always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != ''
     permissions:
       contents: write
@@ -210,7 +214,6 @@ jobs:
     needs:
       - merge-check
       - automerge
-      - branch-to-issue
     if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' )
     permissions:
       contents: write
@@ -219,7 +222,7 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@4.3.9'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
-      issueNumber: '${{ needs.branch-to-issue.outputs.issueNumber }}'
+      issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
       branchPrefix: 'agentic-lib-issue-'
 
   select-issue:
