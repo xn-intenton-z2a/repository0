@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check the version, display system diagnostics, and show usage help, making it easy to test and extend CLI functionality.
+This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI tool built with Node.js. It provides fundamental commands to check the version, display system diagnostics, and show usage help, making it easy to test and extend CLI functionality.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
