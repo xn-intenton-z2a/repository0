@@ -30,7 +30,7 @@ Zod
 
 
 
-Featured sponsor: Fern
+Featured sponsor: Stainless
 
   
     
@@ -2295,7 +2295,7 @@ View the changelog at CHANGELOG.md\n\ncolinhacks
     
               
         Issues
-          581
+          582
 
 
     
@@ -2528,7 +2528,7 @@ Additional navigation options
 
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History2,144 Commits.devcontainer.devcontainer  .github/workflows.github/workflows  .husky.husky  .vscode.vscode  blogblog  configsconfigs  deno/libdeno/lib  packages/docspackages/docs  srcsrc  staticstatic  .dependency-cruiser.js.dependency-cruiser.js  .editorconfig.editorconfig  .eslintignore.eslintignore  .eslintrc.js.eslintrc.js  .gitignore.gitignore  .nojekyll.nojekyll  .prettierrc.yaml.prettierrc.yaml  CHANGELOG.mdCHANGELOG.md  CODE_OF_CONDUCT.mdCODE_OF_CONDUCT.md  CONTRIBUTING.mdCONTRIBUTING.md  ERROR_HANDLING.mdERROR_HANDLING.md  FUNDING.jsonFUNDING.json  FUNDING.ymlFUNDING.yml  LICENSELICENSE  MIGRATION.mdMIGRATION.md  README.mdREADME.md  README_KO.mdREADME_KO.md  README_ZH.mdREADME_ZH.md  _redirects_redirects  deno-build.mjsdeno-build.mjs  index.d.tsindex.d.ts  index.htmlindex.html  jest.config.jsonjest.config.json  logo.svglogo.svg  package.jsonpackage.json  playground.tsplayground.ts  robots.txtrobots.txt  tea.yamltea.yaml  tsconfig.jsontsconfig.json  yarn.lockyarn.lock  View all filesRepository files navigationREADMECode of conductMIT license
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History2,146 Commits.devcontainer.devcontainer  .github/workflows.github/workflows  .husky.husky  .vscode.vscode  blogblog  configsconfigs  deno/libdeno/lib  packages/docspackages/docs  srcsrc  staticstatic  .dependency-cruiser.js.dependency-cruiser.js  .editorconfig.editorconfig  .eslintignore.eslintignore  .eslintrc.js.eslintrc.js  .gitignore.gitignore  .nojekyll.nojekyll  .prettierrc.yaml.prettierrc.yaml  CHANGELOG.mdCHANGELOG.md  CODE_OF_CONDUCT.mdCODE_OF_CONDUCT.md  CONTRIBUTING.mdCONTRIBUTING.md  ERROR_HANDLING.mdERROR_HANDLING.md  FUNDING.jsonFUNDING.json  FUNDING.ymlFUNDING.yml  LICENSELICENSE  MIGRATION.mdMIGRATION.md  README.mdREADME.md  README_KO.mdREADME_KO.md  README_ZH.mdREADME_ZH.md  _redirects_redirects  deno-build.mjsdeno-build.mjs  index.d.tsindex.d.ts  index.htmlindex.html  jest.config.jsonjest.config.json  logo.svglogo.svg  package.jsonpackage.json  playground.tsplayground.ts  robots.txtrobots.txt  tea.yamltea.yaml  tsconfig.jsontsconfig.json  yarn.lockyarn.lock  View all filesRepository files navigationREADMECode of conductMIT license
   
   Zod
   
@@ -2562,7 +2562,7 @@ Additional navigation options
 
 
 
-Featured sponsor: Fern
+Featured sponsor: Stainless
 
   
     
@@ -4897,7 +4897,7 @@ Sponsor this project
           
     
       
-        + 2,154,656
+        + 2,150,124
       
   
 
@@ -5056,7 +5056,7 @@ Sponsor this project
 
 
 
-Featured sponsor: Fern
+Featured sponsor: Stainless
 
   
     
@@ -7321,7 +7321,7 @@ View the changelog at CHANGELOG.md\n\ncolinhacks
     
               
         Issues
-          581
+          582
 
 
     
@@ -7554,7 +7554,7 @@ Additional navigation options
 
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History2,144 Commits.devcontainer.devcontainer  .github/workflows.github/workflows  .husky.husky  .vscode.vscode  blogblog  configsconfigs  deno/libdeno/lib  packages/docspackages/docs  srcsrc  staticstatic  .dependency-cruiser.js.dependency-cruiser.js  .editorconfig.editorconfig  .eslintignore.eslintignore  .eslintrc.js.eslintrc.js  .gitignore.gitignore  .nojekyll.nojekyll  .prettierrc.yaml.prettierrc.yaml  CHANGELOG.mdCHANGELOG.md  CODE_OF_CONDUCT.mdCODE_OF_CONDUCT.md  CONTRIBUTING.mdCONTRIBUTING.md  ERROR_HANDLING.mdERROR_HANDLING.md  FUNDING.jsonFUNDING.json  FUNDING.ymlFUNDING.yml  LICENSELICENSE  MIGRATION.mdMIGRATION.md  README.mdREADME.md  README_KO.mdREADME_KO.md  README_ZH.mdREADME_ZH.md  _redirects_redirects  deno-build.mjsdeno-build.mjs  index.d.tsindex.d.ts  index.htmlindex.html  jest.config.jsonjest.config.json  logo.svglogo.svg  package.jsonpackage.json  playground.tsplayground.ts  robots.txtrobots.txt  tea.yamltea.yaml  tsconfig.jsontsconfig.json  yarn.lockyarn.lock  View all filesRepository files navigationREADMECode of conductMIT license
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History2,146 Commits.devcontainer.devcontainer  .github/workflows.github/workflows  .husky.husky  .vscode.vscode  blogblog  configsconfigs  deno/libdeno/lib  packages/docspackages/docs  srcsrc  staticstatic  .dependency-cruiser.js.dependency-cruiser.js  .editorconfig.editorconfig  .eslintignore.eslintignore  .eslintrc.js.eslintrc.js  .gitignore.gitignore  .nojekyll.nojekyll  .prettierrc.yaml.prettierrc.yaml  CHANGELOG.mdCHANGELOG.md  CODE_OF_CONDUCT.mdCODE_OF_CONDUCT.md  CONTRIBUTING.mdCONTRIBUTING.md  ERROR_HANDLING.mdERROR_HANDLING.md  FUNDING.jsonFUNDING.json  FUNDING.ymlFUNDING.yml  LICENSELICENSE  MIGRATION.mdMIGRATION.md  README.mdREADME.md  README_KO.mdREADME_KO.md  README_ZH.mdREADME_ZH.md  _redirects_redirects  deno-build.mjsdeno-build.mjs  index.d.tsindex.d.ts  index.htmlindex.html  jest.config.jsonjest.config.json  logo.svglogo.svg  package.jsonpackage.json  playground.tsplayground.ts  robots.txtrobots.txt  tea.yamltea.yaml  tsconfig.jsontsconfig.json  yarn.lockyarn.lock  View all filesRepository files navigationREADMECode of conductMIT license
   
   Zod
   
@@ -7588,7 +7588,7 @@ Additional navigation options
 
 
 
-Featured sponsor: Fern
+Featured sponsor: Stainless
 
   
     
@@ -9923,7 +9923,7 @@ Sponsor this project
           
     
       
-        + 2,154,656
+        + 2,150,124
       
   
 
@@ -13354,7 +13354,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Wealthsimple's customer story
+    Read more about HOVER's customer story
     
       
         
@@ -13365,8 +13365,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Wealthsimple
-    Wealthsimple mitigates developer toil with GitHub Actions.
+     HOVER
+    HOVER keeps developers in the flow with GitHub’s integrated development platform.
     
       Read story 
 
@@ -13376,7 +13376,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Etsy's customer story
+    Read more about ZibaSec's customer story
     
       
         
@@ -13387,8 +13387,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Etsy
-    Etsy migrated to the cloud to focus their craft on customers, not infrastructure.
+     ZibaSec
+    ZibaSec achieves great feats with a small team to protect federal organizations from phishing attacks.
     
       Read story 
 
@@ -13398,7 +13398,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about C.H. Robinson's customer story
+    Read more about Deutsche Vermögensberatung's customer story
     
       
         
@@ -13409,8 +13409,9 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     C.H. Robinson
-    C.H. Robinson builds DevOps success that grows with their team.
+     Deutsche Vermögensberatung
+    DVAG puts customers first by optimizing developer efficiency on GitHub Enterprise.
+
     
       Read story 
 
@@ -13420,7 +13421,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about EY's customer story
+    Read more about 3M's customer story
     
       
         
@@ -13431,8 +13432,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     EY
-    EY combines GitHub and Microsoft Azure DevOps to keep developers on the cutting edge.
+     3M
+    3M transforms its software toolchain to bring cutting-edge science to customers, faster.
     
       Read story 
 
@@ -13442,7 +13443,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Itaú 's customer story
+    Read more about Opn's customer story
     
       
         
@@ -13453,8 +13454,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Itaú 
-    Itaú delivers software faster with GitHub Enterprise.
+     Opn
+    Opn keeps payments secure and automates workflows with GitHub.
     
       Read story 
 
@@ -13464,7 +13465,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Plaid's customer story
+    Read more about Caregility's customer story
     
       
         
@@ -13475,8 +13476,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Plaid
-    Plaid’s Developer Efficiency team speeds up workflows with developer happiness—and GitHub—at the heart of their operation.
+     Caregility
+    GitHub Advanced Security helps Caregility safeguard its platform for patients and clinicians.
     
       Read story 
 
@@ -14153,7 +14154,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
   
     
   
-    Read more about Buffer's customer story
+    Read more about Trustpilot's customer story
     
       
         
@@ -14164,8 +14165,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Buffer
-    Buffer goes from siloed to synced for better production releases.
+     Trustpilot
+    Global review platform Trustpilot uses GitHub Team to build a better product, faster, with 300 releases per week.
     
       Read story 
 
@@ -14175,7 +14176,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Cesium's customer story
+    Read more about Tray.io's customer story
     
       
         
@@ -14186,8 +14187,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Cesium
-    Cesium leverages an open source community to support the development of 3D geospatial applications.
+     Tray.io
+    GitHub Team helps the general automation platform build, package, and deploy code faster than ever.
     
       Read story 
 
@@ -14197,7 +14198,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Front's customer story
+    Read more about Sketch's customer story
     
       
         
@@ -14208,8 +14209,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Front
-    Front takes the work out of their workflows with GitHub Team.
+     Sketch
+    Sketch streamlines their workflows to provide teams with a comprehensive digital design editor.
     
       Read story 
 
@@ -14219,7 +14220,7 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
     
   
-    Read more about Knock's customer story
+    Read more about Peak Money's customer story
     
       
         
@@ -14230,30 +14231,8 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
 
       
     
-     Knock
-    Knock pivots to new products, with the help of GitHub’s fast, flexible developer workflows.
-    
-      Read story 
-
-    
-  
-
-
-    
-  
-    Read more about Modsy's customer story
-    
-      
-        
-  
-  
-  
-  
-
-      
-    
-     Modsy
-    Modsy leverages GitHub Team to make interior design easy and accessible for all.
+     Peak Money
+    Peak Money collaborates across tools, teams, and time zones with GitHub Team.
     
       Read story 
 
@@ -14276,6 +14255,28 @@ Learn moreModernizing COBOL with GitHub CopilotEbookExplore how GitHub Copilot c
     
      Netdata
     Netdata accelerates their developer workflow with built-in security and open source.
+    
+      Read story 
+
+    
+  
+
+
+    
+  
+    Read more about Modsy's customer story
+    
+      
+        
+  
+  
+  
+  
+
+      
+    
+     Modsy
+    Modsy leverages GitHub Team to make interior design easy and accessible for all.
     
       Read story 
 
@@ -15723,9 +15724,9 @@ The ReadME Project
     
         
       
-        Storybook
+        The Julia Language
       
-      Storybook is a UI development environment for your UI components.
+      Julia is a high-level, high-performance dynamic programming language for numerical computing.
     
   
 
@@ -15739,9 +15740,9 @@ The ReadME Project
     
         
       
-        SpaceVim
+        Perl
       
-      SpaceVim is a community-driven distribution of the vim editor that allows managing your plugins in layers.
+      Perl is a highly capable and feature-rich programming language.
     
   
 
@@ -16339,17 +16340,12 @@ The ReadME Project
       
           
             
-  nodejs
+  react
 
           
           
             
   javascript
-
-          
-          
-            
-  css
 
           
           
@@ -16364,12 +16360,22 @@ The ReadME Project
           
           
             
-  html
+  git
 
           
           
             
-  ai
+  django
+
+          
+          
+            
+  typescript
+
+          
+          
+            
+  freecodecamp-project
 
           
           
@@ -16379,12 +16385,7 @@ The ReadME Project
           
           
             
-  flash-usdt-currency
-
-          
-          
-            
-  flash-bitcoin-sales\n\n\n\nStar
+  llm\n\n\n\nStar
 
 
   
@@ -16409,9 +16410,9 @@ The ReadME Project
 
 
       
-        5,688
+        5,946
       
-        629
+        663
       
         Built by
 
@@ -16453,7 +16454,7 @@ The ReadME Project
 
 
       
-        5,184
+        5,224
       
         347
       
@@ -16495,9 +16496,9 @@ The ReadME Project
   
 
       
-        3,515
+        3,651
       
-        430
+        442
       
         Built by
 
@@ -16537,9 +16538,9 @@ The ReadME Project
   
 
       
-        31,796
+        31,888
       
-        2,267
+        2,272
       
         Built by
 
@@ -16592,9 +16593,9 @@ The ReadME Project
 
 
       
-        74,604
+        74,659
       
-        16,645
+        16,656
       
         Built by
 
@@ -16639,9 +16640,9 @@ The ReadME Project
 
 
       
-        79,869
+        79,935
       
-        41,295
+        41,309
       
         Built by
 
@@ -16686,7 +16687,7 @@ The ReadME Project
 
 
       
-        18,164
+        18,182
       
         1,365
       
@@ -16741,9 +16742,9 @@ The ReadME Project
 
 
       
-        965
+        1,049
       
-        50
+        53
       
         Built by
 
@@ -16788,9 +16789,9 @@ The ReadME Project
 
 
       
-        5,032
+        5,181
       
-        378
+        388
       
         Built by
 
@@ -16835,9 +16836,9 @@ The ReadME Project
 
 
       
-        25,694
+        25,743
       
-        2,509
+        2,510
       
         Built by
 
@@ -16882,9 +16883,9 @@ The ReadME Project
 
 
       
-        28,232
+        28,274
       
-        1,989
+        1,991
       
         Built by
 
@@ -16929,7 +16930,7 @@ The ReadME Project
 
 
       
-        9,149
+        9,165
       
         426
       
@@ -16984,7 +16985,7 @@ The ReadME Project
 
 
       
-        29,314
+        29,376
       
         1,637
       
@@ -17031,7 +17032,7 @@ The ReadME Project
 
 
       
-        10,509
+        10,546
       
         540
       
@@ -17078,9 +17079,9 @@ The ReadME Project
 
 
       
-        21,413
+        21,459
       
-        2,718
+        2,720
       
         Built by
 
@@ -17125,9 +17126,9 @@ The ReadME Project
 
 
       
-        56,627
+        56,679
       
-        4,744
+        4,748
       
         Built by
 
@@ -17172,9 +17173,9 @@ The ReadME Project
 
 
       
-        75,069
+        75,114
       
-        12,205
+        12,206
       
         Built by
 
@@ -19276,9 +19277,9 @@ The ReadME Project
 
 
       
-        5,688
+        5,946
       
-        629
+        663
       
         Built by
 
@@ -19322,7 +19323,7 @@ The ReadME Project
 
 
       
-        5,184
+        5,224
       
         347
       
@@ -19366,9 +19367,9 @@ The ReadME Project
   
 
       
-        3,515
+        3,651
       
-        430
+        442
       
         Built by
 
@@ -19410,9 +19411,9 @@ The ReadME Project
   
 
       
-        31,796
+        31,888
       
-        2,267
+        2,272
       
         Built by
 
@@ -19467,9 +19468,9 @@ The ReadME Project
 
 
       
-        74,604
+        74,659
       
-        16,645
+        16,656
       
         Built by
 
@@ -19516,9 +19517,9 @@ The ReadME Project
 
 
       
-        79,869
+        79,935
       
-        41,295
+        41,309
       
         Built by
 
@@ -19565,7 +19566,7 @@ The ReadME Project
 
 
       
-        18,164
+        18,182
       
         1,365
       
@@ -19622,9 +19623,9 @@ The ReadME Project
 
 
       
-        965
+        1,049
       
-        50
+        53
       
         Built by
 
@@ -19671,9 +19672,9 @@ The ReadME Project
 
 
       
-        5,032
+        5,181
       
-        378
+        388
       
         Built by
 
@@ -19720,9 +19721,9 @@ The ReadME Project
 
 
       
-        25,694
+        25,743
       
-        2,509
+        2,510
       
         Built by
 
@@ -19769,9 +19770,9 @@ The ReadME Project
 
 
       
-        28,232
+        28,274
       
-        1,989
+        1,991
       
         Built by
 
@@ -19818,7 +19819,7 @@ The ReadME Project
 
 
       
-        9,149
+        9,165
       
         426
       
@@ -19875,7 +19876,7 @@ The ReadME Project
 
 
       
-        29,314
+        29,376
       
         1,637
       
@@ -19924,7 +19925,7 @@ The ReadME Project
 
 
       
-        10,509
+        10,546
       
         540
       
@@ -19973,9 +19974,9 @@ The ReadME Project
 
 
       
-        21,413
+        21,459
       
-        2,718
+        2,720
       
         Built by
 
@@ -20022,9 +20023,9 @@ The ReadME Project
 
 
       
-        56,627
+        56,679
       
-        4,744
+        4,748
       
         Built by
 
@@ -20071,9 +20072,9 @@ The ReadME Project
 
 
       
-        75,069
+        75,114
       
-        12,205
+        12,206
       
         Built by
 
@@ -20288,6 +20289,14 @@ The ReadME Project
         
   
       
+    Pixel Art Tools
+    Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
+  
+
+
+        
+  
+      
     Learn to Code
     Resources to help people learn to code
   
@@ -20298,14 +20307,6 @@ The ReadME Project
       #
     Game Engines
     Frameworks for building games across multiple platforms.
-  
-
-
-        
-  
-      
-    Pixel Art Tools
-    Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
   
 
 
@@ -32366,7 +32367,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
     
               
         Issues
-          581
+          582
 
 
     
@@ -32664,7 +32665,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS ORIMPLIE
     
               
         Issues
-          581
+          582
 
 
     
@@ -32893,6 +32894,35 @@ Additional navigation options
 
 
       
+          
+  
+    
+      
+        
+      
+
+      
+        
+          
+    fux-plus
+        
+        
+ Joined on Nov 11, 2024
+
+        
+          
+  
+    
+      Follow
+    
+  
+
+
+        
+      
+    
+  
+
           
   
     
@@ -33674,35 +33704,6 @@ Additional navigation options
     
   
 
-          
-  
-    
-      
-        
-      
-
-      
-        
-          
-    Silent-Watcher
-        
-        
- Joined on Sep 25, 2021
-
-        
-          
-  
-    
-      Follow
-    
-  
-
-
-        
-      
-    
-  
-
       
       
         PreviousNext\n\n\n\ncolinhacks
@@ -33774,7 +33775,7 @@ Additional navigation options
     
               
         Issues
-          581
+          582
 
 
     
@@ -34341,7 +34342,7 @@ Insights: colinhacks/zod
     
       
       
-        AmirulAndalib
+        dellamora
     
       /
     zod  
@@ -34359,18 +34360,18 @@ Insights: colinhacks/zod
 
       
     
-      1
+      0
 
       
   
     Created
-    February 5, 2023 02:52
+    May 22, 2024 18:30
 
 
       
   
     Updated
-    May 16, 2024 00:10
+    May 22, 2024 23:47
 
 
   
@@ -34419,6 +34420,45 @@ Insights: colinhacks/zod
     
       
       
+        AmirulAndalib
+    
+      /
+    zod  
+      
+    
+      1
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      1
+
+      
+  
+    Created
+    February 5, 2023 02:52
+
+
+      
+  
+    Updated
+    May 16, 2024 00:10
+
+
+  
+
+        
+  
+    
+      
+      
         ecyrbe
     
       /
@@ -34449,84 +34489,6 @@ Insights: colinhacks/zod
   
     Updated
     June 25, 2023 08:06
-
-
-  
-
-        
-  
-    
-      
-      
-        rakheesingh
-    
-      /
-    zod  
-      
-    
-      1
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-  
-    Created
-    December 2, 2023 12:35
-
-
-      
-  
-    Updated
-    April 27, 2024 00:55
-
-
-  
-
-        
-  
-    
-      
-      
-        YehonatanMoreno
-    
-      /
-    zod  
-      
-    
-      1
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-  
-    Created
-    May 24, 2024 06:52
-
-
-      
-  
-    Updated
-    May 24, 2024 13:40
 
 
   
@@ -34575,7 +34537,7 @@ Insights: colinhacks/zod
     
       
       
-        dellamora
+        YehonatanMoreno
     
       /
     zod  
@@ -34598,13 +34560,52 @@ Insights: colinhacks/zod
       
   
     Created
-    May 22, 2024 18:30
+    May 24, 2024 06:52
 
 
       
   
     Updated
-    May 22, 2024 23:47
+    May 24, 2024 13:40
+
+
+  
+
+        
+  
+    
+      
+      
+        rakheesingh
+    
+      /
+    zod  
+      
+    
+      1
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+  
+    Created
+    December 2, 2023 12:35
+
+
+      
+  
+    Updated
+    April 27, 2024 00:55
 
 
   
@@ -34770,7 +34771,7 @@ Insights: colinhacks/zod
     
       
       
-        jackton1
+        NextThread
     
       /
     zod  
@@ -34793,13 +34794,13 @@ Insights: colinhacks/zod
       
   
     Created
-    June 23, 2022 15:12
+    August 13, 2023 05:29
 
 
       
   
     Updated
-    April 8, 2024 05:47
+    August 13, 2023 05:34
 
 
   
@@ -34887,7 +34888,7 @@ Insights: colinhacks/zod
     
       
       
-        NextThread
+        jackton1
     
       /
     zod  
@@ -34910,52 +34911,13 @@ Insights: colinhacks/zod
       
   
     Created
-    August 13, 2023 05:29
+    June 23, 2022 15:12
 
 
       
   
     Updated
-    August 13, 2023 05:34
-
-
-  
-
-        
-  
-    
-      
-      
-        oljimenez
-    
-      /
-    zod  
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-    
-      0
-
-      
-  
-    Created
-    August 5, 2023 09:29
-
-
-      
-  
-    Updated
-    September 7, 2023 02:08
+    April 8, 2024 05:47
 
 
   
@@ -35043,7 +35005,7 @@ Insights: colinhacks/zod
     
       
       
-        VladSez
+        oljimenez
     
       /
     zod  
@@ -35066,13 +35028,13 @@ Insights: colinhacks/zod
       
   
     Created
-    April 16, 2025 17:01
+    August 5, 2023 09:29
 
 
       
   
     Updated
-    April 16, 2025 22:16
+    September 7, 2023 02:08
 
 
   
@@ -35155,6 +35117,45 @@ Insights: colinhacks/zod
 
   
 
+        
+  
+    
+      
+      
+        odbol
+    
+      /
+    zod  
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+    
+      0
+
+      
+  
+    Created
+    November 7, 2024 19:58
+
+
+      
+  
+    Updated
+    November 7, 2024 20:03
+
+
+  
+
   
 
   Previous 1 2 3 4 5 … 16 17 Next\n\n\n\ncolinhacks
@@ -35226,7 +35227,7 @@ Insights: colinhacks/zod
     
               
         Issues
-          581
+          582
 
 
     
@@ -35451,7 +35452,7 @@ Additional navigation options
 
   
   
-    BranchesOverviewActiveStaleAllSearchDefaultBranchUpdatedCheck statusBehindAheadPull requestAction menumainCopy branch name to clipboard Apr 22, 2025Delete branchBranch menuActive branchesBranchUpdatedCheck statusBehindAheadPull requestAction menuv4Copy branch name to clipboard Apr 24, 2025Delete branchBranch menudeemphasize-extendCopy branch name to clipboard Apr 23, 2025Delete branchBranch menuv4-add-back-docsCopy branch name to clipboard Apr 10, 2025Delete branchBranch menuv4-remove-docsCopy branch name to clipboard Apr 10, 2025Delete branchBranch menucolinhacks-patch-1Copy branch name to clipboard Apr 8, 2025Delete branchBranch menuView more branches\n\n\n\ncolinhacks
+    BranchesOverviewActiveStaleAllSearchDefaultBranchUpdatedCheck statusBehindAheadPull requestAction menumainCopy branch name to clipboard Apr 26, 2025Delete branchBranch menuActive branchesBranchUpdatedCheck statusBehindAheadPull requestAction menuv4Copy branch name to clipboard Apr 24, 2025Delete branchBranch menudeemphasize-extendCopy branch name to clipboard Apr 23, 2025Delete branchBranch menuv4-add-back-docsCopy branch name to clipboard Apr 10, 2025Delete branchBranch menuv4-remove-docsCopy branch name to clipboard Apr 10, 2025Delete branchBranch menucolinhacks-patch-1Copy branch name to clipboard Apr 8, 2025Delete branchBranch menuView more branches\n\n\n\ncolinhacks
     
     /
     
@@ -35520,7 +35521,7 @@ Additional navigation options
     
               
         Issues
-          581
+          582
 
 
     
@@ -36425,7 +36426,7 @@ Toggle v3.23.5's commit message
     
               
         Issues
-          581
+          582
 
 
     
@@ -36678,7 +36679,7 @@ Additional navigation options
     
               
         Issues
-          581
+          582
 
 
     
@@ -36992,7 +36993,7 @@ Additional navigation options
 
     
       
-      581 Open
+      582 Open
     
 
     
@@ -37012,7 +37013,7 @@ Additional navigation options
 
     
       
-      581 Open
+      582 Open
     
 
     
@@ -37262,6 +37263,61 @@ Additional navigation options
       Issues list
       
         
+              
+
+  
+
+
+    
+      
+        
+      
+    
+
+    
+    
+
+      Add @hono/zod-validator to the Ecosystem section in README.md
+
+
+      
+        
+          #4284
+            opened Apr 26, 2025 by
+            lessquo
+            
+        
+
+        
+
+
+        
+
+        
+
+      
+    
+
+    
+
+      
+      
+
+      
+        
+          
+          
+        
+      
+
+      
+      
+    
+
+      
+  
+
+
               
 
   
@@ -38612,61 +38668,6 @@ Additional navigation options
   
 
 
-              
-
-  
-
-
-    
-      
-        
-      
-    
-
-    
-    
-
-      v4: add z.record().partial() for v3 compatibility
-
-
-      
-        
-          #4232
-            opened Apr 18, 2025 by
-            MaciejDabek
-            
-        
-
-        
-
-
-        
-
-        
-
-      
-    
-
-    
-
-      
-      
-
-      
-        
-          
-          
-        
-      
-
-      
-      
-    
-
-      
-  
-
-
         
       
   
@@ -38682,7 +38683,7 @@ Additional navigation options
   
   
   ProTip!
-  Updated in the last three days: updated:>2025-04-22.\n\n\n\ncolinhacks
+  Follow long discussions with comments:>50.\n\n\n\ncolinhacks
     
     /
     
@@ -38751,7 +38752,7 @@ Additional navigation options
     
               
         Issues
-          581
+          582
 
 
     
@@ -41034,7 +41035,7 @@ Additional navigation options
   
   
   ProTip!
-  no:milestone will show everything without a milestone.\n\n\n\ncolinhacks
+  Filter pull requests by the default branch with base:main.\n\n\n\ncolinhacks
     
     /
     
@@ -41103,7 +41104,7 @@ Additional navigation options
     
               
         Issues
-          581
+          582
 
 
     
@@ -43566,7268 +43567,4 @@ Additional navigation options
         
           
             
-              Previous 1 2 3 4 5 … 37 38 Next\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-  Actions: colinhacks/zod
-  
-  
-    
-      
-                  
-
-  
-    Actions
-  
-
-  
-    
-      
-
-        
-  
-  
-    
-        
-          
-
-    
-    
-    
-      
-        
-                        All workflows
-
-      
-
-  
-
-
-          
-        
-          
-
-
-  
-      
-  
-    Workflows
-  
-
-    
-        
-
-    
-    
-    
-      
-        
-          
-  Dependabot Updates
-
-      
-
-  
-
-
-
-        
-
-    
-    
-    
-      
-        
-          
-  Release betas
-
-      
-
-  
-
-
-
-        
-
-    
-    
-    
-      
-        
-          
-  Release on npm
-
-      
-
-  
-
-
-
-        
-
-    
-    
-    
-      
-        
-          
-  Release on npm (canary)
-
-      
-
-  
-
-
-
-        
-
-    
-    
-    
-      
-        
-          
-  test
-
-      
-
-  
-
-
-
-          
-
-    
-    
-    
-      
-        
-                        Show more workflows...
-
-      
-
-  
-
-
-
-
-
-
-          
-        
-          
-
-
-  
-      
-  
-    Management
-  
-
-    
-        
-
-    
-    
-    
-        
-          
-        
-      
-        
-                        Caches
-
-      
-
-  
-
-
-        
-
-    
-    
-    
-        
-          
-        
-      
-        
-                          Deployments
-
-      
-        
-          
-        
-
-  
-
-
-    
-
-
-
-  
-
-        
-          
-        
-
-        
-          
-        
-      
-    
-
-
-
-                
-      
-
-  
-  
-  
-    
-            
-          
-            
-              All workflows
-            
-          
-      
-      
-              All workflows
-      
-
-
-  
-      
-        
-          
-            Actions
-          
-          
-            
-          
-        
-      
-    
-      
-                
-        Loading...
-        
-      Loading
-
-      
-      
-        Sorry, something went wrong.
-      
-
-
-    
-
-
-      
-
-      
-
-                
-          
-  
-    
-    
-    
-      
-    
-
-    
-      
-        
-      
-      
-        
-        
-        will be ignored since log searching is not yet available
-      
-    
-
-
-        
-
-  
-            Showing runs from all workflows
-
-            
-  
-    
-    
-    
-      
-    
-
-    
-      
-        
-      
-      
-        
-        
-        will be ignored since log searching is not yet available
-      
-    
-
-
-
-
-      
-    
-
-
-
-
-  
-    
-      984 workflow runs
-    
-  
-
-
-  
-    
-        
-          984 workflow runs
-        
-    
-    
-      
-  
-      
-    Event
-  
-    
-      
-    
-
-
-    
-      
-  
-    
-      
-        Filter by Event
-      
-        
-    
-    
-      
-    
-  
-              
-              
-  
-      
-        
-      
-    
-      
-                  Sorry, something went wrong.
-
-            
-            
-                
-      
-        Filter
-    
-  
-      
-        
-          
-      Loading
-
-      
-    
-      
-
-      
-  
-  
-  
-
-    
-
-
-      
-        
-          
-          
-            
-                
-                  
-                    
-                      
-  
-                    
-                    
-                        
-                          
-                          Sorry, something went wrong.
-                        
-                    
-            
-            
-              No matching events.
-            
-        
-      
-  
-
-      
-  
-      
-    Status
-  
-    
-      
-    
-
-
-    
-      
-  
-    
-      
-        Filter by Status
-      
-        
-    
-    
-      
-    
-  
-              
-              
-  
-      
-        
-      
-    
-      
-                  Sorry, something went wrong.
-
-            
-            
-                
-      
-        Filter
-    
-  
-      
-        
-          
-      Loading
-
-      
-    
-      
-
-      
-  
-  
-  
-
-    
-
-
-      
-        
-          
-          
-            
-                
-                  
-                    
-                      
-  
-                    
-                    
-                        
-                          
-                          Sorry, something went wrong.
-                        
-                    
-            
-            
-              No matching statuses.
-            
-        
-      
-  
-
-      
-  
-      
-    Branch
-  
-    
-      
-    
-
-
-    
-      
-  
-    
-      
-        Filter by Branch
-      
-        
-    
-    
-      
-    
-  
-              
-              
-  
-      
-        
-      
-    
-      
-                  Sorry, something went wrong.
-
-            
-            
-                
-      
-        Filter
-    
-  
-      
-        
-          
-      Loading
-
-      
-    
-      
-
-      
-  
-  
-  
-
-    
-
-
-      
-        
-          
-          
-            
-                
-                  
-                    
-                      
-  
-                    
-                    
-                        
-                          
-                          Sorry, something went wrong.
-                        
-                    
-            
-            
-              No matching branches.
-            
-        
-      
-  
-
-      
-  
-      
-    Actor
-  
-    
-      
-    
-
-
-    
-      
-  
-    
-      
-        Filter by Actor
-      
-        
-    
-    
-      
-    
-  
-              
-              
-  
-      
-        
-      
-    
-      
-                  Sorry, something went wrong.
-
-            
-            
-                
-      
-        Filter
-    
-  
-      
-        
-          
-      Loading
-
-      
-    
-      
-
-      
-  
-  
-  
-
-    
-
-
-      
-        
-          
-          
-            
-                
-                  
-                    
-                      
-  
-                    
-                    
-                        
-                          
-                          Sorry, something went wrong.
-                        
-                    
-            
-            
-              No matching users.
-            
-        
-      
-  
-
-    
-  
-
-
-      
-
-
-    
-  
-    
-      
-          
-
-    
-
-
-          
-            Update ecosystem.tsx to add "zod-config" with v4 support via RC
-          
-        
-
-      
-        test
-        #2533:
-
-        
-            Pull request #4282
-
-            synchronize
-            by
-              alexmarqs
-              
-        
-      
-
-      
-        
-  
-  April 25, 2025 08:42
-
-
-            
-      
-      
-        1m 5s
-      
-    
-
-          alexmarqs:patch-1
-      
-    
-
-    
-        alexmarqs:patch-1
-    
-
-    
-      
-        
-          
-  
-  April 25, 2025 08:42
-
-
-              
-      
-      
-        1m 5s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4282
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Update ecosystem.tsx to add "zod-config" with v4 support via RC
-          
-        
-
-      
-        test
-        #2532:
-
-        
-            Pull request #4282
-
-            opened
-            by
-              alexmarqs
-              
-        
-      
-
-      
-        
-  
-  April 25, 2025 08:31
-
-
-            
-      
-      
-        1m 5s
-      
-    
-
-          alexmarqs:patch-1
-      
-    
-
-    
-        alexmarqs:patch-1
-    
-
-    
-      
-        
-          
-  
-  April 25, 2025 08:31
-
-
-              
-      
-      
-        1m 5s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4282
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            [v4 beta] Properly support branded keys in records
-          
-        
-
-      
-        test
-        #2531:
-
-        
-            Pull request #4277
-
-            synchronize
-            by
-              jthemphill
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 22:27
-
-
-            
-      
-      
-        59s
-      
-    
-
-          jthemphill:record-branded-keys
-      
-    
-
-    
-        jthemphill:record-branded-keys
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 22:27
-
-
-              
-      
-      
-        59s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4277
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            [v4 beta] Properly support branded keys in records
-          
-        
-
-      
-        test
-        #2530:
-
-        
-            Pull request #4277
-
-            synchronize
-            by
-              jthemphill
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 22:26
-
-
-            
-      
-      
-        1m 0s
-      
-    
-
-          jthemphill:record-branded-keys
-      
-    
-
-    
-        jthemphill:record-branded-keys
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 22:26
-
-
-              
-      
-      
-        1m 0s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4277
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            [v4 beta] Properly support branded keys in records
-          
-        
-
-      
-        test
-        #2529:
-
-        
-            Pull request #4277
-
-            synchronize
-            by
-              jthemphill
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 22:14
-
-
-            
-      
-      
-        1m 1s
-      
-    
-
-          jthemphill:record-branded-keys
-      
-    
-
-    
-        jthemphill:record-branded-keys
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 22:14
-
-
-              
-      
-      
-        1m 1s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4277
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            [v4 beta] Properly support branded keys in records
-          
-        
-
-      
-        test
-        #2528:
-
-        
-            Pull request #4277
-
-            opened
-            by
-              jthemphill
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 22:05
-
-
-            
-      
-      
-        1m 0s
-      
-    
-
-          jthemphill:record-branded-keys
-      
-    
-
-    
-        jthemphill:record-branded-keys
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 22:05
-
-
-              
-      
-      
-        1m 0s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4277
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            0.9.0
-          
-        
-
-      
-        Release betas
-        #34:
-
-        
-            Commit 5a01d8d
-
-            pushed
-            by
-              colinhacks
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 16:38
-
-
-            
-      
-      
-        1m 8s
-      
-    
-
-          v4
-      
-    
-
-    
-        v4
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 16:38
-
-
-              
-      
-      
-        1m 8s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4074
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            .catchall() method should accept undefined
-          
-        
-
-      
-        test
-        #2527:
-
-        
-            Pull request #4272
-
-            synchronize
-            by
-              called-d
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 07:41
-
-
-            
-      
-      
-        1m 3s
-      
-    
-
-          called-d:catchall-accepts-undefined
-      
-    
-
-    
-        called-d:catchall-accepts-undefined
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 07:41
-
-
-              
-      
-      
-        1m 3s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4272
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            .catchall() method should accept undefined
-          
-        
-
-      
-        test
-        #2526:
-
-        
-            Pull request #4272
-
-            opened
-            by
-              called-d
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 07:33
-
-
-            
-      
-      
-        1m 11s
-      
-    
-
-          called-d:catchall-accepts-undefined
-      
-    
-
-    
-        called-d:catchall-accepts-undefined
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 07:33
-
-
-              
-      
-      
-        1m 11s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4272
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Deemphasize extend
-          
-        
-
-      
-        test
-        #2525:
-
-        
-            Pull request #4271
-
-            opened
-            by
-              colinhacks
-              
-        
-      
-
-      
-        
-  
-  April 24, 2025 00:01
-
-
-            
-      
-      
-        1m 4s
-      
-    
-
-          deemphasize-extend
-      
-    
-
-    
-        deemphasize-extend
-    
-
-    
-      
-        
-          
-  
-  April 24, 2025 00:01
-
-
-              
-      
-      
-        1m 4s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4271
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Languages: add Polish 🇵🇱 language
-          
-        
-
-      
-        test
-        #2524:
-
-        
-            Pull request #4184
-
-            synchronize
-            by
-              szarbartosz
-              
-        
-      
-
-      
-        
-  
-  April 23, 2025 12:40
-
-
-            
-      
-      
-        1m 3s
-      
-    
-
-          szarbartosz:add-polish-language
-      
-    
-
-    
-        szarbartosz:add-polish-language
-    
-
-    
-      
-        
-          
-  
-  April 23, 2025 12:40
-
-
-              
-      
-      
-        1m 3s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4184
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            V4(fix): generate json-schema with min/max(0)
-          
-        
-
-      
-        test
-        #2523:
-
-        
-            Pull request #4267
-
-            opened
-            by
-              PandaWorker
-              
-        
-      
-
-      
-        
-  
-  April 23, 2025 11:45
-
-
-            
-      
-      
-        1m 0s
-      
-    
-
-          PandaWorker:v4
-      
-    
-
-    
-        PandaWorker:v4
-    
-
-    
-      
-        
-          
-  
-  April 23, 2025 11:45
-
-
-              
-      
-      
-        1m 0s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4267
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            fix(transform): abort further processing when inner value is invalid
-          
-        
-
-      
-        test
-        #2522:
-
-        
-            Pull request #4266
-
-            synchronize
-            by
-              DASPRiD
-              
-        
-      
-
-      
-        
-  
-  April 23, 2025 10:12
-
-
-            
-      
-      
-        1m 27s
-      
-    
-
-          DASPRiD:fix/early-transform-abort
-      
-    
-
-    
-        DASPRiD:fix/early-transform-abort
-    
-
-    
-      
-        
-          
-  
-  April 23, 2025 10:12
-
-
-              
-      
-      
-        1m 27s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4266
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            fix(transform): abort further processing when inner value is invalid
-          
-        
-
-      
-        test
-        #2521:
-
-        
-            Pull request #4266
-
-            opened
-            by
-              DASPRiD
-              
-        
-      
-
-      
-        
-  
-  April 23, 2025 10:09
-
-
-            
-      
-      
-        1m 43s
-      
-    
-
-          DASPRiD:fix/early-transform-abort
-      
-    
-
-    
-        DASPRiD:fix/early-transform-abort
-    
-
-    
-      
-        
-          
-  
-  April 23, 2025 10:09
-
-
-              
-      
-      
-        1m 43s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4266
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Add composable-functions as a library powered by Zod supporting v4
-          
-        
-
-      
-        test
-        #2520:
-
-        
-            Pull request #4261
-
-            opened
-            by
-              gustavoguichard
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 21:09
-
-
-            
-      
-      
-        1m 4s
-      
-    
-
-          gustavoguichard:composable-functions-v4-support
-      
-    
-
-    
-        gustavoguichard:composable-functions-v4-support
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 21:09
-
-
-              
-      
-      
-        1m 4s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4261
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Add cybozu
-          
-        
-
-      
-        test
-        #2519:
-
-        
-            Commit 638b8b5
-
-            pushed
-            by
-              colinhacks
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 17:00
-
-
-            
-      
-      
-        1m 43s
-      
-    
-
-          main
-      
-    
-
-    
-        main
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 17:00
-
-
-              
-      
-      
-        1m 43s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Add support for kubb as part of the v4 upgrade
-          
-        
-
-      
-        test
-        #2518:
-
-        
-            Pull request #4260
-
-            opened
-            by
-              stijnvanhulle
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 15:32
-
-
-            
-      
-      
-        1m 2s
-      
-    
-
-          stijnvanhulle:chore/kubb-v4-support
-      
-    
-
-    
-        stijnvanhulle:chore/kubb-v4-support
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 15:32
-
-
-              
-      
-      
-        1m 2s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4260
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            #4238 Fix extended interfaces causing optional keys to break types
-          
-        
-
-      
-        test
-        #2517:
-
-        
-            Pull request #4257
-
-            synchronize
-            by
-              SeeJayy
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 12:24
-
-
-            
-      
-      
-        1m 3s
-      
-    
-
-          SeeJayy:v4
-      
-    
-
-    
-        SeeJayy:v4
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 12:24
-
-
-              
-      
-      
-        1m 3s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4257
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            #4238 Fix extended interfaces causing optional keys to break types
-          
-        
-
-      
-        test
-        #2516:
-
-        
-            Pull request #4257
-
-            synchronize
-            by
-              SeeJayy
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 12:20
-
-
-            
-      
-      
-        1m 2s
-      
-    
-
-          SeeJayy:v4
-      
-    
-
-    
-        SeeJayy:v4
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 12:20
-
-
-              
-      
-      
-        1m 2s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4257
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            #4238 Fix extended interfaces causing optional keys to break types
-          
-        
-
-      
-        test
-        #2515:
-
-        
-            Pull request #4257
-
-            synchronize
-            by
-              SeeJayy
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 12:18
-
-
-            
-      
-      
-        1m 8s
-      
-    
-
-          SeeJayy:v4
-      
-    
-
-    
-        SeeJayy:v4
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 12:18
-
-
-              
-      
-      
-        1m 8s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4257
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            feat(locale): add Macedonian 🇲🇰 language 
-          
-        
-
-      
-        test
-        #2514:
-
-        
-            Pull request #4214
-
-            synchronize
-            by
-              antonio-ivanovski
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 09:50
-
-
-            
-      
-      
-        59s
-      
-    
-
-          antonio-ivanovski:v4-locales-mk
-      
-    
-
-    
-        antonio-ivanovski:v4-locales-mk
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 09:50
-
-
-              
-      
-      
-        59s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4214
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            #4238 Fix extended interfaces causing optional keys to break types
-          
-        
-
-      
-        test
-        #2513:
-
-        
-            Pull request #4257
-
-            opened
-            by
-              SeeJayy
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 07:07
-
-
-            
-      
-      
-        1m 4s
-      
-    
-
-          SeeJayy:v4
-      
-    
-
-    
-        SeeJayy:v4
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 07:07
-
-
-              
-      
-      
-        1m 4s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4257
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            chore: add orval to XtoZod ecosystems in v4
-          
-        
-
-      
-        test
-        #2512:
-
-        
-            Pull request #4256
-
-            synchronize
-            by
-              soartec-lab
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 00:28
-
-
-            
-      
-      
-        1m 5s
-      
-    
-
-          soartec-lab:docs/add-orval-to-v4-ecosystem
-      
-    
-
-    
-        soartec-lab:docs/add-orval-to-v4-ecosystem
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 00:28
-
-
-              
-      
-      
-        1m 5s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4256
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            chore: add orval to XtoZod ecosystems in v4
-          
-        
-
-      
-        test
-        #2511:
-
-        
-            Pull request #4256
-
-            opened
-            by
-              soartec-lab
-              
-        
-      
-
-      
-        
-  
-  April 22, 2025 00:25
-
-
-            
-      
-      
-        1m 7s
-      
-    
-
-          soartec-lab:docs/add-orval-to-v4-ecosystem
-      
-    
-
-    
-        soartec-lab:docs/add-orval-to-v4-ecosystem
-    
-
-    
-      
-        
-          
-  
-  April 22, 2025 00:25
-
-
-              
-      
-      
-        1m 7s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4256
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-  
-    
-      
-          
-
-    
-
-
-          
-            Improve handling of .meta()/.describe() in JSON Schema converter
-          
-        
-
-      
-        test
-        #2510:
-
-        
-            Pull request #4255
-
-            opened
-            by
-              colinhacks
-              
-        
-      
-
-      
-        
-  
-  April 21, 2025 22:51
-
-
-            
-      
-      
-        1m 0s
-      
-    
-
-          meta/describe
-      
-    
-
-    
-        meta/describe
-    
-
-    
-      
-        
-          
-  
-  April 21, 2025 22:51
-
-
-              
-      
-      
-        1m 0s
-      
-    
-
-        
-
-        
-            
-                    
-
-              
-
-                  
-                    
-                      View #4255
-                    
-                  
-
-                  
-                    
-                      View workflow file
-                    
-                  
-
-
-              
-            
-        
-      
-    
-  
-
-
-
-
-
-
-
-  
-    
-      Previous 1 2 3 4 5 … 39 40 Next\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-      
-  colinhacks/zod projects
-  
-    
-  
-      
-
-    
-        
-      
-      
-          
-            
-              
-  
-    
-      
-      
-        Search all projects
-    
-  
-      
-        
-      
-    
-      
-      
-        
-      
-
-      
-  
-  
-  
-
-    
-
-
-    
-    
-
-
-
-
-
-
-
-  Search results
-  
-    0 open and 0 closed projects found.
-  
-  
-  
-    
-                    
-  
-    
-      
-
-            No open projects\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-Security: colinhacks/zod
-
-
-
-    
-    
-    
-  Security
-  
-  
-
-
-  
-  
-    
-    No security policy detected
-  
-    This project has not set up a SECURITY.md file yet.
-            Report a vulnerability
-
-
-
-
-
-
-    
-  
-    
-      
-
-              There aren’t any published security advisories\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-Insights: colinhacks/zod
-
-  
-  
-        
-
-  
-    Pulse
-    Contributors
-      Community Standards
-    Commits
-    Code frequency
-      Dependency graph
-    Network
-    Forks
-  
-
-
-
-  
-      
-  
-  April 18, 2025 – April 25, 2025
-  
-        
-              Period:
-          1 week
-        
-          
-            Filter activity
-          
-          
-              
-                
-                24 hours
-              
-              
-                
-                3 days
-              
-              
-                
-                1 week
-              
-              
-                
-                1 month
-              
-          
-        
-      
-
-
-  
-    
-      Overview
-    
-
-    
-      
-        
-          
-                
-                
-          
-          
-            23
-            Active pull requests
-          
-        
-
-        
-          
-                
-                
-          
-          
-            31
-            Active issues
-          
-        
-      
-
-      
-        
-          
-              
-                
-                  
-                  11
-                
-                Merged pull requests
-              
-          
-          
-              
-                
-                  
-                  12
-                
-                Open pull requests
-              
-          
-          
-              
-                
-                  
-                  7
-                
-                Closed issues
-              
-          
-          
-              
-                
-                  
-                  24
-                
-                New issues
-              
-          
-        
-      
-    
-  
-
-    
-
-      
-
-        
-      Loading
-
-
-        
-          Could not load contribution data
-          Please try again later
-        
-      
-      
-        
-  
-    
-      Loading
-
-  
-
-
-      
-    
-
-  
-      
-    
-      
-        
-        11
-        Pull requests merged by
-        5 people
-      
-    
-    
-      
-        
-        
-          Improve handling of .meta()/.describe() in JSON Schema converter
-          
-            #4255 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          fix(docs): Grammatical error in Refinements
-          
-            #4252 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          fix(docs): Swap Enum .exclude() / .extract() code samples.
-          
-            #4242 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          v4: add GQLoom to ecosystem
-          
-            #4225 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          v4: Clarify defaults for toJsonSchema options
-          
-            #4223 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          v4: Reusing Number.MAX_VALUE for float64 range
-          
-            #4222 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          v4: Correcting the default numeric range to be inclusive
-          
-            #4224 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          fix(docs): Typo in z.object() vs z.interface()
-          
-            #4241 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          fix(docs): Correct typo in Records
-          
-            #4244 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          fix(docs): Correct "with with" typo.
-          
-            #4243 merged Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          docs: add zod-schema-faker to ecosystem
-          
-            #4247 merged Apr 21, 2025
-          
-        
-      
-    
-
-    
-      
-        
-        12
-        Pull requests opened by 12 people
-      
-    
-    
-      
-        
-        
-          feat(lang): Added initial `Tamil` locale
-          
-            #4237 opened Apr 19, 2025
-          
-        
-      
-      
-        
-        
-          Languages: add German language
-          
-            #4253 opened Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          chore: add `orval` to XtoZod ecosystems in v4
-          
-            #4256 opened Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          #4238 Fix extended interfaces causing optional keys to break types
-          
-            #4257 opened Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          Add support for `kubb` as part of the v4 upgrade
-          
-            #4260 opened Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          Add composable-functions as a library powered by Zod supporting v4
-          
-            #4261 opened Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          fix(transform): abort further processing when inner value is invalid
-          
-            #4266 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          V4(fix): generate json-schema with min/max(0)
-          
-            #4267 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          Deemphasize extend
-          
-            #4271 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          .catchall() method should accept undefined
-          
-            #4272 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          [v4 beta] Properly support branded keys in records
-          
-            #4277 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          Update ecosystem.tsx to add "zod-config" with v4 support via RC
-          
-            #4282 opened Apr 25, 2025
-          
-        
-      
-    
-
-
-
-      
-    
-      
-        
-        7 Issues
-        closed by 6 people
-      
-    
-    
-      
-        
-        
-          v4: `z.toJSONSchema` incorrectly generates required properties for `default` values
-          
-            #4279 closed Apr 25, 2025
-          
-        
-      
-      
-        
-        
-          [V4] discriminatedUnion not working when there are more than two z.literals in the schema
-          
-            #4280 closed Apr 25, 2025
-          
-        
-      
-      
-        
-        
-          issue with Zod branded type def : suggestion to make [$brand] property optional
-          
-            #4265 closed Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          ZodObject.extends() metadata
-          
-            #2310 closed Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          Stricter Array Types
-          
-            #2658 closed Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          v4: Can't properly coerce int number (.int() marked as deprecated)
-          
-            #4212 closed Apr 19, 2025
-          
-        
-      
-      
-        
-        
-          email validation fails for special characters like "ß" in the address
-          
-            #4174 closed Apr 19, 2025
-          
-        
-      
-    
-
-    
-      
-        
-        24 Issues
-        opened by 19 people
-      
-    
-    
-      
-        
-        
-          v4 & v3: base64 check causes "Maximum call stack size exceeded"
-          
-            #4283 opened Apr 25, 2025
-          
-        
-      
-      
-        
-        
-          v4: toJSONSchema: inability to customize references
-          
-            #4281 opened Apr 25, 2025
-          
-        
-      
-      
-        
-        
-          v4: Type signature of enum input is not properly inferred
-          
-            #4278 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          v4: Providing default value for base schema doesn't reference base schema in generated JSON Schema
-          
-            #4276 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          v4: toJSONSchema: `_ref` complicates overrides
-          
-            #4275 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          v4: toJSONSchema: "input" `io` is ignored for transformations meta
-          
-            #4274 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          v4: Dynamic Code Evaluation (e. g. 'eval', 'new Function') not allowed in Edge Runtime
-          
-            #4273 opened Apr 24, 2025
-          
-        
-      
-      
-        
-        
-          v4: The `isPlainObject` fails on objects without a prototype
-          
-            #4270 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          v4: Missing native support for recursive types as plain function parameters
-          
-            #4269 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          v4: Error formatting in v4 using `format` and `treeifyError` has different output
-          
-            #4268 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          v4: Recursive types don't work with discriminated unions
-          
-            #4264 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          Question(v4): What is the setting value for `path` in `issues` when an error occurs in the `discriminatedUnion` schema?
-          
-            #4263 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          Question(v4): What is the behavior of the error message for the `file` schema in `@zod/mini`?
-          
-            #4262 opened Apr 23, 2025
-          
-        
-      
-      
-        
-        
-          v4: Consider exporting $ZodTypes
-          
-            #4258 opened Apr 22, 2025
-          
-        
-      
-      
-        
-        
-          V4: toJSONSchema does not render recursive reference
-          
-            #4254 opened Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          v4: Schema key order is no longer preserved
-          
-            #4251 opened Apr 21, 2025
-          
-        
-      
-      
-        
-        
-          V4: toJSONSchema z.literal is missing "type"
-          
-            #4249 opened Apr 20, 2025
-          
-        
-      
-      
-        
-        
-          Zod Mini Edge runtime compatibility
-          
-            #4248 opened Apr 20, 2025
-          
-        
-      
-      
-        
-        
-          v4: `z.interface` cyclical reference with `z.discriminatedUnion`
-          
-            #4245 opened Apr 20, 2025
-          
-        
-      
-      
-        
-        
-          Error in Enum docs for `.exclude()` / `.extract()`
-          
-            #4240 opened Apr 20, 2025
-          
-        
-      
-      
-        
-        
-          v4(feature): Add cron string format
-          
-            #4239 opened Apr 19, 2025
-          
-        
-      
-      
-        
-        
-          Infer with key optional properties on an extended interface are not represented correctly
-          
-            #4238 opened Apr 19, 2025
-          
-        
-      
-      
-        
-        
-          v4: Type violation upon piping into coerced types
-          
-            #4236 opened Apr 19, 2025
-          
-        
-      
-      
-        
-        
-          core 0.8.0: circular schemas via ZodLazy stopped working
-          
-            #4234 opened Apr 19, 2025
-          
-        
-      
-    
-
-
-
-
-      
-  
-    
-      
-      36
-      Unresolved conversations
-    
-  
-  
-    Sometimes conversations happen on old items that aren’t yet closed.
-    Here is a list of all the Issues and Pull Requests with unresolved
-    conversations.
-  
-
-  
-    
-      
-      
-        Languages: Add Portuguese language
-        
-          #4171 commented on Apr 25, 2025 • 9 new comments
-        
-      
-    
-    
-      
-      
-        feat(lang): Added initial Thai locale
-        
-          #4230 commented on Apr 19, 2025 • 2 new comments
-        
-      
-    
-    
-      
-      
-        feat(locale): Add Norwegian
-        
-          #4229 commented on Apr 20, 2025 • 1 new comment
-        
-      
-    
-    
-      
-      
-        Zod 4
-        
-          #4074 commented on Apr 24, 2025 • 1 new comment
-        
-      
-    
-    
-      
-      
-        Warnings from schema
-        
-          #3320 commented on Apr 24, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: Impossible to represent a key+value-optional field with the default value with `z.interface()`
-        
-          #4181 commented on Apr 24, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4:  ZodInterface - Property 'shape' does not exist on type 'ZodInterface'
-        
-          #4147 commented on Apr 25, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Zod Preprocess returning unknown type
-        
-          #3537 commented on Apr 25, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        optional should not add undefined to type signature
-        
-          #3186 commented on Apr 25, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: what is the replacement for using z.function as a schema?
-        
-          #4143 commented on Apr 25, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Languages: Add Arabic language
-        
-          #4176 commented on Apr 21, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Languages: add Polish 🇵🇱 language
-        
-          #4184 commented on Apr 23, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        feat(lang): add Vietnamese (vi) locale
-        
-          #4191 commented on Apr 20, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Languages: add Czech language 🇨🇿
-        
-          #4192 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        feat(lang): Added initial Turkish locale
-        
-          #4196 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        feat(locale): add russian language
-        
-          #4197 commented on Apr 23, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        feat(locale): add Macedonian 🇲🇰 language 
-        
-          #4214 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        feat(locale): Add SL locale
-        
-          #4231 commented on Apr 19, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: Make `.partial()` avaliable on `z.record()`
-        
-          #4106 commented on Apr 19, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: no longer able to extract discriminator options’ concrete values
-        
-          #4142 commented on Apr 19, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: `isOptional` may throw despite using `safeParse`
-        
-          #4159 commented on Apr 20, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        [i18n] Request for internationalization (locales)
-        
-          #4168 commented on Apr 20, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        How to avoid redundancy in generated .d.ts files?
-        
-          #4227 commented on Apr 21, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Usage of .nonstrict() which is deprecated instead of .passthrough() in some tests
-        
-          #3522 commented on Apr 21, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: `.meta()` behaviour questions/bugs
-        
-          #4094 commented on Apr 21, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: toJSONSchema on optionals should mark them somehow
-        
-          #4164 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: toJSONSchema `pipes` should be `input` by default, not `output`
-        
-          #4167 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: use in nextjs middleware generates DynamicCodeEvaluationWarning
-        
-          #4113 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        "Type instantiation is excessively deep and possibly infinite" when using Zod with React Hook Form and @hookform/resolvers
-        
-          #3987 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        possible bug: standard schema introduction v3.24 breaks libraries that depend on core zod exposed types
-        
-          #4056 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        Zod 3.22.2 TS 5.2.2: TS2589: Type instantiation is excessively deep and possibly infinite
-        
-          #2697 commented on Apr 22, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        z.infer returns z.object for objects with passthrough and preprocess or transform
-        
-          #2938 commented on Apr 23, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        @zod/mini: extend and merge return plain object
-        
-          #4154 commented on Apr 23, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        `z.record` with a key of a union or enum schema results in a partial record
-        
-          #2623 commented on Apr 23, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        v4: defaults in zod object are no longer optional when defining a default for wrapped zod object
-        
-          #4140 commented on Apr 24, 2025 • 0 new comments
-        
-      
-    
-    
-      
-      
-        How to transform empty strings into null? `z.emptyStringToNull()`
-        
-          #1721 commented on Apr 24, 2025 • 0 new comments\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-    CommitsBranch selector mainUser selectorAll usersDatepickerAll timeCommit HistoryCommits on Apr 22, 2025Add cybozucolinhackscommitted638b8b5Copy full SHA for 638b8b5Commits on Apr 16, 2025add back packages/docscolinhackscommitteda18d25bCopy full SHA for a18d25b3.24.3colinhackscommitted06db7f8Copy full SHA for 06db7f8Optimize `extendShape` (#4150)Show description for 3e602d4 Andaristandahejlsbergauthored3e602d4Copy full SHA for 3e602d4Remove packages/docscolinhackscommittedbfd0913Copy full SHA for bfd0913Add packages/docscolinhackscommitted8fc309aCopy full SHA for 8fc309aFix broken logo link (#3974)Show description for a801ddd kantuniandcolinhacksauthoreda801dddCopy full SHA for a801dddCommits on Apr 14, 2025Added FullProduct.dev to 'Powered by Zod' in Ecosystem section (#4131)Show description for d114394codinsonnauthoredd114394Copy full SHA for d114394Commits on Apr 10, 2025Fix CIcolinhackscommitted8cca93bCopy full SHA for 8cca93bFix CIcolinhackscommittedfaac697Copy full SHA for faac697Add zod 4 beta anno (#4081)Show description for 12e5866colinhacksauthored12e5866Copy full SHA for 12e5866Commits on Apr 9, 2025Fix formattingcolinhackscommitted0615af8Copy full SHA for 0615af8update readme.md with zod-csv library (#4021)Show description for b865062bartoszgolebiowskiauthoredb865062Copy full SHA for b865062Commits on Apr 8, 2025Fix imagescolinhackscommitted220aedaCopy full SHA for 220aedaCommits on Apr 7, 2025Update alt tag for Retool and Stainless URL (#4071)mrlubosauthored859ad24Copy full SHA for 859ad24Commits on Apr 3, 2025removed unnecessary console logs (#4059)Show description for 91dcd30Sumaanyu-Nayakauthored91dcd30Copy full SHA for 91dcd30Commits on Apr 1, 2025Update Fern art/link (#4062)Show description for 4c7d8e5colinhacksauthored4c7d8e5Copy full SHA for 4c7d8e5Commits on Mar 31, 2025Update linkcolinhackscommitted07ff0daCopy full SHA for 07ff0daCommits on Mar 29, 2025WIP (#4060)colinhacksauthored1061293Copy full SHA for 1061293Commits on Mar 28, 2025docs: update README_KO (#4025)haejunejungauthored19c6d2eCopy full SHA for 19c6d2edocs: Remove outdated doc 'avoid coercions that throw uncaught errors' (#4005)Show description for b999b4b catnipanandcolinhacksauthoredb999b4bCopy full SHA for b999b4bdocs: add oRPC to Ecosystem (#4042)unnoqauthored099fe85Copy full SHA for 099fe85docs: add TanStack Form to Ecosystem/Form integrations (#4055)muningisauthoredcb2b857Copy full SHA for cb2b857Commits on Mar 22, 2025WIP (#4045)colinhacksauthored5041dfaCopy full SHA for 5041dfaCommits on Mar 15, 2025WIP (#4028)colinhacksauthoredf204123Copy full SHA for f204123Commits on Mar 5, 2025Fix table formatcolinhackscommitted850871dCopy full SHA for 850871dAdd Clerk fellowship mention (#4020)Show description for 69d8436colinhacksauthored69d8436Copy full SHA for 69d8436Commits on Mar 2, 2025Update mintlify feature (#4015)Show description for 47dbb2dcolinhacksauthored47dbb2dCopy full SHA for 47dbb2dCommits on Mar 1, 2025Feature Mintlify (#4014)Show description for 0b5d29ecolinhacksauthored0b5d29eCopy full SHA for 0b5d29eCommits on Feb 27, 2025Update feature (#4009)colinhacksauthorede2b9a5fCopy full SHA for e2b9a5fCommits on Feb 26, 2025docs(README): add GQLoom to tools and integrations section (#3995)xcfoxauthored1d6e1cbCopy full SHA for 1d6e1cbTweak feature layout (#4008)Show description for 446644fcolinhacksauthored446644fCopy full SHA for 446644fCommits on Feb 21, 2025Fix headers (#4003)colinhacksauthoredeea05aeCopy full SHA for eea05aeCommits on Feb 20, 2025Switch to featured sponsors (#4001)Show description for de1f090colinhacksauthoredde1f090Copy full SHA for de1f090Commits on Feb 11, 2025v3.24.2colinhackscommittede308703Copy full SHA for e308703PaginationPreviousNext\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/.devcontainer/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/.devcontainer/TopFolders and filesNameNameLast commit messageLast commit dateparent directory..devcontainer.jsondevcontainer.json  View all files\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/.github/workflows/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/.github/workflows/TopFolders and filesNameNameLast commit messageLast commit dateparent directory..release-canary.ymlrelease-canary.yml  release.ymlrelease.yml  test.ymltest.yml  View all files\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/.husky/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/.husky/TopFolders and filesNameNameLast commit messageLast commit dateparent directory...gitignore.gitignore  pre-commitpre-commit  pre-pushpre-push  View all files\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/.vscode/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/.vscode/TopFolders and filesNameNameLast commit messageLast commit dateparent directory..launch.jsonlaunch.json  settings.jsonsettings.json  View all files\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/blog/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/blog/TopFolders and filesNameNameLast commit messageLast commit dateparent directory..clerk-fellowship.mdclerk-fellowship.md  index.htmlindex.html  View all files\n\n\n\ncolinhacks
-    
-    /
-    
-      zod
-    
-
-    Public
-  
-
-
-        
-
-        
-            
-    
-        
-          
-        
-
-      
-
-  
-                Notifications
-    You must be signed in to change notification settings
-
-  
-
-  
-              Fork
-    1.4k
-
-  
-
-  
-        
-            
-          Star
-          37.4k
-
-  
-
-
-
-        
-      
-
-        
-
-
-
-          
-
-  
-      
-  
-    
-              
-        Code
-          
-
-
-    
-
-      
-  
-    
-              
-        Issues
-          581
-
-
-    
-
-      
-  
-    
-              
-        Pull requests
-          107
-
-
-    
-
-      
-  
-    
-              
-        Discussions
-          
-
-
-    
-
-      
-  
-    
-              
-        Actions
-          
-
-
-    
-
-      
-  
-    
-              
-        Projects
-          0
-
-
-    
-
-      
-  
-    
-              
-        Security
-          
-
-    
-
-      
-  
-    
-              
-        Insights
-          
-
-
-    
-
-
-          
-  
-      
-Additional navigation options
-
-
-
-  
-    
-                
-  
-    
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Code
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Issues
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Pull requests
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Discussions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Actions
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Projects
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Security
-      
-
-  
-
-        
-    
-    
-    
-        
-          
-        
-      
-        
-          Insights
-      
-
-  
-
-    
-
-
-
-
-      
-  
-
-
-
-  
-
-  
-
-
-
-
-    
-    
-
-
-
-    
-      
-    
-
-
-
-
-
-
-
-
-
-  
-  
-     Files mainBreadcrumbszod/configs/Copy pathDirectory actionsMore optionsDirectory actionsMore optionsLatest commit HistoryHistory mainBreadcrumbszod/configs/TopFolders and filesNameNameLast commit messageLast commit dateparent directory..babel-jest.config.jsonbabel-jest.config.json  babel.config.jsbabel.config.js  jest.config.jsonjest.config.json  rollup.config.jsrollup.config.js  swc-jest.config.jsonswc-jest.config.json  ts-jest.config.jsonts-jest.config.json  tsconfig.base.jsontsconfig.base.json  tsconfig.cjs.jsontsconfig.cjs.json  tsconfig.esm.jsontsconfig.esm.json  tsconfig.test.jsontsconfig.test.json  tsconfig.types.jsontsconfig.types.json  vitest.config.tsvitest.config.ts  View all files\n\n\n\n
+              Previous 1 2 3 4 5 … 37 38 Next\n\n\n\n
