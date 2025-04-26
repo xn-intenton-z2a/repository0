@@ -165,6 +165,8 @@ jobs:
             const pullNumber = process.env.pullNumber;
             const branchPrefix = process.env.branchPrefix;
             const shouldSkipMerge = process.env.shouldSkipMerge;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
             
             core.setOutput('prMerged', `${prMerged}`);
             core.setOutput('pullNumber', `${pullNumber}`);
