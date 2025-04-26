@@ -1,6 +1,6 @@
-# CI/CD and GitHub Workflows Documentation
+# GitHub Integration and Agentic Workflows Documentation
 ## https://docs.github.com/en/actions
-This documentation offers comprehensive guidance on GitHub Actions workflows, including the use of reusable workflows, triggers, authentication, and security configurations. It highlights best practices for integrating autonomous CI/CD processes—an essential reference for managing the automated workflows demonstrated in this repository. Last major updates in 2023 provide clear insights into evolving technical standards.
+This combined resource offers comprehensive guidance on GitHub Actions workflows and REST API endpoints for robust CI/CD integration. It covers triggers, authentication, and API usage, while also incorporating best practices from agentic-lib for reusing workflows in autonomous systems. Frequent updates, including 2023 revisions, make it an authoritative reference for building integrated, automated processes.
 ## License if known: Not specified
 
 # OpenAI API Documentation
@@ -29,11 +29,11 @@ This documentation compiles essential guidelines on npm configuration, covering 
 ## License if known: Mixed (npm-check-updates: MIT; npm documentation: Not specified)
 
 # Node.js Official Documentation
-## https://nodejs.org/api/esm.html & https://nodejs.org/api/process.html
-This authoritative guide from Node.js combines insights on ECMAScript Modules and the Process API. It explains module import/export mechanisms, compatibility considerations, and process-level operations such as command-line argument handling and environment management. This merged resource is critical for leveraging modern JavaScript patterns and ensuring reliable CLI integrations.
+## https://nodejs.org/api/esm.html
+The Node.js documentation provides authoritative guidance on ECMAScript Modules, core modules, and process-level functionalities. It explains module systems, compatibility considerations, and essential APIs to build reliable JavaScript applications on Node.js. This resource is fundamental for leveraging modern JavaScript in CLI tools and server-side code.
 ## License if known: MIT
 
-# GitHub REST API Documentation
-## https://docs.github.com/en/rest
-This documentation offers detailed technical insights into the GitHub REST API, providing specifications for endpoints related to issues, pull requests, workflows, and repository management. It covers authentication, rate limiting, and usage examples, offering actionable guidance that is particularly valuable for integrating GitHub’s automation and collaboration features. Frequent updates and authoritative content make it a cornerstone for developers looking to build integrated CI/CD and agentic systems.
+# Agentic-lib Reusable Workflows Documentation
+## https://github.com/xn-intenton-z2a/agentic-lib
+This repository documents agentic-lib, a collection of reusable GitHub Actions workflows designed for autonomous CI/CD processes. It offers technical insights into workflow invocation, configuration, and integration best practices. It is an invaluable resource for understanding and implementing self-evolving code automation in projects.
 ## License if known: Not specified
