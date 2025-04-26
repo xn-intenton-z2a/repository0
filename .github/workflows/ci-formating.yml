@@ -56,7 +56,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@4.3.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@4.3.11'
     with:
       script: 'npm run formatting-fix -- src/lib/main.js tests/unit/main.test.js ; npm run linting-fix src/lib/main.js tests/unit/main.test.js'
       sarifScript: ''
@@ -77,7 +77,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.11'
     with:
       branch: 'agentic-lib-formatting'
       baseBranch: 'main'
@@ -88,7 +88,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.11'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -104,7 +104,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.11'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
