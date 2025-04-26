@@ -1,27 +1,22 @@
 # CORE_CLI Feature Update
 
-This update enhances the CLI functionality in the main source file by adding a new update command. In addition to the existing version, diagnostics, and help commands, the CLI will now handle an update command that simulates an update check. The command will provide users with feedback on whether an update is available.
+This update enhances the CLI functionality by fully implementing the update command. In addition to the existing commands (version, diagnostics, help), the CLI now supports the update command. When invoked with "update", the CLI simulates an update check and prints the message "No update available".
 
-# Implementation Details
+## Implementation Details
 
 - Update src/lib/main.js:
-  - Add a branch in the command dispatcher to detect if the first argument equals "update".
-  - When the update command is invoked, simulate an update check by printing a message, for example, "No update available".
+  - Add a new branch in the command dispatcher for the "update" command. When the "update" command is detected, print the message "No update available" and exit.
 
-- Update tests in tests/unit/main.test.js:
-  - Add a new test case that invokes the update command and verifies that the output matches the expected update check message.
+- Testing in tests/unit/main.test.js:
+  - Add a new test case that calls main(["update"]) and checks that the output is exactly "No update available".
 
-- Update Documentation:
-  - Revise README.md and docs/USAGE.md to include instructions for using the update command. Specify the usage as "npm run check-update" or "node src/lib/main.js update", and mention that the command simulates an update check by indicating that no update is available.
+- Documentation Updates:
+  - Revise docs/USAGE.md to include the update command. Describe its usage (e.g., "node src/lib/main.js update" or via npm script "npm run check-update") and the expected output.
+  - Update README.md to reference the availability of the update command, ensuring users know they can check for updates even though it simulates the behavior.
 
-- Ensure package.json mapping remains consistent with the update command using the "check-update" script.
+- Dependency and Script Validation:
+  - Confirm that package.json already includes the "check-update" script which maps to the update command.
 
-# User Impact
+## User Impact
 
-Users benefit from a more robust CLI experience. The update command offers additional feedback regarding update status, aligning the CLI tool with the overall project template goals. This improvement complements the automated workflows by ensuring that user interactions through the CLI are both informative and consistent.
-
-# Testing and Validation
-
-- Unit tests will cover the update command along with the existing subcommands.
-- The new test for the update command will verify that the CLI outputs the correct message when "update" is passed as an argument.
-- Documentation updates ensure users are aware of the new command and its expected behavior.
+Users benefit from a more complete CLI experience. By adding the update command, the CLI provides clear feedback on update status, complementing diagnostic processes and the existing workflow automation. This change reinforces the repository template's role in acting as a robust starting point for projects.
