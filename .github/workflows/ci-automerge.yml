@@ -187,9 +187,9 @@ jobs:
               branchName = pullRequest.head.ref;
               core.info(`branchName '${branchName}'`);
               
-              const issueNumberMatch = branchName.match(/${branchPrefix}(\d+)/);
-              if (issueNumberMatch) {
-                issueNumber = issueNumberMatch[1];
+              const issueNumberMatch = branchName.replace(branchPrefix, '');
+              if (parseInt(issueNumberMatch)) {
+                issueNumber = `${parseInt(issueNumberMatch)}`;
               } else {
                 issueNumber = '';
               }
