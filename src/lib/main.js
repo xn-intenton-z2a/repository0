@@ -22,7 +22,7 @@ export function main(args) {
     } else if (command === "diagnostics") {
       const diagnostics = {
         nodeVersion: process.version,
-        message: "Diagnostics info: all systems operational"
+        message: "Diagnostics info: all systems operational",
       };
       console.log(JSON.stringify(diagnostics));
       return;

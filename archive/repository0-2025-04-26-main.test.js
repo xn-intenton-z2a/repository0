@@ -3,7 +3,6 @@ import * as mainModule from "@src/lib/main.js";
 import { main } from "@src/lib/main.js";
 import inquirer from "inquirer";
 
-
 describe("Main Module Import", () => {
   test("should be non-null", () => {
     expect(mainModule).not.toBeNull();
@@ -14,7 +13,7 @@ describe("Main Output", () => {
   test("should terminate without error when no arguments are provided", async () => {
     const spy = vi.spyOn(console, "log");
     await main([]);
-    const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
+    const output = spy.mock.calls.map((call) => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     spy.mockRestore();
   });
@@ -24,7 +23,7 @@ describe("Help Message", () => {
   test("should display dynamic help message with no arguments", async () => {
     const spy = vi.spyOn(console, "log");
     await main([]);
-    const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
+    const output = spy.mock.calls.map((call) => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     expect(output).toContain("--agentic:");
     expect(output).toContain("--cli-utils:");
@@ -34,7 +33,7 @@ describe("Help Message", () => {
   test("should display dynamic help message with --help flag", async () => {
     const spy = vi.spyOn(console, "log");
     await main(["--help"]);
-    const output = spy.mock.calls.map(call => call.join(" ")).join("\n");
+    const output = spy.mock.calls.map((call) => call.join(" ")).join("\n");
     expect(output).toContain("Available CLI Commands:");
     expect(output).toContain("--simulate-load <ms>:");
     spy.mockRestore();
@@ -86,11 +85,11 @@ describe("Version and Diagnostics Flags", () => {
     const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     await main(["--diagnostics"]);
     // There should be multiple log calls
-    const calls = spy.mock.calls.map(call => call[0]);
-    expect(calls.some(line => line.startsWith("Version:"))).toBe(true);
-    expect(calls.some(line => line.startsWith("Timestamp:"))).toBe(true);
-    expect(calls.some(line => line.startsWith("Node.js Version:"))).toBe(true);
-    expect(calls.some(line => line.startsWith("Platform:"))).toBe(true);
+    const calls = spy.mock.calls.map((call) => call[0]);
+    expect(calls.some((line) => line.startsWith("Version:"))).toBe(true);
+    expect(calls.some((line) => line.startsWith("Timestamp:"))).toBe(true);
+    expect(calls.some((line) => line.startsWith("Node.js Version:"))).toBe(true);
+    expect(calls.some((line) => line.startsWith("Platform:"))).toBe(true);
     spy.mockRestore();
   });
 });

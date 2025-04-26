@@ -20,7 +20,7 @@ function backupHistory(history) {
   // Create a deep copy of the current state for backup (only sessionTitle and messages)
   const backup = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.map((msg) => ({ ...msg }))
+    messages: history.messages.map((msg) => ({ ...msg })),
   };
   history._undoStack.push(backup);
 }
@@ -293,7 +293,7 @@ function handleUndo() {
   }
   const currentState = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.map((msg) => ({ ...msg }))
+    messages: history.messages.map((msg) => ({ ...msg })),
   };
   history._redoStack.push(currentState);
 
@@ -330,7 +330,7 @@ function handleRedo() {
   }
   const currentState = {
     sessionTitle: history.sessionTitle,
-    messages: history.messages.map((msg) => ({ ...msg }))
+    messages: history.messages.map((msg) => ({ ...msg })),
   };
   history._undoStack.push(currentState);
 
@@ -362,7 +362,7 @@ function handleChatSession(args) {
   }
   historyData.messages.push({
     timestamp: new Date().toISOString(),
-    message: "Simulated chat message received."
+    message: "Simulated chat message received.",
   });
   try {
     fs.writeFileSync(chatHistoryFile, JSON.stringify(historyData, null, 2));
@@ -422,10 +422,12 @@ function handleImport(args) {
   // Validate structure: must have sessionTitle string and messages array with objects having timestamp and message.
   const importSchema = z.object({
     sessionTitle: z.string(),
-    messages: z.array(z.object({
-      timestamp: z.string(),
-      message: z.string()
-    }))
+    messages: z.array(
+      z.object({
+        timestamp: z.string(),
+        message: z.string(),
+      }),
+    ),
   });
   try {
     importSchema.parse(importedData);
@@ -473,7 +475,7 @@ function handleEditByTimestamp(args) {
     console.error("Error reading chat history file.");
     return;
   }
-  const index = history.messages.findIndex(msg => msg.timestamp === targetTimestamp);
+  const index = history.messages.findIndex((msg) => msg.timestamp === targetTimestamp);
   if (index === -1) {
     console.error("No message found with the provided timestamp.");
     return;
@@ -505,14 +507,16 @@ function handleAnalytics() {
   const messages = history.messages || [];
   const totalMessages = messages.length;
   if (totalMessages === 0) {
-    console.log("Total messages: 0, Average message length: 0, Median message length: 0, Total words: 0, Longest message: '', Average word count: 0");
+    console.log(
+      "Total messages: 0, Average message length: 0, Median message length: 0, Total words: 0, Longest message: '', Average word count: 0",
+    );
     return;
   }
   const totalLength = messages.reduce((acc, msg) => acc + (msg.message.length || 0), 0);
   const averageLength = (totalLength / totalMessages).toFixed(2);
 
   // Calculate median message length
-  const lengths = messages.map(msg => msg.message.length).sort((a, b) => a - b);
+  const lengths = messages.map((msg) => msg.message.length).sort((a, b) => a - b);
   let median;
   if (totalMessages % 2 === 1) {
     median = lengths[Math.floor(totalMessages / 2)];
@@ -522,7 +526,7 @@ function handleAnalytics() {
 
   let totalWords = 0;
   let longestMessage = "";
-  messages.forEach(msg => {
+  messages.forEach((msg) => {
     const words = msg.message.trim().split(/\s+/).filter(Boolean);
     totalWords += words.length;
     if (msg.message.length > longestMessage.length) {
@@ -531,7 +535,9 @@ function handleAnalytics() {
   });
   const averageWordCount = (totalWords / totalMessages).toFixed(2);
 
-  console.log(`Total messages: ${totalMessages}, Average message length: ${averageLength}, Median message length: ${median}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`);
+  console.log(
+    `Total messages: ${totalMessages}, Average message length: ${averageLength}, Median message length: ${median}, Total words: ${totalWords}, Longest message: '${longestMessage}', Average word count: ${averageWordCount}`,
+  );
 }
 
 // New function to handle diagnostics of repository health
@@ -544,8 +550,8 @@ function handleDiagnostics() {
       console.log("Chat History Found:");
       console.log(" - Session Title: " + history.sessionTitle);
       console.log(" - Number of messages: " + (history.messages ? history.messages.length : 0));
-      console.log(" - Undo Stack exists: " + (!!history._undoStack));
-      console.log(" - Redo Stack exists: " + (!!history._redoStack));
+      console.log(" - Undo Stack exists: " + !!history._undoStack);
+      console.log(" - Redo Stack exists: " + !!history._redoStack);
     } catch (e) {
       console.error("Failed to parse chat history file.");
     }

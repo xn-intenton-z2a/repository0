@@ -5,7 +5,7 @@ import { main } from "@src/lib/main.js";
 function captureConsole(callback) {
   const originalLog = console.log;
   const logs = [];
-  console.log = (...args) => logs.push(args.join(' '));
+  console.log = (...args) => logs.push(args.join(" "));
   try {
     callback();
   } finally {

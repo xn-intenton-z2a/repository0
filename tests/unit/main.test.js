@@ -23,7 +23,9 @@ describe("Main Output", () => {
     main(["diagnostics"]);
     const output = consoleSpy.mock.calls[0][0];
     let diagnostics;
-    expect(() => { diagnostics = JSON.parse(output); }).not.toThrow();
+    expect(() => {
+      diagnostics = JSON.parse(output);
+    }).not.toThrow();
     expect(diagnostics).toHaveProperty("nodeVersion");
     expect(diagnostics).toHaveProperty("message", "Diagnostics info: all systems operational");
     consoleSpy.mockRestore();
@@ -33,7 +35,7 @@ describe("Main Output", () => {
     const consoleSpy = vi.spyOn(console, "log");
     main(["help"]);
     const output = consoleSpy.mock.calls[0][0];
-    expectedHelpKeywords.forEach(keyword => {
+    expectedHelpKeywords.forEach((keyword) => {
       expect(output).toContain(keyword);
     });
     consoleSpy.mockRestore();
@@ -43,7 +45,7 @@ describe("Main Output", () => {
     const consoleSpy = vi.spyOn(console, "log");
     main(["unknown"]);
     const output = consoleSpy.mock.calls[0][0];
-    expectedHelpKeywords.forEach(keyword => {
+    expectedHelpKeywords.forEach((keyword) => {
       expect(output).toContain(keyword);
     });
     consoleSpy.mockRestore();
@@ -53,7 +55,7 @@ describe("Main Output", () => {
     const consoleSpy = vi.spyOn(console, "log");
     main([]);
     const output = consoleSpy.mock.calls[0][0];
-    expectedHelpKeywords.forEach(keyword => {
+    expectedHelpKeywords.forEach((keyword) => {
       expect(output).toContain(keyword);
     });
     consoleSpy.mockRestore();
