@@ -49,7 +49,7 @@ You can interact with the CLI using the following commands:
     ```
 
 - **help**
-  - Description: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or no command is provided.
+  - Description: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or if no command is provided.
   - Usage: `npm run start` or `node src/lib/main.js help`
   - Example Output:
     ```

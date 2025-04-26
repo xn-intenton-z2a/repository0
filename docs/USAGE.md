@@ -35,7 +35,7 @@ This repository serves as a flexible template for new projects integrating autom
   }
   ```
 
-- **help**: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or no command is provided.
+- **help**: Displays a help message with usage instructions and available commands. This output is also shown when an unrecognized command is entered or when no command is provided.
 
   **Example:**
 
@@ -54,7 +54,7 @@ This repository serves as a flexible template for new projects integrating autom
   Usage: node src/lib/main.js [command]
   ```
 
-- **Unrecognized or Missing Command**: For any unrecognized command or if no command is given, the CLI displays the help message.
+- **Unrecognized or Missing Command**: For any unrecognized command or if no command is provided, the CLI displays the help message.
 
   **Example:**
 
