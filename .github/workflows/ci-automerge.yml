@@ -34,6 +34,7 @@ env:
   iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
   pullRequestLabel: 'automerge'
+  branchPrefix: 'agentic-lib-issue-'
 
 jobs:
   label:
@@ -155,7 +156,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           prMerged: ${{ needs.pr.outputs.prMerged || 'false' }}
-          pullNumber: ${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber }}
+          pullNumber: ${{ needs.pr.outputs.pullNumber || needs.cs.outputs.pullNumber || needs.ls.outputs.pullNumber || ''}}
           shouldSkipMerge: ${{ needs.pr.outputs.shouldSkipMerge || 'false' }}
         with:
           script: |
@@ -176,20 +177,26 @@ jobs:
             core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
             core.info(`branchPrefix '${branchPrefix}'`);
             
-            const { data: pullRequest } = await github.rest.pulls.get({
-              owner,
-              repo,
-              pull_number: pullNumber,
-            });
-            const branchName = pullRequest.head.ref;
-            core.info(`branchName '${branchName}'`);
-            const issueNumberMatch = branchName.match(/${branchPrefix}(\d+)/);
-            let issueNumber;
-            if (issueNumberMatch) {
-              issueNumber = issueNumberMatch[1];
-            } else {
-              issueNumber = '';
+            let branchName = '';
+            let issueNumber = '';
+            if( pullNumber) {
+              const { data: pullRequest } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: pullNumber
+              });
+              branchName = pullRequest.head.ref;
+              core.info(`branchName '${branchName}'`);
+              
+              const issueNumberMatch = branchName.match(/${branchPrefix}(\d+)/);
+              if (issueNumberMatch) {
+                issueNumber = issueNumberMatch[1];
+              } else {
+                issueNumber = '';
+              }
             }
+
+            core.setOutput('branchName', branchName);            
             core.setOutput('issueNumber', issueNumber);
             core.info(`issueNumber '${issueNumber}'`);
           result-encoding: string
