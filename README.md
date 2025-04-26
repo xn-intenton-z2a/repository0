@@ -8,34 +8,36 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 `repository0` is a demo repository showcasing GitHub workflows from intentïon `agentic‑lib` along with a simple CLI tool. The CLI functionality is implemented in `src/lib/main.js` and provides the following commands:
 
-- **version**: Prints the current version.
-- **diagnostics**: Displays diagnostic information including the Node.js version.
+- **version**: Prints the current version (currently `2.1.0-0`).
+- **diagnostics**: Displays diagnostic information including the Node.js version and a system message.
 - **help**: Shows a help message with usage instructions.
 
-This repository demonstrates how automated workflows can manage source code, tests, and documentation.
+For any unrecognized command or when no command is provided, the CLI defaults to displaying the help message.
+
+This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project.
 
 ## What’s Inside
 
-- **GitHub Workflows:**  
+- **GitHub Workflows:**
   Workflows in the `.github/workflows/` directory use reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
-- **Source Code:**  
+- **Source Code:**
   The core CLI is implemented in `src/lib/main.js`. It handles CLI commands and is consistently maintained alongside the project’s tests.
 
-- **Dependencies:**  
+- **Dependencies:**
   The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and running the CLI.
 
-- **Tests:**  
+- **Tests:**
   Unit tests in the `tests/unit/` folder verify the functionality of the CLI commands (`version`, `diagnostics`, and `help`).
 
-- **Documentation:**  
+- **Documentation:**
   This README provides an overview of the repository. Detailed CLI usage instructions are available in [docs/USAGE.md](docs/USAGE.md).
 
 ## Getting Started
 
-The repository is pre-configured with necessary workflows and scripts. To run the CLI locally, ensure you set the required secret:
+The repository is pre-configured with necessary workflows and scripts. To run the CLI locally, ensure you set the required secret if using the automated workflows:
 
-- `CHATGPT_API_SECRET_KEY` – A key for account access to the OpenAI chat completions API (model `o3-mini`).
+- `CHATGPT_API_SECRET_KEY` – A key for accessing account services via the OpenAI chat completions API (model `o3-mini`).
 
 Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*.
 
