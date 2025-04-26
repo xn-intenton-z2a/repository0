@@ -59,7 +59,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.11'
     with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -347,6 +347,7 @@ jobs:
       gitUserName: 'GitHub Actions[bot]'
       allowedFilepathPatterns: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
+      promptFile: '.github/agents/agent-issue-resolution.md'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
