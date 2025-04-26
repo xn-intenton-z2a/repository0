@@ -24,335 +24,416 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="zod_schema" href="#zod_schema"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ZOD_SCHEMA</h1>
 <h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
-<p class="md-github">Key technical details include installation commands, schema creation for primitives, objects, arrays, tuples, unions, recursive schemas, function schemas, and advanced validations. Direct API methods such as .parse, .safeParse, .parseAsync, .refine, and transformation methods (.transform, .preprocess) are covered with explicit parameter options. Detailed specifications for coercion, string validations (email, url, regex, datetime), object schema manipulations (.extend, .merge, .pick/.omit, .partial, .deepPartial, .passthrough, .strict, .strip, .catchall), and error handling are presented.</p>
+<p class="md-github">Zod is a comprehensive TypeScript-first schema validation library. It provides installation instructions, basic and advanced schema creation (primitives, strings, objects, arrays, tuples, unions, enums, and function schemas), coercion methods, custom error handling and detailed validations for dates, IP addresses, numbers, booleans, and more. API methods include .parse, .safeParse, .parseAsync, .refine, .transform, and team-supported recursive types with z.lazy(). Coercion methods exist for all primitive types and allow configurable behavior. The library emphasizes immutable, chainable schema definitions designed for immediate integration in modern JavaScript and TypeScript projects.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
 <p class="md-github">Table of Contents:</p>
 <ol class="md-github">
-<li class="md-github">Installation and tsconfig Requirements
+<li class="md-github">Installation and Requirements
 <ul class="md-github">
-<li class="md-github">TypeScript 4.5+ with strict=true</li>
-<li class="md-github">Install via npm, yarn, bun, pnpm (zod and zod@canary)</li>
+<li class="md-github">TypeScript 4.5+ with strict mode required</li>
+<li class="md-github">npm: zod install commands with optional @canary version</li>
 </ul>
 </li>
-<li class="md-github">Schema Definitions and Parsing Methods
+<li class="md-github">Basic Schemas
 <ul class="md-github">
-<li class="md-github">Primitives: z.string(), z.number(), etc.</li>
-<li class="md-github">Coercion: z.coerce.string(), z.coerce.number(), etc. with built-in constructors</li>
-<li class="md-github">Parsing: .parse(data), .safeParse(data), .parseAsync(data)</li>
+<li class="md-github">String schema: z.string(), .parse, .safeParse</li>
+<li class="md-github">Object schema: z.object({ username: z.string() }), type inference with z.infer</li>
 </ul>
 </li>
-<li class="md-github">Object and Complex Schemas
+<li class="md-github">Primitive Types and Coercion
 <ul class="md-github">
-<li class="md-github">Object: z.object({ key: schema }), .shape, .keyof, .extend, .merge</li>
-<li class="md-github">Optional and Nullable: .optional(), .nullable(), .unwrap()</li>
+<li class="md-github">Available primitives: string, number, bigint, boolean, date, symbol</li>
+<li class="md-github">Coercion: z.coerce.string(), z.coerce.number(), etc. using native constructors</li>
 </ul>
 </li>
-<li class="md-github">Array, Tuple, Union, and Discriminated Union Schemas
+<li class="md-github">Literals and Custom Messages
 <ul class="md-github">
-<li class="md-github">Arrays: z.array(schema) with .nonempty(), .min(), .max(), .length()</li>
-<li class="md-github">Tuples: z.tuple([...]) including .rest for variadic elements</li>
-<li class="md-github">Unions: z.union([...]) and .or, discriminatedUnion using a discriminator key</li>
+<li class="md-github">Literal schemas: z.literal(value), .value property</li>
+<li class="md-github">Custom error messages: provided in schema options and method parameters</li>
 </ul>
 </li>
-<li class="md-github">Advanced Features
+<li class="md-github">Complex Types
 <ul class="md-github">
-<li class="md-github">Recursive schemas using z.lazy, custom refinements with .refine and .superRefine</li>
-<li class="md-github">Effect schemas: z.ZodEffects for preprocessing and transforms</li>
-<li class="md-github">Function schemas: z.function().args(...).returns(...).implement(fn), parameters(), returnType()</li>
+<li class="md-github">Arrays: z.array(schema), .nonempty, .min, .max</li>
+<li class="md-github">Tuples: z.tuple([...]), .rest for variadic arguments</li>
+<li class="md-github">Unions: z.union([...]) and .or for alternatives</li>
 </ul>
 </li>
-<li class="md-github">Special Validations and Custom Schemas
+<li class="md-github">Object Operations
 <ul class="md-github">
-<li class="md-github">Literal values with z.literal, enums with z.enum and z.nativeEnum</li>
-<li class="md-github">Instance checks using z.instanceof, custom validations using z.custom</li>
+<li class="md-github">.shape, .extend, .merge, .pick, .omit, .partial, .deepPartial, .required</li>
+<li class="md-github">Unknown keys handling: .passthrough, .strict, .strip, .catchall</li>
+</ul>
+</li>
+<li class="md-github">Specialized Validations
+<ul class="md-github">
+<li class="md-github">Date/Time: z.string().datetime({ offset, precision }), z.string().date(), z.string().time({ precision })</li>
+<li class="md-github">IP and CIDR: z.string().ip({ version }), z.string().cidr({ version })</li>
+</ul>
+</li>
+<li class="md-github">Number, BigInt, Boolean, Date
+<ul class="md-github">
+<li class="md-github">Methods: .gt, .gte, .lt, .lte, .int, .positive, .multipleOf</li>
+</ul>
+</li>
+<li class="md-github">Enums
+<ul class="md-github">
+<li class="md-github">Zod enums: z.enum([...]), nativeEnum for TypeScript enums, .enum and .options for access</li>
+</ul>
+</li>
+<li class="md-github">Function Schemas
+<ul class="md-github">
+<li class="md-github">Define with z.function(), chain .args() and .returns(), use .implement to validate inputs/outputs</li>
+</ul>
+</li>
+<li class="md-github">Preprocess and Custom Schemas
+<ul class="md-github">
+<li class="md-github">z.preprocess for pre-parsing transforms, z.custom<T>() for custom type validations</li>
+</ul>
+</li>
+<li class="md-github">Schema Methods
+<ul class="md-github">
+<li class="md-github">.parse, .parseAsync, .safeParse, .safeParseAsync, .refine, .superRefine, .transform</li>
 </ul>
 </li>
 </ol>
-<p class="md-github">Each topic includes direct method signatures, parameter options (e.g., z.string().email({ message: 'Invalid email' })), and explicit code examples illustrating usage and expected outcomes.</p>
+<p class="md-github">Each section includes explicit method signatures, error options, and transformation steps. For example, for string coercion:
+z.coerce.string().email().min(5) transforms input using String(input) and then applies email and length validations. Input is converted and validated in one chain.</p>
+<p class="md-github">Direct use cases are provided for function schemas:
+z.function().args(z.string()).returns(z.number()).implement((x) =&gt; x.trim().length) ensures validated input and output types.</p>
+<p class="md-github">These concrete extracts offer immediate implementation details for constructing robust Zod schemas.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
-<p class="md-github">Installation: npm install zod; Enable strict mode in tsconfig.json. API Specs:</p>
-<ul class="md-github">
-<li class="md-github">z.string().parse(data: unknown): string</li>
-<li class="md-github">z.string().safeParse(data: unknown): { success: boolean, data?: string, error?: ZodError }</li>
-<li class="md-github">z.coerce.date() converts input using new Date(input)</li>
-<li class="md-github">Object schema: z.object({ key: schema }) with .extend({ newKey: schema }), .merge(otherSchema)</li>
-<li class="md-github">Array schemas: z.array(schema).nonempty({ message: 'Array cannot be empty' })
-Configuration Options:</li>
-<li class="md-github">String validations: min(n, { message }), max(n, { message }), length(n, { message }), email({ message }), regex(pattern, { message })</li>
-<li class="md-github">Datetime: z.string().datetime({ offset: true, precision: 3, local: true })</li>
-<li class="md-github">IP: z.string().ip({ version: 'v4' or 'v6' }), z.string().cidr({ version: 'v4' or 'v6' })</li>
-<li class="md-github">Function schemas: z.function().args(schema1, schema2).returns(schema)
-Best Practices:</li>
-<li class="md-github">Use safeParse to handle validation errors gracefully.</li>
-<li class="md-github">For recursive schemas, use z.lazy to avoid infinite loops.</li>
-<li class="md-github">Extract inner schema from optional/nullable types with .unwrap().
-Step-by-Step Troubleshooting:</li>
-</ul>
-<ol class="md-github">
-<li class="md-github">Verify TypeScript strict mode is enabled in tsconfig.json.</li>
-<li class="md-github">Use .safeParse to inspect validation failure messages.</li>
-<li class="md-github">For coercion issues, use z.coerce rather than preprocess if possible.</li>
-<li class="md-github">Check method chaining order, e.g., z.string().optional().array() vs. z.string().array().optional().</li>
-</ol>
+<p class="md-github">Installation requires TS 4.5+ with strict mode enabled in tsconfig.json. Configuration options include enabling timezone offsets in datetime validations with { offset: true }, precision controls in datetime and time validations with { precision: <number> }, IP version restrictions using { version: &quot;v4&quot; or &quot;v6&quot; }, and custom error messages provided as second parameter objects in methods such as .min({ message: 'error' }). Object schemas support .passthrough() to retain unknown keys, .strict() to reject them, and .catchall() to apply validation on all additional keys. Function schemas require explicit .args() and .returns() definitions with .implement() for runtime validation.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
 <p class="md-github">API Specifications:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">Schema Creation:</p>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github">z.string(): ZodString
-.parse(input: unknown): string
-.safeParse(input: unknown): { success: boolean; data?: string; error?: ZodError }
-.parseAsync(input: unknown): Promise<string>
-.min(n: number, options?: { message?: string }): ZodString
-.max(n: number, options?: { message?: string }): ZodString
-.email(options?: { message?: string }): ZodString</p>
-</li>
-<li class="md-github">
-<p class="md-github">z.number(): ZodNumber
-.gt(num: number): ZodNumber
-.gte(num: number): ZodNumber
-.lt(num: number): ZodNumber
-.lte(num: number, options?: { message?: string }): ZodNumber
-.int(): ZodNumber
-.positive(): ZodNumber
-.nonnegative(): ZodNumber
-.negative(): ZodNumber
-.nonpositive(): ZodNumber
-.multipleOf(num: number): ZodNumber
-.finite(): ZodNumber
-.safe(): ZodNumber</p>
-</li>
-<li class="md-github">
-<p class="md-github">Object Schemas:
-const MyObj = z.object({ key: z.string() });
-Methods: .extend({ extra: schema }), .merge(OtherObj), .pick({ key: true }), .omit({ key: true }), .partial(), .deepPartial(), .required(), .passthrough(), .strict(), .strip(), .catchall(schema)</p>
-</li>
-<li class="md-github">
-<p class="md-github">Array Schemas:
-const arr = z.array(z.string());
-Methods: .nonempty(options), .min(n), .max(n), .length(n), .element</p>
-</li>
-<li class="md-github">
-<p class="md-github">Tuple Schemas:
-const tup = z.tuple([z.string(), z.number()]);
-.rest(schema) for variadic elements</p>
-</li>
-<li class="md-github">
-<p class="md-github">Union Schemas:
-z.union([z.string(), z.number()])
-Alternative: z.string().or(z.number())</p>
-</li>
-<li class="md-github">
-<p class="md-github">Discriminated Unions:
-const union = z.discriminatedUnion('status', [
-z.object({ status: z.literal('success'), data: z.string() }),
-z.object({ status: z.literal('failed'), error: z.instanceof(Error) })
-]);</p>
-</li>
-<li class="md-github">
-<p class="md-github">Recursive Schemas:
-const categorySchema: z.ZodType<Category> = baseSchema.extend({
-subcategories: z.lazy(() =&gt; categorySchema.array())
-});</p>
-</li>
-<li class="md-github">
-<p class="md-github">Function Schemas:
-const func = z.function()
-.args(z.string(), z.number())
-.returns(z.boolean())
-.implement((s: string, n: number): boolean =&gt; { return s.length === n; });
-Methods: .parameters(), .returnType()</p>
-</li>
+<li class="md-github">z.string(): Schema<string></li>
+<li class="md-github">z.number(): Schema<number></li>
+<li class="md-github">z.object({ key: Schema<T> }): Schema&lt;{ key: T }&gt;</li>
+<li class="md-github">z.array(Schema<T>): Schema&lt;T[]&gt;</li>
 </ul>
-<p class="md-github">Commands for troubleshooting:</p>
+</li>
+<li class="md-github">
+<p class="md-github">Parsing Methods:</p>
 <ul class="md-github">
-<li class="md-github">Use .safeParse to get error details: e.g., result = schema.safeParse(input); if (!result.success) { console.error(result.error.format()); }</li>
-<li class="md-github">For async validations, use .parseAsync and await the promise.</li>
+<li class="md-github">parse(data: unknown): T
+Throws ZodError if validation fails.</li>
+<li class="md-github">safeParse(data: unknown): { success: true; data: T } | { success: false; error: ZodError }</li>
+<li class="md-github">parseAsync(data: unknown): Promise<T></li>
+<li class="md-github">safeParseAsync(data: unknown): Promise&lt;{ success: true; data: T } | { success: false; error: ZodError }&gt;</li>
 </ul>
-<p class="md-github">Full Code Example:</p>
-<p class="md-github">// String Schema with Coercion
-import { z } from 'zod';
-const schema = z.coerce.string().email().min(5, { message: 'Must be 5 or more characters long' });
-console.log(schema.safeParse('example@test.com'));</p>
-<p class="md-github">// Object Schema
-const User = z.object({
+</li>
+<li class="md-github">
+<p class="md-github">Coercion Methods:</p>
+<ul class="md-github">
+<li class="md-github">z.coerce.string(): returns ZodString instance that calls String(input)</li>
+<li class="md-github">z.coerce.number(): returns ZodNumber instance using Number(input)</li>
+<li class="md-github">z.coerce.boolean(): returns ZodBoolean instance using Boolean(input)</li>
+<li class="md-github">z.coerce.date(): returns ZodDate instance using new Date(input)</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Validation Methods:</p>
+<ul class="md-github">
+<li class="md-github">.min(limit: number, options?: { message: string }): Schema<T></li>
+<li class="md-github">.max(limit: number, options?: { message: string }): Schema<T></li>
+<li class="md-github">.refine(validator: (data: T) =&gt; any, params?: { message?: string; path?: (string | number)[] }): Schema<T></li>
+<li class="md-github">.superRefine(callback: (data: T, ctx: { addIssue: (issue: Issue) =&gt; void }) =&gt; void): Schema<T></li>
+<li class="md-github">.transform(transformer: (arg: T) =&gt; U): Schema<U></li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Function Schemas:</p>
+<ul class="md-github">
+<li class="md-github">z.function(): returns a function schema</li>
+<li class="md-github">.args(...schemas: Schema<any>[])</li>
+<li class="md-github">.returns(schema: Schema<any>)</li>
+<li class="md-github">.implement(fn: (...args: any[]) =&gt; any): Returns a new function that validates input and output</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github">Example Code:
+// Coerce and validate string email
+const emailSchema = z.coerce.string().email({ message: &quot;Invalid email&quot; }).min(5, { message: &quot;Minimum length is 5&quot; });
+// Object schema with optional field
+const user = z.object({
 username: z.string(),
-age: z.number().int().positive()
-}).strict();</p>
-<p class="md-github">// Function Schema
+age: z.number().optional()
+});
+// Function schema example
 const trimmedLength = z.function()
 .args(z.string())
 .returns(z.number())
 .implement((x) =&gt; x.trim().length);</p>
-<p class="md-github">// Recursive Schema
-const baseCategorySchema = z.object({ name: z.string() });
-const categorySchema: z.ZodType<any> = baseCategorySchema.extend({
-subcategories: z.lazy(() =&gt; categorySchema.array())
-});</p>
-<p class="md-github">// Parsing Example
-try {
-const user = User.parse({ username: 'Alice', age: 30 });
-console.log(user);
-} catch (e) {
-console.error(e);
-}</p>
-<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
-<p class="md-github">Zod; TypeScript 4.5+; strict mode required; Install: npm install zod; Schemas: z.string(), z.number(), z.boolean(), z.date(), z.enum, z.nativeEnum; Coercion: z.coerce.string() =&gt; String(), z.coerce.number() =&gt; Number(); Parsing: .parse(data), .safeParse(data), .parseAsync(data); Object: z.object({ key: schema }), .extend(), .merge(), .pick(), .omit(), .partial(), .deepPartial(), .required(), .passthrough(), .strict(), .strip(), .catchall(); Arrays: z.array(schema).nonempty(), .min(n), .max(n), .length(n); Tuples: z.tuple([...]), .rest(); Unions: z.union([schemas]), .or(), discriminatedUnion(key, options); Recursive: z.lazy(() =&gt; schema); Functions: z.function().args(...).returns(...).implement(fn), parameters(), returnType(); API methods include .refine, .superRefine, .transform, .preprocess; Detailed error handling and custom messages via options; Code examples demonstrate usage for validations and schema chaining.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
-<p class="md-github">Table of Contents:</p>
-<ol class="md-github">
-<li class="md-github">Installation and tsconfig Requirements
-<ul class="md-github">
-<li class="md-github">TypeScript 4.5+ with strict=true</li>
-<li class="md-github">Install via npm, yarn, bun, pnpm (zod and zod@canary)</li>
-</ul>
 </li>
-<li class="md-github">Schema Definitions and Parsing Methods
+<li class="md-github">
+<p class="md-github">Troubleshooting Procedures:</p>
 <ul class="md-github">
-<li class="md-github">Primitives: z.string(), z.number(), etc.</li>
-<li class="md-github">Coercion: z.coerce.string(), z.coerce.number(), etc. with built-in constructors</li>
-<li class="md-github">Parsing: .parse(data), .safeParse(data), .parseAsync(data)</li>
-</ul>
-</li>
-<li class="md-github">Object and Complex Schemas
-<ul class="md-github">
-<li class="md-github">Object: z.object({ key: schema }), .shape, .keyof, .extend, .merge</li>
-<li class="md-github">Optional and Nullable: .optional(), .nullable(), .unwrap()</li>
-</ul>
-</li>
-<li class="md-github">Array, Tuple, Union, and Discriminated Union Schemas
-<ul class="md-github">
-<li class="md-github">Arrays: z.array(schema) with .nonempty(), .min(), .max(), .length()</li>
-<li class="md-github">Tuples: z.tuple([...]) including .rest for variadic elements</li>
-<li class="md-github">Unions: z.union([...]) and .or, discriminatedUnion using a discriminator key</li>
-</ul>
-</li>
-<li class="md-github">Advanced Features
-<ul class="md-github">
-<li class="md-github">Recursive schemas using z.lazy, custom refinements with .refine and .superRefine</li>
-<li class="md-github">Effect schemas: z.ZodEffects for preprocessing and transforms</li>
-<li class="md-github">Function schemas: z.function().args(...).returns(...).implement(fn), parameters(), returnType()</li>
-</ul>
-</li>
-<li class="md-github">Special Validations and Custom Schemas
-<ul class="md-github">
-<li class="md-github">Literal values with z.literal, enums with z.enum and z.nativeEnum</li>
-<li class="md-github">Instance checks using z.instanceof, custom validations using z.custom</li>
+<li class="md-github">For parse errors, use safeParse to capture ZodError and inspect error.errors array for path and issue.</li>
+<li class="md-github">If coercion issues arise, verify input transformation via log outputs in preprocess.</li>
+<li class="md-github">Command: npm run test to validate schema implementations; expected output includes either successful parsing or detailed ZodError with message, path, and code fields.</li>
+<li class="md-github">Use .strict() on object schemas to enforce key filtering; failures will throw error listing unknown keys.</li>
 </ul>
 </li>
 </ol>
-<p class="md-github">Each topic includes direct method signatures, parameter options (e.g., z.string().email({ message: 'Invalid email' })), and explicit code examples illustrating usage and expected outcomes.</p>
+<p class="md-github">All parameters, return types, method signatures, configuration options and concrete examples are detailed above for immediate developer reference.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">Zod TS-first schema lib; install with npm/yarn; TS 4.5+ strict required; primitives: z.string(), z.number(), etc.; coercion via z.coerce.string() using String(input); object: z.object({ key: schema }); methods: .parse(data), .safeParse(data), .parseAsync(data), .refine(fn, { message, path }); arrays: z.array(schema) with .nonempty(), .min(), .max(); tuples: z.tuple([...]) with .rest(); unions: z.union([...]) or .or; enums: z.enum([...]), z.nativeEnum(); function schema: z.function().args(...).returns(...).implement(fn); advanced: .transform, .preprocess, .superRefine; config options: datetime({ offset:true, precision:n }), ip({ version:&quot;v4&quot;/&quot;v6&quot; }), object unknown key handling: .passthrough(), .strict(), .catchall(schema); full API specifications include method signatures and error handling, example implementations provided, troubleshooting via safeParse and error inspection, use z.lazy for recursive types.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">Installation and Requirements
+<ul class="md-github">
+<li class="md-github">TypeScript 4.5+ with strict mode required</li>
+<li class="md-github">npm: zod install commands with optional @canary version</li>
+</ul>
+</li>
+<li class="md-github">Basic Schemas
+<ul class="md-github">
+<li class="md-github">String schema: z.string(), .parse, .safeParse</li>
+<li class="md-github">Object schema: z.object({ username: z.string() }), type inference with z.infer</li>
+</ul>
+</li>
+<li class="md-github">Primitive Types and Coercion
+<ul class="md-github">
+<li class="md-github">Available primitives: string, number, bigint, boolean, date, symbol</li>
+<li class="md-github">Coercion: z.coerce.string(), z.coerce.number(), etc. using native constructors</li>
+</ul>
+</li>
+<li class="md-github">Literals and Custom Messages
+<ul class="md-github">
+<li class="md-github">Literal schemas: z.literal(value), .value property</li>
+<li class="md-github">Custom error messages: provided in schema options and method parameters</li>
+</ul>
+</li>
+<li class="md-github">Complex Types
+<ul class="md-github">
+<li class="md-github">Arrays: z.array(schema), .nonempty, .min, .max</li>
+<li class="md-github">Tuples: z.tuple([...]), .rest for variadic arguments</li>
+<li class="md-github">Unions: z.union([...]) and .or for alternatives</li>
+</ul>
+</li>
+<li class="md-github">Object Operations
+<ul class="md-github">
+<li class="md-github">.shape, .extend, .merge, .pick, .omit, .partial, .deepPartial, .required</li>
+<li class="md-github">Unknown keys handling: .passthrough, .strict, .strip, .catchall</li>
+</ul>
+</li>
+<li class="md-github">Specialized Validations
+<ul class="md-github">
+<li class="md-github">Date/Time: z.string().datetime({ offset, precision }), z.string().date(), z.string().time({ precision })</li>
+<li class="md-github">IP and CIDR: z.string().ip({ version }), z.string().cidr({ version })</li>
+</ul>
+</li>
+<li class="md-github">Number, BigInt, Boolean, Date
+<ul class="md-github">
+<li class="md-github">Methods: .gt, .gte, .lt, .lte, .int, .positive, .multipleOf</li>
+</ul>
+</li>
+<li class="md-github">Enums
+<ul class="md-github">
+<li class="md-github">Zod enums: z.enum([...]), nativeEnum for TypeScript enums, .enum and .options for access</li>
+</ul>
+</li>
+<li class="md-github">Function Schemas
+<ul class="md-github">
+<li class="md-github">Define with z.function(), chain .args() and .returns(), use .implement to validate inputs/outputs</li>
+</ul>
+</li>
+<li class="md-github">Preprocess and Custom Schemas
+<ul class="md-github">
+<li class="md-github">z.preprocess for pre-parsing transforms, z.custom<T>() for custom type validations</li>
+</ul>
+</li>
+<li class="md-github">Schema Methods
+<ul class="md-github">
+<li class="md-github">.parse, .parseAsync, .safeParse, .safeParseAsync, .refine, .superRefine, .transform</li>
+</ul>
+</li>
+</ol>
+<p class="md-github">Each section includes explicit method signatures, error options, and transformation steps. For example, for string coercion:
+z.coerce.string().email().min(5) transforms input using String(input) and then applies email and length validations. Input is converted and validated in one chain.</p>
+<p class="md-github">Direct use cases are provided for function schemas:
+z.function().args(z.string()).returns(z.number()).implement((x) =&gt; x.trim().length) ensures validated input and output types.</p>
+<p class="md-github">These concrete extracts offer immediate implementation details for constructing robust Zod schemas.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
-<p class="md-github">Zod Schema Validation
+<p class="md-github">Zod Schema Validation Guide
 https://github.com/colinhacks/zod</p>
 <h2 class="md-github"><a class="md-github__anchor" name="digest-of-zod_schema" href="#digest-of-zod_schema"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of ZOD_SCHEMA</h2>
-<h1 class="md-github"><a class="md-github__anchor" name="zod_schema-1" href="#zod_schema-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ZOD_SCHEMA</h1>
-<p class="md-github">Retrieved: 2023-10-08</p>
+<h1 class="md-github"><a class="md-github__anchor" name="zod-schema-validation-guide" href="#zod-schema-validation-guide"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Zod Schema Validation Guide</h1>
+<p class="md-github">Content retrieved on: 2023-11-24</p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">Zod is a TypeScript-first schema declaration and validation library with zero dependencies. It automatically infers static types and supports creating schemas for primitives, objects, arrays, tuples, unions, discriminated unions, recursive types, maps, sets, and functions.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="installation-and-requirements" href="#installation-and-requirements"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation and Requirements</h2>
+<p class="md-github">Zod is a TypeScript-first schema validation library designed to declare and validate data types with static type inference. It supports complex nested objects, coercion, error handling, and transformation. It works in Node.js and modern browsers with no external dependencies.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="installation" href="#installation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation</h2>
 <ul class="md-github">
-<li class="md-github">Requires: TypeScript 4.5+ with strict mode enabled in tsconfig.json.</li>
-<li class="md-github">Installation commands:
+<li class="md-github">Requirements: TypeScript 4.5+ with 'strict' enabled in tsconfig.json</li>
+<li class="md-github">Install commands:
 <ul class="md-github">
 <li class="md-github">npm: npm install zod</li>
 <li class="md-github">yarn: yarn add zod</li>
-<li class="md-github">bun: bun add zod</li>
 <li class="md-github">pnpm: pnpm add zod</li>
+<li class="md-github">bun: bun add zod</li>
+<li class="md-github">For canary versions, append @canary</li>
 </ul>
 </li>
-<li class="md-github">Canary versions available (e.g. npm install zod@canary)</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="basic-usage" href="#basic-usage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Basic Usage</h2>
 <h3 class="md-github"><a class="md-github__anchor" name="creating-schemas" href="#creating-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating Schemas</h3>
 <ul class="md-github">
-<li class="md-github">String Schema:
-<ul class="md-github">
-<li class="md-github">Definition: const mySchema = z.string();</li>
-<li class="md-github">Parsing: mySchema.parse(&quot;tuna&quot;) returns &quot;tuna&quot;; mySchema.parse(12) throws ZodError.</li>
-</ul>
+<li class="md-github">
+<p class="md-github">String Schema:
+import { z } from &quot;zod&quot;;
+const mySchema = z.string();
+mySchema.parse(&quot;tuna&quot;);
+mySchema.safeParse(12); // returns error object</p>
 </li>
-<li class="md-github">Object Schema:
-<ul class="md-github">
-<li class="md-github">Definition: const User = z.object({ username: z.string() });</li>
-<li class="md-github">Inferred Type: type User = { username: string };</li>
-</ul>
+<li class="md-github">
+<p class="md-github">Object Schema:
+const User = z.object({
+username: z.string()
+});
+User.parse({ username: &quot;Ludwig&quot; });
+type User = z.infer<typeof User>;</p>
 </li>
 </ul>
-<h3 class="md-github"><a class="md-github__anchor" name="parsing-methods" href="#parsing-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Parsing Methods</h3>
+<h2 class="md-github"><a class="md-github__anchor" name="primitive-types-and-coercion" href="#primitive-types-and-coercion"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Primitive Types and Coercion</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="primitives" href="#primitives"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Primitives</h3>
 <ul class="md-github">
-<li class="md-github">.parse(data: unknown): T</li>
-<li class="md-github">.safeParse(data: unknown): returns { success: true; data: T } or { success: false; error: ZodError }</li>
-<li class="md-github">.parseAsync(data: unknown): Promise<T></li>
+<li class="md-github">z.string(), z.number(), z.bigint(), z.boolean(), z.date(), z.symbol()</li>
+<li class="md-github">Catch-all: z.any(), z.unknown()</li>
+<li class="md-github">z.never() for no values</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="primitive-schemas-and-coercion" href="#primitive-schemas-and-coercion"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Primitive Schemas and Coercion</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="coercion" href="#coercion"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coercion</h3>
 <ul class="md-github">
-<li class="md-github">Primitives: z.string(), z.number(), z.bigint(), z.boolean(), z.date(), z.symbol(), z.undefined(), z.null(), z.void(), z.any(), z.unknown(), z.never().</li>
-<li class="md-github">Coercion: Use z.coerce.string(), z.coerce.number(), etc. They apply constructors: String(input), Number(input), new Date(input).</li>
+<li class="md-github">z.coerce.string() converts inputs with String(input)</li>
+<li class="md-github">Similarly: z.coerce.number(), z.coerce.boolean(), z.coerce.bigint(), z.coerce.date()</li>
+<li class="md-github">Example:
+const schema = z.coerce.boolean();
+schema.parse(&quot;true&quot;); // returns true</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="validation-and-refinement-methods" href="#validation-and-refinement-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Validation and Refinement Methods</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="literals--custom-validation" href="#literals--custom-validation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Literals &amp; Custom Validation</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="literal-schemas" href="#literal-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Literal Schemas</h3>
 <ul class="md-github">
-<li class="md-github">.refine(validator: (data: T) =&gt; any, { message?: string }): custom validation</li>
-<li class="md-github">.superRefine for multiple issues</li>
-<li class="md-github">Common string validations: .max(), .min(), .length(), .email(), .url(), .regex(), .includes(), .startsWith(), .endsWith(), .datetime(), .ip(), .cidr()</li>
+<li class="md-github">const tuna = z.literal(&quot;tuna&quot;);</li>
+<li class="md-github">Retrieve literal: tuna.value returns &quot;tuna&quot;</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="object-schema-methods" href="#object-schema-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Object Schema Methods</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="custom-error-messages" href="#custom-error-messages"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Custom Error Messages</h3>
 <ul class="md-github">
-<li class="md-github">.shape to access keys</li>
-<li class="md-github">.keyof to generate enum from keys</li>
-<li class="md-github">.extend to add/overwrite properties</li>
-<li class="md-github">.merge to combine schemas (B overrides A on conflict)</li>
-<li class="md-github">.pick and .omit for selection and exclusion of keys</li>
-<li class="md-github">.partial and .deepPartial to make properties optional</li>
-<li class="md-github">.required to enforce requirement</li>
-<li class="md-github">.passthrough, .strict, .strip, .catchall for unknown key handling</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="array-tuple-and-union-schemas" href="#array-tuple-and-union-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Array, Tuple and Union Schemas</h2>
-<ul class="md-github">
-<li class="md-github">Arrays: z.array(elementSchema) or elementSchema.array(), with .nonempty(), .min(), .max(), .length()</li>
-<li class="md-github">Tuples: z.tuple([schema1, schema2, ...]) and .rest for variadic arguments</li>
-<li class="md-github">Unions: z.union([schema1, schema2]) and .or, optionally using discriminatedUnions for efficient routing</li>
+<li class="md-github">When declaring a schema: z.string({
+required_error: &quot;Name is required&quot;,
+invalid_type_error: &quot;Name must be a string&quot;
+});</li>
+<li class="md-github">Custom messages for methods: z.string().min(5, { message: &quot;Must be 5 or more characters&quot; });</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="advanced-schemas" href="#advanced-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Schemas</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="arrays-tuples-and-unions" href="#arrays-tuples-and-unions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arrays, Tuples, and Unions</h3>
 <ul class="md-github">
-<li class="md-github">Recursive types: using z.lazy(() =&gt; schema.array())</li>
-<li class="md-github">Effects with z.ZodEffects: .transform(), .preprocess() for input coercion</li>
-<li class="md-github">Function schemas: z.function().args(...).returns(...).implement(fn) for validating input and output.</li>
-<li class="md-github">JSON and cyclical object schemas via z.lazy()</li>
-<li class="md-github">Special schemas: z.nan(), z.instanceof(), z.custom()</li>
+<li class="md-github">Arrays: z.array(z.string()) or z.string().array()</li>
+<li class="md-github">Nonempty arrays: z.string().array().nonempty({ message: &quot;Can't be empty!&quot; });</li>
+<li class="md-github">Tuples: z.tuple([z.string(), z.number(), z.object({ pointsScored: z.number() })])</li>
+<li class="md-github">Unions: z.union([z.string(), z.number()]) or using .or</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="api-methods-for-functions" href="#api-methods-for-functions"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>API Methods for Functions</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="objects-specifics" href="#objects-specifics"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Objects Specifics</h3>
 <ul class="md-github">
-<li class="md-github">.parameters(): returns schema tuple for parameters</li>
-<li class="md-github">.returnType(): returns schema for function output</li>
+<li class="md-github">.shape: access property schemas</li>
+<li class="md-github">.extend: add fields, override existing ones</li>
+<li class="md-github">.merge: combine two object schemas</li>
+<li class="md-github">.pick and .omit: select or remove keys</li>
+<li class="md-github">.partial / .deepPartial: make fields optional (shallow or deep)</li>
+<li class="md-github">.required: enforce all fields are present</li>
+<li class="md-github">.passthrough, .strict, .strip, and .catchall: control unknown keys behavior</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting-and-best-practices" href="#troubleshooting-and-best-practices"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting and Best Practices</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="specialized-validations" href="#specialized-validations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Specialized Validations</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="date-and-time" href="#date-and-time"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Date and Time</h3>
 <ul class="md-github">
-<li class="md-github">Always use safeParse for non-throwing validations.</li>
-<li class="md-github">Ensure strict mode in tsconfig.json to catch type errors.</li>
-<li class="md-github">Use .coerce methods to convert input types automatically.</li>
-<li class="md-github">Use .lazy for recursive schemas and avoid runtime infinite loops in cyclical data.</li>
-<li class="md-github">Customize error messages via options in schema creation.</li>
+<li class="md-github">z.string().datetime(): validates ISO 8601 datetime (default only Z timezone)</li>
+<li class="md-github">Options: { offset: true } to allow timezone offsets, { precision: 3 } to constrain decimal precision</li>
+<li class="md-github">z.string().date() accepts YYYY-MM-DD format</li>
+<li class="md-github">z.string().time() accepts HH:MM:SS with optional fractional seconds</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="attribution-and-data-size" href="#attribution-and-data-size"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution and Data Size</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="ip-addresses-and-cidr" href="#ip-addresses-and-cidr"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>IP Addresses and CIDR</h3>
 <ul class="md-github">
-<li class="md-github">Data Size: 903859 bytes</li>
-<li class="md-github">Crawled from: https://github.com/colinhacks/zod</li>
+<li class="md-github">z.string().ip(): validates IPv4/IPv6 addresses; option { version: &quot;v4&quot; | &quot;v6&quot; }</li>
+<li class="md-github">z.string().cidr(): validates CIDR notation ranges</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="numeric-and-boolean-validations" href="#numeric-and-boolean-validations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Numeric and Boolean Validations</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="numbers" href="#numbers"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Numbers</h3>
+<ul class="md-github">
+<li class="md-github">z.number() validations: .gt, .gte (min), .lt, .lte (max), .int(), .positive(), .nonnegative(), .negative(), .nonpositive(), .multipleOf()</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="bigints" href="#bigints"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>BigInts</h3>
+<ul class="md-github">
+<li class="md-github">Similar to numbers with z.bigint(): .gt, .gte, .lt, .lte, .multipleOf()</li>
+</ul>
+<h3 class="md-github"><a class="md-github__anchor" name="booleans-and-dates" href="#booleans-and-dates"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Booleans and Dates</h3>
+<ul class="md-github">
+<li class="md-github">z.boolean() with custom error messages</li>
+<li class="md-github">z.date() validates JavaScript Date instances with .min() and .max() constraints</li>
+<li class="md-github">Coercion: z.coerce.date() applies new Date(input)</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="enums" href="#enums"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Enums</h2>
+<h3 class="md-github"><a class="md-github__anchor" name="zod-enums-and-native-enums" href="#zod-enums-and-native-enums"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Zod Enums and Native Enums</h3>
+<ul class="md-github">
+<li class="md-github">z.enum([&quot;Salmon&quot;, &quot;Tuna&quot;, &quot;Trout&quot;])</li>
+<li class="md-github">Native enums: z.nativeEnum(SomeEnum)</li>
+<li class="md-github">Access enum options via .enum and .options</li>
+<li class="md-github">Subset operations: .extract and .exclude</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="function-schemas" href="#function-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Function Schemas</h2>
+<ul class="md-github">
+<li class="md-github">Define functions with z.function()</li>
+<li class="md-github">Chain .args() and .returns() to specify input and output types</li>
+<li class="md-github">.implement() to create a validated function implementation</li>
+<li class="md-github">Example:
+const trimmedLength = z.function()
+.args(z.string())
+.returns(z.number())
+.implement((x) =&gt; x.trim().length);</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="preprocess-and-custom-schemas" href="#preprocess-and-custom-schemas"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preprocess and Custom Schemas</h2>
+<ul class="md-github">
+<li class="md-github">z.preprocess() to apply a transform before schema parsing</li>
+<li class="md-github">z.custom<T>() to create a schema for custom types</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="schema-methods" href="#schema-methods"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema Methods</h2>
+<ul class="md-github">
+<li class="md-github">.parse(data: unknown): T</li>
+<li class="md-github">.parseAsync(data: unknown): Promise<T></li>
+<li class="md-github">.safeParse(data: unknown): { success: boolean; data?: T; error?: ZodError }</li>
+<li class="md-github">.safeParseAsync (alias .spa)</li>
+<li class="md-github">.refine(fn, params?) for custom validations</li>
+<li class="md-github">.superRefine for multiple issue creation</li>
+<li class="md-github">.transform for chaining transforms</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="additional-topics" href="#additional-topics"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Additional Topics</h2>
+<ul class="md-github">
+<li class="md-github">Recursive types with z.lazy()</li>
+<li class="md-github">ZodEffects for combining preprocess, refine, and transform</li>
+<li class="md-github">Cyclical data handling precautions</li>
+<li class="md-github">Promise schemas with z.promise()</li>
+<li class="md-github">Instanceof validations with z.instanceof(Class)</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<p class="md-github">Crawled from: https://github.com/colinhacks/zod
+Data Size: 829269 bytes, Links: 5674</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
 <ul class="md-github">
-<li class="md-github">Source: Zod Schema Validation</li>
+<li class="md-github">Source: Zod Schema Validation Guide</li>
 <li class="md-github">URL: https://github.com/colinhacks/zod</li>
 <li class="md-github">License: License if known: MIT</li>
-<li class="md-github">Crawl Date: 2025-04-26T01:04:27.918Z</li>
-<li class="md-github">Data Size: 903859 bytes</li>
-<li class="md-github">Links Found: 6273</li>
+<li class="md-github">Crawl Date: 2025-04-26T07:44:48.301Z</li>
+<li class="md-github">Data Size: 829269 bytes</li>
+<li class="md-github">Links Found: 5674</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
 <p class="md-github">2025-04-26</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-26T07:21:19.330Z</p>
+    <p>Generated on 2025-04-26T08:22:43.118Z</p>
   </footer>
 </body>
 </html>
