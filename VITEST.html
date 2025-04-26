@@ -24,351 +24,312 @@
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="vitest" href="#vitest"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>VITEST</h1>
 <h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
-<p class="md-github">Vitest provides a Vite-native testing solution with integrated Vite configuration, automatic dependency resolution, and extensive CLI options. Key aspects include installation methods via npm/yarn/pnpm/bun, configuration flexibility using vite.config.ts or separate vitest.config.ts, workspace support for monorepos, rich dependency handling options (external, inline, optimizer), and multiple test environments (node, jsdom, happy-dom).</p>
+<p class="md-github">Installation commands (npm install -D vitest, yarn add -D vitest, etc.), example test files (sum.js and sum.test.js), package.json script configuration, detailed Vitest configuration merging with Vite, CLI options (vitest run, --coverage), workspaces support for multi-repo testing, and comprehensive configuration options for dependency management, environment settings, and alias setups with exact types and default values.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
 <p class="md-github">Table of Contents:</p>
 <ol class="md-github">
 <li class="md-github">Installation
 <ul class="md-github">
-<li class="md-github">Install using npm install -D vitest, yarn add -D vitest, or pnpm add -D vitest. Requires Vite&gt;=v5.0.0 and Node&gt;=v18.0.0.</li>
+<li class="md-github">Commands: npm install -D vitest; yarn add -D vitest; pnpm add -D vitest; bun add -D vitest</li>
+<li class="md-github">Requirements: Vite &gt;= v5.0.0, Node &gt;= v18.0.0</li>
 </ul>
 </li>
 <li class="md-github">Writing Tests
 <ul class="md-github">
-<li class="md-github">Test files must include .test. or .spec. in filename. Use: import { expect, test } from 'vitest'; test('description', () =&gt; { expect(fn()).toBe(result) }).</li>
+<li class="md-github">Test file naming: .test. or .spec. suffix</li>
+<li class="md-github">Example: sum.js with exported function; sum.test.js using import { expect, test } from 'vitest'</li>
 </ul>
 </li>
 <li class="md-github">Configuration
 <ul class="md-github">
-<li class="md-github">Use vite.config.ts with <reference types="vitest/config"> directive to configure Vitest. Options placed in test property.</li>
-<li class="md-github">Example: export default defineConfig({ test: { include: [&quot;<strong class="md-github">/*.test.js&quot;], exclude: [&quot;</strong>/node_modules/**&quot;] } }).</li>
+<li class="md-github">Use vite.config.ts with test property or create separate vitest.config.ts</li>
+<li class="md-github">Configuration methods: direct file creation, --config option, or merging using mergeConfig</li>
+<li class="md-github">Example snippets provided for both Vite and Vitest</li>
 </ul>
 </li>
-<li class="md-github">CLI Options
+<li class="md-github">CLI Usage
 <ul class="md-github">
-<li class="md-github">vitest run for single execution; options: --port, --https, --config.</li>
-<li class="md-github">Automatic dependency installation can be suppressed with VITEST_SKIP_INSTALL_CHECKS environment variable.</li>
+<li class="md-github">Default scripts in package.json: test, coverage</li>
+<li class="md-github">Run tests with vitest run and pass --port, --https as needed</li>
 </ul>
 </li>
 <li class="md-github">Dependency Optimization
 <ul class="md-github">
-<li class="md-github">opts: deps.external (default [//node_modules//]), deps.inline (list or true), deps.optimizer settings including ssr and web modes.</li>
+<li class="md-github">Options: deps.optimizer with mode specific configuration (ssr, web); inline versus external dependency handling</li>
 </ul>
 </li>
 <li class="md-github">Workspaces
 <ul class="md-github">
-<li class="md-github">Use vitest.workspace.ts file to define workspaces with glob patterns and individual config objects specifying name, root, environment, and setupFiles.</li>
+<li class="md-github">Define multiple workspace configurations via vitest.workspace.ts</li>
+<li class="md-github">Support for separate test environments (jsdom, node, happy-dom) based on test file globs</li>
 </ul>
 </li>
-<li class="md-github">Environment Setup
+<li class="md-github">Troubleshooting
 <ul class="md-github">
-<li class="md-github">Default environment is 'node'. Specify custom environment through a docblock or config property (e.g. environment: 'jsdom').</li>
-</ul>
-</li>
-<li class="md-github">Advanced Options
-<ul class="md-github">
-<li class="md-github">Options include globals: boolean, alias configuration, benchmark settings, reporters, and pool settings for test execution.</li>
+<li class="md-github">Bun specific command usage; dependency install check bypass with VITEST_SKIP_INSTALL_CHECKS</li>
 </ul>
 </li>
 </ol>
-<p class="md-github">Detailed Technical Information:</p>
-<ul class="md-github">
-<li class="md-github">Installation: npm install -D vitest</li>
-<li class="md-github">Test Example: Import from 'vitest', define function tests. Filename must be sum.test.js for automatic discovery.</li>
-<li class="md-github">Vite Configuration: Use <reference types="vitest/config"> and call defineConfig with test property. Options include include, exclude, reporters, globals, and server configs.</li>
-<li class="md-github">CLI commands: npx vitest, vitest run, use --config flag to specify config file.</li>
-<li class="md-github">Dependency Options: deps.external defaults, deps.inline can be array or true, and use mergeConfig to combine Vite and Vitest configurations.</li>
-<li class="md-github">Workspace file: defineWorkspace with glob patterns or direct config objects.</li>
-<li class="md-github">Environment customization: Specify environment in test config or via file-level directive (@vitest-environment).</li>
-</ul>
-<p class="md-github">Each section provides explicit configuration syntax and parameter values directly usable by developers.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
-<p class="md-github">Configuration Options:</p>
-<ul class="md-github">
-<li class="md-github">test.include: default ['**/*.{test,spec}.?(c|m)[jt]s?(x)']</li>
-<li class="md-github">test.exclude: default ['<strong class="md-github">/node_modules/</strong>', '<strong class="md-github">/dist/</strong>', '<strong class="md-github">/cypress/</strong>', '<strong class="md-github">/.{idea,git,cache,output,temp}/</strong>', '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*']</li>
-<li class="md-github">test.globals: false by default; set true if global APIs desired.</li>
-<li class="md-github">server.deps.external: default [//node_modules//].</li>
-<li class="md-github">server.deps.inline: default empty array. Can be set to true to inline all dependencies.</li>
-<li class="md-github">reporters: default 'default'; can be an array of reporter names or instances.</li>
-</ul>
-<p class="md-github">Implementation Steps:</p>
+<p class="md-github">Detailed Items:</p>
 <ol class="md-github">
-<li class="md-github">Install Vitest via chosen package manager.</li>
-<li class="md-github">Create a test file (e.g., sum.test.js) with test blocks using Vitest API.</li>
-<li class="md-github">Add test script in package.json: { &quot;scripts&quot;: { &quot;test&quot;: &quot;vitest&quot; } }.</li>
-<li class="md-github">Configure Vite by adding test property in vite.config.ts or creating a separate vitest.config.ts using defineConfig from 'vitest/config'.</li>
-<li class="md-github">For workspace setups, create vitest.workspace.ts defining glob patterns and config objects.</li>
-<li class="md-github">Use CLI options to run tests and set environment variables as needed (e.g. --config, --environment, VITEST_SKIP_INSTALL_CHECKS=1).</li>
-<li class="md-github">Debug using server.debug options by setting dumpModules and loadDumppedModules to true.</li>
+<li class="md-github">Installation: Direct commands and prerequisites</li>
+<li class="md-github">Writing Tests: Code structure for sum.js and sum.test.js, package.json script, expected output</li>
+<li class="md-github">Configuration: Detailed examples of vitest.config.ts and vite.config.ts setups, merging strategies, and reference type usage</li>
+<li class="md-github">CLI Usage: Default vscaffold scripts and additional CLI options</li>
+<li class="md-github">Dependency Optimization: Precise config keys including server.deps.external, inline, fallbackCJS options, cacheDir defaults</li>
+<li class="md-github">Workspaces: Pattern matching and config override examples</li>
+<li class="md-github">Troubleshooting: Commands and environmental variable usage</li>
 </ol>
-<p class="md-github">Troubleshooting:</p>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">Vitest requires Vite &gt;= v5.0.0 and Node &gt;= v18.0.0. Configuration options include:</p>
 <ul class="md-github">
-<li class="md-github">If test files are not discovered, check include/exclude patterns in config.</li>
-<li class="md-github">For module transformation issues, verify dependency optimization settings and inline options.</li>
-<li class="md-github">If using Bun, run tests with 'bun run test' to override Bun's native runner.</li>
-<li class="md-github">Use npx vitest --help to list all CLI options.</li>
+<li class="md-github">test.include: string[] default ['**/*.{test,spec}.?(c|m)[jt]s?(x)'].</li>
+<li class="md-github">test.exclude: string[] default ['<strong class="md-github">/node_modules/</strong>', '<strong class="md-github">/dist/</strong>', '<strong class="md-github">/cypress/</strong>', etc.].</li>
+<li class="md-github">test.environment: string default 'node'.</li>
+<li class="md-github">test.globals: boolean default false. Enable via CLI flag --globals or in config.</li>
+<li class="md-github">Server options such as server.sourcemap (default 'inline') and server.debug options with dumpModules: boolean or string.</li>
+<li class="md-github">Dependency options: server.deps.external (default [//node_modules//]), inline (string[] or true), fallbackCJS (default false), cacheDir (default 'node_modules/.vite').</li>
+<li class="md-github">Merge configuration examples using mergeConfig:
+import { defineConfig, mergeConfig } from 'vitest/config'
+import viteConfig from './vite.config.mjs'
+export default mergeConfig(viteConfig, defineConfig({ test: { exclude: ['packages/template/*'] } }))</li>
+<li class="md-github">Workspaces can be defined in a vitest.workspace.ts file to support multiple environments with separate root, environment, and setupFiles settings.</li>
+<li class="md-github">Best practice: Use a unified configuration to avoid conflicts between Vite and Vitest options. Always reference the latest vitest/config types to ensure smooth migration.</li>
+<li class="md-github">Troubleshooting: For dependency issues, check the cache directory and use the VITEST_SKIP_INSTALL_CHECKS environment variable (set to 1) to bypass automatic dependency installation checks.</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
-<p class="md-github">API Specifications and Code Examples:</p>
+<p class="md-github">API Specifications and Implementation Examples:</p>
 <ol class="md-github">
 <li class="md-github">
-<p class="md-github">Vitest API Methods:</p>
-<ul class="md-github">
-<li class="md-github">test(description: string, callback: Function): void</li>
-<li class="md-github">expect(actual: any): { toBe(expected: any): void, toEqual(expected: any): void }</li>
-</ul>
+<p class="md-github">defineConfig from 'vitest/config':
+Method Signature: defineConfig(config: { test: TestOptions }): ConfigObject
+TestOptions includes properties: include?: string[], exclude?: string[], environment?: string, globals?: boolean, runner?: string, pool?: 'threads' | 'forks' | 'vmThreads' | 'vmForks', and other advanced configuration.</p>
 </li>
 <li class="md-github">
-<p class="md-github">Example Test File (sum.test.js):
-// sum.js
-export function sum(a, b) {
-return a + b
-}</p>
-<p class="md-github">// sum.test.js
-import { expect, test } from 'vitest'
-import { sum } from './sum.js'</p>
-<p class="md-github">test('adds 1 + 2 to equal 3', () =&gt; {
-expect(sum(1, 2)).toBe(3)
-})</p>
-</li>
-<li class="md-github">
-<p class="md-github">Vitest Configuration using vite.config.ts:
-/// <reference types="vitest/config" />
-import { defineConfig } from 'vite'</p>
-<p class="md-github">export default defineConfig({
+<h2 class="md-github"><a class="md-github__anchor" name="example-of-vitestconfigts" href="#example-of-vitestconfigts"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example of vitest.config.ts:</h2>
+<p class="md-github">import { defineConfig } from 'vitest/config'</p>
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-defineconfigtest-include-testspeccmjtsxexclude-node_modules-distenvironment-nodeglobals-truedeps-external-node_modulesinline-fallbackcjs-falsecachedir-node_modulesvite" href="#export-default-defineconfigtest-include-testspeccmjtsxexclude-node_modules-distenvironment-nodeglobals-truedeps-external-node_modulesinline-fallbackcjs-falsecachedir-node_modulesvite"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default defineConfig({
 test: {
 include: ['<strong class="md-github">/*.{test,spec}.?(c|m)[jt]s?(x)'],
 exclude: ['</strong>/node_modules/<strong class="md-github">', '</strong>/dist/**'],
-globals: false,
-reporters: 'default',
-server: {
-debug: { dumpModules: true, loadDumppedModules: true },
+environment: 'node',
+globals: true,
 deps: {
 external: [//node_modules//],
-inline: []
+inline: [],
+fallbackCJS: false,
+cacheDir: 'node_modules/.vite'
 }
 }
-}
-})</p>
+})</h2>
 </li>
 <li class="md-github">
-<p class="md-github">Separate Vitest Config (vitest.config.ts) using vitest/config:
-/// <reference types="vitest/config" />
-import { defineConfig } from 'vitest/config'</p>
-<p class="md-github">export default defineConfig({
+<h2 class="md-github"><a class="md-github__anchor" name="merging-vite-and-vitest-configs" href="#merging-vite-and-vitest-configs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Merging Vite and Vitest configs:</h2>
+<p class="md-github">import { defineConfig, mergeConfig } from 'vitest/config'
+import viteConfig from './vite.config.mjs'</p>
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-mergeconfigviteconfig-defineconfigtest-exclude-packagestemplate" href="#export-default-mergeconfigviteconfig-defineconfigtest-exclude-packagestemplate"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default mergeConfig(viteConfig, defineConfig({
 test: {
-globals: true,
-environment: 'jsdom',
-alias: { '@': '/src' },
+exclude: ['packages/template/*']
+}
+}))</h2>
+</li>
+<li class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="cli-usagedefault-npm-scripts-in-packagejson" href="#cli-usagedefault-npm-scripts-in-packagejson"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Usage:
+Default npm scripts in package.json:</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="scripts-test-vitestcoverage-vitest-run---coverage" href="#scripts-test-vitestcoverage-vitest-run---coverage"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>{
+&quot;scripts&quot;: {
+&quot;test&quot;: &quot;vitest&quot;,
+&quot;coverage&quot;: &quot;vitest run --coverage&quot;
+}
+}</h2>
+<p class="md-github">Run single test file: npx vitest run
+Additional options: --port, --https, --update</p>
+</li>
+<li class="md-github">
+<h2 class="md-github"><a class="md-github__anchor" name="dependency-optimization-example" href="#dependency-optimization-example"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Dependency Optimization Example:</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="test-deps-optimizer-ssr--enabled-false-web--enabled-true-" href="#test-deps-optimizer-ssr--enabled-false-web--enabled-true-"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>test: {
 deps: {
 optimizer: {
-web: { transformAssets: true, transformCss: true }
+ssr: { enabled: false },
+web: { enabled: true }
 }
 }
-}
-})</p>
+}</h2>
 </li>
 <li class="md-github">
-<p class="md-github">Workspace Configuration (vitest.workspace.ts):
-import { defineWorkspace } from 'vitest/config'</p>
-<p class="md-github">export default defineWorkspace([
-'packages/<em class="md-github">',
-'tests/</em>/vitest.config.{e2e,unit}.ts',
-{
-test: {
-name: 'happy-dom',
-root: './shared_tests',
-environment: 'happy-dom',
-setupFiles: ['./setup.happy-dom.ts']
-}
-},
-{
-test: {
-name: 'node',
-root: './shared_tests',
-environment: 'node',
-setupFiles: ['./setup.node.ts']
-}
-}
-])</p>
-</li>
-<li class="md-github">
-<p class="md-github">CLI Command Example:</p>
+<p class="md-github">Troubleshooting Procedures:</p>
 <ul class="md-github">
-<li class="md-github">Run tests: npx vitest</li>
-<li class="md-github">Run once without watch: vitest run</li>
-<li class="md-github">Help: npx vitest --help</li>
+<li class="md-github">For Bun users: Run tests using command: bun run test</li>
+<li class="md-github">Disable automatic dependency installation: export VITEST_SKIP_INSTALL_CHECKS=1</li>
+<li class="md-github">To view available CLI options: npx vitest --help</li>
 </ul>
 </li>
 <li class="md-github">
-<p class="md-github">Best Practices:</p>
+<h2 class="md-github"><a class="md-github__anchor" name="environment-overrides-in-file-headerexample" href="#environment-overrides-in-file-headerexample"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment Overrides (in file header):
+Example:</h2>
+<p class="md-github">/**</p>
 <ul class="md-github">
-<li class="md-github">Use a single configuration file merging Vite and Vitest settings using mergeConfig.</li>
-<li class="md-github">Reference Vitest types using triple-slash directives (migrate to vitest/config as needed).</li>
-<li class="md-github">Disable Bun’s native test runner by using bun run test.</li>
+<li class="md-github">@vitest-environment jsdom
+*/
+test('DOM test', () =&gt; {
+const el = document.createElement('div')
+expect(el).not.toBeNull()
+})</li>
 </ul>
-</li>
-<li class="md-github">
-<p class="md-github">Troubleshooting Commands:</p>
-<ul class="md-github">
-<li class="md-github">Check configuration: npx vitest --showConfig</li>
-<li class="md-github">Debug module transformation: set server.debug.dumpModules=true in config and inspect dumped modules in node_modules/.vite</li>
-<li class="md-github">If dependency issues occur, adjust deps.interopDefault to true and list problematic modules in deps.inline.</li>
-</ul>
+<hr class="md-github">
 </li>
 </ol>
-<p class="md-github">All parameters, return types, method signatures, configuration keys, default values and example code are provided verbatim to be directly implemented.</p>
+<p class="md-github">All method signatures, parameter types, configuration keys and default values are as specified above. Exceptions are handled at runtime by Vitest's internal mechanisms.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
-<p class="md-github">Vitest; npm install -D vitest; Vite&gt;=v5, Node&gt;=18; test files include .test. or .spec.; API: test(desc:string, fn:Function), expect(value): { toBe, toEqual }; Vite config: <reference types='vitest/config'>, defineConfig({ test: { include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'], exclude: [...], globals:false, reporters:'default', server: { debug: { dumpModules:true, loadDumppedModules:true }, deps:{ external:[//node_modules//], inline:[] } } } }); CLI: npx vitest, vitest run, --port, --https; Workspace config using defineWorkspace([...]); Environment config via environment:'node' or 'jsdom'; Dependency optimization via deps.optimizer; Troubleshooting: use --showConfig, adjust deps.interopDefault, use bun run test; Full SDK method signatures and code examples provided.</p>
+<p class="md-github">Vitest: Vite-native testing framework. Installation: npm install -D vitest, yarn add -D vitest. Requirements: Vite&gt;=5.0.0, Node&gt;=18.0.0. Test file naming: <em class="md-github">.test.js/spec.js; example: export function sum(a, b){return a+b} and test using import {expect,test} from 'vitest'. Config: defineConfig({ test:{ include: [&quot;**/</em>.{test,spec}.?(c|m)[jt]s?(x)&quot;], exclude: [&quot;<strong class="md-github">/node_modules/</strong>&quot;,&quot;<strong class="md-github">/dist/</strong>&quot;], environment: &quot;node&quot;, globals: false, deps:{ external:[//node_modules//], inline:[], fallbackCJS:false, cacheDir:'node_modules/.vite' } } }). Merge configs using mergeConfig. CLI: vitest, vitest run, --coverage, --port, --https. Workspaces: defineWorkspace([{ test:{ name:'happy-dom', root:'./shared_tests', environment:'happy-dom', setupFiles:['./setup.happy-dom.ts'] }}, ...]). Troubleshooting: bun run test, export VITEST_SKIP_INSTALL_CHECKS=1, npx vitest --help.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
 <p class="md-github">Table of Contents:</p>
 <ol class="md-github">
 <li class="md-github">Installation
 <ul class="md-github">
-<li class="md-github">Install using npm install -D vitest, yarn add -D vitest, or pnpm add -D vitest. Requires Vite&gt;=v5.0.0 and Node&gt;=v18.0.0.</li>
+<li class="md-github">Commands: npm install -D vitest; yarn add -D vitest; pnpm add -D vitest; bun add -D vitest</li>
+<li class="md-github">Requirements: Vite &gt;= v5.0.0, Node &gt;= v18.0.0</li>
 </ul>
 </li>
 <li class="md-github">Writing Tests
 <ul class="md-github">
-<li class="md-github">Test files must include .test. or .spec. in filename. Use: import { expect, test } from 'vitest'; test('description', () =&gt; { expect(fn()).toBe(result) }).</li>
+<li class="md-github">Test file naming: .test. or .spec. suffix</li>
+<li class="md-github">Example: sum.js with exported function; sum.test.js using import { expect, test } from 'vitest'</li>
 </ul>
 </li>
 <li class="md-github">Configuration
 <ul class="md-github">
-<li class="md-github">Use vite.config.ts with <reference types='vitest/config'> directive to configure Vitest. Options placed in test property.</li>
-<li class="md-github">Example: export default defineConfig({ test: { include: ['<strong class="md-github">/*.test.js'], exclude: ['</strong>/node_modules/**'] } }).</li>
+<li class="md-github">Use vite.config.ts with test property or create separate vitest.config.ts</li>
+<li class="md-github">Configuration methods: direct file creation, --config option, or merging using mergeConfig</li>
+<li class="md-github">Example snippets provided for both Vite and Vitest</li>
 </ul>
 </li>
-<li class="md-github">CLI Options
+<li class="md-github">CLI Usage
 <ul class="md-github">
-<li class="md-github">vitest run for single execution; options: --port, --https, --config.</li>
-<li class="md-github">Automatic dependency installation can be suppressed with VITEST_SKIP_INSTALL_CHECKS environment variable.</li>
+<li class="md-github">Default scripts in package.json: test, coverage</li>
+<li class="md-github">Run tests with vitest run and pass --port, --https as needed</li>
 </ul>
 </li>
 <li class="md-github">Dependency Optimization
 <ul class="md-github">
-<li class="md-github">opts: deps.external (default [/'/node_modules'//]), deps.inline (list or true), deps.optimizer settings including ssr and web modes.</li>
+<li class="md-github">Options: deps.optimizer with mode specific configuration (ssr, web); inline versus external dependency handling</li>
 </ul>
 </li>
 <li class="md-github">Workspaces
 <ul class="md-github">
-<li class="md-github">Use vitest.workspace.ts file to define workspaces with glob patterns and individual config objects specifying name, root, environment, and setupFiles.</li>
+<li class="md-github">Define multiple workspace configurations via vitest.workspace.ts</li>
+<li class="md-github">Support for separate test environments (jsdom, node, happy-dom) based on test file globs</li>
 </ul>
 </li>
-<li class="md-github">Environment Setup
+<li class="md-github">Troubleshooting
 <ul class="md-github">
-<li class="md-github">Default environment is 'node'. Specify custom environment through a docblock or config property (e.g. environment: 'jsdom').</li>
-</ul>
-</li>
-<li class="md-github">Advanced Options
-<ul class="md-github">
-<li class="md-github">Options include globals: boolean, alias configuration, benchmark settings, reporters, and pool settings for test execution.</li>
+<li class="md-github">Bun specific command usage; dependency install check bypass with VITEST_SKIP_INSTALL_CHECKS</li>
 </ul>
 </li>
 </ol>
-<p class="md-github">Detailed Technical Information:</p>
-<ul class="md-github">
-<li class="md-github">Installation: npm install -D vitest</li>
-<li class="md-github">Test Example: Import from 'vitest', define function tests. Filename must be sum.test.js for automatic discovery.</li>
-<li class="md-github">Vite Configuration: Use <reference types='vitest/config'> and call defineConfig with test property. Options include include, exclude, reporters, globals, and server configs.</li>
-<li class="md-github">CLI commands: npx vitest, vitest run, use --config flag to specify config file.</li>
-<li class="md-github">Dependency Options: deps.external defaults, deps.inline can be array or true, and use mergeConfig to combine Vite and Vitest configurations.</li>
-<li class="md-github">Workspace file: defineWorkspace with glob patterns or direct config objects.</li>
-<li class="md-github">Environment customization: Specify environment in test config or via file-level directive (@vitest-environment).</li>
-</ul>
-<p class="md-github">Each section provides explicit configuration syntax and parameter values directly usable by developers.</p>
+<p class="md-github">Detailed Items:</p>
+<ol class="md-github">
+<li class="md-github">Installation: Direct commands and prerequisites</li>
+<li class="md-github">Writing Tests: Code structure for sum.js and sum.test.js, package.json script, expected output</li>
+<li class="md-github">Configuration: Detailed examples of vitest.config.ts and vite.config.ts setups, merging strategies, and reference type usage</li>
+<li class="md-github">CLI Usage: Default vscaffold scripts and additional CLI options</li>
+<li class="md-github">Dependency Optimization: Precise config keys including server.deps.external, inline, fallbackCJS options, cacheDir defaults</li>
+<li class="md-github">Workspaces: Pattern matching and config override examples</li>
+<li class="md-github">Troubleshooting: Commands and environmental variable usage</li>
+</ol>
 <h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
-<p class="md-github">Vitest Testing Framework
+<p class="md-github">Vitest Testing Framework Documentation
 https://vitest.dev</p>
 <h2 class="md-github"><a class="md-github__anchor" name="digest-of-vitest" href="#digest-of-vitest"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of VITEST</h2>
-<h1 class="md-github"><a class="md-github__anchor" name="vitest-testing-framework" href="#vitest-testing-framework"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Vitest Testing Framework</h1>
-<p class="md-github">Date Retrieved: 2023-10-26</p>
-<h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
-<p class="md-github">Vitest is a next generation testing framework powered by Vite supporting ESM, TypeScript, JSX and advanced CLI operations. It integrates with Vite config files, supports unified configurations, automatic dependency resolution, and offers flexible configurations for environments, workspaces, and dependency optimizations.</p>
-<h2 class="md-github"><a class="md-github__anchor" name="installation-and-setup" href="#installation-and-setup"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation and Setup</h2>
-<ul class="md-github">
-<li class="md-github">Install using npm, yarn, pnpm, or bun:
-<ul class="md-github">
-<li class="md-github">npm: npm install -D vitest</li>
-<li class="md-github">yarn: yarn add -D vitest</li>
-<li class="md-github">pnpm: pnpm add -D vitest</li>
-<li class="md-github">bun: bun add -D vitest</li>
-</ul>
-</li>
-<li class="md-github">Requirements: Vite &gt;= v5.0.0, Node &gt;= v18.0.0</li>
-<li class="md-github">Run tests using: npm run test, yarn test, pnpm test or npx vitest</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="writing-tests" href="#writing-tests"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Writing Tests</h2>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github">Test files must contain .test. or .spec. in the filename.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Example test file (sum.test.js):</p>
+<h1 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h1>
+<p class="md-github">Vitest is a Vite-native testing framework designed for fast ESM, TypeScript, and JSX support. It is tightly integrated with Vite configuration and transformation pipelines.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="installation" href="#installation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Installation</h1>
+<p class="md-github">To install Vitest, use any of the following commands:</p>
+<p class="md-github">npm: npm install -D vitest
+yarn: yarn add -D vitest
+pnpm: pnpm add -D vitest
+bun: bun add -D vitest</p>
+<p class="md-github">Vitest requires Vite &gt;= v5.0.0 and Node &gt;= v18.0.0. Alternatively, run tests with npx vitest if not installed locally.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="writing-tests" href="#writing-tests"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Writing Tests</h1>
+<p class="md-github">Example implementation:</p>
+<h2 class="md-github"><a class="md-github__anchor" name="file-sumjs" href="#file-sumjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>File: sum.js</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="export-function-suma-b-return-a--b" href="#export-function-suma-b-return-a--b"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export function sum(a, b) {
+return a + b
+}</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="file-sumtestjs" href="#file-sumtestjs"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>File: sum.test.js</h2>
 <p class="md-github">import { expect, test } from 'vitest'
 import { sum } from './sum.js'</p>
-<p class="md-github">test('adds 1 + 2 to equal 3', () =&gt; {
+<h2 class="md-github"><a class="md-github__anchor" name="testadds-1--2-to-equal-3---expectsum1-2tobe3" href="#testadds-1--2-to-equal-3---expectsum1-2tobe3"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>test('adds 1 + 2 to equal 3', () =&gt; {
 expect(sum(1, 2)).toBe(3)
-})</p>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="configuration" href="#configuration"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration</h2>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github">Vitest uses Vite configuration. It can read vite.config.ts or use a separate vitest.config.ts.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Example vite.config.ts:</p>
+})</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="update-packagejson" href="#update-packagejson"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Update package.json:</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="scripts-test-vitest" href="#scripts-test-vitest"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>{
+&quot;scripts&quot;: {
+&quot;test&quot;: &quot;vitest&quot;
+}
+}</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="configuring-vitest" href="#configuring-vitest"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuring Vitest</h1>
+<p class="md-github">Vitest will automatically use the root Vite config (vite.config.ts/js). To override, create a separate vitest.config.ts file or pass --config to CLI.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="example-vitestconfigts" href="#example-vitestconfigts"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example vitest.config.ts:</h2>
+<p class="md-github">import { defineConfig } from 'vitest/config'</p>
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-defineconfigtest--custom-test-options-here" href="#export-default-defineconfigtest--custom-test-options-here"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default defineConfig({
+test: {
+// Custom test options here
+}
+})</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="for-projects-using-vite-update-viteconfigts-with-a-test-property" href="#for-projects-using-vite-update-viteconfigts-with-a-test-property"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>For projects using Vite, update vite.config.ts with a test property:</h2>
 <p class="md-github">/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'</p>
-<p class="md-github">export default defineConfig({
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-defineconfigtest--custom-test-options" href="#export-default-defineconfigtest--custom-test-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default defineConfig({
 test: {
-// Specify options here
+// Custom test options
 }
-})</p>
-</li>
-<li class="md-github">
-<p class="md-github">For separate configuration: Use --config CLI parameter or create vitest.config.ts with defineConfig from 'vitest/config'.</p>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="cli-options" href="#cli-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Options</h2>
-<ul class="md-github">
-<li class="md-github">vitest run: run tests once</li>
-<li class="md-github">--port, --https: specify additional options</li>
-<li class="md-github">Automatic dependency installation can be disabled with VITEST_SKIP_INSTALL_CHECKS=1</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="dependency-and-asset-optimizations" href="#dependency-and-asset-optimizations"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Dependency and Asset Optimizations</h2>
-<ul class="md-github">
-<li class="md-github">
-<p class="md-github">Test configuration can include options for dependency resolution:</p>
-<ul class="md-github">
-<li class="md-github">include: Glob patterns for test files</li>
-<li class="md-github">exclude: Glob patterns to ignore files</li>
-<li class="md-github">deps.external: List of RegExp or string patterns (default [//node_modules//])</li>
-<li class="md-github">deps.inline: List to inline specific modules.</li>
-</ul>
-</li>
-<li class="md-github">
-<p class="md-github">Examples from config:</p>
-<p class="md-github">export default defineConfig({
+})</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="merge-vite-and-vitest-configs-using-mergeconfig" href="#merge-vite-and-vitest-configs-using-mergeconfig"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Merge Vite and Vitest configs using mergeConfig:</h2>
+<p class="md-github">import { defineConfig, mergeConfig } from 'vitest/config'
+import viteConfig from './vite.config.mjs'</p>
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-mergeconfigviteconfig-defineconfigtest--custom-test-options" href="#export-default-mergeconfigviteconfig-defineconfigtest--custom-test-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default mergeConfig(viteConfig, defineConfig({
+test: {
+// Custom test options
+}
+}))</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="command-line-interface" href="#command-line-interface"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Command Line Interface</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="default-npm-scripts" href="#default-npm-scripts"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Default npm scripts:</h2>
+<h2 class="md-github"><a class="md-github__anchor" name="scripts-test-vitestcoverage-vitest-run---coverage-1" href="#scripts-test-vitestcoverage-vitest-run---coverage-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>{
+&quot;scripts&quot;: {
+&quot;test&quot;: &quot;vitest&quot;,
+&quot;coverage&quot;: &quot;vitest run --coverage&quot;
+}
+}</h2>
+<p class="md-github">Run tests with options such as --port or --https. Use vitest run for single execution.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="dependency-management-and-optimization" href="#dependency-management-and-optimization"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Dependency Management and Optimization</h1>
+<p class="md-github">Vitest supports dependency optimization with options such as deps.optimizer. For example:</p>
+<p class="md-github">{
 test: {
 deps: {
-external: [//node_modules//],
-inline: []
-},
-reporters: 'default',
-globals: false
+optimizer: {
+ssr: { enabled: false },
+web: { enabled: false }
 }
-})</p>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="workspaces-support" href="#workspaces-support"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workspaces Support</h2>
+}
+}
+}</p>
+<h1 class="md-github"><a class="md-github__anchor" name="configuration-options-and-parameters" href="#configuration-options-and-parameters"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration Options and Parameters</h1>
+<p class="md-github">Vitest configuration supports options including:</p>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github">Define workspaces with a vitest.workspace.ts file:</p>
-<p class="md-github">import { defineWorkspace } from 'vitest/config'
-export default defineWorkspace([
+<li class="md-github">include: string[] (Default: [&quot;**/*.{test,spec}.?(c|m)[jt]s?(x)&quot;])</li>
+<li class="md-github">exclude: string[] (Default: [&quot;<strong class="md-github">/node_modules/</strong>&quot;, &quot;<strong class="md-github">/dist/</strong>&quot;, ...])</li>
+<li class="md-github">environment: string (Default: &quot;node&quot;)</li>
+<li class="md-github">globals: boolean (Default: false)</li>
+<li class="md-github">runner: string (Default: 'node' or custom for benchmark)</li>
+<li class="md-github">pool: 'threads' | 'forks' | 'vmThreads' | 'vmForks' (Default: 'forks')</li>
+</ul>
+<p class="md-github">Detailed options include server settings (sourcemap, debug), dependency handling (external, inline, fallbackCJS), and alias configuration.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="workspaces-and-multi-config-support" href="#workspaces-and-multi-config-support"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Workspaces and Multi-Config Support</h1>
+<p class="md-github">Vitest workspaces allow configuration of multiple projects in one repository using a vitest.workspace.ts file.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="example-workspace-file" href="#example-workspace-file"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example workspace file:</h2>
+<p class="md-github">import { defineWorkspace } from 'vitest/config'</p>
+<h2 class="md-github"><a class="md-github__anchor" name="export-default-defineworkspacepackagestestsvitestconfige2eunittstest-name-happy-domroot-shared_testsenvironment-happy-domsetupfiles-setuphappy-domtstest-name-noderoot-shared_testsenvironment-nodesetupfiles-setupnodets" href="#export-default-defineworkspacepackagestestsvitestconfige2eunittstest-name-happy-domroot-shared_testsenvironment-happy-domsetupfiles-setuphappy-domtstest-name-noderoot-shared_testsenvironment-nodesetupfiles-setupnodets"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>export default defineWorkspace([
 'packages/<em class="md-github">',
 'tests/</em>/vitest.config.{e2e,unit}.ts',
 {
@@ -387,78 +348,32 @@ environment: 'node',
 setupFiles: ['./setup.node.ts']
 }
 }
-])</p>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="environment-setup-and-customization" href="#environment-setup-and-customization"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment Setup and Customization</h2>
+])</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="troubleshooting" href="#troubleshooting"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting</h1>
 <ul class="md-github">
-<li class="md-github">
-<p class="md-github">Default environment is 'node'. Use CLI flag --environment to switch to jsdom, happy-dom, or edge-runtime.</p>
-</li>
-<li class="md-github">
-<p class="md-github">Custom environment example:</p>
-<p class="md-github">// custom-env.js
-import type { Environment } from 'vitest'</p>
-<p class="md-github">export default <Environment>{
-name: 'custom',
-transformMode: 'ssr',
-setup() {
-// custom initialization
-return {
-teardown() {
-// teardown actions
-}
-}
-}
-}</p>
-</li>
+<li class="md-github">For Bun, use 'bun run test' instead of 'bun test'.</li>
+<li class="md-github">If dependency issues arise, set VITEST_SKIP_INSTALL_CHECKS=1 to disable automatic dependency installation checks.</li>
+<li class="md-github">To debug transformation issues, check the cacheDir (default: node_modules/.vite) and use deps.optimizer options to force rebundling.</li>
 </ul>
-<h2 class="md-github"><a class="md-github__anchor" name="advanced-configuration-options" href="#advanced-configuration-options"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Configuration Options</h2>
-<ul class="md-github">
-<li class="md-github">Configuration settings (in test property): include, exclude, name, server, runner, benchmark, alias, globals, environment, and more.</li>
-<li class="md-github">Example config options:
-<ul class="md-github">
-<li class="md-github">include: [&quot;**/*.{test,spec}.?(c|m)[jt]s?(x)&quot;]</li>
-<li class="md-github">exclude: [&quot;<strong class="md-github">/node_modules/</strong>&quot;, &quot;<strong class="md-github">/dist/</strong>&quot;]</li>
-<li class="md-github">globals: boolean (default false)</li>
-<li class="md-github">reporters: can be array or string (default 'default')</li>
-</ul>
-</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="troubleshooting-and-best-practices" href="#troubleshooting-and-best-practices"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Troubleshooting and Best Practices</h2>
-<ul class="md-github">
-<li class="md-github">For dependency optimization, check the cache directory at node_modules/.vite</li>
-<li class="md-github">Debug using server.debug options:
-export default defineConfig({
-test: {
-server: {
-debug: { dumpModules: true, loadDumppedModules: true }
-}
-}
-})</li>
-<li class="md-github">In case of module import errors, consider setting deps.interopDefault to true</li>
-</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="retrieval-and-attribution" href="#retrieval-and-attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieval and Attribution</h1>
+<p class="md-github">Content retrieved on: 2023-10-05
+Data Size: 17837346 bytes
+Links Found: 17290</p>
 <h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
 <ul class="md-github">
-<li class="md-github">Data Size: 29563308 bytes</li>
-<li class="md-github">Links Found: 23673</li>
-<li class="md-github">Source: Vitest Website (https://vitest.dev)</li>
-</ul>
-<h2 class="md-github"><a class="md-github__anchor" name="attribution-1" href="#attribution-1"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
-<ul class="md-github">
-<li class="md-github">Source: Vitest Testing Framework</li>
+<li class="md-github">Source: Vitest Testing Framework Documentation</li>
 <li class="md-github">URL: https://vitest.dev</li>
 <li class="md-github">License: License if known: MIT</li>
-<li class="md-github">Crawl Date: 2025-04-26T03:50:20.581Z</li>
-<li class="md-github">Data Size: 29563308 bytes</li>
-<li class="md-github">Links Found: 23673</li>
+<li class="md-github">Crawl Date: 2025-04-26T04:47:18.987Z</li>
+<li class="md-github">Data Size: 17837346 bytes</li>
+<li class="md-github">Links Found: 17290</li>
 </ul>
 <h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
 <p class="md-github">2025-04-26</p>
 
   </section>
   <footer>
-    <p>Generated on 2025-04-26T04:22:24.935Z</p>
+    <p>Generated on 2025-04-26T05:22:03.674Z</p>
   </footer>
 </body>
 </html>

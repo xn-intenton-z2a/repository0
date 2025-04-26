@@ -23,7 +23,7 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="repository0" href="#repository0"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code class="md-github">repository0</code></h1>
-<p class="md-github">This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code> and includes a basic CLI built with Node.js.</p>
+<p class="md-github">This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon <code class="md-github">agentic‑lib</code> and includes a basic CLI built with Node.js. It provides fundamental commands to check version, system diagnostics, and usage help, making it easy to test and extend CLI functionality.</p>
 <p class="md-github">You probably want to start with the template documentation here: <a href="https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md" class="md-github">TEMPLATE-README.md</a></p>
 <h2 class="md-github"><a class="md-github__anchor" name="overview" href="#overview"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview</h2>
 <p class="md-github"><code class="md-github">repository0</code> is a demo repository showcasing GitHub workflows from intentïon <code class="md-github">agentic‑lib</code> along with a simple CLI tool. The CLI functionality is implemented in <code class="md-github">src/lib/main.js</code> and provides the following commands:</p>
@@ -33,7 +33,7 @@
 <li class="md-github"><strong class="md-github">help</strong>: Shows a help message with usage instructions.</li>
 </ul>
 <p class="md-github">For any unrecognized command or when no command is provided, the CLI defaults to displaying the help message.</p>
-<p class="md-github">This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project.</p>
+<p class="md-github">This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project. The CLI and its associated tests verify that each command behaves as expected.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="whats-inside" href="#whats-inside"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>What’s Inside</h2>
 <ul class="md-github">
 <li class="md-github">
@@ -42,11 +42,11 @@ Workflows in the <code class="md-github">.github/workflows/</code> directory use
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Source Code:</strong>
-The core CLI is implemented in <code class="md-github">src/lib/main.js</code>. It handles CLI commands and is consistently maintained alongside the project’s tests.</p>
+The core CLI is implemented in <code class="md-github">src/lib/main.js</code>. It handles command parsing and execution and is maintained alongside project tests.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Dependencies:</strong>
-The <code class="md-github">package.json</code> file defines project dependencies and scripts for testing, formatting, linting, and running the CLI.</p>
+The <code class="md-github">package.json</code> file defines the project dependencies and scripts for testing, formatting, linting, and running the CLI.</p>
 </li>
 <li class="md-github">
 <p class="md-github"><strong class="md-github">Tests:</strong>
@@ -57,8 +57,45 @@ Unit tests in the <code class="md-github">tests/unit/</code> folder verify the f
 This README provides an overview of the repository. Detailed CLI usage instructions are available in <a href="docs/USAGE.md" class="md-github">docs/USAGE.md</a>.</p>
 </li>
 </ul>
+<h2 class="md-github"><a class="md-github__anchor" name="cli-commands" href="#cli-commands"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>CLI Commands</h2>
+<p class="md-github">You can interact with the CLI using the following commands:</p>
+<ul class="md-github">
+<li class="md-github">
+<p class="md-github"><strong class="md-github">version</strong></p>
+<ul class="md-github">
+<li class="md-github">Description: Prints the current CLI version.</li>
+<li class="md-github">Usage: <code class="md-github">npm run version</code> or <code class="md-github">node src/lib/main.js version</code></li>
+<li class="md-github">Example Output: <code class="md-github">2.1.0-0</code></li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">diagnostics</strong></p>
+<ul class="md-github">
+<li class="md-github">Description: Prints a JSON object with the Node.js version and a system status message.</li>
+<li class="md-github">Usage: <code class="md-github">npm run diagnostics</code> or <code class="md-github">node src/lib/main.js diagnostics</code></li>
+<li class="md-github">Example Output:<pre class="md-github"><code class="md-github language-json">{ &quot;nodeVersion&quot;: &quot;vXX.XX.X&quot;, &quot;message&quot;: &quot;Diagnostics info: all systems operational&quot; }
+</code></pre>
+</li>
+</ul>
+</li>
+<li class="md-github">
+<p class="md-github"><strong class="md-github">help</strong></p>
+<ul class="md-github">
+<li class="md-github">Description: Displays a help message with usage instructions and available commands.</li>
+<li class="md-github">Usage: <code class="md-github">npm run start</code> or <code class="md-github">node src/lib/main.js help</code></li>
+<li class="md-github">Example Output:<pre class="md-github"><code class="md-github">Available commands:
+  version      - Prints the version number.
+  diagnostics  - Prints diagnostics information.
+  help         - Displays this help message.
+
+Usage: node src/lib/main.js [command]
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
 <h2 class="md-github"><a class="md-github__anchor" name="getting-started" href="#getting-started"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting Started</h2>
-<p class="md-github">The repository is pre-configured with necessary workflows and scripts. To run the CLI locally, ensure you set the required secret if using the automated workflows:</p>
+<p class="md-github">The repository is pre-configured with necessary workflows, scripts, and tests. To run the CLI locally, make sure to set the required secret if you are using the automated workflows:</p>
 <ul class="md-github">
 <li class="md-github"><code class="md-github">CHATGPT_API_SECRET_KEY</code> – A key for accessing account services via the OpenAI chat completions API (model <code class="md-github">o3-mini</code>).</li>
 </ul>
@@ -83,7 +120,7 @@ This README provides an overview of the repository. Detailed CLI usage instructi
 
   </section>
   <footer>
-    <p>Generated on 2025-04-26T04:22:25.455Z</p>
+    <p>Generated on 2025-04-26T05:22:04.187Z</p>
   </footer>
 </body>
 </html>
