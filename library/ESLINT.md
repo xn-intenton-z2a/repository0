@@ -1,187 +1,183 @@
 # ESLINT
 
 ## Crawl Summary
-ESLint documentation crawled includes sections for using ESLint, extending functionality with custom rules and plugins, integrating via Node.js API, contribution guidelines, and maintenance release processes. CLI options include --fix, --config, and file extensions filtering. API integration involves instantiating the ESLint class and using methods like lintFiles and lintText with precise configuration options.
+ESLint documentation outlines the usage, extension, integration, contribution, and maintenance aspects. Key technical details include CLI options such as --fix, configuration file settings, Node.js API methods with signatures lintFiles and lintText, as well as versioning information for releases v9.25.1 and v9.25.0. The documentation also includes troubleshooting commands and instructions to integrate ESLint into development pipelines.
 
 ## Normalised Extract
 Table of Contents:
 1. Use ESLINT in Your Project
-   - CLI commands: eslint [options] file.js, options include --fix for automatic fixes, --config for specifying configuration files, and --ext to specify file extensions.
+   - Specifications: Configure core rules, use CLI options (--fix, --format, --init), and integrate with editors and CI pipelines.
 2. Extend ESLINT
-   - Custom Rule Format: module.exports = { meta: { docs: { description: 'rule description', recommended: true } }, create(context) { return { CallExpression(node) { // rule logic } }; } }.
-   - Plugin Structure: A plugin must export an object with 'rules' and optionally 'configs'.
+   - Specifications: Create custom rules by exporting rule definitions with meta properties; develop plugins; implement shareable configurations via the 'extends' key.
 3. Integrate ESLINT
-   - Node API: Import ESLint class from 'eslint'; instantiate using new ESLint(options) where options may include overrideConfig (object), useEslintrc (boolean), and baseConfig (object). Methods:
-     a. lintFiles(patterns: string | Array<string>): Promise<LintResult[]>
-     b. lintText(text: string, options?: { filePath?: string }): Promise<LintResult[]>
-     c. loadFormatter(format: string): Promise<Formatter>
-     d. outputFixes(results: LintResult[]): Promise<void>
-4. Contribute and Maintain
-   - Contribution Guidelines: Follow the project structure, use npm install, npm test, and adhere to the release notes for versioning. Release process details each version's changes.
-Directly usable configurations, parameter values, and commands are provided for setting up and running ESLint effectively.
+   - Specifications: Utilize the Node.js API; primary methods include:
+       ESLint.lintFiles(patterns: string | string[]) -> Promise<LintResult[]>
+       ESLint.lintText(text: string, options?: { filePath: string }) -> Promise<LintResult[]>
+4. Contribute to ESLINT
+   - Specifications: Follow project structure for contributions; use npm scripts (npm run build, npm test, npm run start) for development workflows.
+5. Maintain ESLINT
+   - Specifications: Version management (e.g., v9.25.1 patch, v9.25.0 minor); CI/CD integration; release process best practices.
+
+Implementation Details:
+- CLI: Execute ESLint with --fix to auto-correct syntax-aware errors.
+- Configuration Sample: { env: { browser: true, node: true }, parserOptions: { ecmaVersion: 2021 }, extends: 'eslint:recommended', rules: { semi: ["error", "always"] } }
+- Node.js API: Instantiate new ESLint({ fix: true }) and call lintFiles with file path globs.
+- Troubleshooting: Use commands like 'eslint --debug' for detailed logging and 'eslint --print-config <file>' to inspect resolved configurations.
 
 ## Supplementary Details
-Essential Technical Specifications:
-- CLI Configuration Options:
-  --fix              Automatically fix problems
-  --config <path>    Specify configuration file (default: .eslintrc.json)
-  --ext <extensions> Comma separated list (default: .js, .jsx)
-- Node API Options Object for ESLint constructor:
-  {
-    overrideConfig: { parserOptions: { ecmaVersion: 2020 }, rules: { 'no-unused-vars': 'error' } },
-    useEslintrc: true,
-    baseConfig: { env: { browser: true, node: true } }
-  }
-- Custom Rule Structure:
-  meta: { type: 'problem', docs: { description: '...', category: 'Possible Errors', recommended: true } },
-  create: function(context) { return { Identifier(node) { /* implementation */ } } };
+Configuration Options and Implementation Steps:
+- CLI Options:
+   --fix: Automatically applies syntax-aware fixes
+   --format: Specifies the output formatter
+   --init: Generates a starter configuration
+- ESLint.config.js Example:
+   module.exports = {
+     env: { browser: true, node: true },
+     parserOptions: { ecmaVersion: 2021 },
+     extends: 'eslint:recommended',
+     rules: { 'semi': ['error', 'always'], 'quotes': ['error', 'single'] }
+   };
+- Node.js API:
+   Class: ESLint
+   Methods:
+     lintFiles(patterns: string | string[]): Promise<LintResult[]>
+     lintText(text: string, options?: { filePath: string }): Promise<LintResult[]>
+   Default behavior: Uses latest ECMAScript settings and recommended rules if no config is provided.
 - Implementation Steps:
-  1. Install ESLint using npm install eslint --save-dev
-  2. Initialize configuration using npx eslint --init
-  3. Run linting via CLI or integrate using ESLint API in JavaScript files
-  4. Use ESLint fixes with --fix or outputFixes() in API
-- Default values and effects:
-  useEslintrc: true -> enables reading configuration from file system
-  overrideConfig: {} -> allows runtime configuration overriding
+   1. Install ESLint (npm install eslint)
+   2. Initialize configuration (npx eslint --init)
+   3. Customize rules in configuration file (.eslintrc.json or eslint.config.js)
+   4. Integrate ESLint into CI by checking exit codes from npm scripts.
+- Version Details:
+   v9.25.1: Patch release fixing bugs (21 Apr 2025)
+   v9.25.0: Minor release with new features (18 Apr 2025)
+- Troubleshooting Procedures:
+   a. Run 'eslint --debug <file>' for detailed logs
+   b. Run 'eslint --print-config <file>' to check effective configurations
+   c. Validate Node and npm versions and verify installation if errors occur.
 
 ## Reference Details
-API Specifications for Node.js Integration:
-ESLint Class Constructor:
-  ESLint(options: {
-    cwd?: string,
-    overrideConfig?: object,
-    baseConfig?: object,
-    useEslintrc?: boolean,
-    extensions?: string[],
-    ignore?: boolean
-  }): ESLint
-
+API Specifications and Implementation Examples:
+Class: ESLint
 Methods:
-  lintFiles(patterns: string | string[]): Promise<LintResult[]>
-    - Parameters: patterns can be a glob pattern or an array of file paths
-    - Returns: Promise resolving to an array of LintResult objects
+  1. lintFiles(patterns: string | string[]): Promise<LintResult[]>
+     - Parameters: patterns (string or array of file path patterns)
+     - Returns: Promise resolving to an array of LintResult objects
+     - Exceptions: Throws an Error if files are not found or if configuration is invalid
+  2. lintText(text: string, options?: { filePath: string }): Promise<LintResult[]>
+     - Parameters: text (string), options object containing filePath (string)
+     - Returns: Promise resolving to an array of LintResult objects
+     - Exceptions: Throws an Error if text input is empty or misconfigured
 
-  lintText(text: string, options?: { filePath?: string }): Promise<LintResult[]>
-    - Parameters: text to lint and optional filePath for context
-    - Returns: Promise resolving to an array of LintResult objects
-
-  loadFormatter(format: string): Promise<Formatter>
-    - Parameters: format name (e.g., 'stylish', 'json')
-    - Returns: Promise resolving to a formatter instance with a format(results: LintResult[]): string method
-
-  outputFixes(results: LintResult[]): Promise<void>
-    - Parameters: results from linting which may include fixes
-    - Behavior: Writes fixed code to disk
-
-SDK Method Signatures in Code:
-// Example usage:
-const { ESLint } = require('eslint');
-(async function main() {
-  const eslint = new ESLint({
-    overrideConfig: {
-      parserOptions: { ecmaVersion: 2020 },
-      rules: { 'no-unused-vars': 'error' }
-    },
-    useEslintrc: true
-  });
-  const results = await eslint.lintFiles(['src/**/*.js']);
-  const formatter = await eslint.loadFormatter('stylish');
-  const resultText = formatter.format(results);
-  console.log(resultText);
-  await ESLint.outputFixes(results);
-})();
-
-Configuration File Example (.eslintrc.json):
-{
-  "env": { "browser": true, "node": true },
-  "extends": "eslint:recommended",
-  "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
-  "rules": {
-    "no-unused-vars": "error",
-    "semi": ["error", "always"]
-  }
+SDK Method Signature Example:
+function runLint(): Promise<LintResult[]> {
+  const eslint = new ESLint({ overrideConfigFile: 'eslint.config.js', fix: true });
+  return eslint.lintFiles(['src/**/*.js']);
 }
 
-Troubleshooting Procedures:
-1. Command: npx eslint src/app.js
-   Expected Output: List of linting errors/warnings with file and line numbers.
-2. For configuration errors, run: npx eslint --print-config src/app.js
-   Expected Output: JSON of resolved configuration.
-3. For API usage errors, check stack trace and verify options object keys and types.
+Node.js Code Example:
+// Import ESLint from the package
+const { ESLint } = require('eslint');
 
-Best Practices:
-- Always include a .eslintrc file at the project root.
-- Use --fix to automatically correct minor issues.
-- Integrate ESLint in continuous integration pipelines using npm scripts.
-- Regularly update ESLint to benefit from new rules and fixes.
+(async function main() {
+  const eslint = new ESLint({ fix: true });
+  const results = await eslint.lintFiles(['src/**/*.js']);
+  results.forEach(result => {
+    console.log(`File: ${result.filePath}, Errors: ${result.errorCount}`);
+  });
+})();
+
+Configuration File (eslint.config.js) Example:
+module.exports = {
+  env: { browser: true, node: true },
+  parserOptions: { ecmaVersion: 2021 },
+  extends: 'eslint:recommended',
+  rules: {
+    'semi': ['error', 'always'],
+    'quotes': ['error', 'single']
+  }
+};
+
+Best Practices and Troubleshooting:
+- Always commit your configuration file and review auto-fixed changes using version control.
+- Test configuration with 'eslint --print-config <file>' to confirm resolved settings.
+- For debugging, run 'eslint --debug <file>' to output detailed internal logs.
+- In CI/CD, use npm scripts to run ESLint and check exit codes for build failures.
+- If errors persist, verify the Node.js version and dependency installation by reinstalling ESLint.
+
 
 ## Information Dense Extract
-ESLint CLI: eslint [options] file.js, Options: --fix, --config, --ext; Node API: new ESLint({ overrideConfig:{ parserOptions:{ecmaVersion:2020}, rules:{'no-unused-vars':'error'}}, useEslintrc:true, baseConfig:{env:{browser:true,node:true}} }), Methods: lintFiles(patterns: string|Array<string>)=>Promise<LintResult[]>, lintText(text:string,{filePath?:string})=>Promise<LintResult[]>, loadFormatter(format: string)=>Promise<Formatter>, outputFixes(results:LintResult[])=>Promise<void>; Custom Rule: module.exports={meta:{docs:{description:'...',recommended:true}},create(context){return {Identifier(node){}}}}; Config File (.eslintrc.json): {"env":{"browser":true,"node":true},"extends":"eslint:recommended","parserOptions":{"ecmaVersion":2020,"sourceType":"module"},"rules":{"no-unused-vars":"error","semi":["error","always"]}}; Troubleshooting: npx eslint src/app.js; npx eslint --print-config src/app.js
+ESLint; CLI: --fix, --format, --init; API: ESLint.lintFiles(string|string[]) => Promise<LintResult[]>; ESLint.lintText(string, {filePath:string}) => Promise<LintResult[]>; Config: env {browser:true,node:true}, parserOptions {ecmaVersion:2021}, extends 'eslint:recommended', rules {semi:['error','always'], quotes:['error','single']}; Versions: v9.25.1 (21 Apr 2025 patch), v9.25.0 (18 Apr 2025 minor); Node example: new ESLint({fix:true}); Troubleshoot: eslint --debug; eslint --print-config <file>; Best practices: verify auto-fixes via version control, integrate in CI using npm scripts.
 
 ## Sanitised Extract
 Table of Contents:
 1. Use ESLINT in Your Project
-   - CLI commands: eslint [options] file.js, options include --fix for automatic fixes, --config for specifying configuration files, and --ext to specify file extensions.
+   - Specifications: Configure core rules, use CLI options (--fix, --format, --init), and integrate with editors and CI pipelines.
 2. Extend ESLINT
-   - Custom Rule Format: module.exports = { meta: { docs: { description: 'rule description', recommended: true } }, create(context) { return { CallExpression(node) { // rule logic } }; } }.
-   - Plugin Structure: A plugin must export an object with 'rules' and optionally 'configs'.
+   - Specifications: Create custom rules by exporting rule definitions with meta properties; develop plugins; implement shareable configurations via the 'extends' key.
 3. Integrate ESLINT
-   - Node API: Import ESLint class from 'eslint'; instantiate using new ESLint(options) where options may include overrideConfig (object), useEslintrc (boolean), and baseConfig (object). Methods:
-     a. lintFiles(patterns: string | Array<string>): Promise<LintResult[]>
-     b. lintText(text: string, options?: { filePath?: string }): Promise<LintResult[]>
-     c. loadFormatter(format: string): Promise<Formatter>
-     d. outputFixes(results: LintResult[]): Promise<void>
-4. Contribute and Maintain
-   - Contribution Guidelines: Follow the project structure, use npm install, npm test, and adhere to the release notes for versioning. Release process details each version's changes.
-Directly usable configurations, parameter values, and commands are provided for setting up and running ESLint effectively.
+   - Specifications: Utilize the Node.js API; primary methods include:
+       ESLint.lintFiles(patterns: string | string[]) -> Promise<LintResult[]>
+       ESLint.lintText(text: string, options?: { filePath: string }) -> Promise<LintResult[]>
+4. Contribute to ESLINT
+   - Specifications: Follow project structure for contributions; use npm scripts (npm run build, npm test, npm run start) for development workflows.
+5. Maintain ESLINT
+   - Specifications: Version management (e.g., v9.25.1 patch, v9.25.0 minor); CI/CD integration; release process best practices.
+
+Implementation Details:
+- CLI: Execute ESLint with --fix to auto-correct syntax-aware errors.
+- Configuration Sample: { env: { browser: true, node: true }, parserOptions: { ecmaVersion: 2021 }, extends: 'eslint:recommended', rules: { semi: ['error', 'always'] } }
+- Node.js API: Instantiate new ESLint({ fix: true }) and call lintFiles with file path globs.
+- Troubleshooting: Use commands like 'eslint --debug' for detailed logging and 'eslint --print-config <file>' to inspect resolved configurations.
 
 ## Original Source
-ESLint
+Tooling: Code Quality & Testing Documentation
 https://eslint.org/docs/latest/
 
 ## Digest of ESLINT
 
-# ESLINT Documentation Digest
+# ESLINT
 
-Retrieved on: 2025-04-28
+Retrieved on: 2023-10-10
 
-## Use ESLINT in Your Project
-- Description: ESLint helps you detect problems in your JavaScript code and supports fixing many issues automatically.
-- CLI Syntax: eslint [options] file.js
-- Key Options: --fix, --config, --ext
-- Example: eslint --fix src/app.js
+# Use ESLINT in Your Project
+- Core rules configuration and command line options
+- CLI options include: --fix (automatically fix errors), --format (specify formatter), and --init (generate a configuration file)
+- Integration with text editors and CI systems
 
-## Extend ESLINT
-- Custom Rules: Create rules using JavaScript. Export an object with meta and create functions.
-- Plugin Structure: A plugin exports rules and configurations.
-- Configuration File: .eslintrc.json with key "rules" containing rule ids and severity.
+# Extend ESLINT
+- Create custom rules by exporting rule definitions with meta properties
+- Develop plugins to extend ESLint behavior
+- Utilize shareable configurations using the 'extends' key in config files
 
-## Integrate ESLINT
-- Node API: Use the ESLint class from the ESLint package.
-- Method Example: new ESLint(options) where options may include overrideConfig, useEslintrc, and baseConfig.
-- API Methods: lintFiles, lintText, loadFormatter, and outputFixes.
+# Integrate ESLINT
+- Node.js API usage via the ESLint class
+- Method Signatures:
+  - ESLint.lintFiles(patterns: string | string[]): Promise<LintResult[]>
+  - ESLint.lintText(text: string, options?: { filePath: string }): Promise<LintResult[]>
+- Allows integration into custom build scripts and tooling
 
-## Contribute to ESLINT
-- Project Structure: Follow contribution guidelines provided in CONTRIBUTING.md
-- Set up dev environment: npm install, npm test, and ESLint run on source files.
+# Contribute to ESLINT
+- Follow the established project structure (directories for packages, rules, and configurations)
+- Set up development environment with npm scripts:
+    * npm run build
+    * npm test
+    * npm run start
 
-## Maintain ESLINT
-- Release Process: Patch, minor, and major releases with respective changelog and release notes.
-- Versioning: Releases like v9.25.1, v9.25.0, with detailed release notes included in documentation.
+# Maintain ESLINT
+- Manage version releases (e.g., v9.25.1, v9.25.0) including bug fixes and feature updates
+- Use automated CI/CD workflows for testing and deployment
 
-## Retrieval Data and Attribution
-- Data Size: 2353021 bytes
-- Links Found: 5037
-- Source: https://eslint.org/docs/latest/
-
+Data Size: 2121782 bytes
+Attribution: Crawled from https://eslint.org/docs/latest/ (4924 links found)
 
 ## Attribution
-- Source: ESLint
+- Source: Tooling: Code Quality & Testing Documentation
 - URL: https://eslint.org/docs/latest/
 - License: License if known: MIT
-- Crawl Date: 2025-04-25T23:24:34.305Z
-- Data Size: 2353021 bytes
-- Links Found: 5037
+- Crawl Date: 2025-04-26T09:44:25.815Z
+- Data Size: 2121782 bytes
+- Links Found: 4924
 
 ## Retrieved
-2025-04-25
+2025-04-26
