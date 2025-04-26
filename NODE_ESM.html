@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>agentic-lib</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background-color: #f9f9f9; color: #333; }
+    header { padding-bottom: 1em; border-bottom: 2px solid #ccc; margin-bottom: 1em; }
+    h1 { font-size: 2em; }
+    section { margin-bottom: 1.5em; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5em 0; }
+    .label { font-weight: bold; }
+    footer { margin-top: 2em; font-size: 0.9em; color: #777; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>agentic-lib</h1>
+    <p><a href="https://github.com/xn-intenton-z2a/agentic-lib">repository</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/latest.html">latest stats</a> - <a href="https://xn-intenton-z2a.github.io/agentic-lib/all.html">all stats</a></p>
+  </header>
+  <section>
+    <h1 class="md-github"><a class="md-github__anchor" name="node_esm" href="#node_esm"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>NODE_ESM</h1>
+<h2 class="md-github"><a class="md-github__anchor" name="crawl-summary" href="#crawl-summary"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Crawl Summary</h2>
+<p class="md-github">Crawled Node.js ESM and Process API content detailing module import/export syntax, dynamic import usage, and process API properties (argv, env, exit, on, cwd). Emphasis on technical specifications such as package.json &quot;type&quot;: &quot;module&quot;, import() returning a Promise and process API methods with defined signatures.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="normalised-extract" href="#normalised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Normalised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">ESM Module Implementation</p>
+</li>
+<li class="md-github">
+<p class="md-github">Dynamic Import Details</p>
+</li>
+<li class="md-github">
+<p class="md-github">Process API Methods</p>
+</li>
+<li class="md-github">
+<p class="md-github">Process Event Handling</p>
+</li>
+<li class="md-github">
+<p class="md-github">ESM Module Implementation:</p>
+</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">Use package.json with &quot;type&quot;: &quot;module&quot;.</li>
+<li class="md-github">Static imports using standard ECMAScript syntax.</li>
+<li class="md-github">File naming conventions include .mjs for modules in non-module packages.</li>
+</ul>
+<ol start="2" class="md-github">
+<li class="md-github">Dynamic Import Details:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">Syntax: import(moduleSpecifier) returns Promise<object>.</li>
+<li class="md-github">Use for conditionally loading modules and lazy loading.</li>
+</ul>
+<ol start="3" class="md-github">
+<li class="md-github">Process API Methods:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">process.argv: type Array<string> containing command-line arguments.</li>
+<li class="md-github">process.env: type { [key: string]: string } for environment variables.</li>
+<li class="md-github">process.exit(code: number): terminates the process immediately.</li>
+<li class="md-github">process.cwd(): returns string representing the current directory.</li>
+</ul>
+<ol start="4" class="md-github">
+<li class="md-github">Process Event Handling:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">process.on(event: string, listener: function): registers callback for events. Common events include 'exit', 'uncaughtException'.</li>
+<li class="md-github">Listeners are executed synchronously before process exit in case of signals.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="supplementary-details" href="#supplementary-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Supplementary Details</h2>
+<p class="md-github">ESM Supplementary Details:</p>
+<ul class="md-github">
+<li class="md-github">Ensure package.json includes: {
+&quot;type&quot;: &quot;module&quot;
+}</li>
+<li class="md-github">Static import example: import { myFunction } from './myModule.js';</li>
+<li class="md-github">Dynamic import: use async function loadModule() { const mod = await import('./module.js'); }</li>
+</ul>
+<p class="md-github">Process API Supplementary Details:</p>
+<ul class="md-github">
+<li class="md-github">process.exit expects an integer exit code.</li>
+<li class="md-github">process.on must handle errors gracefully; recommended to log error details and perform cleanup.</li>
+<li class="md-github">Environment variable usage: process.env.NODE_ENV to determine runtime environment.</li>
+</ul>
+<p class="md-github">Configuration Options:</p>
+<ul class="md-github">
+<li class="md-github">Node.js flags can be set via command line or environment variables (e.g. NODE_OPTIONS). Defaults are as per Node.js standard behavior.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="reference-details" href="#reference-details"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reference Details</h2>
+<p class="md-github">API Specifications:
+ESM Modules:</p>
+<ul class="md-github">
+<li class="md-github">import { identifier } from 'module-name': ECMAScript static import.</li>
+<li class="md-github">import(moduleSpecifier: string): Promise<object></li>
+<li class="md-github">Module Resolution: Follows Node.js algorithm including index resolution and extension checks.</li>
+</ul>
+<p class="md-github">Process API:</p>
+<ul class="md-github">
+<li class="md-github">process.argv: string[]</li>
+<li class="md-github">process.env: { [key: string]: string }</li>
+<li class="md-github">process.exit(code?: number): never; exits process with specified code.</li>
+<li class="md-github">process.on(event: string, listener: (...args: any[]) =&gt; void): EventEmitter; available events include 'exit', 'beforeExit', 'uncaughtException', 'warning'.</li>
+<li class="md-github">process.cwd(): () =&gt; string</li>
+</ul>
+<p class="md-github">Implementation Patterns:</p>
+<ul class="md-github">
+<li class="md-github">Always ensure proper error handling in process.on listeners.</li>
+<li class="md-github">Validate environment variables before proceeding with logic.</li>
+<li class="md-github">Static vs dynamic import usage decision based on module loading requirements.</li>
+</ul>
+<p class="md-github">Best Practices:</p>
+<ul class="md-github">
+<li class="md-github">Use strict mode in modules.</li>
+<li class="md-github">Avoid circular dependencies by careful architecture planning.</li>
+</ul>
+<p class="md-github">Troubleshooting:</p>
+<ul class="md-github">
+<li class="md-github">If import errors occur, check file extension and package.json configuration.</li>
+<li class="md-github">For process crash, check listeners on 'uncaughtException' and verify process.exit usage.</li>
+<li class="md-github">Use node --trace-warnings for detailed event logging.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="information-dense-extract" href="#information-dense-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Information Dense Extract</h2>
+<p class="md-github">package.json:{type:module}; static import:import {...} from 'module'; dynamic import:import('module'):Promise<object>; file extension:.mjs; process.argv:string[]; process.env:{[k:string]:string}; process.exit(code:number):never; process.on(event:string, listener:(...args:any[])=&gt;void):EventEmitter; process.cwd():string; node flags:NODE_OPTIONS; troubleshooting:use --trace-warnings; best practices:error handling, strict mode, avoid circular deps</p>
+<h2 class="md-github"><a class="md-github__anchor" name="sanitised-extract" href="#sanitised-extract"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sanitised Extract</h2>
+<p class="md-github">Table of Contents:</p>
+<ol class="md-github">
+<li class="md-github">
+<p class="md-github">ESM Module Implementation</p>
+</li>
+<li class="md-github">
+<p class="md-github">Dynamic Import Details</p>
+</li>
+<li class="md-github">
+<p class="md-github">Process API Methods</p>
+</li>
+<li class="md-github">
+<p class="md-github">Process Event Handling</p>
+</li>
+<li class="md-github">
+<p class="md-github">ESM Module Implementation:</p>
+</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">Use package.json with 'type': 'module'.</li>
+<li class="md-github">Static imports using standard ECMAScript syntax.</li>
+<li class="md-github">File naming conventions include .mjs for modules in non-module packages.</li>
+</ul>
+<ol start="2" class="md-github">
+<li class="md-github">Dynamic Import Details:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">Syntax: import(moduleSpecifier) returns Promise<object>.</li>
+<li class="md-github">Use for conditionally loading modules and lazy loading.</li>
+</ul>
+<ol start="3" class="md-github">
+<li class="md-github">Process API Methods:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">process.argv: type Array<string> containing command-line arguments.</li>
+<li class="md-github">process.env: type { [key: string]: string } for environment variables.</li>
+<li class="md-github">process.exit(code: number): terminates the process immediately.</li>
+<li class="md-github">process.cwd(): returns string representing the current directory.</li>
+</ul>
+<ol start="4" class="md-github">
+<li class="md-github">Process Event Handling:</li>
+</ol>
+<ul class="md-github">
+<li class="md-github">process.on(event: string, listener: function): registers callback for events. Common events include 'exit', 'uncaughtException'.</li>
+<li class="md-github">Listeners are executed synchronously before process exit in case of signals.</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="original-source" href="#original-source"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Original Source</h2>
+<p class="md-github">Node.js Official Documentation
+https://nodejs.org/api/esm.html &amp; https://nodejs.org/api/process.html</p>
+<h2 class="md-github"><a class="md-github__anchor" name="digest-of-node_esm" href="#digest-of-node_esm"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Digest of NODE_ESM</h2>
+<h1 class="md-github"><a class="md-github__anchor" name="nodejs-esm-and-process-api-documentation" href="#nodejs-esm-and-process-api-documentation"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Node.js ESM and Process API Documentation</h1>
+<p class="md-github">This document extracts the critical technical details from the Node.js official documentation for ECMAScript Modules (ESM) and the Process API. Retrieved on 2023-10-06.</p>
+<h1 class="md-github"><a class="md-github__anchor" name="esm-module-specifications" href="#esm-module-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ESM Module Specifications</h1>
+<ul class="md-github">
+<li class="md-github">Module Type: Use &quot;type&quot;: &quot;module&quot; in package.json for ESM usage.</li>
+<li class="md-github">Static import syntax: import { functionName } from &quot;module-name&quot;;</li>
+<li class="md-github">Dynamic import: import(moduleSpecifier) returns a Promise resolving to the module object.</li>
+<li class="md-github">File Extensions: .mjs is recommended when not using package.json &quot;type&quot;: &quot;module&quot;.</li>
+<li class="md-github">Circular dependency handling and resolution algorithm details are covered in the documentation.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="process-api-specifications" href="#process-api-specifications"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Process API Specifications</h1>
+<ul class="md-github">
+<li class="md-github">process.argv: Array of command-line arguments (first two elements are node executable and script path).</li>
+<li class="md-github">process.env: Object providing access to environment variables.</li>
+<li class="md-github">process.exit(code): Terminates the process with the specified exit code (code is a number).</li>
+<li class="md-github">process.on(event, listener): Registers a listener for process-level events. Example events include 'exit', 'uncaughtException', and 'warning'.</li>
+<li class="md-github">process.cwd(): Returns the current working directory of the process.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="implementation-patterns" href="#implementation-patterns"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Patterns</h1>
+<ul class="md-github">
+<li class="md-github">For ESM modules, always ensure package.json declares &quot;type&quot;: &quot;module&quot;.</li>
+<li class="md-github">Use dynamic imports for lazy-loading modules or conditionally loading modules at runtime.</li>
+<li class="md-github">For process management, use process.on to handle uncaught exceptions and process.exit to ensure graceful shutdown after cleanup.</li>
+</ul>
+<h1 class="md-github"><a class="md-github__anchor" name="configuration-and-environment" href="#configuration-and-environment"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Configuration and Environment</h1>
+<ul class="md-github">
+<li class="md-github">Configuration option in package.json: &quot;type&quot;: &quot;module&quot; with no default in ESM module context unless specified.</li>
+<li class="md-github">Use NODE_OPTIONS for runtime flags influencing process behavior.</li>
+</ul>
+<p class="md-github">Attribution: Data retrieved from Node.js API Documentation pages at https://nodejs.org/api/esm.html and https://nodejs.org/api/process.html.
+Data Size: 0 bytes.</p>
+<h2 class="md-github"><a class="md-github__anchor" name="attribution" href="#attribution"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Attribution</h2>
+<ul class="md-github">
+<li class="md-github">Source: Node.js Official Documentation</li>
+<li class="md-github">URL: https://nodejs.org/api/esm.html &amp; https://nodejs.org/api/process.html</li>
+<li class="md-github">License: License if known: MIT</li>
+<li class="md-github">Crawl Date: 2025-04-26T03:01:48.509Z</li>
+<li class="md-github">Data Size: 0 bytes</li>
+<li class="md-github">Links Found: 0</li>
+</ul>
+<h2 class="md-github"><a class="md-github__anchor" name="retrieved" href="#retrieved"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retrieved</h2>
+<p class="md-github">2025-04-26</p>
+
+  </section>
+  <footer>
+    <p>Generated on 2025-04-26T03:24:56.807Z</p>
+  </footer>
+</body>
+</html>
