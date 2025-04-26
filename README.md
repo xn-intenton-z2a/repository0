@@ -12,7 +12,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 - **diagnostics**: Displays diagnostic information including the Node.js version and a system status message.
 - **help**: Shows a help message with usage instructions. This command is also the default when an unrecognized command is provided or no command is given.
 
-This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project. The CLI and its associated tests verify that each command behaves as expected.
+The repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project. The CLI and its associated tests verify that each command behaves as expected.
 
 ## What’s Inside
 
@@ -20,10 +20,10 @@ This repository demonstrates how automated workflows can manage source code, tes
   Workflows in the `.github/workflows/` directory use reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The core CLI is implemented in `src/lib/main.js`. It handles command parsing and execution and is maintained alongside project tests.
+  The core CLI is implemented in `src/lib/main.js`. It handles command parsing and execution, and is maintained alongside project tests that ensure its reliability.
 
 - **Dependencies:**
-  The `package.json` file defines the project dependencies and scripts for testing, formatting, linting, and running the CLI.
+  The `package.json` file defines the project dependencies as well as scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
   Unit tests in the `tests/unit/` folder verify the functionality of the CLI commands (`version`, `diagnostics`, and `help`).
@@ -60,6 +60,8 @@ You can interact with the CLI using the following commands:
 
     Usage: node src/lib/main.js [command]
     ```
+
+_Note: If no command is provided, the CLI defaults to displaying the help message._
 
 ## Getting Started
 
