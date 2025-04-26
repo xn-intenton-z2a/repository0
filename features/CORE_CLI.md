@@ -1,19 +1,22 @@
 # CORE CLI Feature Update
 
 ## Overview
-This update enhances the core CLI functionality by officially integrating the update command into the CLI command set. In addition to the existing commands (version, diagnostics, help), users can now invoke the update command to receive a definitive message. This change aligns with the repository mission to provide handy CLI utilities in a single source file.
+This update expands the existing CLI commands by officially integrating the update command. In addition to the current commands (version, diagnostics, help), users can now invoke the update command which will output "No update available". This enhancement not only ensures that the CLI remains consistent and informative but also fulfills the repository template’s mission to provide handy CLI utilities in a single source file.
 
 ## Source Code Changes
-- Update src/lib/main.js to add a new condition: when the command is update, the program should log "No update available" and exit without performing any further actions. This update should be structured similarly to the existing version and diagnostics commands.
+- Modify src/lib/main.js to add a new condition: if the first argument is update, the program should output "No update available" and exit. The structure should mirror the existing conditions for version and diagnostics.
 
 ## Testing
-- Enhance tests in tests/unit/main.test.js by adding a new test case. The test will invoke the update command and verify that the exact output is "No update available". This ensures that the update command is functional and behaves as expected.
+- Enhance tests in tests/unit/main.test.js by adding a new test case for the update command. The test should invoke main(["update"]) and verify that the output is exactly "No update available". This ensures the new command is functional and behaves as expected.
 
 ## Documentation
-- Update README.md and docs/USAGE.md to include the new update command. The documentation should detail that users can now run the update command (for instance, via npm script check-update or by running node src/lib/main.js update) and that the expected output is "No update available".
+- Update the README.md and docs/USAGE.md files to document the new update command. Include usage examples such as:
+  - Running via npm script: npm run check-update
+  - Running from command line: node src/lib/main.js update
+- Mention that the expected output is "No update available" to guide the user.
 
 ## Dependencies and Scripts
-- Confirm that package.json maintains the script mapping for check-update to "node src/lib/main.js update". This ensures users have an easy way to test the new command.
+- Confirm that package.json includes the check-update script mapping to "node src/lib/main.js update". No dependency updates are required since this is a CLI functionality enhancement.
 
 ## Summary
-This update consolidates the CLI commands by adding the update command while preserving the existing functionality. It demonstrates a targeted improvement addressing a clear user need, without adding excessive complexity. All changes are made within the permitted files including the source file, test file, README, and dependencies file.
+This update consolidates the CLI functionality by integrating the update command. It addresses a clear user need to verify update status and maintains consistency with the repository’s design philosophy of providing a simple, effective CLI interface. All changes are contained within the permitted files: the source file, the test file, the README, and the dependencies file.
