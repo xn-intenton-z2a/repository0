@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check the version, system diagnostics, and usage help, making it easy to test and extend CLI functionality.
+This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check the version, display system diagnostics, and show usage help, making it easy to test and extend CLI functionality.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -51,7 +51,7 @@ You can interact with the CLI using the following commands:
     ```
 
 - **help**
-  - Description: Displays a help message with usage instructions and available commands.
+  - Description: Displays a help message with usage instructions and available commands. This is also used as the default display when an unrecognized command is entered or no command is provided.
   - Usage: `npm run start` or `node src/lib/main.js help`
   - Example Output:
     ```
@@ -59,7 +59,7 @@ You can interact with the CLI using the following commands:
       version      - Prints the version number.
       diagnostics  - Prints diagnostics information.
       help         - Displays this help message.
-
+    
     Usage: node src/lib/main.js [command]
     ```
 
