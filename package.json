@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "2.1.0-0",
-  "description": "Add repository description here",
+  "description": "A flexible, CI/CD integrated repository template for new projects with a simple CLI and automated workflows.",
   "type": "module",
   "main": "src/lib/main.js",
   "imports": {
