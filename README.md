@@ -1,6 +1,6 @@
 # `repository0`
 
-This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js.
+This repository serves as a template demonstrating automated CI/CD workflows imported from intentïon `agentic‑lib` and includes a basic CLI built with Node.js. It provides fundamental commands to check version, system diagnostics, and usage help, making it easy to test and extend CLI functionality.
 
 You probably want to start with the template documentation here: [TEMPLATE-README.md](https://github.com/xn-intenton-z2a/agentic-lib/blob/main/TEMPLATE-README.md)
 
@@ -14,7 +14,7 @@ You probably want to start with the template documentation here: [TEMPLATE-READM
 
 For any unrecognized command or when no command is provided, the CLI defaults to displaying the help message.
 
-This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project.
+This repository demonstrates how automated workflows can manage source code, tests, and documentation, ensuring consistency across the project. The CLI and its associated tests verify that each command behaves as expected.
 
 ## What’s Inside
 
@@ -22,10 +22,10 @@ This repository demonstrates how automated workflows can manage source code, tes
   Workflows in the `.github/workflows/` directory use reusable workflows from intentïon `agentic‑lib` to automate project tasks.
 
 - **Source Code:**
-  The core CLI is implemented in `src/lib/main.js`. It handles CLI commands and is consistently maintained alongside the project’s tests.
+  The core CLI is implemented in `src/lib/main.js`. It handles command parsing and execution and is maintained alongside project tests.
 
 - **Dependencies:**
-  The `package.json` file defines project dependencies and scripts for testing, formatting, linting, and running the CLI.
+  The `package.json` file defines the project dependencies and scripts for testing, formatting, linting, and running the CLI.
 
 - **Tests:**
   Unit tests in the `tests/unit/` folder verify the functionality of the CLI commands (`version`, `diagnostics`, and `help`).
@@ -33,9 +33,39 @@ This repository demonstrates how automated workflows can manage source code, tes
 - **Documentation:**
   This README provides an overview of the repository. Detailed CLI usage instructions are available in [docs/USAGE.md](docs/USAGE.md).
 
+## CLI Commands
+
+You can interact with the CLI using the following commands:
+
+- **version**
+  - Description: Prints the current CLI version.
+  - Usage: `npm run version` or `node src/lib/main.js version`
+  - Example Output: `2.1.0-0`
+
+- **diagnostics**
+  - Description: Prints a JSON object with the Node.js version and a system status message.
+  - Usage: `npm run diagnostics` or `node src/lib/main.js diagnostics`
+  - Example Output:
+    ```json
+    { "nodeVersion": "vXX.XX.X", "message": "Diagnostics info: all systems operational" }
+    ```
+
+- **help**
+  - Description: Displays a help message with usage instructions and available commands.
+  - Usage: `npm run start` or `node src/lib/main.js help`
+  - Example Output:
+    ```
+    Available commands:
+      version      - Prints the version number.
+      diagnostics  - Prints diagnostics information.
+      help         - Displays this help message.
+
+    Usage: node src/lib/main.js [command]
+    ```
+
 ## Getting Started
 
-The repository is pre-configured with necessary workflows and scripts. To run the CLI locally, ensure you set the required secret if using the automated workflows:
+The repository is pre-configured with necessary workflows, scripts, and tests. To run the CLI locally, make sure to set the required secret if you are using the automated workflows:
 
 - `CHATGPT_API_SECRET_KEY` – A key for accessing account services via the OpenAI chat completions API (model `o3-mini`).
 
