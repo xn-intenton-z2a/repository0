@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "2.1.0-0",
-  "description": "A flexible, CI/CD integrated repository template for new projects with a simple CLI and automated workflows.",
+  "description": "Add repository description here",
   "type": "module",
   "main": "src/lib/main.js",
   "imports": {
@@ -33,11 +33,11 @@
     "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
     "minimatch": "^9.0.5",
-    "zod": "^3.24.3"
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
-    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/coverage-v8": "^3.1.1",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-import": "^2.31.0",
@@ -51,7 +51,7 @@
     "markdown-it-github": "^0.5.0",
     "npm-check-updates": "^17.1.18",
     "prettier": "^3.5.3",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.1"
   },
   "overrides": {
     "rimraf": "^4.0.0",
