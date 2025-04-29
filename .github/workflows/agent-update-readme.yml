@@ -28,11 +28,34 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.18'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  check-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
 
   npm-test:
     name: 'npm test with coverage'
@@ -130,7 +153,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-update-for-readme.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-update-for-readme.yml@4.3.18'
     with:
       srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
@@ -171,18 +194,21 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.18'
     with:
       branch: "${{ needs.branch-for-update.outputs.branch }}"
       baseBranch: 'main'
       gitCommitMessage: "${{ needs.apply-update.outputs.message }}"
       label: 'automerge'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - apply-update
+      - create-pr
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.18'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -191,7 +217,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - apply-update
       - create-pr
     if: ${{ always() }}
@@ -199,7 +225,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.18'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

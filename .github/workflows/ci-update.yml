@@ -66,6 +66,8 @@ jobs:
           fi
 
   pom-check:
+    needs:
+      - check-branch
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -117,7 +119,6 @@ jobs:
     outputs:
       pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
 
-
   update-npm:
     needs:
       - check-branch
@@ -126,7 +127,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.3.18'
     with:
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
@@ -151,7 +152,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.3.18'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'
@@ -174,7 +175,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.18'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
@@ -193,18 +194,22 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.18'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - check-branch
+      - create-pr-npm
+      - create-pr-mvn
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.18'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -213,7 +218,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - check-branch
       - create-pr-npm
       - create-pr-mvn
@@ -222,7 +227,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.18'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

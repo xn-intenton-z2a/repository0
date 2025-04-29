@@ -60,7 +60,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.18'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -230,6 +230,10 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
           echo "always-auth=true" >> .npmrc
       - run: npm ci
+      - run: |
+          - echo 'issueNumber: ${{ env.issueNumber }}'
+          - echo 'attemptsPerBranch: ${{ env.attemptsPerBranch }}'
+          - echo 'branch: ${{ env.branch }}'
       - name: check
         id: check
         if: ${{ env.issueNumber != '' && env.attemptsPerBranch != '' && env.branch != '' }}
@@ -240,6 +244,7 @@ jobs:
             const attemptsPerBranchStr = process.env.attemptsPerBranch;
             const attemptsPerBranch = (parseInt(attemptsPerBranchStr) ? parseInt(attemptsPerBranchStr) : "");
             const branch = process.env.branch;
+            core.info(`Checking attempts limit for branch: ${branch} for issue number: ${issueNumber} with max attempts per branch: ${attemptsPerBranch}`);
 
             // If attempts to [work++fix] a branch exceed the limit as per agentic-lib.yml, then comment the issue and delete the branch.       
             core.info(`Retrieving issue ${issueNumber} details...`);
@@ -487,7 +492,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@4.3.18'
     with:
       srcPath: ${{ inputs.srcPath || needs.agentic-lib.outputs.srcPath }}
       testsPath: ${{ inputs.testsPath || needs.agentic-lib.outputs.testsPath }}
@@ -689,18 +694,22 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.18'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
       gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (working on #${{ needs.select-branch.outputs.issueNumber }})"
       label: 'automerge'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - apply-fix
+      - needs-fix-after-fix
+      - create-pr
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.18'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -709,7 +718,7 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - apply-fix
       - needs-fix-after-fix
       - create-pr
@@ -718,7 +727,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.18'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

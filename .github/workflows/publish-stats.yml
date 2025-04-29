@@ -25,11 +25,11 @@ env:
 
 jobs:
 
-  select-issue:
+  select-next-issue:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.18'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -38,12 +38,12 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
     permissions:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.18'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

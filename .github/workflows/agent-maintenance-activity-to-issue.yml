@@ -33,7 +33,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.18'
     with:
       configPath: ${{ env.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -46,7 +46,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@4.3.18'
     with:
       promptHint: ${{ inputs.prompt || 'house choice' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
@@ -76,17 +76,19 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.3.18'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
       issueLabels: 'maintenance, automated'
 
-  select-issue:
+  select-next-issue:
+    needs:
+      - create-issue
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.18'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -95,14 +97,14 @@ jobs:
 
   stats:
     needs:
-      - select-issue
+      - select-next-issue
       - create-issue
     if: ${{ always() }}
     permissions:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.17'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.18'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
