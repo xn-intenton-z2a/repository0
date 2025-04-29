@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from "vitest";
+import { describe, test, expect, beforeEach, afterAll } from "vitest";
 import { main, diagnostics, version, update } from "@src/lib/main.js";
 
 // Helper to capture console output
