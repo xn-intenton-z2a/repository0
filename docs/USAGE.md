@@ -1,20 +1,35 @@
 # CLI Utility Usage
 
-This CLI utility provides enhanced command-line functionality through a set of subcommands. Below are the available commands and usage examples:
+This CLI utility provides enhanced command-line functionality through a set of subcommands. In addition to running the commands via the CLI, each command is also available as an individually exported function. This allows you to integrate CLI functionality directly into your scripts.
 
 ## Available Commands
 
 - **diagnostics**
   - Description: Displays diagnostic information including a system check status.
-  - Example: `node src/lib/main.js diagnostics`
+  - CLI Example: `node src/lib/main.js diagnostics`
+  - Library Usage:
+    ```js
+    import { diagnostics } from '@src/lib/main.js';
+    diagnostics();
+    ```
 
 - **version**
   - Description: Displays the current version of the repository. The version is read from the package.json file.
-  - Example: `node src/lib/main.js version`
+  - CLI Example: `node src/lib/main.js version`
+  - Library Usage:
+    ```js
+    import { version } from '@src/lib/main.js';
+    version();
+    ```
 
 - **update**
   - Description: Initiates a simulated update process.
-  - Example: `node src/lib/main.js update`
+  - CLI Example: `node src/lib/main.js update`
+  - Library Usage:
+    ```js
+    import { update } from '@src/lib/main.js';
+    update();
+    ```
 
 ## Help Message
 
