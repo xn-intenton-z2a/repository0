@@ -231,9 +231,9 @@ jobs:
           echo "always-auth=true" >> .npmrc
       - run: npm ci
       - run: |
-          - echo 'issueNumber: ${{ env.issueNumber }}'
-          - echo 'attemptsPerBranch: ${{ env.attemptsPerBranch }}'
-          - echo 'branch: ${{ env.branch }}'
+          echo 'issueNumber: ${{ env.issueNumber }}'
+          echo 'attemptsPerBranch: ${{ env.attemptsPerBranch }}'
+          echo 'branch: ${{ env.branch }}'
       - name: check
         id: check
         if: ${{ env.issueNumber != '' && env.attemptsPerBranch != '' && env.branch != '' }}
