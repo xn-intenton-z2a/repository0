@@ -53,7 +53,7 @@ jobs:
                 page
               });
               const runs = runsResponse.data.workflow_runs;
-              if (runs.length === 0) break;
+              if (!runs || runs.length === 0) break;
               for (const run of runs) {
                 const runCreatedAt = new Date(run.created_at);
                 if (runCreatedAt < cutoffDate) {
@@ -84,7 +84,7 @@ jobs:
                 page
               });
               const artifacts = artifactsResponse.data.artifacts;
-              if (artifacts.length === 0) break;
+              if (!artifacts || artifacts.length === 0) break;
               for (const artifact of artifacts) {
                 const artifactCreatedAt = new Date(artifact.created_at);
                 if (artifactCreatedAt < cutoffDate) {

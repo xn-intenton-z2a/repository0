@@ -41,7 +41,7 @@ jobs:
                 page
               });
               const issues = issuesResponse.data;
-              if (issues.length === 0) break;
+              if (!issues || issues.length === 0) break;
               for (const issue of issues) {
                 // Skip pull requests
                 if (issue.pull_request) continue;
@@ -70,7 +70,7 @@ jobs:
                         page: commentPage
                       });
                       const comments = commentsResponse.data;
-                      if (comments.length === 0) break;
+                      if (!comments || comments.length === 0) break;
                       for (const comment of comments) {
                         try {
                           await github.rest.issues.deleteComment({
