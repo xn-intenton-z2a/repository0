@@ -15,11 +15,11 @@ on:
         required: false
         type: string
         default: 'house choice'
-  #workflow_run:
-  #  workflows:
-  #    - reset-sandbox
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows:
+      - reset-sandbox
+    types:
+      - completed
   schedule:
     #- cron: '0 5 */7 * *' # schedule-1
     #- cron: '0 5 * * *' # schedule-2
