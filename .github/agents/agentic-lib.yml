@@ -5,61 +5,51 @@ schedule: schedule-1
 paths:
   # Filepaths for elaborator workflows
   missionFilepath:
-    path: MISSION.md
+    path: 'MISSION.md'
   librarySourcesFilepath:
-    path: sandbox/SOURCES.md
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
     limit: 32
-    permissions:
-      - write
   libraryDocumentsPath:
-    path: sandbox/library/
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
     limit: 8
-    permissions:
-      - write
   featuresPath:
-    path: sandbox/features/
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
     limit: 3
-    permissions:
-      - write
 
   # Filepaths for engineer workflows
   contributingFilepath:
-    path: CONTRIBUTING.md
-  allTestsPaths:
-    paths:
-      - tests/unit/
-      - sandbox/tests/
+    path: 'CONTRIBUTING.md'
   targetTestsPath:
-    path: sandbox/tests/
-    permissions:
-      - write
-  allSourcePaths:
-    paths:
-      - src/lib/
-      - sandbox/source/
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  otherTestsPaths:
+    paths: [ 'tests/unit/' ]
   targetSourcePath:
-    path: sandbox/source/
-    permissions:
-      - write
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  otherSourcePaths:
+    paths: [ 'src/lib/' ]
   dependenciesFilepath:
-    path: package.json
+    path: 'package.json'
   documentationPath:
-    path: sandbox/docs/
-    permissions:
-      - write
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
 
   # Filepaths for maintainer workflows
   formattingFilepath:
-    path: .prettierrc
+    path: '.prettierrc'
   lintingFilepath:
-    path: eslint.config.js
+    path: 'eslint.config.js'
   readmeFilepath:
-    path: README.md
+    path: 'README.md'
 
 # Execution commands
-buildScript: npm run build
-testScript: npm test
-mainScript: npm run start
+buildScript: 'npm run build'
+testScript: 'npm test'
+mainScript: 'npm run start'
 
 # How many issues should be available to be picked up?
 featureDevelopmentIssuesWipLimit: 2
@@ -70,4 +60,4 @@ attemptsPerBranch: 2
 attemptsPerIssue: 2
 
 # Web publishing
-docRoot: public
+docRoot: 'public'
