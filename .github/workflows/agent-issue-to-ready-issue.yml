@@ -20,24 +20,24 @@ on:
         required: false
         type: string
         default: 'automated'
-  workflow_call:
-    inputs:
-      issueNumber:
-        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
-        required: false
-        type: string
-        default: ''
-      selectionLabel:
-        description: 'Label used to filter issues for resolution. e.g. "automated"'
-        required: false
-        type: string
-        default: 'automated'
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
+  #workflow_call:
+  #  inputs:
+  #    issueNumber:
+  #      description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+  #      required: false
+  #      type: string
+  #      default: ''
+  #    selectionLabel:
+  #      description: 'Label used to filter issues for resolution. e.g. "automated"'
+  #      required: false
+  #      type: string
+  #      default: 'automated'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
   workflow_run:
     workflows:
-      #- agent-feature-to-issue
+      - agent-feature-to-issue
       - agent-maintenance-activity-to-issue
       - agent-linting-to-issue
     types:

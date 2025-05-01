@@ -15,11 +15,17 @@ on:
         required: false
         type: string
         default: 'house choice'
-  workflow_run:
+  #workflow_run:
+  #  workflows:
+  #    - agent-library-to-feature
+  #  types:
+  #    - completed
+  workflow_call:
     workflows:
-      - agent-library-to-feature
-    types:
-      - completed
+        - agent-library-to-feature
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
   schedule:
     - cron: '0 4 */7 * *' # schedule-1
     #- cron: '0 4 * * *' # schedule-2
@@ -134,19 +140,19 @@ jobs:
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
       issueLabels: 'feature, automated'
 
-  ready-issue:
-    needs:
-      - select-feature
-      - generate-feature-development-issue
-      - create-issue
-    permissions:
-      contents: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@5.0.0'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #ready-issue:
+  #  needs:
+  #    - select-feature
+  #    - generate-feature-development-issue
+  #    - create-issue
+  #  permissions:
+  #    contents: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@5.0.0'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   select-next-issue:
     needs:
