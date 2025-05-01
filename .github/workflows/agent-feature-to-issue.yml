@@ -57,13 +57,14 @@ jobs:
         uses: actions/github-script@v7
         env:
           featureName: ${{ inputs.featureName || 'house choice' }}
+          featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
             let featureName = process.env.featureName;
             if (featureName === 'house choice') {
-              const promptsDir = './features';
+              const promptsDir = process.env.featuresPath;
               // Get all items in the directory
               const items = fs.readdirSync(promptsDir);
               // Filter only the files (exclude directories)
