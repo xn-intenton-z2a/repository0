@@ -32,9 +32,12 @@ on:
         required: false
         type: string
         default: 'automated'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
   workflow_run:
     workflows:
-      - agent-feature-to-issue
+      #- agent-feature-to-issue
       - agent-maintenance-activity-to-issue
       - agent-linting-to-issue
     types:

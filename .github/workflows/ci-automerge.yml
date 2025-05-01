@@ -12,6 +12,9 @@ on:
   check_suite:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
   #workflow_run:
   #  workflows:
   #    - agent-issue-to-code

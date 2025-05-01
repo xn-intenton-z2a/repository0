@@ -21,6 +21,9 @@ on:
         required: false
         type: string
         default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
   #workflow_run:
   #  workflows:
   #    - ci-automerge
