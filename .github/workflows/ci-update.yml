@@ -41,7 +41,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@5.0.1'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -53,7 +53,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: 'agentic-lib-update-dependencies'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -132,13 +132,13 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@5.0.1'
     with:
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
-      branch: 'agentic-lib-update'
+      branch: 'agentic-lib-update-dependencies'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
@@ -157,12 +157,12 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@5.0.1'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'
       upgradeTarget: 'minor'
-      branch: 'agentic-lib-update'
+      branch: 'agentic-lib-update-dependencies'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       gitCommitMessage: 'chore: dependency updates'
@@ -180,9 +180,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.0.1'
     with:
-      branch: 'agentic-lib-update'
+      branch: 'agentic-lib-update-dependencies'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
@@ -195,10 +195,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.1'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -214,9 +215,9 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.0.1'
     with:
-      branch: 'agentic-lib-update'
+      branch: 'agentic-lib-update-dependencies'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
@@ -230,10 +231,11 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: write
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.1'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -245,7 +247,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@5.0.1'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -265,7 +267,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@5.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@5.0.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
