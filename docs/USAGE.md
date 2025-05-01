@@ -31,6 +31,15 @@ This CLI utility provides enhanced command-line functionality through a set of s
     update();
     ```
 
+- **plot**
+  - Description: Generate an ASCII bar chart from a comma-separated list of numbers. Each bar is scaled relative to the maximum value (max bar length is 40 characters).
+  - CLI Example: `node src/lib/main.js plot 10,20,30`
+  - Library Usage:
+    ```js
+    import { plot } from '@src/lib/main.js';
+    plot("10,20,30");
+    ```
+
 ## Help Message
 
 If no command or an invalid command is provided, the CLI will display a help message with usage instructions:
@@ -41,4 +50,5 @@ Available commands:
   diagnostics - Display diagnostic information.
   version - Display current version information.
   update - Initiate update process.
+  plot - Generate an ASCII bar chart from a comma-separated list of numbers.
 ```
