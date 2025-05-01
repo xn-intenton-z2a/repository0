@@ -28,7 +28,6 @@ on:
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  public: ${{ vars.public || 'public' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
@@ -38,7 +37,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.23'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -93,27 +92,28 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@4.3.23'
     with:
+      promptFilepath: '.github/agents/agent-feature-issue.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       featureName: ${{ needs.select-feature.outputs.featureName }}
-      featuresPath: './features'
-      libraryDir: 'library/'
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
-      srcPath: ${{ needs.agentic-lib.outputs.srcPath }}
-      testsPath: ${{ needs.agentic-lib.outputs.testsPath }}
-      docsPath: ${{ needs.agentic-lib.outputs.docsPath }}
-      readmeFile: ${{ needs.agentic-lib.outputs.readmeFile }}
-      missionFile: ${{ needs.agentic-lib.outputs.missionFile }}
-      contributingFile: ${{ needs.agentic-lib.outputs.contributingFile }}
-      dependenciesFile: ${{ needs.agentic-lib.outputs.dependenciesFile }}
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
-      issueSelectionLabel: 'feature'
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o3-mini' }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      issueSelectionLabel: 'feature'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-      agentConfigPath: ${{ needs.agentic-lib.outputs.agentConfigPath }}
-      promptFile: '.github/agents/agent-feature-issue.md'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -125,7 +125,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@4.3.23'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -137,10 +137,11 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.23'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
+      filterLabel: 'in-progress'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -148,19 +149,20 @@ jobs:
     needs:
       - select-next-issue
       - create-issue
+      - agentic-lib
     if: ${{ always() }}
     permissions:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.23'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
-      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
-      public: 'public'
+      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
       s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
       s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
       iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"

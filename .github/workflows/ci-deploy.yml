@@ -32,7 +32,6 @@ on:
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  public: ${{ vars.public || 'public' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}§
@@ -40,8 +39,16 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
 
 jobs:
+  agentic-lib:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.23'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   npm-test-and-run-main:
+    needs:
+      - agentic-lib
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +78,7 @@ jobs:
       - name: main
         id: main
         shell: bash
-        run: timeout 5m ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+        run: timeout 5m ${{ needs.agentic-lib.outputs.mainScript }}
 
   mvn-package-cdk-synth:
     runs-on: ubuntu-latest
@@ -286,10 +293,11 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.23'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
+      filterLabel: 'in-progress'
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
@@ -297,19 +305,20 @@ jobs:
     needs:
       - select-next-issue
       - deploy
+      - agentic-lib
     if: ${{ always() }}
     permissions:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.21'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.23'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
       nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
-      public: 'public'
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
       s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
       s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
       iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"

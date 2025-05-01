@@ -1,4 +1,4 @@
-Please create, extend or update the document sources in the sourcesFile based the supplied source prompt. Focus on high-value sources that deliver substantial technical insights and address core implementation needs.
+Please create, extend or update the document sources in the librarySourcesFilepath based the supplied source prompt. Focus on high-value sources that deliver substantial technical insights and address core implementation needs.
 Add or update as many as you can, prioritizing sources that directly enhance the product's primary purpose. Review and refine the summaries to match the latest information you have, emphasizing the most impactful content.
 If there is nothing to add consider pruning some overlapping topics or sources that provide minimal practical value.
 If you can request some content from the URL do so and summarise it, highlighting the most valuable technical information that solves real implementation problems.
