@@ -249,6 +249,7 @@ jobs:
     if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.merge-check.outputs.issueNumber != '' )
     permissions:
       contents: write
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-code-to-close-issue.yml@5.0.0'
     secrets:
