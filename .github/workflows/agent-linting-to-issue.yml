@@ -94,6 +94,21 @@ jobs:
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
       issueLabels: 'maintenance, automated'
 
+  ready-issue:
+    needs:
+      - create-issue
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@5.1.3'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   select-next-issue:
     needs:
       - create-issue

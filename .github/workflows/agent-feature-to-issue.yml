@@ -153,19 +153,22 @@ jobs:
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
       issueLabels: 'feature, automated'
 
-  #ready-issue:
-  #  needs:
-  #    - select-feature
-  #    - generate-feature-development-issue
-  #    - create-issue
-  #  permissions:
-  #    contents: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@5.1.3'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  ready-issue:
+    needs:
+      - select-feature
+      - generate-feature-development-issue
+      - create-issue
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@5.1.3'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   select-next-issue:
     needs:

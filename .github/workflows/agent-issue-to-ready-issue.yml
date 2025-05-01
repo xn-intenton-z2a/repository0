@@ -20,28 +20,30 @@ on:
         required: false
         type: string
         default: 'automated'
-  #workflow_call:
-  #  inputs:
-  #    issueNumber:
-  #      description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
-  #      required: false
-  #      type: string
-  #      default: ''
-  #    selectionLabel:
-  #      description: 'Label used to filter issues for resolution. e.g. "automated"'
-  #      required: false
-  #      type: string
-  #      default: 'automated'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN:
-  #      required: false
-  workflow_run:
-    workflows:
-      - agent-feature-to-issue
-      - agent-maintenance-activity-to-issue
-      - agent-linting-to-issue
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      issueNumber:
+        description: 'The issue number to resolve. If not provided, the workflow will select one based on label. e.g. "123"'
+        required: false
+        type: string
+        default: ''
+      selectionLabel:
+        description: 'Label used to filter issues for resolution. e.g. "automated"'
+        required: false
+        type: string
+        default: 'automated'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: false
+  #workflow_run:
+  #  workflows:
+  #    - agent-feature-to-issue
+  #    - agent-maintenance-activity-to-issue
+  #    - agent-linting-to-issue
+  #  types:
+  #    - completed
   schedule:
     #- cron: '5,35 */12 * * *' # schedule-1
     #- cron: '5,35 */4 * * *' # schedule-2
@@ -109,6 +111,22 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  issue-to-code:
+    needs:
+      - enhance-issue
+    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@5.1.3'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   select-next-issue:
     needs:
