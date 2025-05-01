@@ -14,16 +14,16 @@ on:
         required: false
         type: string
         default: ''
-  workflow_run:
-    workflows:
-      - ci-automerge
-    types:
-      - completed
-  #schedule:
-    #- cron: '20 */12 * * *' # schedule-see-workflow_run-1
-    #- cron: '20 */4 * * *' # schedule-see-workflow_run-2
-    #- cron: '5,20,45,50 */1 * * *' # schedule-see-workflow_run-3
-    #- cron: '5,20,45,50 */1 * * *' # schedule-see-workflow_run-4
+  #workflow_run:
+  #  workflows:
+  #    - ci-automerge
+  #  types:
+  #    - completed
+  schedule:
+    - cron: '20 */12 * * *' # schedule-1
+    #- cron: '20 */4 * * *' # schedule-2
+    #- cron: '20,50 */1 * * *' # schedule-3
+    #- cron: '20,50 */1 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
