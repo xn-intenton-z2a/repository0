@@ -35,13 +35,13 @@ export function plot(dataString) {
     return;
   }
   const parts = dataString.split(",");
-  const numbers = parts.map(part => Number(part.trim()));
+  const numbers = parts.map((part) => Number(part.trim()));
   if (numbers.some(isNaN)) {
     console.log("Error: Invalid input. Please provide a comma-separated list of numbers.");
     return;
   }
   const max = Math.max(...numbers);
-  numbers.forEach(n => {
+  numbers.forEach((n) => {
     const barLength = max === 0 ? 0 : Math.floor((n / max) * 40);
     console.log("#".repeat(barLength));
   });
@@ -50,7 +50,7 @@ export function plot(dataString) {
 // Helper function to print usage instructions
 export function printUsage() {
   console.log(
-    "Usage: node src/lib/main.js <command>\nAvailable commands:\n  diagnostics - Display diagnostic information.\n  version - Display current version information.\n  update - Initiate update process.\n  plot - Generate an ASCII bar chart from a comma-separated list of numbers."
+    "Usage: node src/lib/main.js <command>\nAvailable commands:\n  diagnostics - Display diagnostic information.\n  version - Display current version information.\n  update - Initiate update process.\n  plot - Generate an ASCII bar chart from a comma-separated list of numbers.",
   );
 }
 

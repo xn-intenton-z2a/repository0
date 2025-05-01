@@ -3,7 +3,7 @@ import { main, diagnostics, version, update } from "@src/lib/main.js";
 
 // Helper to capture console output
 let consoleOutput = [];
-const mockedLog = output => consoleOutput.push(output);
+const mockedLog = (output) => consoleOutput.push(output);
 
 // Backup the original console.log
 const originalLog = console.log;
