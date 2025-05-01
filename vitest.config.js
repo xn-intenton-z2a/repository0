@@ -10,12 +10,12 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["tests/unit/*.test.js"],
+    include: ["tests/unit/*.test.js", "sandbox/tests/*.test.js"],
     coverage: {
       provider: "v8",
       reportsDirectory: "./coverage",
       reporter: ["text", "json", "html"],
-      include: ["src/**/*.js"],
+      include: ["src/**/*.js", "sandbox/source/*.js"],
       exclude: ["**/dist/**", "**/entrypoint/**", "**/tests/**", "**/node_modules/**", "src/index.js", "**/exports/**"],
       threshold: {
         statements: 85,
