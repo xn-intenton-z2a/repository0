@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - reset-sandbox
+      - '∞ reset sandbox'
     types:
       - completed
   schedule:

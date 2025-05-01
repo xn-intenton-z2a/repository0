@@ -17,7 +17,7 @@ on:
         default: 'house choice'
   workflow_run:
     workflows:
-      - reset-sandbox
+      - '∞ reset sandbox'
     types:
       - completed
   schedule:
