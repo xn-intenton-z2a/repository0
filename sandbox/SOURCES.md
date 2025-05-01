@@ -42,3 +42,18 @@ Zod's documentation is a vital resource for implementing schema validation in Ja
 ## https://github.com/markdown-it/markdown-it
 This documentation offers extensive technical insights into the markdown-it parser, including customization options, plugin integrations, and performance optimizations. It is crucial for any implementation that requires dynamic rendering or processing of markdown content.
 ## MIT License
+
+# GitHub Actions Documentation
+## https://docs.github.com/en/actions
+This source offers detailed insights into GitHub Actions, covering how to design, implement, and reuse workflows for CI/CD automation. It provides practical guidance on event triggers, secret management, and integration with other GitHub services, which is essential for repositories leveraging automated workflows like agentic‑lib.
+## Public Domain
+
+# dotenv Documentation
+## https://github.com/motdotla/dotenv
+This documentation explains how to manage environment variables in Node.js applications. It is especially useful for securely handling API secrets and configuration details in automated workflows. The guide includes usage patterns, troubleshooting tips, and integration examples critical for robust configuration management.
+## MIT License
+
+# js-yaml Documentation
+## https://github.com/nodeca/js-yaml
+This source provides technical documentation on parsing and serializing YAML in JavaScript. It offers in-depth examples, API specifications, and practical advice for integrating YAML processing into CI/CD pipelines and configuration management within projects.
+## MIT License
