@@ -39,6 +39,8 @@ on:
     #- cron: '15,30,45 */1 * * *' # schedule-4
 
 env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
@@ -49,7 +51,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@5.1.1'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -480,7 +482,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@5.1.1'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -684,7 +686,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@5.1.1'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -713,7 +715,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.1.1'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -725,7 +727,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@5.1.1'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -745,7 +747,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@5.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@5.1.1'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
