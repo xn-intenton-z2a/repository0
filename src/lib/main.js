@@ -28,10 +28,29 @@ export function update() {
   console.log("Update initiated: Process started.");
 }
 
+// Exported function for plot command
+export function plot(dataString) {
+  if (!dataString) {
+    console.log("Usage: node src/lib/main.js plot <comma-separated-numbers>");
+    return;
+  }
+  const parts = dataString.split(",");
+  const numbers = parts.map(part => Number(part.trim()));
+  if (numbers.some(isNaN)) {
+    console.log("Error: Invalid input. Please provide a comma-separated list of numbers.");
+    return;
+  }
+  const max = Math.max(...numbers);
+  numbers.forEach(n => {
+    const barLength = max === 0 ? 0 : Math.floor((n / max) * 40);
+    console.log("#".repeat(barLength));
+  });
+}
+
 // Helper function to print usage instructions
 export function printUsage() {
   console.log(
-    "Usage: node src/lib/main.js <command>\nAvailable commands:\n  diagnostics - Display diagnostic information.\n  version - Display current version information.\n  update - Initiate update process."
+    "Usage: node src/lib/main.js <command>\nAvailable commands:\n  diagnostics - Display diagnostic information.\n  version - Display current version information.\n  update - Initiate update process.\n  plot - Generate an ASCII bar chart from a comma-separated list of numbers."
   );
 }
 
@@ -51,6 +70,13 @@ export function main(args) {
       break;
     case "update":
       update();
+      break;
+    case "plot":
+      if (args.length < 2) {
+        console.log("Usage: node src/lib/main.js plot <comma-separated-numbers>");
+      } else {
+        plot(args[1]);
+      }
       break;
     default:
       console.log("Invalid command.");
