@@ -10,9 +10,9 @@ run-name: "reset sandbox"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 7 */7 * *' # schedule-1
+    #- cron: '0 7 */7 * *' # schedule-1
     #- cron: '0 7 */7 * *' # schedule-2
-    #- cron: '0 0 * * *' # schedule-3
+    - cron: '0 0 * * *' # schedule-3
     #- cron: '0 0 * * *' # schedule-4
 
 env:
@@ -118,6 +118,18 @@ jobs:
                 });
               }
             }
+            
+            // Delete the branches
+            for (const branch of matchingBranches) {
+              core.info(`Reset sandbox: Deleting branch ${branch}`);
+              try {
+                execSync(`git push origin --delete ${branch}`, { stdio: 'inherit' });
+                core.info(`Deleted branch ${branch}`);
+              } catch (error) {
+                core.error(`Failed to delete branch ${branch}: ${error.message}`);
+              }
+            }
+
     outputs:
       branch: ${{ steps.determine.outputs.branch }}
 

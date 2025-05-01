@@ -26,9 +26,9 @@ on:
     types:
       - completed
   schedule:
-    - cron: '20,50 */12 * * *' # schedule-1
+    #- cron: '20,50 */12 * * *' # schedule-1
     #- cron: '20,50 */4 * * *' # schedule-2
-    #- cron: '20,50 */1 * * *' # schedule-3
+    - cron: '20,50 */1 * * *' # schedule-3
     #- cron: '20,50 */1 * * *' # schedule-4
 
 env:
@@ -82,7 +82,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      branchPrefix: 'agentic-lib-'
+      branchPrefix: 'agentic-lib-issue-'
     steps:
       - uses: actions/checkout@v4
         with:

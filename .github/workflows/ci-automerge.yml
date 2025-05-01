@@ -29,9 +29,9 @@ on:
   #  types:
   #    - completed
   schedule:
-    - cron: '25 */12 * * *' # schedule-1
+    #- cron: '25 */12 * * *' # schedule-1
     #- cron: '25 */4 * * *' # schedule-2
-    #- cron: '25,55 */1 * * *' # schedule-3
+    - cron: '25,55 */1 * * *' # schedule-3
     #- cron: '25,55 */1 * * *' # schedule-4
 
 env:
