@@ -41,7 +41,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@4.3.27'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -132,7 +132,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-update.yml@4.3.27'
     with:
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
@@ -157,7 +157,7 @@ jobs:
       pull-requests: write
       id-token: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-update.yml@4.3.27'
     with:
       buildScript: './mvnw clean install'
       testScript: './mvnw test'
@@ -180,12 +180,26 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.27'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
+
+  dispatch-pr-event-npm:
+    needs:
+      - create-pr-npm
+      - update-npm
+    if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
+    permissions:
+      contents: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-dispatch-event.yml@4.3.27'
+    with:
+      eventType: 'event-pr-created'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   create-pr-mvn:
     needs:
@@ -199,12 +213,27 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@4.3.27'
     with:
       branch: 'agentic-lib-update'
       baseBranch: 'main'
       gitCommitMessage: 'chore: dependency updates'
       label: 'automerge'
+
+  dispatch-pr-event-mvn:
+    needs:
+      - create-pr-mvn
+      - update-mvn
+      - pom-check
+    if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
+    permissions:
+      contents: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-dispatch-event.yml@4.3.27'
+    with:
+      eventType: 'event-pr-created'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   select-next-issue:
     needs:
@@ -214,7 +243,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@4.3.27'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -234,7 +263,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.26'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@4.3.27'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

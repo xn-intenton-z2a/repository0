@@ -3,7 +3,7 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: '∞ reset sandbox'
+name: reset-sandbox
 concurrency: reset-sandbox
 run-name: "reset sandbox"
 
