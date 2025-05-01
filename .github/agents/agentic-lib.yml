@@ -1,5 +1,5 @@
 # Which agentic-lib workflow schedule should be used?
-schedule: schedule-1
+schedule: schedule-3
 
 # Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
 paths:
@@ -9,15 +9,15 @@ paths:
   librarySourcesFilepath:
     path: 'sandbox/SOURCES.md'
     permissions: [ 'write' ]
-    limit: 32
+    limit: 16
   libraryDocumentsPath:
     path: 'sandbox/library/'
     permissions: [ 'write' ]
-    limit: 8
+    limit: 64
   featuresPath:
     path: 'sandbox/features/'
     permissions: [ 'write' ]
-    limit: 3
+    limit: 8
 
   # Filepaths for engineer workflows
   contributingFilepath:
@@ -52,12 +52,12 @@ testScript: 'npm test'
 mainScript: 'npm run start'
 
 # How many issues should be available to be picked up?
-featureDevelopmentIssuesWipLimit: 2
-maintenanceIssuesWipLimit: 2
+featureDevelopmentIssuesWipLimit: 3
+maintenanceIssuesWipLimit: 3
 
 # How many attempts should be made to work on an issue?
 attemptsPerBranch: 2
-attemptsPerIssue: 2
+attemptsPerIssue: 1
 
 # Web publishing
 docRoot: 'public'
