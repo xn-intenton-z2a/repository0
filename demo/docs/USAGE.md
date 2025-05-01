@@ -3,58 +3,86 @@
 This repository template provides an enhanced command-line interface (CLI) that supports the following commands:
 
 - **help**: Displays usage instructions including available commands and options.
-- **version**: Reads the version from package.json and outputs the current version of the application.
-- **echo [arguments]**: Echoes back the provided arguments.
+- **version**: Outputs the current version of the application as specified in package.json.
+- **echo [arguments]**: Echoes back the provided arguments verbatim.
+- **Unrecognized Command**: If an unknown command is provided, the CLI will notify the user and display usage instructions.
 
-For any unrecognized command, the CLI will display a summary of available commands along with a brief description for each.
+## Usage
 
-## Examples
+Run the CLI using Node.js as follows:
 
-### Show Help
+```
+node src/lib/main.js <command> [arguments]
+```
+
+## Commands
+
+### help
+Displays this help message.
+
+**Example:**
 
 ```
 node src/lib/main.js help
 ```
 
-_Output:_
-```
-Usage: <command> [options]
+**Output:**
 
+```
+Usage: node src/lib/main.js <command> [arguments]
 Available Commands:
   help      Show usage instructions
   version   Show version information
   echo      Echo the provided arguments
 ```
 
-### Show Version
+### version
+Displays the version number from package.json.
+
+**Example:**
 
 ```
 node src/lib/main.js version
 ```
 
-_Output:_
-(Current version as specified in package.json, e.g., "2.1.0-0")
+**Output:**
 
-### Echo Command
+```
+2.1.0-0
+```
+*(The version will match the version specified in package.json.)*
+
+### echo
+Echoes back the arguments provided after the command.
+
+**Example:**
 
 ```
 node src/lib/main.js echo Hello world!
 ```
 
-_Output:_
+**Output:**
+
 ```
 Hello world!
 ```
 
-### Unknown Command
+### Unrecognized Command
+
+If an unknown command is provided, the CLI will display the following message:
+
+**Example:**
 
 ```
 node src/lib/main.js unknown
 ```
 
-_Output:_
+**Output:**
+
 ```
-Unrecognized command. Available commands:
+Unrecognized command: unknown
+Usage: node src/lib/main.js <command> [arguments]
+Available Commands:
   help      Show usage instructions
   version   Show version information
   echo      Echo the provided arguments
