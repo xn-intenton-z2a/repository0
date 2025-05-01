@@ -15,14 +15,14 @@ on:
         type: string
         default: ''
   workflow_call:
-    workflows:
-      - ci-automerge
     inputs:
       issueNumber:
         description: 'The issue number to review. If not provided, the workflow will select one based on label. e.g. "123"'
         required: false
         type: string
         default: ''
+    #workflows: (annotation only)
+    #  - ci-automerge
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false

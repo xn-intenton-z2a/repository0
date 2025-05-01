@@ -21,8 +21,8 @@ on:
   #  types:
   #    - completed
   workflow_call:
-    workflows:
-        - agent-library-to-feature
+    #workflows: (annotation only)
+    #    - agent-library-to-feature
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false

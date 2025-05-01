@@ -12,12 +12,12 @@ on:
   check_suite:
   workflow_dispatch:
   workflow_call:
-    workflows:
-      - agent-issue-to-code
-      - agent-fix-code
-      - agent-update-readme
-      - ci-formating
-      - ci-update
+    #workflows: (annotation only)
+    #  - agent-issue-to-code
+    #  - agent-fix-code
+    #  - agent-update-readme
+    #  - ci-formating
+    #  - ci-update
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
