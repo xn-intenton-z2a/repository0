@@ -1,15 +1,20 @@
-# CLI_PLOTTING Feature
+# CLI_PLOTTING Feature (Enhanced)
 
 ## Overview
-This feature extends the current CLI utility by adding a new command called plot. When users invoke the command with "plot", the CLI will output a sample SVG representation of a mathematical function. This new capability aligns with the repository's mission of providing handy Node.js CLI utilities and enhances user value by offering a visual demonstration of equation plotting.
+This enhanced feature extends the existing CLI_PLOTTING functionality by adding a new command called stats. In addition to generating an ASCII bar chart from a comma-separated list of numbers, the CLI will now also compute basic descriptive statistics such as average and median. This improvement provides users with a quick numerical analysis tool, further reinforcing the repository's commitment to delivering valuable CLI utilities in Node.js.
 
 ## Design and Implementation
-- Update the source file (src/lib/main.js) by adding a new case for the "plot" command in the command switch statement. When triggered, it will display a sample SVG content (for example, a simple quadratic function plot) via console output.
-- Extend the test file (tests/unit/main.test.js) by adding a new test case for the plot command. The test will simulate calling main(["plot"]) and will verify that the output contains expected SVG markers (e.g. "<svg") to ensure proper functionality.
-- Update the README.md file to include documentation for the new plot command. The command should be explained in the CLI section with usage examples, illustrating its ability to display an SVG plot.
-- Adjust dependencies if needed (although core functionality uses native Node.js features) and ensure consistency with existing code style as described in CONTRIBUTING.md.
+- Modify the source file (src/lib/main.js) to add a new case in the command switch statement for the "stats" command.
+  - Implement a new function, stats(dataString), that validates input (a comma-separated list of numbers), computes statistics (average and median), and outputs the results to the console.
+  - The function should handle cases with missing or invalid data by displaying usage instructions or error messages similar to the plot command.
+- Update the test file (tests/unit/main.test.js) to include new test cases for the stats command:
+  - Test valid input to ensure correct average and median calculations.
+  - Test missing data input to validate that usage instructions are displayed.
+  - Test invalid input to ensure the function handles errors gracefully.
+- Update documentation in docs/USAGE.md and README.md to include information about the new stats command with usage examples and expected outputs.
+- No changes to dependencies are needed as the implementations will use native JavaScript functions for computation.
 
 ## Impact and Benefits
-- Enhances the CLI utility by introducing visual output capabilities.
-- Provides users with a new way to interact with the repository that ties into the repository's history of plotting functionality.
-- Demonstrates the repository's evolving utility, improving user engagement and showcasing potential for further graphical enhancements.
+- Expands the CLI utility by providing numerical analysis capabilities that complement the plotting feature.
+- Helps users quickly assess datasets by calculating key statistics, improving overall user experience and utility.
+- Consolidates CLI commands into a coherent set of functionalities, aligning with the repository's mission of offering handy CLI utilities in Node.js.
