@@ -2,7 +2,14 @@
 
 `repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
 primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
-The source file, test file, README.md and package.json are maintained by the repository's workflows.
+We add features to showcase what we can confidently do with completion calls to an LLM with a 200,000 token limit used
+to create and update directory of JS source and test files. The files in `sandbox/` are maintained by the repository's
+workflows and run using the same test suite as the main source file.
+
+We showcase what you can by generating a new feature showing it at work as the output of `npm run start` and with
+feature level tests showing primary flows as well as classic unit tests.
+
+The mission of the contributors, human or automated, is to show case the workflow capabilities of the repository.
 
 ## How to Contribute
 
@@ -46,7 +53,6 @@ The guidelines below apply to human or automated contributions:
     - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
 
 - **README:**
-  - The README should begin with something inspired by the mission statement, and describing the current state of the repository (rather than the journey)
-  - The README should include a link to TEMPLATE-README.md at the beginning because this is the guide for using the repository template (rather than the product of an experiment in this one).
-  - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
-  - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+    - The README should begin with something inspired by the mission statement and describe the current state of the repository (rather than the journey)
+    - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+    - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
