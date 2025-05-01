@@ -74,7 +74,7 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  ready-issue:
+  feature-to-issue:
     needs:
       - maintain-features
     permissions:
