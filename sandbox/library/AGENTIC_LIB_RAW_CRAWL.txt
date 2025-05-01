@@ -844,7 +844,7 @@ IMPORTANT: The project README and any derived work should always include the fol
     
               
         Issues
-          1
+          2
 
 
     
@@ -1077,7 +1077,7 @@ Additional navigation options
 
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History1,975 Commits.github.github  .mvn/wrapper.mvn/wrapper  awsaws  docsdocs  examplesexamples  exportsexports  publicpublic  sandboxsandbox  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LICENSE-MITLICENSE-MIT  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  NOTICENOTICE  README.mdREADME.md  agentic-lib.imlagentic-lib.iml  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEGPL-3.0 licenseMIT licenseintentïon agentic-lib
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History1,977 Commits.github.github  .mvn/wrapper.mvn/wrapper  awsaws  docsdocs  examplesexamples  exportsexports  publicpublic  sandboxsandbox  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LICENSE-MITLICENSE-MIT  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  NOTICENOTICE  README.mdREADME.md  agentic-lib.imlagentic-lib.iml  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEGPL-3.0 licenseMIT licenseintentïon agentic-lib
 The intentïon agentic-lib is a collection of reusable GitHub Actions workflows that enable your
 repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
@@ -2873,7 +2873,7 @@ IMPORTANT: The project README and any derived work should always include the fol
     
               
         Issues
-          1
+          2
 
 
     
@@ -3106,7 +3106,7 @@ Additional navigation options
 
   
   
-      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History1,975 Commits.github.github  .mvn/wrapper.mvn/wrapper  awsaws  docsdocs  examplesexamples  exportsexports  publicpublic  sandboxsandbox  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LICENSE-MITLICENSE-MIT  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  NOTICENOTICE  README.mdREADME.md  agentic-lib.imlagentic-lib.iml  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEGPL-3.0 licenseMIT licenseintentïon agentic-lib
+      mainBranchesTagsGo to fileCodeFolders and filesNameNameLast commit messageLast commit dateLatest commit History1,977 Commits.github.github  .mvn/wrapper.mvn/wrapper  awsaws  docsdocs  examplesexamples  exportsexports  publicpublic  sandboxsandbox  scriptsscripts  srcsrc  tests/unittests/unit  .dockerignore.dockerignore  .gitignore.gitignore  .prettierignore.prettierignore  .prettierrc.prettierrc  CONTRIBUTING.mdCONTRIBUTING.md  DEBUGGING.mdDEBUGGING.md  DockerfileDockerfile  LICENSELICENSE  LICENSE-MITLICENSE-MIT  LOCALSTACK.mdLOCALSTACK.md  MISSION.mdMISSION.md  NOTICENOTICE  README.mdREADME.md  agentic-lib.imlagentic-lib.iml  cdk.jsoncdk.json  compose.ymlcompose.yml  eslint.config.jseslint.config.js  jsconfig.jsonjsconfig.json  mvnwmvnw  mvnw.cmdmvnw.cmd  package-lock.jsonpackage-lock.json  package.jsonpackage.json  pom.xmlpom.xml  vitest.config.jsvitest.config.js  View all filesRepository files navigationREADMEGPL-3.0 licenseMIT licenseintentïon agentic-lib
 The intentïon agentic-lib is a collection of reusable GitHub Actions workflows that enable your
 repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and
 issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using
@@ -9729,9 +9729,9 @@ The ReadME Project
     
         
       
-        Ratchet
+        Spring Boot
       
-      Ratchet is a set of libraries to handle WebSockets asynchronously in PHP.
+      Spring Boot is a coding and configuration model for Java applications.
     
   
 
@@ -9745,9 +9745,9 @@ The ReadME Project
     
         
       
-        CSS
+        Gradle
       
-      Cascading Style Sheets (CSS) is a language used most often to style and improve upon the appearance of views.
+      Gradle is an open-source build tool that helps teams build, automate and deliver better software, faster.
     
   
 
@@ -9761,9 +9761,9 @@ The ReadME Project
     
         
       
-        NativeScript
+        PWA
       
-      NativeScript is a JavaScript-native mobile framework.
+      Progressive Web Apps are traditional web sites that are enhanced with native like features.
     
   
 
@@ -10390,7 +10390,7 @@ The ReadME Project
           
           
             
-  580vm80\n\n\n\nStar
+  llm\n\n\n\nStar
 
 
   
@@ -10415,9 +10415,9 @@ The ReadME Project
 
 
       
-        56,216
+        56,224
       
-        8,026
+        8,027
       
         Built by
 
@@ -10509,7 +10509,7 @@ The ReadME Project
 
 
       
-        17,965
+        17,966
       
         881
       
@@ -10603,7 +10603,7 @@ The ReadME Project
 
 
       
-        165,337
+        165,338
       
         53,660
       
@@ -10650,7 +10650,7 @@ The ReadME Project
 
 
       
-        3,776
+        3,778
       
         370
       
@@ -10697,7 +10697,7 @@ The ReadME Project
 
 
       
-        19,812
+        19,813
       
         1,298
       
@@ -10752,7 +10752,7 @@ The ReadME Project
 
 
       
-        68,418
+        68,420
       
         6,009
       
@@ -10854,7 +10854,7 @@ The ReadME Project
 
 
       
-        8,863
+        8,864
       
         1,485
       
@@ -10948,7 +10948,7 @@ The ReadME Project
 
 
       
-        92,456
+        92,458
       
         11,724
       
@@ -11003,7 +11003,7 @@ The ReadME Project
 
 
       
-        2,754
+        2,755
       
         200
       
@@ -11239,7 +11239,7 @@ The ReadME Project
 
 
       
-        5,612
+        5,613
       
         853
       
@@ -13390,9 +13390,9 @@ The ReadME Project
 
 
       
-        56,216
+        56,224
       
-        8,026
+        8,027
       
         Built by
 
@@ -13488,7 +13488,7 @@ The ReadME Project
 
 
       
-        17,965
+        17,966
       
         881
       
@@ -13586,7 +13586,7 @@ The ReadME Project
 
 
       
-        165,337
+        165,338
       
         53,660
       
@@ -13635,7 +13635,7 @@ The ReadME Project
 
 
       
-        3,776
+        3,778
       
         370
       
@@ -13684,7 +13684,7 @@ The ReadME Project
 
 
       
-        19,812
+        19,813
       
         1,298
       
@@ -13741,7 +13741,7 @@ The ReadME Project
 
 
       
-        68,418
+        68,420
       
         6,009
       
@@ -13847,7 +13847,7 @@ The ReadME Project
 
 
       
-        8,863
+        8,864
       
         1,485
       
@@ -13945,7 +13945,7 @@ The ReadME Project
 
 
       
-        92,456
+        92,458
       
         11,724
       
@@ -14002,7 +14002,7 @@ The ReadME Project
 
 
       
-        2,754
+        2,755
       
         200
       
@@ -14248,7 +14248,7 @@ The ReadME Project
 
 
       
-        5,612
+        5,613
       
         853
       
@@ -14514,16 +14514,16 @@ The ReadME Project
         
   
       
-    Pixel Art Tools
-    Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
+    Made in Brazil
+    Open source projects built in or receiving significant contributions from Brazil :brazil:
   
 
 
         
   
-      #
-    Game Engines
-    Frameworks for building games across multiple platforms.
+      
+    Pixel Art Tools
+    Creating pixel art for fun or animated sprites for a game? The digital artist in you will love these apps and tools!
   
 
 
@@ -26352,21 +26352,23 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
   
     
       
-        agentic-lib
+        repository0-crucible
         
           Public
 
 
+          
+            A lab for seeding agentic workflows using CONTRIBUTING.md
 
       
           
-  xn-intenton-z2a/agentic-lib’s past year of commit activity
+  xn-intenton-z2a/repository0-crucible’s past year of commit activity
 
     
 
         
   
-  Java
+  JavaScript
 
 
 
@@ -26374,16 +26376,16 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
           0
 
         
-          GPL-3.0
+          MIT
 
         
           0
-
-      
-        1
 
       
         0
+
+      
+        1
       
           Updated May 1, 2025
 
@@ -26422,7 +26424,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
           0
 
       
-        5
+        1
 
       
         0
@@ -26463,7 +26465,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
           0
 
       
-        1
+        2
 
       
         0
@@ -26475,23 +26477,21 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
   
     
       
-        repository0-crucible
+        agentic-lib
         
           Public
 
 
-          
-            A lab for seeding agentic workflows using CONTRIBUTING.md
 
       
           
-  xn-intenton-z2a/repository0-crucible’s past year of commit activity
+  xn-intenton-z2a/agentic-lib’s past year of commit activity
 
     
 
         
   
-  JavaScript
+  Java
 
 
 
@@ -26499,13 +26499,13 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
           0
 
         
-          MIT
+          GPL-3.0
 
         
           0
 
       
-        4
+        2
 
       
         0
@@ -26755,7 +26755,7 @@ We recommend limiting training sessions to a maximum of 16 participants to ensur
     
               
         Issues
-          1
+          2
 
 
     
@@ -27008,7 +27008,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -27261,7 +27261,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -27564,7 +27564,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -27886,7 +27886,7 @@ Insights: xn-intenton-z2a/agentic-lib
     
               
         Issues
-          1
+          2
 
 
     
@@ -28180,7 +28180,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -29035,7 +29035,7 @@ Tags: xn-intenton-z2a/agentic-lib
     
               
         Issues
-          1
+          2
 
 
     
@@ -29288,7 +29288,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -29602,7 +29602,7 @@ Additional navigation options
 
     
       
-      1 Open
+      2 Open
     
 
     
@@ -29622,7 +29622,7 @@ Additional navigation options
 
     
       
-      1 Open
+      2 Open
     
 
     
@@ -29886,6 +29886,79 @@ Additional navigation options
     
     
 
+      Implement CLI_STATS Flag for Real-Time Runtime Statistics
+
+
+        
+              
+
+                automated
+
+              
+
+                feature
+
+              
+
+                ready
+
+        
+      
+        
+          #1171
+            opened May 1, 2025 by
+            github-actions
+            bot
+        
+
+        
+
+
+        
+
+        
+
+      
+    
+
+    
+
+      
+      
+
+      
+        
+          
+          
+        
+      
+
+      
+          
+            
+            1
+          
+      
+    
+
+      
+  
+
+
+              
+
+  
+
+
+    
+      
+        
+      
+    
+
+    
+    
+
       Documenter maintenance activity: Refresh README with clear usage and CLI examples
 
 
@@ -29952,7 +30025,7 @@ Additional navigation options
   
   
   ProTip!
-  Adding no:label will show everything without a label.\n\n\n\nxn-intenton-z2a
+  What’s not been updated in a month: updated:<2025-04-01.\n\n\n\nxn-intenton-z2a
     
     /
     
@@ -30021,7 +30094,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -30617,7 +30690,7 @@ Additional navigation options
   
   
   ProTip!
-  Find all pull requests that aren't related to any open issues with -linked:issue.\n\n\n\nxn-intenton-z2a
+  Adding no:label will show everything without a label.\n\n\n\nxn-intenton-z2a
     
     /
     
@@ -30686,7 +30759,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -31537,7 +31610,7 @@ Additional navigation options
     
               
         Issues
-          1
+          2
 
 
     
@@ -32161,7 +32234,7 @@ Additional navigation options
 
   
     
-      1,699 workflow runs
+      1,700 workflow runs
     
   
 
@@ -32169,7 +32242,7 @@ Additional navigation options
   
     
         
-          1,699 workflow runs
+          1,700 workflow runs
         
     
     
@@ -32515,18 +32588,16 @@ Additional navigation options
           
 
     
-      
-    
 
 
           
-            agent source to library
+            agent library to feature
           
         
 
       
-        agent-source-to-library
-        #91:
+        agent-library-to-feature
+        #71:
 
         
 
@@ -32540,13 +32611,15 @@ Additional navigation options
       
         
   
-  May 1, 2025 23:38
+  May 1, 2025 23:41
 
 
-          
+            
+      
+      
+        3m 59s
+      
     
-    In progress
-  
 
       
     
@@ -32559,13 +32632,15 @@ Additional navigation options
         
           
   
-  May 1, 2025 23:38
+  May 1, 2025 23:41
 
 
-            
+              
+      
+      
+        3m 59s
+      
     
-    In progress
-  
 
         
 
@@ -32597,7 +32672,89 @@ Additional navigation options
           
 
     
+
+
+          
+            agent source to library
+          
+        
+
       
+        agent-source-to-library
+        #91:
+
+        
+
+            completed
+            by
+              Antony-at-Polycode
+              
+        
+      
+
+      
+        
+  
+  May 1, 2025 23:38
+
+
+            
+      
+      
+        2m 34s
+      
+    
+
+      
+    
+
+    
+    
+
+    
+      
+        
+          
+  
+  May 1, 2025 23:38
+
+
+              
+      
+      
+        2m 34s
+      
+    
+
+        
+
+        
+            
+                    
+
+              
+
+
+                  
+                    
+                      View workflow file
+                    
+                  
+
+
+              
+            
+        
+      
+    
+  
+
+
+  
+    
+      
+          
+
     
 
 
@@ -32625,10 +32782,12 @@ Additional navigation options
   May 1, 2025 23:36
 
 
-          
+            
+      
+      
+        3m 8s
+      
     
-    In progress
-  
 
       
     
@@ -32644,10 +32803,12 @@ Additional navigation options
   May 1, 2025 23:36
 
 
-            
+              
+      
+      
+        3m 8s
+      
     
-    In progress
-  
 
         
 
@@ -34555,89 +34716,2684 @@ Update workflows to use workflow_run triggers for better integration while comme
   
 
 
+
+
+
+
+
   
     
-      
-          
-
+      Previous 1 2 3 4 5 … 67 68 Next\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
     
 
-
-          
-            agent source to library
-          
-        
-
-      
-        agent-source-to-library
-        #88:
-
-        
-
-            completed
-            by
-              Antony-at-Polycode
-              
-        
-      
-
-      
-        
+    Public
   
-  May 1, 2025 22:39
 
-
-            
-      
-      
-        2m 12s
-      
-    
-
-      
-    
-
-    
-    
-
-    
-      
-        
-          
-  
-  May 1, 2025 22:39
-
-
-              
-      
-      
-        2m 12s
-      
-    
 
         
 
         
             
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights
+      
+
+  
+
+    
+
+
+
+
+      
+  
+
+
+
+  
+
+  
+
+
+
+
+    
+    
+
+
+
+    
+      
+    
+      
+  xn-intenton-z2a/agentic-lib projects
+  
+    
+  
+      
+      
+        
+  
+          
+        
+          
+          
+            Projects
+          
+        
+        
+      
+
+    
+      
+        
+            
+              
+              
+              Projects
+            
+            
+              
+              
+              Templates
+            
+        
+      
+    
+  
+
+
+
+      
+          
+    
+  
+    
+        
+  
+      
+        
+      
+    
+                  Projects
+
+    
+
+        
+  
+      
+        
+      
+    
+                  Templates
+
+    
+
+  
+
+
+    
+        
+      
+      
+          
+            
+              
+  
+    
+      
+      
+        Search all projects
+    
+  
+      
+        
+      
+    
+      
+      
+        
+      
+
+      
+  
+  
+  
+
+    
+
+
+    
+    
+
+
+
+
+
+
+
+  Search results
+  
+    0 open and 0 closed projects found.
+  
+  
+  
+    
                     
+  
+    
+      
 
+            No open projects\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
               
+        Code
+          
 
 
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights
+      
+
+  
+
+    
+
+
+
+
+      
+  
+
+
+
+  
+
+  
+
+
+
+
+    
+    
+
+
+
+    
+      
+Security: xn-intenton-z2a/agentic-lib
+
+
+
+    
+    
+    
+  Security
+  
+  
+
+
+  
+  
+    
+    No security policy detected
+  
+    This project has not set up a SECURITY.md file yet.
+
+
+
+
+
+    
+  
+    
+      
+
+              There aren’t any published security advisories\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights
+      
+
+  
+
+    
+
+
+
+
+      
+  
+
+
+
+  
+
+  
+
+
+
+
+    
+    
+
+
+
+    
+      
+Insights: xn-intenton-z2a/agentic-lib
+
+  
+  
+        
+
+  
+    Pulse
+    Contributors
+      Community Standards
+    Commits
+    Code frequency
+      Dependency graph
+    Network
+    Forks
+  
+
+
+
+  
+      
+  
+  April 24, 2025 – May 1, 2025
+  
+        
+              Period:
+          1 week
+        
+          
+            Filter activity
+          
+          
+              
+                
+                24 hours
+              
+              
+                
+                3 days
+              
+              
+                
+                1 week
+              
+              
+                
+                1 month
+              
+          
+        
+      
+
+
+  
+    
+      Overview
+    
+
+    
+      
+        
+          
+                
+          
+          
+            36
+            Active pull requests
+          
+        
+
+        
+          
+                
+                
+          
+          
+            41
+            Active issues
+          
+        
+      
+
+      
+        
+          
+              
+                
                   
-                    
-                      View workflow file
-                    
-                  
-
-
+                  36
+                
+                Merged pull requests
               
-            
+          
+          
+              
+                
+                0
+              
+              Open pull requests
+          
+          
+              
+                
+                  
+                  39
+                
+                Closed issues
+              
+          
+          
+              
+                
+                  
+                  2
+                
+                New issues
+              
+          
         
       
     
   
 
+    
+
+      
+
+        
+      Loading
+
+
+        
+          Could not load contribution data
+          Please try again later
+        
+      
+      
+        
+  
+    
+      Loading
+
+  
+
+
+      
+    
+
+  
+      
+    
+      
+        
+        39 Releases
+        published by 1 person
+      
+    
+    
+      
+        
+        
+        
+          4.2.0
+          Release 4.2.0
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.0
+          Release 4.3.0
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.1
+          Release 4.3.1
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.2
+          Release 4.3.2
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.3
+          Release 4.3.3
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.4
+          Release 4.3.4
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.5
+          Release 4.3.5
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.6
+          Release 4.3.6
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.7
+          Release 4.3.7
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.8
+          Release 4.3.8
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.9
+          Release 4.3.9
+        
+        
+          published
+          Apr 25, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.10
+          Release 4.3.10
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.11
+          Release 4.3.11
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.12
+          Release 4.3.12
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.13
+          Release 4.3.13
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.14
+          Release 4.3.14
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.15
+          Release 4.3.15
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.16
+          Release 4.3.16
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.17
+          Release 4.3.17
+        
+        
+          published
+          Apr 26, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.18
+          Release 4.3.18
+        
+        
+          published
+          Apr 29, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.19
+          Release 4.3.19
+        
+        
+          published
+          Apr 30, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.20
+          Release 4.3.20
+        
+        
+          published
+          Apr 30, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.21
+          Release 4.3.21
+        
+        
+          published
+          Apr 30, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.22
+          Release 4.3.22
+        
+        
+          published
+          Apr 30, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.23
+          Release 4.3.23
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.24
+          Release 4.3.24
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.25
+          Release 4.3.25
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.26
+          Release 4.3.26
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          4.3.27
+          Release 4.3.27
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.0.0
+          Release 5.0.0
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.0.1
+          Release 5.0.1
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.0.2
+          Release 5.0.2
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.0.3
+          Release 5.0.3
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.0
+          Release 5.1.0
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.1
+          Release 5.1.1
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.2
+          Release 5.1.2
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.3
+          Release 5.1.3
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.4
+          Release 5.1.4
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+      
+        
+        
+        
+          5.1.5
+          Release 5.1.5
+        
+        
+          published
+          May 1, 2025
+        
+        
+      
+    
+
+
+      
+    
+      
+        
+        36
+        Pull requests merged by
+        2 people
+      
+    
+    
+      
+        
+        
+          Updated README.md and docsUSAGE.md to reflect current CLI usage installation instructions and API references.
+          
+            #1170 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated README.md and docsUSAGE.md to reflect current CLI functionality and core library usage.
+          
+            #1166 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated the README to clarify logging and configuration details and added a USAGE documentation file with detailed CLI instructions.
+          
+            #1164 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated README and added a usage documentation file to reflect the current CLI commands and functionality.
+          
+            #1163 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated README and added a USAGE guide to accurately reflect CLI options configuration and operational details.
+          
+            #1161 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated README to clearly reflect agentic-lib core usage CLI commands and mission statement per guidelines. (working on #1147)
+          
+            #1149 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated README and added USAGE documentation to reflect current CLI commands function usage and configuration details.
+          
+            #1148 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Add performWithRetry helper and integrate retry logic into CLI digest processing add tests and documentation for --retry flag. (working on #1144)
+          
+            #1146 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Updated documentation to include additional usage examples for simpleReverse function. (working on #1141)
+          
+            #1145 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Added additional test for simpleReverse and updated documentation with an extra usage example. (working on #1141)
+          
+            #1143 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Add simpleReverse function with tests and update documentation. (working on #1141)
+          
+            #1142 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Add simpleEcho function with tests and documentation (working on #1139)
+          
+            #1140 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          chore: dependency updates
+          
+            #1138 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          chore: dependency updates
+          
+            #1137 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Enhanced performance metrics reporting by recording execution times and computing detailed statistics updated docs and tests accordingly. (working on #1132)
+          
+            #1136 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Enhanced PERF_METRICS in srclibmain.js with detailed aggregated statistics and updated docs and tests. (working on #1132)
+          
+            #1133 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Implemented EVENT_AUDIT logging across SQS agenticHandler and workflowChainHandler and updated documentation and tests accordingly. (working on #1128)
+          
+            #1131 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Implemented EVENT_AUDIT logging across digestLambdaHandler agenticHandler and workflowChainHandler and updated tests and docs accordingly. (working on #1128)
+          
+            #1130 merged May 1, 2025
+          
+        
+      
+      
+        
+        
+          Implemented EVENT_AUDIT logging for enhanced observability across SQS and command processing. (working on #1128)
+          
+            #1129 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Implement EVENT_AUDIT feature with audit logging in critical handlers update tests and documentation accordingly. (working on #1125)
+          
+            #1126 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Enhanced performance metrics computation by adding standard deviation and 90th percentile calculations and updated docs accordingly. (working on #1122)
+          
+            #1124 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Added standardDeviationTimeMS and 90thPercentileTimeMS metrics to performance metrics computation and updated tests and docs accordingly. (working on #1122)
+          
+            #1123 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Enforced MAX_BATCH_COMMANDS limit in processing and updated test and docs accordingly. (working on #1117)
+          
+            #1121 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Implemented MAX_BATCH_COMMANDS enforcement and added tests and documentation for batch limit throttling. (working on #1117)
+          
+            #1118 merged Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Bump @vitest/coverage-v8 from 3.1.1 to 3.1.2
+          
+            #1114 merged Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Bump npm-check-updates from 17.1.18 to 18.0.1
+          
+            #1113 merged Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Bump aws-cdk from 2.1010.0 to 2.1012.0
+          
+            #1116 merged Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Bump @aws-sdk/client-lambda from 3.787.0 to 3.798.0
+          
+            #1120 merged Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Bump vitest from 3.1.1 to 3.1.2
+          
+            #1112 merged Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Enhanced --perf-metrics implementation with aggregated performance metrics and updated testsdocs (working on #1107)
+          
+            #1111 merged Apr 28, 2025
+          
+        
+      
+      
+        
+        
+          Added comprehensive aggregated performance metrics for agentic and workflow chain invocations along with CLI flag --perf-metrics and updated tests and documentation. (working on #1108)
+          
+            #1110 merged Apr 28, 2025
+          
+        
+      
+      
+        
+        
+          Add aggregated perfMetrics reporting via --perf-metrics flag and update USAGE docs (working on #1104)
+          
+            #1106 merged Apr 26, 2025
+          
+        
+      
+      
+        
+        
+          Add perfMetrics collection and CLI flag for performance metrics (working on #1104)
+          
+            #1105 merged Apr 26, 2025
+          
+        
+      
+      
+        
+        
+          Updated documentation in README and USAGE to include details on command aliases and environment variables for batch throttling.
+          
+            #1097 merged Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Implement VERBOSE_STATS CLI flag to log detailed runtime statistics. (fixes #1094)
+          
+            #1096 merged Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Implemented --simulate-load flag that simulates a heavy processing load via a synchronous busy-wait loop. (fixes #1093)
+          
+            #1095 merged Apr 25, 2025
+          
+        
+      
+    
+
+
+
+
+      
+    
+      
+        
+        39 Issues
+        closed by 2 people
+      
+    
+    
+      
+        
+        
+          Documenter Maintenance: Refresh README to Showcase Agentic-lib Usage and Core Functionality
+          
+            #1167 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Implement STATS_OUTPUT CLI Command for Runtime Statistics
+          
+            #1168 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Enable Configurable VERBOSE_FLAG via Environment Variable
+          
+            #1165 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Clean Coder: Refactor CLI and Error Handling in main.js for Improved Clarity and Maintainability
+          
+            #1160 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Documenter Maintenance: Refresh README with Clear Usage and API Documentation
+          
+            #1159 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Clean coder: Refactor CLI main flow to centralize verbose stats logging
+          
+            #1158 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Documenter: Refresh README.md to Clearly Communicate Agentic-lib Workflow and Usage
+          
+            #1157 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          [Documenter] Refresh README to Improve Onboarding and Core Usage Documentation
+          
+            #1156 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          [Documenter] Refresh README to Enhance Developer Onboarding & API Usage
+          
+            #1155 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Documenter Maintenance: Refresh README for Clear, Actionable Usage Guidance
+          
+            #1154 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          [Clean coder] Refactor CLI control flow in main.js for improved clarity and maintainability
+          
+            #1153 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Test Maintenance: Enhance Core Functionality Tests for CLI, Logging, and SQS Event Handling
+          
+            #1152 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          [Refactor] Consolidate Input Validation in simpleFunction.js for Improved Maintainability
+          
+            #1150 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Documenter Maintenance: Refresh README for Core Agentic-lib Usage
+          
+            #1147 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1141 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1144 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1139 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1132 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1134 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1128 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1135 closed May 1, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1127 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1125 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1122 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1108 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1109 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1117 closed Apr 30, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1119 closed Apr 29, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1107 closed Apr 28, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1104 closed Apr 26, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1103 closed Apr 26, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1102 closed Apr 26, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1101 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1100 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1099 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1098 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1094 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1093 closed Apr 25, 2025
+          
+        
+      
+      
+        
+        
+          Redacted
+          
+            #1082 closed Apr 25, 2025
+          
+        
+      
+    
+
+    
+      
+        
+        2 Issues
+        opened by 1 person
+      
+    
+    
+      
+        
+        
+          Implement CLI_STATS Flag for Real-Time Runtime Statistics
+          
+            #1171 opened May 1, 2025
+          
+        
+      
+      
+        
+        
+          Documenter maintenance activity: Refresh README with clear usage and CLI examples
+          
+            #1169 opened May 1, 2025\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights
+      
+
+  
+
+    
+
+
+
+
+      
+  
+
+
+
+  
+
+  
+
+
+
+
+    
+    
+
+
+
+    
+      
+    
+
+
+
 
 
 
@@ -34645,5 +37401,3294 @@ Update workflows to use workflow_run triggers for better integration while comme
 
 
   
+  
+    CommitsBranch selector mainUser selectorAll usersDatepickerAll timeCommit HistoryCommits on May 1, 2025Maintain CLI_STATSactions-usercommittede8d0d76Copy full SHA for e8d0d76Maintain AWS_SQSactions-usercommitted1cfd112Copy full SHA for 1cfd112Updated README.md and docsUSAGE.md to reflect current CLI usage installation instructions and API references. (#1170)Show description for 8569c6f github-actions[bot]andactions-userauthored8569c6fCopy full SHA for 8569c6fMaintain sandbox/SOURCES.mdactions-usercommitted4024af6Copy full SHA for 4024af6Reset sandboxactions-usercommitted0cc547aCopy full SHA for 0cc547aAdd check and create library directory if missingShow description for ff69dceAntony-at-Polycodecommittedff69dceCopy full SHA for ff69dce5.1.6-0actions-usercommitted4a8c6bcCopy full SHA for 4a8c6bc5.1.6-0actions-usercommitted8734dbfCopy full SHA for 8734dbf5.1.5actions-usercommitted9c012ebCopy full SHA for 9c012eb5.1.5-0actions-usercommittedc551725Copy full SHA for c551725Handle errors when reading sources file in workflowShow description for 7f761beAntony-at-Polycodecommitted7f761beCopy full SHA for 7f761be5.1.5-0actions-usercommitted3595baeCopy full SHA for 3595bae5.1.4actions-usercommitted3af55e5Copy full SHA for 3af55e5Maintain STATS_OUTPUTactions-usercommittedd9f86d4Copy full SHA for d9f86d4Update workflow annotations and reorder fields for clarityShow description for 78ac69dAntony-at-Polycodecommitted78ac69dCopy full SHA for 78ac69dReset sandboxactions-usercommitted0ef1ba0Copy full SHA for 0ef1ba0Refactor workflows to enable `workflow_run` and disable `workflow_call`Show description for 4780d7dAntony-at-Polycodecommitted4780d7dCopy full SHA for 4780d7dReset sandboxactions-usercommittedbd553caCopy full SHA for bd553caMaintain OPENAI_APIactions-usercommitted13ffd03Copy full SHA for 13ffd03Updated README.md and docsUSAGE.md to reflect current CLI functionality and core library usage. (#1166)Show description for daa5136 github-actions[bot]andactions-userauthoreddaa5136Copy full SHA for daa5136Maintain sandbox/SOURCES.mdactions-usercommitteddb51480Copy full SHA for db51480Reset sandboxactions-usercommitted9bf9fa9Copy full SHA for 9bf9fa9Refactor workflows to use `workflow_call` and enhance issue handlingShow description for 5356e1bAntony-at-Polycodecommitted5356e1bCopy full SHA for 5356e1bMaintain VERBOSE_FLAGactions-usercommittede102affCopy full SHA for e102affAdd CHATGPT_API_SECRET_KEY to workflow secrets configurationShow description for 69ae538Antony-at-Polycodecommitted69ae538Copy full SHA for 69ae538Maintain sandbox/SOURCES.mdactions-usercommittedbb12d0cCopy full SHA for bb12d0cReset sandboxactions-usercommitted8436e60Copy full SHA for 8436e605.1.4-0actions-usercommitted1c58c77Copy full SHA for 1c58c775.1.4-0actions-usercommitted5fa903dCopy full SHA for 5fa903d5.1.3actions-usercommittedbc2b289Copy full SHA for bc2b289Add CHATGPT_API_SECRET_KEY to workflow secretsShow description for 020429cAntony-at-Polycodecommitted020429cCopy full SHA for 020429cUpdated the README to clarify logging and configuration details and added a USAGE documentation file with detailed CLI instructions. (#1164)Show description for 373b303 github-actions[bot]andactions-userauthored373b303Copy full SHA for 373b303Refactor artifact naming with random suffix generationShow description for b6103c4Antony-at-Polycodecommittedb6103c4Copy full SHA for b6103c4Maintain STATSactions-usercommitted3dddef1Copy full SHA for 3dddef1Updated README and added a usage documentation file to reflect the current CLI commands and functionality. (#1163)Show description for a5e46e4 github-actions[bot]andactions-userauthoreda5e46e4Copy full SHA for a5e46e4PaginationPreviousNext\n\n\n\nxn-intenton-z2a
     
-      Previous 1 2 3 4 5 … 67 68 Next\n\n\n\n
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\nxn-intenton-z2a
+    
+    /
+    
+      agentic-lib
+    
+
+    Public
+  
+
+
+        
+
+        
+            
+    
+        
+          
+        
+
+      
+
+  
+                Notifications
+    You must be signed in to change notification settings
+
+  
+
+  
+              Fork
+    0
+
+  
+
+  
+        
+            
+          Star
+          0
+
+  
+
+
+
+        
+      
+
+        
+
+
+
+          
+
+  
+      
+  
+    
+              
+        Code
+          
+
+
+    
+
+      
+  
+    
+              
+        Issues
+          2
+
+
+    
+
+      
+  
+    
+              
+        Pull requests
+          0
+
+
+    
+
+      
+  
+    
+              
+        Discussions
+          
+
+
+    
+
+      
+  
+    
+              
+        Actions
+          
+
+
+    
+
+      
+  
+    
+              
+        Projects
+          0
+
+
+    
+
+      
+  
+    
+              
+        Security
+          
+
+    
+
+      
+  
+    
+              
+        Insights
+          
+
+
+    
+
+
+          
+  
+      
+Additional navigation options
+
+
+
+  
+    
+                
+  
+    
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Code
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Issues
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Pull requests
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Discussions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Actions
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Projects
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Security
+      
+
+  
+
+        
+    
+    
+    
+        
+          
+        
+      
+        
+          Insights\n\n\n\n

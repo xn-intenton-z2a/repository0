@@ -1,185 +1,229 @@
 # AGENTIC_LIB
 
 ## Crawl Summary
-Agentic-lib implements a set of autonomous GitHub Actions workflows that cover issue management, automated merges, AWS infrastructure deployment using CDK, and local development setups. It details file structure, exact commands for role configuration in AWS, complete workflow triggering mechanisms, and exact agent configuration parameters such as schedule and filepaths with limits. The system integrates GitHub API calls with OpenAI API for self-evolving code and includes detailed AWS IAM trust policies and CDK commands.
+Agentic-lib contains reusable GitHub Actions workflows for autonomous code evolution. It defines chain workflows (Source Worker -> Library Worker -> Publish Web) and issue management (creator, worker, reviewer, automerge) with explicit GitHub Actions workflow calls. The repository includes detailed AWS deployment procedures with trust policies, role assumptions, and CLI commands. It also provides developer setup commands for Node.js, Maven, and AWS CDK, as well as an agent configuration file mapping file paths, permissions, and limits.
 
 ## Normalised Extract
 Table of Contents:
-1. Workflow Specifications
-   - Issue Creator: workflow file wfr-create-issue.yml@1.2.0, input parameter issueTitle (default: 'house choice').
-   - Issue Worker: includes wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0.
-   - Issue Reviewer: uses wfr-review-issue.yml@1.2.0.
-   - Automerge: triggers wfr-automerge-find-pr-from-pull-request.yml@1.2.0, wfr-automerge-find-pr-in-check-suite.yml@1.2.0, wfr-automerge-label-issue.yml@1.2.0, wfr-automerge-merge-pr.yml@1.2.0.
-2. Repository Setup and Local Development
-   - Clone command: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
-   - Node.js (v20+), AWS CLI, Java JDK 11+, Maven, AWS CDK 2.x required.
-   - Build commands: npm install, npm test, ./mvnw clean package
-3. AWS Deployment
-   - Trust policy JSON for agentic-lib-deployment-role with Allow actions for sts:AssumeRole and sts:AssumeRoleWithWebIdentity.
-   - AWS CLI commands: aws iam create-role with role-name agentic-lib-deployment-role; aws iam put-role-policy with policy document file://agentic-lib-deployment-permissions-policy.json.
-   - Assume Role using aws sts assume-role and export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN.
-   - Verify with aws sts get-caller-identity and list policies via aws iam list-role-policies.
-4. Agent Configuration File
-   - schedule: schedule-3
-   - paths: missionFilepath ('MISSION.md'), librarySourcesFilepath ('sandbox/SOURCES.md', permissions [write], limit 16), libraryDocumentsPath ('sandbox/library/', permissions [write], limit 64), featuresPath ('sandbox/features/', permissions [write], limit 8), contributingFilepath ('CONTRIBUTING.md'), targetTestsPath ('sandbox/tests/'), otherTestsPaths (['tests/unit/']), targetSourcePath ('sandbox/source/', permissions [write]), otherSourcePaths (['src/lib/']), dependenciesFilepath ('package.json'), documentationPath ('sandbox/docs/', permissions [write]), formattingFilepath ('.prettierrc'), lintingFilepath ('eslint.config.js'), readmeFilepath ('README.md').
-   - Execution commands: buildScript: npm run build, testScript: npm test, mainScript: npm run start.
-   - Issue limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1.
-5. AWS and GitHub Actions Best Practices
-   - Use dotenv, openai, zod in package.json.
-   - Role assumption in GitHub Actions with aws-actions/configure-aws-credentials@v4 and actions/setup-node@v3.
-   - Troubleshooting: Check for CDK errors; ignore background thread NullPointer while deployment if output is BUILD SUCCESS.
-   - Log deletion commands for CloudWatch: aws logs delete-log-group for telemetry and lambda logs.
-   - S3 operations: Using aws s3 cp and aws s3 ls; list object versions with aws s3api list-object-versions piped to jq.
-6. Detailed Implementation Patterns
-   - Code changes trigger series: Create Issue -> Issue Worker -> Automerge -> Review Issue (or timer based).
-   - Chain workflow design using outputs as inputs for subsequent workflows (e.g. issue review output fixed flag).
-   - Modular SDK integration via GitHub workflow calls using specific version tags.
+1. Workflows and GitHub Actions
+2. AWS Deployment and IAM Role Setup
+3. Local Development and Build Instructions
+4. Agent Configuration File Details
 
+1. Workflows and GitHub Actions:
+- Core workflows: issue-creator.yml (wfr-create-issue.yml@1.2.0), issue-worker.yml (wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0), issue-reviewer.yml (wfr-review-issue.yml@1.2.0)
+- Automerge workflows: wfr-automerge-find-pr-from-pull-request.yml@1.2.0, wfr-automerge-merge-pr.yml@1.2.0
+- Reusable action invocation via workflow_call event in GitHub Actions
+- Example invocation structure:
+  on:
+    workflow_dispatch:
+      inputs:
+        issueTitle:
+          description: Title for new task
+          required: false
+          default: house choice
+
+2. AWS Deployment and IAM Role Setup:
+- Use AWS CLI commands to create and manage IAM roles for CDK deployment.
+- Trust policy example for role agentic-lib-deployment-role provided in JSON format.
+- Commands:
+  aws iam create-role --role-name agentic-lib-deployment-role --assume-role-policy-document file://policy.json
+  aws iam put-role-policy --role-name agentic-lib-deployment-role --policy-name agentic-lib-deployment-permissions-policy --policy-document file://permissions.json
+- Assume role and export environment variables using aws sts assume-role and jq extraction.
+
+3. Local Development and Build Instructions:
+- Clone repository: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+- Install dependencies: npm install
+- Run tests: npm test
+- Build Java application: ./mvnw clean package
+- Deploy CDK stack with: npx cdk deploy
+
+4. Agent Configuration File Details:
+- schedule: schedule-3
+- paths section defines missionFilepath, librarySourcesFilepath (limit 16, write), libraryDocumentsPath (limit 64, write), featuresPath (limit 8, write), contributingFilepath, targetTestsPath, otherTestsPaths, targetSourcePath, otherSourcePaths, dependenciesFilepath, documentationPath, formattingFilepath, lintingFilepath, readmeFilepath
+- Execution commands: buildScript: 'npm run build', testScript: 'npm test', mainScript: 'npm run start'
+- Issue limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1
+- Web publishing: docRoot: 'public'
+- Sandbox: sandboxPath: 'sandbox', sandboxReset: 'true'
 
 ## Supplementary Details
-Agent Config Details:
-• schedule: 'schedule-3'
-• paths configuration:
-   - missionFilepath: 'MISSION.md'
-   - librarySourcesFilepath: 'sandbox/SOURCES.md', permissions: [ 'write' ], limit: 16
-   - libraryDocumentsPath: 'sandbox/library/', permissions: [ 'write' ], limit: 64
-   - featuresPath: 'sandbox/features/', permissions: [ 'write' ], limit: 8
-   - contributingFilepath: 'CONTRIBUTING.md'
-   - targetTestsPath: 'sandbox/tests/'
-   - otherTestsPaths: [ 'tests/unit/' ]
-   - targetSourcePath: 'sandbox/source/', permissions: [ 'write' ]
-   - otherSourcePaths: [ 'src/lib/' ]
-   - dependenciesFilepath: 'package.json'
-   - documentationPath: 'sandbox/docs/', permissions: [ 'write' ]
-   - formattingFilepath: '.prettierrc'
-   - lintingFilepath: 'eslint.config.js'
-   - readmeFilepath: 'README.md'
-• Execution Commands:
-   - buildScript: npm run build
-   - testScript: npm test
-   - mainScript: npm run start
-• Issue limits:
-   - featureDevelopmentIssuesWipLimit: 3
-   - maintenanceIssuesWipLimit: 3
-   - attemptsPerBranch: 2
-   - attemptsPerIssue: 1
+Agent Configuration File (exact values):
 
-AWS Deployment Specifications:
-• Create role using:
-   aws iam create-role --role-name agentic-lib-deployment-role --assume-role-policy-document file://agentic-lib-deployment-trust-policy.json
-• Attach permissions using:
-   aws iam put-role-policy --role-name agentic-lib-deployment-role --policy-name agentic-lib-deployment-permissions-policy --policy-document file://agentic-lib-deployment-permissions-policy.json
-• Assume role with:
-   aws sts assume-role --role-arn "arn:aws:iam::541134664601:role/agentic-lib-deployment-role" --role-session-name "agentic-lib-deployment-session-local" --output json
+schedule: schedule-3
+paths:
+  missionFilepath:
+    path: 'MISSION.md'
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 16
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 64
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 8
+  contributingFilepath:
+    path: 'CONTRIBUTING.md'
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  otherTestsPaths:
+    paths: [ 'tests/unit/' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  otherSourcePaths:
+    paths: [ 'src/lib/' ]
+  dependenciesFilepath:
+    path: 'package.json'
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  formattingFilepath:
+    path: '.prettierrc'
+  lintingFilepath:
+    path: 'eslint.config.js'
+  readmeFilepath:
+    path: 'README.md'
 
-Local Development:
-• Clone, install dependencies (npm install), test (npm test), and build Java application with ./mvnw clean package
-• CDK bootstrapping required before deployment (cdk bootstrap)
+Execution Commands:
+  buildScript: 'npm run build'
+  testScript: 'npm test'
+  mainScript: 'npm run start'
 
-Detailed troubleshooting commands:
-• To destroy a stack: npx cdk destroy
-• To delete CloudWatch log groups:
-   aws logs delete-log-group --log-group-name "/aws/s3/agentic-lib-telemetry-bucket"
-   aws logs delete-log-group --log-group-name "/aws/lambda/agentic-lib-digest-function"
-• S3 file operations:
-   aws s3 ls agentic-lib-telemetry-bucket/events/
-   aws s3 cp "file.json" s3://agentic-lib-telemetry-bucket/events/"file.json"
-   aws s3api list-object-versions --bucket agentic-lib-telemetry-bucket --prefix events/ | jq -r '.Versions[] | "\(.LastModified) \(.Key) \(.VersionId) \(.IsLatest)"'
+AWS Deployment Steps:
+- Create role with trust policy:
+  Role trust policy JSON provided.
+- Create IAM role using aws iam create-role and attach policy via aws iam put-role-policy
+- Assume role with aws sts assume-role; export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN
+- Validate session using aws sts get-caller-identity
+
+Local Development Steps:
+- Clone, npm install, npm test, and Maven build commands as specified.
 
 
 ## Reference Details
-API Specifications and SDK Method Signatures:
+API and SDK Specifications:
 
-Issue Creator API:
-Method Signature: createIssue(issueTitle: string = 'house choice'): Promise<{ issueId: number, status: string }>
-Parameters: issueTitle (string, optional).
-Return Type: Promise with object containing 'issueId' and 'status'.
+1. GitHub Actions Workflows API:
+   - Issue Creator Workflow:
+     Method: triggerIssueCreator(inputs: { issueTitle: string })
+     SDK Signature: triggerIssueCreator(issueTitle: string): Promise<{ issueId: number, prNumber?: number }>
+     Parameters: issueTitle (default: 'house choice')
+     Return: JSON response with issue details
 
-Issue Worker API:
-Methods: selectIssue(): Promise<{issue: object}>, applyIssueResolution(): Promise<{result: boolean}>, createPullRequest(): Promise<{prNumber: number}>
+   - Issue Worker Workflow:
+     Methods: selectIssue(issueId: number): Promise<boolean>, applyIssueResolution(issueId: number): Promise<boolean>, createPR(issueId: number): Promise<{ prNumber: number }>
 
-Automated Merge API:
-Method Signature: automerge(prIdentifier: string): Promise<{merged: boolean, prNumber: number}>
+   - Automerge Workflow:
+     Methods: findPRFromPullRequest(prId: number): Promise<{ prId: number }>, mergePR(prId: number): Promise<{ status: string }>
 
-AWS IAM Role Setup Example:
-Trust Policy JSON:
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Statement1",
-      "Effect": "Allow",
-      "Action": ["sts:AssumeRole", "sts:TagSession"],
-      "Resource": ["arn:aws:iam::541134664601:role/agentic-lib-deployment-role"]
-    }
-  ]
-}
+2. AWS Deployment CLI Commands:
+   - Create Role:
+     Command: aws iam create-role --role-name agentic-lib-deployment-role --assume-role-policy-document file://agentic-lib-deployment-trust-policy.json
+   - Attach Policy:
+     Command: aws iam put-role-policy --role-name agentic-lib-deployment-role --policy-name agentic-lib-deployment-permissions-policy --policy-document file://agentic-lib-deployment-permissions-policy.json
+   - Assume Role:
+     Command:
+       unset AWS_ACCESS_KEY_ID
+       unset AWS_SECRET_ACCESS_KEY
+       unset AWS_SESSION_TOKEN
+       ROLE_ARN="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
+       SESSION_NAME="agentic-lib-deployment-session-local"
+       ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_NAME" --output json)
+       export AWS_ACCESS_KEY_ID=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.AccessKeyId')
+       export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SecretAccessKey')
+       export AWS_SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
+       echo "Assumed role successfully."
+   - Check session:
+     Command: aws sts get-caller-identity
+   - List SQS Attributes:
+     Command: aws sqs get-queue-attributes --queue-url <QUEUE_URL> --attribute-names ApproximateNumberOfMessages
 
-GitHub Actions Role Setup Example:
-Step in Workflow:
-- name: Configure AWS Credentials
-  uses: aws-actions/configure-aws-credentials@v4
-  with:
-    role-to-assume: arn:aws:iam::541134664601:role/agentic-lib-deployment-role
-    aws-region: eu-west-2
-- name: Set up Node.js
-  uses: actions/setup-node@v3
-  with:
-    node-version: '20'
+3. Implementation Patterns and Best Practices:
+   - Always validate AWS credentials after assuming a role.
+   - Use workflow_call to modularize GitHub Actions; provide explicit parameters with defaults.
+   - Configure repository settings to include secrets such as CHATGPT_API_SECRET_KEY and GITHUB_TOKEN.
+   - For local testing, run npm install, npm test, and use ./mvnw clean package for Java build.
 
-Code Example for Assuming Role Locally (Shell Script):
-ROLE_ARN="arn:aws:iam::541134664601:role/agentic-lib-deployment-role"
-SESSION_NAME="agentic-lib-deployment-session-local"
-ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "$ROLE_ARN" --role-session-name "$SESSION_NAME" --output json)
-export AWS_ACCESS_KEY_ID=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.AccessKeyId')
-export AWS_SECRET_ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SecretAccessKey')
-export AWS_SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
+4. Troubleshooting Procedures:
+   - If assume-role fails, verify trust policy and AWS CLI configuration.
+   - Check CDK bootstrap status with: aws cloudformation describe-stacks --stack-name CDKToolkit
+   - For failing tests, inspect npm test logs and adjust ESLint or Prettier configurations as specified in eslint.config.js and .prettierrc.
+   - In deployment, if logs error "software.amazon.jsii.JsiiRuntime.ErrorStreamSink" appears, note it is a known CDK bug that does not affect deployment.
 
-Best Practices:
-- Validate file write permissions before invoking workflows.
-- Use chained workflows outputs (e.g. issue review fixed -> trigger automerge).
-- Maintain a dedicated sandbox directory (e.g. 'sandbox') for temporary files and reset regularly.
+Code Example Commented Workflow Invocation (pseudocode):
 
-Troubleshooting:
-- Check CDK build logs; ignore background thread errors if build is successful.
-- Run aws sts get-caller-identity to verify correct role assumption.
-- For S3 issues, use aws s3 ls and aws s3api list-object-versions to verify file uploads.
+// Example invoking Issue Creator Workflow
+// Triggered via workflow_dispatch event
+// Input: { issueTitle: 'New feature request' }
+triggerIssueCreator('New feature request')
+  .then(response => {
+    // response includes issueId and possibly prNumber
+    console.log('Issue created:', response.issueId);
+  })
+  .catch(error => {
+    console.error('Error creating issue:', error);
+  });
+
+Configuration Options Summary:
+- schedule: 'schedule-3'
+- Paths limits: librarySources (limit: 16), libraryDocuments (limit: 64), features (limit: 8)
+- Execution commands: buildScript, testScript, mainScript
+- Issue limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1
+
+Return Types and Exceptions:
+- All SDK methods return a Promise with JSON; exceptions are thrown for network or parameter validation errors.
 
 
 ## Information Dense Extract
-agentic-lib; Workflows: issue-creator (wfr-create-issue.yml@1.2.0, input: issueTitle, default 'house choice'), issue-worker (wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0), issue-reviewer (wfr-review-issue.yml@1.2.0), automerge (wfr-automerge-find-pr-from-pull-request.yml@1.2.0, etc.). Repo clone: git clone https://github.com/xn-intenton-z2a/agentic-lib.git; build: npm install, npm test, ./mvnw clean package; AWS setup: create-role, put-role-policy, assume-role (role ARN arn:aws:iam::541134664601:role/agentic-lib-deployment-role), verify via aws sts get-caller-identity; Agent config: schedule 'schedule-3', paths with exact file paths and limits; Execution: npm run build, npm test, npm run start; IAM trust JSON and GitHub Actions role config provided; SDK methods: createIssue(issueTitle: string), selectIssue(), applyIssueResolution(), createPullRequest(), automerge(prIdentifier: string); commands for CDK deploy and destroy; S3 and CloudWatch log commands provided.
+AGENTIC_LIB: reusable GitHub Actions workflows; chain: Source Worker -> Library Worker -> Publish Web; Issue Creator (wfr-create-issue.yml@1.2.0), Issue Worker (wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0), Issue Reviewer (wfr-review-issue.yml@1.2.0), Automerge (wfr-automerge-merge-pr.yml@1.2.0); AWS CLI: create-role, put-role-policy, assume-role; commands with jq extraction; local setup: git clone, npm install, npm test, ./mvnw clean package; Agent config: schedule=schedule-3; paths: missionFilepath (MISSION.md), librarySourcesFilepath (sandbox/SOURCES.md, limit 16, write), libraryDocumentsPath (sandbox/library/, limit 64, write), featuresPath (sandbox/features/, limit 8, write), contributingFilepath (CONTRIBUTING.md), targetTestsPath (sandbox/tests/, write), otherTestsPaths ([tests/unit/]), targetSourcePath (sandbox/source/, write), otherSourcePaths ([src/lib/]), dependenciesFilepath (package.json), documentationPath (sandbox/docs/, write), formattingFilepath (.prettierrc), lintingFilepath (eslint.config.js), readmeFilepath (README.md); Execution: buildScript='npm run build', testScript='npm test', mainScript='npm run start'; SDK methods with parameters, return Promises, error handling; troubleshooting: check AWS assume-role, CDK bootstrap, npm test logs; detailed AWS commands and GitHub workflow invocation examples provided.
 
 ## Sanitised Extract
 Table of Contents:
-1. Workflow Specifications
-   - Issue Creator: workflow file wfr-create-issue.yml@1.2.0, input parameter issueTitle (default: 'house choice').
-   - Issue Worker: includes wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0.
-   - Issue Reviewer: uses wfr-review-issue.yml@1.2.0.
-   - Automerge: triggers wfr-automerge-find-pr-from-pull-request.yml@1.2.0, wfr-automerge-find-pr-in-check-suite.yml@1.2.0, wfr-automerge-label-issue.yml@1.2.0, wfr-automerge-merge-pr.yml@1.2.0.
-2. Repository Setup and Local Development
-   - Clone command: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
-   - Node.js (v20+), AWS CLI, Java JDK 11+, Maven, AWS CDK 2.x required.
-   - Build commands: npm install, npm test, ./mvnw clean package
-3. AWS Deployment
-   - Trust policy JSON for agentic-lib-deployment-role with Allow actions for sts:AssumeRole and sts:AssumeRoleWithWebIdentity.
-   - AWS CLI commands: aws iam create-role with role-name agentic-lib-deployment-role; aws iam put-role-policy with policy document file://agentic-lib-deployment-permissions-policy.json.
-   - Assume Role using aws sts assume-role and export AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN.
-   - Verify with aws sts get-caller-identity and list policies via aws iam list-role-policies.
-4. Agent Configuration File
-   - schedule: schedule-3
-   - paths: missionFilepath ('MISSION.md'), librarySourcesFilepath ('sandbox/SOURCES.md', permissions [write], limit 16), libraryDocumentsPath ('sandbox/library/', permissions [write], limit 64), featuresPath ('sandbox/features/', permissions [write], limit 8), contributingFilepath ('CONTRIBUTING.md'), targetTestsPath ('sandbox/tests/'), otherTestsPaths (['tests/unit/']), targetSourcePath ('sandbox/source/', permissions [write]), otherSourcePaths (['src/lib/']), dependenciesFilepath ('package.json'), documentationPath ('sandbox/docs/', permissions [write]), formattingFilepath ('.prettierrc'), lintingFilepath ('eslint.config.js'), readmeFilepath ('README.md').
-   - Execution commands: buildScript: npm run build, testScript: npm test, mainScript: npm run start.
-   - Issue limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1.
-5. AWS and GitHub Actions Best Practices
-   - Use dotenv, openai, zod in package.json.
-   - Role assumption in GitHub Actions with aws-actions/configure-aws-credentials@v4 and actions/setup-node@v3.
-   - Troubleshooting: Check for CDK errors; ignore background thread NullPointer while deployment if output is BUILD SUCCESS.
-   - Log deletion commands for CloudWatch: aws logs delete-log-group for telemetry and lambda logs.
-   - S3 operations: Using aws s3 cp and aws s3 ls; list object versions with aws s3api list-object-versions piped to jq.
-6. Detailed Implementation Patterns
-   - Code changes trigger series: Create Issue -> Issue Worker -> Automerge -> Review Issue (or timer based).
-   - Chain workflow design using outputs as inputs for subsequent workflows (e.g. issue review output fixed flag).
-   - Modular SDK integration via GitHub workflow calls using specific version tags.
+1. Workflows and GitHub Actions
+2. AWS Deployment and IAM Role Setup
+3. Local Development and Build Instructions
+4. Agent Configuration File Details
+
+1. Workflows and GitHub Actions:
+- Core workflows: issue-creator.yml (wfr-create-issue.yml@1.2.0), issue-worker.yml (wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0), issue-reviewer.yml (wfr-review-issue.yml@1.2.0)
+- Automerge workflows: wfr-automerge-find-pr-from-pull-request.yml@1.2.0, wfr-automerge-merge-pr.yml@1.2.0
+- Reusable action invocation via workflow_call event in GitHub Actions
+- Example invocation structure:
+  on:
+    workflow_dispatch:
+      inputs:
+        issueTitle:
+          description: Title for new task
+          required: false
+          default: house choice
+
+2. AWS Deployment and IAM Role Setup:
+- Use AWS CLI commands to create and manage IAM roles for CDK deployment.
+- Trust policy example for role agentic-lib-deployment-role provided in JSON format.
+- Commands:
+  aws iam create-role --role-name agentic-lib-deployment-role --assume-role-policy-document file://policy.json
+  aws iam put-role-policy --role-name agentic-lib-deployment-role --policy-name agentic-lib-deployment-permissions-policy --policy-document file://permissions.json
+- Assume role and export environment variables using aws sts assume-role and jq extraction.
+
+3. Local Development and Build Instructions:
+- Clone repository: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+- Install dependencies: npm install
+- Run tests: npm test
+- Build Java application: ./mvnw clean package
+- Deploy CDK stack with: npx cdk deploy
+
+4. Agent Configuration File Details:
+- schedule: schedule-3
+- paths section defines missionFilepath, librarySourcesFilepath (limit 16, write), libraryDocumentsPath (limit 64, write), featuresPath (limit 8, write), contributingFilepath, targetTestsPath, otherTestsPaths, targetSourcePath, otherSourcePaths, dependenciesFilepath, documentationPath, formattingFilepath, lintingFilepath, readmeFilepath
+- Execution commands: buildScript: 'npm run build', testScript: 'npm test', mainScript: 'npm run start'
+- Issue limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1
+- Web publishing: docRoot: 'public'
+- Sandbox: sandboxPath: 'sandbox', sandboxReset: 'true'
 
 ## Original Source
 agentic-lib Workflows
@@ -187,58 +231,131 @@ https://github.com/xn-intenton-z2a/agentic-lib
 
 ## Digest of AGENTIC_LIB
 
-# AGENTIC_LIB
-Date Retrieved: 2023-10-11
+# AGENTIC_LIB DOCUMENT
 
-## Overview
-The agentic-lib system is a collection of reusable GitHub Actions workflows that execute autonomous development processes. Workflows are triggered using GitHub's workflow_call event, functioning like an SDK to compose modular operations including issue creation, review, merge, and AWS deployment.
+# Overview
+This document contains the full technical details for the agentic-lib repository, which is a collection of reusable GitHub Actions workflows that enable autonomous code review, issue management and AWS deployment. The document covers workflow chain configuration, repository structure, AWS deployment commands, SDK method invocation examples, and the complete agent configuration file.
 
-## Repository Structure
-- Top-level files: Dockerfile, package.json, cdk.json, pom.xml, compose.yml
-- Source Code: src/lib/main.js, aws/main/java/com/intention/AgenticLib/AgenticLibApp.java, AgenticLibStack.java
-- Tests: tests/unit/main.test.js
-- Workflows: Located in .github/workflows/ (e.g. issue-creator.yml, issue-worker.yml, automerge.yml)
+# Repository Structure
+- Dockerfile
+- package.json
+- cdk.json
+- pom.xml
+- compose.yml
+- src/lib/main.js
+- aws/main/java/com/intention/AgenticLib/AgenticLibApp.java
+- aws/main/java/com/intention/AgenticLib/AgenticLibStack.java
+- aws/test/java/com/intention/AgenticLib/AgenticLibStackTest.java
+- tests/unit/main.test.js
+- GitHub workflows located in .github/workflows/
+- Example workflows in examples/ directory
 
-## Workflow Components
-1. Issue Management
-   - Issue Creator: Uses wfr-create-issue.yml@1.2.0; parameters include issueTitle (default: 'house choice')
-   - Issue Worker: Comprises wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0, wfr-create-pr.yml@1.2.0
-   - Issue Reviewer: Uses wfr-review-issue.yml@1.2.0
-   - Automerge: Uses multiple workflows (wfr-automerge-find-pr-from-pull-request.yml@1.2.0, etc.)
+# Workflow Chain and Agentic Development System
+- Source Worker: Maintains SOURCES*.md files. Uses the reusable workflow: wfr-completion-maintain-sources.yml
+- Library Worker: Creates/updates feature documents using wfr-completion-maintain-library.yml
+- Publish Web: Publishes documentation via wfr-github-publish-web.yml
 
-2. Repository Setup and Local Development
-   - Clone the repository: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
-   - Node.js dependencies: npm install and npm test
-   - Java build: ./mvnw clean package
-   - AWS CDK bootstrap required
+# Issue Management and Reusable Workflows
+- Issue Creator: Trigger via workflow_dispatch with input parameter 'issueTitle'; internally calls wfr-create-issue.yml@1.2.0
+- Issue Worker: Uses wfr-select-issue.yml@1.2.0, wfr-apply-issue-resolution.yml@1.2.0 and wfr-create-pr.yml@1.2.0
+- Issue Reviewer: Finalizes tasks via wfr-review-issue.yml@1.2.0
+- Automerge Workflow: Merges pull requests when criteria are met through multiple sub-workflows such as wfr-automerge-merge-pr.yml@1.2.0
 
-3. AWS Deployment (CDK based)
-   - Create trust policies and roles using provided JSON examples
-   - Use AWS CLI for role creation and permission assignment
-   - Commands include: aws iam create-role, aws iam put-role-policy, aws sts assume-role
-   - Deployment commands: npx cdk deploy, npx cdk destroy and related AWS CLI log commands
+# AWS Deployment and IAM Configuration
+- Prerequisites: Node.js v20+, AWS CLI, Java JDK 11+, Maven, AWS CDK 2.x, Docker.
+- AWS CDK bootstrap required.
+- Example trust policy for agentic-lib-deployment-role:
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "Statement1",
+        "Effect": "Allow",
+        "Action": ["sts:AssumeRole", "sts:TagSession"],
+        "Resource": ["arn:aws:iam::541134664601:role/agentic-lib-deployment-role"]
+      }
+    ]
+  }
+- Commands to create role and attach policies are provided in the document.
+- Example AWS CLI commands:
+  - Assume role using aws sts assume-role
+  - Check session with aws sts get-caller-identity
+  - List role policies using aws iam list-role-policies
 
-4. Agent Config & Execution
-   - Agent config file parameters:
-     • schedule: 'schedule-3'
-     • paths: missionFilepath, librarySourcesFilepath, libraryDocumentsPath, featuresPath, contributingFilepath, targetTestsPath, otherTestsPaths, targetSourcePath, otherSourcePaths, dependenciesFilepath, documentationPath, formattingFilepath, lintingFilepath, readmeFilepath
-     • Execution commands: buildScript (npm run build), testScript (npm test), mainScript (npm run start)
-     • Limits: featureDevelopmentIssuesWipLimit: 3, maintenanceIssuesWipLimit: 3, attemptsPerBranch: 2, attemptsPerIssue: 1
+# Local Development Setup
+- Clone the repository: git clone https://github.com/xn-intenton-z2a/agentic-lib.git
+- Install dependencies: npm install
+- Run tests: npm test
+- Build Java application: ./mvnw clean package
+- Example for AWS deployment: ./mvnw clean package ; npx cdk deploy
 
-## Licensing and Attribution
-- Mixed licenses: GPL-3.0 and MIT; derived works must include attribution "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+# Agent Configuration File
+The agent configuration file defines workflow schedules and file path mappings:
 
-## Attribution & Data Size
-- Data Size: 668699 bytes
-- Crawled with 4488 links and no errors
+schedule: schedule-3
+paths:
+  missionFilepath:
+    path: 'MISSION.md'
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 16
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 64
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 8
+  contributingFilepath:
+    path: 'CONTRIBUTING.md'
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  otherTestsPaths:
+    paths: [ 'tests/unit/' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  otherSourcePaths:
+    paths: [ 'src/lib/' ]
+  dependenciesFilepath:
+    path: 'package.json'
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  formattingFilepath:
+    path: '.prettierrc'
+  lintingFilepath:
+    path: 'eslint.config.js'
+  readmeFilepath:
+    path: 'README.md'
+
+Execution commands:
+  buildScript: 'npm run build'
+  testScript: 'npm test'
+  mainScript: 'npm run start'
+
+Issue limits and sandbox configuration are explicitly set.
+
+# License and Attribution
+- Licensed under GNU GPL-3.0 with MIT for examples.
+- Attribution: "This work is derived from https://github.com/xn-intenton-z2a/agentic-lib"
+
+# Retrieval Date and Source Attribution
+- Retrieved on: 2023-10-05
+- Data Size: 727219 bytes
+- Links Found: 4913
+
 
 ## Attribution
 - Source: agentic-lib Workflows
 - URL: https://github.com/xn-intenton-z2a/agentic-lib
 - License: Apache-2.0
-- Crawl Date: 2025-05-01T23:40:02.140Z
-- Data Size: 668699 bytes
-- Links Found: 4488
+- Crawl Date: 2025-05-01T23:47:37.678Z
+- Data Size: 727219 bytes
+- Links Found: 4913
 
 ## Retrieved
 2025-05-01
