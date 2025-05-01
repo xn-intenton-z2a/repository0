@@ -7,17 +7,17 @@ paths:
   missionFilepath:
     path: MISSION.md
   librarySourcesFilepath:
-    path: SOURCES.md
+    path: sandbox/SOURCES.md
     limit: 32
     permissions:
       - write
   libraryDocumentsPath:
-    path: demo/library/
+    path: sandbox/library/
     limit: 8
     permissions:
       - write
   featuresPath:
-    path: demo/features/
+    path: sandbox/features/
     limit: 3
     permissions:
       - write
@@ -28,23 +28,23 @@ paths:
   allTestsPaths:
     paths:
       - tests/unit/
-      - demo/tests/
+      - sandbox/tests/
   targetTestsPath:
-    path: demo/tests/
+    path: sandbox/tests/
     permissions:
       - write
   allSourcePaths:
     paths:
       - src/lib/
-      - demo/source/
+      - sandbox/source/
   targetSourcePath:
-    path: demo/source/
+    path: sandbox/source/
     permissions:
       - write
   dependenciesFilepath:
     path: package.json
   documentationPath:
-    path: demo/docs/
+    path: sandbox/docs/
     permissions:
       - write
 

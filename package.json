@@ -16,13 +16,9 @@
     "linting-fix": "eslint --fix",
     "update-to-minor": "npx ncu --upgrade --enginesNode --target minor --verbose --install always",
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
-    "test": "vitest",
-    "test:unit": "vitest --coverage",
-    "coverage": "vitest --coverage",
-    "start": "node src/lib/main.js",
-    "diagnostics": "node src/lib/main.js diagnostics",
-    "version": "node src/lib/main.js version",
-    "check-update": "node src/lib/main.js update"
+    "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
+    "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+    "start": "node src/lib/main.js"
   },
   "keywords": [],
   "author": "",
