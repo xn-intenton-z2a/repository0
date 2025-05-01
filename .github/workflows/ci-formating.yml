@@ -133,6 +133,8 @@ jobs:
     if: ${{ needs.formatting.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
     secrets:

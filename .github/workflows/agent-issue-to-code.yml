@@ -513,6 +513,8 @@ jobs:
     if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
     secrets:

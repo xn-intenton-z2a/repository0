@@ -194,6 +194,8 @@ jobs:
     if: ${{ needs.update-npm.outputs.updatedFiles == 'true' }}
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
     secrets:
@@ -226,6 +228,8 @@ jobs:
     if: ${{ needs.update-mvn.outputs.updatedFiles == 'true' && needs.pom-check.outputs.pomXmlExists == 'true' }}
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@5.0.0'
     secrets:
