@@ -15,6 +15,10 @@ on:
     #- cron: '0 0 * * *' # schedule-3
     #- cron: '0 0 * * *' # schedule-4
 
+env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
+
 jobs:
 
   agentic-lib:
