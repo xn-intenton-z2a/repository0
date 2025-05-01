@@ -31,9 +31,9 @@ node src/lib/main.js help
 ```
 Usage: node src/lib/main.js <command> [arguments]
 Available Commands:
-  help      Show usage instructions
-  version   Show version information
-  echo      Echo the provided arguments
+  help    Show usage instructions
+  version Show version information
+  echo    Echo the provided arguments
 ```
 
 ### version
@@ -69,7 +69,7 @@ Hello world!
 
 ### Unrecognized Command
 
-If an unknown command is provided, the CLI will display the following message:
+If an unknown command is provided, the CLI will display the following message along with usage instructions:
 
 **Example:**
 
@@ -83,7 +83,7 @@ node src/lib/main.js unknown
 Unrecognized command: unknown
 Usage: node src/lib/main.js <command> [arguments]
 Available Commands:
-  help      Show usage instructions
-  version   Show version information
-  echo      Echo the provided arguments
+  help    Show usage instructions
+  version Show version information
+  echo    Echo the provided arguments
 ```
