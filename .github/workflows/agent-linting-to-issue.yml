@@ -62,12 +62,12 @@ jobs:
             const allSourcePaths = process.env.allSourcePaths.split(';');
             const targetSourcePath = process.env.targetSourcePath;
 
-            const allPaths = {
+            const allPaths = [
               ...allTestsPath,
               targetTestsPath,
               ...allSourcePaths,
               targetSourcePath
-            }.join(' ');
+            ].join(' ');
 
             core.setOutput("allPaths", allPaths);
             core.info(`allPaths: allPaths}`);
