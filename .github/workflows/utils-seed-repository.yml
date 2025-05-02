@@ -67,42 +67,42 @@ jobs:
         id: empty-library-sources
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.librarySourcesPath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.librarySourcesPath }}'
           echo "Library sources emptied from ${{ needs.agentic-lib.outputs.librarySourcesPath }}."
 
       - name: empty-library-documents
         id: empty-library-documents
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}'
           echo "Library documents emptied from ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}."
 
       - name: empty-features
         id: empty-features
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.featuresPath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.featuresPath }}'
           echo "Features emptied from ${{ needs.agentic-lib.outputs.featuresPath }}."
 
       - name: empty-target-source
         id: empty-target-source
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.targetSourcePath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.targetSourcePath }}'
           echo "Target source emptied from ${{ needs.agentic-lib.outputs.targetSourcePath }}."
 
       - name: empty-target-tests
         id: empty-target-tests
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.targetTestsPath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.targetTestsPath }}'
           echo "Target tests emptied from ${{ needs.agentic-lib.outputs.targetTestsPath }}."
 
       - name: empty-docs
         id: empty-docs
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.documentationPath }}/*'
+          rm -rvf '${{ needs.agentic-lib.outputs.documentationPath }}'
           echo "Documentation emptied from ${{ needs.agentic-lib.outputs.documentationPath }}."
 
       - name: seed-repository
