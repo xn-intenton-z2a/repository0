@@ -446,6 +446,7 @@ jobs:
     needs:
       - select-branch
       - needs-fix
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-issue-'
