@@ -18,6 +18,7 @@ on:
 env:
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
+  archivePath: 'archive/'
 
 jobs:
 
@@ -28,20 +29,50 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  archive:
+    needs:
+      - agentic-lib
+    if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
 
-  #Empty target directories (if directories) and delete files (if files) for:
-  #  library sources
-  #  library documents
-  #  features
-  #  target source
-  #  target tests
-  #  docs
-  #  Copy the seed src to the target src and the seed tests to the target tests.
-  #  Overwrite the README.md and package.json files with the seed files.
+      - name: archive
+        id: archive
+        shell: bash
+        run: |
+          intention="$(head -1 ${{ needs.agentic-lib.outputs.contributingFilepath }} | sed 's/^# //')"
+          mkdir -p '${{ env.archivePath }}'
+          cp -fv '${{ needs.agentic-lib.outputs.missionFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-MISSION.md"
+          cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-SOURCES.md"
+          find '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-LIBRARY.md"
+          find '${{ needs.agentic-lib.outputs.featuresPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-FEATURES.md"
+          find '${{ needs.agentic-lib.outputs.targetTestsPath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-tests.txt"
+          find '${{ needs.agentic-lib.outputs.targetSourcePath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-source.txt"
+          cp -fv '${{ needs.agentic-lib.outputs.dependenciesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-package.json"
+          find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md"
+          cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md"
+
+      - name: Commit and push
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m 'Archive sandbox' --allow-empty
+          git push -v
+          git status -v
 
   seed-repository:
     needs:
       - agentic-lib
+      - archive
     if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
     runs-on: ubuntu-latest
     steps:
@@ -125,7 +156,7 @@ jobs:
           git status -v
           git add -v --all
           git diff
-          git commit -m 'Reset sandbox' --allow-empty
+          git commit -m 'Reseed repository' --allow-empty
           git push -v
           git status -v
 
