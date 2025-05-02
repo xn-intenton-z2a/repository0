@@ -23,6 +23,9 @@ on:
   workflow_run:
     workflows:
       - agent-issue-to-ready-issue
+      - agent-library-to-feature
+      - agent-maintenance-activity-to-issue
+      - agent-linting-to-issue
     types:
       - completed
     secrets:
