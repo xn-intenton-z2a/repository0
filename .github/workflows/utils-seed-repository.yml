@@ -111,20 +111,18 @@ jobs:
         run: |
             if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
               mkdir -p '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-              cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}/.'
             else
               mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-            fi            
+            fi
+            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}/main.js'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}/.'
           
             if [[ '${{ needs.agentic-lib.outputs.targetTestsPath }}' == */ ]]; then
               mkdir -p '${{ needs.agentic-lib.outputs.targetTestsPath }}'
-              cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}/.'
             else
               mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}'
             fi
+            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}/main.test.js'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}/.'
           
             mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.readmeFilepath }}')"
