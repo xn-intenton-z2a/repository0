@@ -21,8 +21,8 @@ on:
   #    CHATGPT_API_SECRET_KEY:
   #      required: true
   schedule:
-    #- cron: '20 8 */28 * *' # schedule-1
-    - cron: '20 8 * * *' # schedule-2
+    - cron: '20 8 */28 * *' # schedule-1
+    #- cron: '20 8 * * *' # schedule-2
     #- cron: '20 8,16 * * *' # schedule-3
     #- cron: '20 8,16 * * *' # schedule-4
 
