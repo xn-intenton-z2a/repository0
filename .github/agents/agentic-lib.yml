@@ -66,3 +66,11 @@ docRoot: 'public'
 sandbox:
   sandboxReset: 'true'
   sandboxPath: 'sandbox'
+
+# Repository seeding
+#seeding:
+#  repositoryReseed: 'true'
+#  sourceFilepath: 'seeds/zero-main.js'
+#  testsFilepath: 'seeds/zero-tests.js'
+#  dependenciesFilepath: 'seeds/zero-package.json'
+#  readmeFilepath: 'seeds/zero-README.md'
