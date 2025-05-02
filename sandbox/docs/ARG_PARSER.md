@@ -5,10 +5,13 @@ The `ARG_PARSER` feature provides robust CLI argument parsing functionality.
 ## Features
 
 - Recognizes flags that start with `--`.
-- Supports both `--key value` and `--key=value` formats.
+- Supports both `--key value` and `--key=value` formats, extracting the key and associated value appropriately.
 - Collects positional arguments in an array under the property `_`.
 - Flags without accompanying values default to `true`.
-- Provides a `--help` option to display detailed usage instructions.
+
+## Implementation
+
+The argument parser is implemented in `src/lib/main.js` as the function `parseArgs()`. It processes the CLI arguments and returns an object representing flags and positional arguments.
 
 ## Usage
 
@@ -40,12 +43,6 @@ Options:
   --key value             Set a key with a value.
   --key=value             Alternative syntax for setting a key-value pair.
   --flag                  Set a flag to true by default.
-
-Examples:
-  node src/lib/main.js --foo bar
-  node src/lib/main.js --baz=qux
-  node src/lib/main.js pos1 pos2
-  node src/lib/main.js --flag
 ```
 
-This detailed help ensures that users can quickly understand the available options and how to use the CLI tool.
+This parser ensures that users can easily understand and use the CLI tool based on the provided examples.
