@@ -8,14 +8,6 @@ concurrency: agentic-lib-commit-main
 run-name: "ci update [${{ github.ref_name }}]"
 
 on:
-  repository_dispatch:
-    types: [package-published]
-  schedule:
-    #- cron: '30 7 */28 * *' # schedule-1
-    - cron: '30 7 */7 * *' # schedule-2
-    #- cron: '30 7 * * *' # schedule-3
-    #- cron: '30 7 * * *' # schedule-4
-
   workflow_dispatch:
     inputs:
       upgradeTarget:
@@ -30,6 +22,23 @@ on:
           - patch
           - minor
           - semver
+  workflow_run:
+    workflows:
+      - seed-repository
+    types:
+      - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+  repository_dispatch:
+    types: [package-published]
+  schedule:
+    #- cron: '30 7 */28 * *' # schedule-1
+    - cron: '30 7 */7 * *' # schedule-2
+    #- cron: '30 7 * * *' # schedule-3
+    #- cron: '30 7 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

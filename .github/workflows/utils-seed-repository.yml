@@ -5,7 +5,7 @@
 
 name: seed-repository
 concurrency: seed-repository
-run-name: "reset sandbox"
+run-name: "seed repository"
 
 on:
   workflow_dispatch:
