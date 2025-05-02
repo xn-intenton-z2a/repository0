@@ -41,7 +41,7 @@ jobs:
 
       - name: Delete sandbox files
         run: |
-          rm -rf '${{ needs.agentic-lib.outputs.sandboxPath }}'
+          rm -rvf '${{ needs.agentic-lib.outputs.sandboxPath }}'
           echo "Sandbox files deleted."
 
       - name: Commit and push
