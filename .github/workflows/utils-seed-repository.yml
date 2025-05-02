@@ -55,12 +55,12 @@ jobs:
           mkdir -p '${{ env.archivePath }}'
           cp -fv '${{ needs.agentic-lib.outputs.missionFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-MISSION.md"
           cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-SOURCES.md"
-          find '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-LIBRARY.md"
-          find '${{ needs.agentic-lib.outputs.featuresPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-FEATURES.md"
-          find '${{ needs.agentic-lib.outputs.targetTestsPath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-tests.txt"
-          find '${{ needs.agentic-lib.outputs.targetSourcePath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-source.txt"
+          if [[ -e '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' ]] ; then find '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-LIBRARY.md" ; fi
+          if [[ -e '${{ needs.agentic-lib.outputs.featuresPath }}' ]] ; then find '${{ needs.agentic-lib.outputs.featuresPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-FEATURES.md" ; fi
+          if [[ -e '${{ needs.agentic-lib.outputs.targetTestsPath }}' ]] ; then find '${{ needs.agentic-lib.outputs.targetTestsPath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-tests.txt" ; fi
+          if [[ -e '${{ needs.agentic-lib.outputs.targetSourcePath }}' ]] ; then find '${{ needs.agentic-lib.outputs.targetSourcePath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-source.txt" ; fi
           cp -fv '${{ needs.agentic-lib.outputs.dependenciesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-package.json"
-          find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md"
+          if [[ -e '${{ needs.agentic-lib.outputs.documentationPath }}' ]] ; then find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md" ; fi
           cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md"
 
       - name: empty-library-sources
