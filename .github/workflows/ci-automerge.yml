@@ -255,21 +255,6 @@ jobs:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
 
-  review-issue:
-    needs:
-      - merge-check
-      - automerge
-    if: always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.merge-check.outputs.issueNumber != '' )
-    permissions:
-      contents: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-code-to-close-issue.yml@5.1.10'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
   select-next-issue:
     needs:
       - merge-check
