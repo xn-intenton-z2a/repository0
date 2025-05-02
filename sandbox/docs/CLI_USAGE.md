@@ -6,31 +6,46 @@ The CLI tool is executed using the following command:
 npm run start
 ```
 
-This command runs the `src/lib/main.js` script. The script processes any additional command-line arguments
-passed to it and logs them in a JSON formatted string. For example, if you run:
+When you run the command, the script in `src/lib/main.js` processes any additional command-line arguments
+using an integrated argument parser. The parser handles:
+
+- **Long-form options:** For example, `--verbose` or `--count 3`.
+- **Short-form options:** For example, `-v` (which is treated as a boolean flag).
+- **Positional arguments:** Arguments that do not start with dashes are collected under the `_` key.
+
+### Examples
+
+1. **Long-Form Boolean Flag**
 
 ```
-npm run start -- hello world
+npm run start -- --verbose
 ```
+*Output:* `{ "verbose": true, "_": [] }`
 
-The expected output will be:
+2. **Short-Form Boolean Flag**
 
 ```
-Run with: ["hello", "world"]
+npm run start -- -v
 ```
+*Output:* `{ "v": true, "_": [] }`
 
-## How It Works
+3. **Option with Value and Positional Argument**
 
-- The script extracts CLI arguments by slicing `process.argv` to remove the node executable and the script path.
-- The extracted arguments are passed to the `main` function, which logs them in a clear, JSON formatted manner.
-- The code has been refactored to enhance readability and maintainability, following Clean Code and SOLID principles.
+```
+npm run start -- file.txt --count 3
+```
+*Output:* `{ "_": ["file.txt"], "count": "3" }`
 
-## Testing
+### How It Works
 
-Unit tests for the CLI functionality are located in `tests/unit/main.test.js`. These tests simulate various CLI scenarios by:
+- The script extracts command-line arguments by slicing `process.argv` to ignore the first two entries.
+- It then calls the `parseArguments` function which:
+  - Scans each argument to determine if it is an option or a positional argument.
+  - For long-form options (e.g. `--option`), it checks if the following argument is a value.
+  - For short-form options (e.g. `-o`), it treats each character as a separate boolean flag.
+  - All non-option arguments are collected in an array under the key `_`.
+- The parsed arguments are logged in a JSON formatted string.
 
-- Verifying that no arguments produce an empty array output.
-- Checking that multiple arguments are correctly logged in JSON format.
-- Confirming that the script terminates without error.
+Unit tests for this functionality are located in `tests/unit/main.test.js` and verify that the parser behaves as expected.
 
-Review the source code and tests for more detailed insights into the implementation.
+This ARGUMENT_PARSER feature allows for flexible command line usage and easy integration of additional options in the future.
