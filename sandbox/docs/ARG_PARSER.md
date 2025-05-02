@@ -1,43 +1,39 @@
 # ARG_PARSER
 
-The `ARG_PARSER` feature provides robust CLI argument parsing functionality.
+The ARG_PARSER feature provides robust CLI argument parsing functionality for the repository's command-line interface.
 
 ## Features
 
-- Recognizes flags that start with `--`.
-- Supports both `--key value` and `--key=value` formats, extracting the key and associated value appropriately.
-- Collects positional arguments in an array under the property `_`.
-- Flags without accompanying values default to `true`.
+- Detects flags starting with `--`.
+- Supports both `--key value` and `--key=value` formats. Flags without accompanying values default to `true`.
+- Captures positional arguments in an array under the property `_`.
+- When the `--help` flag is used, displays a comprehensive usage guide and exits the process.
 
 ## Implementation
 
-The argument parser is implemented in `src/lib/main.js` as the function `parseArgs()`. It processes the CLI arguments and returns an object representing flags and positional arguments.
+The argument parser is implemented in `src/lib/main.js` within the `parseArgs()` function. It processes CLI arguments passed to the script and constructs an object representing both flags and positional arguments.
 
-## Usage
+### Parsing Logic
 
-### General Usage
+1. The parser iterates over each argument provided.
+2. For arguments starting with `--`:
+   - If the argument is `--help`, a usage guide is displayed.
+   - If the argument contains `=`, it is split into a key and a value.
+   - Otherwise, if the next argument is not a flag, it treats that as the value; if not, the flag defaults to `true`.
+3. All arguments not beginning with `--` are collected as positional arguments under the `_` property.
 
-Run the CLI with various arguments. For example:
+## Usage Examples
 
-- `node src/lib/main.js --foo bar`  
-  Output: `{"foo": "bar", "_": []}`
+### Displaying Help
 
-- `node src/lib/main.js --baz=qux`  
-  Output: `{"baz": "qux", "_": []}`
+```
+node src/lib/main.js --help
+```
 
-- `node src/lib/main.js pos1 pos2`  
-  Output: `{"_": ["pos1", "pos2"]}`
-
-- `node src/lib/main.js --flag`  
-  Output: `{"flag": true, "_": []}`
-
-### Help Option
-
-When the `--help` flag is used, the CLI displays the following usage information:
+This command prints the following usage guide and exits:
 
 ```
 Usage: node src/lib/main.js [options] [positional arguments]
-
 Options:
   --help                  Display this help message.
   --key value             Set a key with a value.
@@ -45,4 +41,40 @@ Options:
   --flag                  Set a flag to true by default.
 ```
 
-This parser ensures that users can easily understand and use the CLI tool based on the provided examples.
+### Parsing Key-Value Options
+
+```
+node src/lib/main.js --foo bar
+```
+
+Expected output:
+
+```
+{"foo": "bar", "_": []}
+```
+
+```
+node src/lib/main.js --baz=qux
+```
+
+Expected output:
+
+```
+{"baz": "qux", "_": []}
+```
+
+### Parsing Positional Arguments
+
+```
+node src/lib/main.js pos1 pos2
+```
+
+Expected output:
+
+```
+{"_": ["pos1", "pos2"]}
+```
+
+## Conclusion
+
+This ARG_PARSER implementation allows flexible and robust command-line argument parsing, ensuring that both flags and positional arguments are handled efficiently.
