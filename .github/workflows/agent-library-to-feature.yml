@@ -109,20 +109,20 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  issue-to-code:
-    needs:
-      - ready-issue
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@5.1.10'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+  #issue-to-code:
+  #  needs:
+  #    - ready-issue
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@5.1.10'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   #review-issue:
   #  needs:
