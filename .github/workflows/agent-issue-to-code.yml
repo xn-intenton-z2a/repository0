@@ -25,6 +25,11 @@ on:
       - agent-issue-to-ready-issue
     types:
       - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   #workflow_call:
   #  inputs:
   #    issueNumber:

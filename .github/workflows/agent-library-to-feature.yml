@@ -20,6 +20,11 @@ on:
       - agent-source-to-library
     types:
       - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   #schedule:
     #- cron: '50 11 */7 * *' # schedule-unused-see-workflow_run-1
     #- cron: '50 */4 * * *' # schedule-unused-see-workflow_run-2

@@ -20,12 +20,17 @@ on:
   #    - agent-library-to-feature
   #  types:
   #    - completed
+  # secrets:
+  #  PERSONAL_ACCESS_TOKEN:
+  #     required: false
+  #   CHATGPT_API_SECRET_KEY:
+  #     required: true
   workflow_call:
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
-        required: false
+        required: true
     #workflows: (annotation only)
     #    - agent-library-to-feature
   schedule:

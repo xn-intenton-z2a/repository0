@@ -22,7 +22,7 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
-        required: false
+        required: true
   #workflow_run:
   #  workflows:
   #    - agent-issue-to-code
@@ -30,6 +30,11 @@ on:
   #    - ci-update
   #  types:
   #    - completed
+  # secrets:
+  #   PERSONAL_ACCESS_TOKEN:
+  #     required: false
+  #   CHATGPT_API_SECRET_KEY:
+  #     required: true
   schedule:
     #- cron: '25 */12 * * *' # schedule-1
     - cron: '25 */4 * * *' # schedule-2

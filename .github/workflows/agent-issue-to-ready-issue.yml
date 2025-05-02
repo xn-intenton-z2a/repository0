@@ -36,7 +36,7 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
-        required: false
+        required: true
   #workflow_run:
   #  workflows:
   #    - agent-feature-to-issue
@@ -44,6 +44,11 @@ on:
   #    - agent-linting-to-issue
   #  types:
   #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
   schedule:
     #- cron: '35 */12 * * *' # schedule-1
     - cron: '35 */4 * * *' # schedule-2

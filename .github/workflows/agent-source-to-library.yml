@@ -14,6 +14,11 @@ on:
       - agent-mission-to-source
     types:
       - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   #schedule:
     #- cron: '15 4 */7 * *' # schedule-unused-see-workflow_run-1
     #- cron: '15 4 * * *' # schedule-unused-see-workflow_run-2
