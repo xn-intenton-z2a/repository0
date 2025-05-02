@@ -9,6 +9,12 @@ run-name: "reset sandbox"
 
 on:
   workflow_dispatch:
+    inputs:
+      mission:
+        description: 'The mission statement for the repository. e.g. "Be a go-to plot library with a CLI, be the jq of formulae visualisations.'
+        required: false
+        type: string
+        default: ''
   schedule:
     #- cron: '0 7 */7 * *' # schedule-1
     - cron: '0 7 */7 * *' # schedule-2
@@ -16,6 +22,7 @@ on:
     #- cron: '0 0 * * *' # schedule-4
 
 env:
+  mission: ${{ inputs.mission || '' }}
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
   archivePath: 'archive/'
@@ -29,7 +36,7 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  archive:
+  seed-repository:
     needs:
       - agentic-lib
     if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
@@ -55,38 +62,6 @@ jobs:
           cp -fv '${{ needs.agentic-lib.outputs.dependenciesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-package.json"
           find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md"
           cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md"
-
-      - name: Commit and push
-        id: commit
-        continue-on-error: true
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git status -v
-          git add -v --all
-          git diff
-          git commit -m 'Archive sandbox' --allow-empty
-          git push -v
-          git status -v
-
-  seed-repository:
-    needs:
-      - agentic-lib
-      - archive
-    if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-
-      - name: delete-sandbox-files
-        id: delete-sandbox-files
-        shell: bash
-        run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.sandboxPath }}'
-          echo "Sandbox files deleted from ${{ needs.agentic-lib.outputs.sandboxPath }}."
 
       - name: empty-library-sources
         id: empty-library-sources
@@ -134,18 +109,31 @@ jobs:
         id: seed-repository
         shell: bash
         run: |
+            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
             cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedSourceFilepath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}/.'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourceFilepath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}/.'
+            
+            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
             cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedTestsFilepath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}/.'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsFilepath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}/.'
+          
+            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.readmeFilepath }}')"
             cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}' '${{ needs.agentic-lib.outputs.readmeFilepath }}/.'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }} to ${{ needs.agentic-lib.outputs.readmeFilepath }}/.'
+            
             cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedPackageFilepath }}' '${{ needs.agentic-lib.outputs.dependenciesFilepath }}/.'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedPackageFilepath }} to ${{ needs.agentic-lib.outputs.dependenciesFilepath }}/.'
-
-      # If the mission is 'house choice', pick a random mission from the list of available missions.
-      # If the mission is not 'house choice', but it matches one of the available missions, use that mission.
-      # If the mission is not 'house choice' and it does not match any of the available missions, make a mission out of that text
+            
+            # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
+            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.missionFilepath }}')"
+            if [ -n '${{ env.mission }}' ]; then
+              echo "# ${GITHUB_REPOSITORY}" > '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo '${{ env.mission }}' >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}."
+            else
+              cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}/.'
+              echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}/.'
+            fi
 
       - name: Commit and push
         id: commit
