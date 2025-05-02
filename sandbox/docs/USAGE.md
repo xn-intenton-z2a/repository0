@@ -54,3 +54,15 @@ The output will be a JSON string representing all parsed arguments, for example:
 ```
 Run with: {"_": ["input.txt"], "mode": "fast", "debug": true}
 ```
+
+## Trivial Function
+
+A new trivial function has been added to the project. This function simply returns a greeting message.
+
+### Usage Example
+
+```js
+import { trivial } from '../source/trivial.js';
+
+console.log(trivial()); // Outputs: "Hello World"
+```
