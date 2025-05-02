@@ -137,10 +137,10 @@ jobs:
             if [ -n '${{ env.mission }}' ]; then
               echo "# ${GITHUB_REPOSITORY}" > '${{ needs.agentic-lib.outputs.missionFilepath }}'
               echo '${{ env.mission }}' >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}."
+              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
             else
-              cp -rvf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}/.'
-              echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}/.'
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
 
       - name: Commit and push

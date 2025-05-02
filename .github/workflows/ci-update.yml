@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ci-update
-concurrency: agentic-lib-commit-main
+concurrency: ci-update
 run-name: "ci update [${{ github.ref_name }}]"
 
 on:
