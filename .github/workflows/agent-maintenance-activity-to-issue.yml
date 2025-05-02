@@ -21,10 +21,10 @@ on:
     types:
       - completed
   schedule:
-    #- cron: '0 5 */7 * *' # schedule-1
-    #- cron: '0 5 * * *' # schedule-2
-    - cron: '0 */1 4-31/4 * *' # schedule-3
-    #- cron: '0,27,43 */1 4-31/4 * *' # schedule-4
+    #- cron: '0 8 */7 * *' # schedule-1
+    - cron: '0 8 * * *' # schedule-2
+    #- cron: '0 8,20 * * *' # schedule-3
+    #- cron: '0 8,14,20,2 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

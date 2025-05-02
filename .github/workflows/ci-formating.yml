@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
   schedule:
     #- cron: '30 5 */14 * *' # schedule-1
-    #- cron: '30 5 */3 * *' # schedule-2
-    - cron: '30 5 * * *' # schedule-3
+    - cron: '30 5 */3 * *' # schedule-2
+    #- cron: '30 5 * * *' # schedule-3
     #- cron: '30 5 * * *' # schedule-4
 
 env:

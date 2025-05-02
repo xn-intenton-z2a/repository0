@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
   schedule:
     #- cron: '15 */12 * * *' # schedule-1
-    #- cron: '15 * * * *' # schedule-2
-    - cron: '15 * * * *' # schedule-3
+    - cron: '15 * * * *' # schedule-2
+    #- cron: '15 * * * *' # schedule-3
     #- cron: '15 * * * *' # schedule-4
 
 env:
