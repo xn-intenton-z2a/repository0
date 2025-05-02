@@ -22,10 +22,10 @@ Run the CLI with the following command:
 npm run start -- --config=prod --help -ab file.txt
 ```
 
-The expected output is a JSON object similar to:
+The expected output is a JSON string similar to:
 
 ```
-{"config":"prod","help":true,"a":true,"b":true,"_": ["file.txt"]}
+{"config":"prod","help":true,"a":true,"b":true,"_":["file.txt"]}
 ```
 
-This feature enhances the CLI's ability to handle various input formats efficiently and aligns with the project’s goal of demonstrating robust automated workflows and dynamic feature integration.
+*Note:* The CLI has been refactored for improved clarity and testability. It now separates argument parsing logic into a dedicated function and outputs the parsed arguments as a JSON string.
