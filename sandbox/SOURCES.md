@@ -1,35 +1,53 @@
 # GitHub REST API Documentation
 ## https://docs.github.com/en/rest
-This source provides comprehensive technical specifications and reference material for GitHub's REST API. It is valuable for any repository integrating with GitHub services or automating workflows. The documentation includes detailed endpoint descriptions, authentication methods, error handling, and rate limiting details. This resource is frequently updated, with the latest information published regularly throughout 2023. 
+This source provides comprehensive technical specifications and reference material for GitHub's REST API. It is valuable for any repository integrating with GitHub services or automating workflows. The documentation includes detailed endpoint descriptions, authentication methods, error handling, and rate limiting details. Updated details and endpoint guides are frequently added, ensuring that developers have actionable insights into GitHub integrations.
 
 ## License: N/A
 
 # GitHub Actions Documentation
 ## https://docs.github.com/en/actions
-This documentation offers in-depth guidance on how to create, configure, and manage GitHub Actions workflows. It covers topics from workflow syntax, triggers, and environment variables to advanced topics like matrix builds and reusable workflows. As the repository relies on agentic workflows from intentïon agentic‑lib, this source is essential for understanding and extending CI/CD pipeline capabilities. Last updated in 2023, it is authoritative and maintained by GitHub.
+This documentation offers in-depth guidance on creating, configuring, and managing GitHub Actions workflows. It covers workflow syntax, triggers, environment variables, matrix builds, and reusable workflows. For repositories leveraging agentic workflows from intentïon agentic‑lib, this source is vital for extending and maintaining robust CI/CD pipelines. The content is continually refreshed and supported by GitHub's dedicated team.
 
 ## License: N/A
 
 # Node.js Official Documentation
 ## https://nodejs.org/api/
-The Node.js official documentation provides critical insight into the Node.js runtime, especially regarding ECMAScript Module (ESM) support. This source is invaluable for understanding Node’s API, asynchronous programming patterns, and advanced runtime behaviors. It is especially pertinent for repositories using modern JavaScript features and for troubleshooting module import issues. The documentation is continuously updated with each Node.js release.
+The official Node.js documentation delivers critical insights into the Node.js runtime, covering ECMAScript Module (ESM) support, asynchronous programming, and core API functionalities. It is essential for developers using modern JavaScript features and troubleshooting module import challenges, with updates aligning with each Node.js release.
 
 ## License: N/A
 
 # Vitest Documentation
 ## https://vitest.dev/
-This source offers detailed guidance on using Vitest for testing, including setup, configuration, and best practices. As our repository uses Vitest for running unit tests, this documentation is a practical guide to ensure tests provide comprehensive coverage and that any issues are quickly diagnosed and resolved. The site includes examples and a clear explanation of Vitest features relevant to modern JavaScript testing environments.
+This documentation provides detailed guidance on setting up and using Vitest for testing. It includes configuration tips, example test cases, and best practices for ensuring comprehensive test coverage. Its actionable insights assist developers in implementing robust unit tests in modern JavaScript environments.
 
 ## License: N/A
 
 # OpenAI API Reference
 ## https://platform.openai.com/docs/api-reference
-This documentation is crucial for developers integrating OpenAI's services within their projects. It covers endpoint details, request/response formats, authentication, and best practices for leveraging AI capabilities. With its detailed explanations and example integrations, it provides actionable insights for solving common implementation challenges related to OpenAI's API. The reference is regularly updated to reflect the latest API changes and improvements.
+This source is critical for integrating OpenAI services into projects. It details endpoint specifications, request/response formats, and authentication methods. With regularly updated guidelines and practical examples, it addresses common challenges in AI integration and API consumption.
 
 ## License: N/A
 
 # Agentic‑lib Documentation
 ## https://github.com/xn-intenton-z2a/agentic-lib
-This source details the intentïon agentic‑lib, a collection of reusable GitHub Actions workflows designed to facilitate autonomous CI/CD operations. It explains the architecture, configuration options, and integration methods, thereby helping implement core workflows like issue handling, automerging, and more. The documentation offers both conceptual overviews and practical guidelines, making it a strategic asset for enhancing the repository's automated processes. Last confirmed updates are from 2023.
+This documentation details the intentïon agentic‑lib, a suite of reusable GitHub Actions workflows designed to facilitate autonomous CI/CD operations. It outlines architecture, configuration options, and integration methods, offering both conceptual overviews and actionable guidelines. Its strategic insights are pivotal for implementing efficient automated workflows.
 
 ## License: Apache-2.0
+
+# GitLab CI/CD Documentation
+## https://docs.gitlab.com/ee/ci/
+This source provides extensive documentation on GitLab’s CI/CD pipelines, covering configuration, advanced job scheduling, and integrations. It offers actionable insights for building scalable and maintainable continuous integration systems, and serves as a strong reference for organizations evaluating alternative approaches to CI/CD.
+
+## License: N/A
+
+# MDN JavaScript Modules Guide
+## https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+MDN's guide on JavaScript modules delivers a detailed explanation of ECMAScript modules, including syntax for import/export, module resolution, and the differences between CommonJS and ESM. This resource is invaluable for developers looking to enhance their understanding of modular JavaScript and optimize applications in Node.js environments.
+
+## License: MDN Content License
+
+# OpenAPI Specification (Swagger)
+## https://swagger.io/specification/
+This source offers a comprehensive specification for designing RESTful APIs. It includes detailed guidance on defining endpoints, data models, and authentication methods, along with best practices for API documentation. It is an essential reference for developing robust, scalable APIs and ensures adherence to standardized protocols.
+
+## License: N/A
