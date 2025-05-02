@@ -129,8 +129,8 @@ jobs:
             cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}' '${{ needs.agentic-lib.outputs.readmeFilepath }}'
             echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }} to ${{ needs.agentic-lib.outputs.readmeFilepath }}'
             
-            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedPackageFilepath }}' '${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedPackageFilepath }} to ${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
+            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}' '${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
+            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }} to ${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
             
             # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
             mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.missionFilepath }}')"
