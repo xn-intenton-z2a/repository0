@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: agent-issue-to-code
-concurrency: agentic-lib-commit-main
+concurrency: agentic-lib-commit-branch
 run-name: "agent issue to code [${{ github.ref_name }}]"
 
 on:
