@@ -70,7 +70,7 @@ sandbox:
 # Repository seeding
 #seeding:
 #  repositoryReseed: 'true'
-#  sourceFilepath: 'seeds/zero-main.js'
-#  testsFilepath: 'seeds/zero-tests.js'
+#  sourcePath: 'seeds/zero-main.js'
+#  testsPath: 'seeds/zero-tests.js'
 #  dependenciesFilepath: 'seeds/zero-package.json'
 #  readmeFilepath: 'seeds/zero-README.md'
