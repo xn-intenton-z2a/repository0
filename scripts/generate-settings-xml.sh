@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Purpose: Generate an ~/.m2/settings.xml file with the PERSONAL_ACCESS_TOKEN secret.
 # Usage: ./scripts/generate-settings-xml.sh
-rm -f ~/.npmrc
+rm -f ~/.m2/settings.xml
 source secrets.env
 echo "<settings>" > ~/.m2/settings.xml
 echo "  <servers>" >> ~/.m2/settings.xml
