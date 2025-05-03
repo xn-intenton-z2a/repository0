@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+// sandbox/source/main.js
+
+import { fileURLToPath } from "url";
+
+export function main(args) {
+  if (!args || args.length === 0) {
+    // Generate ASCII plot for quadratic function y = x^2
+    console.log("Quadratic Plot: y = x^2");
+    for (let x = -5; x <= 5; x++) {
+      const y = x * x;
+      // Scale down the number of stars for a simple representation
+      const stars = "*".repeat(Math.floor(y / 3));
+      console.log(`x=${x.toString().padStart(2)} y=${y.toString().padStart(2)} | ${stars}`);
+    }
+
+    console.log("\nSine Plot: y = sin(x)");
+    // Use an x-range from -10 to 10 for the sine plot
+    for (let x = -10; x <= 10; x++) {
+      const y = Math.sin(x);
+      // Scale sine value (from -1 to 1) to a star count between 0 and 20
+      const count = Math.floor((y + 1) * 10);
+      const stars = "*".repeat(count);
+      console.log(`x=${x.toString().padStart(3)} y=${y.toFixed(2).padStart(4)} | ${stars}`);
+    }
+  } else {
+    console.log(`Run with: ${JSON.stringify(args)}`);
+  }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2);
+  main(args);
+}
