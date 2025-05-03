@@ -1,3 +1,5 @@
+sandbox/features/CLI_HELP.md
+# sandbox/features/CLI_HELP.md
 # CLI_HELP Feature Specification
 
 ## Overview
