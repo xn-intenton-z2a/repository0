@@ -27,7 +27,6 @@ on:
         default: false
   workflow_run:
     workflows:
-      - reset-sandbox
       - seed-repository
     types:
       - completed

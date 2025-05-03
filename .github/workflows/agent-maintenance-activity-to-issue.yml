@@ -17,7 +17,7 @@ on:
         default: 'house choice'
   workflow_run:
     workflows:
-      - reset-sandbox
+      - seed-repository
     types:
       - completed
     secrets:
