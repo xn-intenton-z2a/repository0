@@ -46,7 +46,7 @@ jobs:
             let runsDeleted = 0;
             let artifactsDeleted = 0;
 
-            console.log(`Deleting workflow runs and artifacts older than ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
+            core.info(`Deleting workflow runs and artifacts older than ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
 
             // Delete old workflow runs
             let page = 1;
@@ -68,7 +68,7 @@ jobs:
                       repo,
                       run_id: run.id
                     });
-                    console.log(`Deleted workflow run ${run.id} (created at ${run.created_at})`);
+                    core.info(`Deleted workflow run ${run.id} (created at ${run.created_at})`);
                     runsDeleted++;
                   } catch (error) {
                     console.error(`Failed to delete run ${run.id}: ${error.message}`);
@@ -77,7 +77,7 @@ jobs:
               }
               page++;
             }
-            console.log(`Total workflow runs deleted: ${runsDeleted}`);
+            core.info(`Total workflow runs deleted: ${runsDeleted}`);
 
             // Delete old artifacts
             page = 1;
@@ -99,7 +99,7 @@ jobs:
                       repo,
                       artifact_id: artifact.id
                     });
-                    console.log(`Deleted artifact ${artifact.id} (created at ${artifact.created_at})`);
+                    core.info(`Deleted artifact ${artifact.id} (created at ${artifact.created_at})`);
                     artifactsDeleted++;
                   } catch (error) {
                     console.error(`Failed to delete artifact ${artifact.id}: ${error.message}`);
@@ -108,7 +108,7 @@ jobs:
               }
               page++;
             }
-            console.log(`Total artifacts deleted: ${artifactsDeleted}`);
+            core.info(`Total artifacts deleted: ${artifactsDeleted}`);
 
             return `Cleanup complete. Deleted ${runsDeleted} runs and ${artifactsDeleted} artifacts.`;
           result-encoding: string

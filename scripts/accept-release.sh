@@ -14,6 +14,10 @@ echo "Workflow schedule: schedule-${schedule?}"
 ./scripts/activate-schedule.sh "${schedule?}"
 git add .github/agents/*
 git add .github/workflows/*
+git rm -f .github/workflows/utils-reset-sandbox.yml"
+git rm -f .github/workflows/utils-seed-repository.yml"
+git add .github/workflows/utils-reset-sandbox.yml"
+git add .github/workflows/utils-seed-repository.yml"
 git add scripts/*
 git add public/*
 git commit -m 'Update from agentic-lib'

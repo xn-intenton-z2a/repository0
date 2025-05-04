@@ -29,7 +29,7 @@ jobs:
             let issuesRedacted = 0;
             let commentsDeleted = 0;
 
-            console.log(`Redacting issues not updated in the last ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
+            core.info(`Redacting issues not updated in the last ${retentionDays} days (before ${cutoffDate.toISOString()})...`);
 
             let page = 1;
             while (true) {
@@ -56,7 +56,7 @@ jobs:
                       title: "Redacted",
                       body: "This issue has been redacted."
                     });
-                    console.log(`Redacted issue #${issue.number} (last updated at ${issue.updated_at})`);
+                    core.info(`Redacted issue #${issue.number} (last updated at ${issue.updated_at})`);
                     issuesRedacted++;
 
                     // List and delete all comments for the issue.
@@ -78,7 +78,7 @@ jobs:
                             repo,
                             comment_id: comment.id
                           });
-                          console.log(`Deleted comment ${comment.id} on issue #${issue.number}`);
+                          core.info(`Deleted comment ${comment.id} on issue #${issue.number}`);
                           commentsDeleted++;
                         } catch (err) {
                           console.error(`Failed to delete comment ${comment.id} on issue #${issue.number}: ${err.message}`);
@@ -93,7 +93,7 @@ jobs:
               }
               page++;
             }
-            console.log(`Total issues redacted: ${issuesRedacted}`);
-            console.log(`Total comments deleted: ${commentsDeleted}`);
+            core.info(`Total issues redacted: ${issuesRedacted}`);
+            core.info(`Total comments deleted: ${commentsDeleted}`);
             return `Cleanup complete. Redacted ${issuesRedacted} issues and deleted ${commentsDeleted} comments.`;
           result-encoding: string

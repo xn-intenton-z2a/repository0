@@ -26,13 +26,17 @@ on:
   #   CHATGPT_API_SECRET_KEY:
   #     required: true
   workflow_call:
+    inputs:
+      featureName:
+        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+        required: false
+        type: string
+        default: 'house choice'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
-    #workflows: (annotation only)
-    #    - agent-library-to-feature
   schedule:
     - cron: '20 4 */7 * *' # schedule-1
     #- cron: '20 4 * * *' # schedule-2
@@ -52,7 +56,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@5.1.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.0.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -119,7 +123,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@5.1.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.0.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -152,7 +156,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@5.1.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.0.0'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -164,7 +168,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@5.1.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.0.0'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -182,7 +186,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@5.1.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.0.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

@@ -1,0 +1,413 @@
+# .github/workflows/discussion-to-seed-repository.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: discussions-bot
+concurrency: discussions-bot
+run-name: "discussions bot"
+
+on:
+  discussion:
+    types:
+      - created
+      - edited
+      - answered
+      - unanswered
+      - deleted
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+  discussion_comment:
+    types:
+      - created
+      - edited
+      - deleted
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+  workflow_dispatch:
+    inputs:
+      discussionTitle:
+        description: 'The title of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionBody:
+        description: 'The body of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionUrl:
+        description: 'The URL of the discussion'
+        required: false
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      discussionTitle:
+        description: 'The title of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionBody:
+        description: 'The body of the discussion'
+        required: false
+        type: string
+        default: ''
+      discussionUrl:
+        description: 'The URL of the discussion'
+        required: false
+        type: string
+        default: ''
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+
+env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
+  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
+  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
+  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
+  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
+
+jobs:
+  agentic-lib:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.0.0'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  # TODO: For discussions events, only process events with an @ to the Bot
+  # TODO: Read the Bot's handle from a repository variable
+
+  process-discussion-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: discussion
+        id: discussion
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let title, body, url;
+
+            if (context.eventName === 'discussion') {
+              title = context.payload.discussion.title;
+              body = context.payload.discussion.body;
+              url = context.payload.discussion.html_url;
+            } else if (context.eventName === 'discussion_comment') {
+              // For discussion comments, use the discussion title and comment body
+              title = context.payload.discussion.title;
+              body = context.payload.comment.body;
+              url = context.payload.comment.html_url;
+            } else {
+              title = context.payload.inputs.discussionTitle || '';
+              body = context.payload.inputs.discussionBody || '';
+              url = context.payload.inputs.discussionUrl || '';
+            }
+
+            core.setOutput('title', title);
+            core.setOutput('body', body);
+            core.setOutput('url', url);
+            core.info(`title: ${title}`);
+            core.info(`body: ${body}`);
+            core.info(`url: ${url}`);
+
+    outputs:
+      title: ${{ steps.discussion.outputs.title }}
+      body: ${{ steps.discussion.outputs.body }}
+      url: ${{ steps.discussion.outputs.url }}
+
+  generate-simple-response:
+    needs:
+      - process-discussion-post
+    runs-on: ubuntu-latest
+    env:
+      discussion: '${{ needs.process-discussion-post.outputs.title }} ${{ needs.process-discussion-post.outputs.body }}'
+    steps:
+      - name: Choose response
+        id: response
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const action = 'reply-without-action';
+            const detail = process.env.discussion;
+            const reply = `This is a placeholder response. The action is: ${action}.`;
+            core.setOutput('action', action);
+            core.setOutput('detail', detail);
+            core.setOutput('reply', reply);
+            core.info(`action: ${action}`);
+            core.info(`detail: ${detail}`);
+            core.info(`reply: ${reply}`);
+    outputs:
+      # Options: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
+      action: ${{ steps.response.outputs.action }}
+      detail: '${{ steps.response.outputs.detail }}'
+      reply: ${{ steps.response.outputs.reply }}
+
+  generate-response:
+    needs:
+      - process-discussion-post
+      - agentic-lib
+    permissions:
+      contents: write
+      packages: read
+      discussions: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.0.0'
+    with:
+      promptFilepath: '.github/agents/agent-discussion-bot.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
+      discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
+      discussionBody: ${{ needs.process-discussion-post.outputs.body }}
+      discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  post-reply:
+    name: Post reply comment
+    needs:
+      - process-discussion-post
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action != 'nop' }}
+    runs-on: ubuntu-latest
+    permissions:
+      discussions: write
+
+    steps:
+      - name: Post reply
+        uses: actions/github-script@v7
+        env:
+          reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Grab the reply text and URL from the job outputs
+            const reply = process.env.reply;
+            const url = process.env.url;
+            const body = process.env.reply;  
+            const discussionId = context.payload.discussion.node_id;
+            
+            // Determine discussion number
+            let discussionNumber;
+            if (context.eventName === 'discussion') {
+              discussionNumber = context.payload.discussion.number;
+            } else if (context.eventName === 'discussion_comment') {
+              discussionNumber = context.payload.discussion.number;
+            } else {
+              const parts = url.split('/');
+              discussionNumber = parseInt(parts.pop(), 10);
+              if (isNaN(discussionNumber)) {
+                core.setFailed(`Could not extract discussion number from URL: ${url}`);
+                return;
+              }
+            }
+
+            const mutation = `
+              mutation ($discussionId: ID!, $body: String!) {
+                addDiscussionComment(input: {
+                  discussionId: $discussionId,
+                  body: $body
+                }) {
+                comment { 
+                  id 
+                  url 
+                }
+              }
+            }`;
+      
+            const result = await github.graphql(mutation, {
+              discussionId,
+              body
+            });
+
+            core.info(`Comment posted.`);
+
+  seed-repository:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.0.0'
+    with:
+      mission: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  mission-to-source:
+    needs:
+      - generate-response
+      - seed-repository
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@6.0.0'
+    with:
+      mission: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  library-to-feature:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.0'
+    with:
+      featureName: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  feature-to-issue:
+    needs:
+      - process-discussion-post
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.0'
+    with:
+      featureName: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  ready-issue:
+    needs:
+      - feature-to-issue
+      - process-discussion-post
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' || needs.generate-response.outputs.action == 'create-issue' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@6.0.0'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  #issue-to-code:
+  #  needs:
+  #    - ready-issue
+  #    - generate-response
+  #  if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@6.0.0'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  trace-discussion:
+    needs:
+      - process-discussion-post
+      - generate-response
+      - seed-repository
+      - agentic-lib
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: trace-discussion
+        id: trace-discussion
+        uses: actions/github-script@v7
+        env:
+          discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
+          discussionBody: ${{ needs.process-discussion-post.outputs.body }}
+          discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+        with:
+          script: |
+            const title = process.env.discussionTitle;
+            const body = process.env.discussionBody;
+            const url = process.env.discussionUrl;
+            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+
+            core.info(`title: ${title}`);
+            core.info(`body: ${body}`);
+            core.info(`url: ${url}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of seedDiscussionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(seedDiscussionFilepath))) {
+              fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
+            }
+            const traceContent = `${url}\n\n# Discussion Seed Trace\n\nThis repository was seeded from a GitHub Discussion.\n\n- **Title**: ${title}\n- **URL**: ${url}\n- **Created at**: ${new Date().toISOString()}\n`;
+            fs.writeFileSync(seedDiscussionFilepath, traceContent);
+
+            core.info(`Trace file saved to ${seedDiscussionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git commit -m "Add discussion seed trace" || echo "No changes to commit"
+          git push
+
+  # TODO: Job to switch up to build mode when kicking off actity
+
+  # TODO: Job to drop down to maintenance mode if the discussion topic is resolved.
+
+  # TODO: Post as the Bot's app account.
