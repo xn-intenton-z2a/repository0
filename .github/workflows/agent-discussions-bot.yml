@@ -82,7 +82,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.0.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -164,7 +164,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.0.2'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -250,7 +250,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.0.2'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -269,7 +269,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@6.0.2'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -287,7 +287,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.2'
     with:
       featureName: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -306,7 +306,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.2'
     with:
       featureName: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -325,7 +325,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@6.0.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@6.0.2'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -342,7 +342,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@6.0.0'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@6.0.2'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
