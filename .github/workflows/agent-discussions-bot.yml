@@ -171,6 +171,7 @@ jobs:
       discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
       discussionBody: ${{ needs.process-discussion-post.outputs.body }}
       discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+      workflowPathGlob: '.github/workflows/agent-discussions-bot.yml'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
