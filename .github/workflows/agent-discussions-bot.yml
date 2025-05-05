@@ -32,35 +32,15 @@ on:
         required: true
   workflow_dispatch:
     inputs:
-      discussionTitle:
-        description: 'The title of the discussion'
-        required: false
-        type: string
-        default: ''
       discussionBody:
         description: 'The body of the discussion'
-        required: false
-        type: string
-        default: ''
-      discussionUrl:
-        description: 'The URL of the discussion'
         required: false
         type: string
         default: ''
   workflow_call:
     inputs:
-      discussionTitle:
-        description: 'The title of the discussion'
-        required: false
-        type: string
-        default: ''
       discussionBody:
         description: 'The body of the discussion'
-        required: false
-        type: string
-        default: ''
-      discussionUrl:
-        description: 'The URL of the discussion'
         required: false
         type: string
         default: ''
@@ -69,8 +49,14 @@ on:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
+  schedule:
+    - cron: '20 8 */28 * *' # schedule-1
+    #- cron: '20 8 * * *' # schedule-2
+    #- cron: '20 8,16 * * *' # schedule-3
+    #- cron: '20 8,12,16,20 * * *' # schedule-4
 
 env:
+  defaultDiscussionBody: 'Summarise the current state of the repository, activity since the last update and how we are tracking against the mission and recommends next steps.'
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -82,14 +68,11 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.1.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  # TODO: For discussions events, only process events with an @ to the Bot
-  # TODO: Read the Bot's handle from a repository variable
 
   process-discussion-post:
     runs-on: ubuntu-latest
@@ -97,63 +80,182 @@ jobs:
       - name: discussion
         id: discussion
         uses: actions/github-script@v7
+        env:
+            defaultDiscussionBody: ${{ env.defaultDiscussionBody }}
         with:
           script: |
-            let title, body, url;
+            let authorAssociation; // discussion author_association
+            let body = ''; // discussion body
+            let state = ''; // discussion state
+            let title = ''; // discussion title
+            let url = ''; // discussion html_url
+
+            let categoryName = ''; // discussion category name
+
+            let userName = '' // discussion user name
+
+            let labels = ''; // discussion labels.*
+
+            let reactions = ''; // discussion reactions confused + eyes + heart + hooray + laugh + rocket
 
             if (context.eventName === 'discussion') {
-              title = context.payload.discussion.title;
+
+              authorAssociation = context.payload.discussion.author_association;
               body = context.payload.discussion.body;
-              url = context.payload.discussion.html_url;
-            } else if (context.eventName === 'discussion_comment') {
-              // For discussion comments, use the discussion title and comment body
+              state = context.payload.discussion.state;
               title = context.payload.discussion.title;
+              url = context.payload.discussion.html_url;
+              categoryName = context.payload.discussion.category.name;
+              userName = context.payload.discussion.user.name || context.payload.discussion.user.login;
+              labels = context.payload.discussion.labels.join(', ');
+              reactions = Object.keys(context.payload.discussion.reactions)
+                .map(key => `${key}: ${context.payload.discussion.reactions[key]}`)
+                .join(', ');
+
+            } else if (context.eventName === 'discussion_comment') {
+
+              authorAssociation = context.payload.comment.author_association;
               body = context.payload.comment.body;
+              state = context.payload.discussion.state;
+              title = context.payload.discussion.title;
               url = context.payload.comment.html_url;
+              categoryName = context.payload.discussion.category.name;
+              userName = context.payload.comment.user.name || context.payload.comment.user.login;
+              labels = context.payload.discussion.labels.join(', ');
+              reactions = Object.keys(context.payload.discussion.reactions)
+                .map(key => `${key}: ${context.payload.discussion.reactions[key]}`)
+                .join(', ');
+
             } else {
-              title = context.payload.inputs.discussionTitle || '';
-              body = context.payload.inputs.discussionBody || '';
-              url = context.payload.inputs.discussionUrl || '';
+              // If not triggered by a discussion or comment, use inputs if available
+              body = context.payload.inputs.discussionBody || process.env.defaultDiscussionBody;
+              userName = context.payload.sender ? (context.payload.sender.login || context.payload.sender.name) : '';
+
+              // If URL is not provided, try to get it from SEED_DISCUSSION.md
+              if (!url) {
+                try {
+                  const fs = require('fs');
+                  const seedDiscussionPath = '${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}' || 'SEED_DISCUSSION.md';
+
+                  if (fs.existsSync(seedDiscussionPath)) {
+                    const seedDiscussionContent = fs.readFileSync(seedDiscussionPath, 'utf8');
+
+                    // Extract URL from the first line
+                    const firstLine = seedDiscussionContent.split('\n')[0].trim();
+                    if (firstLine.startsWith('http')) {
+                      url = firstLine;
+                      core.info(`Using URL from SEED_DISCUSSION.md: ${url}`);
+
+                      // Extract title from the content
+                      const titleMatch = seedDiscussionContent.match(/\*\*Title\*\*: (.*)/);
+                      if (titleMatch && titleMatch[1]) {
+                        title = titleMatch[1];
+                        core.info(`Using title from SEED_DISCUSSION.md: ${title}`);
+                      }
+
+                      // Try to fetch the discussion details using the URL
+                      const urlParts = url.split('/');
+                      const discussionNumber = parseInt(urlParts[urlParts.length - 1].split('#')[0], 10);
+
+                      if (!isNaN(discussionNumber)) {
+                        try {
+                          const { owner, repo } = context.repo;
+                          const query = `
+                            query($owner: String!, $repo: String!, $number: Int!) {
+                              repository(owner: $owner, name: $repo) {
+                                discussion(number: $number) {
+                                  title
+                                  body
+                                  category {
+                                    name
+                                  }
+                                  labels(first: 10) {
+                                    nodes {
+                                      name
+                                    }
+                                  }
+                                  reactions {
+                                    confused
+                                    eyes
+                                    heart
+                                    hooray
+                                    laugh
+                                    rocket
+                                    thumbsDown
+                                    thumbsUp
+                                  }
+                                  state
+                                }
+                              }
+                            }
+                          `;
+
+                          const result = await github.graphql(query, {
+                            owner,
+                            repo,
+                            number: discussionNumber
+                          });
+
+                          const discussion = result.repository.discussion;
+
+                          if (discussion) {
+                            // Update variables with fetched data
+                            title = discussion.title;
+                            body = discussion.body;
+                            state = discussion.state;
+                            categoryName = discussion.category.name;
+                            labels = discussion.labels.nodes.map(label => label.name).join(', ');
+                            reactions = Object.keys(discussion.reactions)
+                              .map(key => `${key}: ${discussion.reactions[key]}`)
+                              .join(', ');
+
+                            core.info(`Successfully fetched discussion details from GitHub API`);
+                          }
+                        } catch (error) {
+                          core.warning(`Error fetching discussion details: ${error.message}`);
+                        }
+                      }
+                    }
+                  } else {
+                    core.warning(`SEED_DISCUSSION.md file not found at ${seedDiscussionPath}`);
+                  }
+                } catch (error) {
+                  core.warning(`Error reading SEED_DISCUSSION.md: ${error.message}`);
+                }
+              }
             }
 
-            core.setOutput('title', title);
+            core.setOutput('authorAssociation', authorAssociation);
             core.setOutput('body', body);
+            core.setOutput('state', state);
+            core.setOutput('title', title);
             core.setOutput('url', url);
-            core.info(`title: ${title}`);
+            core.setOutput('categoryName', categoryName);
+            core.setOutput('userName', userName);
+            core.setOutput('labels', labels);
+            core.setOutput('reactions', reactions);
+
+            core.info(`authorAssociation: ${authorAssociation}`);
             core.info(`body: ${body}`);
+            core.info(`state: ${state}`);
+            core.info(`title: ${title}`);
             core.info(`url: ${url}`);
+            core.info(`categoryName: ${categoryName}`);
+            core.info(`userName: ${userName}`);
+            core.info(`labels: ${labels}`);
+            core.info(`reactions: ${reactions}`);
 
     outputs:
-      title: ${{ steps.discussion.outputs.title }}
+      authorAssociation: ${{ steps.discussion.outputs.authorAssociation }}
       body: ${{ steps.discussion.outputs.body }}
+      state: ${{ steps.discussion.outputs.state }}
+      title: ${{ steps.discussion.outputs.title }}
       url: ${{ steps.discussion.outputs.url }}
+      categoryName: ${{ steps.discussion.outputs.categoryName }}
+      userName: ${{ steps.discussion.outputs.userName }}
+      labels: ${{ steps.discussion.outputs.labels }}
+      reactions: ${{ steps.discussion.outputs.reactions }}
 
-  generate-simple-response:
-    needs:
-      - process-discussion-post
-    runs-on: ubuntu-latest
-    env:
-      discussion: '${{ needs.process-discussion-post.outputs.title }} ${{ needs.process-discussion-post.outputs.body }}'
-    steps:
-      - name: Choose response
-        id: response
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const action = 'reply-without-action';
-            const detail = process.env.discussion;
-            const reply = `This is a placeholder response. The action is: ${action}.`;
-            core.setOutput('action', action);
-            core.setOutput('detail', detail);
-            core.setOutput('reply', reply);
-            core.info(`action: ${action}`);
-            core.info(`detail: ${detail}`);
-            core.info(`reply: ${reply}`);
-    outputs:
-      # Options: 'nop', 'reply-without-action', 'create-issue', 'create-feature', 'seed-repository'
-      action: ${{ steps.response.outputs.action }}
-      detail: '${{ steps.response.outputs.detail }}'
-      reply: ${{ steps.response.outputs.reply }}
 
   generate-response:
     needs:
@@ -164,18 +266,28 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.1.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
-      discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
       discussionBody: ${{ needs.process-discussion-post.outputs.body }}
+      discussionState: ${{ needs.process-discussion-post.outputs.state }}
+      discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
       discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+      discussionCategoryName: ${{ needs.process-discussion-post.outputs.categoryName }}
+      discussionUserInformation: "${{ needs.process-discussion-post.outputs.userName }} ${{ needs.process-discussion-post.outputs.authorAssociation }}"
+      discussionLabels: ${{ needs.process-discussion-post.outputs.labels }}
+      discussionReactions: ${{ needs.process-discussion-post.outputs.reactions }}
       workflowPathGlob: '.github/workflows/agent-discussions-bot.yml'
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      cache: 'npm'
+
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -202,20 +314,53 @@ jobs:
             // Grab the reply text and URL from the job outputs
             const reply = process.env.reply;
             const url = process.env.url;
-            const body = process.env.reply;  
-            const discussionId = context.payload.discussion.node_id;
-            
-            // Determine discussion number
+            const body = process.env.reply;
+
+            // Determine discussion number and ID
             let discussionNumber;
+            let discussionId;
+
             if (context.eventName === 'discussion') {
               discussionNumber = context.payload.discussion.number;
+              discussionId = context.payload.discussion.node_id;
             } else if (context.eventName === 'discussion_comment') {
               discussionNumber = context.payload.discussion.number;
+              discussionId = context.payload.discussion.node_id;
             } else {
+              // Extract discussion number from URL
               const parts = url.split('/');
-              discussionNumber = parseInt(parts.pop(), 10);
+              const lastPart = parts[parts.length - 1];
+              // Handle URLs with comment anchors like "1220#discussioncomment-13030804"
+              discussionNumber = parseInt(lastPart.split('#')[0], 10);
+
               if (isNaN(discussionNumber)) {
                 core.setFailed(`Could not extract discussion number from URL: ${url}`);
+                return;
+              }
+
+              // Fetch the discussion ID using the discussion number
+              try {
+                const { owner, repo } = context.repo;
+                const query = `
+                  query($owner: String!, $repo: String!, $number: Int!) {
+                    repository(owner: $owner, name: $repo) {
+                      discussion(number: $number) {
+                        id
+                      }
+                    }
+                  }
+                `;
+
+                const result = await github.graphql(query, {
+                  owner,
+                  repo,
+                  number: discussionNumber
+                });
+
+                discussionId = result.repository.discussion.id;
+                core.info(`Fetched discussion ID: ${discussionId} for discussion number: ${discussionNumber}`);
+              } catch (error) {
+                core.setFailed(`Error fetching discussion ID: ${error.message}`);
                 return;
               }
             }
@@ -232,7 +377,7 @@ jobs:
                 }
               }
             }`;
-      
+
             const result = await github.graphql(mutation, {
               discussionId,
               body
@@ -251,7 +396,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.1.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -270,7 +415,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-mission-to-source.yml@6.1.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -288,7 +433,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.1.0'
     with:
       featureName: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -307,29 +452,29 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.0.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.1.0'
     with:
       featureName: ${{ needs.generate-response.outputs.detail }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  ready-issue:
-    needs:
-      - feature-to-issue
-      - process-discussion-post
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' || needs.generate-response.outputs.action == 'create-issue' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@6.0.2'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+  #ready-issue:
+  #  needs:
+  #    - feature-to-issue
+  #    - process-discussion-post
+  #  if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' || needs.generate-response.outputs.action == 'create-issue' }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-ready-issue.yml@6.1.0'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   #issue-to-code:
   #  needs:
@@ -343,7 +488,7 @@ jobs:
   #    issues: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@6.0.2'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-issue-to-code.yml@6.1.0'
   #  secrets:
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
