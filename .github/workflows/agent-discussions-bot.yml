@@ -388,24 +388,24 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  feature-to-issue:
-    needs:
-      - process-discussion-post
-      - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.1.0'
-    with:
-      featureName: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+  #feature-to-issue:
+  #  needs:
+  #    - process-discussion-post
+  #    - generate-response
+  #  if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-feature-to-issue.yml@6.1.0'
+  #  with:
+  #    featureName: ${{ needs.generate-response.outputs.detail }}
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   #ready-issue:
   #  needs:
