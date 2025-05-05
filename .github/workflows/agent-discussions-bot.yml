@@ -51,9 +51,9 @@ on:
         required: true
   schedule:
     - cron: '20 8 */28 * *' # schedule-1
-    #- cron: '20 8 * * *' # schedule-2
-    #- cron: '20 8,16 * * *' # schedule-3
-    #- cron: '20 8,12,16,20 * * *' # schedule-4
+    #- cron: '20 8,16 * * *' # schedule-2
+    #- cron: '20 */2 * * *' # schedule-3
+    #- cron: '20 * * * *' # schedule-4
 
 env:
   defaultDiscussionBody: 'Summarise the current state of the repository, activity since the last update and how we are tracking against the mission and recommends next steps.'
@@ -75,13 +75,27 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   process-discussion-post:
+    needs:
+      - agentic-lib
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
       - name: discussion
         id: discussion
         uses: actions/github-script@v7
         env:
-            defaultDiscussionBody: ${{ env.defaultDiscussionBody }}
+          defaultDiscussionBody: ${{ env.defaultDiscussionBody }}
+          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |
             let authorAssociation; // discussion author_association
@@ -135,7 +149,8 @@ jobs:
               if (!url) {
                 try {
                   const fs = require('fs');
-                  const seedDiscussionPath = '${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}' || 'SEED_DISCUSSION.md';
+                  const seedDiscussionPath = process.env.seedDiscussionFilepath;
+                  core.info(`Looking for SEED_DISCUSSION.md at ${seedDiscussionPath}`);
 
                   if (fs.existsSync(seedDiscussionPath)) {
                     const seedDiscussionContent = fs.readFileSync(seedDiscussionPath, 'utf8');
@@ -145,76 +160,8 @@ jobs:
                     if (firstLine.startsWith('http')) {
                       url = firstLine;
                       core.info(`Using URL from SEED_DISCUSSION.md: ${url}`);
-
-                      // Extract title from the content
-                      const titleMatch = seedDiscussionContent.match(/\*\*Title\*\*: (.*)/);
-                      if (titleMatch && titleMatch[1]) {
-                        title = titleMatch[1];
-                        core.info(`Using title from SEED_DISCUSSION.md: ${title}`);
-                      }
-
-                      // Try to fetch the discussion details using the URL
-                      const urlParts = url.split('/');
-                      const discussionNumber = parseInt(urlParts[urlParts.length - 1].split('#')[0], 10);
-
-                      if (!isNaN(discussionNumber)) {
-                        try {
-                          const { owner, repo } = context.repo;
-                          const query = `
-                            query($owner: String!, $repo: String!, $number: Int!) {
-                              repository(owner: $owner, name: $repo) {
-                                discussion(number: $number) {
-                                  title
-                                  body
-                                  category {
-                                    name
-                                  }
-                                  labels(first: 10) {
-                                    nodes {
-                                      name
-                                    }
-                                  }
-                                  reactions {
-                                    confused
-                                    eyes
-                                    heart
-                                    hooray
-                                    laugh
-                                    rocket
-                                    thumbsDown
-                                    thumbsUp
-                                  }
-                                  state
-                                }
-                              }
-                            }
-                          `;
-
-                          const result = await github.graphql(query, {
-                            owner,
-                            repo,
-                            number: discussionNumber
-                          });
-
-                          const discussion = result.repository.discussion;
-
-                          if (discussion) {
-                            // Update variables with fetched data
-                            title = discussion.title;
-                            body = discussion.body;
-                            state = discussion.state;
-                            categoryName = discussion.category.name;
-                            labels = discussion.labels.nodes.map(label => label.name).join(', ');
-                            reactions = Object.keys(discussion.reactions)
-                              .map(key => `${key}: ${discussion.reactions[key]}`)
-                              .join(', ');
-
-                            core.info(`Successfully fetched discussion details from GitHub API`);
-                          }
-                        } catch (error) {
-                          core.warning(`Error fetching discussion details: ${error.message}`);
-                        }
-                      }
+                    } else { 
+                        core.warning(`First line of SEED_DISCUSSION.md does not contain a valid URL: ${firstLine}`);
                     }
                   } else {
                     core.warning(`SEED_DISCUSSION.md file not found at ${seedDiscussionPath}`);
