@@ -94,7 +94,8 @@ jobs:
         id: discussion
         uses: actions/github-script@v7
         env:
-          defaultDiscussionBody: ${{ env.defaultDiscussionBody }}
+          discussionBody: ${{ inputs.discussionBody || env.defaultDiscussionBody }}
+          userName: "${{ github.actor }} running workflow ${{ github.workflow }} using workflow event ${{ github.event_name }}"
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |
@@ -141,9 +142,9 @@ jobs:
                 .join(', ');
 
             } else {
-              // If not triggered by a discussion or comment, use inputs if available
-              body = context.payload.inputs.discussionBody || process.env.defaultDiscussionBody;
-              userName = context.payload.sender ? (context.payload.sender.login || context.payload.sender.name) : '';
+              // If not triggered by a discussion or comment, use the discussion from inputs if available or the default.
+              body = process.env.discussionBody;
+              userName = process.env.userName;
 
               // If URL is not provided, try to get it from SEED_DISCUSSION.md
               if (!url) {

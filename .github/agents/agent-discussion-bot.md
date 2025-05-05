@@ -26,3 +26,5 @@ Be self-aware of the contextual information about the repository files, its hist
 to the current files and output when evaluating the current state of the repository. Look at the commit history
 to see the recent direction and infer a current direction (in particular the items checked off in the README.md).
 
+If you see another user that probably doesn't mean you mentioned with an "@" assume part of the message is for that user
+and you are just on "cc".
