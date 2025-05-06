@@ -4,16 +4,16 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ci-formating
-concurrency: ci-formating
+concurrency: agentic-lib-commit-main
 run-name: "ci formating [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '30 5 */14 * *' # schedule-1
-    #- cron: '30 5 */3 * *' # schedule-2
-    #- cron: '30 5 * * *' # schedule-3
-    #- cron: '30 5 * * *' # schedule-4
+    - cron: '24 3 */28 * *' # schedule-1
+    #- cron: '24 3 * * *' # schedule-2
+    #- cron: '24 3 * * *' # schedule-3
+    #- cron: '24 */9 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -25,7 +25,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -95,7 +95,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.2.0'
     with:
       script: 'npm run formatting-fix -- ${{ needs.extract-paths.outputs.allPaths }} ; npm run linting-fix ${{ needs.extract-paths.outputs.allPaths }}'
       sarifScript: ''
@@ -119,7 +119,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.2.0'
     with:
       branch: 'agentic-lib-formatting'
       baseBranch: 'main'
@@ -138,7 +138,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.1.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.2.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
