@@ -6,37 +6,43 @@ GitHub Terms of Service
 
 # GitHub GraphQL API
 ## https://docs.github.com/en/graphql
-The GraphQL API reference offers flexible, efficient querying of GitHub data models. It includes schema definitions, query examples, and pagination patterns. Use this source to implement optimized data retrieval for issues, pull requests, and repository metadata in automated agents. Last updated April 2024.
+The GraphQL API reference offers flexible, efficient querying of GitHub data models. It includes schema definitions, query examples, and pagination patterns. Use this source to implement optimized data retrieval for issues, pull requests, and repository metadata in automated agents. Last updated April 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# GitHub Actions Contexts and Expressions
+## https://docs.github.com/en/actions/learn-github-actions/contexts
+Detailed reference on GitHub Actions contexts (github, env, secrets, steps, jobs) and the expression syntax used to access and manipulate workflow data. Essential for authoring reusable workflows that rely on secret management, dynamic outputs, and conditional logic in agentic-lib. Last updated May 2024; authoritative as the official GitHub docs.
 ## License
 GitHub Terms of Service
 
 # Reusing GitHub Actions Workflows
 ## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in `agentic-lib`. Last updated May 2024.
+This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in `agentic-lib`. Last updated May 2024; authoritative as the official GitHub docs.
 ## License
 GitHub Terms of Service
 
 # GitHub Actions Workflow Syntax
 ## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-Comprehensive reference for GitHub Actions workflow syntax, including triggers, jobs, steps, and expressions. Essential for authoring and troubleshooting complex workflow definitions in `.github/workflows/`. Last updated June 2024.
+Comprehensive reference for GitHub Actions workflow syntax, including triggers, jobs, steps, and expressions. Essential for authoring and troubleshooting complex workflow definitions in `.github/workflows/`. Last updated June 2024; authoritative as the official GitHub docs.
 ## License
 GitHub Terms of Service
 
 # OpenAI Chat Completions API
 ## https://platform.openai.com/docs/api-reference/chat
-Official OpenAI documentation for the Chat Completions endpoint. It describes request/response structures, model parameters (temperature, max_tokens), rate limits, and streaming options. Crucial for integrating conversational LLM workflows in `agentic-lib`. Last updated June 2024.
+Official OpenAI documentation for the Chat Completions endpoint. It describes request/response structures, model parameters (temperature, max_tokens), rate limits, and streaming options. Crucial for integrating conversational LLM workflows in `agentic-lib`. Last updated June 2024; authoritative as the official OpenAI docs.
 ## License
 OpenAI Terms of Service
 
 # Node.js ESM Modules
 ## https://nodejs.org/api/esm.html
-In-depth guide to ECMAScript module support in Node.js, including `import`/`export` semantics, package `exports` field, and interoperability with CommonJS. Vital for maintaining ESM-compliant code in `src/lib` and sandbox scenarios. Last updated Node.js v20.4.0.
+In-depth guide to ECMAScript module support in Node.js, including `import`/`export` semantics, package `exports` field, and interoperability with CommonJS. Vital for maintaining ESM-compliant code in `src/lib` and sandbox scenarios. Last updated Node.js v20.4.0; authoritative as the official Node.js docs.
 ## License
 Node.js Foundation
 
 # Node.js File System (FS) Module
 ## https://nodejs.org/api/fs.html
-Official Node.js API for file system operations. Covers `fs.promises`, streams, and file watching patterns. Fundamental for reading and writing sandbox files and managing dynamic artifacts in custom workflows. Last updated Node.js v20.4.0.
+Official Node.js API for file system operations. Covers `fs.promises`, streams, and file watching patterns. Fundamental for reading and writing sandbox files and managing dynamic artifacts in custom workflows. Last updated Node.js v20.4.0; authoritative as the official Node.js docs.
 ## License
 Node.js Foundation
 
@@ -48,48 +54,42 @@ MIT
 
 # Prettier CLI Documentation
 ## https://prettier.io/docs/en/cli.html
-Official CLI docs for Prettier, detailing available flags, configuration file formats, and integration points with Git hooks. Supports enforcing consistent code style in automated workflows. Last updated May 2024.
+Official CLI docs for Prettier, detailing available flags, configuration file formats, and integration points with Git hooks. Supports enforcing consistent code style in automated workflows. Last updated May 2024; Prettier is MIT-licensed.
 ## License
 MIT
 
 # ESLint Official Documentation
 ## https://eslint.org/docs/latest/
-The ESLint docs offer rule definitions, configuration options, plugin development guidelines, and autofix details. Essential for maintaining code quality with `eslint.config.js` and automated linting workflows. Last updated June 2024.
+The ESLint docs offer rule definitions, configuration options, plugin development guidelines, and autofix details. Essential for maintaining code quality with `eslint.config.js` and automated linting workflows. Last updated June 2024; ESLint is MIT-licensed.
 ## License
 MIT
 
 # dotenv GitHub Repository
 ## https://github.com/motdotla/dotenv
-Source code and documentation for `dotenv`, the standard library for loading environment variables. Includes usage examples, security notes, and configuration options. Useful for managing secrets like `CHATGPT_API_SECRET_KEY` across local and CI environments. Last commit March 2024.
+Source code and documentation for `dotenv`, the standard library for loading environment variables. Includes usage examples, security notes, and configuration options. Useful for managing secrets like `CHATGPT_API_SECRET_KEY` across local and CI environments. Last commit March 2024; licensed under BSD-2-Clause.
 ## License
 BSD-2-Clause
 
 # js-yaml GitHub Repository
 ## https://github.com/nodeca/js-yaml
-Comprehensive reference for parsing and dumping YAML in JavaScript. Includes type schemas, error handling, and performance tips. Applies to reading `agentic-lib` configs or custom metadata files. Last commit February 2024.
+Comprehensive reference for parsing and dumping YAML in JavaScript. Includes type schemas, error handling, and performance tips. Applies to reading `agentic-lib` configs or custom metadata files. Last commit February 2024; js-yaml is MIT-licensed.
 ## License
 MIT
 
-# agentic-lib GitHub Repository
+# intentïon agentic-lib GitHub Repository
 ## https://github.com/xn-intenton-z2a/agentic-lib
-The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024.
+The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024; licensed under Apache-2.0.
 ## License
 Apache-2.0
 
 # npm Publish CLI
 ## https://docs.npmjs.com/cli/v9/commands/npm-publish
-Official npm CLI reference for `npm publish`. Describes package metadata, access levels, scoping, and registry configuration. Critical for automating package releases from GitHub Actions. Last updated May 2024.
+Official npm CLI reference for `npm publish`. Describes package metadata, access levels, scoping, and registry configuration. Critical for automating package releases from GitHub Actions. Last updated May 2024; documentation under CC-BY-4.0.
 ## License
 Creative Commons CC-BY-4.0
 
 # Zod Validation Library
 ## https://github.com/colinhacks/zod
-Official documentation for Zod, a TypeScript-first schema declaration and validation library. Includes type-safe parsing, error handling, and integration examples. Vital for input validation of workflow configurations and runtime data in `agentic-lib`. Last commit June 2024.
+Official documentation for Zod, a TypeScript-first schema declaration and validation library. Includes type-safe parsing, error handling, and integration examples. Vital for input validation of workflow configurations and runtime data in `agentic-lib`. Last commit June 2024; Zod is MIT-licensed.
 ## License
 MIT
-
-# Minimatch Pattern Matching
-## https://www.npmjs.com/package/minimatch
-Documentation for `minimatch`, a glob matching library in JavaScript. Covers pattern syntax, options for file filtering, and performance considerations. Useful for matching file paths in custom scripts and workflows. Last updated April 2024.
-## License
-ISC
