@@ -1,33 +1,37 @@
-# Equation Plotter Feature
+# Purpose
+Extend the plot command to support polar function plotting, enabling users to generate SVG representations of r(theta) functions described in polar coordinates.
 
-## Purpose
-The main script will be extended to accept a plot command that generates simple SVG plots for quadratic and sine functions. This will showcase generation of visual output and integration with CLI workflows.
+# Command Line Interface
+Add support for polar plots under the existing plot subcommand:
+- node src/lib/main.js plot polar [outputPath]
+  - polar indicates generation of a polar plot of the form r = sin(theta)
+  - outputPath is an optional file path to write the SVG, defaulting to stdout
+  - Accept optional flags:
+    --angleStart <number> (default 0)
+    --angleEnd <number> (default 6.283)
+    --width <number> (default 800)
+    --height <number> (default 800)
 
-## Command Line Interface
-The script will support the following invocation:
-- node src/lib/main.js plot <functionType> <outputPath>
-  - functionType may be quadratic or sine
-  - outputPath is an optional path to write the SVG file
-  - If outputPath is omitted, the SVG content is printed to standard output
+# Behavior
+1. Interpret angleStart and angleEnd as the theta range in radians.
+2. Sample theta values evenly across the range and compute r = sin(theta).
+3. Convert each polar coordinate to Cartesian coordinates for the SVG path.
+4. Generate a standalone SVG with coordinate axes and the plotted curve.
+5. Write the SVG to the specified output path or print to stdout.
 
-## Behavior
-1. On receiving the plot command the script computes a series of points for the requested function over a fixed domain.
-2. It constructs a valid SVG document with defined width, height, axis lines, and a path element representing the function curve.
-3. If an output path is provided, the SVG is written to that file. Otherwise, it is printed to console.
+# Tests
+- Add unit tests in tests/unit/main.test.js invoking main with ["plot","polar"] and capturing output containing <svg> and path data.
+- Test with outputPath, verifying file creation and valid SVG content.
+- Test invalid flags produce exit code 1 and error messages.
 
-## Tests
-Update the existing tests in tests/unit/main.test.js to include tests that:
-- Invoke main with arguments ["plot","quadratic"] and capture output containing the opening svg tag and a path element.
-- Invoke main with arguments ["plot","sine","temp.svg"] and verify that a file temp.svg exists and starts with svg markup.
+# Documentation
+- Update README.md to document the polar plot usage with examples of CLI invocation and sample SVG embedding.
 
-## Documentation
-Update README.md to include a description of the plot command, its parameters, and examples of invocation and expected output.
+# Dependencies
+No new dependencies are required. Use existing SVG generation logic.
 
-## Dependencies
-No new dependencies are required. SVG generation is implemented directly in the source file with string templates.
-
-## Files to Modify
-- src/lib/main.js  (add CLI command parsing and SVG generation logic)
-- tests/unit/main.test.js  (extend tests for plot command)
-- README.md  (add usage examples and feature description)
-- package.json  (no changes required unless adding helper scripts)
+# Files to Modify
+- src/lib/main.js
+- tests/unit/main.test.js
+- README.md
+- package.json
