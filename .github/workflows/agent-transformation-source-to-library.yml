@@ -21,8 +21,8 @@ on:
   #      required: true
   #
   schedule:
-    - cron: '19 4 */7 * *' # schedule-1
-    #- cron: '19 */6 * * *' # schedule-2
+    #- cron: '19 4 */7 * *' # schedule-1
+    - cron: '19 */6 * * *' # schedule-2
     #- cron: '19 */3 * * *' # schedule-3
     #- cron: '19 * * * *' # schedule-4
 
