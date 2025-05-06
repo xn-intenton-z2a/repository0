@@ -1,18 +1,24 @@
 # GitHub REST API
 ## https://docs.github.com/en/rest
-The official GitHub REST API documentation provides a comprehensive reference for automating GitHub operations via HTTP. It covers endpoints for repositories, issues, pull requests, workflows, and more, with detailed schemas, parameters, and example requests/responses. This source is essential for implementing issue creation, branch management, and CI/CD orchestration in agentic workflows. Last updated June 2024; authoritative as the official GitHub docs.
-## License
-GitHub Terms of Service
-
-# Reusing GitHub Actions Workflows
-## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like the ones in `agentic-lib`. Last updated May 2024; authoritative as the official GitHub Actions docs.
+The official GitHub REST API documentation provides a comprehensive reference for automating GitHub operations via HTTP. It covers endpoints for repositories, issues, pull requests, workflows, and more, with detailed schemas, parameters, and example requests/responses. This source is essential for implementing issue creation, branch management, CI/CD orchestration, and agentic workflows. Last updated June 2024; authoritative as the official GitHub docs.
 ## License
 GitHub Terms of Service
 
 # GitHub GraphQL API
 ## https://docs.github.com/en/graphql
 The GraphQL API reference offers flexible, efficient querying of GitHub data models. It includes schema definitions, query examples, and pagination patterns. Use this source to implement optimized data retrieval for issues, pull requests, and repository metadata in automated agents. Last updated April 2024.
+## License
+GitHub Terms of Service
+
+# Reusing GitHub Actions Workflows
+## https://docs.github.com/en/actions/using-workflows/reusing-workflows
+This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in `agentic-lib`. Last updated May 2024.
+## License
+GitHub Terms of Service
+
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Comprehensive reference for GitHub Actions workflow syntax, including triggers, jobs, steps, and expressions. Essential for authoring and troubleshooting complex workflow definitions in `.github/workflows/`. Last updated June 2024.
 ## License
 GitHub Terms of Service
 
@@ -25,6 +31,12 @@ OpenAI Terms of Service
 # Node.js ESM Modules
 ## https://nodejs.org/api/esm.html
 In-depth guide to ECMAScript module support in Node.js, including `import`/`export` semantics, package `exports` field, and interoperability with CommonJS. Vital for maintaining ESM-compliant code in `src/lib` and sandbox scenarios. Last updated Node.js v20.4.0.
+## License
+Node.js Foundation
+
+# Node.js File System (FS) Module
+## https://nodejs.org/api/fs.html
+Official Node.js API for file system operations. Covers `fs.promises`, streams, and file watching patterns. Fundamental for reading and writing sandbox files and managing dynamic artifacts in custom workflows. Last updated Node.js v20.4.0.
 ## License
 Node.js Foundation
 
@@ -52,38 +64,32 @@ Source code and documentation for `dotenv`, the standard library for loading env
 ## License
 BSD-2-Clause
 
-# agentic-lib GitHub Repository
-## https://github.com/xn-intenton-z2a/agentic-lib
-The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024.
-## License
-Apache-2.0
-
-# EJS Official Documentation
-## https://ejs.co/#docs
-EJS templating engine docs covering syntax, rendering methods, and performance considerations. Relevant for generating dynamic documentation or code files in automated workflows. Last updated April 2024.
-## License
-MIT
-
 # js-yaml GitHub Repository
 ## https://github.com/nodeca/js-yaml
 Comprehensive reference for parsing and dumping YAML in JavaScript. Includes type schemas, error handling, and performance tips. Applies to reading `agentic-lib` configs or custom metadata files. Last commit February 2024.
 ## License
 MIT
 
-# npm publish CLI
+# agentic-lib GitHub Repository
+## https://github.com/xn-intenton-z2a/agentic-lib
+The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024.
+## License
+Apache-2.0
+
+# npm Publish CLI
 ## https://docs.npmjs.com/cli/v9/commands/npm-publish
 Official npm CLI reference for `npm publish`. Describes package metadata, access levels, scoping, and registry configuration. Critical for automating package releases from GitHub Actions. Last updated May 2024.
 ## License
 Creative Commons CC-BY-4.0
 
-# npm-check-updates Package
-## https://www.npmjs.com/package/npm-check-updates
-The `npm-check-updates` tool documentation detailing how to automate dependency updates, pinning strategies, and workflow integration. Used by the `update-to-minor` and `update-to-greatest` scripts. Last updated April 2024.
+# Zod Validation Library
+## https://github.com/colinhacks/zod
+Official documentation for Zod, a TypeScript-first schema declaration and validation library. Includes type-safe parsing, error handling, and integration examples. Vital for input validation of workflow configurations and runtime data in `agentic-lib`. Last commit June 2024.
 ## License
-BSD-2-Clause
+MIT
 
-# Node.js FS (File System) Module
-## https://nodejs.org/api/fs.html
-Official Node.js API for file system operations. Covers `fs.promises`, streams, and watching patterns. Fundamental for reading and writing sandbox files in custom workflows. Last updated Node.js v20.4.0.
+# Minimatch Pattern Matching
+## https://www.npmjs.com/package/minimatch
+Documentation for `minimatch`, a glob matching library in JavaScript. Covers pattern syntax, options for file filtering, and performance considerations. Useful for matching file paths in custom scripts and workflows. Last updated April 2024.
 ## License
-Node.js Foundation
+ISC
