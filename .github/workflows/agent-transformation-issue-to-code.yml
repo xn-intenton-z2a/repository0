@@ -54,7 +54,7 @@ on:
     #- cron: '39 4 */7 * *' # schedule-1
     - cron: '39 4 * * *' # schedule-2
     #- cron: '39 * * * *' # schedule-3
-    #- cron: '9,39 * * * *' # schedule-4
+    #- cron: '9,39 */3 * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'

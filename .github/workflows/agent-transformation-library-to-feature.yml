@@ -41,7 +41,7 @@ on:
     #- cron: '24 4 */7 * *' # schedule-1
     - cron: '24 4 * * *' # schedule-2
     #- cron: '24 */2 * * *' # schedule-3
-    #- cron: '24 * * * *' # schedule-4
+    #- cron: '24 */4 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
