@@ -37,7 +37,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -51,7 +51,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@main'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.2.0'
     with:
       promptFilepath: '.github/agents/agent-maintain-library.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}

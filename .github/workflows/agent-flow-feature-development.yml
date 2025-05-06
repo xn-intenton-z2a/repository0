@@ -1,0 +1,251 @@
+# .github/workflows/agent-flow-feature-development.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: flow-feature-development
+concurrency: agentic-lib-commit-main
+run-name: "flow feature development"
+
+on:
+  #push:
+  #  paths:
+  #    - '**/*.yml'
+  workflow_dispatch:
+    inputs:
+      feature:
+        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: 'house choice'
+  workflow_run:
+    workflows:
+      - seed-repository
+    types:
+      - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+  workflow_call:
+    inputs:
+      feature:
+        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: 'house choice'
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
+  schedule:
+    - cron: '14 6 */28 * *' # schedule-1
+    #- cron: '14 */4 * * *' # schedule-2
+    #- cron: '14 */2 * * *' # schedule-3
+    #- cron: '14 * * * *' # schedule-4
+
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
+  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
+  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
+  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
+  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
+
+jobs:
+
+  agentic-lib:
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.0'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
+  maintain-features:
+    needs:
+      - agentic-lib
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.2.0'
+    with:
+      promptFilepath: '.github/agents/agent-maintain-features.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      feature: ${{ inputs.feature }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  generate-feature-development-issue:
+    needs:
+      - agentic-lib
+      - maintain-features
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.2.0'
+    with:
+      promptFilepath: '.github/agents/agent-feature-issue.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      featureName: ${{ needs. maintain-features.outputs.featureName }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      issueSelectionLabel: 'feature'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  create-issue:
+    needs:
+      - generate-feature-development-issue
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.2.0'
+    with:
+      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+      issueLabels: 'feature, automated'
+
+  enhance-issue:
+    needs:
+      - create-issue
+      - agentic-lib
+    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.2.0'
+    with:
+      promptFilepath: '.github/agents/agent-ready-issue.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  issue-to-code:
+    needs:
+      - create-issue
+      - enhance-issue
+    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      packages: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.2.0'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  #automerge-pr:
+  #  needs:
+  #    - issue-to-code
+  #  if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.2.0'
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  select-next-issue:
+    needs:
+      - issue-to-code
+    if: ${{ always() }}
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.0'
+    with:
+      issueNumber: ''
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  stats:
+    needs:
+      - issue-to-code
+      - agentic-lib
+      - select-next-issue
+    if: ${{ always() }}
+    permissions:
+      contents: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.2.0'
+    with:
+      cache: 'npm'
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+      lastActivityName: "${{ github.workflow }}"
+      lastActivityBranchName: "${{ github.ref_name }}"
+      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
+      public: ${{ needs.agentic-lib.outputs.docRoot }}
+      s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
+      s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
+      iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
+      iamStatsBucketWriterRoleArn: "${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}"
+      iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

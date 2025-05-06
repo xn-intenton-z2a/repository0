@@ -1,20 +1,14 @@
-# .github/workflows/agent-transformation-maintenance-activity-to-issue.yml
+# .github/workflows/agent-transformation-linting-to-issue.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: maintenance-activity-to-issue
-#concurrency: agentic-lib-issue
-run-name: "maintenance activity to issue"
+name: flow-linting-to-issue
+concurrency: agentic-lib-commit-main
+run-name: "flow linting to issue [${{ github.ref_name }}]"
 
 on:
   workflow_dispatch:
-    inputs:
-      prompt:
-        description: 'Text to drive the issue creation (if "house choice", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
-        required: false
-        type: string
-        default: 'house choice'
   #workflow_run:
   #  workflows:
   #    - seed-repository
@@ -26,10 +20,10 @@ on:
   #    CHATGPT_API_SECRET_KEY:
   #      required: true
   schedule:
-    - cron: '54 4 */7 * *' # schedule-1
-    #- cron: '54 4 * * *' # schedule-2
-    #- cron: '54 */2 * * *' # schedule-3
-    #- cron: '54 * * * *' # schedule-4
+    - cron: '24 4 */28 * *' # schedule-1
+    #- cron: '24 4 * * *' # schedule-2
+    #- cron: '24 4 * * *' # schedule-3
+    #- cron: '24 */12 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -48,53 +42,72 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  generate-maintenance-issue:
+  extract-paths:
     needs:
       - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract paths
+        id: extract-paths
+        uses: actions/github-script@v7
+        env:
+          allTestsPath: ${{ needs.agentic-lib.outputs.allTestsPath }}
+          targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+          targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+        with:
+          script: |
+            const allTestsPath = process.env.allTestsPath.split(';');
+            const targetTestsPath = process.env.targetTestsPath;
+            const allSourcePaths = process.env.allSourcePaths.split(';');
+            const targetSourcePath = process.env.targetSourcePath;
+
+            const allPaths = [
+              ...allTestsPath,
+              targetTestsPath,
+              ...allSourcePaths,
+              targetSourcePath
+            ].join(' ');
+
+            core.setOutput("allPaths", allPaths);
+            core.info(`allPaths: allPaths}`);
+    outputs:
+      allPaths: ${{ steps.extract-paths.outputs.allPaths }}
+
+  linting:
+    needs:
+      - agentic-lib
+      - extract-paths
     permissions:
       contents: write
-      issues: write
+      packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@6.2.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.2.0'
     with:
-      promptFilepath: '.github/agents/agent-maintenance-issue.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      promptHint: ${{ inputs.prompt || 'house choice' }}
-      maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
-      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
-      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
-      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
-      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
-      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
-      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      #script: 'npm run linting "." -- --max-warnings=10'
+      script: 'npm run linting ${{ needs.extract-paths.outputs.allPaths }}'
+      sarifScript: 'npm run linting-json --silent ${{ needs.extract-paths.outputs.allPaths }}'
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
-      issueSelectionLabel: 'maintenance'
-      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
     secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   create-issue:
     needs:
-      - generate-maintenance-issue
+      - linting
+    if: ${{ needs.linting.outputs.fixStillRequired == 'true' || needs.linting.outputs.fixStillRequired == true || needs.linting.outputs.remainingResultsCount != '0' }}
     permissions:
       issues: write
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.2.0'
     with:
-      issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
+      issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
+      issueBody: ${{ needs.linting.outputs.scriptOutput }}
       issueLabels: 'maintenance, automated'
 
   ready-issue:
     needs:
-      - generate-maintenance-issue
+      - create-issue
     permissions:
       contents: write
       pull-requests: write
@@ -107,9 +120,29 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  select-next-issue:
+  issue-to-code:
     needs:
       - create-issue
+      - ready-issue
+    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.2.0'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  select-next-issue:
+    needs:
+      - issue-to-code
+    if: ${{ always() }}
     permissions:
       issues: read
       id-token: write
