@@ -18,7 +18,7 @@ GitHub Terms of Service
 
 # Reusing GitHub Actions Workflows
 ## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in `agentic-lib`. Last updated May 2024; authoritative as the official GitHub docs.
+This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in agentic-lib. Last updated May 2024; authoritative as the official GitHub docs.
 ## License
 GitHub Terms of Service
 
@@ -30,7 +30,7 @@ GitHub Terms of Service
 
 # OpenAI Chat Completions API
 ## https://platform.openai.com/docs/api-reference/chat
-Official OpenAI documentation for the Chat Completions endpoint. It describes request/response structures, model parameters (temperature, max_tokens), rate limits, and streaming options. Crucial for integrating conversational LLM workflows in `agentic-lib`. Last updated June 2024; authoritative as the official OpenAI docs.
+Official OpenAI documentation for the Chat Completions endpoint. It describes request/response structures, model parameters (temperature, max_tokens), rate limits, and streaming options. Crucial for integrating conversational LLM workflows in agentic-lib. Last updated June 2024; authoritative as the official OpenAI docs.
 ## License
 OpenAI Terms of Service
 
@@ -52,12 +52,6 @@ Comprehensive guide for the Vitest testing framework. Covers configuration, test
 ## License
 MIT
 
-# Prettier CLI Documentation
-## https://prettier.io/docs/en/cli.html
-Official CLI docs for Prettier, detailing available flags, configuration file formats, and integration points with Git hooks. Supports enforcing consistent code style in automated workflows. Last updated May 2024; Prettier is MIT-licensed.
-## License
-MIT
-
 # ESLint Official Documentation
 ## https://eslint.org/docs/latest/
 The ESLint docs offer rule definitions, configuration options, plugin development guidelines, and autofix details. Essential for maintaining code quality with `eslint.config.js` and automated linting workflows. Last updated June 2024; ESLint is MIT-licensed.
@@ -70,26 +64,32 @@ Source code and documentation for `dotenv`, the standard library for loading env
 ## License
 BSD-2-Clause
 
-# js-yaml GitHub Repository
-## https://github.com/nodeca/js-yaml
-Comprehensive reference for parsing and dumping YAML in JavaScript. Includes type schemas, error handling, and performance tips. Applies to reading `agentic-lib` configs or custom metadata files. Last commit February 2024; js-yaml is MIT-licensed.
-## License
-MIT
-
 # intentïon agentic-lib GitHub Repository
 ## https://github.com/xn-intenton-z2a/agentic-lib
 The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024; licensed under Apache-2.0.
 ## License
 Apache-2.0
 
-# npm Publish CLI
-## https://docs.npmjs.com/cli/v9/commands/npm-publish
-Official npm CLI reference for `npm publish`. Describes package metadata, access levels, scoping, and registry configuration. Critical for automating package releases from GitHub Actions. Last updated May 2024; documentation under CC-BY-4.0.
-## License
-Creative Commons CC-BY-4.0
-
 # Zod Validation Library
 ## https://github.com/colinhacks/zod
 Official documentation for Zod, a TypeScript-first schema declaration and validation library. Includes type-safe parsing, error handling, and integration examples. Vital for input validation of workflow configurations and runtime data in `agentic-lib`. Last commit June 2024; Zod is MIT-licensed.
+## License
+MIT
+
+# EJS Official Documentation
+## https://ejs.co/#docs
+In-depth reference for Embedded JavaScript templating. Covers syntax for variables, includes/partials, custom delimiters, compile options, and error handling. Useful for generating code templates and documentation in agentic-lib workflows. Last updated June 2024; authoritative as the official EJS docs.
+## License
+MIT
+
+# Minimatch GitHub Repository
+## https://github.com/isaacs/minimatch
+Minimatch provides glob pattern matching utilities with support for Bash-style wildcards, negations, and extglob patterns. Essential for agents to filter and process file sets within sandboxed environments and custom workflows. Last commit April 2024; MIT-licensed.
+## License
+MIT
+
+# Markdown-It Official Documentation
+## https://markdown-it.github.io/
+Markdown-It official site with comprehensive guides on CommonMark-compliant parsing, plugin system, renderer customization, and performance tuning. Vital for rendering and processing Markdown in automated documentation workflows. Last updated May 2024; MIT-licensed.
 ## License
 MIT
