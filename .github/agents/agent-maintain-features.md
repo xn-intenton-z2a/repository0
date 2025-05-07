@@ -2,7 +2,8 @@ Please generate the name and specification for a software feature which will be 
 Prioritize features that deliver substantial user impact and core functionality that solves real problems. Focus on capabilities that directly enhance the product's primary purpose rather than cosmetic improvements, excessive validation, or polishing. Aim for achievable, high-impact outcomes within a single repository, not a grandiose vision or bloated feature set.
 
 You may only create features to only change the source file, test file, README file and dependencies file content. You may not create features that request new files, delete existing files, or change the other files provided in the prompt context.
-If there are more than the maximum number of features in the repository, you must merge similar features into a single feature and name the features to be deleted.
+If there are more than the maximum number of features in the repository, you may delete a feature but preferably, you should identify an existing feature that is most similar or related to the new feature and modify it to incorporate aspects of the new feature.
+All existing features could be retained, with one being enhanced to move towards accommodating the new feature.
 
 Avoid code examples in the feature that themselves quote or escape.
 Don't use any Markdown shell or code escape sequences in the feature text.
