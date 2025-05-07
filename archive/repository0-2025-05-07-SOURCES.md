@@ -1,0 +1,95 @@
+# GitHub REST API
+## https://docs.github.com/en/rest
+The official GitHub REST API documentation provides a comprehensive reference for automating GitHub operations via HTTP. It covers endpoints for repositories, issues, pull requests, workflows, and more, with detailed schemas, parameters, and example requests/responses. This source is essential for implementing issue creation, branch management, CI/CD orchestration, and agentic workflows. Last updated June 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+The GraphQL API reference offers flexible, efficient querying of GitHub data models. It includes schema definitions, query examples, and pagination patterns. Use this source to implement optimized data retrieval for issues, pull requests, and repository metadata in automated agents. Last updated April 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# GitHub Actions Contexts and Expressions
+## https://docs.github.com/en/actions/learn-github-actions/contexts
+Detailed reference on GitHub Actions contexts (github, env, secrets, steps, jobs) and the expression syntax used to access and manipulate workflow data. Essential for authoring reusable workflows that rely on secret management, dynamic outputs, and conditional logic in agentic-lib. Last updated May 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# Reusing GitHub Actions Workflows
+## https://docs.github.com/en/actions/using-workflows/reusing-workflows
+This guide explains how to modularize and call reusable GitHub Actions workflows using the `workflow_call` event. It details input/output mappings, security considerations, and best practices for composing workflows like those in agentic-lib. Last updated May 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Comprehensive reference for GitHub Actions workflow syntax, including triggers, jobs, steps, and expressions. Essential for authoring and troubleshooting complex workflow definitions in `.github/workflows/`. Last updated June 2024; authoritative as the official GitHub docs.
+## License
+GitHub Terms of Service
+
+# OpenAI Chat Completions API
+## https://platform.openai.com/docs/api-reference/chat
+Official OpenAI documentation for the Chat Completions endpoint. It describes request/response structures, model parameters (temperature, max_tokens), rate limits, and streaming options. Crucial for integrating conversational LLM workflows in agentic-lib. Last updated June 2024; authoritative as the official OpenAI docs.
+## License
+OpenAI Terms of Service
+
+# Node.js ESM Modules
+## https://nodejs.org/api/esm.html
+In-depth guide to ECMAScript module support in Node.js, including `import`/`export` semantics, package `exports` field, and interoperability with CommonJS. Vital for maintaining ESM-compliant code in `src/lib` and sandbox scenarios. Last updated Node.js v20.4.0; authoritative as the official Node.js docs.
+## License
+Node.js Foundation
+
+# Node.js File System (FS) Module
+## https://nodejs.org/api/fs.html
+Official Node.js API for file system operations. Covers `fs.promises`, streams, and file watching patterns. Fundamental for reading and writing sandbox files and managing dynamic artifacts in custom workflows. Last updated Node.js v20.4.0; authoritative as the official Node.js docs.
+## License
+Node.js Foundation
+
+# Vitest Guide
+## https://vitest.dev/guide/
+Comprehensive guide for the Vitest testing framework. Covers configuration, test APIs, mocking strategies, and coverage reporting. Directly applicable to writing and extending tests in `tests/unit` and `sandbox/tests`. Last updated March 2024; Vitest is MIT-licensed and widely adopted.
+## License
+MIT
+
+# ESLint Official Documentation
+## https://eslint.org/docs/latest/
+The ESLint docs offer rule definitions, configuration options, plugin development guidelines, and autofix details. Essential for maintaining code quality with `eslint.config.js` and automated linting workflows. Last updated June 2024; ESLint is MIT-licensed.
+## License
+MIT
+
+# dotenv GitHub Repository
+## https://github.com/motdotla/dotenv
+Source code and documentation for `dotenv`, the standard library for loading environment variables. Includes usage examples, security notes, and configuration options. Useful for managing secrets like `CHATGPT_API_SECRET_KEY` across local and CI environments. Last commit March 2024; licensed under BSD-2-Clause.
+## License
+BSD-2-Clause
+
+# intentïon agentic-lib GitHub Repository
+## https://github.com/xn-intenton-z2a/agentic-lib
+The primary library of reusable GitHub Actions workflows powering this template. Contains workflow definitions, input schemas, and usage examples. Studying this source is key to extending or customizing agentic behaviors. Last commit May 2024; licensed under Apache-2.0.
+## License
+Apache-2.0
+
+# Zod Validation Library
+## https://github.com/colinhacks/zod
+Official documentation for Zod, a TypeScript-first schema declaration and validation library. Includes type-safe parsing, error handling, and integration examples. Vital for input validation of workflow configurations and runtime data in `agentic-lib`. Last commit June 2024; Zod is MIT-licensed.
+## License
+MIT
+
+# EJS Official Documentation
+## https://ejs.co/#docs
+In-depth reference for Embedded JavaScript templating. Covers syntax for variables, includes/partials, custom delimiters, compile options, and error handling. Useful for generating code templates and documentation in agentic-lib workflows. Last updated June 2024; authoritative as the official EJS docs.
+## License
+MIT
+
+# Minimatch GitHub Repository
+## https://github.com/isaacs/minimatch
+Minimatch provides glob pattern matching utilities with support for Bash-style wildcards, negations, and extglob patterns. Essential for agents to filter and process file sets within sandboxed environments and custom workflows. Last commit April 2024; MIT-licensed.
+## License
+MIT
+
+# Markdown-It Official Documentation
+## https://markdown-it.github.io/
+Markdown-It official site with comprehensive guides on CommonMark-compliant parsing, plugin system, renderer customization, and performance tuning. Vital for rendering and processing Markdown in automated documentation workflows. Last updated May 2024; MIT-licensed.
+## License
+MIT
