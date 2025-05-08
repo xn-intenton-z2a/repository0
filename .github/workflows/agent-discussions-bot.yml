@@ -353,9 +353,10 @@ jobs:
 
   feature-development-flow:
     needs:
+      - seed-repository
       - process-discussion-post
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
     permissions:
       contents: write
       pull-requests: write
