@@ -209,6 +209,7 @@ jobs:
       - npm-build
       - npm-run
       - apply-update
+    if: always()
     permissions:
       contents: write
       pull-requests: write
@@ -225,7 +226,7 @@ jobs:
     needs:
       - apply-update
       - create-pr
-    if: ${{ always() }}
+    if: always()
     permissions:
       issues: read
       id-token: write
@@ -243,7 +244,7 @@ jobs:
       - apply-update
       - create-pr
       - agentic-lib
-    if: ${{ always() }}
+    if: always()
     permissions:
       contents: write
       id-token: write

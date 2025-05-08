@@ -126,7 +126,7 @@ jobs:
       - select-next-issue
       - create-issue
       - agentic-lib
-    if: ${{ always() }}
+    if: always()
     permissions:
       contents: write
       id-token: write

@@ -449,7 +449,7 @@ jobs:
     needs:
       - select-branch
       - needs-fix
-    if: ${{ always() }}
+    if: always()
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-issue-'
@@ -632,7 +632,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: always()
     steps:
       - name: set-needs-fix
         id: set-needs-fix
@@ -729,7 +729,7 @@ jobs:
       - apply-fix
       - needs-fix-after-fix
       - create-pr
-    if: ${{ always() }}
+    if: always()
     permissions:
       issues: read
       id-token: write
@@ -748,7 +748,7 @@ jobs:
       - needs-fix-after-fix
       - create-pr
       - agentic-lib
-    if: ${{ always() }}
+    if: always()
     permissions:
       contents: write
       id-token: write

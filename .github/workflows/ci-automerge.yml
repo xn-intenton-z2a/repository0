@@ -154,7 +154,7 @@ jobs:
       pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
 
   merge-check:
-    if: ${{ always() }}
+    if: always()
     needs:
       - pr
       - cs

@@ -108,6 +108,7 @@ jobs:
   ready-issue:
     needs:
       - create-issue
+    if: always()
     permissions:
       contents: write
       pull-requests: write
@@ -124,7 +125,7 @@ jobs:
     needs:
       - create-issue
       - ready-issue
-    if: ${{ needs.create-issue.outputs.issueNumber != '' }}
+    if: always()
     permissions:
       contents: write
       pull-requests: write
@@ -139,10 +140,26 @@ jobs:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  automerge-pr:
+    needs:
+      - issue-to-code
+    if: always()
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.2.2'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   select-next-issue:
     needs:
       - issue-to-code
-    if: ${{ always() }}
+    if: always()
     permissions:
       issues: read
       id-token: write
@@ -159,7 +176,7 @@ jobs:
       - select-next-issue
       - create-issue
       - agentic-lib
-    if: ${{ always() }}
+    if: always()
     permissions:
       contents: write
       id-token: write

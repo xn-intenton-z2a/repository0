@@ -10,7 +10,7 @@ run-name: "truncate workflow runs"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '39 3 * * 4'
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -35,7 +35,7 @@ jobs:
         with:
           script: |
             // Set retention period (in days)
-            const retentionDays = 7;
+            const retentionDays = 90;
             const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
