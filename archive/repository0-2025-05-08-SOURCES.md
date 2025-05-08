@@ -1,79 +1,74 @@
-# GitHub Actions Workflow Syntax
-## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-Comprehensive reference of the core workflow file syntax, including events, jobs, steps, conditionals, matrices, concurrency controls, and expressions. Provides essential examples for defining `on:` triggers, `jobs:` structures, and advanced features like permissions and environment contexts. Critical for structuring robust CI/CD pipelines and leveraging GitHub’s hosted runners effectively. Last updated: June 2024; authoritative as canonical GitHub documentation.
-## CC BY 4.0
-
-# GitHub Actions Reusable Workflows (workflow_call)
+# GitHub Actions Reusable Workflows
 ## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-Detailed guide on decomposing complex workflows into reusable components using `workflow_call`. Explains how to declare inputs, outputs, and secrets for modular pipelines and demonstrates invocation patterns across repositories or branches. Essential for building agent-style SDK workflows in this template. Last updated: May 2024; direct source from GitHub Docs.
-## CC BY 4.0
+GitHub’s official guidance on composing and invoking reusable workflows via `workflow_call`. This documentation explains how to structure inputs, outputs, secrets, and permissions to build modular CI/CD pipelines. It addresses core implementation needs by detailing invocation patterns, version pinning strategies, and best practices for sharing workflows across repositories.
+## License: Unknown (GitHub Documentation Terms)
 
-# GitHub Actions Caching
-## https://docs.github.com/en/actions/advanced-guides/caching-dependencies-and-builds
-Guide on caching dependencies and build outputs across workflow runs to speed up CI/CD pipelines. Covers cache key strategies, scope, pruning, and performance considerations for popular languages and package managers. Directly addresses optimization of build and test steps for faster feedback loops. Last updated: June 2024; canonical GitHub documentation.
-## CC BY 4.0
+# GitHub Actions Workflow Syntax Reference
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Comprehensive reference for defining triggers, jobs, steps, and conditions in workflow YAML files. Essential for understanding event types (push, schedule, workflow_call), context and expression syntax, and matrix strategies. Provides actionable examples for caching, environment variables, and artifact handling.
+## License: Unknown (GitHub Documentation Terms)
 
-# GitHub Actions Toolkit (actions/toolkit)
-## https://github.com/actions/toolkit/blob/main/docs/action-toolkit.md
-Authoritative documentation on the GitHub Actions Toolkit libraries for building custom JavaScript/TypeScript actions. Details core modules like `core`, `github`, `exec`, `io`, and `cache`, with usage examples for logging, environment management, and API calls. Key for extending workflows with bespoke actions. Latest commit: November 2023; MIT license.
-## MIT
+# GitHub Actions Toolkit (JavaScript)
+## https://github.com/actions/toolkit
+The official Node.js libraries (`@actions/core`, `@actions/github`, etc.) for writing custom GitHub Actions. Covers APIs for logging, input parsing, environment variable management, and REST/GraphQL calls. Includes detailed usage patterns and error-handling recommendations critical for building robust, reusable composite and JavaScript actions.
+## License: MIT
 
-# GitHub Actions Contexts and Expressions
-## https://docs.github.com/en/actions/learn-github-actions/contexts
-Reference for the contexts and expression syntax available in GitHub Actions workflows, including `github`, `runner`, `env`, `secrets`, and job/matrix contexts. Explains how to interpolate values, use conditional logic, and manage dynamic behavior in steps and jobs. Essential for writing flexible and maintainable pipelines. Last updated: June 2024; CC BY 4.0.
-## CC BY 4.0
+# GitHub REST API Reference
+## https://docs.github.com/en/rest
+Authoritative reference for interacting with Issues, Pull Requests, Checks, and Workflow Runs via REST endpoints. Includes JSON schemas, rate limit guidelines, authentication methods, and pagination strategies. Enables agentic workflows to programmatically create issues, update PRs, and query repository state.
+## License: Unknown (GitHub Documentation Terms)
 
-# OpenAI Node.js Library
-## https://github.com/openai/openai-node
-Official repository for the `openai` npm package, featuring a full API reference, usage examples for chat and completion streaming, fine-tuning workflows, and rate limit handling. Crucial for implementing autonomous code generation, triage, and automated issue resolution within workflows. Version referenced: v4.x; MIT license.
-## MIT
+# agentic-lib: Reusable Agentic Workflows SDK
+## https://github.com/xn-intenton-z2a/agentic-lib
+The source code and pattern library demonstrating autonomous CI/CD workflows using LLMs and GitHub Actions. Offers composite workflows for issue creation, code transforms, automerge, and review loops. Key for understanding the design and invocation of each workflow in this template.
+## License: Apache-2.0
 
-# OpenAI REST API Reference
+# OpenAI Node.js API Reference
 ## https://platform.openai.com/docs/api-reference/introduction
-Primary reference for OpenAI’s RESTful endpoints, covering authentication, prompt and completion parameters, streaming, function calling, fine-tuning, and error handling. Includes detailed schema definitions and example requests/responses to solve real implementation problems. Last reviewed: June 2024; public documentation (license not specified).
-## Not specified
-
-# EJS Templating Engine
-## https://ejs.co/#docs
-Comprehensive documentation for EJS templating syntax, including interpolation, includes, custom filters, and security considerations to prevent injection. Demonstrates performance tuning and integration patterns for rendering dynamic content in workflow definitions, issue bodies, or reports. Last reviewed: April 2024; MIT license.
-## MIT
-
-# js-yaml API Reference
-## https://github.com/nodeca/js-yaml
-Detailed API docs and examples for parsing and serializing YAML with JavaScript. Covers safe loading, custom schemas, dumping options, and error handling. Foundational for programmatically reading and writing GitHub Actions YAML files. Released: v4.x; MIT license.
-## MIT
+Official documentation for the OpenAI SDK covering chat completions, streaming responses, and model configuration parameters. Includes code samples for Node.js that handle rate limits, retry logic, and error handling—crucial for building reliable agentic workers.
+## License: Proprietary API Terms
 
 # Zod Schema Validation
 ## https://github.com/colinhacks/zod
-Extensive guide for runtime schema validation and TypeScript type inference using Zod. Includes patterns for validating environment variables, CLI arguments, and user-supplied inputs in workflows and actions. Ensures strong typing and robust error reporting. Version: 3.x; MIT license.
-## MIT
+A TypeScript-first schema declaration and validation library. Documentation covers parsing strategies, error reporting, and data coercion. Useful for validating workflow inputs, configuration files, and webhooks payloads with clear TypeScript definitions.
+## License: MIT
 
-# dotenv Configuration Utility
-## https://github.com/motdotla/dotenv
-Official documentation for loading environment variables from `.env` files in Node.js environments. Details best practices for variable scoping, safe file loading, and integration with ESM contexts. Vital for local testing of workflows dependent on secrets or API keys. Released under BSD-2-Clause.
-## BSD-2-Clause
+# EJS Templating Engine
+## https://ejs.co/#docs
+Lightweight templating for generating markdown, YAML, or HTML artifacts. The docs explain tag syntax (`<%= %>`, `<% %>`), includes, and custom filters. Supports dynamic generation of workflow YAML or documentation based on templates.
+## License: MIT
 
-# Automerge Action by pascalgn
-## https://github.com/pascalgn/automerge-action#readme
-Provides practical guidance on automatically merging pull requests based on customizable criteria. Documents configuration of tokens, merge strategies (squash, rebase), branch protections, and conflict resolution. Directly applicable to the Automerge step in this repository. Version: v0.16.0; MIT license.
-## MIT
+# js-yaml: YAML Parser & Dumper
+## https://github.com/nodeca/js-yaml
+Comprehensive guide to parsing and stringifying YAML documents in Node.js. Covers safe loading, custom schema extensions, and security considerations to prevent code injection. Essential for reading and updating action definitions or metadata files.
+## License: MIT
 
-# Vitest Testing Framework
-## https://vitest.dev/guide/
-In-depth guide on writing and running tests with Vitest, covering test structure, configuration, coverage reporting, and mocking. Demonstrates parallel execution, snapshot testing, and integration with ESM projects. Essential for maintaining unit and sandbox test suites with reliability and speed. Last updated: May 2024; MIT license.
-## MIT
+# Minimatch: Glob Pattern Matching
+## https://github.com/isaacs/minimatch
+Documentation on matching file paths using glob patterns, with support for extended patterns (negation, braces, extglobs). Core to file include/exclude logic in workflows and repository scanners.
+## License: ISC
 
-# Node.js ECMAScript Modules Guide
+# Node.js ES Modules Guide
 ## https://nodejs.org/api/esm.html
-Comprehensive reference for using ECMAScript Modules in Node.js v20+, including dynamic imports, loader hooks, and `import` maps. Clarifies module resolution, interop flags, and performance considerations for modern JavaScript. Updated: Node.js 20 LTS documentation; MIT license.
-## MIT
+Explains `import`/`export`, `import.meta.url`, and interoperating with CommonJS. Includes resolution algorithm details and configuration (.mjs, `type:module`). Critical for designing cross-platform, ESM-native scripts in agentic workflows.
+## License: MIT
 
-# GitHub REST API Overview
-## https://docs.github.com/en/rest
-Master index of GitHub’s REST API endpoints, including authentication methods, pagination, error handling, and rate limit strategies. Serves as the primary reference for programmatic interactions with issues, pulls, and repository settings. Updated: June 2024; CC BY 4.0.
-## CC BY 4.0
+# Vitest: Vite-Native Unit Testing
+## https://vitest.dev/
+Lightweight testing framework integrated with Vite. Documentation covers setup, mocking, snapshot testing, and coverage reporting. The practical examples show how to write fast unit tests and configure watch/mode options.
+## License: MIT
 
-# Octokit Rest.js Library
-## https://github.com/octokit/rest.js
-Official JavaScript client for GitHub’s REST API, offering typed endpoint methods, pagination helpers, and plugin support. Includes usage examples for authentication, request retry strategies, and response handling. Key for robust, maintainable API calls in workflows and custom actions. Latest release: v19.x; MIT license.
-## MIT
+# ESLint Google Style Config
+## https://github.com/google/eslint-config-google
+Provides the Google JavaScript Style Guide rules packaged for ESLint. Documentation highlights rule customizations, plugin integration, and override patterns. Ensures consistent code quality across human and automated commits.
+## License: MIT
+
+# Prettier Code Formatter
+## https://prettier.io/docs/en/index.html
+Defines conventions for automatic code formatting. Includes configuration options for printing width, tab width, and plugin usage. Critical for maintaining standardized formatting in auto-generated code.
+## License: MIT
+
+# npm-check-updates (ncu)
+## https://github.com/raineorshine/npm-check-updates
+CLI tool documentation for detecting and upgrading outdated dependencies. Covers command flags for target version ranges, peer dependency handling, and JSON output. Integral for automated dependency management workflows.
+## License: MIT
