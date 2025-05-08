@@ -34,6 +34,7 @@ paths:
     paths: [ 'src/lib/' ]
   dependenciesFilepath:
     path: 'package.json'
+    permissions: [ 'write' ]
   documentationPath:
     path: 'sandbox/docs/'
     permissions: [ 'write' ]

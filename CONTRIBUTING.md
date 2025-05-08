@@ -56,3 +56,40 @@ The guidelines below apply to human or automated contributions:
     - The README should begin with something inspired by the mission statement and describe the current state of the repository (rather than the journey)
     - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
     - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+
+## Sandbox mode
+
+Please note that the automation features of this repository are in sandbox mode. This means that
+automated changes should only be applied to the sandbox paths which are shown below:
+```yaml
+paths:
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 16
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 64
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 8
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  readmeFilepath:
+    path: 'sandbox/README.md'
+    permissions: [ 'write' ]
+
+  # Not sandboxed and modifiable by the LLM-generated responses
+  dependenciesFilepath:
+    path: 'package.json'
+    permissions: [ 'write' ]
+```
