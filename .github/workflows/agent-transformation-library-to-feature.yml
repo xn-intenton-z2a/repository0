@@ -60,7 +60,7 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "house choice", then the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-features:
     needs:
       - agentic-lib
