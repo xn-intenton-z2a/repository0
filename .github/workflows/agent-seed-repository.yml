@@ -42,7 +42,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.6'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
