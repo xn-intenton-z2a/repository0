@@ -1,1 +1,1 @@
-Incorporate change increasing the number of issues resulting in committed code
+Reflect updated seeding configuration for increased issue-to-code conversions
