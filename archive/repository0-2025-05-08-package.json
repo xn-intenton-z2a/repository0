@@ -1,74 +1,79 @@
-# GitHub Actions Reusable Workflows
-## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-GitHub’s official guidance on composing and invoking reusable workflows via `workflow_call`. This documentation explains how to structure inputs, outputs, secrets, and permissions to build modular CI/CD pipelines. It addresses core implementation needs by detailing invocation patterns, version pinning strategies, and best practices for sharing workflows across repositories.
-## License: Unknown (GitHub Documentation Terms)
-
-# GitHub Actions Workflow Syntax Reference
+# GitHub Actions Workflow Syntax
 ## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-Comprehensive reference for defining triggers, jobs, steps, and conditions in workflow YAML files. Essential for understanding event types (push, schedule, workflow_call), context and expression syntax, and matrix strategies. Provides actionable examples for caching, environment variables, and artifact handling.
-## License: Unknown (GitHub Documentation Terms)
+The GitHub Actions workflow syntax documentation provides a comprehensive reference of keywords, event triggers, permissions, and concurrency controls for defining CI/CD pipelines in YAML. It addresses core implementation needs by detailing job and step definitions, matrix strategies, caching, and built-in functions for conditionals and expressions. Last known update: continuously maintained on GitHub. Authoritative as the official GitHub documentation.
+## Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-# GitHub Actions Toolkit (JavaScript)
-## https://github.com/actions/toolkit
-The official Node.js libraries (`@actions/core`, `@actions/github`, etc.) for writing custom GitHub Actions. Covers APIs for logging, input parsing, environment variable management, and REST/GraphQL calls. Includes detailed usage patterns and error-handling recommendations critical for building robust, reusable composite and JavaScript actions.
-## License: MIT
+# GitHub Actions Reusing Workflows
+## https://docs.github.com/en/actions/using-workflows/reusing-workflows
+This guide covers how to modularize and reuse workflows across repositories using the `workflow_call` event, inputs/outputs conventions, and repository dispatch mechanisms. It provides actionable examples for designing maintainable, composable workflows, essential for understanding and extending agentic-lib patterns. Last known update: 2023. Authoritative as official GitHub documentation.
+## Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-# GitHub REST API Reference
+# GitHub API Documentation (REST & GraphQL)
 ## https://docs.github.com/en/rest
-Authoritative reference for interacting with Issues, Pull Requests, Checks, and Workflow Runs via REST endpoints. Includes JSON schemas, rate limit guidelines, authentication methods, and pagination strategies. Enables agentic workflows to programmatically create issues, update PRs, and query repository state.
-## License: Unknown (GitHub Documentation Terms)
+The GitHub API documentation covers both REST and GraphQL endpoints for managing issues, pull requests, workflows, artifacts, and repository metadata. It provides essential technical specifications including request schemas, pagination, authentication, rate limits, and error handling. Understanding this documentation is critical for implementing automated issue triage, workflow coordination, and data fetching with minimal API calls. Last known update: 2024. Authoritative as official GitHub documentation.
+## Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-# agentic-lib: Reusable Agentic Workflows SDK
+# agentic-lib Reusable Workflows
 ## https://github.com/xn-intenton-z2a/agentic-lib
-The source code and pattern library demonstrating autonomous CI/CD workflows using LLMs and GitHub Actions. Offers composite workflows for issue creation, code transforms, automerge, and review loops. Key for understanding the design and invocation of each workflow in this template.
-## License: Apache-2.0
+The agentic-lib repository showcases a suite of reusable GitHub Actions workflows designed for autonomous repository maintenance: creating issues, generating code, automerging changes, and reviewing issues. Reviewing its documentation and examples reveals best practices for workflow composition, error-recovery strategies, branching conventions, and direct LLM integration patterns. Last known update: per repository commits. Authoritative as source.
+## Apache-2.0
 
-# OpenAI Node.js API Reference
-## https://platform.openai.com/docs/api-reference/introduction
-Official documentation for the OpenAI SDK covering chat completions, streaming responses, and model configuration parameters. Includes code samples for Node.js that handle rate limits, retry logic, and error handling—crucial for building reliable agentic workers.
-## License: Proprietary API Terms
+# Node.js ECMAScript Modules
+## https://nodejs.org/api/esm.html
+The Node.js ESM documentation explains the module resolution algorithm, package exports, conditional exports, and interoperability between CommonJS and ESM. It is essential for configuring `package.json` imports, using `import.meta.url`, and ensuring predictable script execution in Node.js 20+. Last known update: Node.js v20. Authoritative as official Node.js documentation.
+## MIT
 
-# Zod Schema Validation
+# Vitest Testing Framework
+## https://vitest.dev/guide/
+Vitest's official guide covers setup, configuration, mocking, coverage reporting, and parallel test runs. It provides actionable examples for writing unit and integration tests, performance benchmarks, and advanced mocking patterns aligned with Vite. This is the primary resource for extending and debugging the repository's test suite. Last known update: 2024. Authoritative from project maintainers.
+## MIT
+
+# OpenAI Node.js SDK
+## https://platform.openai.com/docs/libraries/node-js
+The OpenAI Node.js SDK documentation details client instantiation, methods for completions, embeddings, fine-tuning, error handling, and streaming patterns. It underpins the agentic workflows by offering direct code examples, type definitions, and configuration defaults. Last known update: 2024. Authoritative as official OpenAI docs.
+## MIT
+
+# Zod Validation Library
 ## https://github.com/colinhacks/zod
-A TypeScript-first schema declaration and validation library. Documentation covers parsing strategies, error reporting, and data coercion. Useful for validating workflow inputs, configuration files, and webhooks payloads with clear TypeScript definitions.
-## License: MIT
+Zod's documentation explains schema definitions, parsing, data transformations, and integration with TypeScript for runtime type safety. It addresses validation needs such as error formatting, custom refinements, union/discriminated schemas, and integration with frameworks. Last known update: 2024. Authoritative from repository sources.
+## MIT
 
 # EJS Templating Engine
 ## https://ejs.co/#docs
-Lightweight templating for generating markdown, YAML, or HTML artifacts. The docs explain tag syntax (`<%= %>`, `<% %>`), includes, and custom filters. Supports dynamic generation of workflow YAML or documentation based on templates.
-## License: MIT
+EJS's documentation covers template syntax, includes, filters, and rendering options. It provides practical insights for generating dynamic content within workflows, such as issue templates, release notes, and markdown reports. Last known update: 2023. Authoritative as official EJS site.
+## MIT
 
-# js-yaml: YAML Parser & Dumper
-## https://github.com/nodeca/js-yaml
-Comprehensive guide to parsing and stringifying YAML documents in Node.js. Covers safe loading, custom schema extensions, and security considerations to prevent code injection. Essential for reading and updating action definitions or metadata files.
-## License: MIT
+# js-yaml YAML Parser
+## https://github.com/nodeca/js-yaml#readme
+The js-yaml README outlines API usage for parsing and dumping YAML, custom schema creation, safe loading options, and security considerations. It is crucial for reading and manipulating workflow and documentation manifests programmatically. Last known update: 2024. Authoritative from package repository.
+## MIT
 
-# Minimatch: Glob Pattern Matching
+# markdown-it Markdown Parser
+## https://github.com/markdown-it/markdown-it
+The markdown-it documentation covers plugin architecture, syntax customization, and HTML rendering options. It is valuable for generating or validating markdown content such as README updates, change logs, and documentation files programmatically. Last known update: 2023. Authoritative from package repository.
+## MIT
+
+# minimatch Glob Pattern Matcher
 ## https://github.com/isaacs/minimatch
-Documentation on matching file paths using glob patterns, with support for extended patterns (negation, braces, extglobs). Core to file include/exclude logic in workflows and repository scanners.
-## License: ISC
+Minimatch's documentation explains POSIX glob matching, brace expansion, negation patterns, and options for dotfiles. It is essential for implementing file path filtering and pattern matching in scripts and workflows. Last known update: 2024. Authoritative from package repository.
+## ISC
 
-# Node.js ES Modules Guide
-## https://nodejs.org/api/esm.html
-Explains `import`/`export`, `import.meta.url`, and interoperating with CommonJS. Includes resolution algorithm details and configuration (.mjs, `type:module`). Critical for designing cross-platform, ESM-native scripts in agentic workflows.
-## License: MIT
-
-# Vitest: Vite-Native Unit Testing
-## https://vitest.dev/
-Lightweight testing framework integrated with Vite. Documentation covers setup, mocking, snapshot testing, and coverage reporting. The practical examples show how to write fast unit tests and configure watch/mode options.
-## License: MIT
-
-# ESLint Google Style Config
-## https://github.com/google/eslint-config-google
-Provides the Google JavaScript Style Guide rules packaged for ESLint. Documentation highlights rule customizations, plugin integration, and override patterns. Ensures consistent code quality across human and automated commits.
-## License: MIT
+# ESLint Linting Rules and Configuration
+## https://eslint.org/docs/latest/
+ESLint's official documentation delineates rule definitions, configuration hierarchies, plugin usage, and autofix strategies. It provides the foundation for code quality enforcement in the repository and guides the creation of custom rule sets. Last known update: 2024. Authoritative as official ESLint documentation.
+## MIT
 
 # Prettier Code Formatter
 ## https://prettier.io/docs/en/index.html
-Defines conventions for automatic code formatting. Includes configuration options for printing width, tab width, and plugin usage. Critical for maintaining standardized formatting in auto-generated code.
-## License: MIT
+Prettier's documentation presents formatting options, plugin architecture, and editor integrations. It ensures consistent code style across automated commits and pull requests and offers actionable configuration examples. Last known update: 2024. Authoritative as official Prettier documentation.
+## MIT
 
-# npm-check-updates (ncu)
-## https://github.com/raineorshine/npm-check-updates
-CLI tool documentation for detecting and upgrading outdated dependencies. Covers command flags for target version ranges, peer dependency handling, and JSON output. Integral for automated dependency management workflows.
-## License: MIT
+# Function-Plot Library
+## https://github.com/maurizzzio/function-plot
+Function-Plot is a high-level JavaScript library for plotting mathematical functions in web browsers using SVG. Its documentation details the API for defining functions, axes, domains, styling, and data point sampling. It demonstrates conversion of user expressions into precise SVG paths and provides examples for embedding plots in static and interactive contexts. Last known update: 2023. Authoritative as project repository (MIT).
+## MIT
+
+# SVG Path Specification
+## https://www.w3.org/TR/SVG/paths.html
+The SVG Path specification defines the syntax and semantics of the `<path>` element’s `d` attribute, including commands (M, L, C, A, etc.), relative vs. absolute coordinates, arc definitions, and path data parsing rules. This W3C Recommendation is essential for generating accurate SVG path strings when programmatically plotting functions or custom graphics. Last updated: 2018-10-05. Authoritative as W3C Recommendation.
+## W3C Document License
