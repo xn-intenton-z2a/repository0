@@ -71,7 +71,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -81,7 +81,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.2'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
@@ -201,8 +201,7 @@ jobs:
     outputs:
       attemptsOnIssue: ${{ steps.check.outputs.attemptsOnIssue }}
 
-  npm-test:
-    name: 'npm test with coverage'
+  npm-test-before-issue-resolution:
     needs:
       - select-issue
       - needs-resolution
@@ -226,8 +225,7 @@ jobs:
       - run: npm ci
       - run: npm run test:unit
 
-  npm-build:
-    name: 'npm run build'
+  npm-build-before-issue-resolution:
     needs:
       - select-issue
       - needs-resolution
@@ -251,8 +249,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  npm-run:
-    name: 'npm run start'
+  npm-run-before-issue-resolution:
     needs:
       - select-issue
       - needs-resolution
@@ -281,9 +278,9 @@ jobs:
       - select-issue
       - check-attempts-limit
       - needs-resolution
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - check-branch
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     permissions:
@@ -327,16 +324,16 @@ jobs:
       - select-issue
       - needs-resolution
       - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - check-branch
     if: ${{ needs.select-issue.outputs.issueNumber != '' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.2.2'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -369,9 +366,9 @@ jobs:
     needs:
       - needs-resolution
       - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - apply-issue-resolution
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
@@ -402,9 +399,9 @@ jobs:
     needs:
       - needs-resolution
       - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - apply-issue-resolution
     name: 'npm run build'
     runs-on: ubuntu-latest
@@ -435,9 +432,9 @@ jobs:
     needs:
       - needs-resolution
       - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - apply-issue-resolution
     name: 'npm run start'
     runs-on: ubuntu-latest
@@ -468,9 +465,9 @@ jobs:
     needs:
       - needs-resolution
       - check-attempts-limit
-      - npm-test
-      - npm-build
-      - npm-run
+      - npm-test-before-issue-resolution
+      - npm-build-before-issue-resolution
+      - npm-run-before-issue-resolution
       - apply-issue-resolution
       - npm-test-after-issue-resolution
       - npm-build-after-issue-resolution
@@ -522,7 +519,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.2.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.2.2'
     with:
       branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'
