@@ -107,7 +107,7 @@ jobs:
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      featureName: ${{ needs. maintain-features.outputs.featureName }}
+      featureName: ${{ needs.maintain-features.outputs.featureName }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
