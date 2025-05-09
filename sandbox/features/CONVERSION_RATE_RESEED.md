@@ -1,32 +1,43 @@
 # Overview
 
-This feature updates the default issue-to-code conversion rate and allows users to override it via CLI or environment variable.
+This feature enhances how the repository demonstrates agentic-lib’s automated CI/CD workflows alongside updating and showcasing an improved issue-to-code conversion rate. It builds on the existing conversion rate override functionality and adds a CLI-driven summary of recent workflow executions to highlight the end-to-end automation flow.
 
 # Behavior
 
-The application will now use a new default conversion rate of 0.75 instead of 0.5. Users can override this rate by supplying the `--rate` flag or setting the `ISSUE_TO_CODE_CONVERSION_RATE` environment variable. If both are provided, the CLI flag takes precedence.
+- The default issue-to-code conversion rate is increased from 0.75 to 0.8.
+- Users can still override the conversion rate via the `--rate` flag or `ISSUE_TO_CODE_CONVERSION_RATE` environment variable, with the CLI flag taking precedence.
+- When `npm run start` is executed, the application:
+  - Prints the applied conversion rate.
+  - Fetches and prints a summary of the last successful runs of key agentic-lib workflows: Create Issue, Issue Worker, Automerge, and Review Issue.
+  - Exits with code 0 after displaying the summary.
 
 # Implementation Details
 
-- Update the `config.issueToCodeConversionRate` value in `package.json` to 0.75.
-- Modify `src/lib/main.js` to read `--rate` from CLI arguments (using minimist) and fallback to `process.env.ISSUE_TO_CODE_CONVERSION_RATE` or the default config value.
-- Ensure that the parsed rate is validated as a number between 0 and 1; if invalid, the program will exit with an error message.
+- Update `config.issueToCodeConversionRate` in `package.json` to 0.8.
+- In `src/lib/main.js`:
+  - Parse `--rate` flag using minimist and fall back to `process.env.ISSUE_TO_CODE_CONVERSION_RATE` or default rate.
+  - Validate that the rate is a number between 0 and 1, exiting with an error on invalid input.
+  - Use the GitHub Actions REST API (via the `@octokit/rest` library) to fetch the latest workflow runs for workflows named Create Issue, Issue Worker, Automerge, Review Issue on the current repository and branch.
+  - Format and display a summary table including workflow name, status, conclusion, and run date.
+- Add `@octokit/rest` to dependencies in `package.json`.
 
 # CLI Usage
 
-- To use the default rate: `npm run start`
-- To override via CLI: `npm run start -- --rate 0.9`
-- To override via environment: `ISSUE_TO_CODE_CONVERSION_RATE=0.85 npm run start`
+- Default: `npm run start`
+- Override rate: `npm run start -- --rate 0.9`
+- Override via environment: `ISSUE_TO_CODE_CONVERSION_RATE=0.85 npm run start`
 
 # Tests
 
-- Add unit tests in `tests/unit/main.test.js` to verify:
-  - Default behavior uses 0.75 when no overrides are provided.
-  - CLI override correctly applies the provided rate.
-  - Environment variable override correctly applies the provided rate.
-  - Invalid values cause the program to exit with a descriptive error.
+- In `tests/unit/main.test.js`:
+  - Verify default rate output is 0.8 when no override.
+  - Verify rate override by CLI flag and environment variable.
+  - Stub GitHub API calls to return a fixed workflow run list and assert that the summary table is printed correctly.
+  - Ensure invalid rate values exit with an error and descriptive message.
 
 # Documentation
 
-- Update `README.md` to document the new default rate and override options.
-- Include examples of both CLI and environment variable overrides in the Usage section.
+- Update `README.md`:
+  - Document the new default rate and override options.
+  - Add a new section “CI/CD Workflows Demonstration” showing sample output of the workflow summary.
+  - Include instructions on setting a `GITHUB_TOKEN` environment variable for fetching workflow runs.
