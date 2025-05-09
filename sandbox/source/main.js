@@ -66,9 +66,7 @@ export function main(inputArgs = process.argv.slice(2)) {
     alias: {
       "conversion-rate": "conversionRate",
       f: "function",
-      function: "function",
-      o: "output",
-      output: "output"
+      o: "output"
     },
     string: ["conversion-rate", "function", "output"]
   });
