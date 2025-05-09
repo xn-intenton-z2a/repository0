@@ -1,0 +1,112 @@
+sandbox/tests/plot.test.js
+# sandbox/tests/plot.test.js
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import fs from 'fs';
+import { plotFunction, main } from '../source/main.js';
+
+describe('plotFunction', () => {
+  test('plotFunction quadratic returns SVG with polyline', () => {
+    const svg = plotFunction('quadratic');
+    expect(typeof svg).toBe('string');
+    expect(svg.startsWith('<svg')).toBe(true);
+    expect(svg).toContain('<polyline');
+  });
+
+  test('plotFunction sine returns SVG with polyline', () => {
+    const svg = plotFunction('sine');
+    expect(typeof svg).toBe('string');
+    expect(svg.startsWith('<svg')).toBe(true);
+    expect(svg).toContain('<polyline');
+  });
+});
+
+describe('CLI plotting', () => {
+  let writeSpy;
+  let logSpy;
+  let exitSpy;
+
+  beforeEach(() => {
+    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => { throw new Error('ProcessExit'); });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test('writes SVG to specified output file', () => {
+    main(['--function', 'quadratic', '--output', 'out.svg']);
+    expect(writeSpy).toHaveBeenCalledWith('out.svg', expect.any(String));
+    expect(logSpy).toHaveBeenCalledWith('SVG written to out.svg');
+  });
+
+  test('uses default output filename when none provided', () => {
+    main(['--function', 'sine']);
+    expect(writeSpy).toHaveBeenCalledWith('sine.svg', expect.any(String));
+    expect(logSpy).toHaveBeenCalledWith('SVG written to sine.svg');
+  });
+
+  test('invalid function type exits with code 1 and logs error', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() => main(['--function', 'invalid'])).toThrow('ProcessExit');
+    expect(errorSpy).toHaveBeenCalledWith('Invalid function type: invalid. Supported values: quadratic, sine.');
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+});
+sandbox/tests/main.test.js
+# sandbox/tests/main.test.js
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+import { main } from "../source/main.js";
+
+describe("Conversion Rate Logic", () => {
+  let logSpy;
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    delete process.env.ISSUE_TO_CODE_CONVERSION_RATE;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    delete process.env.ISSUE_TO_CODE_CONVERSION_RATE;
+  });
+
+  test("defaults to package.json config (0.5) when no flag or env", () => {
+    const result = main([]);
+    expect(result.conversionRate).toBe(0.5);
+    expect(result.args).toEqual([]);
+    expect(logSpy).toHaveBeenCalledWith("Effective conversion rate: 0.5");
+  });
+
+  test("uses environment variable override", () => {
+    process.env.ISSUE_TO_CODE_CONVERSION_RATE = "0.8";
+    const result = main([]);
+    expect(result.conversionRate).toBe(0.8);
+    expect(logSpy).toHaveBeenCalledWith("Effective conversion rate: 0.8");
+  });
+
+  test("uses CLI flag override over env and default", () => {
+    process.env.ISSUE_TO_CODE_CONVERSION_RATE = "0.8";
+    const result = main(["--conversion-rate", "0.3"]);
+    expect(result.conversionRate).toBe(0.3);
+    expect(result.args).toEqual(["--conversion-rate", "0.3"]);
+    expect(logSpy).toHaveBeenCalledWith("Effective conversion rate: 0.3");
+  });
+
+  test.each(["-0.1", "1.1", "abc"])(
+    "throws on invalid conversion rate value '%s' via CLI",
+    (val) => {
+      expect(() => main(["--conversion-rate", val])).toThrow(
+        /Invalid conversion rate:/
+      );
+    }
+  );
+
+  test.each(["-0.1", "1.1", "xyz"]) (
+    "throws on invalid conversion rate in env '%s'",
+    (val) => {
+      process.env.ISSUE_TO_CODE_CONVERSION_RATE = val;
+      expect(() => main([])).toThrow(/Invalid conversion rate:/);
+    }
+  );
+});
