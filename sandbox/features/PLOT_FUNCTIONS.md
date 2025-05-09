@@ -1,42 +1,44 @@
 # Summary
 
-Enhance the CLI in src/lib/main.js to compute and output data points for simple mathematical functions. Users can specify the function type, numeric range, and step size. Results are serialized as JSON by default.
+Enhance the CLI in sandbox/source/main.js to compute and output data points for simple mathematical functions, now including a new polar coordinate mode. Users can specify the function type (quadratic, sine, or polar), numeric range, and step size. Results are serialized as JSON by default.
 
 # Implementation
 
-1. Modify src/lib/main.js to:
-   - Import minimist for argument parsing.
-   - Define supported functions: quadratic (y = x * x) and sine (y = Math.sin(x)).
-   - Parse options with minimist:
-     • --function (-f): string, either "quadratic" or "sine"; default "quadratic".
-     • --from (-a): number, start of x range; default -10.
-     • --to (-b): number, end of x range; default 10.
-     • --step (-s): number, increment for x; default 1.
+1. Update sandbox/source/main.js:
+   - Use minimist to parse options:
+     • --function (-f): string, values "quadratic", "sine", or "polar"; default "quadratic".
+     • --from (-a): number, start of range; default -10 for cartesian, 0 for polar.
+     • --to (-b): number, end of range; default 10 for cartesian, 6.283185307179586 (2π) for polar.
+     • --step (-s): number, increment; default 1. Must be positive.
    - Validate:
-     • Function name is supported; on invalid name print error to stderr and exit with code 1.
+     • Function name is one of supported values; on invalid name print error to stderr and exit code 1.
      • Numeric parameters are finite numbers; --step must be positive; on validation failure print clear error and exit code 1.
-   - Compute points:
-     • Initialize an array.
-     • Loop x from start to end (inclusive), stepping by the step size.
-     • Compute y according to function type and push an object { x, y }.
-   - Output:
-     • Serialize the array to JSON and print to stdout.
-     • Return the array for programmatic invocation.
+   - Compute points array:
+     • For quadratic: as before, y = x * x.
+     • For sine: as before, y = Math.sin(x).
+     • For polar:
+       – Interpret range values as theta in radians.
+       – Loop theta from start to end (inclusive), stepping by step.
+       – For each theta compute r = theta.
+       – Compute x = r * Math.cos(theta) and y = r * Math.sin(theta).
+       – Push an object { x, y }.
+   - Serialize the array of points as JSON and print to stdout.
+   - Return the array for programmatic invocation.
 
 # README Updates
 
-- In README.md add a **Plotting Functions** section:
-  • Describe invocation: `node src/lib/main.js [options]`.
-  • List options with flags, default values, and valid values.
-  • Provide examples:
-    - `node src/lib/main.js`  # Quadratic from -10 to 10 with step 1
-    - `node src/lib/main.js --function sine --from 0 --to 6.28 --step 0.1`
+- In sandbox/docs/USAGE.md under **Plot Functions**:
+  • List polar as a valid function: --function polar
+  • Note defaults: --from 0, --to 6.283185307179586, --step 1
+  • Provide example:
+    npm run start -- --function polar
+    # Outputs [{"x":0,"y":0},...,{"x":6.2831853*...}]
 
 # Testing Deliverables
 
-1. In tests/unit/main.test.js add tests to verify:
-   • Running main with no arguments yields an array of 21 points for quadratic and logs valid JSON.
-   • Using `--function sine --from 0 --to 6.28 --step 1.57` yields expected sine values at known points.
-   • Supplying an unsupported function name triggers process exit with code 1 and prints an error.
-   • Supplying invalid numeric values (non-numeric or negative step) exits with code 1 and an error message.
-2. Ensure existing echo tests in tests/unit/main.test.js continue to pass unmodified.
+1. In sandbox/tests/main.test.js add unit tests to verify:
+   • Running main with --function polar and default range produces an array of points matching r=theta spiral in JSON format.
+   • Custom --from, --to, --step values for polar yield expected x,y pairs for known theta values (e.g., 0, π/2, π).
+   • Supplying an unsupported function name causes process.exit with code 1 and logs an error.
+   • Invalid numeric values (non-numeric or negative step) exit with code 1 and an error message.
+2. Ensure existing tests for quadratic and sine continue to pass unmodified.
