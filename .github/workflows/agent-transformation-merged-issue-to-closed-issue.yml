@@ -39,7 +39,7 @@ on:
   schedule:
     #- cron: '49 4 */7 * *' # schedule-1
     - cron: '49 */4 * * *' # schedule-2
-    #- cron: '49 * * * *' # schedule-3
+    #- cron: '4,19,34,49 * * * *' # schedule-3
     #- cron: '19,49 * * * *' # schedule-4
 
 env:
