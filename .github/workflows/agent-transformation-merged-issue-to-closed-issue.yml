@@ -53,7 +53,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -63,7 +63,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'merged'
@@ -71,16 +71,35 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  validate-issue-number:
+    needs:
+      - select-issue
+    runs-on: ubuntu-latest
+    steps:
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ needs.select-issue.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      isValid: ${{ steps.validate-issue-number.outputs.isValid }}
+
   review-issue:
     needs:
       - agentic-lib
       - select-issue
-    if: ${{ needs.select-issue.outputs.issueNumber != '' && needs.select-issue.outputs.merged == 'true' }}
+      - validate-issue-number
+    if: ${{ needs.validate-issue-number.outputs.isValid == 'true' && needs.select-issue.outputs.merged == 'true' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-review-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}

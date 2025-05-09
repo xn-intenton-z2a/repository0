@@ -66,7 +66,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -76,7 +76,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'in-progress'
@@ -84,10 +84,29 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
+  validate-issue-number:
+    needs:
+      - select-issue
+    runs-on: ubuntu-latest
+    steps:
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ needs.select-issue.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      isValid: ${{ steps.validate-issue-number.outputs.isValid }}
+
   check-branch:
     needs:
       - select-issue
-    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+      - validate-issue-number
+    if: ${{ needs.validate-issue-number.outputs.isValid == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -114,18 +133,19 @@ jobs:
       - agentic-lib
       - select-issue
       - check-branch
-    if: ${{ needs.select-issue.outputs.issueNumber != '' }}
+      - validate-issue-number
+    if: ${{ needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
       issueNumber: ${{ needs.select-issue.outputs.issueNumber }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
@@ -142,19 +162,3 @@ jobs:
     secrets:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  #issue-to-code:
-  #  needs:
-  #    - enhance-issue
-  #  if: ${{ needs.select-issue.outputs.issueNumber != '' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.2.9'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

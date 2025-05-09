@@ -42,7 +42,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -51,7 +51,7 @@ jobs:
   seed-repository:
     needs:
       - agentic-lib
-    if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' }}
+    if: needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -76,55 +76,55 @@ jobs:
           if [[ -e '${{ needs.agentic-lib.outputs.readmeFilepath }}' ]] then         cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md" ; fi
 
       - name: Delete sandbox files
-        if: ${{ needs.agentic-lib.outputs.sandboxReset == 'true' }}
+        if: needs.agentic-lib.outputs.sandboxReset == 'true'
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.sandboxPath }}'
           echo "Sandbox files deleted."
 
       - name: empty-library-sources
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.librarySourcesPath }}'
           echo "Library sources emptied from ${{ needs.agentic-lib.outputs.librarySourcesPath }}."
 
       - name: empty-library-documents
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}'
           echo "Library documents emptied from ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}."
 
       - name: empty-features
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.featuresPath }}'
           echo "Features emptied from ${{ needs.agentic-lib.outputs.featuresPath }}."
 
       - name: empty-target-source
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.targetSourcePath }}'
           echo "Target source emptied from ${{ needs.agentic-lib.outputs.targetSourcePath }}."
 
       - name: empty-target-tests
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.targetTestsPath }}'
           echo "Target tests emptied from ${{ needs.agentic-lib.outputs.targetTestsPath }}."
 
       - name: empty-docs
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
           rm -rvf '${{ needs.agentic-lib.outputs.documentationPath }}'
           echo "Documentation emptied from ${{ needs.agentic-lib.outputs.documentationPath }}."
 
       - name: seed-sandbox
-        if: ${{ needs.agentic-lib.outputs.sandboxReset == 'true' }}
+        if: needs.agentic-lib.outputs.sandboxReset == 'true'
         shell: bash
         run: |          
           # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
@@ -135,7 +135,7 @@ jobs:
           fi
 
       - name: seed-repository
-        if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' }}
+        if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
             if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
@@ -190,7 +190,7 @@ jobs:
   delete-branches:
     needs:
       - agentic-lib
-    if: ${{ needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' }}
+    if: needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true'
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'

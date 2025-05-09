@@ -57,7 +57,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -71,7 +71,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -103,7 +103,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -135,28 +135,44 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.3.0'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
       issueLabels: 'feature, automated'
 
+  select-issue-to-enhance:
+    needs:
+      - create-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'automated'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   enhance-issue:
     needs:
       - create-issue
       - agentic-lib
+      - select-issue-to-enhance
     if: always()
     permissions:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.select-issue-to-enhance.outputs.issueNumber }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.documentsLibraryPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
@@ -174,10 +190,27 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  select-issue-to-code:
+    needs:
+      - create-issue
+      - enhance-issue
+    if: always()
+    permissions:
+      issues: read
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
+    with:
+      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      selectionLabel: 'ready'
+      filterLabel: 'in-progress'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
   issue-to-code:
     needs:
       - create-issue
       - enhance-issue
+      - select-issue-to-code
     if: always()
     permissions:
       contents: write
@@ -187,28 +220,12 @@ jobs:
       id-token: write
       packages: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.3.0'
     with:
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #automerge-pr:
-  #  needs:
-  #    - issue-to-code
-  #  if: ${{ needs.create-issue.outputs.issueNumber != '' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.2.9'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   select-next-issue:
     needs:
@@ -217,7 +234,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -235,7 +252,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.3.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

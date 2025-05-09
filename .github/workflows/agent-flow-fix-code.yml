@@ -54,7 +54,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -228,9 +228,19 @@ jobs:
           echo 'issueNumber: ${{ env.issueNumber }}'
           echo 'attemptsPerBranch: ${{ env.attemptsPerBranch }}'
           echo 'branch: ${{ env.branch }}'
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ env.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
       - name: check
         id: check
-        if: ${{ env.issueNumber != '' && env.attemptsPerBranch != '' && env.branch != '' }}
+        if: ${{ steps.validate-issue-number.outputs.isValid == 'true' && env.attemptsPerBranch != '' && env.branch != '' }}
         uses: actions/github-script@v7
         with:
           script: |
@@ -286,6 +296,7 @@ jobs:
               });
 
               core.setFailed(`${message}`);
+              return;
             }
 
             core.setOutput("attemptsOnBranch", attemptsOnBranch);
@@ -401,6 +412,24 @@ jobs:
     outputs:
       needsFix: ${{ steps.set-needs-fix.outputs.needsFix }}
 
+  validate-issue-number:
+    needs:
+      - select-branch
+    runs-on: ubuntu-latest
+    steps:
+      - id: validate-issue-number
+        run: |
+          issueNumber="${{ needs.select-issue.outputs.issueNumber }}"
+          if [[ -n "$issueNumber" && "$ISSUE_NUMBER" =~ [0-9] ]]; then
+            echo "[$issueNumber] is a valid issue number."
+            echo "isValid=true" >> $GITHUB_OUTPUT
+          else
+            echo "[$issueNumber] is not a valid issue number."
+            echo "isValid=false" >> $GITHUB_OUTPUT
+          fi
+    outputs:
+      isValid: ${{ steps.validate-issue-number.outputs.isValid }}
+
   label-issue-before-attempt:
     needs:
       - select-branch
@@ -408,7 +437,8 @@ jobs:
       - npm-build
       - npm-run
       - needs-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.select-branch.outputs.issueNumber != '' }}
+      - validate-issue-number
+    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: write
       issues: write
@@ -486,7 +516,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.3.0'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -690,7 +720,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.3.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -719,7 +749,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.3.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -733,7 +763,7 @@ jobs:
     permissions:
       issues: read
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.3.0'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -753,7 +783,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.2.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.3.0'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
