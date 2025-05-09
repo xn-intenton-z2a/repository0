@@ -39,7 +39,7 @@ env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
-  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}§
+  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
   iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
   pullRequestLabel: 'automerge'
@@ -101,11 +101,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@6.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@6.3.3'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@6.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@6.3.3'
 
   ls:
     needs: label
@@ -178,7 +178,7 @@ jobs:
             const shouldSkipMerge = process.env.shouldSkipMerge;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            
+
             core.setOutput('prMerged', `${prMerged}`);
             core.setOutput('pullNumber', `${pullNumber}`);
             core.setOutput('shouldSkipMerge', `${shouldSkipMerge}`);
@@ -186,7 +186,7 @@ jobs:
             core.info(`pullNumber: '${pullNumber}'`);
             core.info(`shouldSkipMerge: '${shouldSkipMerge}'`);
             core.info(`branchPrefix '${branchPrefix}'`);
-            
+
             let branchName = '';
             let issueNumber = '';
             if( pullNumber) {
@@ -197,7 +197,7 @@ jobs:
               });
               branchName = pullRequest.head.ref;
               core.info(`branchName '${branchName}'`);
-              
+
               const issueNumberMatch = branchName.replace(branchPrefix, '');
               if (parseInt(issueNumberMatch)) {
                 issueNumber = `${parseInt(issueNumberMatch)}`;
@@ -225,7 +225,7 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@6.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@6.3.3'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -257,7 +257,7 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@6.3.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@6.3.3'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
