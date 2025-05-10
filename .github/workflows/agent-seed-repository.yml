@@ -42,7 +42,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.8'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -58,6 +58,12 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
 
       - name: archive
         id: archive
@@ -173,6 +179,15 @@ jobs:
               cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}'
               echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
+
+      - name: Set schedule from agentic-lib for all workflows
+        shell: bash
+        run: |
+          ./scripts/deactivate-schedule.sh 1
+          ./scripts/deactivate-schedule.sh 2
+          ./scripts/deactivate-schedule.sh 3
+          ./scripts/deactivate-schedule.sh 4
+          ./scripts/activate-schedule.sh ${{ needs.agentic-lib.outputs.scheduleNumber }}
 
       - name: Commit and push
         id: commit

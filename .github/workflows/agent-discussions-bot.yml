@@ -65,10 +65,11 @@ env:
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
   iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
+  # TODO: Post as the Bot's app account.
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.8'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -215,7 +216,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.3.8'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.4.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -345,86 +346,12 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.3.8'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.4.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  feature-development-flow:
-    needs:
-      - seed-repository
-      - process-discussion-post
-      - generate-response
-    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      packages: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.3.8'
-    with:
-      feature: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #feature-to-issue:
-  #  needs:
-  #    - process-discussion-post
-  #    - generate-response
-  #  if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-feature-to-issue.yml@6.3.8'
-  #  with:
-  #    featureName: ${{ needs.generate-response.outputs.detail }}
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #ready-issue:
-  #  needs:
-  #    - feature-to-issue
-  #    - process-discussion-post
-  #  if: ${{ needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' || needs.generate-response.outputs.action == 'create-issue' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@6.3.8'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #issue-to-code:
-  #  needs:
-  #    - ready-issue
-  #    - generate-response
-  #  if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.3.8'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   trace-discussion:
     needs:
@@ -485,8 +412,65 @@ jobs:
           git commit -m "Add discussion seed trace" || echo "No changes to commit"
           git push
 
-  # TODO: Job to switch up to build mode when kicking off actity
+  feature-development-flow:
+    needs:
+      - seed-repository
+      - process-discussion-post
+      - generate-response
+    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      packages: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.4.0'
+    with:
+      feature: ${{ needs.generate-response.outputs.detail }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  # TODO: Job to drop down to maintenance mode if the discussion topic is resolved.
+  delare-status-and-halt:
+    needs:
+      - process-discussion-post
+      - generate-response
+      - seed-repository
+      - agentic-lib
+    if: always() && needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
 
-  # TODO: Post as the Bot's app account.
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: Log the declaration in the seed discussion file (intentïon) file.
+        run: |
+          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+
+      - name: Set schedule 1 for all workflows
+        shell: bash
+        run: |
+          ./scripts/deactivate-schedule.sh 2
+          ./scripts/deactivate-schedule.sh 3
+          ./scripts/deactivate-schedule.sh 4
+          ./scripts/activate-schedule.sh 1
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git add .github/workflows/
+          git commit -m "Declare status with ${needs.generate-response.outputs.action} and halt workflows"
+          git push
