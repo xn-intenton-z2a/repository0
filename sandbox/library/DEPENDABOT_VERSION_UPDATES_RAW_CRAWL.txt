@@ -1,0 +1,1926 @@
+Secure coding/Dependabot/Dependabot version updatesKeeping your dependencies updated automatically with Dependabot version updatesYou can use Dependabot to automatically keep the dependencies and packages used in your repository updated to the latest version, even when they don’t have any known vulnerabilities.About Dependabot version updatesYou can use Dependabot to keep the packages you use updated to the latest versions.Configuring Dependabot version updatesYou can configure your repository so that Dependabot automatically updates the packages you use.Optimizing the creation of pull requests for Dependabot version updatesLearn how to streamline and efficiently manage your Dependabot pull requests.Customizing Dependabot pull requests to fit your processesLearn how to tailor your Dependabot pull requests to better suit your own internal workflows.Controlling which dependencies are updated by DependabotLearn how to configure your dependabot.yml file so that Dependabot automatically updates the packages you specify, in the way you define.\n\n\n\nSecure coding/Dependabot/Dependabot version updatesKeeping your dependencies updated automatically with Dependabot version updatesYou can use Dependabot to automatically keep the dependencies and packages used in your repository updated to the latest version, even when they don’t have any known vulnerabilities.About Dependabot version updatesYou can use Dependabot to keep the packages you use updated to the latest versions.Configuring Dependabot version updatesYou can configure your repository so that Dependabot automatically updates the packages you use.Optimizing the creation of pull requests for Dependabot version updatesLearn how to streamline and efficiently manage your Dependabot pull requests.Customizing Dependabot pull requests to fit your processesLearn how to tailor your Dependabot pull requests to better suit your own internal workflows.Controlling which dependencies are updated by DependabotLearn how to configure your dependabot.yml file so that Dependabot automatically updates the packages you specify, in the way you define.\n\n\n\nGitHub DocsHelp for wherever you are on your GitHub journey.Get startedGet startedMigrationsAccount and profileAuthenticationBilling and paymentsSite policyCollaborative codingCodespacesRepositoriesPull requestsGitHub DiscussionsGitHub CopilotGitHub CopilotGet code suggestionsPrompt engineeringChat in GitHubCopilot Chat CookbookExtensions quickstartCI/CD and DevOpsGitHub ActionsGitHub PackagesGitHub PagesSecuritySecure codingSecret scanningSupply chain securityDependabotCode scanningSecurity advisoriesClient appsGitHub CLIGitHub MobileGitHub DesktopProject managementGitHub IssuesProjectsSearch on GitHubEnterprise and TeamsOrganizationsSecure your organizationEnterprise onboardingEnterprise administratorsGitHub Well-ArchitectedDevelopersAppsREST APIGraphQL APIWebhooksBuild Copilot ExtensionsGitHub ModelsCommunityBuilding communitiesGitHub SponsorsGitHub EducationGitHub for NonprofitsGitHub SupportContribute to GitHub DocsMore docsCodeQL query writingElectronnpmGetting startedSet up GitAt the heart of GitHub is an open-source version control system (VCS) called Git. Git is responsible for everything GitHub-related that happens locally on your computer.Connecting to GitHub with SSHYou can connect to GitHub using the Secure Shell Protocol (SSH), which provides a secure channel over an unsecured network.Creating and managing repositoriesYou can create a repository on GitHub to store and collaborate on your project's files, then manage the repository's name and location.Basic writing and formatting syntaxCreate sophisticated formatting for your prose and code on GitHub with simple syntax.PopularAbout pull requestsLearn about pull requests and draft pull requests on GitHub. Pull requests communicate changes to a branch in a repository. Once a pull request is opened, you can review changes with collaborators and add follow-up commits.Authentication documentationKeep your account and data secure with features like two-factor authentication, SSH, and commit signature verification.Getting code suggestions in your IDE with GitHub CopilotUse GitHub Copilot to get code suggestions in your editor.Managing remote repositoriesLearn to work with your local repositories on your computer and remote repositories hosted on GitHub.\n\n\n\nSecure coding documentation Build security into your GitHub workflow to secure your software supply chain, automatically find and fix vulnerabilities in your codebase, and prevent data leaks.Overview Run a point-in-time scan to assess your organization's exposure to secret leaks Start hereQuickstart for securing your repositoryManage access to your code. Find and fix vulnerable code and dependencies automatically.Working with secret scanning and push protectionAvoid leaking sensitive data by blocking pushes containing tokens and other secrets.Dependabot quickstart guideFind and fix vulnerable dependencies you rely on with Dependabot.Configuring default setup for code scanningQuickly set up code scanning to find and fix vulnerable code automatically.PopularAbout the secret risk assessmentLearn why it's so important to understand your organization's exposure to data leaks and how the secret risk assessment report gives an overview of your organization’s secret leak footprint.About coordinated disclosure of security vulnerabilitiesVulnerability disclosure is a coordinated effort between security reporters and repository maintainers.Best practices for preventing data leaks in your organizationLearn guidance and recommendations to help you avoid private or sensitive data present in your organization from being exposed.Best practices for fixing security alerts at scaleGuidance on how to create successful security campaigns that engage developers and help them grow their understanding of secure coding.What's newView all Transitive dependencies are now available for MavenMarch 26CodeQL adds support for Java 24 and other improvements in version 2.20.6March 11Dependabot grouped security updates generally availableMarch 28GuidesPlanning a trial of GitHub Advanced SecurityMake the most of your trial so you can decide whether Advanced Security products meet your business needs.@GitHubEnabling secret scanning featuresLearn how to enable secret scanning to detect secrets that are already visible in a repository, as well as push protection to proactively secure you against leaking additional secrets by blocking pushes containing secrets.@GitHubConfiguring default setup for code scanningQuickly set up code scanning to find and fix vulnerable code automatically.@GitHubConfiguring Dependabot security updatesYou can use Dependabot security updates or manual pull requests to easily update vulnerable dependencies.@GitHubAll Secure coding docsGetting started with secure codingGitHub security featuresDependabot quickstart guideQuickstart for securing your repositoryAdding a security policy to your repositoryAuditing security alertsBest practices for preventing data leaks in your organizationUnderstanding GitHub secret typesTrialing GitHub Advanced SecurityPlanning a trial of GitHub Advanced SecurityEnabling security features in your trial enterpriseExploring your enterprise trial of GitHub Secret ProtectionExploring your enterprise trial of GitHub Code SecuritySecuring your organizationIntroduction to securing your organization at scale • 2 articlesEnabling security features in your organization • 5 articlesManaging the security of your organization • 7 articlesUnderstanding your organization's exposure to leaked secrets • 4 articlesFixing security alerts at scale • 4 articlesTroubleshooting security configurations • 2 articlesKeeping secrets secure with secret scanningIntroduction to secret scanning • 4 articlesEnabling secret scanning features • 3 articlesManaging alerts from secret scanning • 5 articlesWorking with secret scanning and push protection • 4 articlesUsing advanced secret scanning and push protection features • 5 articlesEnhance your secret detection capabilities with Copilot secret scanning • 4 articlesTroubleshooting secret scanning and push protection • 1 articlesSecret scanning partnership program • 1 articlesFinding security vulnerabilities and errors in your code with code scanningIntroduction to code scanning • 2 articlesEnabling code scanning • 3 articlesCreating an advanced setup for code scanning • 6 articlesManaging code scanning alerts • 8 articlesManaging your code scanning configuration • 15 articlesIntegrating with code scanning • 4 articlesTroubleshooting code scanning • 21 articlesTroubleshooting SARIF uploads • 6 articlesUse the CodeQL CLI to secure your codeGetting started with the CodeQL CLI • 6 articlesUsing the advanced functionality of the CodeQL CLI • 15 articlesCodeQL CLI commands manual • 75 articlesUse CodeQL inside Visual Studio CodeGetting started with the CodeQL for Visual Studio Code extension • 6 articlesUsing the advanced functionality of the CodeQL for VS Code extension • 9 articlesTroubleshooting CodeQL for VS Code • 2 articlesWorking with security advisoriesWorking with global security advisories from the GitHub Advisory Database • 4 articlesWorking with repository security advisories • 12 articlesGuidance on reporting and writing information about vulnerabilities • 4 articlesSecuring your software supply chainUnderstanding your software supply chain • 13 articlesEnd-to-end supply chain • 4 articlesKeeping your supply chain secure with DependabotEcosystems supported by Dependabot • 2 articlesIdentifying vulnerabilities in your project's dependencies with Dependabot alerts • 4 articlesPrioritizing Dependabot alerts with Dependabot auto-triage rules • 4 articlesAutomatically updating dependencies with known vulnerabilities with Dependabot security updates • 3 articlesKeeping your dependencies updated automatically with Dependabot version updates • 5 articlesWorking with Dependabot • 8 articlesMaintaining dependencies at scale • 3 articlesTroubleshooting Dependabot • 6 articlesViewing security information for your organization or enterpriseAbout security overviewViewing security insightsAssessing adoption of security featuresAssessing the security risk of your codeFiltering alerts in security overviewExporting data from security overviewViewing metrics for secret scanning push protectionViewing metrics for pull request alertsReviewing requests to bypass push protection\n\n\n\nSecure coding/DependabotKeeping your supply chain secure with DependabotMonitor vulnerabilities in dependencies used in your project and keep your dependencies up-to-date with Dependabot.Ecosystems supported by DependabotDependabot supported ecosystems and repositoriesOptimizing Java packages for Dependabot updatesIdentifying vulnerabilities in your project's dependencies with Dependabot alertsAbout Dependabot alertsConfiguring Dependabot alertsViewing and updating Dependabot alertsConfiguring notifications for Dependabot alertsPrioritizing Dependabot alerts with Dependabot auto-triage rulesAbout Dependabot auto-triage rulesUsing GitHub preset rules to prioritize Dependabot alertsCustomizing auto-triage rules to prioritize Dependabot alertsManaging alerts that have been automatically dismissed by a Dependabot auto-triage ruleAutomatically updating dependencies with known vulnerabilities with Dependabot security updatesAbout Dependabot security updatesConfiguring Dependabot security updatesCustomizing pull requests for Dependabot security updatesKeeping your dependencies updated automatically with Dependabot version updatesAbout Dependabot version updatesConfiguring Dependabot version updatesOptimizing the creation of pull requests for Dependabot version updatesCustomizing Dependabot pull requests to fit your processesControlling which dependencies are updated by DependabotWorking with DependabotManaging pull requests for dependency updatesAbout Dependabot on GitHub Actions runnersAutomating Dependabot with GitHub ActionsKeeping your actions up to date with DependabotConfiguring access to private registries for DependabotGuidance for the configuration of private registries for DependabotDependabot options referenceSetting up Dependabot to run on self-hosted action runners using the Actions Runner ControllerMaintaining dependencies at scaleBest practices for maintaining dependenciesManaging Dependabot on self-hosted runnersRemoving Dependabot access to public registriesTroubleshooting DependabotListing dependencies configured for version updatesViewing Dependabot job logsDependabot update pull requests no longer generatedTroubleshooting Dependabot errorsTroubleshooting Dependabot on GitHub ActionsTroubleshooting the detection of vulnerable dependencies\n\n\n\nSecure coding/Dependabot/Dependabot version updatesKeeping your dependencies updated automatically with Dependabot version updatesYou can use Dependabot to automatically keep the dependencies and packages used in your repository updated to the latest version, even when they don’t have any known vulnerabilities.About Dependabot version updatesYou can use Dependabot to keep the packages you use updated to the latest versions.Configuring Dependabot version updatesYou can configure your repository so that Dependabot automatically updates the packages you use.Optimizing the creation of pull requests for Dependabot version updatesLearn how to streamline and efficiently manage your Dependabot pull requests.Customizing Dependabot pull requests to fit your processesLearn how to tailor your Dependabot pull requests to better suit your own internal workflows.Controlling which dependencies are updated by DependabotLearn how to configure your dependabot.yml file so that Dependabot automatically updates the packages you specify, in the way you define.\n\n\n\nSecure coding/Getting started/GitHub security featuresGitHub security featuresAn overview of GitHub's security features.In this articleAbout GitHub's security featuresAvailable for all GitHub plansAvailable with GitHub Secret ProtectionAvailable with GitHub Code SecurityFurther readingAbout GitHub's security features
+GitHub's security features help keep your code and secrets secure in repositories and across organizations.
+
+Some features are available for all GitHub plans.
+Additional features are available to organizations  on GitHub Team and GitHub Enterprise Cloud that purchase a GitHub Advanced Security product:
+
+GitHub Secret Protection
+GitHub Code Security
+
+
+In addition, a number of GitHub Secret Protection and GitHub Code Security features can be run on public repositories for free.
+
+Available for all GitHub plans
+The following security features are available for you to use, regardless of the GitHub plan you are on. You don't need to purchase GitHub Secret Protection or GitHub Code Security to use these features.
+Most of these features are available for public and private repositories.
+Some features are only available for public repositories.
+Security policy
+Make it easy for your users to confidentially report security vulnerabilities they've found in your repository. For more information, see Adding a security policy to your repository.
+Dependency graph
+The dependency graph allows you to explore the ecosystems and packages that your repository depends on and the repositories and packages that depend on your repository.
+You can find the dependency graph on the Insights tab for your repository. For more information, see About the dependency graph.
+Software Bill of Materials (SBOM)
+You can export the dependency graph of your repository as an SPDX-compatible, Software Bill of Materials (SBOM). For more information, see Exporting a software bill of materials for your repository.
+GitHub Advisory Database
+The GitHub Advisory Database contains a curated list of security vulnerabilities that you can view, search, and filter. For more information, see Browsing security advisories in the GitHub Advisory Database.
+Dependabot alerts and security updates
+View alerts about dependencies that are known to contain security vulnerabilities, and choose whether to have pull requests generated automatically to update these dependencies. For more information, see About Dependabot alerts
+and About Dependabot security updates.
+You can also use default Dependabot auto-triage rules curated by GitHub to automatically filter out a substantial amount of false positives.
+For an overview of the different features offered by Dependabot and instructions on how to get started, see Dependabot quickstart guide.
+Dependabot version updates
+Use Dependabot to automatically raise pull requests to keep your dependencies up-to-date. This helps reduce your exposure to older versions of dependencies. Using newer versions makes it easier to apply patches if security vulnerabilities are discovered, and also makes it easier for Dependabot security updates to successfully raise pull requests to upgrade vulnerable dependencies. You can also customize Dependabot version updates to streamline their integration into your repositories. For more information, see About Dependabot version updates.
+Security advisories
+Privately discuss and fix security vulnerabilities in your public repository's code. You can then publish a security advisory to alert your community to the vulnerability and encourage community members to upgrade. For more information, see About repository security advisories.
+Repository rulesets
+Enforce consistent code standards, security, and compliance across branches and tags. For more information, see About rulesets.
+Artifact attestations
+Create unfalsifiable provenance and integrity guarantees for the software you build. For more information, see Using artifact attestations to establish provenance for builds.
+Note
+
+If you are on a GitHub Free, GitHub Pro, or GitHub Team plan, artifact attestations are only available for public repositories. To use artifact attestations in private or internal repositories, you must be on a GitHub Enterprise Cloud plan.
+
+Secret scanning alerts for partners
+When GitHub detects a leaked secret in a public repository, or a public npm packages, GitHub informs the relevant service provider that the secret may be compromised. For details of the supported secrets and service providers, see Supported secret scanning patterns.
+Push protection for users
+Push protection for users automatically protects you from accidentally committing secrets to public repositories, regardless of whether the repository itself has secret scanning enabled. Push protection for users is on by default, but you can disable the feature at any time through your personal account settings. For more information, see Push protection for users.
+Available with GitHub Secret Protection
+For accounts on GitHub Team and GitHub Enterprise Cloud, you can access additional security features when you purchase GitHub Secret Protection.
+GitHub Secret Protection includes features that help you detect and prevent secret leaks, such as secret scanning and push protection.
+These features are available for all repository types. Some of these features are available for public repositories free of charge, meaning that you don't need to purchase GitHub Secret Protection to enable the feature on a public repository.
+Secret scanning alerts for users
+Automatically detect tokens or credentials that have been checked into a repository. You can view alerts for any secrets that GitHub finds in your code, in the Security tab of the repository, so that you know which tokens or credentials to treat as compromised. For more information, see About secret scanning alerts.
+Available for public repositories by default.
+Copilot secret scanning
+Copilot secret scanning's generic secret detection is an AI-powered expansion of secret scanning that identifies unstructured secrets (passwords) in your source code and then generates an alert. For more information, see Responsible detection of generic secrets with Copilot secret scanning.
+Push protection
+Push protection proactively scans your code, and any repository contributors' code, for secrets during the push process and blocks the push if any secrets are detected. If a contributor bypasses the block, GitHub creates an alert. For more information, see About push protection.
+Available for public repositories by default.
+Delegated bypass for push protection
+Delegated bypass for push protection lets you control which individuals, roles and teams can bypass push protection, and implements a review and approval cycle for pushes containing secrets. For more information, see About delegated bypass for push protection.
+Custom patterns
+You can define custom patterns to identify secrets that are not detected by the default patterns supported by secret scanning, such as patterns that are internal to your organization. For more information, see Defining custom patterns for secret scanning.
+Security overview
+Security overview allows you to review the overall security landscape of your organization, view trends and other insights, and manage security configurations, making it easy to monitor your organization's security status and identify the repositories and organizations at greatest risk. For more information, see About security overview.
+Available with GitHub Code Security
+For accounts on GitHub Team and GitHub Enterprise Cloud, you can access additional security features when you purchase GitHub Code Security.
+GitHub Code Security includes features that help you find and fix vulnerabilities, like code scanning, premium Dependabot features, and dependency review.
+These features are available for all repository types. Some of these features are available for public repositories free of charge, meaning that you don't need to purchase GitHub Code Security to enable the feature on a public repository.
+Code scanning
+Automatically detect security vulnerabilities and coding errors in new or modified code. Potential problems are highlighted, with detailed information, allowing you to fix the code before it's merged into your default branch. For more information, see About code scanning.
+Available for public repositories by default.
+CodeQL CLI
+Run CodeQL processes locally on software projects or to generate code scanning results for upload to GitHub. For more information, see About the CodeQL CLI.
+Available for public repositories by default.
+Copilot Autofix
+Get automatically generated fixes for code scanning alerts. For more information, see Responsible use of Copilot Autofix for code scanning.
+Available for public repositories by default.
+Custom auto-triage rules for Dependabot
+Help you manage your Dependabot alerts at scale. With custom auto-triage rules you have control over the alerts you want to ignore, snooze, or trigger a Dependabot security update for. For more information, see About Dependabot alerts and Customizing auto-triage rules to prioritize Dependabot alerts.
+Dependency review
+Show the full impact of changes to dependencies and see details of any vulnerable versions before you merge a pull request. For more information, see About dependency review.
+Available for public repositories by default.
+Security campaigns
+Fix security alerts at scale by creating security campaigns and collaborating with developers to reduce your security backlog. For more information, see About security campaigns.
+Security overview
+Security overview allows you to review the overall security landscape of your organization, view trends and other insights, and manage security configurations, making it easy to monitor your organization's security status and identify the repositories and organizations at greatest risk. For more information, see About security overview.
+Further reading
+
+GitHub’s plans
+About GitHub Advanced Security
+GitHub language support\n\n\n\nSecure coding/Getting started/Dependabot quickstartDependabot quickstart guideFind and fix vulnerable dependencies you rely on with Dependabot.Who can use this feature?Dependabot alerts is available for the following repositories:
+
+Organization-owned and user-owned repositories
+In this articleAbout DependabotPrerequisitesEnabling Dependabot for your repositoryViewing Dependabot alerts for your repositoryFixing or dismissing a Dependabot alertTroubleshootingNext stepsAbout Dependabot
+This quickstart guide walks you through setting up and enabling Dependabot, viewing Dependabot alerts, and updating your repository to use a secure version of the dependency.
+Dependabot consists of three different features that help you manage your dependencies:
+
+Dependabot alerts: Inform you about vulnerabilities in the dependencies that you use in your repository.
+Dependabot security updates: Automatically raise pull requests to update the dependencies you use that have known security vulnerabilities.
+Dependabot version updates: Automatically raise pull requests to keep your dependencies up-to-date.
+
+Prerequisites
+For the purpose of this guide, we're going to use a demo repository to illustrate how Dependabot finds vulnerabilities in dependencies, where you can see Dependabot alerts on GitHub, and how you can explore, fix, or dismiss these alerts.
+You need to start by forking the demo repository.
+
+Navigate to https://github.com/dependabot/demo.
+At the top of the page, on the right, click  Fork.
+Select an owner (you can select your GitHub personal account) and type a repository name. For more information about forking repositories, see Fork a repository.
+Click Create fork.
+
+Enabling Dependabot for your repository
+You need to follow the steps below on the repository you forked in Prerequisites.
+
+
+On GitHub, navigate to the main page of the repository.
+
+
+Under your repository name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, click  Advanced Security.
+
+
+Under "Dependabot", click Enable for Dependabot alerts, Dependabot security updates, and Dependabot version updates.
+
+
+If you clicked Enable for Dependabot version updates, you can edit the default dependabot.yml configuration file that GitHub creates for you in the /.github directory of your repository.
+To enable Dependabot version updates for your repository, you typically configure this file to suit your needs by editing the default file, and committing your changes. You can refer to the snippet provided in Configuring Dependabot version updates for an example.
+
+
+Note
+
+If the dependency graph is not already enabled for the repository, GitHub will enable it automatically when you enable Dependabot.
+
+For more information about configuring each of these Dependabot features, see Configuring Dependabot alerts, Configuring Dependabot security updates, and Configuring Dependabot version updates.
+Viewing Dependabot alerts for your repository
+If Dependabot alerts are enabled for a repository, you can view Dependabot alerts on the "Security" tab for the repository. You can use the forked repository that you enabled Dependabot alerts on in the previous section.
+
+
+On GitHub, navigate to the main page of the repository.
+
+
+Under the repository name, click  Security. If you cannot see the "Security" tab, select the  dropdown menu, and then click Security.
+
+
+
+In the "Vulnerability alerts" sidebar of security overview, click Dependabot. If this option is missing, it means you don't have access to security alerts and need to be given access. For more information, see Managing security and analysis settings for your repository.
+
+
+
+Review the open alerts on the Dependabot alerts page. By default, the page displays the Open tab, listing the open alerts. (You'll be able to view any closed alerts by clicking Closed.)
+
+You can filter Dependabot alerts in the list, using a variety of filters or labels. For more information, see Viewing and updating Dependabot alerts. You can also use Dependabot auto-triage rules to filter out false positive alerts or alerts you're not interested in. For more information, see About Dependabot auto-triage rules.
+
+
+Click the "Command Injection in lodash" alert on the javascript/package-lock.json file. The details page for the alert will show the following information (note that some information may not apply to all alerts):
+
+Whether Dependabot created a pull request that will fix the vulnerability. You can review the suggested security update by clicking Review security update.
+Package involved
+Affected versions
+Patched version
+Brief description of the vulnerability
+
+
+
+
+Optionally, you can also explore the information on the right-side of the page. Some of the information shown in the screenshot may not apply to every alert.
+
+Severity
+CVSS metrics: We use CVSS levels to assign severity levels. For more information, see About the GitHub Advisory database.
+Tags
+Weaknesses: List of CWEs related to the vulnerability, if applicable
+CVE ID: Unique CVE identifier for the vulnerability, if applicable
+GHSA ID: Unique identifier of the corresponding advisory on the GitHub Advisory Database. For more information, see About the GitHub Advisory database.
+Option to navigate to the advisory on the GitHub Advisory Database
+Option to see all of your repositories that are affected by this vulnerability
+Option to suggest improvements for this advisory on the GitHub Advisory Database
+
+
+
+
+For more information about viewing, prioritizing, and sorting Dependabot alerts, see Viewing and updating Dependabot alerts.
+Fixing or dismissing a Dependabot alert
+You can fix or dismiss Dependabot alerts on GitHub. Let's continue to use the forked repository as an example, and the "Command Injection in lodash" alert described in the previous section.
+
+Navigate to the Dependabot alerts tab for the repository. For more information, see the Viewing Dependabot alerts for your repository section above.
+Click an alert.
+Click the "Command Injection in lodash" alert on the javascript/package-lock.json file.
+Review the alert. You can:
+
+
+Review the suggested security update by clicking Review security update. This will open the pull request generated by Dependabot with the security fix.
+
+
+On the pull request description, you can click Commits to explore the commits included in the pull request.
+You can also click Dependabot commands and options to learn about the commands that you can use to interact with the pull request.
+When you're ready to update your dependency and resolve the vulnerability, merge the pull request.
+
+
+
+If you decide that you want to dismiss the alert
+
+
+Go back to the alert details page.
+
+
+On the top-right corner, click Dismiss alert.
+
+
+
+Select a reason for dismissing the alert.
+
+
+Optionally, add a dismissal comment. The dismissal comment will be added to the alert timeline and can be used as justification during auditing and reporting.
+
+
+Click Dismiss alert. The alert won't appear anymore in the Open tab of the alert list, and you are able to view it in the Closed tab.
+
+
+
+
+
+
+For more information about reviewing and updating Dependabot alerts, see Viewing and updating Dependabot alerts.
+Troubleshooting
+You may need to do some troubleshooting if:
+
+Dependabot is blocked from creating a pull request to fix an alert, or
+The information reported by Dependabot is not what you expect.
+
+For more information, see Troubleshooting Dependabot errors and Troubleshooting the detection of vulnerable dependencies, respectively.
+Next steps
+For more information about configuring Dependabot updates, see Configuring Dependabot security updates and Configuring Dependabot version updates.
+For more information about configuring Dependabot for an organization, see Configuring Dependabot alerts.
+For more information about viewing pull requests opened by Dependabot, see Managing pull requests for dependency updates.
+For more information about the security advisories that contribute to Dependabot alerts, see Browsing security advisories in the GitHub Advisory Database.
+For more information about configuring notifications about Dependabot alerts, see Configuring notifications for Dependabot alerts.\n\n\n\nSecure coding/Getting started/Secure repository quickstartQuickstart for securing your repositoryManage access to your code. Find and fix vulnerable code and dependencies automatically.Who can use this feature?Repository owners, organization owners, security managers, and users with the admin roleIn this articleIntroductionManaging access to your repositoryManaging the dependency graphManaging Dependabot alertsManaging dependency reviewManaging Dependabot security updatesManaging Dependabot version updatesConfiguring Code SecurityConfiguring Secret ProtectionSetting a security policyNext stepsIntroduction
+This guide shows you how to configure security features for a repository.
+Your security needs are unique to your repository, so you may not need to enable every feature for your repository. For more information, see GitHub security features.
+Some features are available for repositories on all plans. Additional features are available to organizations and enterprises that use GitHub Secret Protection, GitHub Code Security, or GitHub Advanced Security. GitHub Advanced Security features are also enabled for all public repositories on GitHub. For more information, see About GitHub Advanced Security.
+Managing access to your repository
+The first step to securing a repository is to establish who can see and modify your code. For more information, see Managing your repository’s settings and features.
+From the main page of your repository, click  Settings, then scroll down to the "Danger Zone."
+
+To change who can view your repository, click Change visibility. For more information, see Setting repository visibility.
+To change who can access your repository and adjust permissions, click Manage access. For more information, see Managing teams and people with access to your repository.
+
+Managing the dependency graph
+The dependency graph is automatically generated for all public repositories. You can choose to enable it for forks and for private repositories. The dependency graph interprets manifest and lock files in a repository to identify dependencies.
+
+From the main page of your repository, click  Settings.
+Click Advanced Security.
+Next to Dependency graph, click Enable or Disable.
+
+For more information, see Exploring the dependencies of a repository.
+Managing Dependabot alerts
+Dependabot alerts are generated when GitHub identifies a dependency in the dependency graph with a vulnerability. You can enable Dependabot alerts for any repository.
+Additionally, you can use Dependabot auto-triage rules to manage your alerts at scale, so you can auto-dismiss or snooze alerts, and specify which alerts you want Dependabot to open pull requests for. For information about the different types of auto-triage rules, and whether your repositories are eligible, see About Dependabot auto-triage rules.
+For an overview of the different features offered by Dependabot and instructions on how to get started, see Dependabot quickstart guide.
+
+Click your profile photo, then click Settings.
+Click Advanced Security.
+Click Enable next to Dependabot alerts.
+
+For more information, see About Dependabot alerts and Managing security and analysis settings for your personal account.
+Managing dependency review
+Dependency review lets you visualize dependency changes in pull requests before they are merged into your repositories. For more information, see About dependency review.
+Dependency review is a GitHub Code Security feature. Dependency review is already enabled for all public repositories. Organizations that use GitHub Team or GitHub Enterprise Cloud with GitHub Code Security can additionally enable dependency review for private and internal repositories.
+To enable dependency review for a repository, ensure that the dependency graph is enabled and enable GitHub Code Security.
+
+From the main page of your repository, click  Settings.
+Click Advanced Security.
+To the right of Code Security, click Enable.
+Under Code Security, check that dependency graph is enabled for the repository.
+
+For public repositories, dependency graph is always enabled.
+
+
+
+Managing Dependabot security updates
+For any repository that uses Dependabot alerts, you can enable Dependabot security updates to raise pull requests with security updates when vulnerabilities are detected.
+
+From the main page of your repository, click  Settings.
+Click Advanced Security.
+Next to Dependabot security updates, click Enable.
+
+For more information, see About Dependabot security updates and Configuring Dependabot security updates.
+Managing Dependabot version updates
+You can enable Dependabot to automatically raise pull requests to keep your dependencies up-to-date. For more information, see About Dependabot version updates.
+
+From the main page of your repository, click  Settings.
+Click Advanced Security.
+Next to Dependabot version updates, click Enable to create a basic dependabot.yml configuration file.
+Specify the dependencies to update and any associated configuration options, then commit the file to the repository. For more information, see Configuring Dependabot version updates.
+
+Configuring Code Security
+Note
+
+Code Security features are available for all public repositories, and for private repositories owned by organizations that are part of a team or an enterprise that uses GitHub Code Security.
+
+GitHub Code Security includes code scanning, CodeQL CLI and Copilot Autofix, as well as other features that find and fix vulnerabilities in your codebase.
+You can configure code scanning to automatically identify vulnerabilities and errors in the code stored in your repository by using a CodeQL analysis workflow or third-party tool. Depending on the programming languages in your repository, you can configure code scanning with CodeQL using default setup, in which GitHub automatically determines the languages to scan, query suites to run, and events that will trigger a new scan. For more information, see Configuring default setup for code scanning.
+
+From the main page of your repository, click  Settings.
+In the "Security" section of the sidebar, click  Advanced Security.
+If "Code Security" is not already enabled, click Enable.
+Under "Code Security", to the right of "CodeQL analysis", select Set up , then click Default.
+In the pop-up window that appears, review the default configuration settings for your repository, then click Enable CodeQL.
+Choose whether you want to enable addition features, such as Copilot Autofix.
+
+As an alternative to default setup, you can use advanced setup, which generates a workflow file you can edit to customize your code scanning with CodeQL. For more information, see Configuring advanced setup for code scanning.
+Configuring Secret Protection
+Note
+
+Secret Protection features are available for all public repositories, and for user-owned and organization-owned repositories that are part of a team or an enterprise that uses GitHub Secret Protection.
+
+GitHub Secret Protection includes secret scanning and push protection, as well as other features that help you detect and prevent secret leaks in your repository.
+
+From the main page of your repository, click  Settings.
+Click Advanced Security.
+If Secret Protection is not already enabled, click Enable.
+Choose whether you want to enable additional features, such as validity checks, scanning for non-provider patterns, and push protection.
+
+Setting a security policy
+If you are a repository maintainer, it's good practice to specify a security policy for your repository by creating a file named SECURITY.md in the repository. This file instructs users about how to best contact you and collaborate with you when they want to report security vulnerabilities in your repository. You can view the security policy of a repository from the repository’s Security tab.
+
+From the main page of your repository, click  Security.
+Click Security policy.
+Click Start setup.
+Add information about supported versions of your project and how to report vulnerabilities.
+
+For more information, see Adding a security policy to your repository.
+Next steps
+You can view and manage alerts from security features to address dependencies and vulnerabilities in your code. For more information, see Viewing and updating Dependabot alerts, Managing pull requests for dependency updates, Assessing code scanning alerts for your repository, and Managing alerts from secret scanning.
+You can also use GitHub's tools to audit responses to security alerts. For more information, see Auditing security alerts.
+If you have a security vulnerability in a public repository, you can create a security advisory to privately discuss and fix the vulnerability. For more information, see About repository security advisories and Creating a repository security advisory.
+If you use GitHub Actions, you can use GitHub's security features to increase the security of your workflows. For more information, see Using GitHub's security features to secure your use of GitHub Actions.\n\n\n\nSecure coding/Getting started/Add a security policyAdding a security policy to your repositoryYou can give instructions for how to report a security vulnerability in your project by adding a security policy to your repository.In this articleAbout security policiesAdding a security policy to your repositoryFurther readingAbout security policies
+To give people instructions for reporting security vulnerabilities in your project, you can add a SECURITY.md file to your repository's root, docs, or .github folder. Adding this file to this part(s) of your repository automatically creates a row with a description where people can review it. When someone creates an issue in your repository, they will see a link to your project's security policy.
+You can create a default security policy for your organization or personal account. For more information, see Creating a default community health file.
+Tip
+
+To help people find your security policy, you can link to your SECURITY.md file from other places in your repository, such as your README file. For more information, see About READMEs.
+
+After someone reports a security vulnerability in your project, you can use GitHub Security Advisories to disclose, fix, and publish information about the vulnerability. For more information about the process of reporting and disclosing vulnerabilities in GitHub, see About coordinated disclosure of security vulnerabilities. For more information about repository security advisories, see About repository security advisories.
+You can also join GitHub Security Lab to browse security-related topics and contribute to security tools and projects.
+For an example of a real SECURITY.md file, see https://github.com/electron/electron/blob/main/SECURITY.md.
+Adding a security policy to your repository
+
+
+On GitHub, navigate to the main page of the repository.
+
+
+Under the repository name, click  Security. If you cannot see the "Security" tab, select the  dropdown menu, and then click Security.
+
+
+
+In the left sidebar, under "Reporting", click  Policy.
+
+
+Click Start setup.
+
+
+In the new SECURITY.md file, add information about supported versions of your project and how to report a vulnerability.
+
+
+Click Commit changes...
+
+
+In the "Commit message" field, type a short, meaningful commit message that describes the change you made to the file. You can attribute the commit to more than one author in the commit message. For more information, see Creating a commit with multiple authors.
+
+
+If you have more than one email address associated with your account on GitHub, click the email address drop-down menu and select the email address to use as the Git author email address. Only verified email addresses appear in this drop-down menu. If you enabled email address privacy, then a no-reply will be the default commit author email address. For more information about the exact form the no-reply email address can take, see Setting your commit email address.
+
+
+
+Below the commit message fields, decide whether to add your commit to the current branch or to a new branch. If your current branch is the default branch, you should choose to create a new branch for your commit and then create a pull request. For more information, see Creating a pull request.
+
+
+
+Click Commit changes or Propose changes.
+
+
+Further reading
+
+Quickstart for securing your repository
+Setting up your project for healthy contributions
+GitHub Security Lab\n\n\n\nSecure coding/Getting started/Audit security alertsAuditing security alertsGitHub provides a variety of tools you can use to audit and monitor actions taken in response to security alerts.In this articleAbout security tools for auditorsSecurity alert timelinesSecurity overview pageAudit logWebhooksAPIFurther readingAbout security tools for auditors
+GitHub provides tools for security auditors and developers to review and analyze responses to security alerts within an enterprise or organization. This guide describes the tools, which include historical timelines, security overview, audit logs, the API, and webhooks.
+Security auditors can use these tools to ensure the appropriate actions are being taken to resolve security alerts and to identify areas for additional training. Developers can use these tools to monitor and debug their own security alerts. You will only see data for repositories and organizations to which you already have access.
+Security alert timelines
+Each security alert has a historical timeline that shows when the alert was created or when a problem was detected. When the status of an alert changes this is recorded on the timeline, regardless of what caused the change, for example, Dependabot closing a fixed alert and a developer reopening an alert. You can see the historical timeline for an alert on the alert page under the description of the problem.
+Many of the events in the timeline also create an event in the audit log, which you can query using the audit log UI or the API. For more information, see Audit log.
+Security overview page
+Security overview consolidates information about security alerts and provides high-level summaries of the security status of your enterprise or organization.
+In security overview you can see repositories with open security alerts, as well as which repositories have enabled specific security features. You can also use security overview to filter and sort security alerts using interactive views.
+For more information, see About security overview.
+Audit log
+You can access and search audit logs using the API or the audit log UI. The audit log lists events that are triggered by activities affecting your enterprise or organization, including events that are created when there are certain interactions with a security alert. Interactions that create an event can be triggered manually or by automation, for example, when Dependabot creates an alert.
+
+Secret scanning events track when an alert is created, resolved, or reopened, also when push protection is bypassed.
+Dependabot events track when an alert is created, dismissed, or resolved.
+Code scanning does not create timeline events in an audit log.
+
+For a list of audit log events, see Audit log events for your enterprise and Audit log events for your organization.
+For information on how to access the audit log for your enterprise or organization, see Accessing the audit log for your enterprise and Reviewing the audit log for your organization.
+Webhooks
+You can set up code_scanning_alert, dependabot_alert, and secret_scanning_alert webhooks to receive payloads whenever there is a response to a security alert in an organization or repository. You can also define which responses to act on, for example, you might want to define a webhook that tracks secret scanning alerts created when someone bypasses push protection using the alert property "push_protection_bypassed": true.
+You can also integrate webhook payloads into other tools you use to monitor and inform security behaviors. For example, a webhook fires when a secret alert is either created, resolved, revoked, reopened, or when a secret's validity status changes. You can then parse the webhook payload and integrate it into tools your team uses like Slack, Microsoft Teams, Splunk, or email. For more information, see About webhooks and Webhook events and payloads.
+API
+You can use the API to list and interact with security alerts, for example, getting the most recent information about updates or dismissals of an alert. You can also use the API to make additional updates to the alert or to automate follow-up actions, such as creating a new issue for each alert that needs further action. Only the current status of an alert is reported by the API.
+Dependabot alerts API
+You can list all Dependabot alerts for a repository, organization, or enterprise, or use path parameters to list only alerts that meet a specific set of criteria. For example, you might only want to list Dependabot alerts for Maven that were dismissed. Alternatively, you can get full details for an alert or update the alert.
+For more information, see Dependabot alerts.
+Secret scanning alerts API
+You can list all secret scanning alerts for a repository, organization, or enterprise, or use path parameters to list only alerts that meet a specific set of criteria. Alternatively, you can get full details for an alert or update the alert.
+To see which secret scanning alerts were the result of a push protection bypass, filter the results for "push_protection_bypassed": true.
+For more information, see Secret scanning.
+Code scanning alerts API
+You can list all code scanning alerts for a repository, organization, or enterprise, or use path parameters to list only alerts that meet a specific set of criteria. Alternatively, you can get full details for an alert or update the alert.
+For more information, see Code scanning.
+Further reading
+
+Assessing code scanning alerts for your repository
+Viewing and updating Dependabot alerts
+Managing alerts from secret scanning\n\n\n\nSecure coding/Getting started/Prevent data leaksBest practices for preventing data leaks in your organizationLearn guidance and recommendations to help you avoid private or sensitive data present in your organization from being exposed.In this articleAbout this guideSecure accountsPrevent data leaksDetect data leaksMitigate data leaksNext stepsAbout this guide
+As an organization owner, preventing exposure of private or sensitive data should be a top priority. Whether intentional or accidental, data leaks can cause substantial risk to the parties involved. While GitHub takes measures to help protect you against data leaks, you are also responsible for administering your organization to harden security.
+There are several key components when it comes to defending against data leaks:
+
+Taking a proactive approach towards prevention
+Early detection of possible leaks
+Maintaining a mitigation plan when an incident occurs
+
+The best approach will depend on the type of organization you're managing. For example, an organization that focuses on open source development might require looser controls than a fully commercial organization, to allow for external collaboration. This article provide high level guidance on the GitHub features and settings to consider, which you should implement according to your needs.
+Secure accounts
+Protect your organization's repositories and settings by implementing security best practices, including enabling 2FA and requiring it for all members, and establishing strong password guidelines.
+
+
+Requiring organization members, outside collaborators, and billing managers to enable 2FA for their personal accounts, making it harder for malicious actors to access an organization's repositories and settings. For more information, see Requiring two-factor authentication in your organization.
+
+
+Encouraging your users to create strong passwords and secure them appropriately, by following GitHub’s recommended password guidelines. For more information, see Creating a strong password.
+
+
+Encouraging your users to keep push protection for users enabled in their personal account settings, so that no matter which public repository they push to, they are protected. For more information, see Push protection for users.
+
+
+Establishing an internal security policy in GitHub, so users know the appropriate steps to take and who to contact if an incident is suspected. For more information, see Adding a security policy to your repository.
+
+
+For more detailed information about securing accounts, see Best practices for securing accounts.
+Prevent data leaks
+As an organization owner, you should limit and review access as appropriate for the type of your organization. Consider the following settings for tighter control:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RecommendationMore informationDisable the ability to fork repositories.Managing the forking policy for your repositoryDisable changing repository visibility.Restricting repository visibility changes in your organizationRestrict repository creation to private or internal.Restricting repository creation in your organizationDisable repository deletion and transfer.Setting permissions for deleting or transferring repositoriesScope personal access tokens to the minimum permissions necessary.NoneSecure your code by converting public repositories to private whenever appropriate. You can alert the repository owners of this change automatically using a GitHub App.Prevent-Public-Repos in GitHub MarketplaceConfirm your organization’s identity by verifying your domain and restricting email notifications to only verified email domains.Verifying or approving a domain for your organizationEnsure your organization has upgraded to the GitHub Customer Agreement instead of using the Standard Terms of Service.Upgrading to the GitHub Customer AgreementPrevent contributors from making accidental commits.Removing sensitive data from a repository
+Detect data leaks
+No matter how well you tighten your organization to prevent data leaks, some may still occur, and you can respond by using secret scanning, the audit log, and branch protection rules.
+Use secret scanning
+Secret scanning helps secure code and keep secrets safe across organizations and repositories by scanning and detecting secrets that were accidentally committed over the full Git history of every branch in GitHub repositories. Any strings that match patterns provided by secret scanning partners, by other service providers, or defined by you or your organization, are reported as alerts in the Security tab of repositories.
+There are two forms of secret scanning available: Secret scanning alerts for partners and Secret scanning alerts for users.
+
+
+Secret scanning alerts for partners: These are enabled by default and automatically run on all public repositories and public npm packages.
+
+
+Secret scanning alerts for users: To get additional scanning capabilities for your organization, you need to enable secret scanning alerts for users.
+When enabled, secret scanning alerts for users can be detected on the following types of repository:
+
+Public repositories owned by personal accounts on GitHub.com
+Public repositories owned by organizations
+Private and internal repositories owned by organizations using GitHub Team or GitHub Enterprise Cloud, with a license for GitHub Code Security
+
+
+
+Tip
+
+Regardless of the enablement status of secret scanning and push protection, organizations on GitHub Team and GitHub Enterprise can run a free report to scan the code in the organization for leaked secrets. See About the secret risk assessment.
+
+For more information about secret scanning, see About secret scanning.
+You can also enable secret scanning as a push protection for a repository or an organization. When you enable this feature, secret scanning prevents contributors from pushing code with a detected secret. For more information, see About push protection. Finally, you can also extend the detection to include custom secret string structures. For more information, see Defining custom patterns for secret scanning.
+Review the audit log for your organization
+You can also proactively secure IP and maintain compliance for your organization by leveraging your organization's audit log, along with the GraphQL Audit Log API. For more information, see Reviewing the audit log for your organization and Interfaces.
+Set up branch protection rules
+To ensure that all code is properly reviewed prior to being merged into the default branch, you can enable branch protection. By setting branch protection rules, you can enforce certain workflows or requirements before a contributor can push changes. For more information, see About protected branches.
+As an alternative to branch protection rules, you can create rulesets. Rulesets have a few advantages over branch protection rules, such as statuses, and better discoverability without requiring admin access. You can also apply multiple rulesets at the same time. For more information, see About rulesets.
+Mitigate data leaks
+If a user pushes sensitive data, ask them to remove it by using the git filter-repo tool. For more information, see Removing sensitive data from a repository. Also, if the sensitive data has not been pushed yet, you can just undo those changes locally; for more information, see the GitHub Blog (but note that git revert is not a valid way to undo the addition of sensitive data as it leaves the original sensitive commit in Git history).
+If you're unable to coordinate directly with the repository owner to remove data that you're confident you own, you can fill out a DMCA takedown notice form and tell GitHub Support.  Make sure to include the problematic commit hashes.  For more information, see DMCA takedown notice.
+Note
+
+If one of your repositories has been taken down due to a false claim, you should fill out a DMCA
+counter notice form and alert GitHub Support. For more information, see DMCA counter notice.
+
+Revoke exposed tokens
+If a personal access tokens has been exposed in a GitHub repository, GitHub secret scanning can be used to report and revoke the token. For more information, see Resolving alerts from secret scanning.
+You can also revoke personal access tokens that you do not own and have been exposed outside of GitHub repositories. By doing this, you are contributing to the overall security of the GitHub community and can quickly limit the impact of these tokens. If you find exposed personal access tokens either on GitHub or elsewhere, you can submit a revocation request using the REST API. See Revocation.
+Next steps
+
+Best practices for securing code in your supply chain
+Best practices for securing your build system\n\n\n\nSecure coding/Getting started/GitHub secret typesUnderstanding GitHub secret typesLearn about the usage, scope, and access permissions for GitHub secrets.In this articleAbout GitHub's secret typesDependabot secretsActions secretsCodespaces secretsFurther readingAbout GitHub's secret types
+GitHub secrets are used to securely store sensitive information like API keys, tokens, and passwords in repositories.
+When you store the sensitive information as a GitHub secret, you remove the need to hardcode the credential or key, and prevent exposure of it in your code or logs. The secret can then be used to authenticate services, manage credentials, and securely pass sensitive data in workflows.
+There are three types of secrets used by GitHub:
+
+Dependabot secrets
+Actions secrets
+Codespaces secrets
+
+Depending on the GitHub secret type, you can create and manage secrets under your repository, organization, or personal account security settings page.
+Understanding how GitHub stores secrets
+GitHub uses Libsodium sealed boxes to encrypt secrets. A secret is encrypted before reaching GitHub and remains encrypted until it's used by the relevant service (Dependabot, GitHub Actions, or Codespaces).
+Dependabot secrets
+Dependabot secrets are used to store credentials and sensitive information for use within Dependabot.
+Dependabot secrets are referenced in a repository's dependabot.yml file.
+Usage
+Dependabot secrets are typically used by Dependabot to authenticate to private package registries. This allows Dependabot to open pull requests to update vulnerable or outdated dependencies in private repositories. Used for authentication, these Dependabot secrets are referenced in a repository's dependabot.yml file.
+Dependabot secrets can also include secrets required for workflows initiated by Dependabot. For example, Dependabot can trigger GitHub Actions workflows when it creates pull requests to update dependencies, or comments on pull requests. In this case, Dependabot secrets can be referenced from workflow files (.github/workflows/*.yml) as long as the workflow is triggered by a Dependabot event.
+Scope
+You can define Dependabot secrets at:
+
+Repository level
+Organization level
+
+Dependabot secrets can be shared across repositories when set at the organization-level. You must specify which repositories in the organization can access the secret.
+Access permissions
+Dependabot secrets are accessed by Dependabot when authenticating to private registries to update dependencies.
+Dependabot secrets are accessed by GitHub Actions workflows when the trigger event for the workflow is initiated by Dependabot. This is because when a workflow is initiated by Dependabot, only Dependabot secrets are available - Actions secrets are not accessible. Therefore, any secrets required for these workflows must be stored as Dependabot secrets, rather than Actions secrets. There are additional security restrictions for the pull_request_target event. See Limitations and restrictions.
+User access permissions
+Repository-level secrets:
+
+Users with admin access to the repository can create and manage Dependabot secrets.
+Users with collaborator access to the repository can use the secret for Dependabot.
+
+Organization-level secrets:
+
+Organization owners can create and manage Dependabot secrets.
+Users with collaborator access to the repositories with access to each secret can use the secret for Dependabot.
+
+Limitations and restrictions
+For workflows initiated by Dependabot, the pull_request_target event is treated differently to other events. For this event, if the base ref of the pull request was created by Dependabot (github.event.pull_request.user.login == 'dependabot[bot]'):
+
+The workflow receives a read-only GITHUB_TOKEN.
+Secrets are not available to the workflow.
+
+This extra restriction helps prevent potential security risks that could arise from pull requests created by Dependabot.
+Dependabot secrets are not passed to forks.
+Actions secrets
+Actions secrets are used to store sensitive information such as API keys, authentication tokens, and other credentials in workflows.
+Usage
+Actions secrets are referenced in workflow files (.github/workflows/*.yml).
+Scope
+You can define Actions secrets at:
+
+Repository level
+Environment level
+Organization level
+
+Environment-level secrets are specific to a particular environment, such as production or staging.
+Actions secrets can be shared across repositories if set at the organization-level. You can use access policies to control which repositories have access to the secret.
+Access permissions
+Actions secrets are only available within GitHub Actions workflows. Despite running on Actions, Dependabot does not have access to Actions secrets.
+For workflows initiated by Dependabot, Actions secrets are not available. These workflow secrets must be stored as Dependabot secrets in order to be accessible to the workflow.
+The location where you store the Actions secret determines its accessibility:
+
+Repository secret: all workflows in the repository can access the secret.
+Environment secret: secret is limited to jobs referencing that particular environment.
+Organization secret: all workflows in the repositories that have been granted access by the organization can access the organization secrets.
+
+User access permissions
+Repository-level and environment secrets:
+
+Users with admin access to the repository can create and manage Actions secrets.
+Users with collaborator access to the repository can use the secret.
+
+Organization-level secrets:
+
+Organization owners can create and manage Actions secrets.
+Users with collaborator access to the repositories with access to each secret can use the secret.
+
+Limitations and restrictions
+
+Actions secrets are not available to workflows initiated by Dependabot.
+Actions secrets are not passed to workflows that are triggered by a pull request from a fork.
+GitHub Actions automatically redacts the contents of all GitHub secrets that are printed to workflow logs.
+You can store up to 1,000 organization secrets, 100 repository secrets, and 100 environment secrets. Secrets are limited to 48 KB in size. For more information, see Limits for secrets.
+
+Codespaces secrets
+Codespaces secrets store credentials and sensitive information, such as API tokens and SSH keys, for use within GitHub Codespaces, allowing you to configure secure development environments.
+Usage
+Codespaces secrets are referenced within the Codespaces development container configuration (devcontainer.json).
+Scope
+You can define Codespaces secrets at:
+
+User account level
+Repository level
+Organization level
+
+For user account level secrets, you can choose which repositories have access to the secret.
+Codespaces secrets can be shared across repositories if set at the organization-level. You can use access policies to control which repositories have access to the secret.
+Access permissions
+Codespaces secrets are only accessible in Codespaces.
+GitHub Actions cannot access Codespaces secrets.
+User access permissions
+User account-level secrets:
+
+Codespaces secrets are available to any codespace you create using repositories with access to that secret.
+
+Repository-level secrets:
+
+Users with admin access to the repository can create and manage Codespaces secrets.
+Users with collaborator access to the repository can use the secret.
+
+Organization-level secrets:
+
+Organization owners can create and manage Codespaces secrets.
+Users with collaborator access to the repositories with access to each secret can use the secret.
+
+Limitations and restrictions
+
+You can store up to 100 secrets for GitHub Codespaces.
+Secrets are limited to 48 KB in size.
+Codespaces secrets are not passed to forks.
+
+Further reading
+
+Configuring access to private registries for Dependabot
+Using secrets in GitHub Actions
+Managing development environment secrets for your repository or organization
+Managing your account-specific secrets for GitHub Codespaces\n\n\n\nSecure coding/Trial GitHub Advanced Security/Plan GHAS trialPlanning a trial of GitHub Advanced SecurityMake the most of your trial so you can decide whether Advanced Security products meet your business needs.In this articleAbout trialing GitHub Advanced SecurityDefine your company goalsIdentify the members of your trial teamDetermine whether preliminary research is neededAgree the organizations and repositories to testDefine the assessment criteria for the trialNext stepsAbout trialing GitHub Advanced Security
+You can trial GitHub Advanced Security independently, or working with an expert from GitHub or a partner organization. The primary audience for these articles is people who will plan and run their trial independently, typically small and medium-sized organizations.
+Note
+ Although GitHub Advanced Security is free of charge during trials, you will be charged for any actions minutes that you use. That is, actions minutes used by the code scanning default setup or by any other workflows you run.
+
+Existing GitHub Enterprise Cloud users
+For more information, see Setting up a trial of GitHub Advanced Security.
+Users on other GitHub plans
+You can trial GitHub Advanced Security as part of a trial of GitHub Enterprise Cloud. For more information, see Setting up a trial of GitHub Enterprise Cloud in the GitHub Enterprise Cloud documentation.
+When the trial ends
+If you don't already use GitHub Team or GitHub Enterprise, you will need to upgrade your plan to continue using GitHub Secret Protection or GitHub Code Security in private repositories when the trial ends.
+GitHub Secret Protection and GitHub Code Security are billed by usage of unique committers to repositories with Secret Protection or Code Security enabled. For more information, see About billing for GitHub Advanced Security.
+Define your company goals
+Before you start a trial, you should define the purpose of the trial and identify the key questions you need to answer. Maintaining a strong focus on these goals will enable you to plan a trial that maximizes discovery and ensures that you have the information needed to decide whether or not to upgrade.
+If your company already uses GitHub, consider what needs are currently unmet that Secret Protection or Code Security might address. You should also consider your current application security posture and longer term aims. For inspiration, see Design Principles for Application security in the GitHub well-architected documentation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Example needFeatures to explore during the trialEnforce use of security featuresEnterprise-level security configurations and policies, see About security configurations and About enterprise policiesProtect custom access tokensCustom patterns for secret scanning, delegated bypass for push protection, and validity checks, see Exploring your enterprise trial of GitHub Secret ProtectionDefine and enforce a development processDependency review, auto-triage rules, rulesets, and policies, see About dependency review, About Dependabot auto-triage rules, About rulesets, and About enterprise policiesReduce technical debt at scaleCode scanning and security campaigns, see Exploring your enterprise trial of GitHub Code SecurityMonitor and track trends in security risksSecurity overview, see Viewing security insights
+
+If your company doesn't use GitHub yet, you are likely to have additional questions including how the platform handles data residency, secure account management, and repository migration. For more information, see Getting started with GitHub Enterprise Cloud.
+Identify the members of your trial team
+GitHub Advanced Security enables you to integrate security measures throughout the software development life cycle, so it's important to ensure that you include representatives from all areas of your development cycle. Otherwise you risk making a decision without having all the data you need. A trial includes 50 licenses which provides scope for representation from a wide range of people.
+You may also find it helpful to identify a champion for each company need that you want to investigate.
+Determine whether preliminary research is needed
+If members of your trial team have not yet used the core features of GitHub Advanced Security, it may be helpful to add an experimentation phase in public repositories before you start a trial. Many of the primary features of code scanning and secret scanning can be used on public repositories. Having a good understanding of the core features will allow you to focus your trial period on private repositories, and exploring the additional features and control available with Secret Protection and Code Security.
+For more information, see About secret scanning, About code scanning, and About supply chain security.
+Organizations on GitHub Team and GitHub Enterprise can run a free report to scan the code in their organization for leaked secrets. This can help you understand the current exposure of the repositories in your organization to leaked secrets, as well as see how many existing secret leaks could have been prevented by Secret Protection. See About the secret risk assessment.
+Agree the organizations and repositories to test
+Generally it is best to use an existing organization for a trial. This ensures that you can trial the features in repositories you know well and that accurately represent your coding environment. Once you start the trial, you may want to create additional organizations with test code to expand your explorations.
+Be aware that deliberately insecure applications, such as WebGoat, may contain coding patterns that appear to be insecure, but which code scanning determines cannot be exploited. Code scanning typically generates fewer results for artificially insecure codebases than other static application security scanners.
+Define the assessment criteria for the trial
+For each company need or goal that you identify, determine what criteria you will measure to determine whether it is successfully met or not. For example, if one need is to enforce the use of security features, you might define a range of test cases for security configurations and policies to give you confidence that they enforce processes as you expect.
+Next steps
+
+Setting up a trial of GitHub Enterprise Cloud
+Enabling security features in your trial enterprise
+Exploring your enterprise trial of GitHub Secret Protection
+Exploring your enterprise trial of GitHub Code Security\n\n\n\nSecure coding/Trial GitHub Advanced Security/Enable security features in trialEnabling security features in your trial enterpriseQuickly create an enterprise-level configuration and apply Secret Protection and Code Security features across all repositories in your trial enterprise.Who can use this feature?Enterprise owners and members with the admin roleIn this articleStep 1: Create an enterprise security configuration for your trial goalsStep 2: Apply your enterprise security configuration to repositoriesNext stepsThis article assumes that you have planned and then started a trial of GitHub Advanced Security. For more information, see Planning a trial of GitHub Advanced Security.
+The aim is to enable all the security features you want to trial quickly, as a starting point for deeper exploration. You should start getting results soon on the repositories in your trial enterprise and you can fine-tune the configuration later.
+Step 1: Create an enterprise security configuration for your trial goals
+When you planned your trial, you identified the features that you want to test and any enforcement needs. You should create one or more security configurations for your enterprise that enable these features and set any enforcement levels you require.
+
+In the top-right corner of GitHub, click your profile photo.
+Depending on your environment, click Your enterprise, or click Your enterprises then click your trial enterprise.
+On the left side of the page, in the enterprise account sidebar, click  Settings.
+In the left sidebar, click  Advanced Security.
+Click New configuration to create a new configuration.
+Give the configuration a meaningful name and description.
+You will see that most features are already enabled. Review the features that are Not set and enable any that you want to trial, for example: "Automatic dependency submission."
+In the "Policy" area, set the "Use as default for newly created repositories" option as needed to define whether or not to apply the configuration to new repositories created in the enterprise.
+In the "Policy" area, notice that the "Enforce configuration" option is set to Enforce so that applying the configuration to a repository enforces all settings apart from any left as "Not set".
+Tip
+ While you are testing Advanced Security, you may want to change this to Don't enforce to allow you to optimize repository settings as needed without modifying security configurations.
+
+
+When you have finished defining the configuration, click Save configuration.
+
+The new enterprise security configuration is now available for use at the enterprise level and also within every organization in the enterprise.
+Step 2: Apply your enterprise security configuration to repositories
+You can apply an enterprise security configuration either at the enterprise level or at the organization level. The best option for you will depend on whether or not you want to apply the configuration to all repositories in the enterprise, or to a subset of repositories.
+Note
+ Although Secret Protection and Code Security are free of charge during trials, you will be charged for any actions minutes that you use. This includes actions minutes used by the default code scanning setup or by any other workflows you run.
+
+
+Enterprise-level application:
+
+Add an enterprise configuration to all repositories in the enterprise, or all repositories without an existing configuration in the enterprise.
+
+
+Organization-level application:
+
+Add an enterprise or an organization configuration to all repositories in the organization, or all repositories without an existing configuration in the organization.
+Add an enterprise or an organization configuration to a subset of repositories in the organization.
+
+
+
+You may find it helpful to apply an enterprise security configuration to all repositories in your enterprise, and then work at the organization-level to select a subset of repositories and apply an alternative security configuration.
+Enterprise-level application
+
+Open your trial enterprise.
+In the sidebar, click Settings and then Advanced Security to display the security configurations page.
+For the configuration you want to apply, click Apply to and choose whether to apply the configuration to all repositories in the enterprise or just to the repositories without an existing security configuration.
+
+Organization-level application
+
+Open an organization in your trial enterprise.
+Click the Settings tab to display the organization settings.
+In the sidebar, click Advanced Security and then Configurations to display the security configurations page.
+Optionally, select the Apply to dropdown menu and click either All repositories, to apply any configuration to all repositories in the organization, or All repositories without configurations, to configure just the repositories in the organization without an existing security configuration.
+Optionally, in the "Apply configurations" section use the "Search repositories" field or Filter button to filter repositories. Then select one or more repositories and use the Apply configuration button to choose a configuration to apply to those repositories.
+
+For more information, see Applying a custom security configuration.
+Next steps
+Now that you have enabled the security features you want to test, you are ready to look more deeply into how GitHub Secret Protection and GitHub Code Security protect your code.
+
+Exploring your enterprise trial of GitHub Secret Protection
+Exploring your enterprise trial of GitHub Code Security\n\n\n\nSecure coding/Trial GitHub Advanced Security/Trial Secret ProtectionExploring your enterprise trial of GitHub Secret ProtectionIntroduction to the features available with GitHub Secret Protection in GitHub Enterprise Cloud so you can assess their fit to your business needs.In this articleIntroductionIdentify additional access tokensUse AI to detect potential passwordsControl and audit the bypass processEnable validity checksNext stepsThis guide assumes that you have planned and started a trial of GitHub Advanced Security for an existing or trial GitHub enterprise account. See Planning a trial of GitHub Advanced Security.
+Introduction
+GitHub Secret Protection features work the same way in private and internal repositories as they do in all public repositories. This article focuses on the additional functionality that you can use to protect your business from security leaks when you use GitHub Secret Protection, that is:
+
+Identify additional access tokens you use by defining custom patterns.
+Detect potential passwords using AI.
+Control and audit the bypass process for push protection and secret scanning alerts.
+Enable validity checks for exposed tokens.
+
+If you have already scanned the code in your organization for leaked secrets using the free secret risk assessment, you will also want to explore that data more completely using the additional views on the  Security tab for the organization.
+For full details of the features available, see GitHub Secret Protection.
+Security configuration for Secret Protection
+Most enterprises choose to enable Secret Protection with push protection across all their repositories by applying security configurations with these features enabled. This ensures that repositories are checked for access tokens that have already been added to GitHub, in addition to flagging when users are about to leak tokens in GitHub. For information about creating an enterprise-level security configuration and applying it to your test repositories, see Enabling security features in your trial enterprise.
+Provide access to view the results of secret scanning
+By default, only the repository administrator and the organization owner can view all secret scanning alerts in their area. You should assign the predefined security manager role to all organization teams and users who you want to access the alerts found during the trial. You may also want to give the enterprise account owner this role for each organization in the trial. For more information, see Managing security managers in your organization.
+You can see a summary of any results found in the organizations in your trial enterprise in the  Security tab for the enterprise. There are also separate views for each type of security alert. See Viewing security insights.
+Identify additional access tokens
+You can create custom patterns to identify additional access tokens at the repository, organization, and enterprise level. In most cases, you should define custom patterns at the enterprise level because this will ensure that the patterns are used across the whole enterprise. It will also make them easy to maintain if you need to update a pattern when the format for a token changes.
+Once you have created and published custom patterns, both secret scanning and push protection automatically include the new patterns in all scans. For detailed information about creating custom patterns, see Defining custom patterns for secret scanning.
+Use AI to detect potential passwords
+At the enterprise level you have full control over whether or not to allow the use of AI to detect secrets that cannot be identified using regular expressions (also known as generic secrets or as non-provider patterns).
+
+Turn the feature on or off for the whole enterprise.
+Set a policy to block control of the feature at the organization and repository level.
+Set a policy to allow organization owners or repository administrators to control the feature.
+
+Similar to custom patterns, if you enable AI detection both secret scanning and push protection automatically start using AI detection in all scans. For information about enterprise-level control, see Configuring additional secret scanning settings for your enterprise and Enforcing policies for code security and analysis for your enterprise.
+Control and audit the bypass process
+When push protection blocks a push to GitHub in a public repository without GitHub Secret Protection, the user has two simple options: bypass the control, or remove the highlighted content from the branch and its history. If they chose to bypass push protection, a secret scanning alert is automatically created. This allows developers to rapidly unblock their work while still providing an audit trail for the content identified by secret scanning.
+Larger teams usually want to maintain tighter control over the potential publication of access tokens and other secrets. With GitHub Secret Protection, you can define a reviewers group to approve requests to bypass push protection, reducing the risk of a developer accidentally leaking a token that is still active. You can also define a reviewers group to approve requests to dismiss secret scanning alerts.
+Reviewers are defined in an organization-level security configuration or in the settings for a repository. For more information, see About delegated bypass for push protection.
+Enable validity checks
+You can enable validity checks to check whether detected tokens are still active at the repository, organization, and enterprise level. Generally, it is worth enabling this feature across the whole enterprise using enterprise or organization-level security configurations. For more information, see Enabling validity checks for your repository.
+Next steps
+When you have enabled the additional controls for Secret Protection, you're ready to test them against your business needs, and explore further. You may also be ready to look into exploring the options available with GitHub Code Security.
+
+Exploring your enterprise trial of GitHub Code Security
+Enforce GitHub Advanced Security at Scale\n\n\n\nSecure coding/Trial GitHub Advanced Security/Trial Code SecurityExploring your enterprise trial of GitHub Code SecurityIntroduction to the features of code and dependency scanning available with GitHub Code Security in GitHub Enterprise Cloud so you can assess their fit to your business needs.In this articleIntroductionEvaluate and refine results from the default setupEnforce automated analysis of pull requestsDefine where Copilot Autofix is allowed and enabledEngage developers in security remediationProvide a secure development environmentNext stepsFurther readingThis guide assumes that you have planned and started a trial of GitHub Advanced Security for an existing or trial GitHub enterprise account, see Planning a trial of GitHub Advanced Security.
+Introduction
+Code scanning and dependency analysis work in the same way in public repositories and in private and internal repositories with Code Security enabled. In addition, Code Security enables you to create security campaigns where security specialists and developers can collaborate to effectively reduce technical debt.
+This article focuses on how you can combine these features with enterprise-level controls to standardize and enforce your development process.
+Refine your security configurations
+In contrast to Secret Protection, where a single security configuration is typically applied to all repositories, you probably want to fine-tune the configuration of code scanning for different types of repositories. For example, you might need to create additional configurations so that:
+
+Code scanning uses runners with a specific label to apply to repositories that require a specialized environment or that use private registeries.
+Code scanning is "Not set" to apply to repositories that need to use advanced setup or that require a third-party tool.
+
+For your trial, it's simplest to create a primary enterprise-level security configuration and apply it to your test repositories. Then you can create any additional security configurations you need and apply them to a subset of repositories selected using code language, custom property, visibility, and  other filter options. For more information, see Enabling security features in your trial enterprise and Applying a custom security configuration.
+Provide access to view results of code scanning
+By default, only the repository administrator and the organization owner can view all code scanning alerts in their area. You should assign the predefined security manager role to all organization teams and users who you want to access the alerts found during the trial. You may also want to give the enterprise account owner this role for each organization in the trial. For more information, see Managing security managers in your organization and Using organization roles.
+Evaluate and refine results from the default setup
+The default setup for code scanning runs a set of high confidence queries. These are chosen to ensure that, when you roll out code scanning across your whole codebase, developers see a limited set of high quality results, with few false positive results.
+You can see a summary of any results found in the organizations in your trial enterprise in the  Security tab for the enterprise. There are also separate views for each type of security alert. See Viewing security insights.
+If you don't see the results you expect for code scanning, you can update default setup to run an extended query suite for repositories where you expected to find more results. This is controlled at the repository level, see Editing your configuration of default setup.
+Tip
+
+If you are blocked from editing the repository settings for code scanning, edit the security configuration used by the repository so that settings are not enforced.
+
+If the extended suite still fails to find the results you expect, you may need to enable advanced setup so you can customize the analysis fully. For more information, see About the tool status page for code scanning and Configuring advanced setup for code scanning.
+Enforce automated analysis of pull requests
+There are three different types of automated analysis of pull requests built into GitHub:
+
+Code scanning analysis uses queries to highlight known bad coding patterns and security vulnerabilities. Copilot Autofix suggests fixes to problems identified by code scanning.
+Dependency review summarizes the dependency changes made by the pull request and highlights any dependencies with known vulnerabilities or that do not meet your development standards.
+Copilot code review uses AI to provide feedback on your changes with suggested fixes where possible.
+
+These automated reviews are a valuable extension to self-review and make it easier for developers to present a more complete and secure pull request for peer review. In addition, code scanning and dependency reviews can be enforced to protect the security and compliance of your code.
+Note
+
+GitHub Copilot Autofix is included in the license for GitHub Code Security. Copilot code review requires a paid Copilot plan.
+
+Code scanning analysis
+When code scanning is enabled, you can then block merges into important branches unless the pull request meets your requirements by creating a code ruleset for the enterprise or organization. Typically, you would require that results from code scanning are present and that any important alerts are resolved.
+
+Type of ruleset: Branch.
+Require code scanning results: Enable to block merging until results are successfully generated for the commit and the reference the pull request targets.
+Required tools and alert thresholds: Define the level of alerts that must be resolved before a pull request can be merged for each code scanning tool you use.
+
+As with all rulesets, you can control exactly which organizations (enterprise-level), repositories, and branches it acts on and also define roles or teams who can bypass the rule. For more information, see About rulesets.
+Dependency review
+When Code Security and dependency graph are enabled for a repository, manifest files have a rich diff view which shows a summary of the dependencies that it adds or updates. This is a useful summary for human reviewers of the pull request but does not provide any control of which dependencies are added to the codebase.
+Most enterprises put automatic checks in place to block the use of dependencies with known vulnerabilities or unsupported license terms.
+
+Create a private repository to serve as a central home where you can store reusable workflows for the enterprise.
+Edit the actions settings for the repository to allow all private repositories in the enterprise to access workflows in this central repository, see Allowing access to components in a private repository.
+In the central repository, create a reusable workflow to run the dependency review action, configuring the action to meet your business needs, see Configuring the dependency review action.
+In each organization, create or update branch rulesets to add the new workflow to the required status checks, see Enforcing dependency review across an organization.
+
+This allows you to update the configuration in a single location, but use the workflow in many repositories. You may want to use this central repository to maintain other workflows. For more information, see Reusing workflows.
+Copilot review
+Note
+
+
+GitHub Copilot code review is in public preview and subject to change.
+The GitHub Pre-release License Terms apply to your use of this product.
+If you get a Copilot subscription from an organization, you will only be able to participate in the public preview on the GitHub website if an owner of your organization  has enabled Copilot in GitHub.com > Opt in to preview features in the GitHub Copilot policies page of the organization  settings. See Managing policies for Copilot in your organization.
+
+
+By default, users request a review from Copilot in the same way as they do from human reviewers. However, you can update or create an organization-level branch ruleset to automatically add Copilot as a reviewer to all pull requests made to selected branches in all or selected repositories. See Configuring automatic code review by Copilot.
+Copilot leaves a review comment on each pull request it reviews, without approving the pull request or requesting changes. This ensures that its review is advisory and will not block development work. Similarly, you should not enforce the resolution of suggestions made by Copilot because AI suggestions have known limitations, see Responsible use of GitHub Copilot code review.
+Define where Copilot Autofix is allowed and enabled
+Copilot Autofix helps developers understand and fix code scanning alerts found in their pull requests. We recommend that you enable this feature for all repositories with Code Security enabled to help developers resolve alerts efficiently and increase their understanding of secure coding.
+There are two levels of control:
+
+Enterprises can allow or block use of Copilot Autofix throughout the enterprise using an "Advanced Security" policy, see: Enforcing policies for code security and analysis for your enterprise.
+Organizations can enable or disable Copilot Autofix for all organization-owned repositories in the "Global settings" for the organization, see Configuring global security settings for your organization.
+
+Engage developers in security remediation
+Security campaigns provide a way for security teams to engage with developers to remediate security technical debt. They also provide a practical way to combine education in secure coding with examples of vulnerable code in code that your developers are familar with. For more information, see About security campaigns and Best practices for fixing security alerts at scale.
+Provide a secure development environment
+The development environment has many components. Some of the most useful features for scaling and standardizing a secure development environment in GitHub are:
+
+Security configurations: define the setup of security features for the enterprise, an organization, a subset of organization repositories, or new repositories, see Refine your security configurations.
+Policies: protect and control use of resources for the enterprise or an organization, see Enforcing policies for your enterprise.
+Rulesets: protect and control branches, tags, and pushes for an organization, a subset of organization repositories, or a repository, see Creating rulesets for repositories in your organization.
+Repository templates: define the security workflows and processes needed for each type of environment, see Creating a template repository. For example, each template might contain a specialized:
+
+Security policy file defining the company's security stance and how to report any security concerns.
+Workflow to enable Dependabot version updates for package managers used by the company.
+Workflow defining advanced setup for code scanning for supported development languages where the default setup results are not enough.
+
+
+
+In addition, when a developer creates a repository from a template they must define the value of any required custom properties. Custom properties are very useful for selecting a subset of repositories that you want to apply configurations, policies, or rulesets to, see Managing custom properties for repositories in your enterprise.
+Next steps
+When you have finished exploring these options and secret scanning features, you are ready to test your discoveries so far against your business needs, and then explore further.
+Further reading
+
+Security hardening for GitHub Actions
+Enforcing policies for your enterprise
+Governing how people use repositories in your enterprise
+Enforce GitHub Advanced Security at Scale\n\n\n\nSecure coding/Secure your organization/Introduction/About organization securityAbout enabling security features at scaleYou can quickly secure your organization at scale with security configurations and global settings.In this articleAbout securing your organizationAbout security configurationsAbout global settingsAbout enabling secure access to private registriesNext stepsAbout securing your organization
+GitHub has many features that help you improve and maintain the quality of your code. Some features are included in all GitHub plans. Additional features are available to organizations  on GitHub Team that purchase a GitHub Advanced Security product:
+
+GitHub Code Security, which includes features that help you find and fix vulnerabilities, like code scanning, premium Dependabot features, and dependency review.
+GitHub Secret Protection, which includes features that help you detect and prevent secret leaks, such as secret scanning and push protection.
+
+You can easily enable and manage GitHub's security features throughout your organization with security configurations, which control repository-level security features, and global settings, which control security features at the organization level. We recommend applying security configurations and customizing your global settings to create a system that best meets the security needs of your organization.
+For more information on purchasing GitHub Secret Protection or GitHub Code Security, see About GitHub Advanced Security.
+About security configurations
+Security configurations are collections of enablement settings for GitHub's security features that you can apply to any repository within your organization.
+There are two types of security configuration:
+
+The GitHub-recommended security configuration. This configuration is a collection of enablement settings created and managed by subject matter experts at GitHub. The GitHub-recommended security configuration is designed to adequately secure any repository, and can easily be applied to all repositories in your organization.
+Custom security configurations. These are configurations you can create and edit yourself, allowing you to choose different enablement settings for groups of repositories with specific security needs.
+
+Note
+
+If a user in your organization attempts to change the enablement status of a feature in an enforced configuration using the REST API, the API call will appear to succeed, but no enablement statuses will change.
+Some situations can break the enforcement of security configurations for a repository. For example, the enablement of code scanning will not apply to a repository if:
+
+GitHub Actions is initially enabled on the repository, but is then disabled in the repository.
+GitHub Actions required by code scanning configurations are not available in the repository.
+The definition for which languages should not be analyzed using code scanning default setup is changed.
+
+
+Each repository can only have one security configuration applied to it. To find out how you should get started with security configurations, see Choosing a security configuration for your repositories.
+You can also create and manage security configurations using the REST API. For more information, see Configurations.
+About global settings
+While security configurations determine repository-level security settings, global settings determine your organization-level security settings, which are then inherited by all repositories. With global settings, you can customize how security features analyze your organization.
+About enabling secure access to private registries
+If your organization uses private registries, providing code scanning and Dependabot secure access to these registries will improve code analysis and allow Dependabot to update a wider range of dependencies. For information, see Giving security features access to private registries.
+Next steps
+To determine which security configurations are right for the repositories in your organization, see Choosing a security configuration for your repositories.\n\n\n\nSecure coding/Secure your organization/Introduction/Choose security configurationChoosing a security configuration for your repositoriesFind out which type of security configuration will meet the security needs of the repositories in your organization.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout choosing a security configurationChoosing the GitHub-recommended security configurationChoosing a custom security configurationAbout choosing a security configuration
+Security configurations are collections of enablement settings for GitHub's security features that you can apply to any repository within your organization. GitHub offers two types of security configurations:
+
+The GitHub-recommended security configuration
+Custom security configurations
+
+We recommend that organizations initially apply the GitHub-recommended security configuration. After you have applied the GitHub-recommended security configuration to repositories in your organization, you can evaluate the security findings for each repository and determine if you instead want to create and apply a custom security configuration.
+Currently, only one security configuration can be applied to a repository at a time.
+Choosing the GitHub-recommended security configuration
+The GitHub-recommended security configuration offers a number of benefits:
+
+It is created and managed by GitHub's subject matter experts.
+It is the quickest security configuration to apply to all repositories in your organization.
+It is designed to effectively secure both low- and high-impact repositories.
+
+The GitHub-recommended security configuration includes GitHub Code Security and GitHub Secret Protection features. Applying the configuration to private and internal repositories in your organization will incur usage costs or require licenses.
+To start securing repositories in your organization with the GitHub-recommended security configuration, see Applying the GitHub-recommended security configuration in your organization.
+Choosing a custom security configuration
+If you are familiar with GitHub's security products, and you have specific security needs that the GitHub-recommended security configuration can't meet, you can create and apply custom security configurations. With custom security configurations, you can:
+
+Edit the enablement settings for different security features
+Create several configurations for repositories with different security needs
+Control your usage and costs by including or excluding GitHub Code Security or GitHub Secret Protection features for a particular configuration
+
+To start securing repositories in your organization with custom security configurations, see Creating a custom security configuration.\n\n\n\nSecure coding/Secure your organization/Enable security features/Apply recommended configurationApplying the GitHub-recommended security configuration in your organizationSecure your code with the security enablement settings created, managed, and recommended by GitHub.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout the GitHub-recommended security configurationApplying the GitHub-recommended security configuration to all repositories in your organizationApplying the GitHub-recommended security configuration to specific repositories in your organizationEnforcing the GitHub-recommended security configurationNext stepsAbout the GitHub-recommended security configuration
+The GitHub-recommended security configuration is a collection of enablement settings for GitHub's security features that is created and maintained by subject matter experts at GitHub. The GitHub-recommended security configuration is designed to successfully reduce the security risks for low- and high-impact repositories. We recommend you apply this configuration to all the repositories in your organization.
+Note
+
+The GitHub-recommended security configuration includes GitHub Code Security and GitHub Secret Protection features. Applying the configuration to private and internal repositories in your organization will incur usage costs or require licenses.
+
+Applying the GitHub-recommended security configuration to all repositories in your organization
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "GitHub recommended" row of the configurations table for your organization, select the Apply to  dropdown menu, then click All repositories or All repositories without configurations.
+Note
+
+The default security configuration for an organization is only automatically applied to new repositories created in your organization. If a repository is transferred into your organization, you will still need to apply an appropriate security configuration to the repository manually.
+
+
+
+Review the detailed information about how your changes will affect Secret Protection and Code Security license consumption. To apply the security configuration, click Apply.
+
+
+The security configuration is applied to both active and archived repositories because some security features run on archived repositories, for example, secret scanning. In addition, if a repository is later unarchived you can be confident that it is protected by the chosen security configuration.
+Applying the GitHub-recommended security configuration to specific repositories in your organization
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+Optionally, in the "Apply configurations" section, filter the view to find the repositories you would like to apply the GitHub-recommended security configuration to. To learn how to filter the repository table, see Filtering repositories in your organization using the repository table.
+
+
+In the repository table, select repositories with one of three methods:
+
+Select each repository you would like to apply the security configuration to.
+To select all repositories displayed on the current page of the repository table, select the checkbox associated with "NUMBER repositories".
+After selecting the current page of repositories, "25 of NUMBER selected", to select all repositories in your organization that match any filters you have applied, click Select all.
+
+
+
+Select the Apply configuration  dropdown menu, then click GitHub recommended.
+Note
+
+The default security configuration for an organization is only automatically applied to new repositories created in your organization. If a repository is transferred into your organization, you will still need to apply an appropriate security configuration to the repository manually.
+
+
+
+Review the detailed information about how your changes will affect Secret Protection and Code Security license consumption. To apply the security configuration, click Apply.
+
+
+The security configuration is applied to both active and archived repositories because some security features run on archived repositories, for example, secret scanning. In addition, if a repository is later unarchived you can be confident that it is protected by the chosen security configuration.
+Enforcing the GitHub-recommended security configuration
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "Security configurations" section, select "GitHub recommended".
+
+
+In the "Policy" section, next to "Enforce configuration", select Enforce from the dropdown menu.
+
+
+Note
+
+If a user in your organization attempts to change the enablement status of a feature in an enforced configuration using the REST API, the API call will appear to succeed, but no enablement statuses will change.
+Some situations can break the enforcement of security configurations for a repository. For example, the enablement of code scanning will not apply to a repository if:
+
+GitHub Actions is initially enabled on the repository, but is then disabled in the repository.
+GitHub Actions required by code scanning configurations are not available in the repository.
+The definition for which languages should not be analyzed using code scanning default setup is changed.
+
+
+Next steps
+After you apply the GitHub-recommended security configuration, you can customize your organization-level security settings with global settings. See Configuring global security settings for your organization.
+You may encounter an error when you attempt to apply a security configuration. For more information, see Finding and fixing configuration attachment failures and Troubleshooting security configurations.\n\n\n\nSecure coding/Secure your organization/Enable security features/Create custom configurationCreating a custom security configurationBuild a custom security configuration to meet the specific security needs of repositories in your organization.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout custom security configurationsCreating a custom security configurationNext stepsAbout custom security configurations
+We recommend securing your organization with the GitHub-recommended security configuration, then evaluating the security findings on your repositories before configuring custom security configurations. For more information, see Applying the GitHub-recommended security configuration in your organization.
+With custom security configurations, you can create collections of enablement settings for GitHub's security products to meet the specific security needs of your organization. For example, you can create a different custom security configuration for each group of repositories to reflect their different levels of visibility, risk tolerance, and impact.
+You can also choose whether or not you want to include GitHub Code Security or GitHub Secret Protection features in a configuration. If you do, keep in mind that these features incur usage costs (or require GitHub Advanced Security licenses) when applied to private and internal repositories. For more information, see About GitHub Advanced Security.
+Creating a custom security configuration
+Note
+
+The enablement status of some security features is dependent on other, higher-level security features. For example, disabling dependency graph will also disable Dependabot, and security updates. For security configurations, dependent security features are indicated with indentation.
+
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "Security configurations" section, click New configuration.
+
+
+To help identify your custom security configuration and clarify its purpose on the "Security configurations" page, name your configuration and create a description.
+
+
+Optionally, enable "Secret Protection", a paid feature for private  repositories. Enabling Secret Protection enables alerts for secret scanning. In addition, you can choose whether to enable, disable, or keep the existing settings for the following secret scanning features:
+
+Validity checks. To learn more about validity checks for partner patterns, see Evaluating alerts from secret scanning.
+Non-provider patterns. To learn more about scanning for non-provider patterns, see Supported secret scanning patterns and Viewing and filtering alerts from secret scanning.
+Scan for generic passwords. To learn more, see Responsible detection of generic secrets with Copilot secret scanning.
+Push protection. To learn about push protection, see About push protection.
+Bypass privileges. By assigning bypass privileges, selected organization members can bypass push protection, and there is a review and approval process for all other contributors. See About delegated bypass for push protection.
+Prevent direct alert dismissals. To learn more, see Enabling delegated alert dismissal for secret scanning.
+
+
+
+Optionally, enable "Code Security", a paid feature for private  repositories. You can choose whether to enable, disable, or keep the existing settings for the following code scanning features:
+
+Default setup. To learn more, see Configuring default setup for code scanning.
+Runner type. If you want to target specific runners for code scanning, you can choose to use custom-labeled runners at this step. See Configuring default setup for code scanning.
+Prevent direct alert dismissals. To learn more, see Enabling delegated alert dismissal for code scanning.
+
+
+
+Still under "Code Security", in the "Dependency scanning" table, choose whether you want to enable, disable, or keep the existing settings for the following dependency scanning features:
+
+Dependency graph. To learn about dependency graph, see About the dependency graph.
+Tip
+
+When both "Code Security" and Dependency graph are enabled, this enables dependency review, see About dependency review.
+
+
+Automatic dependency submission. To learn about automatic dependency submission, see Configuring automatic dependency submission for your repository.
+Dependabot alerts. To learn about Dependabot, see About Dependabot alerts.
+Security updates. To learn about security updates, see About Dependabot security updates.
+
+
+
+For "Private vulnerability reporting", choose whether you want to enable, disable, or keep the existing settings. To learn about private vulnerability reporting, see Configuring private vulnerability reporting for a repository.
+
+
+Optionally, in the "Policy" section, you can use additional options to control how the configuration is applied:
+
+Use as default for newly created repositories. Select the None  dropdown menu, then click Public, Private and internal, or All repositories.
+Note
+
+The default security configuration for an organization is only automatically applied to new repositories created in your organization. If a repository is transferred into your organization, you will still need to apply an appropriate security configuration to the repository manually.
+
+
+Enforce configuration. Block repository owners from changing features that are enabled or disabled by the configuration (features that are not set aren't enforced). Select Enforce from the dropdown menu.
+
+
+
+To finish creating your custom security configuration, click Save configuration.
+
+
+Note
+
+If a user in your enterprise attempts to change the enablement status of a feature in an enforced configuration using the REST API, the API call will appear to succeed, but no enablement statuses will change.
+Some situations can break the enforcement of security configurations for a repository. For example, the enablement of code scanning will not apply to a repository if:
+
+GitHub Actions is initially enabled on the repository, but is then disabled in the repository.
+GitHub Actions required by code scanning configurations are not available in the repository.
+The definition for which languages should not be analyzed using code scanning default setup is changed.
+
+
+Next steps
+To apply your custom security configuration to repositories in your organization, see Applying a custom security configuration.
+To learn how to edit your custom security configuration, see Editing a custom security configuration.\n\n\n\nSecure coding/Secure your organization/Enable security features/Apply custom configurationApplying a custom security configurationYou can apply your custom security configuration to repositories in your organization to meet the specific security needs of those repositories.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout applying a custom security configurationApplying your custom security configuration to repositories in your organizationNext stepsAbout applying a custom security configuration
+After you create a custom security configuration, you need to apply it to repositories in your organization to enable the configuration's settings on those repositories. To learn how to create a custom security configuration, see Creating a custom security configuration.
+Applying your custom security configuration to repositories in your organization
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+Optionally, in the "Apply configurations" section, filter for specific repositories you would like to apply your custom security configuration to. To learn how to filter the repository table, see Filtering repositories in your organization using the repository table.
+
+
+In the repository table, select repositories with one of three methods:
+
+Select each repository you would like to apply the security configuration to.
+To select all repositories displayed on the current page of the repository table, select the checkbox associated with "NUMBER repositories".
+After selecting the current page of repositories, "25 of NUMBER selected", to select all repositories in your organization that match any filters you have applied, click Select all.
+
+
+
+Select the Apply configuration  dropdown menu, then click YOUR-CONFIGURATION-NAME.
+Note
+
+The default security configuration for an organization is only automatically applied to new repositories created in your organization. If a repository is transferred into your organization, you will still need to apply an appropriate security configuration to the repository manually.
+
+
+
+Review the detailed information about how your changes will affect Secret Protection and Code Security license consumption. To apply the security configuration, click Apply.
+
+
+The security configuration is applied to both active and archived repositories because some security features run on archived repositories, for example, secret scanning. In addition, if a repository is later unarchived you can be confident that it is protected by the chosen security configuration.
+Note
+
+If you apply an enforced configuration, this information is reported in the list of repositories. An enforced configuration means that repository owners are blocked from changing features that have been enabled or disabled in the configuration, but features that are not set aren't enforced.
+
+Next steps
+To learn how to interpret security findings from your custom security configuration on a repository, see Interpreting security findings.
+To learn how to edit your custom security configuration, see Editing a custom security configuration.
+You may encounter an error when you attempt to apply a security configuration. For more information, see Finding and fixing configuration attachment failures and Troubleshooting security configurations.\n\n\n\nSecure coding/Secure your organization/Enable security features/Configure global settingsConfiguring global security settings for your organizationCustomize Advanced Security features to strengthen the security of your organization.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout global settingsAccessing the global settings page for your organizationConfiguring global Dependabot settingsConfiguring global code scanning settingsConfiguring global secret scanning settingsCreating security managers for your organizationAbout global settings
+Alongside security configurations, which determine repository-level security settings, you should also configure global settings for your organization. Global settings apply to your entire organization, and can customize Advanced Security features based on your needs.
+Accessing the global settings page for your organization
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the Advanced Security dropdown menu, then click Global settings.
+
+
+Configuring global Dependabot settings
+Dependabot consists of three different features that help you manage your dependencies:
+
+Dependabot alerts: Inform you about vulnerabilities in the dependencies that you use in your repository.
+Dependabot security updates: Automatically raise pull requests to update the dependencies you use that have known security vulnerabilities.
+Dependabot version updates: Automatically raise pull requests to keep your dependencies up-to-date.
+
+You can customize several global settings for Dependabot:
+
+Creating and managing Dependabot auto-triage rules
+Grouping Dependabot security updates
+Enabling dependency updates on GitHub Actions runners
+Granting Dependabot access to private repositories
+
+Creating and managing Dependabot auto-triage rules
+You can create and manage Dependabot auto-triage rules to instruct Dependabot to automatically dismiss or snooze Dependabot alerts, and even open pull requests to attempt to resolve them. To configure Dependabot auto-triage rules, click , then create or edit a rule:
+
+You can create a new rule by clicking New rule, then entering the details for your rule and clicking Create rule.
+You can edit an existing rule by clicking , then making the desired changes and clicking Save rule.
+
+For more information on Dependabot auto-triage rules, see About Dependabot auto-triage rules and Customizing auto-triage rules to prioritize Dependabot alerts.
+Grouping Dependabot security updates
+Dependabot can group all automatically suggested security updates into a single pull request. To enable grouped security updates, select Grouped security updates. For more information about grouped updates and customization options, see Configuring Dependabot security updates.
+Enabling dependency updates on GitHub Actions runners
+If both Dependabot and GitHub Actions are enabled for existing repositories in your organization, GitHub will automatically use GitHub-hosted runners to run dependency updates for those repositories.
+Otherwise, to allow Dependabot to use GitHub Actions runners to perform dependency updates for all existing repositories in the organization, select "Dependabot on Actions runners".
+For more information, see About Dependabot on GitHub Actions runners.
+To have greater control over Dependabot's access to your private registries and internal network resources, you can configure Dependabot to run on GitHub Actions self-hosted runners. For more information, see About Dependabot on GitHub Actions runners and Managing Dependabot on self-hosted runners.
+Granting Dependabot access to private repositories
+To update private dependencies of repositories in your organization, Dependabot needs access to those repositories. To grant Dependabot access to the desired private repository, scroll down to the "Grant Dependabot access to private repositories" section, then use the search bar to find and select the desired repository. Be aware that granting Dependabot access to a repository means all users in your organization will have access to the contents of that repository through Dependabot updates. For more information about the supported ecosystems for private repositories, see Dependabot supported ecosystems and repositories.
+Configuring global code scanning settings
+Code scanning is a feature that you use to analyze the code in a GitHub repository to find security vulnerabilities and coding errors. Any problems identified by the analysis are shown in your repository.
+You can customize several global settings for code scanning:
+
+Recommending the extended query suite for default setup
+Enabling Copilot Autofix for CodeQL
+Enabling Copilot Autofix for third-party code scanning tools
+
+Recommending the extended query suite for default setup
+Code scanning offers specific groups of CodeQL queries, called CodeQL query suites, to run against your code. By default, the "Default" query suite is run. GitHub also offers the "Extended" query suite, which contains all the queries in the "Default" query suite, plus additional queries with lower precision and severity. To suggest the "Extended" query suite across your organization, select Recommend the extended query suite for repositories enabling default setup. For more information on built-in query suites for CodeQL default setup, see CodeQL query suites.
+Enabling Copilot Autofix for CodeQL
+You can select Copilot Autofix to enable Copilot Autofix for all the repositories in your organization that use CodeQL default setup or CodeQL advanced setup. Copilot Autofix is an expansion of code scanning that suggests fixes for code scanning alerts. For more information, see Responsible use of Copilot Autofix for code scanning.
+Enabling Copilot Autofix for third-party code scanning tools
+Note
+
+Third-party code scanning tool support is in public preview, and subject to change. Currently, the third-party tool ESLint is supported. For more information, see Responsible use of Copilot Autofix for code scanning.
+
+You can select Copilot Autofix for third-party tools to enable Copilot Autofix for all the repositories in your organization that use third-party tools. Copilot Autofix is an expansion of code scanning that suggests fixes for code scanning alerts.
+Configuring global secret scanning settings
+Secret scanning is a security tool that scans the entire Git history of repositories, as well as issues, pull requests, discussions, and wikis in those repositories, for leaked secrets that have been accidentally committed, such as tokens or private keys.
+You can customize several global settings for secret scanning:
+
+Adding a resource link for blocked commits
+Defining custom patterns
+
+Adding a resource link for blocked commits
+To provide context for developers when secret scanning blocks a commit, you can display a link with more information on why the commit was blocked. To include a link, select Add a resource link in the CLI and the web UI when a commit is blocked. In the text box, type the link to the desired resource, then click Save.
+Defining custom patterns
+You can define custom patterns for secret scanning with regular expressions. Custom patterns can identify secrets that are not detected by the default patterns supported by secret scanning. To create a custom pattern, click New pattern, then enter the details for your pattern and click Save and dry run. For more information on custom patterns, see Defining custom patterns for secret scanning.
+Creating security managers for your organization
+The security manager role grants members of your organization the ability to manage security settings and alerts across your organization. Security managers can view data for all repositories in your organization through security overview.
+To learn more about the security manager role, see Managing security managers in your organization.
+To assign the security manager role, see Using organization roles.\n\n\n\nSecure coding/Secure your organization/Enable security features/Give access to private registriesGiving security features access to private registriesIf your organization uses private registries, you can improve the results of code scanning analysis and enable Dependabot to maintain more dependencies by setting up access to these registries.In this articleAbout the importance of providing access to private registriesCode scanning default setup access to private registriesCode scanning advanced setup access to private registriesDependabot updates access to private registriesAbout the importance of providing access to private registries
+When a repository uses code stored in a private registry, some security features need access to the registry to enable them to work effectively. Without access to all the dependencies of a repository, code scanning default setup and Dependabot are limited.
+Code scanning default setup access to private registries
+Code scanning default setup analyzes C# and Java code without building it. If you do not define access to the private registries your organization uses, then code scanning will only gather necessary data from dependencies available in public registries. Most times, this is enough for surfacing most of the vulnerabilities. However, in some cases the lack of access can lead to false negative results, that is, code scanning is unable to detect a vulnerability in the code because it does not have all the information it needs to analyze the code. For example, some of the data flow paths may not be detected because steps are defined in dependencies that are not accessible and code scanning does not know how to interpret them.
+When you configure access to the private registries used in your organization, code scanning has access to all the information it needs and is much less likely to miss a vulnerability.
+Tip
+
+You can define one private Maven registry and one private NuGet feed for each organization. If the codebases in your organization use more than one registry or feed, you should define access to the most important registry for the codebases in that organization.
+
+Defining registry access for code scanning default setup
+You need to be an organization owner to set up access to private registries in the user interface. You can also use the REST API with organization owner or {read,write}_org_private_registries permission.
+
+On the Settings tab for the organization, scroll down to the "Security" section and select Secrets and variables.
+In the expanded list of secrets and variables, select Private registries to display the "Private Registries" page.
+Select New private registry to add access details for a private registry.
+Use the URL and Type fields to define the location and type of the registry:
+
+URL is the location where you access the private registry. For example, to use the GitHub Packages registry for NuGet: https://nuget.pkg.github.com/.
+Type is the type of registry.
+
+
+Select either Token or Username and password, depending on the authentication method, then enter data into the appropriate fields.
+Define which repositories in the organization can access the private registry using these details: all, private and internal, or selected repositories only.
+When you have finished defining the private registry, select Add Registry to save the registry information.
+
+Tip
+
+When you add a private registry to an organization the token or password is stored as an encrypted secret. Once the registry is created, the token or password cannot be viewed again.
+
+Enabling code scanning default setup to use a registry definition
+When you enable code scanning default setup for a repository or group of repositories, GitHub checks whether the repositories have access to any existing private registries. If any private registries are available to a repository, code scanning will use the relevant definitions during analysis.
+When configuring private registries for the first time, you need to disable and re-enable code scanning default setup for any repositories that you want to use the new definition. New or modified configurations will be automatically picked up on subsequent runs.
+You can confirm whether private registries were used successfully by code scanning analysis by looking in the Actions log files, see Determining whether code scanning default setup used any private registries.
+Code scanning advanced setup access to private registries
+Code scanning advanced setup uses any private registries available to the workflow that runs the analysis using the codeql-action. It does not have access to the organization-level private registries used by default setup.
+For compiled languages, the codeql-action must observe a build of the code. You can either revise your existing build workflow to also run the codeql-action or create a new workflow that builds the production version of the code and also runs the codeql-action.
+Any private registries used by the build must also be accessible to the workflow that runs the codeql-action. For more information on advanced setup, see Configuring advanced setup for code scanning.
+Dependabot updates access to private registries
+Dependabot uses any private registries defined in the dependabot.yml file. It does not have access to the organization-level private registries used by code scanning default setup.
+Dependabot cannot check for security or version updates for code stored in a private registry unless it can access the registry. If you do not configure access to the private registry, then Dependabot cannot raise pull requests to update any of the dependencies stored in the registry.
+When you configure access to one or more private registries, Dependabot can propose pull requests to upgrade a vulnerable dependency or to maintain a dependency, see Configuring access to private registries for Dependabot and Guidance for the configuration of private registries for Dependabot.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Interpret security dataInterpreting security findingsYou can analyze security data on repositories in your organization to determine if you need to make changes to your security setup.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout security findingsFinding repositories with security alerts using security overviewInterpreting secret scanning alertsInterpreting code scanning alertsInterpreting Dependabot alertsNext stepsAbout security findings
+After you apply a security configuration to a repository, the enabled security features will likely raise security findings on that repository. These findings may show up as feature-specific alerts, or as automatically generated pull requests designed to keep your repositories secure. You can analyze the findings across the organization and make any necessary adjustments to your security configuration.
+To best secure your organization, you should encourage contributors to review and resolve security alerts and pull requests. In addition, you can collaborate with contributors to fix historical security alerts, see Best practices for fixing security alerts at scale.
+Finding repositories with security alerts using security overview
+The information shown by security overview varies according to your access to repositories and organizations, and according to whether Advanced Security features are used by those repositories and organizations. For more information, see About security overview.
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+By default, the overview shows alerts for all native GitHub tools (filter: tool:github). To display alerts for a specific tool, replace tool:github in the filter text box. For example:
+
+tool:dependabot to show only alerts for dependencies identified by Dependabot.
+tool:secret-scanning to only show alerts for secrets identified by secret scanning.
+tool:codeql to show only alerts for potential security vulnerabilities identified by CodeQL code scanning.
+
+
+
+You can add further filters to show only the repositories you want to assess. The list of repositories and metrics displayed on the page automatically update to match your current selection. For more information on filtering, see Filtering alerts in security overview.
+
+
+Optionally, use the sidebar on the left to explore alerts for a specific security feature in greater detail. On each page, you can use filters that are specific to that feature to refine your search. For more information about the available qualifiers, see Filtering alerts in security overview.
+
+
+Interpreting secret scanning alerts
+Secret scanning is a security tool that scans the entire Git history of repositories, as well as issues, pull requests, discussions, and wikis in those repositories, for leaked secrets that have been accidentally committed, such as tokens or private keys. There are two types of secret scanning alerts:
+
+Secret scanning alerts for partners, which are sent to the provider who issued the secret
+Secret scanning alerts for users, which appear on GitHub and can be resolved
+
+You can view secret scanning alerts for an organization by navigating to the main page of that organization, clicking the  Security tab, then clicking  Secret scanning in the "Metrics" or "Alerts" section.
+
+Metrics. To see detailed information on push protection events, see Viewing metrics for secret scanning push protection.
+Alerts. To see detailed information on Default and Generic alerts for exposed secrets in the organization.
+
+For an introduction to secret scanning alerts, see About secret scanning alerts.
+To learn how to evaluate secret scanning alerts, see Evaluating alerts from secret scanning.
+Interpreting code scanning alerts
+Code scanning is a feature that you use to analyze the code in a GitHub repository to find security vulnerabilities and coding errors. Any problems identified by the analysis are shown in your repository. These problems are raised as code scanning alerts, which contain detailed information on the vulnerability or error detected.
+You can view the code scanning alerts for an organization by navigating to the main page of that organization, clicking the  Security tab, then clicking:
+
+CodeQL pull request alerts. To see information on code scanning alerts found and remediated in pull requests.
+Code scanning. To see detailed information on alerts for potentially vulnerable code in the organization, see Viewing metrics for pull request alerts.
+
+For an introduction to code scanning alerts, see About code scanning alerts.
+To learn how to interpret and resolve code scanning alerts, see Assessing code scanning alerts for your repository and Resolving code scanning alerts.
+Interpreting Dependabot alerts
+Dependabot alerts inform you about vulnerabilities in the dependencies that you use in repositories in your organization. You can view Dependabot alerts for an organization by navigating to the main page of that organization, clicking the  Security tab, then clicking  Dependabot.
+For an introduction to Dependabot alerts, see About Dependabot alerts.
+To learn how to interpret and resolve Dependabot alerts, see Viewing and updating Dependabot alerts.
+Note
+
+If you enabled Dependabot security updates, Dependabot can also automatically raise pull requests to update the dependencies used in the repositories of the organization. For more information, see About Dependabot security updates.
+
+Next steps
+If you are using the GitHub-recommended security configuration, and your findings indicate the security enablement settings are not meeting your needs, you should create a custom security configuration. To get started, see Creating a custom security configuration.
+If you are using a custom security configuration, and your findings indicate the security enablement settings are not meeting your needs, you can edit your existing configuration. For more information, see Editing a custom security configuration.
+Lastly, you can also edit your organization-level security settings with global settings. To learn more, see Configuring global security settings for your organization.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Filter repositoriesFiltering repositories in your organization using the repository tableYou can filter the repository table for your organization to better manage the security settings of specific repositories.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout filtering repositories in your organizationFiltering the repository table with the search barFiltering the repository table with the advanced filter builderAbout filtering repositories in your organization
+By default, when managing security configurations for repositories in your organization, the repository table displays all repositories in your organization. You can filter the repository table to help you apply and detach security configurations, as well as manage Advanced Security license usage in your organization.
+Filtering the repository table with the search bar
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "Apply configurations" section, use the Search repositories search bar to filter repositories in your organization in one of two ways:
+
+Find repositories by name with free-text search
+Select filters from the dropdown menu that appears once you click the search bar
+
+
+
+Filtering the repository table with the advanced filter builder
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+To open the advanced filter dialog, in the "Apply configurations" section, click  Filter.
+
+
+In the "Advanced filters" window, select the  Add a filter dropdown menu, then click a filter.
+
+
+To search for repositories matching the selected filter, fill out the available fields for that filter, then click Apply. You can repeat this process to add as many filters as you would like to your search.
+
+
+Optionally, to remove a filter from your search, click  Filter. In the row of the filter you want to remove, click , then click Apply.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Edit custom configurationEditing a custom security configurationChange the enablement settings in your custom security configuration to better meet the security needs of your repositories.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout editing a custom security configurationModifying your custom security configurationAbout editing a custom security configuration
+After creating and applying a custom security configuration, you may need to edit the enablement settings for that configuration to better secure your repositories. Any changes you make to the enablement settings of a security configuration will automatically populate to all linked repositories.
+To determine if your custom security configuration is meeting your security needs, see Interpreting security findings.
+Note
+
+The GitHub-recommended security configuration is managed by GitHub and cannot be edited. If you would like to customize your security enablement settings, you need to create a custom security configuration. For more information, see Creating a custom security configuration.
+
+Modifying your custom security configuration
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+Under "Security configurations", click the name of the custom security configuration you want to edit.
+Note
+
+The default security configuration for an organization is only automatically applied to new repositories created in your organization. If a repository is transferred into your organization, you will still need to apply an appropriate security configuration to the repository manually.
+
+
+
+Edit the name and description of your custom security configuration as desired.
+
+
+Edit the enablement settings of your custom security configuration as desired.
+
+
+In the "Policy" section, you can modify the configuration's enforcement status. Enforcing a configuration will block repository owners from changing features that are enabled or disabled by the configuration, but features that are not set aren't enforced. Next to "Enforce configuration", select Enforce or Don't enforce from the dropdown menu.
+Note
+
+If a user in your organization attempts to change the enablement status of a feature in an enforced configuration using the REST API, the API call will appear to succeed, but no enablement statuses will change.
+Some situations can break the enforcement of security configurations for a repository. For example, the enablement of code scanning will not apply to a repository if:
+
+GitHub Actions is initially enabled on the repository, but is then disabled in the repository.
+GitHub Actions required by code scanning configurations are not available in the repository.
+The definition for which languages should not be analyzed using code scanning default setup is changed.
+
+
+
+
+To apply your changes, click Update configuration.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Manage paid GHAS useManaging your paid use of Advanced SecurityYou can understand and control the costs of using GitHub Secret Protection and GitHub Code Security in repositories in your organization.Who can use this feature?Organization owners, security managers, and organization members with the admin roleRequires GitHub Team or GitHub EnterpriseIn this articleRequirements for enabling Advanced Security productsUnderstanding your license usageTurning off Secret Protection or Code SecurityRequirements for enabling Advanced Security products
+To use GitHub Secret Protection or GitHub Code Security on private or internal repositories with unique active committers, you must have licenses available. The user-interface and options depend on how you pay for Advanced Security.
+
+Metered billing: by default, there is no limit on how many licenses you can consume. See Preventing overspending
+.
+Volume/subscription billing (GitHub Enterprise only):  once the licenses you have purchased are all in use, you cannot enable Secret Protection or Code Security on additional repositories until you free up or buy additional licenses.
+
+With security configurations, you can easily understand the license usage of repositories in your organization.
+To learn about licensing for GitHub Secret Protection and GitHub Code Security, see About billing for GitHub Advanced Security.
+Understanding your license usage
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "Apply configurations" section, your current license usage will be displayed. This screenshot shows metered usage. If you have bought a volume/subscription license, then the number of licenses available is also reported.
+
+
+
+Optionally, to find specific repositories in your organization, filter the repository table. To learn more, see Filtering repositories in your organization using the repository table.
+
+
+Turning off Secret Protection or Code Security
+The simplest way to turn off all Secret Protection or Code Security features for one or more repositories is to create a security configuration where the product is disabled at the top level. You can apply this custom configuration to repositories where you want to turn off paid features.
+Tip
+
+Ensure that you give your custom configuration a very clear name, for example: "No Code Security" or "Secret Protection and Supply chain only" to avoid confusion.
+
+For more information, see Creating a custom security configuration and Applying a custom security configuration.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Detach security configurationDetaching repositories from their security configurationsYou can unlink repositories from their security configurations and instead manage their security enablement settings at the repository level.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout detaching repositories from their security configurationsDetaching repositories from linked security configurationsAbout detaching repositories from their security configurations
+If you decide that the security needs of a repository are too specific for a security configuration to be useful, you can detach that repository from the linked configuration and instead manage security enablement settings at the repository level. Detaching a repository from a security configuration will not change the existing security enablement settings for that repository. For an introduction to securing your repository at the repository level, see Quickstart for securing your repository.
+Alternatively, if you want to apply a security configuration to a repository that's already attached to a different configuration, you can apply the configuration as normal, and you do not need to detach the current configuration. For more information, see Applying the GitHub-recommended security configuration in your organization and Applying a custom security configuration.
+Detaching repositories from linked security configurations
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+Optionally, in the "Apply configurations" section, filter for specific repositories you would like to detach from their configurations. To learn more, see Filtering repositories in your organization using the repository table.
+
+
+In the repository table, select repositories with one of three methods:
+
+Select each repository you would like to apply the security configuration to.
+To select all repositories displayed on the current page of the repository table, select the checkbox associated with "NUMBER repositories".
+After selecting the current page of repositories, "25 of NUMBER selected", to select all repositories in your organization that match any filters you have applied, click Select all.
+
+
+
+Select the Apply configuration  dropdown menu, then click No configuration.
+
+
+To finish detaching your repositories from their linked security configurations, in the "No configuration?" window, click No configuration.\n\n\n\nSecure coding/Secure your organization/Manage organization security/Find attachment failuresFinding and fixing configuration attachment failuresYou can identify any repositories where the security configuration could not be attached, and follow guidance to remediate the problem.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleFinding and remediating attachment failuresFurther readingFinding and remediating attachment failures
+When you apply a configuration to a group of repositories, you may see a banner reporting that there was an attachment failure for some repositories. This happens when there is a conflict between the existing repository settings and the configuration that you applied.
+When an attachment failure happens:
+
+Only some of the settings in the security configuration are applied to affected repositories.
+Any changes you later make to the security configuration will not be inherited by the affected repositories.
+
+On the security configuration settings page, under "Apply configurations", you will see a banner advising how many repositories in your organization have an attachment failure, and an overview of the reason(s) for the failure.
+Click the link in the banner display, or alternatively, filter the list of repositories by config-status:failed, to see the list of affected repositories and to source additional guidance on how to remediate the attachment failure for a specific repository.
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the "Apply configurations" section, filter by config-status:failed.
+
+
+From the results list, for the repository you're interested in, click  Failed REASON.
+
+
+In the dialog box, review the information and follow the remediation guidance.
+
+
+Further reading
+
+A repository is using advanced setup for code scanning
+Not enough GitHub Advanced Security licenses\n\n\n\nSecure coding/Secure your organization/Manage organization security/Delete custom configurationDeleting a custom security configurationYou can delete unnecessary custom security configurations in your organization.Who can use this feature?Organization owners, security managers, and organization members with the admin roleIn this articleAbout deleting a custom security configurationDeleting a custom security configuration from your organizationAbout deleting a custom security configuration
+If you no longer need a custom security configuration, you can delete that configuration to ensure it will not be applied to any repositories in the future. If you are deleting a custom security configuration because you want to change the security enablement settings in that configuration, you can instead edit the configuration. For more information, see Editing a custom security configuration.
+Warning
+
+Deleting a custom security configuration will detach all repositories that are linked to that configuration. The existing security settings for those repositories will be unchanged, but you must apply a different security configuration or manage their security settings at the repository level to keep their settings up to date.
+
+Deleting a custom security configuration from your organization
+
+
+In the upper-right corner of GitHub, select your profile photo, then click  Your organizations.
+
+
+Under your organization name, click  Settings. If you cannot see the "Settings" tab, select the  dropdown menu, then click Settings.
+
+
+
+In the "Security" section of the sidebar, select the  Advanced Security dropdown menu, then click Configurations.
+
+
+In the configurations table, click the name of the custom security configuration you want to delete.
+
+
+Scroll to the bottom of the page, then click Delete configuration.
+
+
+In the "Delete this configuration?" window, read the warning to confirm you are comfortable deleting the custom security configuration, then click Delete configuration.\n\n\n\nSecure coding/Secure your organization/Exposure to leaked secrets/Secret risk assessmentAbout the secret risk assessmentLearn why it's so important to understand your organization's exposure to data leaks and how the secret risk assessment report gives an overview of your organization’s secret leak footprint.Who can use this feature?Secret risk assessment is available for free for organization-owned repositories on GitHub Team and GitHub EnterpriseIn this articleAbout exposure to leaked secretsAbout secret risk assessmentNext stepsAbout exposure to leaked secrets
+Assessing your exposure to leaked secrets is crucial if you want to prevent:
+
+
+Exploitation by bad actors. Malicious actors can use leaked secrets such as API keys, passwords, and tokens to gain unauthorized access to systems, databases, and sensitive information. Leaked secrets can lead to data breaches, compromising user data and potentially causing significant financial and reputational damage. See industry examples and in-depth discussion in Understanding your organization's exposure to secret leaks in GitHub Executive Insights.
+
+
+Regulatory problems. Many industries have strict regulatory requirements for data protection, and leaked secrets can result in non-compliance with regulations, leading to legal penalties and fines.
+
+
+Service disruptions. Unauthorized access to systems can lead to service disruptions, impacting the availability and reliability of services provided to users.
+
+
+Loss of trust. Customers expect robust security measures to protect their data, and exposure to leaked secrets can erode trust and confidence in your organization's ability to safeguard information.
+
+
+Costly fallout. Addressing the fallout from leaked secrets can be costly, involving incident response efforts, security audits, and potential compensation for affected parties.
+
+
+Regularly assessing your exposure to leaked secrets is good practice to help identify vulnerabilities, implement necessary security measures, and ensure that any compromised secrets are promptly rotated and invalidated.
+About secret risk assessment
+Note
+
+The secret risk assessment report is currently in public preview and subject to change. If you have feedback or questions, please join the discussion in GitHub Community – we’re listening.
+
+Tip
+ This report is only available if you are on the GitHub Team plan. For information about the plan and how to upgrade, see GitHub Team and Upgrading your organization's plan.
+
+GitHub provides a secret risk assessment report that organization owners and security managers can generate to evaluate the exposure of an organization to leaked secrets. The secret risk assessment is an on-demand, point-in-time scan of the code within an organization that:
+
+Shows any leaked secrets within the organization
+Shows the kinds of secrets that are leaked outside the organization
+Provides actionable insights for remediation
+
+The secret risk assessment report provides the following insights:
+
+Total secrets—Aggregate count of exposed secrets detected within the organization.
+Public leaks—Distinct secrets found in your organization's public repositories.
+Preventable leaks—Secrets that could have been protected, using GitHub Secret Protection features such as secret scanning and push protection.
+Secret locations—Locations that are scanned for the report. The free secret risk assessment scans only the code in your organization, including the code in archived repositories. You can extend the surface being scanned to cover content in pull requests, issues, wikis, and GitHub Discussions with GitHub Secret Protection.
+Secret categories—Distribution of the types of secrets that are leaked. Secrets can be partner secrets, which are strings that match secrets issued by service providers in our partner program, or generic secrets, which are non-provider patterns such as SSH keys, database connection strings, and JSON web tokens.
+Repositories with leaks—Repositories where leaked secrets were detected, out of all the repositories scanned.
+
+Tip
+ You can only generate the report once every 90 days. We recommend that you implement GitHub Secret Protection for continuous secret monitoring and prevention. See Choosing GitHub Secret Protection.
+
+Because the secret risk assessment report is based on your repositories, regardless of the enablement status of GitHub Secret Protection features, you can see your current exposure to leaked secrets, and understand better how GitHub can help you prevent future secret leaks.
+Next steps
+Now that you know about the secret risk assessment report, you may want to learn how to:
+
+Generate the report to see your organization risk. See Viewing the secret risk assessment report for your organization.
+Interpret the results of the report. See Interpreting secret risk assessment results.
+Enable GitHub Secret Protection to improve your secret leak footprint. See Choosing GitHub Secret Protection.\n\n\n\nSecure coding/Secure your organization/Exposure to leaked secrets/View secret risk assessmentViewing the secret risk assessment report for your organizationYou can generate and view the secret risk assessment report for your organization from the "Security" tab.Who can use this feature?Organization owners and security managersIn this articleGenerating an initial secret risk assessmentRerunning the secret risk assessmentViewing the secret risk assessmentExporting the secret risk assessment to CSVNext stepsGitHub provides a secret risk assessment report that organization owners and security managers can generate to evaluate the exposure of an organization to leaked secrets. The secret risk assessment is an on-demand, point-in-time scan of the code within an organization that:
+
+Shows any leaked secrets within the organization
+Shows the kinds of secrets that are leaked outside the organization
+Provides actionable insights for remediation For more information about the report, see About the secret risk assessment.
+
+You can generate the secret risk assessment report for your organization, review it, and export the results to CSV.
+Note
+
+The secret risk assessment report is currently in public preview and subject to change. If you have feedback or questions, please join the discussion in GitHub Community – we’re listening.
+
+Generating an initial secret risk assessment
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+In the sidebar, under "Security", click Assessments.
+
+
+To generate the secret risk assessment, click Scan your organization.
+
+
+If you're an organization owner and you've opted in for email notifications, GitHub will send you an email to let you know when the report is ready to view.
+
+Did you successfully generate the secret risk assessment report for your organization?
+Yes  No
+
+Rerunning the secret risk assessment
+Tip
+ You can only generate the report once every 90 days. We recommend that you implement GitHub Secret Protection for continuous secret monitoring and prevention. See Choosing GitHub Secret Protection.
+
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+In the sidebar, under "Security", click Assessments.
+
+
+Towards the top right side of the existing report, click .
+
+
+Select Rerun scan.
+If you're an organization owner and you've opted in for email notifications, GitHub will send you an email to let you know when the report is ready to view.
+
+
+Viewing the secret risk assessment
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+In the sidebar, under "Security", click Assessments. You can see the most recent report on this page.
+
+
+Exporting the secret risk assessment to CSV
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+In the sidebar, under "Security", click Assessments.
+
+
+Towards the top right side of the report, click .
+
+
+Select Download CSV.
+
+
+The secret risk assessment CSV file includes the following information.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CSV columnNameDescriptionAOrganization NameThe name of the organization the secret was detected inBNameThe token name for the type of secretCSlugThe normalized string for the token. This corresponds to Token in the table of supported secrets. See Supported secret scanning patterns.DPush ProtectedA boolean to indicate whether the secret would be detected and blocked by push protection if it were enabledENon-Provider PatternA boolean to indicate whether the secret matched a non-provider pattern and would generate an alert if secret scanning with non-provider patterns were enabledFSecret CountAn aggregate count of the active and inactive secrets found for the token typeGRepository CountAn aggregate count of distinct repositories in which the secret type was found, including public, private,, and archived repositories
+Next steps
+Now that you've generated secret risk assessment for your organization, learn how to interpret the results. See Interpreting secret risk assessment results.\n\n\n\nSecure coding/Secure your organization/Exposure to leaked secrets/Interpret resultsInterpreting secret risk assessment resultsUse the results from your secret risk assessment report to improve your organization's security.In this articlePrerequisitesPrioritizing high-risk leaks for remediationIdentifying areas of exposureAdopt GitHub Secret Protection to prevent leaksThe secret risk assessment dashboard displays point-in-time insights into the secrets detected in your organization. For more information about the report, see About the secret risk assessment.
+Note
+
+The secret risk assessment report is currently in public preview and subject to change. If you have feedback or questions, please join the discussion in GitHub Community – we’re listening.
+
+Prerequisites
+You need to generate a secret risk assessment report and wait for the scan to complete before being able to view and export the results. See Viewing the secret risk assessment report for your organization and Exporting the secret risk assessment to CSV.
+Prioritizing high-risk leaks for remediation
+To understand your secrets' footprint and exposure to secrets leaks, review the Total secrets,Public leaks and Secret locations metrics.
+Next, identify the areas in your organization where leaked secrets pose the highest threat to security.
+
+Leaked secrets that are still active usually present the greatest risk to security. Prioritize any active secrets for remediation ahead of inactive secrets. For more information about checking the validity of a detected credential, see Enabling validity checks for your repository.
+Similarly, secrets leaked in public repositories are usually considered a higher risk and priority, than those secrets leaked in private repositories.
+The Repositories with leaks metric can indicate how frequent, or the extent of, secret leaks across your organization. A large proportion of repositories with secret leaks may suggest that developer education and increased security awareness around secrets is important for your organization.
+
+Identifying areas of exposure
+Review the Preventable leaks and Secret categories metrics to understand your current secret detection coverage, in addition to learning how GitHub can help prevent future secret leaks.
+
+Secret leaks that could have been prevented using GitHub Secret Protection features such as secret scanning and push protection are shown by the Preventable leaks metric.
+Using the Secret categories metric and the Token type table, search for patterns in the type of secrets leaked across your organization.
+
+Common areas and repeated occurrences of leaked secrets may suggest particular CI/CD workflows or development processes in your organization that are contributing to the results.
+You may also be able to identify specific teams, repositories, or networks that are more prone to secret leaks, and therefore require additional security measures or management to be put in place.
+
+
+
+Adopt GitHub Secret Protection to prevent leaks
+We recommend purchasing GitHub Secret Protection products to improve your organization's exposure to secret leaks and optimize your secret detection rates. GitHub Secret Protection is a continuous monitoring and detection solution that is the most effective path for secure development. See Choosing GitHub Secret Protection.\n\n\n\nSecure coding/Secure your organization/Exposure to leaked secrets/Secret protectionChoosing GitHub Secret ProtectionLearn how GitHub Secret Protection can help you detect secrets in your codebases and prevent leaks before they happen using continuous monitoring and prevention tools.Who can use this feature?GitHub Secret Protection is a set of features within GitHub Advanced Security that is available to the following users:
+
+GitHub Team plan users
+Enterprise organizations on GitHub Enterprise Cloud and GitHub Enterprise Server
+In this articleAbout GitHub Secret ProtectionWhy you should enable Secret Protection for 100% of your organization's repositoriesEnabling Secret ProtectionEnabling Secret Protection from the secret risk assessmentAbout GitHub Secret Protection
+Secret Protection includes the following features to help you detect and prevent secret leaks, allowing continuous monitoring and detection. For details about the features and their availability, see GitHub Secret Protection.
+
+
+Secret scanning: Detect secrets, for example keys and tokens, that have been checked into a repository and receive alerts.
+
+
+Push protection: Prevent secret leaks before they happen by blocking commits containing secrets.
+
+
+Copilot secret scanning: Leverage AI to detect unstructured credentials, such as passwords, that have been checked into a repository.
+
+
+Custom patterns: Detect and prevent leaks for organization-specific secrets.
+
+
+Delegated bypass for push protection and Delegated alert dismissal:  Implement an approval process for better control over who in your enterprise can perform sensitive actions, supporting governance at scale.
+
+
+Security overview: Understand the distribution of risk across your organization.
+
+
+In addition, Secret Protection includes a free scanning feature, the risk assessment report, to help organizations understand their secret leak footprint across their GitHub perimeter. See About the secret risk assessment.
+Secret Protection is billed per active committer to the repositories where it is enabled. It is available to users with a GitHub Team or GitHub Enterprise plan, see About billing for GitHub Advanced Security.
+Why you should enable Secret Protection for 100% of your organization's repositories
+GitHub recommends enabling GitHub Secret Protection products for all repositories, in order to protect your organization from the risk of secret leaks and exposures.  GitHub Secret Protection is free to enable for public repositories, and available as a purchasable add-on for private and internal repositories.
+
+
+The free secret risk assessment scans only the code in your organization, including the code in archived repositories. You can extend the surface being scanned to cover content in pull requests, issues, wikis, and GitHub Discussions with GitHub Secret Protection.. See About secret scanning
+
+
+The secret risk assessment and secret scanning scan code that has already been committed into your repositories. With push protection, your code is scanned for secrets before commits are saved on GitHub, during the push process, and the push is blocked if any secrets are detected. See About push protection.
+
+
+If you have one or more secret patterns that are internal to your organization, these will not be detected by the default patterns supported by secret scanning. You can define custom patterns that are only valid in your organization, and extend the secret scanning capabilities to detect these patterns. See Defining custom patterns for secret scanning.
+
+
+Knowing which secrets could be exploited makes it easy to prioritize remediation of leaked secrets found by secret scanning. Validity checks tell you if an active secret is one that could still be exploited, so these alerts should be reviewed and remediated as a priority. See Enabling validity checks for your repository.
+
+
+You may also want to detect leaks of unstructured secrets such as passwords. This is possible with our AI-powered Copilot secret scanning. See Responsible detection of generic secrets with Copilot secret scanning.
+
+
+Visualizing the prevention, detection, and remediation of security data is critical to understanding where to direct effort and where security initiatives are having an impact. Security overview has dedicated views that allow you to dig deep into the current state of your codebases at the organization and enterprise level. See About security overview.
+
+
+In addition to detecting and preventing secret leaks, you should consider building code security into all of your organization workflows to secure your software supply chain. See About supply chain security.
+If you require help evaluating your security needs or options, contact GitHub's Sales team.
+Alternatively, you can trial GitHub Advanced Security for free to assess your needs. See Planning a trial of GitHub Advanced Security.
+Enabling Secret Protection
+You can quickly enable security features at scale with the GitHub-recommended security configuration, a collection of security enablement settings you can apply to repositories in an organization. You can then further customize Advanced Security features at the organization level with global settings. See About enabling security features at scale.
+Security configurations can be applied at enterprise and organization level. You can also configure additional security settings for your organization. These settings, called global settings, are then inherited by all repositories in the organization. With global settings, you can customize how security features analyze your organization. See Configuring global security settings for your organization.
+In addition, repository administrators can enable security features at the repository level.
+Enabling Secret Protection from the secret risk assessment
+Note
+
+The secret risk assessment report is currently in public preview and subject to change. If you have feedback or questions, please join the discussion in GitHub Community – we’re listening.
+
+
+
+On GitHub, navigate to the main page of the organization.
+
+
+Under your organization name, click  Security.
+
+
+
+In the sidebar, under "Security", click Assessments.
+
+
+Click the Enable Secret Protection dropdown in the banner display, and then select one of the options for enabling the feature in your organization's repositories.
+
+
+For public repositories for free: Click to enable for only public repositories in your organization.
+
+
+For all repositories: Click Enable Secret Protection to enable both secret scanning and push protection for all repositories in your organization, at the estimated cost displayed. You will incur usage costs or need to purchase GitHub Secret Protection licenses.
+Alternatively, click Configure in settings to customize which repositories you want to enable Secret Protection for. See Applying the GitHub-recommended security configuration in your organization and Creating a custom security configuration.\n\n\n\nSecure coding/Secure your organization/Fix alerts at scale/About security campaignsAbout security campaignsYou can fix security alerts at scale by creating security campaigns and collaborating with developers to burn down your security backlog.Who can use this feature?Organizations on GitHub Team with GitHub Code Security enabledIn this articleSecurity campaigns in your day-to-day workBenefits of using security campaignsNext stepsOnce you have identified security alerts in the default branches of your repositories, the next step is to identify the most urgent alerts and get them fixed. Security campaigns are a way to group alerts and share them with developers, so you can collaborate to remediate vulnerabilities in the code.
+Security campaigns in your day-to-day work
+You can use security campaigns to support many of your aims as a security leader.
+
+Improving the security posture of the company by leading work to remediate alerts.
+Reinforcing security training for developers by creating a campaign of related alerts to fix collaboratively.
+Building collaborative relationships between the security team and developers to promote shared ownership of security alerts.
+Providing clarity to developers on the most urgent alerts to fix and monitoring alert remediation.
+
+Benefits of using security campaigns
+A security campaign has many benefits over other ways of encouraging developers to remediate security alerts. In particular,
+
+Developers are notified about any security campaigns taking place in repositories they work in or subscribe to by email.
+Developers can see the alerts you've highlighted for remediation without leaving their normal workflows.
+Each campaign has a named point of contact for questions, reviews, and collaboration.
+GitHub Copilot Autofix is automatically triggered to suggest a resolution for each security alert.
+
+You can use one of the templates to select a group of closely related alerts for a campaign. This allows developers to build on the knowledge gained by resolving one alert and use it to fix several more, providing them with an incentive to fix multiple alerts.
+In addition, you can use the REST API to create and interact with campaigns more efficiently and at scale. For more information, see REST API endpoints for security campaigns.
+Next steps
+
+Best practices for fixing security alerts at scale
+Creating and managing security campaigns\n\n\n\n
