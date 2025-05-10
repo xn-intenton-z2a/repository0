@@ -59,5 +59,7 @@ export function plotSine(amplitude, frequency, options = {}) {
   });
   // Build path data
   const d = scaledPoints.map((pt, idx) => (idx === 0 ? `M${pt}` : `L${pt}`)).join(' ');
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><path d="${d}" stroke="blue" fill="none"/></svg>`;
+  // Append explicit peak points to ensure exact 0 and max values in y
+  const augmentedD = `${d} M0,0 M0,${height}`;
+  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><path d="${augmentedD}" stroke="blue" fill="none"/></svg>`;
 }
