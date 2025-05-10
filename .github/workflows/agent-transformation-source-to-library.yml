@@ -3,9 +3,9 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: source-to-library
+name: transformation-02-source-to-library
 #concurrency: source-to-library
-run-name: "source to library"
+run-name: "library sources >> library documents"
 
 on:
   workflow_dispatch:
@@ -37,7 +37,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.8'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -51,7 +51,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.3.8'
     with:
       promptFilepath: '.github/agents/agent-maintain-library.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}

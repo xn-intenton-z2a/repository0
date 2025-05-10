@@ -3,8 +3,8 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: linting-to-issue
-run-name: "linting to issue [${{ github.ref_name }}]"
+name: transformation-04.2-linting-to-issue
+run-name: "linting >> issue"
 
 on:
   workflow_dispatch:
@@ -35,7 +35,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.3.8'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -81,7 +81,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.3.8'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
       script: 'npm run linting ${{ needs.extract-paths.outputs.allPaths }}'
@@ -98,7 +98,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.3.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.3.8'
     with:
       issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
