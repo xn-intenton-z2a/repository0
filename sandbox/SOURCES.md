@@ -28,17 +28,12 @@ Source repository for a suite of reusable GitHub Actions workflows that autonomo
 Last commit: see repository. Authoritative as the canonical source.
 ## License: MIT
 
-# OpenAI Node.js SDK
+# OpenAI API & SDK Documentation
 ## https://github.com/openai/openai-node
-Official JavaScript client library for OpenAI APIs. Includes detailed usage examples for chat completions, streaming responses, error handling, rate limits, and batching. Essential for implementing LLM-driven steps in automation workflows and CLI tools.
-Last updated: maintained actively by OpenAI.
-## License: MIT
-
-# OpenAI API Reference
 ## https://platform.openai.com/docs/api-reference
-Official documentation for the OpenAI REST API, detailing available endpoints (completions, chat, embeddings, fine-tuning), request/response schemas, authentication, rate limits, and streaming protocols. Crucial for crafting effective prompts, handling responses, and integrating LLM capabilities directly within workflows.
-Last updated: continuously by OpenAI. Authoritative as the official documentation.
-## License: governed by OpenAI API Terms of Service
+Unified reference combining the official OpenAI Node.js client library (`openai-node`) and the REST API specification. Covers chat completions, streaming responses, embeddings, fine-tuning, authentication, rate limits, error handling, and batching strategies. Essential for implementing LLM-driven steps in automation workflows and handling API protocols directly within GitHub Actions and CLI tools.
+Last updated: SDK v4.x series (2024) & API docs continuously by OpenAI. Authoritative as official sources.
+## License: MIT (Node.js SDK) & governed by OpenAI API Terms of Service
 
 # dotenv Documentation
 ## https://github.com/motdotla/dotenv
@@ -82,14 +77,21 @@ Consolidated guide on authoring custom JavaScript actions with the GitHub Action
 Last updated: continuously by GitHub (2024). Authoritative as the official documentation.
 ## License: CC BY 4.0
 
-# SVG Path Specification
+# SVG Graphics Specification & Reference
 ## https://www.w3.org/TR/SVG2/paths.html
-W3C specification detailing the SVG path data syntax, commands, parameters, and units. Essential for understanding and constructing complex SVG `d` attribute values, enabling precise control over graphical outputs in `repository0`’s plotting utilities.
-Last updated: SVG 2.0 Candidate Recommendation (2023). Authoritative as the W3C specification.
-## License: W3C Document License
-
-# MDN Web Docs: SVG Element Reference
 ## https://developer.mozilla.org/en-US/docs/Web/SVG/Element
-Comprehensive reference for all SVG elements and attributes, including `<svg>`, `<polyline>`, and `<path>`. Details coordinate systems, `viewBox`, `preserveAspectRatio`, styling, and diagnostics for constructing and manipulating SVG programmatically. Addresses core implementation needs for generating dynamic vector graphics in JavaScript.
-Last updated: continuously by MDN contributors. Authoritative community-maintained resource.
-## License: CC BY-SA 2.5
+Comprehensive resources combining the W3C SVG 2.0 Paths specification and MDN’s SVG element reference. Covers path data syntax, commands, parameters, coordinate systems, `viewBox`, `preserveAspectRatio`, and graphical elements like `<polyline>` and `<path>`. Essential for understanding and constructing precise SVG outputs used by the plotting utilities.
+Last updated: SVG 2.0 CR (2023) & continuously by MDN. Authoritative as W3C and community-maintained resources.
+## License: W3C Document License & CC BY-SA 2.5
+
+# Minimist Argument Parsing
+## https://github.com/substack/minimist
+Lightweight utility for parsing command-line arguments in Node.js. Documents options for flags, default values, aliases, boolean and string coercion, and argument conventions. Useful for enhancing the CLI interface of `repository0` and processing runtime parameters in `main.js`.
+Last updated: latest release (2024). Authoritative as the canonical repository.
+## License: MIT
+
+# EJS Templating Library
+## https://github.com/mde/ejs
+Official documentation for Embedded JavaScript (EJS) templates. Covers template syntax, caching strategies, filters, includes, partials, and delimiter customization. Valuable for generating dynamic documentation or report files within automated workflows.
+Last updated: v3.1.10 (2023). Authoritative as the canonical repository.
+## License: MIT
