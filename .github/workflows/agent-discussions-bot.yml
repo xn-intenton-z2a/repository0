@@ -69,7 +69,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.1'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -216,7 +216,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.4.1'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -346,7 +346,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.4.1'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -426,20 +426,20 @@ jobs:
       packages: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.4.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.4.1'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  delare-status-and-halt:
+  declare-status-and-halt:
     needs:
       - process-discussion-post
       - generate-response
       - seed-repository
       - agentic-lib
-    if: always() && needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop'
+    if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -472,5 +472,5 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
           git add .github/workflows/
-          git commit -m "Declare status with ${needs.generate-response.outputs.action} and halt workflows"
+          git commit -m "Declare status with ${{ needs.generate-response.outputs.action }} and halt workflows"
           git push
