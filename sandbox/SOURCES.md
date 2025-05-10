@@ -40,6 +40,20 @@ Last updated: 2024-01-05. Official GitHub documentation.
 ## License
 Creative Commons Attribution 4.0 International (CC BY 4.0)
 
+# GitHub Actions Workflow Commands for Logging
+## https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions
+This official documentation details the special workflow commands used to interact with GitHub Actions at runtime. It covers how to write and format log messages, group and fold logs, mask sensitive values, set and export job outputs, add timing annotations, and invoke debug mode. Essential for agentic workflows to produce structured, machine-readable logs and to coordinate data propagation between steps.
+Last updated: 2024-02-10. Official GitHub documentation.
+## License
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+# GitHub Actions Artifacts
+## https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+This guide explains how to persist data from workflow runs across jobs using `actions/upload-artifact` and `actions/download-artifact`. It details artifact retention, size limits, and path configurations. Critical for agentic workflows that share generated files, logs, or intermediate results between discrete jobs in a multi-stage pipeline.
+Last updated: 2024-03-01. Official GitHub documentation.
+## License
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
 # GitHub REST API
 ## https://docs.github.com/en/rest
 Unified reference for GitHub's REST API endpoints covering issues, pull requests, workflow runs, artifacts, logs, and repository management. Essential for agentic-lib’s automation flows—creating and labeling issues, initiating workflow runs, monitoring artifacts, and implementing custom recovery logic.
@@ -72,20 +86,6 @@ OpenAI API Terms of Use; MIT (Node.js SDK)
 ## https://github.com/colinhacks/zod
 Comprehensive documentation on defining schemas, refining types, nesting and composition, and handling validation errors. Ensures robust input/output validation for workflow inputs and LLM responses.
 Last commit: 2024-03-20.
-## License
-MIT
-
-# EJS Templating Engine
-## https://ejs.co/#docs
-Official reference for EJS templating syntax, partials/includes, custom filters, and performance considerations. Facilitates generation of code and configuration files within agentic workflows.
-Last reviewed: 2024-01-10.
-## License
-MIT
-
-# Vitest Testing Framework
-## https://vitest.dev/guide/
-In-depth guide to setting up unit tests, mocks, snapshots, parallel runs, coverage collection, and watch mode. Directly informs the configuration of test scripts and ensures reliable CI feedback loops.
-Last updated: 2024-01. 
 ## License
 MIT
 
