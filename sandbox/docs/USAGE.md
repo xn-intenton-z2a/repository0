@@ -70,3 +70,11 @@ const svgSine = plotSine(1, 2);
 console.log(svgSine);
 // <svg width="200" height="100" xmlns="...">...<path d="..."/></svg>
 ```
+
+## CLI Usage
+
+```bash
+npm install
+npm run start -- --help
+npm run start
+```
