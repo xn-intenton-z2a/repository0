@@ -1,209 +1,192 @@
 # JSYAML
 
 ## Crawl Summary
-Installation: npm install js-yaml; CLI: js-yaml [-h|v|c|t] file. API: load(input:string,options?), loadAll(input:string,iterator?,options?), dump(obj,options?) with full options list. Schemas: FAILSAFE, JSON, CORE, DEFAULT. LoadOptions: filename, onWarning, schema, json. DumpOptions: indent, noArrayIndent, skipInvalid, flowLevel, styles, schema, sortKeys, lineWidth, noRefs, noCompatMode, condenseFlow, quotingType, forceQuotes, replacer. Tag styles per YAML types. Supported tags. Caveats on mapping keys.
+Installation via npm, CLI flags, methods: load, loadAll, dump with full option sets, supported schemas, tag styles, YAML types mapping.
 
 ## Normalised Extract
-Table of Contents:
-1. Installation & CLI
-2. Schema Definitions
-3. load()
-4. loadAll()
-5. dump()
-6. Tag Styles
-7. Supported YAML Types
-8. JS-Specific Tags
-9. Caveats
+Table of Contents
+1. Installation
+2. CLI Usage
+3. API Methods
+   3.1 load
+   3.2 loadAll
+   3.3 dump
+4. Schemas
+5. Tag Styles
+6. Supported Types
 
-1. Installation & CLI
-   - npm install js-yaml
-   - npm install -g js-yaml
-   - CLI usage: js-yaml [-h|--help] [-v|--version] [-c|--compact] [-t|--trace] file
+1. Installation
+npm install js-yaml
+npm install -g js-yaml
 
-2. Schema Definitions
-   FAILSAFE_SCHEMA: strings, arrays, plain objects
-   JSON_SCHEMA: JSON-supported types
-   CORE_SCHEMA: alias for JSON_SCHEMA
-   DEFAULT_SCHEMA: all YAML 1.2 types
+2. CLI Usage
+Command: js-yaml [-h|--help] [-v|--version] [-c|--compact] [-t|--trace] <file>
 
-3. load(input: string, options?: {
-     filename?: string = null
-     onWarning?: (warn: YAMLException) => void = null
-     schema?: Schema = DEFAULT_SCHEMA
-     json?: boolean = false
-   }): any throws YAMLException
-   - Returns: object|string|number|null|undefined
-   - Throws on multi-document source
+3. API Methods
+3.1 load(string, options)
+options:
+  filename: string|null (default null)
+  onWarning: function(YAMLException)
+  schema: FAILSAFE_SCHEMA|JSON_SCHEMA|CORE_SCHEMA|DEFAULT_SCHEMA (default DEFAULT_SCHEMA)
+  json: boolean (default false)
+Returns: object|string|number|null|undefined or throws YAMLException
 
-4. loadAll(input: string, iterator?: (doc:any)=>void, options?: LoadOptions): any[]|void
-   - Returns array if iterator omitted
-   - Calls iterator(doc) per document
+3.2 loadAll(string, iterator, options)
+iterator: function(doc)
+Returns: void or array of documents
 
-5. dump(obj: any, options?: {
-     indent?: number = 2
-     noArrayIndent?: boolean = false
-     skipInvalid?: boolean = false
-     flowLevel?: number = -1
-     styles?: Record<string,string> = {}
-     schema?: Schema = DEFAULT_SCHEMA
-     sortKeys?: boolean|Function = false
-     lineWidth?: number = 80
-     noRefs?: boolean = false
-     noCompatMode?: boolean = false
-     condenseFlow?: boolean = false
-     quotingType?: "'"|"\"" = '\u0027'
-     forceQuotes?: boolean = false
-     replacer?: (key:string,value:any)=>any
-   }): string
+3.3 dump(object, options)
+options:
+  indent: number (default 2)
+  noArrayIndent: boolean (default false)
+  skipInvalid: boolean (default false)
+  flowLevel: number (default -1)
+  styles: map<string,string>
+  schema: FAILSAFE_SCHEMA|JSON_SCHEMA|CORE_SCHEMA|DEFAULT_SCHEMA
+  sortKeys: boolean|function
+  lineWidth: number (default 80)
+  noRefs: boolean (default false)
+  noCompatMode: boolean (default false)
+  condenseFlow: boolean (default false)
+  quotingType: '"' or "'" (default '\'')
+  forceQuotes: boolean (default false)
+  replacer: function(key,value)
+Returns: string
 
-6. Tag Styles
-   !!null: canonical->~, lowercase->null, uppercase->NULL, camelcase->Null, empty->""
-   !!int: binary->0b1, octal->0o1, decimal->1, hexadecimal->0x1
-   !!bool: lowercase->true, uppercase->TRUE, camelcase->True
-   !!float: lowercase->.nan, uppercase->.NAN, camelcase->.NaN
+4. Schemas
+FAILSAFE_SCHEMA: strings, arrays, objects
+JSON_SCHEMA: JSON types
+CORE_SCHEMA: same as JSON_SCHEMA
+DEFAULT_SCHEMA: all YAML types
 
-7. Supported YAML Types
-   !!null, !!bool, !!int, !!float, !!binary, !!timestamp, !!omap, !!pairs, !!set, !!str, !!seq, !!map
+5. Tag Styles
+!!null: "~"|"null"|"NULL"|"Null"|""
+!!int: "0b..."|"0o..."|"decimal"|"0x..."
+!!bool: "true"|"false" in cases
+!!float: ".nan"|".inf"
 
-8. JS-Specific Tags via js-yaml-js-types
-
-9. Caveats
-   - Objects/arrays used as keys get stringified
-   - Duplicate implicit block mapping keys cannot be read
+6. Supported Types
+null, bool, int, float, binary, timestamp, omap, pairs, set, str, seq, map
 
 ## Supplementary Details
-LoadOptions defaults: filename=null, onWarning=null, schema=DEFAULT_SCHEMA, json=false. DumpOptions defaults: indent=2, noArrayIndent=false, skipInvalid=false, flowLevel=-1, styles={}, schema=DEFAULT_SCHEMA, sortKeys=false, lineWidth=80, noRefs=false, noCompatMode=false, condenseFlow=false, quotingType="'", forceQuotes=false, replacer=undefined. Installation steps: npm install js-yaml, npm install -g js-yaml. CLI flags – help, version, compact, trace. Schema URLs: FAILSAFE: https://www.yaml.org/spec/1.2/spec.html#id2802346; JSON: https://www.yaml.org/spec/1.2/spec.html#id2803231; CORE: https://www.yaml.org/spec/1.2/spec.html#id2804923. Behavior notes: load throws on multiple docs; dump skips invalid when skipInvalid=true; condenseFlow for URL params formatting; noCompatMode to disable YAML1.1 booleans quoting.
+Schemas definitions: FAILSAFE (strings, arrays, objects), JSON (JSON types), CORE (JSON), DEFAULT (all). Filename option used in error messages. onWarning callback receives YAMLException. json=true makes duplicate keys override. dump.skipInvalid skips non-serializable types. flowLevel controls transition to flow style. styles map tag to style. sortKeys can be comparator. lineWidth max length. noRefs disables references. noCompatMode disables YAML1.1 compat. condenseFlow removes spaces. quotingType sets wrapper. forceQuotes quotes all strings. replacer applied like JSON.stringify.
 
 ## Reference Details
-// Import
-const yaml = require('js-yaml');
-const fs = require('fs');
+// load
+function load(string, options?) => any
+Parameters:
+  string: input YAML
+  options.filename: string|null
+  options.onWarning(e: YAMLException): void
+  options.schema: Schema
+  options.json: boolean
+Throws: YAMLException
 
-// Reading a single document
-try {
-  const input = fs.readFileSync('example.yml','utf8');
-  const data: any = yaml.load(input, {
-    filename: 'example.yml',
-    onWarning: function(warn) { console.warn('YAML Warning:',warn.message); },
-    schema: yaml.JSON_SCHEMA,
-    json: true
-  });
-  console.log(data);
-} catch (e) {
-  if(e instanceof yaml.YAMLException) {
-    console.error('YAML Error at', e.mark, e.message);
-  } else {
-    throw e;
-  }
-}
+// loadAll
+function loadAll(string, iterator, options?) => any[]|void
+Parameters:
+  string: input
+  iterator(doc:any): void
+  options same as load
 
-// Reading multiple documents
-const docs: any[] = [];
-yaml.loadAll(fs.readFileSync('multi.yml','utf8'), function(doc) { docs.push(doc); }, { schema: yaml.CORE_SCHEMA });
+// dump
+function dump(object:any, options?) => string
+Parameters:
+  indent: number
+  noArrayIndent: boolean
+  skipInvalid: boolean
+  flowLevel: number
+  styles: Record<string,string>
+  schema: Schema
+  sortKeys: boolean|function
+  lineWidth: number
+  noRefs: boolean
+  noCompatMode: boolean
+  condenseFlow: boolean
+  quotingType: '"'|'\''
+  forceQuotes: boolean
+  replacer(key,value): any
 
-// Writing YAML
-const obj = { name: 'test', list: [1,2,'three'] };
-const yamlStr: string = yaml.dump(obj, {
-  indent: 4,
-  noArrayIndent: true,
-  skipInvalid: true,
-  flowLevel: 2,
-  styles: {'!!null':'empty'},
-  sortKeys: (a,b) => a.localeCompare(b),
-  lineWidth: 120,
-  condenseFlow: true,
-  quotingType: '"',
-  forceQuotes: true,
-  replacer: (key,value) => value===null?'NULL':value
-});
-fs.writeFileSync('out.yml', yamlStr, 'utf8');
+Best Practices:
+- Use DEFAULT_SCHEMA unless strict JSON needed
+- Set skipInvalid=true to ignore functions
+- Set sortKeys for predictable output
+- Use flowLevel=0 for full flow style
+- Use condenseFlow for URL query params
 
-// Troubleshooting Commands
-// Validate syntax
-js-yaml -c example.yml
-// Expected: no output if valid, error message if invalid
-
-// Dump error with trace
-js-yaml -t invalid.yml
-// Expected: stack trace with file and line numbers
-
-// Best Practices
-// 1. Always specify 'schema' explicitly in load
-// 2. Use 'skipInvalid' to avoid exceptions on functions/regexps
-// 3. Use 'sortKeys' function for reproducible outputs
-// 4. Use 'noCompatMode' to enforce YAML1.2 quoting rules
-
+Troubleshooting:
+Command: js-yaml file.yml
+Error: YAMLException: at line X, column Y
+Fix: Validate indentation, ensure proper key-value syntax
+Use --trace to see stack
 
 ## Information Dense Extract
-install:npm i js-yaml;cli:js-yaml[-h][-v][-c][-t]file;import:const yaml=require('js-yaml');load(input:string,options{filename?:string,null;onWarning?fn;schema?:Schema=DEFAULT_SCHEMA;json?:boolean=false}):object|string|number|null|undefined throws YAMLException;loadAll(input,iterator?,options):any[]|void;dump(obj,options{indent=2;noArrayIndent=false;skipInvalid=false;flowLevel=-1;styles={};schema=DEFAULT_SCHEMA;sortKeys=false;lineWidth=80;noRefs=false;noCompatMode=false;condenseFlow=false;quotingType="'";forceQuotes=false;replacer?fn}):string;schemas:FAILSAFE,JSON,CORE,DEFAULT;tagStyles:!!null(canonical->~,...),!!int(binary->0b1,...),!!bool(lowercase->true,...),!!float(lowercase->.nan,...);types:!!null,!!bool,!!int,!!float,!!binary,!!timestamp,!!omap,!!pairs,!!set,!!str,!!seq,!!map;caveats:objects/arrays keys stringified;multi-doc load throws;use skipInvalid for invalid types
+install npm js-yaml|global for CLI; CLI flags -h,-v,-c,-t; API load(string,options{filename, onWarning, schema, json})->any|throws YAMLException; loadAll(string,iterator,options)->any[]|void; dump(obj,options{indent, noArrayIndent, skipInvalid, flowLevel, styles, schema, sortKeys, lineWidth, noRefs, noCompatMode, condenseFlow, quotingType, forceQuotes, replacer})->string; schemas=FAILSAFE(only str,arr,obj), JSON, CORE(JSON), DEFAULT(all); json:true overrides dup keys; skipInvalid:true skips non-serializable; flowLevel controls style transition; styles:tag->style; sortKeys:boolean|fn; quotingType="'"|"\""; condenseFlow removes spaces; supported tags: !!null,!!int,!!bool,!!float with style variants; types: null,bool,int,float,binary,timestamp,omap,pairs,set,str,seq,map.
 
 ## Sanitised Extract
-Table of Contents:
-1. Installation & CLI
-2. Schema Definitions
-3. load()
-4. loadAll()
-5. dump()
-6. Tag Styles
-7. Supported YAML Types
-8. JS-Specific Tags
-9. Caveats
+Table of Contents
+1. Installation
+2. CLI Usage
+3. API Methods
+   3.1 load
+   3.2 loadAll
+   3.3 dump
+4. Schemas
+5. Tag Styles
+6. Supported Types
 
-1. Installation & CLI
-   - npm install js-yaml
-   - npm install -g js-yaml
-   - CLI usage: js-yaml [-h|--help] [-v|--version] [-c|--compact] [-t|--trace] file
+1. Installation
+npm install js-yaml
+npm install -g js-yaml
 
-2. Schema Definitions
-   FAILSAFE_SCHEMA: strings, arrays, plain objects
-   JSON_SCHEMA: JSON-supported types
-   CORE_SCHEMA: alias for JSON_SCHEMA
-   DEFAULT_SCHEMA: all YAML 1.2 types
+2. CLI Usage
+Command: js-yaml [-h|--help] [-v|--version] [-c|--compact] [-t|--trace] <file>
 
-3. load(input: string, options?: {
-     filename?: string = null
-     onWarning?: (warn: YAMLException) => void = null
-     schema?: Schema = DEFAULT_SCHEMA
-     json?: boolean = false
-   }): any throws YAMLException
-   - Returns: object|string|number|null|undefined
-   - Throws on multi-document source
+3. API Methods
+3.1 load(string, options)
+options:
+  filename: string|null (default null)
+  onWarning: function(YAMLException)
+  schema: FAILSAFE_SCHEMA|JSON_SCHEMA|CORE_SCHEMA|DEFAULT_SCHEMA (default DEFAULT_SCHEMA)
+  json: boolean (default false)
+Returns: object|string|number|null|undefined or throws YAMLException
 
-4. loadAll(input: string, iterator?: (doc:any)=>void, options?: LoadOptions): any[]|void
-   - Returns array if iterator omitted
-   - Calls iterator(doc) per document
+3.2 loadAll(string, iterator, options)
+iterator: function(doc)
+Returns: void or array of documents
 
-5. dump(obj: any, options?: {
-     indent?: number = 2
-     noArrayIndent?: boolean = false
-     skipInvalid?: boolean = false
-     flowLevel?: number = -1
-     styles?: Record<string,string> = {}
-     schema?: Schema = DEFAULT_SCHEMA
-     sortKeys?: boolean|Function = false
-     lineWidth?: number = 80
-     noRefs?: boolean = false
-     noCompatMode?: boolean = false
-     condenseFlow?: boolean = false
-     quotingType?: '''|'''' = ''u0027'
-     forceQuotes?: boolean = false
-     replacer?: (key:string,value:any)=>any
-   }): string
+3.3 dump(object, options)
+options:
+  indent: number (default 2)
+  noArrayIndent: boolean (default false)
+  skipInvalid: boolean (default false)
+  flowLevel: number (default -1)
+  styles: map<string,string>
+  schema: FAILSAFE_SCHEMA|JSON_SCHEMA|CORE_SCHEMA|DEFAULT_SCHEMA
+  sortKeys: boolean|function
+  lineWidth: number (default 80)
+  noRefs: boolean (default false)
+  noCompatMode: boolean (default false)
+  condenseFlow: boolean (default false)
+  quotingType: ''' or ''' (default '''')
+  forceQuotes: boolean (default false)
+  replacer: function(key,value)
+Returns: string
 
-6. Tag Styles
-   !!null: canonical->~, lowercase->null, uppercase->NULL, camelcase->Null, empty->''
-   !!int: binary->0b1, octal->0o1, decimal->1, hexadecimal->0x1
-   !!bool: lowercase->true, uppercase->TRUE, camelcase->True
-   !!float: lowercase->.nan, uppercase->.NAN, camelcase->.NaN
+4. Schemas
+FAILSAFE_SCHEMA: strings, arrays, objects
+JSON_SCHEMA: JSON types
+CORE_SCHEMA: same as JSON_SCHEMA
+DEFAULT_SCHEMA: all YAML types
 
-7. Supported YAML Types
-   !!null, !!bool, !!int, !!float, !!binary, !!timestamp, !!omap, !!pairs, !!set, !!str, !!seq, !!map
+5. Tag Styles
+!!null: '~'|'null'|'NULL'|'Null'|''
+!!int: '0b...'|'0o...'|'decimal'|'0x...'
+!!bool: 'true'|'false' in cases
+!!float: '.nan'|'.inf'
 
-8. JS-Specific Tags via js-yaml-js-types
-
-9. Caveats
-   - Objects/arrays used as keys get stringified
-   - Duplicate implicit block mapping keys cannot be read
+6. Supported Types
+null, bool, int, float, binary, timestamp, omap, pairs, set, str, seq, map
 
 ## Original Source
 js-yaml Documentation
@@ -211,102 +194,83 @@ https://github.com/nodeca/js-yaml
 
 ## Digest of JSYAML
 
-# JS-YAML Technical Digest (Retrieved: 2024-06-05)
+# JS-YAML Technical Digest (Retrieved 2024-07-12)
 
-## 1. Installation & CLI
+## Installation
 
 npm install js-yaml
+npm install -g js-yaml  # for CLI
 
-npm install -g js-yaml    
-Usage: js-yaml [-h] [-v] [-c] [-t] file
+## CLI Usage
 
-Options:
-  -h, --help       Show help and exit
-  -v, --version    Show version
-  -c, --compact    Display errors compactly
-  -t, --trace      Show stack trace on error
+js-yaml [-h|--help] [-v|--version] [-c|--compact] [-t|--trace] <file>
 
-## 2. Core API Methods
+- --compact: errors in compact mode
+- --trace: show stack trace
 
-### 2.1 load(string[, options])
-Signature:
-  yaml.load(input: string, options?: LoadOptions): any
-Throws: YAMLException
-Return Types: object | string | number | null | undefined
+## API Methods
 
-LoadOptions:
-  filename?: string       default: null
-  onWarning?: (warn: YAMLException) => void    default: null
-  schema?: Schema         default: DEFAULT_SCHEMA
-  json?: boolean          default: false
+### load(string, options)
+Signature: load(string: string, options?: {
+  filename?: string;
+  onWarning?: (e: YAMLException) => void;
+  schema?: Schema;
+  json?: boolean;
+}) : any
 
-Schemas:
-  FAILSAFE_SCHEMA  strings, arrays, plain objects
-  JSON_SCHEMA      JSON types
-  CORE_SCHEMA      same as JSON_SCHEMA
-  DEFAULT_SCHEMA   all YAML types
+### loadAll(string, iterator?, options?)
+Signature: loadAll(string: string, iterator?: (doc: any) => void, options?: {
+  filename?: string;
+  onWarning?: (e: YAMLException) => void;
+  schema?: Schema;
+  json?: boolean;
+}) : any[] | void
 
-Behavior:
-  throws on multi-document input
-  supports regex, functions only via custom tags
+### dump(object, options?)
+Signature: dump(object: any, options?: {
+  indent?: number;
+  noArrayIndent?: boolean;
+  skipInvalid?: boolean;
+  flowLevel?: number;
+  styles?: Record<string,string>;
+  schema?: Schema;
+  sortKeys?: boolean | ((a:any,b:any)=>number);
+  lineWidth?: number;
+  noRefs?: boolean;
+  noCompatMode?: boolean;
+  condenseFlow?: boolean;
+  quotingType?: '"' | "'";
+  forceQuotes?: boolean;
+  replacer?: (key:any,value:any)=>any;
+}) : string
 
-### 2.2 loadAll(string[, iterator, options])
-Signature:
-  yaml.loadAll(input: string, iterator?: (doc: any) => void, options?: LoadOptions): any[] | void
+## Schemas
 
-Behavior:
-  returns array if iterator omitted
-  applies iterator(doc) per document
+- FAILSAFE_SCHEMA
+- JSON_SCHEMA
+- CORE_SCHEMA
+- DEFAULT_SCHEMA
 
-### 2.3 dump(object[, options])
-Signature:
-  yaml.dump(obj: any, options?: DumpOptions): string
+## Styles by Tag
 
-DumpOptions:
-  indent?: number               default: 2
-  noArrayIndent?: boolean       default: false
-  skipInvalid?: boolean         default: false
-  flowLevel?: number            default: -1
-  styles?: Record<string,string>default: {}
-  schema?: Schema               default: DEFAULT_SCHEMA
-  sortKeys?: boolean|Function    default: false
-  lineWidth?: number            default: 80
-  noRefs?: boolean              default: false
-  noCompatMode?: boolean        default: false
-  condenseFlow?: boolean        default: false
-  quotingType?: "'"|"\""  default: '\u0027'
-  forceQuotes?: boolean         default: false
-  replacer?: (key: string, value: any) => any
+Tag       Canonical Lowercase Uppercase Camelcase Empty
+!!null    ~         null      NULL      Null      ''
+!!int     binary    octal     decimal   hex      -
+!!bool    true/false TRUE/FALSE True/False -        -
+!!float   .nan/.inf .nan/.inf .NAN/.INF .NaN/.Inf -
 
-## 3. Tag Styles Table
+## Supported Types
 
-| Tag    | Styles           | Default => Output  |
-|--------|------------------|--------------------|
-| !!null | canonical, ...   | canonical -> ~     |
-| !!int  | binary, octal... | decimal => '42'    |
-| !!bool | lowercase, ...   | lowercase => true  |
-| !!float| lowercase, ...   | lowercase => .nan  |
-
-## 4. Supported Types
-
-Standard:
-  !!null, !!bool, !!int, !!float, !!binary, !!timestamp, !!omap, !!pairs, !!set, !!str, !!seq, !!map
-
-JS-specific: via js-yaml-js-types
-
-## 5. Caveats
-
-- Objects/arrays as keys are stringified
-- Implicit block mapping key duplication unsupported
+- null, bool, number, string, buffer, date, array, object, pairs, omap, set
 
 
 ## Attribution
 - Source: js-yaml Documentation
 - URL: https://github.com/nodeca/js-yaml
 - License: License: MIT
-- Crawl Date: 2025-05-10T13:05:00.365Z
-- Data Size: 572595 bytes
-- Links Found: 4593
+- Crawl Date: 2025-05-10T20:57:13.656Z
+- Data Size: 1012204 bytes
+- Links Found: 5597
 
 ## Retrieved
 2025-05-10
