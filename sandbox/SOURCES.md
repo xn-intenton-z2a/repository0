@@ -87,3 +87,9 @@ Last updated: continuously by GitHub (2024). Authoritative as the official docum
 W3C specification detailing the SVG path data syntax, commands, parameters, and units. Essential for understanding and constructing complex SVG `d` attribute values, enabling precise control over graphical outputs in `repository0`’s plotting utilities.
 Last updated: SVG 2.0 Candidate Recommendation (2023). Authoritative as the W3C specification.
 ## License: W3C Document License
+
+# MDN Web Docs: SVG Element Reference
+## https://developer.mozilla.org/en-US/docs/Web/SVG/Element
+Comprehensive reference for all SVG elements and attributes, including `<svg>`, `<polyline>`, and `<path>`. Details coordinate systems, `viewBox`, `preserveAspectRatio`, styling, and diagnostics for constructing and manipulating SVG programmatically. Addresses core implementation needs for generating dynamic vector graphics in JavaScript.
+Last updated: continuously by MDN contributors. Authoritative community-maintained resource.
+## License: CC BY-SA 2.5
