@@ -47,13 +47,6 @@ Last updated: 2024-05-20. Official GitHub documentation.
 ## License
 Creative Commons Attribution 4.0 International (CC BY 4.0)
 
-# Dependabot – Auto-updating Dependencies
-## https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically
-Covers configuring Dependabot version updates for npm, cron schedules, security patches, and PR automerge. Complements `npm-check-updates` scripts in `repository0` to maintain dependency hygiene and reduce security risks.
-Last updated: 2024-03-15. Official GitHub documentation.
-## License
-Creative Commons Attribution 4.0 International (CC BY 4.0)
-
 # Node.js ESM Modules
 ## https://nodejs.org/api/esm.html
 Official Node.js documentation describing ESM loader, `import`/`export` syntax, interoperability with CommonJS, file extensions, and experimental loader hooks. Crucial for ensuring `src/lib/main.js` and test suites run predictably under Node.js v20.
@@ -61,19 +54,12 @@ Last updated: Node.js v20 documentation (2024).
 ## License
 OpenJS Foundation (MIT-compatible)
 
-# OpenAI Chat Completions API Reference
+# OpenAI Chat API & Node.js SDK
 ## https://platform.openai.com/docs/api-reference/chat
-Authoritative specification of the `/chat/completions` endpoint, including request schemas, streaming responses, error codes, rate limits, and best practices for token management. Forms the backbone of all LLM-driven workflows in `repository0`.
-Last updated: 2024-05-15. Published by OpenAI.
+Combined reference for OpenAI’s Chat Completions API and the official Node.js client library. Details the `/chat/completions` endpoint’s request/response schemas, streaming patterns, error handling, rate limits, and best practices for token management, alongside SDK installation, configuration, and authentication via environment variables in Node.js. This unified source underpins all LLM-driven workflows in `repository0`.
+Last updated: API (2024-05-15), SDK (2024-04-05). Published by OpenAI.
 ## License
-Subject to OpenAI API Terms of Use
-
-# OpenAI Node.js Client Library
-## https://platform.openai.com/docs/client-libraries/nodejs
-Guide to installing and using the official OpenAI SDK for Node.js: authentication via environment variables, streaming output, configuration options, and error handling patterns. Directly supports agentic-lib’s integration layer in `repository0`.
-Last reviewed: 2024-04-05.
-## License
-MIT
+OpenAI API Terms of Use; MIT (Node.js SDK)
 
 # Zod: Type Validation for TypeScript and JavaScript
 ## https://github.com/colinhacks/zod
@@ -96,16 +82,30 @@ Last updated: 2024-01.
 ## License
 MIT
 
-# Prettier Code Formatter
-## https://prettier.io/docs/en/index.html
-Official Prettier documentation covering CLI usage, editor integrations, configuration overrides, and plugin ecosystem. Guarantees consistent project-wide code styling for both human- and machine-generated code in `repository0`.
-Last updated: 2024-02.
-## License
-MIT
-
 # Agentic-lib: Reusable Agentic GitHub Workflows
 ## https://github.com/xn-intenton-z2a/agentic-lib
 README and schema definitions for a collection of composable GitHub Actions workflows that automate issue creation, code mutation, PR merging, and issue review. Serves as the primary source for understanding inputs, branching strategies, and behavior of `repository0`’s agentic pipelines.
 Last commit: 2024-06-01.
 ## License
 MIT
+
+# dotenv – Environment Variable Management
+## https://github.com/motdotla/dotenv#readme
+Official guide to loading environment variables from `.env` files into Node.js `process.env`, including configuration options for path, encoding, override behavior, and example patterns. Essential for managing secrets (e.g., `CHATGPT_API_SECRET_KEY`) and configuration in automated workflows.
+Last updated: 2024-05. MIT licensed.
+## License
+MIT
+
+# js-yaml – YAML Parsing for JavaScript
+## https://github.com/nodeca/js-yaml#readme
+Thorough documentation on parsing (`load`, `loadAll`) and serializing (`dump`) YAML in JavaScript, schema customization (`FAILSAFE`, `JSON`), safe load options, and error handling. Critical for reading and writing YAML-based workflow definitions and configuration files in `repository0`.
+Last updated: 2024-04-10. MIT licensed.
+## License
+MIT
+
+# minimatch – File Globbing and Pattern Matching
+## https://github.com/isaacs/minimatch
+Detailed reference for glob pattern matching semantics (wildcards, character classes, negation), options (`nocase`, `dot`), and testing methods (`minimatch`, `match`). Used in scripts and workflows for dynamic file selection and path filtering in `repository0`.
+Last updated: 2024-02. ISC licensed.
+## License
+ISC
