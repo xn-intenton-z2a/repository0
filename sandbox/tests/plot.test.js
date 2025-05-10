@@ -10,6 +10,48 @@ describe("plotQuadratic", () => {
     expect(svg.includes("<polyline")).toBe(true);
     expect(svg.endsWith("</svg>")).toBe(true);
   });
+
+  test("default behavior: should have width + 1 points and include proper y scaling", () => {
+    const width = 200;
+    const height = 100;
+    const svg = plotQuadratic(1, 0, 0);
+    const match = svg.match(/<polyline[^>]+points="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const pointsStr = match[1];
+    const points = pointsStr.trim().split(" ");
+    // Should have width + 1 points
+    expect(points.length).toBe(width + 1);
+    // Parse y pixel values
+    const yPixels = points.map(p => parseFloat(p.split(",")[1]));
+    expect(yPixels).toContain(0);
+    expect(yPixels).toContain(height);
+  });
+
+  test("custom width and range: proper point count and boundary scaling", () => {
+    const width = 100;
+    const height = 100;
+    const xMin = 5;
+    const xMax = 15;
+    const svg = plotQuadratic(1, 0, 0, { width, xMin, xMax });
+    const match = svg.match(/<polyline[^>]+points="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const points = match[1].trim().split(" ");
+    expect(points.length).toBe(width + 1);
+    // First and last points: pixel X should be 0 and width
+    const first = points[0];
+    const last = points[points.length - 1];
+    expect(first.startsWith("0,")).toBe(true);
+    expect(last.startsWith(`${width},`)).toBe(true);
+    // Compute expected y pixel boundaries
+    // yMin at xMin: 5^2 = 25, yMax at xMax: 15^2 = 225
+    const yMin = 25;
+    const yMax = 225;
+    const expectedMinYPixel = height - ((yMin - yMin) / (yMax - yMin)) * height;
+    const expectedMaxYPixel = height - ((yMax - yMin) / (yMax - yMin)) * height;
+    // expectedMinYPixel = height, expectedMaxYPixel = 0
+    expect(parseFloat(first.split(",")[1])).toBeCloseTo(expectedMinYPixel);
+    expect(parseFloat(last.split(",")[1])).toBeCloseTo(expectedMaxYPixel);
+  });
 });
 
 describe("plotSine", () => {
@@ -19,5 +61,36 @@ describe("plotSine", () => {
     expect(svg.startsWith("<svg")).toBe(true);
     expect(svg.includes("<path")).toBe(true);
     expect(svg.endsWith("</svg>")).toBe(true);
+  });
+
+  test("default behavior: path starts with M0, and contains width 'L' commands", () => {
+    const width = 200;
+    const svg = plotSine(1, 1);
+    const match = svg.match(/<path[^>]+d="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const d = match[1];
+    expect(d.startsWith("M0,")).toBe(true);
+    const lCount = (d.match(/L/g) || []).length;
+    expect(lCount).toBe(width);
+  });
+
+  test("custom amplitude, frequency, width, and height: vertical centering and peak values", () => {
+    const amplitude = 2;
+    const frequency = 2;
+    const width = 100;
+    const height = 50;
+    const svg = plotSine(amplitude, frequency, { width, height });
+    const match = svg.match(/<path[^>]+d="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const d = match[1];
+    // Extract y-values from commands
+    const coordMatches = [...d.matchAll(/[ML](\d+),(\d+(?:\.\d+)?)/g)];
+    const yValues = coordMatches.map(m => parseFloat(m[2]));
+    // Sine wave should be centered at height/2 = 25
+    const center = height / 2;
+    expect(yValues).toContain(center);
+    // Peaks at 0 and height
+    expect(Math.min(...yValues)).toBeCloseTo(0);
+    expect(Math.max(...yValues)).toBeCloseTo(height);
   });
 });
