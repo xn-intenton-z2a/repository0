@@ -1,35 +1,46 @@
 # Overview
-
-Implement a command-line equation plotter that generates an SVG visualization of common mathematical functions. This feature extends the main script to parse a function type and output file path, produce an SVG string representing the plot, and write it to disk.
+Extend the existing CLI equation plotter to add support for parametric curve types (circle and ellipse) alongside the current quadratic and sine functions. Enable users to specify curve parameters for radius or axis lengths, and produce SVG visualizations accordingly.
 
 # CLI Interface
 
-The script accepts positional and named arguments:
+The script accepts a positional argument `functionType` and named options:
 
-- Positional argument `functionType`: one of `quadratic` or `sine`.
-- Named options:
-  - `--output` (or `-o`): file path for the output SVG (default `plot.svg`).
+- Positional argument `functionType`: one of `quadratic`, `sine`, `circle`, or `ellipse`.
+- Named options common to all types:
+  - `--output` or `-o`: path for the output SVG file (default `plot.svg`).
   - `--width`: canvas width in pixels (default `800`).
   - `--height`: canvas height in pixels (default `600`).
-  - `--steps`: number of sample points to plot (default `100`).
+  - `--steps`: number of sample points to draw (default `100`).
+- Additional options for parametric types:
+  - For `circle`:
+    - `--radius` or `-r`: radius of the circle (default `1`).
+  - For `ellipse`:
+    - `--a`: semi-major axis length (default `2`).
+    - `--b`: semi-minor axis length (default `1`).
 
 # Behavior
 
-1. Validate `functionType` and options.
-2. Generate coordinate samples:
-   - For `quadratic`, plot y = x^2 over x in [-10, 10].
-   - For `sine`, plot y = sin(x) over x in [-2π, 2π].
-3. Scale and translate coordinates to SVG viewport size.
-4. Construct an SVG path string connecting all sample points.
-5. Write an SVG document with axes to the specified output file.
+1. Parse and validate `functionType` and all provided options.
+2. Generate sample points:
+   - `quadratic`: y = x^2 over x in [-10, 10].
+   - `sine`: y = sin(x) over x in [-2π, 2π].
+   - `circle`: x = radius * cos(t), y = radius * sin(t) for t in [0, 2π].
+   - `ellipse`: x = a * cos(t), y = b * sin(t) for t in [0, 2π].
+3. Scale and translate coordinates to the SVG viewport based on width and height.
+4. Build an SVG path string connecting all sampled points, include axes for reference.
+5. Write the complete SVG document to the specified output file.
 
 # Testing
 
-- Unit tests verify:
-  - Correct parsing of CLI arguments.
-  - Generation of valid SVG string containing `<svg>` and `<path>` elements.
-  - File is written to disk at the specified path.
+- Unit tests should cover:
+  - CLI argument parsing for each function type and associated options.
+  - Correct generation of SVG snippets containing `<svg>` and `<path>` elements.
+  - File creation at the chosen output path.
+  - Parameter handling for `radius`, `a`, and `b` options.
 
 # Documentation
 
-Update README with new usage examples and describe the equation plotter API and CLI commands.
+- Update README to illustrate usage examples for `circle` and `ellipse` types:
+  - Example command for a unit circle: `node src/lib/main.js circle -r 5 -o circle.svg`
+  - Example command for an ellipse: `node src/lib/main.js ellipse --a 3 --b 2 -o ellipse.svg`
+- Document the extended API usage and describe how each parameter maps to the plotted curve.
