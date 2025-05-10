@@ -75,3 +75,21 @@ Last updated: v12.x. Authoritative as the official site.
 Automated release management tool that derives version numbers from commit messages, generates changelogs, and publishes packages. Describes plugin ecosystem, CI integration, and configuration conventions. Relevant for orchestrating releases within agentic workflows.
 Last updated: maintained. Authoritative as the GitBook docs.
 ## License: MIT
+
+# GitHub Actions Toolkit - Creating JavaScript Actions
+## https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
+Official guide on authoring custom JavaScript actions using the GitHub Actions Toolkit. Covers `action.yml` metadata, using `@actions/core` and `@actions/exec`, input/output parameters, logging, error handling, and publishing patterns. Enables building composable actions invoked via `workflow_call` or direct use in workflows.
+Last updated: continuously by GitHub (2024). Authoritative as the official documentation.
+## License: CC BY 4.0
+
+# GitHub Actions Best Practices for Writing Actions
+## https://docs.github.com/en/actions/learn-github-actions/best-practices-for-writing-actions
+Detailed recommendations for designing secure, performant, and maintainable actions and workflows. Includes guidance on least-privilege permissions, caching strategies, matrix optimizations, secret management, and modular action design. Helps ensure scalable automation aligned with GitHub’s operational best practices.
+Last updated: continuously by GitHub (2024). Authoritative as the official guidance.
+## License: CC BY 4.0
+
+# Octokit REST.js Client Library
+## https://octokit.github.io/rest.js/v18
+Comprehensive reference for the official JavaScript client for GitHub’s REST API. Describes installation, authentication methods, pagination helpers, error retries, and detailed examples for repository automation (issues, pull requests, workflows). Provides abstractions over raw HTTP to streamline API integration in Node.js scripts.
+Last updated: v18.x (2023). Authoritative as the official SDK documentation.
+## License: MIT
