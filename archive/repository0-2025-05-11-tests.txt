@@ -1,3 +1,5 @@
+sandbox/tests/plot.test.js
+# sandbox/tests/plot.test.js
 // sandbox/tests/plot.test.js
 import { describe, test, expect } from "vitest";
 import { plotQuadratic, plotSine } from "../source/plot.js";
