@@ -50,7 +50,7 @@ env:
 
 jobs:
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.3'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.4'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -78,7 +78,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: test
         id: test
@@ -110,7 +110,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: mvn
         if: steps.mvn.outputs.pomXmlExists == 'true'
@@ -190,7 +190,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
 
-      - run: npm ci
+      - run: npm ci || npm install
 
       - name: test
         id: test
