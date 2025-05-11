@@ -18,11 +18,11 @@ on:
         required: false
         type: string
         default: 'house choice'
-  #workflow_run:
-  #  workflows:
-  #    - seed-repository
-  #  types:
-  #    - completed
+  workflow_run:
+    workflows:
+      - seed-repository
+    types:
+      - completed
   workflow_call:
     inputs:
       feature:
@@ -218,6 +218,22 @@ jobs:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.4.2'
     with:
       issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  automerge-pr:
+    needs:
+      - issue-to-code
+    if: always()
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.4.2'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

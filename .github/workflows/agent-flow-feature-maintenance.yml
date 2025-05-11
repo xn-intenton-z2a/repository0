@@ -18,11 +18,11 @@ on:
         required: false
         type: string
         default: 'house choice'
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
   workflow_call:
     inputs:
       feature:
