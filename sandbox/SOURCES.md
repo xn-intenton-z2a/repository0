@@ -1,6 +1,6 @@
 # Markdown-It
 ## https://markdown-it.github.io/
-Markdown-it provides a pluggable, high-performance Markdown parser and renderer for JavaScript. It fully implements the CommonMark specification, exposes a flexible plugin API for extending syntax rules and custom rendering, and offers performance tuning options. This source addresses core implementation needs by detailing token stream manipulation, renderer hooks, and configuration of parsing rules. Last updated: 12 June 2016 (v12.0.6). Authority: Official site & GitHub repository (12k⭐).
+Markdown-it is a high-performance, pluggable Markdown parser and renderer for JavaScript that fully implements the CommonMark specification. The documentation covers token stream processing, plugin architecture for extending syntax rules, renderer customization with syntax highlighting hooks, and performance benchmarks. Essential for deep customization of parsing rules, rendering pipeline, and integrating syntax extensions with minimal overhead. Last updated: 18 March 2024 (v14.1.0). Authority: Official site & GitHub repository (17k⭐).
 ## MIT
 
 # markdown-it-github
@@ -43,17 +43,32 @@ Covers installation, API authentication, and usage patterns for chat completions
 Vitest is a Vite-native test framework offering fast test execution, snapshot testing, mocking utilities, and built-in coverage reports. The documentation details API usage, configuration files, and integration with ESM and TypeScript projects, guiding reliable unit and integration tests. Last updated: 5 May 2024. Authority: Official site & GitHub repository (12k⭐).
 ## MIT
 
-# Unified Ecosystem (Remark)
-## https://unifiedjs.com/
-Unified provides a modular content processing ecosystem including remark (Markdown parser) and rehype (HTML serializer). The site covers AST structure, plugin development, transformer patterns, and performance tuning, serving as a modern alternative to markdown-it with deep customization potential. Authority: Official.
-## MIT
-
-# Pandoc Manual
-## https://pandoc.org/MANUAL.html
-Pandoc is a universal document converter with broad format support and rich command-line options. The manual offers insights into conversion pipelines, custom templates, citation handling, and performance tuning—useful for comparing feature sets and templating strategies. Last updated: 20 March 2024. Authority: Pandoc project.
-## GPL-2.0-or-later
-
 # Zod
 ## https://github.com/colinhacks/zod
 Zod is a TypeScript-first schema declaration and validation library, enabling runtime data validation and static type inference. The documentation covers schema definitions, parsers, error reporting, and integration patterns for validating CLI input and configuration objects. Last updated: 21 March 2024. Authority: Colinhacks.
 ## MIT
+
+# EJS
+## https://ejs.co/
+EJS (Embedded JavaScript templating) is a simple, fast templating language that lets you generate HTML markup with plain JavaScript. The docs cover installation, template syntax, custom delimiters, advanced features like partial includes, caching strategies, and best practices for preventing XSS through proper escaping. Essential for rendering dynamic content in workflows or CLI tools. Last updated: 12 March 2024. Authority: Official site and GitHub repository (10k⭐).
+## MIT
+
+# dotenv
+## https://github.com/motdotla/dotenv#readme
+The dotenv module loads environment variables from a `.env` file into `process.env`, supporting variable expansion and custom path loading. The documentation details security considerations (like not committing `.env`), fallback behaviors, and integration patterns with TypeScript and ESM. Last updated: 25 April 2024. Authority: motdotla GitHub repository (20k⭐).
+## MIT
+
+# GitHub REST API: Actions
+## https://docs.github.com/en/rest/actions
+Comprehensive reference for interacting with GitHub Actions via REST endpoints, including workflow runs management, artifacts retrieval, secret management, and workflow dispatch events. Essential for automating CI/CD workflows programmatically, handling event triggers, and integrating status checks into other systems. Last updated: 22 April 2024. Authority: GitHub Docs.
+## CC BY-SA 4.0
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+GraphQL API documentation for GitHub, detailing schema types, query structures, mutation operations for issues, pull requests, workflows, and custom data models. Offers powerful, efficient data fetching patterns compared to REST. Includes examples for pagination, batching requests, and advanced queries combining multiple resource types. Last updated: 15 March 2024. Authority: GitHub Docs.
+## CC BY-SA 4.0
+
+# OpenAI HTTP API Reference
+## https://platform.openai.com/docs/api-reference
+Official REST API reference for OpenAI, detailing endpoints for completions, chat, embeddings, files, and billing. Covers request parameters, response schemas, error handling, rate limits, and authentication flows. Critical for understanding low-level API operations, advanced use cases like streaming, fine-tuning, and usage metrics. Last updated: 28 April 2024. Authority: OpenAI Documentation.
+## Proprietary
