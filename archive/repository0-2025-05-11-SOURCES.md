@@ -1,79 +1,69 @@
-# Markdown-It
-## https://markdown-it.github.io/
-Markdown-it is a high-performance, pluggable Markdown parser and renderer for JavaScript that fully implements the CommonMark specification. The documentation covers token stream processing, plugin architecture for extending syntax rules, renderer customization with syntax highlighting hooks, and performance benchmarks. Essential for deep customization of parsing rules, rendering pipeline, and integrating syntax extensions with minimal overhead. Last updated: 18 March 2024 (v14.1.0). Authority: Official site & GitHub repository (17k⭐).
-## MIT
+# Node.js Core Modules
+## https://nodejs.org/docs/latest/api/
+The official Node.js documentation provides comprehensive details on core modules such as `fs` for filesystem interactions, `process` for CLI arguments and environment, and ESM support via `import` and `import.meta.url`. It covers synchronous and asynchronous APIs, error handling patterns, and best practices for writing performant, non-blocking CLI tools. Last updated: 2024. Authoritativeness: Official Node.js project (MIT License).
+## License: MIT
 
-# markdown-it-github
-## https://github.com/markdown-it/markdown-it-github
-This plugin extends markdown-it to support GitHub-Flavored Markdown (GFM) features such as tables, task lists, autolinks, and strikethrough. It demonstrates how to integrate syntax extensions seamlessly with the core parser and maintain compatibility with GitHub’s rendering engine. Last updated: 5 July 2023. Authority: Official plugin repository under markdown-it organization.
-## MIT
+# Minimist CLI Argument Parser
+## https://github.com/substack/minimist
+Minimist is a widely-used, minimalistic library for parsing command-line arguments in Node.js. It demonstrates patterns for flags, default values, type coercion, and string-only options, directly informing the implementation of robust CLI interfaces. Last published: v1.2.8 (2023). Authoritativeness: GitHub repository with 3.8k stars (MIT License).
+## License: MIT
 
-# Minimist
-## https://www.npmjs.com/package/minimist
-Minimist is a zero-dependency CLI argument parser for Node.js, enabling alias definitions, default values, boolean handling, and simple access via the returned `argv` object. The documentation provides actionable guidance on parsing strategies, edge-case handling (e.g., `--` separators), and performance considerations for high-throughput CLIs. Last published: 3 May 2023. Authority: 4M+ weekly downloads on npm.
-## MIT
+# W3C SVG Path Specification
+## https://www.w3.org/TR/SVG/paths.html
+This W3C Recommendation defines the syntax and semantics of the SVG `<path>` element and its `d` attribute, including moveto, lineto, curve, and arc commands. It is essential for understanding how to construct valid, optimized path data for rendering shapes like plotted curves. Last updated: January 14, 2011. Authoritativeness: W3C Recommendation.
+## License: W3C Document License
 
-# Node.js API v20
-## https://nodejs.org/docs/latest-v20.x/api/
-The official Node.js API docs cover all core modules—including `fs/promises`, `path`, `url`, and ESM specifics—detailing async file I/O methods, module resolution algorithms, and process management. It is essential for understanding error handling in file operations and precise ESM interoperability. Last updated: 25 April 2024. Authority: Node.js Foundation.
-## MIT
+# MDN Web Docs: SVG `<path>` `d` Attribute
+## https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+MDN provides an up-to-date, example-driven overview of the `d` attribute syntax, practical tips on coordinate systems, and rendering considerations across browsers. It includes code snippets, interactive demos, and edge-case behaviors critical for reliable SVG generation. Last reviewed: 2024. Authoritativeness: Mozilla (CC-BY-SA 2.5).
+## License: CC-BY-SA 2.5
 
-# GitHub Actions: Reusing Workflows
-## https://docs.github.com/en/actions/using-workflows/reusing-workflows
-This guide explains how to modularize CI/CD by invoking composite workflows across repositories via `workflow_call`. It covers inputs/outputs contracts, secrets handling, YAML syntax, and best practices for maintainable pipelines—directly informing the design of agentic-lib workflows. Last updated: 18 February 2024. Authority: GitHub Docs.
-## CC BY-SA 4.0
-
-# intentïon agentic-lib
-## https://github.com/xn-intenton-z2a/agentic-lib
-The agentic-lib repository contains reusable GitHub Actions workflows that automate issue creation, code updates, and CI/CD orchestration via LLM calls. It details workflow interfaces, scheduling patterns, environment configuration, and security considerations for self-evolving code systems. Last commit: 15 April 2024. Authority: Intentïon organization.
-## Apache-2.0
-
-# GitHub REST API
-## https://docs.github.com/en/rest
-Comprehensive reference for interacting with GitHub REST endpoints for issues, actions runs, markdown rendering, artifact retrieval, secret management, and workflow dispatch events. It details endpoint URIs, request/response schemas, authentication patterns, pagination strategies, error codes, and rate-limit headers. Essential for programmatically managing GitHub resources in automated workflows. Last updated: consolidated view as of April 2024. Authority: GitHub Docs.
-## CC BY-SA 4.0
-
-# GitHub GraphQL API
-## https://docs.github.com/en/graphql
-GraphQL API documentation for GitHub, detailing schema types, query structures, and mutation operations for issues, pull requests, workflows, and custom data models. Offers powerful, efficient data fetching patterns compared to REST with examples on pagination, batching, and combining resource types. Last updated: 15 March 2024. Authority: GitHub Docs.
-## CC BY-SA 4.0
-
-# OpenAI Node.js SDK
-## https://platform.openai.com/docs/libraries/node-js
-Covers installation, API authentication, and usage patterns for chat completions, embeddings, and error handling in the official OpenAI Node.js client. Underpins LLM integration in automated workflows, with code examples and rate-limit considerations. Last updated: 10 April 2024. Authority: OpenAI.
-## MIT
-
-# OpenAI HTTP API Reference
-## https://platform.openai.com/docs/api-reference
-Official REST API reference for OpenAI, detailing endpoints for completions, chat, embeddings, files, and billing. Covers request parameters, response schemas, error handling, rate limits, and authentication flows. Critical for understanding low-level API operations, advanced use cases like streaming, fine-tuning, and usage metrics. Last updated: 28 April 2024. Authority: OpenAI Documentation.
-## Proprietary
-
-# Vitest
+# Vitest Testing Framework
 ## https://vitest.dev/
-Vitest is a Vite-native test framework offering fast execution, snapshot testing, mocking utilities, and built-in coverage reports. The documentation details API usage, configuration files, and integration with ESM and TypeScript projects, guiding reliable unit and integration tests. Last updated: 5 May 2024. Authority: Official site & GitHub repository (12k⭐).
-## MIT
+Vitest is a fast, Vite-native testing framework supporting unit, snapshot, and integration tests with built-in coverage. The documentation covers configuration of test fixtures, mocking modules, command-line flags, and CI integrations, guiding the setup of reliable test suites. Last published: v3.1.3 (May 2024). Authoritativeness: Official project docs (MIT License).
+## License: MIT
 
-# Zod
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions
+This page details the YAML schema for defining GitHub Actions workflows, including triggers (e.g., `workflow_call`, `schedule`), job definitions, reusable workflows, and security contexts. It is fundamental for authoring and troubleshooting the CI/CD pipelines used by this repository. Last updated: 2024. Authoritativeness: GitHub Docs.
+## License: GitHub Terms
+
+# GitHub REST API Reference
+## https://docs.github.com/en/rest
+The REST API documentation provides endpoints for issues, pull requests, workflows, and repository content. It includes request/response schemas, rate limits, and authentication, enabling automation of issue creation and workflow dispatch in agentic-lib workflows. Last updated: 2024. Authoritativeness: GitHub Docs.
+## License: GitHub Terms
+
+# intentïon `agentic-lib` Reusable Workflows
+## https://github.com/xn-intenton-z2a/agentic-lib
+The `agentic-lib` repository contains a suite of reusable GitHub Actions workflows that automate code review, issue creation, and auto-merging. Its README and workflow YAML files document inputs, outputs, and example invocations, offering a blueprint for building self-evolving repositories. Last commit: 2024-06-01. Authoritativeness: Official GitHub repo (Apache-2.0).
+## License: Apache-2.0
+
+# OpenAI Node.js Client
+## https://www.npmjs.com/package/openai
+The official OpenAI client library documentation explains how to configure API keys, instantiate the `OpenAI` class, and use completion, embedding, and file endpoints. It details rate limiting, streaming responses, and error handling, which are crucial for agent-driven workflows. Last published: v4.98.0 (June 2024). Authoritativeness: npm registry (MIT License).
+## License: MIT
+
+# Zod Schema Validation
 ## https://github.com/colinhacks/zod
-Zod is a TypeScript-first schema declaration and validation library, enabling runtime data validation and static type inference. The documentation covers schema definitions, parsers, error reporting, and integration patterns for validating CLI input and configuration objects. Last updated: 21 March 2024. Authority: Colinhacks.
-## MIT
+Zod provides TypeScript-first schema declarations for input validation and parsing. Its docs cover schema composition, refinement, and error formatting, informing predictable configuration handling in workflows and CLI flag validation. Last published: v3.24.4 (June 2024). Authoritativeness: GitHub repo (MIT License).
+## License: MIT
 
-# EJS
+# js-yaml YAML Parser
+## https://github.com/nodeca/js-yaml
+The js-yaml library parses and dumps YAML in JavaScript. Documentation covers unsupported types, schema extensions, and safe loading to mitigate security risks, guiding the processing of workflow and configuration files. Last published: v4.1.0 (2023). Authoritativeness: GitHub repo (MIT License).
+## License: MIT
+
+# EJS Templating Engine
 ## https://ejs.co/
-EJS (Embedded JavaScript templating) is a simple, fast templating language that lets you generate HTML markup with plain JavaScript. The docs cover installation, template syntax, custom delimiters, advanced features like partial includes, caching strategies, and best practices for preventing XSS through proper escaping. Essential for rendering dynamic content in workflows or CLI tools. Last updated: 12 March 2024. Authority: Official site and GitHub repository (10k⭐).
-## MIT
+EJS documentation describes how to embed JavaScript code in templates, control delimiters, include partials, and optimize rendering for both server and CLI environments. This is valuable for generating dynamic documentation or code files. Last updated: 2024. Authoritativeness: Official site (MIT License).
+## License: MIT
 
-# dotenv
-## https://github.com/motdotla/dotenv#readme
-The dotenv module loads environment variables from a `.env` file into `process.env`, supporting variable expansion and custom path loading. The documentation details security considerations (like not committing `.env`), fallback behaviors, and integration patterns with TypeScript and ESM. Last updated: 25 April 2024. Authority: motdotla GitHub repository (20k⭐).
-## MIT
+# D3-shape Line Generator
+## https://github.com/d3/d3-shape
+Part of the D3.js suite, `d3-shape` provides functions like `line()`, which translate data arrays into SVG path strings with configurable curve interpolations. The API reference details how to customize accessors, curve types, and precision, offering a robust alternative for path generation. Last published: v4.0.1 (2023). Authoritativeness: GitHub (BSD-3-Clause).
+## License: BSD-3-Clause
 
-# CommonMark Specification
-## https://spec.commonmark.org/0.30/
-The official specification for CommonMark Markdown text, detailing the parsing rules, ABNF grammar, and spec tests. It defines block-level and inline syntaxes, AST node structures, and edge-case behaviors. Crucial for ensuring compliance when extending or customizing Markdown parsers like markdown-it. Last updated: 17 July 2023 (Spec v0.30). Authority: CommonMark project.
-## CC0-1.0
-
-# Unified (Remark Ecosystem)
-## https://unifiedjs.com/
-Documentation for the unifiedJS ecosystem, including remark for Markdown parsing into a syntax tree, plugin-based transformations, and rehype integration for HTML. Covers core concepts of AST, plugin interfaces, data flow, and community plugins for linting, formatting, and syntax extension. Valuable for comparing extensibility patterns and design trade-offs with markdown-it. Authority: UnifiedJS project.
-## MIT
+# minimatch Glob Matching Library
+## https://github.com/isaacs/minimatch
+Minimatch is a glob pattern matcher used for file path filtering with support for wildcards, negation, and extended patterns. Its documentation clarifies pattern syntax and performance considerations, relevant for feature discovery and sandbox file filtering. Last published: v10.0.1 (2024). Authoritativeness: GitHub (MIT License).
+## License: MIT

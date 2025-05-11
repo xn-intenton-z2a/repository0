@@ -1,102 +1,94 @@
-sandbox/tests/md-to-html.test.js
-# sandbox/tests/md-to-html.test.js
-import { describe, test, expect } from "vitest";
-import { convert, main, usage } from "../../sandbox/source/main.js";
-import { readFile, unlink } from "fs/promises";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+sandbox/tests/generateSVG.test.js
+# sandbox/tests/generateSVG.test.js
+import { describe, test, expect } from 'vitest';
+import { generateSVG } from '../source/main.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixtureDir = join(__dirname, "fixtures");
-const sampleMd = join(fixtureDir, "sample.md");
-
-describe("Markdown to HTML conversion", () => {
-  test("convert returns HTML string for stdout", async () => {
-    const html = await convert(sampleMd);
-    expect(html).toContain("<h1>Sample</h1>");
-    expect(html).toContain("<p>This is a sample markdown file.</p>");
+describe('generateSVG function', () => {
+  test('quadratic with a=0,b=0,c=0 produces horizontal line', () => {
+    const svg = generateSVG('quadratic', { a: 0, b: 0, c: 0 });
+    expect(svg.startsWith('<svg')).toBe(true);
+    const match = svg.match(/<path d="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const d = match[1];
+    const yValues = d
+      .split(' ')
+      .map(seg => seg.split(',')[1])
+      .filter(Boolean);
+    expect([...new Set(yValues)]).toEqual(['0']);
   });
 
-  test("convert writes to output file when -o flag is used", async () => {
-    const output = join(fixtureDir, "out.html");
-    try {
-      await unlink(output);
-    } catch {}
-    await convert(sampleMd, output);
-    const html = await readFile(output, "utf8");
-    expect(html).toContain("<p>This is a sample markdown file.</p>");
+  test('sine with amplitude=0 produces horizontal line', () => {
+    const svg = generateSVG('sine', { amplitude: 0, frequency: 1, phase: 0 });
+    expect(svg.startsWith('<svg')).toBe(true);
+    const match = svg.match(/<path d="([^"]+)"/);
+    expect(match).not.toBeNull();
+    const d = match[1];
+    const yValues = d
+      .split(' ')
+      .map(seg => seg.split(',')[1])
+      .filter(Boolean);
+    expect([...new Set(yValues)]).toEqual(['0']);
   });
 
-  test("convert throws error for missing input file", async () => {
-    await expect(convert("nonexistent.md")).rejects.toThrow("Failed to read input file");
-  });
-
-  test("main throws error and prints usage when no arguments", async () => {
-    await expect(main([])).rejects.toThrow(usage());
+  test('invalid type throws error', () => {
+    expect(() => generateSVG('unknown', {})).toThrow('Unknown type: unknown');
   });
 });
-sandbox/tests/summarize.test.js
-# sandbox/tests/summarize.test.js
-import { describe, beforeEach, test, expect, vi } from "vitest";
-import { readFile, unlink } from "fs/promises";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+sandbox/tests/cli.test.js
+# sandbox/tests/cli.test.js
+import { describe, test, expect, afterAll } from 'vitest';
+import fs from 'fs';
+import path from 'path';
+import { execSync } from 'child_process';
 
-// Mock OpenAI client
-vi.mock("openai", () => {
-  return {
-    Configuration: vi.fn(),
-    OpenAIApi: vi.fn().mockImplementation(() => {
-      return {
-        createChatCompletion: vi.fn().mockResolvedValue({
-          data: {
-            choices: [
-              {
-                message: {
-                  content: "Test summary"
-                }
-              }
-            ]
-          }
-        })
-      };
-    })
-  };
-});
+describe('CLI Integration', () => {
+  const outputFile = path.resolve('test_output.svg');
 
-import { summarize, main, usage } from "../../sandbox/source/main.js";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixtureDir = join(__dirname, "fixtures");
-const sampleMd = join(fixtureDir, "sample.md");
-const summaryText = "Test summary";
-
-describe("Summarize command", () => {
-  beforeEach(() => {
-    process.env.OPENAI_API_KEY = "test-key";
+  afterAll(() => {
+    if (fs.existsSync(outputFile)) {
+      fs.unlinkSync(outputFile);
+    }
   });
 
-  test("summarize returns summary string for stdout", async () => {
-    const summary = await summarize(sampleMd);
-    expect(summary).toBe(summaryText);
+  test('sine type with --output writes SVG file', () => {
+    execSync(`node sandbox/source/main.js --type sine --output ${outputFile}`);
+    expect(fs.existsSync(outputFile)).toBe(true);
+    const content = fs.readFileSync(outputFile, 'utf-8');
+    expect(content.startsWith('<svg')).toBe(true);
+    expect(content.includes('<path')).toBe(true);
   });
 
-  test("summarize writes to output file when -o flag is used", async () => {
-    const output = join(fixtureDir, "summary.txt");
+  test('outputs to stdout when no --output', () => {
+    const out = execSync('node sandbox/source/main.js --type quadratic --a 1 --b 0 --c 0');
+    const str = out.toString().trim();
+    expect(str.startsWith('<svg')).toBe(true);
+  });
+
+  test('prints mission statement with --mission', () => {
+    const output = execSync('node sandbox/source/main.js --mission').toString();
+    expect(output).toContain('# Mission Statement');
+    expect(output.split('\n').length).toBeGreaterThan(1);
+  });
+
+  test('missing --type exits with error', () => {
     try {
-      await unlink(output);
-    } catch {}
-    const summary = await summarize(sampleMd, output);
-    const content = await readFile(output, "utf8");
-    expect(content).toBe(summaryText);
+      execSync('node sandbox/source/main.js', { stdio: 'pipe' });
+      throw new Error('Process did not exit');
+    } catch (err) {
+      expect(err.status).toBe(1);
+      const stderr = err.stderr.toString();
+      expect(stderr).toContain('Error: --type <quadratic|sine> is required');
+    }
   });
 
-  test("main throws error for missing input file", async () => {
-    await expect(main(["summarize"])).rejects.toThrow(usage());
-  });
-
-  test("summarize throws error when API key missing", async () => {
-    delete process.env.OPENAI_API_KEY;
-    await expect(summarize(sampleMd)).rejects.toThrow("Missing OpenAI API key");
+  test('invalid --type exits with error', () => {
+    try {
+      execSync('node sandbox/source/main.js --type unknown', { stdio: 'pipe' });
+      throw new Error('Process did not exit');
+    } catch (err) {
+      expect(err.status).toBe(1);
+      const stderr = err.stderr.toString();
+      expect(stderr).toContain('Error: --type <quadratic|sine> is required');
+    }
   });
 });

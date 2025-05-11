@@ -1,71 +1,34 @@
-sandbox/docs/README.md
-# sandbox/docs/README.md
-# repository0
-
-A sandboxed CLI tool for converting Markdown to HTML and generating bullet-point summaries using OpenAI.
-
-## Features
-
-- **convert**  
-  ```sh
-  node sandbox/source/main.js convert <input.md> [-o <output.html>]
-  ```
-- **summarize**  
-  ```sh
-  node sandbox/source/main.js summarize <input.md> [-o <output.txt>]
-  ```
-
-## Prerequisites
-
-- Node.js v20 or higher  
-- `OPENAI_API_KEY` environment variable set
-
-## Installation
-
-```sh
-npm install
-```
-
-## Usage
-
-```sh
-export OPENAI_API_KEY="your_api_key"
-node sandbox/source/main.js convert sandbox/tests/fixtures/sample.md
-node sandbox/source/main.js summarize sandbox/tests/fixtures/sample.md -o summary.txt
-```
-
-## Links
-
-- [Mission](../../MISSION.md)
-- [Contributing](../../CONTRIBUTING.md)
-- [License](../../LICENSE.md)
-- [Agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
 sandbox/docs/USAGE.md
 # sandbox/docs/USAGE.md
-# CLI Usage
+# Equation Plotter CLI Usage
 
-## convert
+This tool generates SVG plots for quadratic and sine functions from the command line.
 
-Convert a Markdown file to HTML.
+## CLI Options
 
-**Usage:**
+--type <quadratic|sine>    (required)
+--a <number>               coefficient a for quadratic (default: 1)
+--b <number>               coefficient b for quadratic (default: 0)
+--c <number>               coefficient c for quadratic (default: 0)
+--amplitude <number>       amplitude for sine (default: 1)
+--frequency <number>       frequency for sine (default: 1)
+--phase <number>           phase offset for sine in radians (default: 0)
+--output <file>            write SVG output to the specified file (otherwise prints to stdout)
+--mission                  Print the project mission statement (contents of MISSION.md) and exit.
 
-```sh
-node sandbox/source/main.js convert <input.md>
-node sandbox/source/main.js convert <input.md> -o <output.html>
+## Examples
+
+Generate a quadratic plot and save to `plot.svg`:
+```
+node sandbox/source/main.js --type quadratic --a 1 --b 0 --c 0 --output plot.svg
 ```
 
-By default, the rendered HTML is written to stdout. Use the `-o` or `--output` flag to specify an output file path.
-
-## summarize
-
-Generate a bullet-point summary of a Markdown file.
-
-**Usage:**
-
-```sh
-node sandbox/source/main.js summarize <input.md>
-node sandbox/source/main.js summarize <input.md> -o <output.txt>
+Generate a sine wave with custom amplitude/frequency and print SVG to console:
+```
+node sandbox/source/main.js --type sine --amplitude 2 --frequency 0.5
 ```
 
-By default, the summary is written to stdout. Use the `-o` or `--output` flag to specify an output file path.
+Print the project mission statement:
+```
+node sandbox/source/main.js --mission
+```

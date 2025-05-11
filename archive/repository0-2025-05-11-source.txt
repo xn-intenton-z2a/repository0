@@ -1,144 +1,83 @@
 sandbox/source/main.js
 # sandbox/source/main.js
+#!/usr/bin/env node
+import fs from "fs";
 import minimist from "minimist";
-import MarkdownIt from "markdown-it";
-import { readFile, writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
-import { Configuration, OpenAIApi } from "openai";
-
-const __filename = fileURLToPath(import.meta.url);
 
 /**
- * Prints the usage message for the CLI.
- * @returns {string} Usage instructions.
+ * Generate an SVG string for a quadratic or sine function.
+ * @param {'quadratic'|'sine'} type
+ * @param {object} params
+ * @returns {string} SVG markup string
  */
-export function usage() {
-  return [
-    "Usage:",
-    "  node main.js convert <input.md> [-o <output.html>]",
-    "  node main.js summarize <input.md> [-o <output.txt>]"
-  ].join("\n");
+export function generateSVG(type, params) {
+  const points = [];
+  for (let i = 0; i <= 100; i++) {
+    const t = i / 100;
+    const x = t;
+    let y;
+    if (type === "quadratic") {
+      const { a, b, c } = params;
+      y = a * x * x + b * x + c;
+    } else if (type === "sine") {
+      const { amplitude, frequency, phase } = params;
+      y = amplitude * Math.sin(2 * Math.PI * frequency * x + phase);
+    } else {
+      throw new Error(`Unknown type: ${type}`);
+    }
+    points.push({ x, y });
+  }
+  const pathD = points
+    .map((pt, idx) => `${idx === 0 ? "M" : "L"}${pt.x},${pt.y}`)
+    .join(" ");
+  return `<svg xmlns="http://www.w3.org/2000/svg"><path d="${pathD}" /></svg>`;
 }
 
 /**
- * Converts a Markdown file to HTML.
- * @param {string} inputPath - Path to the input Markdown file.
- * @param {string} [outputPath] - Optional path to write the output HTML file.
- * @returns {Promise<string>} The rendered HTML string.
- * @throws {Error} If reading or writing files fails.
+ * CLI entry point for equation plotting.
+ * @param {string[]} [argv]
  */
-export async function convert(inputPath, outputPath) {
-  if (!inputPath) {
-    throw new Error("No input file specified");
+export function main(argv = process.argv.slice(2)) {
+  const args = minimist(argv, {
+    boolean: ["mission"],
+    string: ["type", "output"],
+    default: {
+      a: 1,
+      b: 0,
+      c: 0,
+      amplitude: 1,
+      frequency: 1,
+      phase: 0,
+      mission: false,
+    },
+  });
+
+  if (args.mission) {
+    const missionPath = fileURLToPath(new URL("../../MISSION.md", import.meta.url));
+    const mission = fs.readFileSync(missionPath, "utf-8");
+    console.log(mission);
+    process.exit(0);
   }
-  let data;
-  try {
-    data = await readFile(inputPath, "utf8");
-  } catch (error) {
-    throw new Error(`Failed to read input file: ${error.message}`);
+
+  const { type, a, b, c, amplitude, frequency, phase, output } = args;
+  if (!type || !["quadratic", "sine"].includes(type)) {
+    console.error("Error: --type <quadratic|sine> is required");
+    process.exit(1);
   }
-  const md = new MarkdownIt();
-  const html = md.render(data);
-  if (outputPath) {
-    try {
-      await writeFile(outputPath, html, "utf8");
-    } catch (error) {
-      throw new Error(`Failed to write output file: ${error.message}`);
-    }
+  const params =
+    type === "quadratic"
+      ? { a: Number(a), b: Number(b), c: Number(c) }
+      : { amplitude: Number(amplitude), frequency: Number(frequency), phase: Number(phase) };
+  const svg = generateSVG(type, params);
+  if (output) {
+    fs.writeFileSync(output, svg, "utf-8");
+  } else {
+    console.log(svg);
   }
-  return html;
 }
 
-/**
- * Generates a bullet-point summary of a Markdown file using OpenAI API.
- * @param {string} inputPath - Path to the input Markdown file.
- * @param {string} [outputPath] - Optional path to write the summary file.
- * @returns {Promise<string>} The summary text.
- * @throws {Error} For missing API key or file I/O errors.
- */
-export async function summarize(inputPath, outputPath) {
-  if (!inputPath) {
-    throw new Error("No input file specified");
-  }
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing OpenAI API key");
-  }
-  let data;
-  try {
-    data = await readFile(inputPath, "utf8");
-  } catch (error) {
-    throw new Error(`Failed to read input file: ${error.message}`);
-  }
-  const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
-  const openai = new OpenAIApi(config);
-  let summary;
-  try {
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a helpful assistant that produces a concise bullet-point summary of the provided Markdown text."
-        },
-        { role: "user", content: data }
-      ]
-    });
-    summary = response.data.choices[0].message.content.trim();
-  } catch (error) {
-    throw new Error(`Failed to summarize content: ${error.message}`);
-  }
-  if (outputPath) {
-    try {
-      await writeFile(outputPath, summary, "utf8");
-    } catch (error) {
-      throw new Error(`Failed to write output file: ${error.message}`);
-    }
-  }
-  return summary;
-}
-
-/**
- * Main entry point for CLI arguments.
- * @param {string[]} args - Command-line arguments (excluding node and script path).
- * @returns {Promise<string>} The rendered HTML or summary if successful.
- * @throws {Error} For invalid command or missing input.
- */
-export async function main(args) {
-  const [cmd, ...rest] = args;
-  const argv = minimist(rest, { alias: { o: "output" }, string: ["output"] });
-  if (cmd === "convert") {
-    const input = argv._[0];
-    const output = argv.output;
-    if (!input) {
-      throw new Error(usage());
-    }
-    return await convert(input, output);
-  }
-  if (cmd === "summarize") {
-    const input = argv._[0];
-    const output = argv.output;
-    if (!input) {
-      throw new Error(usage());
-    }
-    return await summarize(input, output);
-  }
-  throw new Error(usage());
-}
-
-// CLI wrapper: only run when executed directly
-if (process.argv[1] === __filename) {
-  const args = process.argv.slice(2);
-  main(args)
-    .then((result) => {
-      const argv = minimist(args, { alias: { o: "output" }, string: ["output"] });
-      if (!argv.output) {
-        process.stdout.write(result);
-      }
-      process.exit(0);
-    })
-    .catch((err) => {
-      console.error(err.message);
-      process.exit(1);
-    });
+// Execute if run directly
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
 }
