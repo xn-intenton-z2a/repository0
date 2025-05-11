@@ -1,6 +1,6 @@
 # repository0
 
-A CLI tool to convert Markdown files to HTML using markdown-it and markdown-it-github.
+A CLI tool to convert and summarize Markdown files to HTML or concise bullet-point summaries using markdown-it, markdown-it-github, and OpenAI.
 
 **Links**
 
@@ -12,6 +12,10 @@ A CLI tool to convert Markdown files to HTML using markdown-it and markdown-it-g
 ## Prerequisites
 
 - Node.js v20 or higher
+- Set your OpenAI API key in the environment:
+  ```sh
+  export OPENAI_API_KEY="your_api_key_here"
+  ```
 - Install dependencies by running:
   ```sh
   npm install
@@ -31,23 +35,50 @@ Convert and write to an output file:
 node sandbox/source/main.js convert <input.md> -o <output.html>
 ```
 
+Summarize a Markdown file to bullet points:
+
+```sh
+node sandbox/source/main.js summarize <input.md>
+```
+
+Summarize and write to an output file:
+
+```sh
+node sandbox/source/main.js summarize <input.md> -o <output.txt>
+```
+
 ## Examples
 
 Using the sample markdown file located at `sandbox/tests/fixtures/sample.md`:
+
+Convert to HTML and print:
 
 ```sh
 node sandbox/source/main.js convert sandbox/tests/fixtures/sample.md
 ```
 
-## Sample Output
+Summarize and print:
 
-An example of the rendered HTML:
+```sh
+node sandbox/source/main.js summarize sandbox/tests/fixtures/sample.md
+```
+
+Summarize and write to a file:
+
+```sh
+node sandbox/source/main.js summarize sandbox/tests/fixtures/sample.md -o sandbox/tests/fixtures/summary.txt
+```
+
+## Sample Output (Convert)
 
 ```html
 <h1>Sample</h1>
 <p>This is a sample markdown file.</p>
 ```
 
-## Additional Documentation
+## Sample Output (Summarize)
 
-For more usage details, see [USAGE.md](USAGE.md).
+```
+- Sample
+- This is a sample markdown file.
+```
