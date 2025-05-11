@@ -12,6 +12,7 @@ This tool generates SVG plots for quadratic and sine functions from the command 
 --frequency <number>       frequency for sine (default: 1)
 --phase <number>           phase offset for sine in radians (default: 0)
 --output <file>            write SVG output to the specified file (otherwise prints to stdout)
+--mission                  Print the project mission statement (contents of MISSION.md) and exit.
 
 ## Examples
 
@@ -25,6 +26,7 @@ Generate a sine wave with custom amplitude/frequency and print SVG to console:
 node sandbox/source/main.js --type sine --amplitude 2 --frequency 0.5
 ```
 
-## Viewing the SVG
-
-Open the generated `*.svg` file in any modern web browser or image viewer that supports SVG format.
+Print the project mission statement:
+```
+node sandbox/source/main.js --mission
+```

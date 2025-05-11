@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import fs from 'fs';
-import minimist from 'minimist';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import minimist from "minimist";
+import { fileURLToPath } from "url";
 
 /**
  * Generate an SVG string for a quadratic or sine function.
@@ -15,10 +15,10 @@ export function generateSVG(type, params) {
     const t = i / 100;
     const x = t;
     let y;
-    if (type === 'quadratic') {
+    if (type === "quadratic") {
       const { a, b, c } = params;
       y = a * x * x + b * x + c;
-    } else if (type === 'sine') {
+    } else if (type === "sine") {
       const { amplitude, frequency, phase } = params;
       y = amplitude * Math.sin(2 * Math.PI * frequency * x + phase);
     } else {
@@ -27,8 +27,8 @@ export function generateSVG(type, params) {
     points.push({ x, y });
   }
   const pathD = points
-    .map((pt, idx) => `${idx === 0 ? 'M' : 'L'}${pt.x},${pt.y}`)
-    .join(' ');
+    .map((pt, idx) => `${idx === 0 ? "M" : "L"}${pt.x},${pt.y}`)
+    .join(" ");
   return `<svg xmlns="http://www.w3.org/2000/svg"><path d="${pathD}" /></svg>`;
 }
 
@@ -38,28 +38,38 @@ export function generateSVG(type, params) {
  */
 export function main(argv = process.argv.slice(2)) {
   const args = minimist(argv, {
-    string: ['type', 'output'],
+    boolean: ["mission"],
+    string: ["type", "output"],
     default: {
       a: 1,
       b: 0,
       c: 0,
       amplitude: 1,
       frequency: 1,
-      phase: 0
-    }
+      phase: 0,
+      mission: false,
+    },
   });
+
+  if (args.mission) {
+    const missionPath = fileURLToPath(new URL("../../MISSION.md", import.meta.url));
+    const mission = fs.readFileSync(missionPath, "utf-8");
+    console.log(mission);
+    process.exit(0);
+  }
+
   const { type, a, b, c, amplitude, frequency, phase, output } = args;
-  if (!type || !['quadratic', 'sine'].includes(type)) {
-    console.error('Error: --type <quadratic|sine> is required');
+  if (!type || !["quadratic", "sine"].includes(type)) {
+    console.error("Error: --type <quadratic|sine> is required");
     process.exit(1);
   }
   const params =
-    type === 'quadratic'
+    type === "quadratic"
       ? { a: Number(a), b: Number(b), c: Number(c) }
       : { amplitude: Number(amplitude), frequency: Number(frequency), phase: Number(phase) };
   const svg = generateSVG(type, params);
   if (output) {
-    fs.writeFileSync(output, svg, 'utf-8');
+    fs.writeFileSync(output, svg, "utf-8");
   } else {
     console.log(svg);
   }
