@@ -18,4 +18,20 @@ describe("Main Output", () => {
     expect(log).toHaveBeenCalledWith(mockContent);
     vi.restoreAllMocks();
   });
+
+  test("should display version", () => {
+    const mockPkg = { version: "1.2.3" };
+    const readSpy = vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(mockPkg));
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exit = vi.spyOn(process, "exit").mockImplementation(() => {});
+
+    main(["--version"]);
+
+    expect(log).toHaveBeenCalledWith("1.2.3");
+    expect(exit).toHaveBeenCalledWith(0);
+
+    readSpy.mockRestore();
+    log.mockRestore();
+    exit.mockRestore();
+  });
 });
