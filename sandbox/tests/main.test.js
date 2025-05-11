@@ -35,3 +35,62 @@ describe("Main Output", () => {
     exit.mockRestore();
   });
 });
+
+describe("Help Output", () => {
+  test("should display help and exit with code 0 and ignore other flags", () => {
+    const logs = [];
+    const logSpy = vi.spyOn(console, "log").mockImplementation((...args) => {
+      logs.push(args.join(" "));
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    // Spy fs.readFileSync to catch unintended reads
+    const fsSpy = vi.spyOn(fs, "readFileSync").mockImplementation(() => "");
+
+    main(["--help"]);
+
+    const expected = [
+      "repository0: A CLI demo of our agentic workflows.",
+      "",
+      "Usage: sandbox/source/main.js [options] [arguments]",
+      "",
+      "Options:",
+      "  --help      Show this help message",
+      "  --mission   Print the repository mission statement",
+      "  --version   Print the package version",
+      "",
+      "Examples:",
+      "  npm run start -- --help",
+      "  npm run start -- --mission",
+      "  npm run start -- foo bar"
+    ];
+    expect(logs).toEqual(expected);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    fsSpy.mockRestore();
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  test("should only display help when other flags are provided", () => {
+    const logs = [];
+    const logSpy = vi.spyOn(console, "log").mockImplementation((...args) => {
+      logs.push(args.join(" "));
+    });
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const fsSpy = vi.spyOn(fs, "readFileSync").mockImplementation(() => "");
+
+    main(["--help", "--version", "--mission"]);
+    expect(logs[0]).toBe("repository0: A CLI demo of our agentic workflows.");
+    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    fsSpy.mockRestore();
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
+    errorSpy.mockRestore();
+  });
+});
