@@ -25,4 +25,10 @@ describe('CLI Integration', () => {
     const str = out.toString().trim();
     expect(str.startsWith('<svg')).toBe(true);
   });
+
+  test('prints mission statement with --mission', () => {
+    const output = execSync('node sandbox/source/main.js --mission').toString();
+    expect(output).toContain('# Mission Statement');
+    expect(output.split('\n').length).toBeGreaterThan(1);
+  });
 });
