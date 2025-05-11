@@ -1,0 +1,198 @@
+READMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nUsageGetting startedPreviousREADMENextInstallationLast updated 1 year ago\n\n\n\nUsageInstallationPreviousGetting startedNextCI ConfigurationLast updated 9 months ago\n\n\n\nUsageCI ConfigurationPreviousInstallationNextConfigurationLast updated 5 months ago\n\n\n\nUsageConfigurationPreviousCI ConfigurationNextPluginsLast updated 11 months ago\n\n\n\nUsagePluginsPreviousConfigurationNextRelease Workflow configurationLast updated 2 years ago\n\n\n\nUsageRelease Workflow configurationPreviousPluginsNextShareable configurationsLast updated 1 year ago\n\n\n\nUsageShareable configurationsPreviousRelease Workflow configurationNextPluginsLast updated 3 years ago\n\n\n\nExtendingPluginsPreviousShareable configurationsNextShareable configurationLast updated 3 days ago\n\n\n\nExtendingShareable configurationPreviousPluginsNextCI configurationsLast updated 2 years ago\n\n\n\nRecipesCI configurationsPreviousShareable configurationNextCircleCI 2.0Last updated 2 years ago\n\n\n\nRecipesCI configurationsCircleCI 2.0PreviousCI configurationsNextTravis CILast updated 3 years ago\n\n\n\nRecipesCI configurationsTravis CIPreviousCircleCI 2.0NextGitLab CILast updated 3 years ago\n\n\n\nRecipesCI configurationsGitLab CIPreviousTravis CINextGitHub ActionsLast updated 1 year ago\n\n\n\nRecipesCI configurationsGitHub ActionsPreviousGitLab CINextJenkins CILast updated 3 months ago\n\n\n\nRecipesCI configurationsJenkins CIPreviousGitHub ActionsNextGit hosted servicesLast updated 3 years ago\n\n\n\nRecipesGit hosted servicesPreviousJenkins CINextGit authentication with SSH keysLast updated 2 years ago\n\n\n\nRecipesGit hosted servicesGit authentication with SSH keysPreviousGit hosted servicesNextRelease WorkflowLast updated 2 years ago\n\n\n\nRecipesRelease WorkflowPublishing on distribution channelsPublishing maintenance releasesPublishing pre-releasesPreviousGit authentication with SSH keysNextPublishing on distribution channelsLast updated 2 years ago\n\n\n\nRecipesRelease WorkflowPublishing on distribution channelsPreviousRelease WorkflowNextPublishing maintenance releasesLast updated 1 year ago\n\n\n\nRecipesRelease WorkflowPublishing maintenance releasesPreviousPublishing on distribution channelsNextPublishing pre-releasesLast updated 1 year ago\n\n\n\nRecipesRelease WorkflowPublishing pre-releasesPreviousPublishing maintenance releasesNextJavaScript APILast updated 1 year ago\n\n\n\nDeveloper guideJavaScript APIUsageCopyconst semanticRelease = require("semantic-release");
+const { WritableStreamBuffer } = require("stream-buffers");
+
+const stdoutBuffer = new WritableStreamBuffer();
+const stderrBuffer = new WritableStreamBuffer();
+
+try {
+  const result = await semanticRelease(
+    {
+      // Core options
+      branches: [
+        "+([0-9])?(.{+([0-9]),x}).x",
+        "master",
+        "main",
+        "next",
+        "next-major",
+        { name: "beta", prerelease: true },
+        { name: "alpha", prerelease: true },
+      ],
+      repositoryUrl: "https://github.com/me/my-package.git",
+      // Shareable config
+      extends: "my-shareable-config",
+      // Plugin options
+      githubUrl: "https://my-ghe.com",
+      githubApiPathPrefix: "/api-prefix",
+    },
+    {
+      // Run semantic-release from `/path/to/git/repo/root` without having to change local process `cwd` with `process.chdir()`
+      cwd: "/path/to/git/repo/root",
+      // Pass the variable `MY_ENV_VAR` to semantic-release without having to modify the local `process.env`
+      env: { ...process.env, MY_ENV_VAR: "MY_ENV_VAR_VALUE" },
+      // Store stdout and stderr to use later instead of writing to `process.stdout` and `process.stderr`
+      stdout: stdoutBuffer,
+      stderr: stderrBuffer,
+    }
+  );
+
+  if (result) {
+    const { lastRelease, commits, nextRelease, releases } = result;
+
+    console.log(
+      `Published ${nextRelease.type} release version ${nextRelease.version} containing ${commits.length} commits.`
+    );
+
+    if (lastRelease.version) {
+      console.log(`The last release was "${lastRelease.version}".`);
+    }
+
+    for (const release of releases) {
+      console.log(`The release was published with plugin "${release.pluginName}".`);
+    }
+  } else {
+    console.log("No release published.");
+  }
+
+  // Get stdout and stderr content
+  const logs = stdoutBuffer.getContentsAsString("utf8");
+  const errors = stderrBuffer.getContentsAsString("utf8");
+} catch (err) {
+  console.error("The automated release failed with %O", err);
+}APIsemanticRelease([options], [config]) => PromiseoptionsType: Objectsemantic-release options.configType: Objectsemantic-release configuration specific for API usage.cwdType: String
+Default: process.cwd()The current working directory to use. It should be configured to the root of the Git repository to release from.It allows to run semantic-release from a specific path without having to change the local process cwd with process.chdir().envType: Object
+Default: process.envThe environment variables to use.It allows to run semantic-release with specific environment variables without having to modify the local process.env.stdoutIt allows to configure semantic-release to write logs to a specific stream rather than the local process.stdout.stderrIt allows to configure semantic-release to write errors to a specific stream rather than the local process.stderr.ResultType: Object Boolean
+lastReleaseType: ObjectInformation related to the last release found:NameTypeDescriptionversionStringThe version of the last release.gitHeadStringThe sha of the last commit being part of the last release.gitTagStringchannelStringThe distribution channel on which the last release was initially made available (undefined for the default distribution channel).Note: If no previous release is found, lastRelease will be an empty Object.Example:Copy{
+  gitHead: 'da39a3ee5e6b4b0d3255bfef95601890afd80709',
+  version: '1.0.0',
+  gitTag: 'v1.0.0',
+  channel: 'next'
+}commitsType: Array<Object>The list of commit(s) included in the new release.
+Each commit object has the following properties:NameTypeDescriptioncommitObjectThe commit abbreviated and full hash.commit.longStringThe commit hash.commit.shortStringThe commit abbreviated hash.treeObjectThe commit abbreviated and full tree hash.tree.longStringThe commit tree hash.tree.shortStringThe commit abbreviated tree hash.authorObjectThe commit author information.author.nameStringThe commit author name.author.emailStringThe commit author email.author.shortStringThe commit author date.committerObjectThe committer information.committer.nameStringThe committer name.committer.emailStringThe committer email.committer.shortStringThe committer date.subjectStringThe commit subject.bodyStringThe commit body.messageStringThe commit full message (subject and body).hashStringThe commit hash.committerDateStringThe committer date.Example:Copy[
+  {
+    commit: {
+      long: '68eb2c4d778050b0701136ca129f837d7ed494d2',
+      short: '68eb2c4'
+    },
+    tree: {
+      long: '7ab515d12bd2cf431745511ac4ee13fed15ab578',
+      short: '7ab515d'
+    },
+    author: {
+      name: 'Me',
+      email: 'me@email.com',
+      date: 2018-07-22T20:52:44.000Z
+    },
+    committer: {
+      name: 'Me',
+      email: 'me@email.com',
+      date: 2018-07-22T20:52:44.000Z
+    },
+    subject: 'feat: a new feature',
+    body: 'Description of the new feature',
+    hash: '68eb2c4d778050b0701136ca129f837d7ed494d2',
+    message: 'feat: a new feature\n\nDescription of the new feature',
+    committerDate: 2018-07-22T20:52:44.000Z
+  }
+ ]nextReleaseType: ObjectInformation related to the newly published release:NameTypeDescriptiontypeStringversionStringThe version of the new release.gitHeadStringThe sha of the last commit being part of the new release.gitTagStringnotesStringThe release notes for the new release.channelStringThe distribution channel on which the next release will be made available (undefined for the default distribution channel).Example:Copy{
+  type: 'minor',
+  gitHead: '68eb2c4d778050b0701136ca129f837d7ed494d2',
+  version: '1.1.0',
+  gitTag: 'v1.1.0',
+  notes: 'Release notes for version 1.1.0...',
+  channel : 'next'
+}releasesType: Array<Object>The list of releases published or made available to a distribution channel.
+Each release object has the following properties:NameTypeDescriptionnameStringOptional. The release name, only if set by the corresponding publish plugin.urlStringOptional. The release URL, only if set by the corresponding publish plugin.typeStringversionStringThe version of the release.gitHeadStringThe sha of the last commit being part of the release.gitTagStringnotesStringThe release notes for the release.pluginNameStringThe name of the plugin that published the release.channelStringThe distribution channel on which the release is available (undefined for the default distribution channel).Example:Copy[
+  {
+    name: 'GitHub release',
+    url: 'https://github.com/me/my-package/releases/tag/v1.1.0',
+    type: 'minor',
+    gitHead: '68eb2c4d778050b0701136ca129f837d7ed494d2',
+    version: '1.1.0',
+    gitTag: 'v1.1.0',
+    notes: 'Release notes for version 1.1.0...',
+    pluginName: '@semantic-release/github'
+    channel: 'next'
+  },
+  {
+    name: 'npm package (@latest dist-tag)',
+    url: 'https://www.npmjs.com/package/my-package',
+    type: 'minor',
+    gitHead: '68eb2c4d778050b0701136ca129f837d7ed494d2',
+    version: '1.1.0',
+    gitTag: 'v1.1.0',
+    notes: 'Release notes for version 1.1.0...',
+    pluginName: '@semantic-release/npm'
+    channel: 'next'
+   }
+ ]PreviousPublishing pre-releasesNextPlugin developmentLast updated 1 year ago\n\n\n\nDeveloper guidePlugin developmentTo create a plugin for semantic-release, you need to decide which parts of the release lifecycle are important to that plugin. For example, it is best to always have a verifyConditions step because you may be receiving inputs from a user and want to make sure they exist. A plugin can abide by any of the following lifecycles:verifyConditionsanalyzeCommitsverifyReleasegenerateNotesaddChannelpreparepublishsuccessfailsemantic-release will require the plugin via node and look through the required object for methods named like the lifecycles stated above. For example, if your plugin only had a verifyConditions and success step, the main file for your object would need to export an object with verifyConditions and success functions.In addition to the lifecycle methods, each lifecycle is passed two objects:pluginConfig - an object containing the options that a user may pass in via their release.config.js file (or similar)context - provided by semantic-release for access to things like env variables set on the running process.For each lifecycle you create, you will want to ensure it can accept pluginConfig and context as parameters.Creating a Plugin ProjectIt is recommended that you generate a new project with yarn init. This will provide you with a basic node project to get started with. From there, create an index.js file, and make sure it is specified as the main in the package.json. We will use this file to orchestrate the lifecycle methods later on.Next, create a src or lib folder in the root of the project. This is where we will store our logic and code for how our lifecycle methods work. Finally, create a test folder so you can write tests related to your logic.We recommend you setup a linting system to ensure good javascript practices are enforced. ESLint is usually the system of choice, and the configuration can be whatever you or your team fancies.Exposing Lifecycle MethodsIn your index.js file, you can start by writing the following codeCopyconst verify = require("./src/verify");
+
+let verified;
+
+/**
+ * Called by semantic-release during the verification step
+ * @param {*} pluginConfig The semantic-release plugin config
+ * @param {*} context The context provided by semantic-release
+ */
+async function verifyConditions(pluginConfig, context) {
+  await verify(pluginConfig, context);
+  verified = true;
+}
+
+module.exports = { verifyConditions };Then, in your src folder, create a file called verify.js and add the followingCopyconst AggregateError = require("aggregate-error");
+
+/**
+ * A method to verify that the user has given us a slack webhook url to post to
+ */
+module.exports = async (pluginConfig, context) => {
+  const { logger } = context;
+  const errors = [];
+
+  // Throw any errors we accumulated during the validation
+  if (errors.length > 0) {
+    throw new AggregateError(errors);
+  }
+};As of right now, this code won't do anything. However, if you were to run this plugin via semantic-release, it would run when the verify step occurred.Following this structure, you can create different steps and checks to run through out the release process.Supporting OptionsLet's say we want to verify that an option is passed. An option is a configuration object that is specific to your plugin. For example, the user may set an option in their release config like:Copy{
+  prepare: {
+    path: "@semantic-release/my-special-plugin";
+    message: "My cool release message";
+  }
+}This message option will be passed to the pluginConfig object mentioned earlier. We can use the validation method we created to verify this option exists so we can perform logic based on that knowledge. In our verify file, we can add the following:Copyconst { message } = pluginConfig;
+
+if (message.length) {
+  //...
+}ContextCommon context keysstdoutstderrloggerContext object keys by lifecycleverifyConditionsInitially the context object contains the following keys (verifyConditions lifecycle):cwdCurrent working directoryenvEnvironment variablesenvCiInformation about CI environmentContains (at least) the following keys:isCiBoolean, true if the environment is a CI environmentcommitCommit hashbranchCurrent branchoptionsOptions passed to semantic-release via CLI, configuration files etc.branchInformation on the current branchObject keys:channeltagstypenamerangeacceptmainbranchesInformation on branchesList of branch objects (see above)analyzeCommitsCompared to the verifyConditions, analyzeCommits lifecycle context has keyscommits (List)List of commits taken into account when determining the new version.Keys:commit (Object)Keys:long (String, Commit hash)short (String, Commit hash)tree (Object)Keys:long (String, Commit hash)short (String, Commit hash)author (Object)Keys:name (String)email (String)date (String, ISO 8601 timestamp)committer (Object)Keys:name (String)email (String)date (String, ISO 8601 timestamp)subject (String, Commit message subject)body (String, Commit message body)hash (String, Commit hash)committerDate (String, ISO 8601 timestamp)message (String)gitTags (String, List of git tags)releases (List)lastRelease (Object)Keysversion (String)gitTag (String)channels (List)gitHead (String, Commit hash)name (String)verifyReleaseAdditional keys:nextRelease (Object)type (String)channel (String)gitHead (String, Git hash)version (String, version without v)gitTag (String, version with v)name (String)generateNotesNo new content in the context.addChannelThis is run only if there are releases that have been merged from a higher branch but not added on the channel of the current branch.Context content is similar to lifecycle verifyRelease.prepareOnly change is that generateNotes has populated nextRelease.notes.publishNo new content in the context.successLifecycles success and fail are mutually exclusive, only one of them will be run.Additional keys:releasesPopulated by publish lifecyclefailLifecycles success and fail are mutually exclusive, only one of them will be run.Additional keys:errorsSupporting Environment VariablesSimilar to options, environment variables exist to allow users to pass tokens and set special URLs. These are set on the context object instead of the pluginConfig object. Let's say we wanted to check for GITHUB_TOKEN in the environment because we want to post to GitHub on the user's behalf. To do this, we can add the following to our verify command:Copyconst { env } = context;
+
+if (env.GITHUB_TOKEN) {
+  //...
+}LoggerUse context.logger to provide debug logging in the plugin. Available logging functions: log, warn, success, error.Copyconst { logger } = context;
+
+logger.log('Some message from plugin.').The above usage yields the following where PLUGIN_PACKAGE_NAME is automatically inferred.Copy[3:24:04 PM] [semantic-release] [PLUGIN_PACKAGE_NAME] › ℹ  Some message from plugin.Execution orderFor the lifecycles, the list at the top of the readme contains the order. If there are multiple plugins for the same lifecycle, then the order of the plugins determines the order in which they are executed.Handling errorsAdvancedKnowledge that might be useful for plugin developers.Multiple analyzeCommits pluginsWhile it may be trivial that multiple analyzeCommits (or any lifecycle plugins) can be defined, it is not that self-evident that the plugins executed AFTER the first one (for example, the default one: commit-analyzer) can change the result. This way it is possible to create more advanced rules or situations, e.g. if none of the commits would result in new release, then a default can be defined.The commit must be a known release type, for example the commit-analyzer has the following default types:majorpremajorminorpreminorpatchprepatchprereleaseIf the analyzeCommits-lifecycle plugin does not return anything, then the earlier result is used, but if it returns a supported string value, then that overrides the previous result.PreviousJavaScript APINextShareable configuration developmentLast updated 8 months ago\n\n\n\nDeveloper guideShareable configuration developmentPreviousPlugin developmentNextResourcesLast updated 3 years ago\n\n\n\nSupportResourcesPreviousShareable configuration developmentNextFrequently Asked QuestionsLast updated 3 years ago\n\n\n\nSupportFrequently Asked QuestionsWhy is the package.json’s version not updated in my repository?It is not needed for semantic-release to do its job@semantic-release/npm takes care of updating the package.json’s version before publishing to npm based on the previous version that was tracked as a git tag. By default, only the published package will contain the version, which is the only place where it is really required, but the updated package.json will not be pushed to the Git repository. A git tag is added to track the new version, so committing the version is not necessary for semantic-release to pick up from there for the next release.It can lead to confusionSome teams find value in being able to reference the repository to determine the current latest version available for the published package. Unfortunately, there are some failure scenarios where semantic-release might leave the committed version in the repository out of sync with the version that exists in the registry. The best way to determine available versions is to consult the registry that your package is published to, since it is the actual source of truth. The npm CLI can be used to consult the registry with the following command:Copynpm dist-tags ls <package-name>When not committing updates to the version, a value that follows the semver guidelines is still required for the version property within the package.json. To make it clear to contributors that the version is not kept up to date, we recommend using a value like 0.0.0-development or 0.0.0-semantically-released.Making commits during the release process adds significant complexityWhile the @semantic-release/git enables committing such changes and pushing them back to the repository as part of a release, we strongly recommend against this practice.Making commits and pushing them back to the repository adds significant additional complexity to your release process that can be avoided:Branch protection configuration must account for allowing the release user account to bypass restrictions enforced for human contributors, which might require elevating the access level of the release user beyond what would otherwise be desired/considered secure.Pre-commit hooks configured for a project, which is a popular practice when enabling commitlint through husky, for example, must be accounted for in the release process. (We recommend disabling tools like this for automated commits, but you need to decide what is appropriate for your project)There are valid reasons to commit during a releaseIf you make your npm package available directly via a GitHub repository rather than publishing to a registry, for example, making a commit and pushing to the repository is a necessary step. In such a case you will want to use @semantic-release/git to coordinate the commit and push. You can set the project to "private": true, within your package.json to prevent publishing to the registry.However, if you are choosing to follow this path because you can't use the official npm registry and don't want to manage your own registry, consider publishing to GitHub packages instead.Should release notes be committed to a CHANGELOG.md in my repository during a release?@semantic-release/changelog can be used to add release notes to a CHANGELOG.md file within your repository as part of each release. Committing changes to a CHANGELOG.md or similar file introduces the same complexities as committing an updated version within a package.json file. In addition, the release notes that would be added to a changelog file are likely redundant with the release notes added as GitHub releases, if that is also configured for your project (enabled by default).Before deciding that a changelog file is necessary for your project, please consider whether the added complexity is worth it when GitHub releases (or similar for your host, if not GitHub) might accomplish the same goal. It could also be worth considering whether having a CHANGELOG.md in your repository that only contains a link to the project's GitHub releases could be an acceptable middle ground.How can I use a npm build script that requires the package.json’s version ?The package.json’s version will be updated by the semantic-release command just before publishing to npm, therefore it won't be available for scripts ran before the semantic-release command.As the @semantic-release/npm plugin uses the npm CLI to update the package.json version and publish the package, all npm hook scripts will be executed.You can run your build script in:the prepublishOnly or prepack hook so it will be executed during the publish step of @semantic-release/npmthe postversion hook so it will be executed during the prepare step of @semantic-release/npm, which allow for example to update files before committing them with the @semantic-release/git pluginIf using npm hook scripts is not possible, and alternative solution is to @semantic-release/exec plugin to run your script in the prepare step:Copy{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "./my-build-script.sh ${nextRelease.version}"
+      }
+    ]
+  ]
+}Is there a way to preview which version would currently get published?Yes with the dry-run options which prints to the console the next version to be published and the release notes.Can I use semantic-release to publish non-JavaScript packages?Yes, semantic-release is a Node CLI application, but it can be used to publish any type of packages.To publish a non-Node package (without a package.json) you would need to:Use a global semantic-release installationSet semantic-release options via CLI arguments or .rc fileMake sure your CI job executing the semantic-release command has access to a version of Node that meets our version requirement to execute the semantic-release commandSee the CI configuration recipes for more details on specific CI environments.In addition, you will need to configure the semantic-release plugins to disable the @semantic-release/npm plugin which is used by default and use a plugin for your project type.If there is no specific plugin for your project type you can use the @semantic-release/exec plugin to publish the release with a shell command.Here is a basic example to create GitHub releases and use a shell command to publish:Copy{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github",
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "set-version ${nextRelease.version}",
+        "publishCmd": "publish-package"
+      }
+    ]
+  ]
+}Note: This is a theoretical example where the command set-version update the project version with the value passed as its first argument and publish-package publishes the package to a registry.See the package managers and languages recipes for more details on specific project types and the available plugins list to see if there are community-supported plugins already available for the stack you are interested in.Can I use semantic-release with any CI service?Yes, semantic-release can be used with any CI service, as long as it provides:A way to set authentication via environment variablesA way to guarantee that the semantic-release command is executed only after all the tests of all the jobs in the CI build passSee the CI configuration recipes for more details on specific CI environments.Can I run semantic-release on my local machine rather than on a CI server?Yes, you can by explicitly setting the --no-ci CLI option option. You will also have to set the required authentication via environment variables on your local machine, for example:Copy$ NPM_TOKEN=<your_npm_token> GH_TOKEN=<your_github_token> npx semantic-release --no-ciHowever this is not the recommended approach, as running unit and integration tests on an independent machine before publishing software is a crucial part of the release workflow.Can I use semantic-release with GitLab?Yes, with the @semantic-release/gitlab-config shareable configuration.See the GitLab CI recipes for the CI configuration.Can I use semantic-release with any Git hosted environment?By default semantic-release uses the @semantic-release/github plugin to publish a GitHub release. For other Git hosted environment the @semantic-release/git and @semantic-release/changelog plugins can be used via plugins configuration.See the @semantic-release/git @semantic-release/changelog plugins documentation for more details.Can I skip the release to the npm registry?Yes, the publishing to the npm registry can be disabled with the npmPublish option of the @semantic-release/npm plugin. In addition the tarballDir option allow to generate the package tarball in order to publish it to your repository with the @semantic-release/git or to a GitHub release with the @semantic-release/github plugin.See the @semantic-release/npm plugin documentation for more details.How can I revert a release?If you have introduced a breaking bug in a release you have 2 options:If you have a fix immediately ready, commit and push it (or merge it via a pull request) to the release branchOtherwise, revert the commit that introduced the bug and push the revert commit (or merge it via a pull request) to the release branchIn both cases semantic-release will publish a new release, so your package users will get the fixed/reverted version.Depending on the package manager you are using, you might be able to un-publish or deprecate a release, in order to prevent users from downloading it by accident. For example, npm allows you to un-publish within 72 hours after release. You may also deprecate a release if you would rather avoid un-publishing.In any case do not remove the Git tag associated with the buggy version, otherwise semantic-release will later try to republish that version. Publishing a version after un-publishing is not supported by most package managers.Note: If you are using the default Angular Commit Message Conventions be aware that it uses a different revert commit format than the standard one created by git revert, contrary to what is claimed in the convention. Therefore, if you revert a commit with git revert, use the --edit option to format the message according to the Angular revert commit message format. See conventional-changelog/conventional-changelog#348 for more details.Can I use .npmrc options?Yes, all the npm configuration options are supported via the .npmrc file at the root of your repository.See the @semantic-release/npm plugin documentation for more details.How can I set the access level of the published npm package?The npm access option can be set in the .npmrc file at the root of your repository:Copyaccess=publicOr with the publishConfig.access key in your project's package.json:Copy{
+  "publishConfig": {
+    "access": "public"
+  }
+}Can I manually trigger the release of a specific version?You can trigger a release by pushing to your Git repository. You deliberately cannot trigger a specific version release, because this is the whole point of semantic-release.Can I exclude commits from the analysis?Yes, every commits that contains [skip release] or [release skip] in their message will be excluded from the commit analysis and won't participate in the release type determination.How can I change the type of commits that trigger a release?By default semantic-release uses the Angular Commit Message Conventions and triggers releases based on the following rules:CommitRelease typeCommit with breaking changeMajor Breaking releaseCommit with type featMinor Feature releaseCommit with type fixPatch releaseCommit with type perfPatch releaseSee the @semantic-release/npm plugin documentation for more details.This is fully customizable with the @semantic-release/commit-analyzer plugin's release-rules option.Is it really a good idea to release on every push?It is indeed a great idea because it forces you to follow best practices. If you don’t feel comfortable releasing every feature or fix on your master/main you might not treat your master/main branch as intended.From Understanding the GitHub Flow:Branching is a core concept in Git, and the entire GitHub Flow is based upon it. There's only one rule: anything in the master/main branch is always deployable.If you need more control over the timing of releases, see Triggering a release for different options.Note: Only the codebase changes altering the published package will trigger a release (for example new features, bug fixes or performance improvements would trigger a release while refactoring or changing code style would not). See How can I change the type of commits that trigger a release? for more details.Can I set the initial release version of my package to 0.0.1?This is not supported by semantic-release. Semantic Versioning rules apply differently to major version zero and supporting those differences is out of scope and not one of the goals of the semantic-release project.If your project is under heavy development, with frequent breaking changes, and is not production ready yet we recommend publishing pre-releases.See “Introduction to SemVer” - Irina Gebauer for more details on Semantic Versioning and the recommendation to start at version 1.0.0.Can I trust semantic-release with my releases?semantic-release has a full unit and integration test suite that tests npm publishes against the verdaccio.In addition, the verify conditions step verifies that all necessary conditions for proceeding with a release are met, and a new release will be performed only if all your tests pass.What is npx?npx – short for "npm exec" – is a CLI to find and execute npm binaries within the local node_modules folder or in the $PATH. If a binary can't be located npx will download the required package and execute it from its cache location. The tool is bundled with npm >= 5.2, or can be installed via npm install -g npx. For more details and motivation read the introductory blog post by @zkat.PreviousResourcesNextTroubleshootingLast updated 10 months ago\n\n\n\nSupportTroubleshootingPreviousFrequently Asked QuestionsNextNode version requirementLast updated 1 year ago\n\n\n\nSupportNode version requirementPreviousTroubleshootingNextNode Support PolicyLast updated 1 year ago\n\n\n\nSupportNode Support PolicyPreviousNode version requirementNextGit version requirementLast updated 3 years ago\n\n\n\nSupportGit version requirementPreviousNode Support PolicyLast updated 3 years ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\nREADMENextGetting startedLast updated 1 month ago\n\n\n\n
