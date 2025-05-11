@@ -1,33 +1,33 @@
 # CLI Usage
 
-This repository provides a command-line interface (CLI) with options to display the mission statement and version.
+This repository provides a command-line interface (CLI) with options to display the mission statement, show the version, or echo arguments.
 
 ## Display Mission Statement
 
-Run the CLI with the `--mission` flag to print out the contents of `MISSION.md`:
+Invoke the CLI with the `--mission` flag to print the contents of `MISSION.md`:
 
 ```bash
 npm run start -- --mission
 ```
 
 Example output:
+
 ```
 # Mission Statement
 
-`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`.
-Its primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
-...
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development. The mission of the contributors, human or automated, is to showcase the workflow capabilities of the repository.
 ```
 
 ## Display Version
 
-Run the CLI with the `--version` flag to print the current package version:
+Invoke the CLI with the `--version` flag to print the current package version:
 
 ```bash
 npm run start -- --version
 ```
 
 Example output:
+
 ```
 2.1.0-0
 ```
@@ -38,5 +38,10 @@ Without any flags, the CLI will simply echo the provided arguments:
 
 ```bash
 npm run start -- foo bar
-# => Run with: ["foo","bar"]
+```
+
+Example output:
+
+```
+Run with: ["foo","bar"]
 ```
