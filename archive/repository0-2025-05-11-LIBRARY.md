@@ -1,989 +1,697 @@
-sandbox/library/VITEST_SETUP.md
-# sandbox/library/VITEST_SETUP.md
-# VITEST_SETUP
+sandbox/library/CODE_BLOCKS.md
+# sandbox/library/CODE_BLOCKS.md
+# CODE_BLOCKS
 
 ## Crawl Summary
-Install with npm/yarn/pnpm/bun, requires Vite>=5 and Node>=18; test files must use .test. or .spec., import {test,expect} from 'vitest'; add "test": "vitest" script; configure via vite.config.ts or vitest.config.ts using defineConfig from 'vitest/config'; supported config file extensions .js,.mjs,.cjs,.ts,.cts,.mts; mergeConfig for combining Vite and Vitest configs; workspace support via test.workspace array; CLI commands vitest, vitest run, vitest run --coverage, flags --port, --https, --config; disable auto-install via VITEST_SKIP_INSTALL_CHECKS; use pnpm link for unreleased builds; recommended VSCode extension.
+Indented code blocks: lines with ≥4-space indent form literal code content minus 4 spaces, cannot interrupt paragraphs without blank line, list indent takes precedence.  Fenced code blocks: opening fence /^ {0,3}(`{3,}|~{3,})([ \t]*)([^`~]*)$/, closing fence /^ {0,3}(`{n,}|~{n,})[ \t]*$/, content unparsed text, indent removal equal to opening indent, info string allowed after opening fence, fence type and length must match, blocks interrupt paragraphs, no blank lines required.
 
 ## Normalised Extract
-Table of Contents
- 1 Installation
- 2 Writing Tests
- 3 Configuration
- 4 Workspaces
- 5 CLI Usage
- 6 Environment Variables
- 7 Unreleased Builds
+Table of Contents:
+1. Indented Code Blocks
+2. Fenced Code Blocks
 
-1 Installation
-  npm install -D vitest
-  yarn add -D vitest
-  pnpm add -D vitest
-  bun add -D vitest
-  requirements: Vite>=5.0.0, Node>=18.0.0
-  alternative: npx vitest
+1. Indented Code Blocks
+Definition: lines with ≥4 spaces indentation constitute code block.  Blank-line-separated chunks.  Content = literal lines minus first 4 spaces.  Cannot start inside paragraph without blank line; list-indentation overrides.
+Implementation details:
+  - Detection regex: /^[ \t]{4,}/
+  - Start: if prevLine is blank or non-paragraph, and line matches regex.
+  - End: first non-blank line with <4 spaces indent.
+  - Content extraction: strip exactly 4 leading spaces; retain extra spaces/tabs.
 
-2 Writing Tests
-  file suffix: .test. or .spec.
-  import { test, expect } from 'vitest'
-  sum.js: export function sum(a,b){return a+b}
-  sum.test.js: test('desc',()=>expect(sum(1,2)).toBe(3))
-  package.json script: "test": "vitest"
-  run: npm run test / yarn test / pnpm test / bun run test
+2. Fenced Code Blocks
+Definition: opening fence = up to 3 spaces indent + ≥3 backticks or tildes; optional info string.  Closing fence: same char, length ≥ opening, ≤3 spaces indent.
+Implementation details:
+  - Opening regex: /^ {0,3}(`{3,}|~{3,})([ \t]*)([^`~]*)$/
+  - Info string: trim spaces/tabs from capture group 3.
+  - Content lines: for each line until closing fence, remove min(N,lineIndent) spaces where N = indent of opening.
+  - Closing regex: new RegExp(`^ {0,3}(${fenceChar}{${fenceLen},})[ \t]*$`)
+  - Blocks may interrupt any block, no blank-line requirement.
 
-3 Configuration
-  default: root vite.config.ts recognized
-  override: create vitest.config.ts with defineConfig
-  CLI: --config <path>
-  env: process.env.VITEST or mode property
-  supported extensions: .js .mjs .cjs .ts .cts .mts
-  no .json
-  merge existing Vite config: import mergeConfig from 'vitest/config'
-  test options: environment, globals, setupFiles, include, coverage(provider, reporter[], reportsDirectory)
-
-4 Workspaces
-  define test.workspace as array:
-    - globs (packages/*)
-    - config file patterns (tests/*/vitest.config.{e2e,unit}.ts)
-    - inline config objects {name, root, environment, setupFiles}
-
-5 CLI Usage
-  vitest              // watch mode
-  vitest run          // single run
-  vitest run --coverage
-  flags: --port <n>, --https, --config <path>
-  help: npx vitest --help
-
-6 Environment Variables
-  VITEST_SKIP_INSTALL_CHECKS=1 disables auto dependency prompts
-
-7 Unreleased Builds
-  git clone https://github.com/vitest-dev/vitest.git
-  cd vitest && pnpm install
-  cd packages/vitest && pnpm run build && pnpm link --global
-  in project: pnpm link --global vitest
 
 ## Supplementary Details
-Prerequisites:
- Vite>=5.0.0
- Node>=18.0.0
+Implementation steps for parser:
+1. Iterate lines of document sequentially.
+2. At each line, check for fenced code opening with Opening regex. If match:
+   a. Record fenceChar (` or ~), fenceLen = length(match[1]), indent = countLeadingSpaces(match[0]).
+   b. Parse infoString = match[3].split(/\s+/)[0].
+   c. Collect subsequent lines until a line matching closing regex: new RegExp(`^ {0,3}(${fenceChar}{${fenceLen},})[ \t]*$`).
+   d. For each content line, strip up to indent spaces, append to code content.
+3. If no fence, check for indented code start with /^[ \t]{4,}/ and (prevBlank||prevNotParagraph).
+   a. Collect subsequent lines while /^[ \t]{4,}/ or blank.
+   b. For each non-blank, strip first 4 spaces; append to code content. Blank lines preserved if indented.
 
-Config file priority:
- 1. vitest.config.ts/js
- 2. --config CLI
- 3. mode property in defineConfig or process.env.VITEST
-
-Supported config extensions: .js .mjs .cjs .ts .cts .mts
-
-Default test include pattern: **/*.{test,spec}.{js,mjs,cjs,ts,cts,mts}
-
-Coverage defaults:
- provider: 'c8'
- reporter: ['text']
- reportsDirectory: 'coverage'
-
-Workspace resolution:
- patterns and inline entries processed in defined order
- root paths must contain a vitest.config
-
-CLI default ports:
- watch: 51234
- run: --port 51234
- https disabled by default
-
-IDE:
- VSCode extension id: 'Vitest.run'
-
-Linking unreleased:
- pnpm link --global in package
- pnpm link --global vitest in project
+Configuration options:
+- Tab stops: 4 spaces in indented contexts.
+- Max fence indent: 3 spaces.
+- Min fence length: 3 characters.
 
 
 ## Reference Details
-API imports:
- import { test, describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+Regex patterns:
+  INDENTED_CODE_OPEN: /^[ \t]{4,}.+$/
+  FENCE_OPEN: /^ {0,3}(`{3,}|~{3,})([ \t]*)([^`~]*)$/
+  FENCE_CLOSE: prefix '^ {0,3}(' + fenceChar.repeat(fenceLen) + ',) *$'
+Parser pseudocode:
+function parseDocument(lines) {
+  let i=0;
+  while(i<lines.length) {
+    if(lines[i].match(FENCE_OPEN)) {
+      let [fenceChar, fenceLen, info] = extractFence(lines[i]);
+      i++;
+      let content=[];
+      while(i<lines.length && !isFenceClose(lines[i], fenceChar, fenceLen)) {
+        content.push(stripIndent(lines[i], indent)); i++;
+      }
+      i++;
+      yield {type:'fenced_code', infoString:info, content};
+    } else if(lines[i].match(INDENTED_CODE_OPEN) && isBlockBoundary(lines[i-1])) {
+      let content=[];
+      while(i<lines.length && (lines[i].match(INDENTED_CODE_OPEN)||isBlank(lines[i]))) {
+        if(!isBlank(lines[i])) content.push(lines[i].slice(4));
+        else content.push('');
+        i++;
+      }
+      yield {type:'indented_code', content};
+    } else {
+      // other block parsing
+      i++;
+    }
+  }
+}
 
-Method Signatures:
- test(name: string, fn: () => unknown|Promise<unknown>, options?: {timeout?: number, threads?: boolean, isolate?: boolean}): void
- describe(name: string, fn: () => void): void
- beforeAll(fn: () => void|Promise<void>, timeout?: number): void
- afterAll(fn: () => void|Promise<void>, timeout?: number): void
- beforeEach(fn: () => void|Promise<void>, timeout?: number): void
- afterEach(fn: () => void|Promise<void>, timeout?: number): void
+Best practices:
+- Use fence sequences longer than any in content to avoid premature closure.
+- Normalize tabs to spaces before parsing, preserving literal tabs in code.
+- Always treat fenced code as literal; skip inline parsing inside.
 
-Expect API:
- expect(received: any): {
-   toBe(expected: any): void;
-   toEqual(expected: any): void;
-   toMatchSnapshot(): void;
-   toThrow(expected?: string|RegExp|Error): void;
- }
+Troubleshooting:
+Command: run spec_tests.py against your parser
+Expected: all code-block conformance tests pass (exit code 0).
+Example: python3 tools/spec_tests.py commonmark-parser.js
+If failure at test 4.5.3, inspect fence length comparison logic.
 
+
+## Information Dense Extract
+Indented code: lines≥4-space indent→strip4spaces→literal content; must follow blank/non-paragraph; list indent wins.  Fenced code: opening /^ {0,3}(`{3,}|~{3,})( *)(info)?$/, info=first word trimmed; content until closing /^ {0,3}(${char}{len,}) *$/, strip up to opening indent spaces; no inline parsing; blank-line-agnostic; parser: detect open, record fenceChar,len, indent, collect lines, match close, strip indent, output code node.
+
+## Sanitised Extract
+Table of Contents:
+1. Indented Code Blocks
+2. Fenced Code Blocks
+
+1. Indented Code Blocks
+Definition: lines with 4 spaces indentation constitute code block.  Blank-line-separated chunks.  Content = literal lines minus first 4 spaces.  Cannot start inside paragraph without blank line; list-indentation overrides.
+Implementation details:
+  - Detection regex: /^[ 't]{4,}/
+  - Start: if prevLine is blank or non-paragraph, and line matches regex.
+  - End: first non-blank line with <4 spaces indent.
+  - Content extraction: strip exactly 4 leading spaces; retain extra spaces/tabs.
+
+2. Fenced Code Blocks
+Definition: opening fence = up to 3 spaces indent + 3 backticks or tildes; optional info string.  Closing fence: same char, length  opening, 3 spaces indent.
+Implementation details:
+  - Opening regex: /^ {0,3}('{3,}|~{3,})([ 't]*)([^'~]*)$/
+  - Info string: trim spaces/tabs from capture group 3.
+  - Content lines: for each line until closing fence, remove min(N,lineIndent) spaces where N = indent of opening.
+  - Closing regex: new RegExp('^ {0,3}(${fenceChar}{${fenceLen},})[ 't]*$')
+  - Blocks may interrupt any block, no blank-line requirement.
+
+## Original Source
+CommonMark Specification
+https://spec.commonmark.org/0.30/
+
+## Digest of CODE_BLOCKS
+
+# Indented Code Blocks
+An indented code block consists of one or more indented chunks separated by blank lines.  An indented chunk is a sequence of non-blank lines each preceded by at least four spaces of indentation.  The content of the code block is the literal text of those lines including trailing line endings, minus four leading spaces per line.  A blank line is required before an indented code block if the preceding block is a paragraph; no blank line is needed before a following paragraph.  Additional spaces or tabs beyond the initial four remain in content.  If indentation could also indicate a list item, list-item interpretation takes precedence.
+
+# Fenced Code Blocks
+A fenced code block begins with an opening fence: at most three spaces of indentation, then at least three consecutive backticks (`) or tildes (~), not mixed, optionally followed by spaces/tabs and an info string.  The info string is trimmed and may include a language identifier as its first word.  The block ends at a closing fence of the same character and at least the same length, preceded by up to three spaces of indentation, followed only by spaces or tabs.  Content lines have up to N leading spaces removed, where N is the indentation of the opening fence.  Content is treated as literal text.  Fenced code can interrupt paragraphs and does not require blank lines before or after.
+
+Current date: 2023-11-20
+Data size retrieved: 26611114 bytes
+
+
+## Attribution
+- Source: CommonMark Specification
+- URL: https://spec.commonmark.org/0.30/
+- License: CC0-1.0
+- Crawl Date: 2025-05-11T08:57:55.704Z
+- Data Size: 26611114 bytes
+- Links Found: 111897
+
+## Retrieved
+2025-05-11
+sandbox/library/EJS_FEATURES.md
+# sandbox/library/EJS_FEATURES.md
+# EJS_FEATURES
+
+## Crawl Summary
+Use plain JavaScript templates. No custom syntax. Scriptlet tags `<% %>` for code, `<%= %>` for output. Compiled functions are cached. Debugging shows JS exceptions with line numbers. Active community.
+
+## Normalised Extract
+Table of Contents:
+1. Plain JavaScript Templating
+2. Scriptlet Tag Syntax
+3. Template Compilation and Caching
+4. Debugging Error Reporting
+5. Community and Maintenance
+
+1. Plain JavaScript Templating
+Templates are authored entirely in JavaScript. No preprocessing or custom DSL required. Use any JS constructs directly.
+
+2. Scriptlet Tag Syntax
+Use `<% code %>` to execute statements without output. Use `<%= expression %>` to output escaped HTML. Use `<%- expression %>` to output unescaped raw HTML.
+
+3. Template Compilation and Caching
+EJS compiles `.ejs` files into JavaScript functions on first render. Set `cache: true` to enable LRU caching by file path. Caching avoids re-compilation on subsequent renders.
+
+4. Debugging Error Reporting
+Errors thrown during template execution include template filename and line number. Enable `compileDebug: true` to embed debug instrumentation in compiled functions.
+
+5. Community and Maintenance
+EJS is under active development. Report issues via GitHub. Use the latest npm release for bug fixes.
+
+## Supplementary Details
 Configuration Options:
- defineConfig({
-  test: {
-    include?: string[]                // default ['**/*.{test,spec}.{js,mjs,cjs,ts,cts,mts}']
-    exclude?: string[]                // default ['node_modules', '.git']
-    extensions?: string[]             // file extensions
-    environment?: 'node'|'jsdom'|'happy-dom' // default 'node'
-    globals?: boolean                 // default false
-    threads?: boolean                 // default true
-    isolate?: boolean                 // default false
-    setupFiles?: string[]             // paths to setup files
-    coverage?: {
-      provider?: 'c8'|'istanbul';    // default 'c8'
-      reporter?: string[];           // e.g. ['text','html']
-      reportsDirectory?: string;     // default 'coverage'
-      exclude?: string[];            // default ['node_modules']
-      statements?: number;           // threshold
-      branches?: number;
-      functions?: number;
-      lines?: number;
-    }
-    reporters?: string[]              // e.g. ['default','junit']
-    watch?: boolean                   // default true
-    hookTimeout?: number              // default 5000
-    testTimeout?: number              // default 5000
-    clean?: boolean                   // clear cache between runs
-    threadsTimeout?: number           // worker idle timeout
-    maxConcurrency?: number           // default 5
-  }
- })
+- delimiter: String, default '%', custom tag delimiter character.
+- cache: Boolean, default false, enable caching compiled templates in memory.
+- filename: String, required for accurate error messages and caching key.
+- compileDebug: Boolean, default true, include debug instrumentation.
+- rmWhitespace: Boolean, default false, remove all safe-to-remove whitespace.
 
-Best Practices:
- • co-locate test files next to source modules
- • use explicit include/glob patterns for consistent discovery
- • enable globals for shorter assertions when using TypeScript
- • isolate tests to avoid shared state
-
-Troubleshooting:
- • "vitest not found" → install locally or use npx
- • Permission errors linking → run with elevated privileges
- • Environment mismatch → ensure NODE_ENV=test or use environment option
- • Coverage missing files → adjust include/exclude patterns
-
-Exact Commands and Expected Output:
- npm run test
- > vitest
- PASS tests/example.test.js
-  ✓ example test (5ms)
-
- vitest run --coverage
- > vitest run --coverage
----------------------------|---------|----------|---------|---------|-------------------
-File                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
----------------------------|---------|----------|---------|---------|-------------------
-All files                  |   85.71 |    66.67 |     100 |   85.71 |                   
-  src/sum.js               |     100 |      100 |     100 |     100 |                   
- coverage summary          |   85.71 |    66.67 |     100 |   85.71 |                   
----------------------------|---------|----------|---------|---------|-------------------
-
-## Information Dense Extract
-install: npm install -D vitest | yarn add -D vitest | pnpm add -D vitest | bun add -D vitest; require Vite>=5, Node>=18; tests: *.{test,spec}.{js,mjs,cjs,ts,cts,mts}; import {test,expect} from 'vitest'; script: "test":"vitest"; run via npm/yarn/pnpm/bun; config: defineConfig from 'vitest/config' or use vite.config.ts; extensions js,mjs,cjs,ts,cts,mts; mergeConfig(viteConfig, defineConfig({test:{...}})); config options: include,exclude,environment,globals,threads,isolate,setupFiles,coverage(provider,c8,reporter[text,html],reportsDirectory,thresholds); workspace: test.workspace as array of globs/config objects; CLI: vitest, vitest run, vitest run --coverage, flags --port,--https,--config; env VITEST_SKIP_INSTALL_CHECKS=1; API: test(name,fn,options), describe(name,fn), hooks; expect API: toBe,toEqual,toMatchSnapshot,toThrow; troubleshooting: npx vitest if missing, ensure NODE_ENV=test, adjust patterns
-
-## Sanitised Extract
-Table of Contents
- 1 Installation
- 2 Writing Tests
- 3 Configuration
- 4 Workspaces
- 5 CLI Usage
- 6 Environment Variables
- 7 Unreleased Builds
-
-1 Installation
-  npm install -D vitest
-  yarn add -D vitest
-  pnpm add -D vitest
-  bun add -D vitest
-  requirements: Vite>=5.0.0, Node>=18.0.0
-  alternative: npx vitest
-
-2 Writing Tests
-  file suffix: .test. or .spec.
-  import { test, expect } from 'vitest'
-  sum.js: export function sum(a,b){return a+b}
-  sum.test.js: test('desc',()=>expect(sum(1,2)).toBe(3))
-  package.json script: 'test': 'vitest'
-  run: npm run test / yarn test / pnpm test / bun run test
-
-3 Configuration
-  default: root vite.config.ts recognized
-  override: create vitest.config.ts with defineConfig
-  CLI: --config <path>
-  env: process.env.VITEST or mode property
-  supported extensions: .js .mjs .cjs .ts .cts .mts
-  no .json
-  merge existing Vite config: import mergeConfig from 'vitest/config'
-  test options: environment, globals, setupFiles, include, coverage(provider, reporter[], reportsDirectory)
-
-4 Workspaces
-  define test.workspace as array:
-    - globs (packages/*)
-    - config file patterns (tests/*/vitest.config.{e2e,unit}.ts)
-    - inline config objects {name, root, environment, setupFiles}
-
-5 CLI Usage
-  vitest              // watch mode
-  vitest run          // single run
-  vitest run --coverage
-  flags: --port <n>, --https, --config <path>
-  help: npx vitest --help
-
-6 Environment Variables
-  VITEST_SKIP_INSTALL_CHECKS=1 disables auto dependency prompts
-
-7 Unreleased Builds
-  git clone https://github.com/vitest-dev/vitest.git
-  cd vitest && pnpm install
-  cd packages/vitest && pnpm run build && pnpm link --global
-  in project: pnpm link --global vitest
-
-## Original Source
-Vitest Testing Framework
-https://vitest.dev/guide/
-
-## Digest of VITEST_SETUP
-
-# Installation
-
-Install Vitest locally as a dev dependency:
-
-```bash
-npm install -D vitest
-# or yarn add -D vitest
-# or pnpm add -D vitest
-# or bun add -D vitest
-```
-
-Requirements:
-- Vite >=5.0.0
-- Node >=18.0.0
-
-To run without local install:
-```bash
-npx vitest
-```  
-
-# Writing Tests
-
-File naming:
-- Suffix must include `.test.` or `.spec.`
-
-Example:
-
-```js
-// sum.js
-export function sum(a, b) {
-  return a + b
-}
-
-// sum.test.js
-import { test, expect } from 'vitest'
-import { sum } from './sum.js'
-
-test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3)
-})
-```
-
-Add script to package.json:
-
-```json
-"scripts": {
-  "test": "vitest"
-}
-```
-
-Run:
-- npm run test
-- yarn test
-- pnpm test
-- bun run test (for Bun)
-
-# Configuration
-
-Vitest reads Vite config by default. Override or separate:
-
-1. vitest.config.ts (highest priority)
-2. CLI option `--config ./path/to/vitest.config.ts`
-3. process.env.VITEST or defineConfig mode property
-
-Supported config extensions: .js, .mjs, .cjs, .ts, .cts, .mts (no .json)
-
-Example vitest.config.ts:
-
-```ts
-import { defineConfig } from 'vitest/config'
-
-export default defineConfig({
-  test: {
-    environment: 'node',
-    globals: true,
-    setupFiles: ['./setup.ts'],
-    include: ['tests/**/*.test.ts'],
-    coverage: {
-      provider: 'c8',
-      reporter: ['text', 'html'],
-      reportsDirectory: './coverage'
-    }
-  }
-})
-```
-
-Merge with existing Vite config:
-
-```js
-import viteConfig from './vite.config.mjs'
-import { defineConfig, mergeConfig } from 'vitest/config'
-
-export default mergeConfig(viteConfig, defineConfig({
-  test: {
-    /* overrides */
-  }
-}))
-```
-
-# Workspaces Support
-
-In vitest.config.ts:
-
-```ts
-import { defineConfig } from 'vitest/config'
-
-export default defineConfig({
-  test: {
-    workspace: [
-      'packages/*',
-      'tests/*/vitest.config.{e2e,unit}.ts',
-      { name: 'node', root: './shared', environment: 'node' },
-      { name: 'happy-dom', root: './shared', environment: 'happy-dom', setupFiles: ['./setup.happy.ts'] }
-    ]
-  }
-})
-```
-
-# CLI Usage
-
-- vitest             # start in watch mode
-- vitest run         # run tests once
-- vitest run --coverage
-- Options: --port <number>, --https, --config <path>
-- To view all flags: `npx vitest --help`
-
-# Automatic Dependency Installation
-
-Disable prompts:
-```bash
-export VITEST_SKIP_INSTALL_CHECKS=1
-```
-
-# Using Unreleased Commits
-
-```bash
-git clone https://github.com/vitest-dev/vitest.git
-cd vitest
-pnpm install
-cd packages/vitest
-pnpm run build
-pnpm link --global
-# then in project
-pm/`: pnpm link --global vitest
-```
-
-# IDE Integrations
-
-- VS Code extension: install `Vitest Runner` from Marketplace
-
-_Last updated: 2023-10-05_
-
-## Attribution
-- Source: Vitest Testing Framework
-- URL: https://vitest.dev/guide/
-- License: MIT
-- Crawl Date: 2025-05-11T01:23:19.627Z
-- Data Size: 29396863 bytes
-- Links Found: 23528
-
-## Retrieved
-2025-05-11
-sandbox/library/SEMANTIC_RELEASE.md
-# sandbox/library/SEMANTIC_RELEASE.md
-# SEMANTIC_RELEASE
-
-## Crawl Summary
-syntax: semanticRelease(options:Object, config:Object) => Promise<Boolean|ResultObject>
-
-options.branches:Array<String|Object> default [\"+([0-9])?(.{+([0-9]),x}).x\",\"master\",\"main\",\"next\",\"next-major\",{name:\"beta\",prerelease:true},{name:\"alpha\",prerelease:true}]
-options.repositoryUrl:String
-options.extends:String|String[]
-options.githubUrl:String
-options.githubApiPathPrefix:String
-
-config.cwd:String default process.cwd()
-config.env:Object default process.env
-config.stdout:WritableStream default process.stdout
-config.stderr:WritableStream default process.stderr
-
-Result: lastRelease, commits[], nextRelease, releases[] with complete field definitions
-Plugin lifecycles: verifyConditions, analyzeCommits, verifyRelease, generateNotes, addChannel, prepare, publish, success, fail
-Context keys by lifecycle: common keys, commits and releases injection
-Logger: context.logger.log/warn/success/error
-
-
-## Normalised Extract
-Table of Contents:
-1. API Signature
-2. Core Options
-3. Execution Config
-4. Result Structure
-5. Plugin Lifecycle Methods
-6. Context Object Keys
-7. Environment Variables
-8. Logger Usage
-
-1. API Signature
-semanticRelease(options:Object, config:Object) => Promise<Boolean|ResultObject>
-
-2. Core Options
-branches: Array<String|{name:String,prerelease:Boolean}>
-repositoryUrl: String
-extends: String|Array<String>
-githubUrl: String
-githubApiPathPrefix: String
-
-3. Execution Config
-cwd: String (default process.cwd())
-env: Object (default process.env)
-stdout: WritableStream (default process.stdout)
-stderr: WritableStream (default process.stderr)
-
-4. Result Structure
-lastRelease: { version:String, gitHead:String, gitTag:String, channel:String }
-commits: Array<{ commit:{long:String,short:String}, tree:{long:String,short:String}, author:{name:String,email:String,date:String}, committer:{name:String,email:String,date:String}, subject:String, body:String, hash:String, message:String, committerDate:String }>
-nextRelease: { type:String, version:String, gitHead:String, gitTag:String, notes:String, channel:String }
-releases: Array<{ name?:String, url?:String, type:String, gitHead:String, version:String, gitTag:String, notes:String, pluginName:String, channel:String }>
-
-5. Plugin Lifecycle Methods
-verifyConditions(pluginConfig:Object, context:Object) => Promise<void>
-analyzeCommits(pluginConfig:Object, context:Object) => Promise<String|void>
-verifyRelease(pluginConfig:Object, context:Object) => Promise<void>
-generateNotes(pluginConfig:Object, context:Object) => Promise<String>
-addChannel(pluginConfig:Object, context:Object) => Promise<void>
-prepare(pluginConfig:Object, context:Object) => Promise<Array<{path:String, data:String}>>
-publish(pluginConfig:Object, context:Object) => Promise<Array<{name:String, url:String}>>
-success(pluginConfig:Object, context:Object) => Promise<void>
-fail(pluginConfig:Object, context:Object) => Promise<void>
-
-6. Context Object Keys
-cwd: String, env: Object, envCi: Object, options: Object, branches: Array, commit: String, branch: String, main: Boolean
-Additional by lifecycle: commits, lastRelease, nextRelease, releases, errors
-
-7. Environment Variables
-context.env holds all process.env variables for plugin logic
-
-8. Logger Usage
-context.logger.log(message)
-context.logger.warn(message)
-context.logger.success(message)
-context.logger.error(message)
-
-## Supplementary Details
-Plugin Development Steps:
-1. Initialize project: yarn init
-2. In index.js, export methods: module.exports = { verifyConditions, analyzeCommits, ... }
-3. Create src/ for logic, test/ for tests
-4. Each lifecycle method signature: async function(methodConfig, context)
-5. Validate pluginConfig fields; accumulate errors; throw AggregateError(errors)
-6. Access environment in methods via context.env
-7. Log via context.logger
-
-Configuration File (.releaserc.js or release.config.js):
-module.exports = {
-  branches: ["main", {name:"beta", prerelease:true}],
-  repositoryUrl: "https://github.com/user/repo.git",
-  extends: "@semantic-release/recommended",
-  plugins: [
-    ["@semantic-release/commit-analyzer", {releaseRules:[{type:"docs",release:"patch"}]}],
-    ["@semantic-release/release-notes-generator", {}],
-    ["@semantic-release/github", {assets:[{path:"dist/*.js",label:"Dist"}]}]
-  ],
-  githubUrl: "https://github.com",
-  githubApiPathPrefix: "/api/v3"
-};
-
-CI Integration (GitHub Actions example):
-- uses: actions/setup-node@v2
-  with: node-version: 16
-- run: npm ci
-- run: npx semantic-release
-  env:
-    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-    GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-## Reference Details
-API: semanticRelease(options:Object, config?:Object) => Promise<Boolean|ResultObject>
-
-Parameters:
-options:
-  branches: Array<String|{name:String,prerelease:Boolean}>
-  repositoryUrl: String
-  extends: String|Array<String>
-  githubUrl: String
-  githubApiPathPrefix: String
-config (optional):
-  cwd: String (default process.cwd())
-  env: Object (default process.env)
-  stdout: WritableStream (default process.stdout)
-  stderr: WritableStream (default process.stderr)
-
-Return: Promise<Boolean|{
-  lastRelease:{version:String,gitHead:String,gitTag:String,channel:String},
-  commits:Array<Commit>,
-  nextRelease:{type:String,version:String,gitHead:String,gitTag:String,notes:String,channel:String},
-  releases:Array<Release>
-}>
-
-Commit:
-{ commit:{long:String,short:String}, tree:{long:String,short:String}, author:{name:String,email:String,date:String}, committer:{name:String,email:String,date:String}, subject:String, body:String, hash:String, message:String, committerDate:String }
-
-Release:
-{ name?:String, url?:String, type:String, gitHead:String, version:String, gitTag:String, notes:String, pluginName:String, channel:String }
-
-Plugin Lifecycle Method Signatures:
-async verifyConditions(pluginConfig:Object, context:Object):void
-async analyzeCommits(pluginConfig:Object, context:Object):String|void
-async verifyRelease(pluginConfig:Object, context:Object):void
-async generateNotes(pluginConfig:Object, context:Object):String
-async addChannel(pluginConfig:Object, context:Object):void
-async prepare(pluginConfig:Object, context:Object):Array<{path:String,data:String}>
-async publish(pluginConfig:Object, context:Object):Array<{name:String,url:String,channel?:String}>
-async success(pluginConfig:Object, context:Object):void
-async fail(pluginConfig:Object, context:Object):void
-
-Best Practices:
-- Always implement verifyConditions
-- Use shareable configs via extends field
-- Validate pluginConfig and environment variables early
-- Run semantic-release in CI after tests pass
-
-Troubleshooting Procedures:
-- List published versions: npm dist-tags ls <package-name>
-- Dry-run: npx semantic-release --dry-run
-- Bypass CI check: npx semantic-release --no-ci
-
-
-## Information Dense Extract
-semanticRelease(options:Object, config:Object) => Promise<{lastRelease, commits[], nextRelease, releases[]}>
-options: branches:Array<String|{name,prerelease}>, repositoryUrl:String, extends:String|String[], githubUrl:String, githubApiPathPrefix:String
-config: cwd:String, env:Object, stdout:WritableStream, stderr:WritableStream
-Result keys: lastRelease{version,gitHead,gitTag,channel}, commits[{commit{long,short},tree{long,short},author{name,email,date},committer{name,email,date},subject,body,hash,message,committerDate}], nextRelease{type,version,gitHead,gitTag,notes,channel}, releases[{name?,url?,type,gitHead,version,gitTag,notes,pluginName,channel}]
-Plugin lifecycles: verifyConditions, analyzeCommits, verifyRelease, generateNotes, addChannel, prepare, publish, success, fail
-Lifecycle signature: async(elConfig:Object, context:Object)
-Context keys: common(cwd,env,envCi,options,branches,commit,branch,main), analyzeCommits adds commits,lastRelease; verifyRelease adds nextRelease; prepare adds assets; publish adds releases; success adds releases; fail adds errors
-Logger: context.logger.log/warn/success/error
-Configuration: .releaserc.js with branches, repositoryUrl, extends, plugins[], githubUrl, githubApiPathPrefix
-CI: NPM_TOKEN, GH_TOKEN environment variables; run semantic-release after tests
-Troubleshoot: npm dist-tags ls, semantic-release --dry-run|--no-ci
-
-## Sanitised Extract
-Table of Contents:
-1. API Signature
-2. Core Options
-3. Execution Config
-4. Result Structure
-5. Plugin Lifecycle Methods
-6. Context Object Keys
-7. Environment Variables
-8. Logger Usage
-
-1. API Signature
-semanticRelease(options:Object, config:Object) => Promise<Boolean|ResultObject>
-
-2. Core Options
-branches: Array<String|{name:String,prerelease:Boolean}>
-repositoryUrl: String
-extends: String|Array<String>
-githubUrl: String
-githubApiPathPrefix: String
-
-3. Execution Config
-cwd: String (default process.cwd())
-env: Object (default process.env)
-stdout: WritableStream (default process.stdout)
-stderr: WritableStream (default process.stderr)
-
-4. Result Structure
-lastRelease: { version:String, gitHead:String, gitTag:String, channel:String }
-commits: Array<{ commit:{long:String,short:String}, tree:{long:String,short:String}, author:{name:String,email:String,date:String}, committer:{name:String,email:String,date:String}, subject:String, body:String, hash:String, message:String, committerDate:String }>
-nextRelease: { type:String, version:String, gitHead:String, gitTag:String, notes:String, channel:String }
-releases: Array<{ name?:String, url?:String, type:String, gitHead:String, version:String, gitTag:String, notes:String, pluginName:String, channel:String }>
-
-5. Plugin Lifecycle Methods
-verifyConditions(pluginConfig:Object, context:Object) => Promise<void>
-analyzeCommits(pluginConfig:Object, context:Object) => Promise<String|void>
-verifyRelease(pluginConfig:Object, context:Object) => Promise<void>
-generateNotes(pluginConfig:Object, context:Object) => Promise<String>
-addChannel(pluginConfig:Object, context:Object) => Promise<void>
-prepare(pluginConfig:Object, context:Object) => Promise<Array<{path:String, data:String}>>
-publish(pluginConfig:Object, context:Object) => Promise<Array<{name:String, url:String}>>
-success(pluginConfig:Object, context:Object) => Promise<void>
-fail(pluginConfig:Object, context:Object) => Promise<void>
-
-6. Context Object Keys
-cwd: String, env: Object, envCi: Object, options: Object, branches: Array, commit: String, branch: String, main: Boolean
-Additional by lifecycle: commits, lastRelease, nextRelease, releases, errors
-
-7. Environment Variables
-context.env holds all process.env variables for plugin logic
-
-8. Logger Usage
-context.logger.log(message)
-context.logger.warn(message)
-context.logger.success(message)
-context.logger.error(message)
-
-## Original Source
-Semantic-release Automated Publishing
-https://semantic-release.gitbook.io/semantic-release/
-
-## Digest of SEMANTIC_RELEASE
-
-# Semantic-release Automated Publishing
-
-Date Retrieved: 2024-06-18
-Data Size: 32771 bytes
-
-# API Signature
-
-```js
-const semanticRelease = require("semantic-release");
-const { WritableStreamBuffer } = require("stream-buffers");
-
-// Usage example
-const result = await semanticRelease(options, config);
-```
-
-# Core Options (options)
-
-- branches: Array<String|{name:String,prerelease:Boolean}>
-  Default: ["+([0-9])?(.{+([0-9]),x}).x","master","main","next","next-major",{name:"beta",prerelease:true},{name:"alpha",prerelease:true}]
-- repositoryUrl: String
-- extends: String|Array<String>
-- githubUrl: String
-- githubApiPathPrefix: String
-
-# Execution Configuration (config)
-
-- cwd: String  Default: process.cwd()
-- env: Object  Default: process.env
-- stdout: WritableStream  Default: process.stdout
-- stderr: WritableStream  Default: process.stderr
-
-# Result Object Structure
-
-- lastRelease: { version:String, gitHead:String, gitTag:String, channel:String }
-- commits: Array<{
-    commit:{ long:String, short:String },
-    tree:{ long:String, short:String },
-    author:{ name:String, email:String, date:String },
-    committer:{ name:String, email:String, date:String },
-    subject:String,
-    body:String,
-    hash:String,
-    message:String,
-    committerDate:String
-  }>
-- nextRelease: { type:String, version:String, gitHead:String, gitTag:String, notes:String, channel:String }
-- releases: Array<{
-    name?:String,
-    url?:String,
-    type:String,
-    gitHead:String,
-    version:String,
-    gitTag:String,
-    notes:String,
-    pluginName:String,
-    channel:String
-  }>
-
-# Plugin Development Lifecycle
-
-Lifecycles (in execution order):
-verifyConditions, analyzeCommits, verifyRelease, generateNotes, addChannel, prepare, publish, success, fail
-
-Each method signature:
-async function lifecycleName(pluginConfig:Object, context:Object) => Promise<void>
-
-# Context Object Keys by Lifecycle
-
-- Common (all): cwd, env, envCi, options, branches, commit, branch, main
-- analyzeCommits: adds commits:Array, lastRelease:Object
-- verifyRelease: adds nextRelease:Object
-- addChannel: same as verifyRelease
-- prepare: same as verifyRelease
-- publish: adds releases:Array
-- success/fail: success has releases:Array, fail has errors:Array
-
-# Environment Variables
-
-- context.env: process.env mapping
-- Example: if (context.env.GITHUB_TOKEN) { /*...*/ }
-
-# Logger
-
-Use context.logger:
-- logger.log(message:String)
-- logger.warn(message:String)
-- logger.success(message:String)
-- logger.error(message:String)
-
-# Troubleshooting Commands
-
-- npm dist-tags ls <package-name>
-- npx semantic-release --dry-run
-- npx semantic-release --no-ci
-
-
-## Attribution
-- Source: Semantic-release Automated Publishing
-- URL: https://semantic-release.gitbook.io/semantic-release/
-- License: MIT
-- Crawl Date: 2025-05-11T00:43:00.789Z
-- Data Size: 32771 bytes
-- Links Found: 1456
-
-## Retrieved
-2025-05-11
-sandbox/library/MINIMIST.md
-# sandbox/library/MINIMIST.md
-# MINIMIST
-
-## Crawl Summary
-Minimist@2.0.1: Zero-dependency Node.js CLI argument parser. Installation via npm. Single function minimist(args, opts) returns object with '_', parsed flags based on opts: string, boolean, alias, default, unknown. Supports negation (--no-flag), repeated flags accumulate arrays. Configuration options: string[], boolean[], alias mapping, default values, unknown callback.
-
-## Normalised Extract
-Table of Contents
-1. Installation
-2. Core Function
-3. Options Schema
-4. Parsing Behavior
-5. Use Cases
-
-1. Installation
-  npm install minimist@2.0.1 --save
-
-2. Core Function
-  minimist(args: string[], opts?: Opts): ParsedArgs
-
-3. Options Schema
-  Opts:
-    string?: string[]
-    boolean?: string[]
-    alias?: Record<string,string[]>
-    default?: Record<string,any>
-    unknown?: (arg:string)=>boolean
-
-4. Parsing Behavior
-  - Strings: cast values to String when key in string[]
-  - Booleans: cast values to Boolean when key in boolean[] or default boolean type
-  - Alias: keys in alias map propagate values
-  - Defaults: missing keys set to default
-  - Negation: --no-key sets key to false
-  - Arrays: repeated flags collect into array
-
-5. Use Cases
-  - Positional args in _ array
-  - Named flags -> direct properties
-  - Combined short flags expand
-  - Unknown filter via callback
-
-
-## Supplementary Details
-Parameter Values and Defaults:
-  string: []
-  boolean: []
-  alias: {}
-  default: {}
-  unknown: undefined
 Implementation Steps:
-  1. Call minimist with process.argv.slice(2) and opts
-  2. Internally split args at '=' into key/value
-  3. Apply type coercion per opts
-  4. Handle negation prefix 'no-'
-  5. Accumulate repeated flags
-  6. Return object with parsed results
-
+1. Install: `npm install ejs`
+2. Require module: `const ejs = require('ejs')`
+3. Render string: `ejs.render(templateString, data, options)`
+4. Render file: `ejs.renderFile(filePath, data, options, callback)`
 
 ## Reference Details
-Function Signature:
-  function minimist(args: string[], opts?: {
-    string?: string[];
-    boolean?: string[];
-    alias?: {[key:string]:string[]};
-    default?: {[key:string]:any};
-    unknown?: (arg:string)=>boolean;
-  }): {
-    _: string[];
-    [key:string]: any;
-  }
+API Specifications:
 
-Full Example:
-  const minimist = require('minimist')
-  const opts = { alias:{f:['file']}, default:{verbose:false}, boolean:['verbose'] }
-  const argv = minimist(process.argv.slice(2), opts)
-  // Usage: node index.js -f config.json --verbose
+Method: ejs.render(template:String, data:Object, options:Object):String
+- template: template source string
+- data: key/value pairs for template context
+- options:
+  - filename:String (for caching and errors)
+  - delimiter:String
+  - cache:Boolean
+  - compileDebug:Boolean
+  - rmWhitespace:Boolean
+Returns rendered HTML string.
+
+Method: ejs.renderFile(path:String, data:Object, options:Object, callback:Function(err, str))
+- path: filesystem path to `.ejs` file
+- data: context object
+- options: same as render
+- callback: receives error or rendered string
+
+Implementation Pattern:
+```
+const ejs = require('ejs');
+const options = {cache: true, filename: 'template.ejs'};
+ejs.renderFile('views/template.ejs', {user: 'Alice'}, options, (err, html) => {
+  if (err) console.error('Render error:', err);
+  else console.log(html);
+});
+```
 
 Best Practices:
-  - Declare boolean flags in boolean[] to prevent mis-parsing
-  - Use alias arrays for shorthand
-  - Provide default values to document expected options
+- Always set `filename` when using caching to avoid collisions.
+- Use LRU cache in production: `ejs.cache = new LRU({ max: 100 });`
+- Sanitize user input or use `<%- %>` only when safe.
 
 Troubleshooting:
-  Issue: Value starting with '-' parsed as flag
-  Fix: Prefix positional args after '--'
-    e.g. node app.js -- -value
+- Command: `DEBUG=ejs node app.js` enables detailed compile debug output.
+- Common Error: "Could not find include" requires correct relative `filename` in options.
+- Inspect compiled function: `const fn = ejs.compile(str, options); console.log(fn.toString());`
 
-  Issue: Unknown flags accepted
-  Fix: Provide unknown callback to filter or reject invalid options
-    unknown: (arg)=>{ throw Error('Unknown option ' + arg) }
+## Information Dense Extract
+Plain JS templating via `<% %>`, `<%= %>`, `<%- %>`. compileDebug:true includes source map comments. cache:true + filename:String => in-memory LRU caching. Options: delimiter:String, rmWhitespace:Boolean. Methods: render(string,data,opts):String; renderFile(path,data,opts,cb). Best: set filename for caching, use LRU of size N. Debug: DEBUG=ejs, fn=compile(src,opts).
+
+## Sanitised Extract
+Table of Contents:
+1. Plain JavaScript Templating
+2. Scriptlet Tag Syntax
+3. Template Compilation and Caching
+4. Debugging Error Reporting
+5. Community and Maintenance
+
+1. Plain JavaScript Templating
+Templates are authored entirely in JavaScript. No preprocessing or custom DSL required. Use any JS constructs directly.
+
+2. Scriptlet Tag Syntax
+Use '<% code %>' to execute statements without output. Use '<%= expression %>' to output escaped HTML. Use '<%- expression %>' to output unescaped raw HTML.
+
+3. Template Compilation and Caching
+EJS compiles '.ejs' files into JavaScript functions on first render. Set 'cache: true' to enable LRU caching by file path. Caching avoids re-compilation on subsequent renders.
+
+4. Debugging Error Reporting
+Errors thrown during template execution include template filename and line number. Enable 'compileDebug: true' to embed debug instrumentation in compiled functions.
+
+5. Community and Maintenance
+EJS is under active development. Report issues via GitHub. Use the latest npm release for bug fixes.
+
+## Original Source
+EJS
+https://ejs.co/
+
+## Digest of EJS_FEATURES
+
+# EJS Core Features
+
+## Use plain JavaScript
+We love JavaScript. It's a totally friendly language. All templating languages grow to be Turing-complete. Cut out the middle-man and use JS directly in your templates.
+
+## Fast development time
+No need to learn custom syntax or preprocess data. Templates are authored as plain JavaScript within scriptlet tags.
+
+## Simple syntax
+Embed JavaScript statements with `<% code %>` and output values with `<%= value %>`.
+
+## Speedy execution
+EJS compiles templates to intermediate JavaScript functions and caches them for reuse, leveraging V8 and other JS runtime optimizations.
+
+## Easy debugging
+Runtime errors in templates surface as JavaScript exceptions with accurate template line numbers.
+
+## Active development
+EJS is maintained by an active community, with frequent updates and support channels.
+
+## Attribution
+- Source: EJS
+- URL: https://ejs.co/
+- License: MIT
+- Crawl Date: 2025-05-11T06:29:44.194Z
+- Data Size: 9176 bytes
+- Links Found: 33
+
+## Retrieved
+2025-05-11
+sandbox/library/HTTP_MODULE.md
+# sandbox/library/HTTP_MODULE.md
+# HTTP_MODULE
+
+## Crawl Summary
+http.createServer: options.allowHalfOpen=false, pauseOnConnect=false, returns http.Server.
+http.Server: extends net.Server. listen(port, hostname?, backlog?, callback?), close(callback?). Default maxHeadersCount=undefined, keepAliveTimeout=5000ms, headersTimeout=60000ms. Events: request, connection, close, error, listening, clientError.
+http.request: RequestOptions with protocol=http:, hostname=localhost, port=80, path='/', method=GET, headers={}, auth, agent=http.globalAgent, timeout (ms), family=4, signal, insecureHTTPParser=false. Returns ClientRequest. Callback on response.
+http.get: alias to http.request with auto-end.
+http.Agent: new Agent(options): keepAlive=false, keepAliveMsecs=1000ms, maxSockets=Infinity, maxFreeSockets=256, timeout=60000ms. Manages sockets: sockets, freeSockets. Methods: createConnection, destroy.
+ClientRequest: extends Writable. Methods: setHeader, getHeader, removeHeader, write, end, abort. Events: response, socket, timeout, error, close.
+IncomingMessage: extends Readable. Properties: httpVersion, headers, rawHeaders, trailers, rawTrailers, method, url, statusCode, statusMessage, socket. Events: data, end, close, aborted.
+
+## Normalised Extract
+Table of Contents
+1. http.createServer
+2. http.Server
+3. http.request
+4. http.get
+5. http.Agent
+6. http.ClientRequest
+7. http.IncomingMessage
+
+1. http.createServer
+Signature: http.createServer([options][, requestListener]) -> http.Server
+Options:
+  allowHalfOpen: boolean (default false)
+  pauseOnConnect: boolean (default false)
+  IncomingMessage: constructor (default http.IncomingMessage)
+  ServerResponse: constructor (default http.ServerResponse)
+requestListener: function(req, res)
+Returns: http.Server
+
+2. http.Server
+Extends net.Server
+Methods:
+  listen(port, hostname?, backlog?, callback?)
+  close(callback?)
+Properties:
+  maxHeadersCount: number (default undefined)
+  keepAliveTimeout: number (default 5000)
+  headersTimeout: number (default 60000)
+Events: request, connection, close, error, listening, clientError
+
+3. http.request
+Signature: http.request(options[, callback]) -> http.ClientRequest
+RequestOptions:
+  protocol: string (default "http:")
+  hostname: string (default "localhost")
+  port: number (default 80)
+  path: string (default "/")
+  method: string (default "GET")
+  headers: object (default {})
+  auth: string
+  agent: http.Agent (default http.globalAgent)
+  timeout: number
+  family: number (default 4)
+  signal: AbortSignal
+  insecureHTTPParser: boolean (default false)
+callback: function(res)
+Returns: http.ClientRequest
+
+4. http.get
+Alias of http.request that calls req.end() automatically
+
+5. http.Agent
+Constructor: new http.Agent([options])
+Options:
+  keepAlive: boolean (default false)
+  keepAliveMsecs: number (default 1000)
+  maxSockets: number (default Infinity)
+  maxFreeSockets: number (default 256)
+  timeout: number (default 60000)
+Properties:
+  maxSockets, maxFreeSockets, sockets, freeSockets
+Methods:
+  createConnection(options, callback)
+  destroy()
+
+6. http.ClientRequest
+Extends stream.Writable
+Methods:
+  setHeader(name, value)
+  getHeader(name)
+  removeHeader(name)
+  write(chunk, encoding?, callback?)
+  end([data], [encoding], [callback])
+  abort()
+Properties:
+  aborted: boolean
+  socket: net.Socket
+Events: response, socket, timeout, error, close
+
+7. http.IncomingMessage
+Extends stream.Readable
+Properties:
+  httpVersion, httpVersionMajor, httpVersionMinor
+  headers, rawHeaders
+  trailers, rawTrailers
+  method, url
+  statusCode, statusMessage
+  socket
+Events: data, end, close, aborted
+
+## Supplementary Details
+Server creation steps:
+1. Import module: const http = require('node:http');
+2. Create server: const server = http.createServer(listener);
+3. Configure: server.keepAliveTimeout = 10000; server.headersTimeout = 120000;
+4. Start: server.listen(8080, '0.0.0.0', () => console.log('Listening')); 
+5. Handle errors: server.on('error', err => console.error(err));
+
+Client request steps:
+1. Define RequestOptions object.
+2. Call http.request(options, resCallback).
+3. Set headers: req.setHeader('Content-Type', 'application/json');
+4. Handle events: req.on('error', err=>{}); req.on('timeout', ()=>{});
+5. Send data: req.write(payload);
+6. End: req.end();
+
+Agent pooling:
+const agent = new http.Agent({ keepAlive: true, maxSockets: 100 });
+Include agent in options: agent: agent
+agent.destroy() to close all sockets.
+
+Timeout tuning:
+Server.headersTimeout = 30000;
+Server.keepAliveTimeout = 5000;
+req.setTimeout(2000, ()=> req.abort());
+
+## Reference Details
+// Basic HTTP Server
+import { createServer } from 'node:http';
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('Hello World');
+});
+server.keepAliveTimeout = 10000;
+server.headersTimeout = 60000;
+server.listen(3000, '127.0.0.1', () => console.log('Server up'));
+
+// Client GET Request
+import { request } from 'node:http';
+const options = {
+  hostname: 'example.com', port: 80, path: '/api', method: 'GET',
+  headers: { 'Accept': 'application/json' }, timeout: 5000
+};
+const req = request(options, res => {
+  let data = '';
+  res.on('data', chunk => data += chunk);
+  res.on('end', () => console.log(JSON.parse(data)));
+});
+req.on('timeout', () => { req.abort(); });
+req.on('error', err => console.error('Request error', err));
+req.end();
+
+// Using custom Agent
+import { Agent } from 'node:http';
+const keepAliveAgent = new Agent({ keepAlive: true, keepAliveMsecs: 2000, maxSockets: 50 });
+options.agent = keepAliveAgent;
+
+// Best practices
+server.on('clientError', (err, socket) => {
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+// Troubleshooting
+// Test server: curl -v http://127.0.0.1:3000
+// Enable debug logs: NODE_DEBUG=http node server.js
 
 
 ## Information Dense Extract
-minimist(args:string[],opts?:{string?:string[];boolean?:string[];alias?:Record<string,string[]>;default?:Record<string,any>;unknown?:(arg:string)=>boolean;}):{_:string[];[key:string]:any} install@2.0.1 npm i minimist parse rules: string->String, boolean->Boolean, alias propagates, default fills, --no-key = false, repeat->array, unknown callback filter. Best: list flags in boolean, set defaults, use alias, handle negation, prefix positional with --.
+http.createServer(options?, listener) → Server  allowHalfOpen:false, pauseOnConnect:false
+Server.listen(port[,host[,backlog]][,cb]), close([cb]),  keepAliveTimeout:5000ms, headersTimeout:60000ms, events: request,connection,clientError
+http.request(opts) → ClientRequest  opts:{protocol,http:,hostname,localhost,port80,path'/',method'GET',headers{},auth,agent,timeout,family4,signal,insecureHTTPParser:false}
+http.get(...) auto-end
+http.Agent(opts) → Agent keepAlive:false,keepAliveMsecs1000ms,maxSockets∞,maxFreeSockets256,timeout60000ms sockets/freeSockets pools, methods:createConnection,destroy
+ClientRequest.setHeader,getHeader,removeHeader,write,end,abort; events:response,socket,timeout,error,close
+IncomingMessage props: httpVersion,headers,rawHeaders,trailers,rawTrailers,method,url,statusCode,statusMessage,socket; events:data,end,close,aborted
 
 ## Sanitised Extract
 Table of Contents
-1. Installation
-2. Core Function
-3. Options Schema
-4. Parsing Behavior
-5. Use Cases
+1. http.createServer
+2. http.Server
+3. http.request
+4. http.get
+5. http.Agent
+6. http.ClientRequest
+7. http.IncomingMessage
 
-1. Installation
-  npm install minimist@2.0.1 --save
+1. http.createServer
+Signature: http.createServer([options][, requestListener]) -> http.Server
+Options:
+  allowHalfOpen: boolean (default false)
+  pauseOnConnect: boolean (default false)
+  IncomingMessage: constructor (default http.IncomingMessage)
+  ServerResponse: constructor (default http.ServerResponse)
+requestListener: function(req, res)
+Returns: http.Server
 
-2. Core Function
-  minimist(args: string[], opts?: Opts): ParsedArgs
+2. http.Server
+Extends net.Server
+Methods:
+  listen(port, hostname?, backlog?, callback?)
+  close(callback?)
+Properties:
+  maxHeadersCount: number (default undefined)
+  keepAliveTimeout: number (default 5000)
+  headersTimeout: number (default 60000)
+Events: request, connection, close, error, listening, clientError
 
-3. Options Schema
-  Opts:
-    string?: string[]
-    boolean?: string[]
-    alias?: Record<string,string[]>
-    default?: Record<string,any>
-    unknown?: (arg:string)=>boolean
+3. http.request
+Signature: http.request(options[, callback]) -> http.ClientRequest
+RequestOptions:
+  protocol: string (default 'http:')
+  hostname: string (default 'localhost')
+  port: number (default 80)
+  path: string (default '/')
+  method: string (default 'GET')
+  headers: object (default {})
+  auth: string
+  agent: http.Agent (default http.globalAgent)
+  timeout: number
+  family: number (default 4)
+  signal: AbortSignal
+  insecureHTTPParser: boolean (default false)
+callback: function(res)
+Returns: http.ClientRequest
 
-4. Parsing Behavior
-  - Strings: cast values to String when key in string[]
-  - Booleans: cast values to Boolean when key in boolean[] or default boolean type
-  - Alias: keys in alias map propagate values
-  - Defaults: missing keys set to default
-  - Negation: --no-key sets key to false
-  - Arrays: repeated flags collect into array
+4. http.get
+Alias of http.request that calls req.end() automatically
 
-5. Use Cases
-  - Positional args in _ array
-  - Named flags -> direct properties
-  - Combined short flags expand
-  - Unknown filter via callback
+5. http.Agent
+Constructor: new http.Agent([options])
+Options:
+  keepAlive: boolean (default false)
+  keepAliveMsecs: number (default 1000)
+  maxSockets: number (default Infinity)
+  maxFreeSockets: number (default 256)
+  timeout: number (default 60000)
+Properties:
+  maxSockets, maxFreeSockets, sockets, freeSockets
+Methods:
+  createConnection(options, callback)
+  destroy()
+
+6. http.ClientRequest
+Extends stream.Writable
+Methods:
+  setHeader(name, value)
+  getHeader(name)
+  removeHeader(name)
+  write(chunk, encoding?, callback?)
+  end([data], [encoding], [callback])
+  abort()
+Properties:
+  aborted: boolean
+  socket: net.Socket
+Events: response, socket, timeout, error, close
+
+7. http.IncomingMessage
+Extends stream.Readable
+Properties:
+  httpVersion, httpVersionMajor, httpVersionMinor
+  headers, rawHeaders
+  trailers, rawTrailers
+  method, url
+  statusCode, statusMessage
+  socket
+Events: data, end, close, aborted
 
 ## Original Source
-minimist Argument Parser
-https://github.com/substack/minimist
+Node.js API v20
+https://nodejs.org/docs/latest-v20.x/api/
 
-## Digest of MINIMIST
+## Digest of HTTP_MODULE
 
-# MINIMIST 2.0.1 Documentation (Retrieved 2023-10-12)
+# HTTP Module
 
-## 1. Overview
+## http.createServer([options][, requestListener]) -> http.Server
 
-Minimist is a zero-dependency argument parser for Node.js. It converts an array of strings into an object with key/value pairs.
+options.allowHalfOpen <boolean> Default: false
+options.pauseOnConnect <boolean> Default: false
+options.IncomingMessage <constructor> Default: http.IncomingMessage
+options.ServerResponse <constructor> Default: http.ServerResponse
+requestListener(req: http.IncomingMessage, res: http.ServerResponse) invoked per request
+Returns: http.Server
 
-## 2. Installation
+## Class: http.Server
+Extends net.Server
 
-```bash
-npm install minimist@2.0.1 --save
-```
+Methods:
+  listen(port: number, hostname?: string, backlog?: number, callback?: ()=>void): this
+  close(callback?: (err?: Error)=>void): this
 
-## 3. Usage
+Properties:
+  maxHeadersCount <number> Default: undefined (no limit)
+  keepAliveTimeout <number> Default: 5000 ms
+  headersTimeout <number> Default: 60000 ms
 
-```js
-const minimist = require('minimist')
+Events:
+  'request'(req: IncomingMessage, res: ServerResponse)
+  'connection'(socket: net.Socket)
+  'close'
+  'error'(err: Error)
+  'listening'
+  'clientError'(err: Error, socket: net.Socket)
 
-const argv = minimist(process.argv.slice(2), {
-  string: ['name'],
-  boolean: ['help', 'verbose'],
-  alias: { h: 'help', v: 'verbose' },
-  default: { verbose: false }
-})
+## http.request(options[, callback]) -> http.ClientRequest
 
-// argv: { _: [], name: 'Alice', help: false, verbose: false }
-```
+options.protocol <string> Default: 'http:'
+options.hostname <string> Default: 'localhost'
+options.port <number> Default: 80
+options.path <string> Default: '/'
+options.method <string> Default: 'GET'
+options.headers <object> Default: {}
+options.auth <string> Optional user:password
+options.agent <http.Agent> Default: http.globalAgent
+options.timeout <number> Socket timeout in ms
+options.family <number> IP version (4 or 6) Default: 4
+options.signal <AbortSignal> Optional
+options.insecureHTTPParser <boolean> Default: false
+Returns: http.ClientRequest
+callback(res: IncomingMessage)
 
-## 4. API Reference
+## http.get(options[, callback]) -> http.ClientRequest
+Alias for http.request with auto call to req.end()
 
-### minimist(args: string[], opts?: Opts): ParsedArgs
+## Class: http.Agent
 
-Opts:
-  string?: string[]                 Properties to always cast to String
-  boolean?: string[]                Properties to always cast to Boolean
-  alias?: { [key: string]: string[] }  Alias mapping
-  default?: { [key: string]: any }     Default values
-  unknown?: (arg: string) => boolean   Callback for unknown args
+Constructor:
+  new http.Agent([options])
 
-ParsedArgs:
-  _: string[]       Non-option arguments
-  [key: string]: any
+AgentOptions:
+  keepAlive <boolean> Default: false
+  keepAliveMsecs <number> Default: 1000 ms
+  maxSockets <number> Default: Infinity
+  maxFreeSockets <number> Default: 256
+  timeout <number> Default: 60000 ms (free socket timeout)
 
-## 5. Configuration Options
+Properties:
+  defaultPort <number>
+  protocol <string>
+  maxSockets <number>
+  maxFreeSockets <number>
+  sockets <object> Active sockets by origin
+  freeSockets <object> Idle sockets by origin
 
-- string: Force parse arguments as strings.
-- boolean: Force parse arguments as booleans.
-- alias: Create aliases for options.
-- default: Set default values.
-- unknown: Filter unknown arguments.
+Methods:
+  createConnection(options: object, callback: Function)
+  destroy()
 
-## 6. Examples
+## Class: http.ClientRequest
+Extends stream.Writable
 
-1. Positional and Named Arguments
-```bash
-node app.js input.txt --name=Bob -v
-``` 
-```js
-// argv: { _: ['input.txt'], name: 'Bob', v: true }
-```
+Methods:
+  setHeader(name: string, value: string|number|string[]): void
+  getHeader(name: string): string|number|string[]|undefined
+  removeHeader(name: string): void
+  write(chunk: Buffer|string|Uint8Array, encoding?: string, callback?: Function): boolean
+  end([data: Buffer|string], [encoding: string], [callback: Function]): void
+  abort(): void
 
-2. Negated Booleans
-```bash
-node app.js --no-verbose
-```
-```js
-// argv: { _: [], verbose: false }
-```
+Properties:
+  aborted <boolean>
+  socket <net.Socket>
 
-## 7. Edge Cases
+Events:
+  'response'(res: IncomingMessage)
+  'socket'(socket: net.Socket)
+  'timeout'
+  'error'(err: Error)
+  'close'
 
-- Values beginning with `-` are parsed as options unless preceded by `--`.
-- Repeated flags accumulate in arrays.
+## Class: http.IncomingMessage
+Extends stream.Readable
 
-## 8. Troubleshooting
+Properties:
+  httpVersion <string>
+  httpVersionMajor <number>
+  httpVersionMinor <number>
+  headers <object>
+  rawHeaders <string[]>
+  trailers <object>
+  rawTrailers <string[]>
+  method <string> (requests)
+  url <string> (requests)
+  statusCode <number> (responses)
+  statusMessage <string> (responses)
+  socket <net.Socket>
 
-### Unexpected Option Parsing
-Command: `node app.js -abc`
-Expected: `a: true, b: true, c: true`
-If combined flags not split, ensure boolean array includes all single-letter flags.
-
-
+Events:
+  'data'(chunk: Buffer|string)
+  'end'
+  'close'
+  'aborted'
 
 
 ## Attribution
-- Source: minimist Argument Parser
-- URL: https://github.com/substack/minimist
+- Source: Node.js API v20
+- URL: https://nodejs.org/docs/latest-v20.x/api/
 - License: MIT
-- Crawl Date: 2025-05-11T00:40:18.990Z
-- Data Size: 0 bytes
-- Links Found: 0
+- Crawl Date: 2025-05-11T04:58:01.741Z
+- Data Size: 3182246 bytes
+- Links Found: 585
 
 ## Retrieved
 2025-05-11

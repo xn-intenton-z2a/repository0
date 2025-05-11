@@ -1,67 +1,144 @@
-sandbox/source/plot.js
-# sandbox/source/plot.js
-// sandbox/source/plot.js
+sandbox/source/main.js
+# sandbox/source/main.js
+import minimist from "minimist";
+import MarkdownIt from "markdown-it";
+import { readFile, writeFile } from "fs/promises";
+import { fileURLToPath } from "url";
+import { Configuration, OpenAIApi } from "openai";
+
+const __filename = fileURLToPath(import.meta.url);
 
 /**
- * Generates an SVG string representing a quadratic function y = ax^2 + bx + c.
- * @param {number} a
- * @param {number} b
- * @param {number} c
- * @param {object} [options]
- * @param {number} [options.width=200] - SVG width in pixels
- * @param {number} [options.height=100] - SVG height in pixels
- * @param {number} [options.xMin=-10] - Minimum x value
- * @param {number} [options.xMax=10] - Maximum x value
- * @returns {string} SVG markup
+ * Prints the usage message for the CLI.
+ * @returns {string} Usage instructions.
  */
-export function plotQuadratic(a, b, c, options = {}) {
-  const { width = 200, height = 100, xMin = -10, xMax = 10 } = options;
-  const dx = (xMax - xMin) / width;
-  const points = Array.from({ length: width + 1 }, (_, i) => {
-    const x = xMin + i * dx;
-    const y = a * x * x + b * x + c;
-    return { x: i, y };
-  });
-  // Compute y range for scaling
-  const ys = points.map(p => p.y);
-  const yMin = Math.min(...ys);
-  const yMax = Math.max(...ys);
-  // Scale and invert y to SVG coordinate space
-  const scaledPoints = points.map(p => {
-    const scaledY = height - ((p.y - yMin) / (yMax - yMin || 1)) * height;
-    return `${p.x},${scaledY}`;
-  });
-  const polylinePoints = scaledPoints.join(" ");
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><polyline points="${polylinePoints}" stroke="black" fill="none"/></svg>`;
+export function usage() {
+  return [
+    "Usage:",
+    "  node main.js convert <input.md> [-o <output.html>]",
+    "  node main.js summarize <input.md> [-o <output.txt>]"
+  ].join("\n");
 }
 
 /**
- * Generates an SVG string representing a sine wave y = amplitude * sin(frequency * x).
- * @param {number} amplitude
- * @param {number} frequency
- * @param {object} [options]
- * @param {number} [options.width=200] - SVG width in pixels
- * @param {number} [options.height=100] - SVG height in pixels
- * @param {number} [options.xMin=0] - Minimum x value
- * @param {number} [options.xMax=2 * Math.PI] - Maximum x value
- * @returns {string} SVG markup
+ * Converts a Markdown file to HTML.
+ * @param {string} inputPath - Path to the input Markdown file.
+ * @param {string} [outputPath] - Optional path to write the output HTML file.
+ * @returns {Promise<string>} The rendered HTML string.
+ * @throws {Error} If reading or writing files fails.
  */
-export function plotSine(amplitude, frequency, options = {}) {
-  const { width = 200, height = 100, xMin = 0, xMax = 2 * Math.PI } = options;
-  const dx = (xMax - xMin) / width;
-  const points = Array.from({ length: width + 1 }, (_, i) => {
-    const x = xMin + i * dx;
-    const y = amplitude * Math.sin(frequency * x);
-    return { x: i, y };
-  });
-  // Scale and invert y to SVG coordinate space (centered vertically)
-  const scaledPoints = points.map(p => {
-    const scaledY = height / 2 - (p.y / amplitude) * (height / 2);
-    return `${p.x},${scaledY}`;
-  });
-  // Build path data
-  const d = scaledPoints.map((pt, idx) => (idx === 0 ? `M${pt}` : `L${pt}`)).join(' ');
-  // Append explicit peak points to ensure exact 0 and max values in y
-  const augmentedD = `${d} M0,0 M0,${height}`;
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><path d="${augmentedD}" stroke="blue" fill="none"/></svg>`;
+export async function convert(inputPath, outputPath) {
+  if (!inputPath) {
+    throw new Error("No input file specified");
+  }
+  let data;
+  try {
+    data = await readFile(inputPath, "utf8");
+  } catch (error) {
+    throw new Error(`Failed to read input file: ${error.message}`);
+  }
+  const md = new MarkdownIt();
+  const html = md.render(data);
+  if (outputPath) {
+    try {
+      await writeFile(outputPath, html, "utf8");
+    } catch (error) {
+      throw new Error(`Failed to write output file: ${error.message}`);
+    }
+  }
+  return html;
+}
+
+/**
+ * Generates a bullet-point summary of a Markdown file using OpenAI API.
+ * @param {string} inputPath - Path to the input Markdown file.
+ * @param {string} [outputPath] - Optional path to write the summary file.
+ * @returns {Promise<string>} The summary text.
+ * @throws {Error} For missing API key or file I/O errors.
+ */
+export async function summarize(inputPath, outputPath) {
+  if (!inputPath) {
+    throw new Error("No input file specified");
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Missing OpenAI API key");
+  }
+  let data;
+  try {
+    data = await readFile(inputPath, "utf8");
+  } catch (error) {
+    throw new Error(`Failed to read input file: ${error.message}`);
+  }
+  const config = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAIApi(config);
+  let summary;
+  try {
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful assistant that produces a concise bullet-point summary of the provided Markdown text."
+        },
+        { role: "user", content: data }
+      ]
+    });
+    summary = response.data.choices[0].message.content.trim();
+  } catch (error) {
+    throw new Error(`Failed to summarize content: ${error.message}`);
+  }
+  if (outputPath) {
+    try {
+      await writeFile(outputPath, summary, "utf8");
+    } catch (error) {
+      throw new Error(`Failed to write output file: ${error.message}`);
+    }
+  }
+  return summary;
+}
+
+/**
+ * Main entry point for CLI arguments.
+ * @param {string[]} args - Command-line arguments (excluding node and script path).
+ * @returns {Promise<string>} The rendered HTML or summary if successful.
+ * @throws {Error} For invalid command or missing input.
+ */
+export async function main(args) {
+  const [cmd, ...rest] = args;
+  const argv = minimist(rest, { alias: { o: "output" }, string: ["output"] });
+  if (cmd === "convert") {
+    const input = argv._[0];
+    const output = argv.output;
+    if (!input) {
+      throw new Error(usage());
+    }
+    return await convert(input, output);
+  }
+  if (cmd === "summarize") {
+    const input = argv._[0];
+    const output = argv.output;
+    if (!input) {
+      throw new Error(usage());
+    }
+    return await summarize(input, output);
+  }
+  throw new Error(usage());
+}
+
+// CLI wrapper: only run when executed directly
+if (process.argv[1] === __filename) {
+  const args = process.argv.slice(2);
+  main(args)
+    .then((result) => {
+      const argv = minimist(args, { alias: { o: "output" }, string: ["output"] });
+      if (!argv.output) {
+        process.stdout.write(result);
+      }
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error(err.message);
+      process.exit(1);
+    });
 }

@@ -1,98 +1,102 @@
-sandbox/tests/plot.test.js
-# sandbox/tests/plot.test.js
-// sandbox/tests/plot.test.js
+sandbox/tests/md-to-html.test.js
+# sandbox/tests/md-to-html.test.js
 import { describe, test, expect } from "vitest";
-import { plotQuadratic, plotSine } from "../source/plot.js";
+import { convert, main, usage } from "../../sandbox/source/main.js";
+import { readFile, unlink } from "fs/promises";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
-describe("plotQuadratic", () => {
-  test("returns an SVG string with a <polyline>", () => {
-    const svg = plotQuadratic(1, 0, 0);
-    expect(typeof svg).toBe("string");
-    expect(svg.startsWith("<svg")).toBe(true);
-    expect(svg.includes("<polyline")).toBe(true);
-    expect(svg.endsWith("</svg>")).toBe(true);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixtureDir = join(__dirname, "fixtures");
+const sampleMd = join(fixtureDir, "sample.md");
+
+describe("Markdown to HTML conversion", () => {
+  test("convert returns HTML string for stdout", async () => {
+    const html = await convert(sampleMd);
+    expect(html).toContain("<h1>Sample</h1>");
+    expect(html).toContain("<p>This is a sample markdown file.</p>");
   });
 
-  test("default behavior: should have width + 1 points and include proper y scaling", () => {
-    const width = 200;
-    const height = 100;
-    const svg = plotQuadratic(1, 0, 0);
-    const match = svg.match(/<polyline[^>]+points="([^"]+)"/);
-    expect(match).not.toBeNull();
-    const pointsStr = match[1];
-    const points = pointsStr.trim().split(" ");
-    // Should have width + 1 points
-    expect(points.length).toBe(width + 1);
-    // Parse y pixel values
-    const yPixels = points.map(p => parseFloat(p.split(",")[1]));
-    expect(yPixels).toContain(0);
-    expect(yPixels).toContain(height);
+  test("convert writes to output file when -o flag is used", async () => {
+    const output = join(fixtureDir, "out.html");
+    try {
+      await unlink(output);
+    } catch {}
+    await convert(sampleMd, output);
+    const html = await readFile(output, "utf8");
+    expect(html).toContain("<p>This is a sample markdown file.</p>");
   });
 
-  test("custom width and range: proper point count and boundary scaling", () => {
-    const width = 100;
-    const height = 100;
-    const xMin = 5;
-    const xMax = 15;
-    const svg = plotQuadratic(1, 0, 0, { width, xMin, xMax });
-    const match = svg.match(/<polyline[^>]+points="([^"]+)"/);
-    expect(match).not.toBeNull();
-    const points = match[1].trim().split(" ");
-    expect(points.length).toBe(width + 1);
-    // First and last points: pixel X should be 0 and width
-    const first = points[0];
-    const last = points[points.length - 1];
-    expect(first.startsWith("0,")).toBe(true);
-    expect(last.startsWith(`${width},`)).toBe(true);
-    // Compute expected y pixel boundaries
-    // yMin at xMin: 5^2 = 25, yMax at xMax: 15^2 = 225
-    const yMin = 25;
-    const yMax = 225;
-    const expectedMinYPixel = height - ((yMin - yMin) / (yMax - yMin)) * height;
-    const expectedMaxYPixel = height - ((yMax - yMin) / (yMax - yMin)) * height;
-    // expectedMinYPixel = height, expectedMaxYPixel = 0
-    expect(parseFloat(first.split(",")[1])).toBeCloseTo(expectedMinYPixel);
-    expect(parseFloat(last.split(",")[1])).toBeCloseTo(expectedMaxYPixel);
+  test("convert throws error for missing input file", async () => {
+    await expect(convert("nonexistent.md")).rejects.toThrow("Failed to read input file");
+  });
+
+  test("main throws error and prints usage when no arguments", async () => {
+    await expect(main([])).rejects.toThrow(usage());
   });
 });
+sandbox/tests/summarize.test.js
+# sandbox/tests/summarize.test.js
+import { describe, beforeEach, test, expect, vi } from "vitest";
+import { readFile, unlink } from "fs/promises";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 
-describe("plotSine", () => {
-  test("returns an SVG string with a <path>", () => {
-    const svg = plotSine(1, 1);
-    expect(typeof svg).toBe("string");
-    expect(svg.startsWith("<svg")).toBe(true);
-    expect(svg.includes("<path")).toBe(true);
-    expect(svg.endsWith("</svg>")).toBe(true);
+// Mock OpenAI client
+vi.mock("openai", () => {
+  return {
+    Configuration: vi.fn(),
+    OpenAIApi: vi.fn().mockImplementation(() => {
+      return {
+        createChatCompletion: vi.fn().mockResolvedValue({
+          data: {
+            choices: [
+              {
+                message: {
+                  content: "Test summary"
+                }
+              }
+            ]
+          }
+        })
+      };
+    })
+  };
+});
+
+import { summarize, main, usage } from "../../sandbox/source/main.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixtureDir = join(__dirname, "fixtures");
+const sampleMd = join(fixtureDir, "sample.md");
+const summaryText = "Test summary";
+
+describe("Summarize command", () => {
+  beforeEach(() => {
+    process.env.OPENAI_API_KEY = "test-key";
   });
 
-  test("default behavior: path starts with M0, and contains width 'L' commands", () => {
-    const width = 200;
-    const svg = plotSine(1, 1);
-    const match = svg.match(/<path[^>]+d="([^"]+)"/);
-    expect(match).not.toBeNull();
-    const d = match[1];
-    expect(d.startsWith("M0,")).toBe(true);
-    const lCount = (d.match(/L/g) || []).length;
-    expect(lCount).toBe(width);
+  test("summarize returns summary string for stdout", async () => {
+    const summary = await summarize(sampleMd);
+    expect(summary).toBe(summaryText);
   });
 
-  test("custom amplitude, frequency, width, and height: vertical centering and peak values", () => {
-    const amplitude = 2;
-    const frequency = 2;
-    const width = 100;
-    const height = 50;
-    const svg = plotSine(amplitude, frequency, { width, height });
-    const match = svg.match(/<path[^>]+d="([^"]+)"/);
-    expect(match).not.toBeNull();
-    const d = match[1];
-    // Extract y-values from commands
-    const coordMatches = [...d.matchAll(/[ML](\d+),(\d+(?:\.\d+)?)/g)];
-    const yValues = coordMatches.map(m => parseFloat(m[2]));
-    // Sine wave should be centered at height/2 = 25
-    const center = height / 2;
-    expect(yValues).toContain(center);
-    // Peaks at 0 and height
-    expect(Math.min(...yValues)).toBeCloseTo(0);
-    expect(Math.max(...yValues)).toBeCloseTo(height);
+  test("summarize writes to output file when -o flag is used", async () => {
+    const output = join(fixtureDir, "summary.txt");
+    try {
+      await unlink(output);
+    } catch {}
+    const summary = await summarize(sampleMd, output);
+    const content = await readFile(output, "utf8");
+    expect(content).toBe(summaryText);
+  });
+
+  test("main throws error for missing input file", async () => {
+    await expect(main(["summarize"])).rejects.toThrow(usage());
+  });
+
+  test("summarize throws error when API key missing", async () => {
+    delete process.env.OPENAI_API_KEY;
+    await expect(summarize(sampleMd)).rejects.toThrow("Missing OpenAI API key");
   });
 });
