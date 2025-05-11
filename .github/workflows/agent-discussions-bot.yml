@@ -53,7 +53,7 @@ on:
     #- cron: '4 8 */28 * *' # schedule-1
     - cron: '4 8,16 * * *' # schedule-2
     #- cron: '4 */4 * * *' # schedule-3
-    #- cron: '14,44 * * * *' # schedule-4
+    #- cron: '4,34 * * * *' # schedule-4
 
 env:
   defaultDiscussionBody: 'Summarise the current state of the repository, activity since the last update and how we are tracking against the mission and recommends next steps.'
