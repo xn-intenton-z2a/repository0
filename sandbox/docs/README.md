@@ -14,7 +14,8 @@
 `sandbox/source/main.js`
 
 **Supported Flags**  
-- `--mission`: Print the mission statement.  
+- `--help`: Show this help message with available options and usage examples.  
+- `--mission`: Print the repository mission statement.  
 - `--version`: Print the package version.  
 - No flags: Echo provided arguments.
 
@@ -47,33 +48,38 @@
    ```
 
 4. **Use the CLI:**
+   - Show help message:
+     ```bash
+     npm run start -- --help
+     ```
+     Example output:
+     ```text
+     repository0: A CLI demo of our agentic workflows.
+
+     Usage: sandbox/source/main.js [options] [arguments]
+
+     Options:
+       --help      Show this help message
+       --mission   Print the repository mission statement
+       --version   Print the package version
+
+     Examples:
+       npm run start -- --help
+       npm run start -- --mission
+       npm run start -- foo bar
+     ```
+
    - Display the mission statement:
      ```bash
      npm run start -- --mission
      ```
-     Example output:
-     ```
-     # Mission Statement
-     
-     `repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development. The mission of the contributors, human or automated, is to showcase the workflow capabilities of the repository.
-     ```
-
    - Display the version:
      ```bash
      npm run start -- --version
      ```
-     Example output:
-     ```
-     2.1.0-0
-     ```
-
    - Echo arguments:
      ```bash
      npm run start -- foo bar
-     ```
-     Example output:
-     ```
-     Run with: ["foo","bar"]
      ```
 
 ## Contributing

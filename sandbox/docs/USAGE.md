@@ -1,6 +1,6 @@
 # CLI Usage
 
-This repository provides a command-line interface (CLI) with options to display the mission statement, show the version, or echo arguments.
+This repository provides a command-line interface (CLI) with options to display the mission statement, show the version, display help, or echo arguments.
 
 ## Display Mission Statement
 
@@ -44,4 +44,30 @@ Example output:
 
 ```
 Run with: ["foo","bar"]
+```
+
+## Help
+
+Invoke the CLI with the `--help` flag to print the help message:
+
+```bash
+npm run start -- --help
+```
+
+Example output:
+
+```text
+repository0: A CLI demo of our agentic workflows.
+
+Usage: sandbox/source/main.js [options] [arguments]
+
+Options:
+  --help      Show this help message
+  --mission   Print the repository mission statement
+  --version   Print the package version
+
+Examples:
+  npm run start -- --help
+  npm run start -- --mission
+  npm run start -- foo bar
 ```
