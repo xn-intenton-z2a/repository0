@@ -31,7 +31,7 @@ env:
 jobs:
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.3'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -77,7 +77,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-run-script-and-commit-to-branch.yml@6.4.3'
     with:
       #script: 'npm run linting "." -- --max-warnings=10'
       script: 'npm run linting ${{ needs.extract-paths.outputs.allPaths }}'
@@ -94,7 +94,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.4.3'
     with:
       issueTitle: 'Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10'
       issueBody: ${{ needs.linting.outputs.scriptOutput }}
@@ -107,7 +107,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.3'
     with:
       issueNumber:  ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'ready'
@@ -127,7 +127,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@6.4.3'
     with:
       issueNumber: ${{ needs.select-issue-to-ready.outputs.issueNumber }}
     secrets:
@@ -142,7 +142,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.3'
     with:
       issueNumber:  ${{ needs.create-issue.outputs.issueNumber || needs.ready-issue.outputs.issueNumber }}
       selectionLabel: 'ready'
@@ -163,7 +163,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.4.3'
     with:
       issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
@@ -181,48 +181,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.4.3'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  select-next-issue:
-    needs:
-      - issue-to-code
-    if: always()
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.2'
-    with:
-      issueNumber: ''
-      selectionLabel: 'ready'
-      filterLabel: 'in-progress'
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  stats:
-    needs:
-      - select-next-issue
-      - create-issue
-      - agentic-lib
-    if: always()
-    permissions:
-      contents: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.4.2'
-    with:
-      cache: 'npm'
-      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
-      lastActivityName: "${{ github.workflow }}"
-      lastActivityBranchName: "${{ github.ref_name }}"
-      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
-      public: ${{ needs.agentic-lib.outputs.docRoot }}
-      s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
-      s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
-      iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
-      iamStatsBucketWriterRoleArn: "${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}"
-      iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}

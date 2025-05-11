@@ -8,6 +8,17 @@ run-name: "publish stats [${{ github.ref_name }}] [${{ github.event.head_commit.
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - flow-feature-development
+      - seed-repository
+    types:
+      - completed
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   schedule:
     #- cron: '29 */12 * * *' # schedule-1
     - cron: '29 */4 * * *' # schedule-2
@@ -28,7 +39,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.3'
     with:
       issueNumber: ''
       selectionLabel: 'ready'
@@ -43,7 +54,7 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.4.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.4.3'
     with:
       cache: 'npm'
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
