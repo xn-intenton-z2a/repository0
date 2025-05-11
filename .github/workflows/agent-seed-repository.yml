@@ -41,10 +41,21 @@ env:
 
 jobs:
 
+  uuid:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.1'
+    needs:
+      - uuid
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -180,14 +191,10 @@ jobs:
               echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
 
-      - name: Set schedule from agentic-lib for all workflows
-        shell: bash
+      - name: Log seed in the intentïon file.
         run: |
-          ./scripts/deactivate-schedule.sh 1
-          ./scripts/deactivate-schedule.sh 2
-          ./scripts/deactivate-schedule.sh 3
-          ./scripts/deactivate-schedule.sh 4
-          ./scripts/activate-schedule.sh ${{ needs.agentic-lib.outputs.scheduleNumber }}
+          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "seed repository at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
         id: commit
