@@ -1,6 +1,6 @@
 # CLI Usage
 
-This repository provides a command-line interface (CLI) with an option to display the mission statement.
+This repository provides a command-line interface (CLI) with options to display the mission statement and version.
 
 ## Display Mission Statement
 
@@ -17,6 +17,19 @@ Example output:
 `repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`.
 Its primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
 ...
+```
+
+## Display Version
+
+Run the CLI with the `--version` flag to print the current package version:
+
+```bash
+npm run start -- --version
+```
+
+Example output:
+```
+2.1.0-0
 ```
 
 ## Default Behavior
