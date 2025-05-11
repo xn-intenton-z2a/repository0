@@ -413,7 +413,7 @@ jobs:
           git commit -m "Add discussion seed trace" || echo "No changes to commit"
           git push
 
-  feature-development-flow:
+  feature-maintenance-flow:
     needs:
       - process-discussion-post
       - generate-response
@@ -463,6 +463,7 @@ jobs:
       - process-discussion-post
       - generate-response
       - agentic-lib
+      - feature-maintenance-flow
     if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
     runs-on: ubuntu-latest
     steps:
@@ -501,6 +502,7 @@ jobs:
   #    - seed-repository
   #    - agentic-lib
   #    - feature-development-flow
+  #    - feature-maintenance-flow
   #    - declare-status-and-halt
   #  if: always()
   #  permissions:
