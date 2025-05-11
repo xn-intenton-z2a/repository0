@@ -4,7 +4,7 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: discussions-bot
-concurrency: agentic-lib-commit-main
+concurrency: agentic-lib-bot
 run-name: "discussions bot"
 
 on:
@@ -229,6 +229,8 @@ jobs:
       discussionLabels: ${{ needs.process-discussion-post.outputs.labels }}
       discussionReactions: ${{ needs.process-discussion-post.outputs.reactions }}
       workflowPathGlob: '.github/workflows/agent-discussions-bot.yml'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
       buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
       testScript: ${{ needs.agentic-lib.outputs.testScript }}
       mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
