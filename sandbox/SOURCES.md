@@ -5,12 +5,12 @@ Markdown-it is a high-performance, pluggable Markdown parser and renderer for Ja
 
 # markdown-it-github
 ## https://github.com/markdown-it/markdown-it-github
-This plugin extends markdown-it to support GitHub-Flavored Markdown (GFM) features such as tables, task lists, autolinks, and strikethrough. It demonstrates how to integrate syntax extensions seamlessly with the core parser and how to maintain compatibility with GitHub’s rendering engine. Last updated: 5 July 2023. Authority: Official plugin repository under markdown-it organization.
+This plugin extends markdown-it to support GitHub-Flavored Markdown (GFM) features such as tables, task lists, autolinks, and strikethrough. It demonstrates how to integrate syntax extensions seamlessly with the core parser and maintain compatibility with GitHub’s rendering engine. Last updated: 5 July 2023. Authority: Official plugin repository under markdown-it organization.
 ## MIT
 
 # Minimist
 ## https://www.npmjs.com/package/minimist
-Minimist is a zero-dependency CLI argument parser for Node.js, enabling alias definitions, default values, boolean handling, and simple access via the returned `argv` object. This source provides actionable guidance on parsing strategies, edge-case handling (e.g., `--` separators), and performance considerations for high-throughput CLIs. Last published: 3 May 2023. Authority: 4M+ weekly downloads on npm.
+Minimist is a zero-dependency CLI argument parser for Node.js, enabling alias definitions, default values, boolean handling, and simple access via the returned `argv` object. The documentation provides actionable guidance on parsing strategies, edge-case handling (e.g., `--` separators), and performance considerations for high-throughput CLIs. Last published: 3 May 2023. Authority: 4M+ weekly downloads on npm.
 ## MIT
 
 # Node.js API v20
@@ -28,9 +28,14 @@ This guide explains how to modularize CI/CD by invoking composite workflows acro
 The agentic-lib repository contains reusable GitHub Actions workflows that automate issue creation, code updates, and CI/CD orchestration via LLM calls. It details workflow interfaces, scheduling patterns, environment configuration, and security considerations for self-evolving code systems. Last commit: 15 April 2024. Authority: Intentïon organization.
 ## Apache-2.0
 
-# GitHub REST API: Issues
-## https://docs.github.com/en/rest/issues/issues
-A comprehensive reference for interacting with GitHub issues via REST endpoints, including creating, updating, labeling, and querying issues and comments. Essential for automating issue-based workflows in agentic-lib. Last updated: 27 March 2024. Authority: GitHub Docs.
+# GitHub REST API
+## https://docs.github.com/en/rest
+Comprehensive reference for interacting with GitHub REST endpoints for issues, actions runs, markdown rendering, artifact retrieval, secret management, and workflow dispatch events. It details endpoint URIs, request/response schemas, authentication patterns, pagination strategies, error codes, and rate-limit headers. Essential for programmatically managing GitHub resources in automated workflows. Last updated: consolidated view as of April 2024. Authority: GitHub Docs.
+## CC BY-SA 4.0
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+GraphQL API documentation for GitHub, detailing schema types, query structures, and mutation operations for issues, pull requests, workflows, and custom data models. Offers powerful, efficient data fetching patterns compared to REST with examples on pagination, batching, and combining resource types. Last updated: 15 March 2024. Authority: GitHub Docs.
 ## CC BY-SA 4.0
 
 # OpenAI Node.js SDK
@@ -38,9 +43,14 @@ A comprehensive reference for interacting with GitHub issues via REST endpoints,
 Covers installation, API authentication, and usage patterns for chat completions, embeddings, and error handling in the official OpenAI Node.js client. Underpins LLM integration in automated workflows, with code examples and rate-limit considerations. Last updated: 10 April 2024. Authority: OpenAI.
 ## MIT
 
+# OpenAI HTTP API Reference
+## https://platform.openai.com/docs/api-reference
+Official REST API reference for OpenAI, detailing endpoints for completions, chat, embeddings, files, and billing. Covers request parameters, response schemas, error handling, rate limits, and authentication flows. Critical for understanding low-level API operations, advanced use cases like streaming, fine-tuning, and usage metrics. Last updated: 28 April 2024. Authority: OpenAI Documentation.
+## Proprietary
+
 # Vitest
 ## https://vitest.dev/
-Vitest is a Vite-native test framework offering fast test execution, snapshot testing, mocking utilities, and built-in coverage reports. The documentation details API usage, configuration files, and integration with ESM and TypeScript projects, guiding reliable unit and integration tests. Last updated: 5 May 2024. Authority: Official site & GitHub repository (12k⭐).
+Vitest is a Vite-native test framework offering fast execution, snapshot testing, mocking utilities, and built-in coverage reports. The documentation details API usage, configuration files, and integration with ESM and TypeScript projects, guiding reliable unit and integration tests. Last updated: 5 May 2024. Authority: Official site & GitHub repository (12k⭐).
 ## MIT
 
 # Zod
@@ -58,17 +68,12 @@ EJS (Embedded JavaScript templating) is a simple, fast templating language that 
 The dotenv module loads environment variables from a `.env` file into `process.env`, supporting variable expansion and custom path loading. The documentation details security considerations (like not committing `.env`), fallback behaviors, and integration patterns with TypeScript and ESM. Last updated: 25 April 2024. Authority: motdotla GitHub repository (20k⭐).
 ## MIT
 
-# GitHub REST API: Actions
-## https://docs.github.com/en/rest/actions
-Comprehensive reference for interacting with GitHub Actions via REST endpoints, including workflow runs management, artifacts retrieval, secret management, and workflow dispatch events. Essential for automating CI/CD workflows programmatically, handling event triggers, and integrating status checks into other systems. Last updated: 22 April 2024. Authority: GitHub Docs.
-## CC BY-SA 4.0
+# CommonMark Specification
+## https://spec.commonmark.org/0.30/
+The official specification for CommonMark Markdown text, detailing the parsing rules, ABNF grammar, and spec tests. It defines block-level and inline syntaxes, AST node structures, and edge-case behaviors. Crucial for ensuring compliance when extending or customizing Markdown parsers like markdown-it. Last updated: 17 July 2023 (Spec v0.30). Authority: CommonMark project.
+## CC0-1.0
 
-# GitHub GraphQL API
-## https://docs.github.com/en/graphql
-GraphQL API documentation for GitHub, detailing schema types, query structures, mutation operations for issues, pull requests, workflows, and custom data models. Offers powerful, efficient data fetching patterns compared to REST. Includes examples for pagination, batching requests, and advanced queries combining multiple resource types. Last updated: 15 March 2024. Authority: GitHub Docs.
-## CC BY-SA 4.0
-
-# OpenAI HTTP API Reference
-## https://platform.openai.com/docs/api-reference
-Official REST API reference for OpenAI, detailing endpoints for completions, chat, embeddings, files, and billing. Covers request parameters, response schemas, error handling, rate limits, and authentication flows. Critical for understanding low-level API operations, advanced use cases like streaming, fine-tuning, and usage metrics. Last updated: 28 April 2024. Authority: OpenAI Documentation.
-## Proprietary
+# Unified (Remark Ecosystem)
+## https://unifiedjs.com/
+Documentation for the unifiedJS ecosystem, including remark for Markdown parsing into a syntax tree, plugin-based transformations, and rehype integration for HTML. Covers core concepts of AST, plugin interfaces, data flow, and community plugins for linting, formatting, and syntax extension. Valuable for comparing extensibility patterns and design trade-offs with markdown-it. Authority: UnifiedJS project.
+## MIT
