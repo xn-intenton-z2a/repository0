@@ -12,6 +12,9 @@ on:
   workflow_run:
     workflows:
       - flow-feature-development
+      - transformation-07-code-to-close-issue
+      - transformation-07.1-in-progress-issue-to-ready-issue
+      - ci-automerge
       - seed-repository
     types:
       - completed
