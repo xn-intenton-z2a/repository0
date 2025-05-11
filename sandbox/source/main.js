@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "url";
+import minimist from "minimist";
 import fs from "fs";
 import path from "path";
 
 export function main(args) {
-  if (args.includes("--help")) {
+  const { _, help, version, mission } = minimist(args, { boolean: ["help", "version", "mission"] });
+
+  if (help) {
     const pkgPath = path.resolve(process.cwd(), "package.json");
     let name = "repository0";
     try {
@@ -29,7 +32,7 @@ export function main(args) {
     console.log("  npm run start -- --mission");
     console.log("  npm run start -- foo bar");
     process.exit(0);
-  } else if (args.includes("--version")) {
+  } else if (version) {
     const pkgPath = path.resolve(process.cwd(), "package.json");
     try {
       const pkgContent = fs.readFileSync(pkgPath, "utf8");
@@ -40,7 +43,7 @@ export function main(args) {
       console.error(`Error reading version from package.json: ${err.message}`);
       process.exit(1);
     }
-  } else if (args.includes("--mission")) {
+  } else if (mission) {
     const missionPath = path.resolve(process.cwd(), "MISSION.md");
     try {
       const content = fs.readFileSync(missionPath, "utf8");
@@ -50,7 +53,7 @@ export function main(args) {
       process.exit(1);
     }
   } else {
-    console.log(`Run with: ${JSON.stringify(args)}`);
+    console.log(`Run with: ${JSON.stringify(_)}`);
   }
 }
 
