@@ -27,4 +27,8 @@ describe('generateSVG function', () => {
       .filter(Boolean);
     expect([...new Set(yValues)]).toEqual(['0']);
   });
+
+  test('invalid type throws error', () => {
+    expect(() => generateSVG('unknown', {})).toThrow('Unknown type: unknown');
+  });
 });

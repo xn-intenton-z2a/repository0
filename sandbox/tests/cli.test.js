@@ -31,4 +31,26 @@ describe('CLI Integration', () => {
     expect(output).toContain('# Mission Statement');
     expect(output.split('\n').length).toBeGreaterThan(1);
   });
+
+  test('missing --type exits with error', () => {
+    try {
+      execSync('node sandbox/source/main.js', { stdio: 'pipe' });
+      throw new Error('Process did not exit');
+    } catch (err) {
+      expect(err.status).toBe(1);
+      const stderr = err.stderr.toString();
+      expect(stderr).toContain('Error: --type <quadratic|sine> is required');
+    }
+  });
+
+  test('invalid --type exits with error', () => {
+    try {
+      execSync('node sandbox/source/main.js --type unknown', { stdio: 'pipe' });
+      throw new Error('Process did not exit');
+    } catch (err) {
+      expect(err.status).toBe(1);
+      const stderr = err.stderr.toString();
+      expect(stderr).toContain('Error: --type <quadratic|sine> is required');
+    }
+  });
 });
