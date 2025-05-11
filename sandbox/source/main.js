@@ -1,6 +1,5 @@
 import minimist from "minimist";
 import MarkdownIt from "markdown-it";
-import markdownItGithub from "markdown-it-github";
 import { readFile, writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
 
@@ -31,7 +30,7 @@ export async function convert(inputPath, outputPath) {
   } catch (error) {
     throw new Error(`Failed to read input file: ${error.message}`);
   }
-  const md = new MarkdownIt().use(markdownItGithub);
+  const md = new MarkdownIt();
   const html = md.render(data);
   if (outputPath) {
     try {
