@@ -1,6 +1,6 @@
 # repository0
 
-CLI demo of agentic workflows: help, mission, version, and argument echo.
+`repository0` is a CLI demo of agentic workflows supporting `--help`, `--mission`, `--version`, and argument echo.
 
 **Links:**
 - [Mission Statement](../../MISSION.md)
@@ -10,60 +10,31 @@ CLI demo of agentic workflows: help, mission, version, and argument echo.
 
 ## Overview
 
-**CLI Entry Point**  
-`sandbox/source/main.js`
-
-**Supported Flags**  
-- `--help`: Show this help message with available options and usage examples.  
-- `--mission`: Print the repository mission statement.  
-- `--version`: Print the package version.  
+- `--help`: Show help message with available options and usage examples.
+- `--mission`: Print the repository mission statement.
+- `--version`: Print the package version.
 - No flags: Echo provided arguments.
 
-**Test Locations**  
-- `sandbox/tests`  
-- `tests/unit`
+## Source & Tests
 
-## What’s Inside
+- `sandbox/source/main.js`
+- `src/lib/main.js`
+- `sandbox/tests/`
+- `tests/unit/`
 
-- A command-line tool implemented in `sandbox/source/main.js`.  
-- Tests in `sandbox/tests` and `tests/unit` verifying CLI behavior.  
-- Usage examples and documentation in `sandbox/docs`.
+## Scripts & Dependencies
+
+- `npm install`: Install project dependencies.
+- `npm test`: Run unit and feature tests.
+- `npm run start -- [--help|--mission|--version] [arguments]`: Execute the CLI with optional flags and arguments.
 
 ## Getting Started
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository_url>
-   cd repository0
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Run tests:**
-   ```bash
-   npm test
-   ```
-
-4. **Use the CLI:**
-   - Show help message:
-     ```bash
-     npm run start -- --help
-     ```
-   - Display the mission statement:
-     ```bash
-     npm run start -- --mission
-     ```
-   - Display the version:
-     ```bash
-     npm run start -- --version
-     ```
-   - Echo arguments:
-     ```bash
-     npm run start -- foo bar
-     ```
+```bash
+npm install
+npm test
+npm run start -- [--help|--mission|--version] [arguments]
+```
 
 ## Contributing
 
