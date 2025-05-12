@@ -1,6 +1,6 @@
 # repository0
 
-`repository0` is a repository template showcasing the `agentic-lib` workflows used for autonomous CI/CD. It provides a simple command-line interface (CLI) to view the mission statement, display the package version, or echo arguments.
+CLI demo of agentic workflows: help, mission, version, and argument echo.
 
 **Links:**
 - [Mission Statement](../../MISSION.md)
@@ -52,23 +52,6 @@
      ```bash
      npm run start -- --help
      ```
-     Example output:
-     ```text
-     repository0: A CLI demo of our agentic workflows.
-
-     Usage: sandbox/source/main.js [options] [arguments]
-
-     Options:
-       --help      Show this help message
-       --mission   Print the repository mission statement
-       --version   Print the package version
-
-     Examples:
-       npm run start -- --help
-       npm run start -- --mission
-       npm run start -- foo bar
-     ```
-
    - Display the mission statement:
      ```bash
      npm run start -- --mission
