@@ -29,7 +29,7 @@ fi
 echo "Deactivating schedule-$active in all YAML workflow files in $workflow_dir..."
 
 for file in "$workflow_dir"/*.yml; do
-  echo "Processing $file..."
+  #echo "Processing $file..."
   # This sed command matches lines that start with whitespace, then a dash,
   # and ending with "# schedule-<active>".
   # It prepends a '#' to comment out that line.

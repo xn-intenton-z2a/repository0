@@ -29,7 +29,7 @@ fi
 echo "Activating schedule-$active in all YAML workflow files in $workflow_dir..."
 
 for file in "$workflow_dir"/*.yml; do
-  echo "Processing $file..."
+  #echo "Processing $file..."
   # This sed command matches lines that start with whitespace, then a "#"
   # followed by optional whitespace, then "cron:" … and ending with "# schedule-<active>"
   sed -i.bak -E "s/^([[:space:]]*)#(- cron:.*# schedule-$active)/\1\2/" "$file"
