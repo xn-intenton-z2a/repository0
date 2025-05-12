@@ -1,238 +1,247 @@
 # VITEST_API
 
 ## Crawl Summary
-Awaitable<T> = T | PromiseLike<T>; TestFunction = () => Awaitable<void>. TestOptions: timeout? number; retry? number default 0; repeats? number default 0. test(name: string, fn: TestFunction, timeoutMs?: number) and overload test(name: string, options: TestOptions, fn: TestFunction). Variants: test.skip, test.only, test.concurrent(name, fn, timeoutMs?), test.todo(name), test.fails(name, fn). Table-driven: test.each(cases)(title, fn), test.for(cases)(title, fn). Suite: describe(name, fn) plus .skip, .only, .concurrent, .todo, .each, .for. Bench: bench(name|Function, fn, options?), bench.skip, bench.only, bench.todo. BenchOptions defaults: time=500ms, iterations=10, warmupTime=100ms, warmupIterations=5. Hooks: beforeEach/afterEach/beforeAll/afterAll(fn, timeoutMs?), onTestFinished(callback), onTestFailed(callback).
+Definitions: Awaitable<T>, TestFunction, TestOptions
+test(), test.skip/.only/.concurrent/.sequential/.todo/.fails/.each/.for
+bench(), bench.skip/.only/.todo
+Hooks: beforeEach/afterEach/beforeAll/afterAll/onTestFinished/onTestFailed
 
 ## Normalised Extract
-Table of Contents:
-1. Type Definitions
-2. TestOptions
-3. Test API Methods
-4. Suite API Methods
-5. Benchmark API Methods
-6. Lifecycle Hooks
+Contents:
+1. Type Aliases & Interfaces
+   a. Awaitable<T>: T | PromiseLike<T>
+   b. TestFunction: () => Awaitable<void>
+   c. TestOptions: {timeout?: number, retry?: number (default 0), repeats?: number (default 0)}
+2. Test Functions
+   a. test(name: string, fn: TestFunction, timeout?: number)
+      - Default timeout 5000ms, positional timeout disallowed with options.
+   b. test(name: string, options: TestOptions, fn: TestFunction)
+   c. Modifiers: skip, only, concurrent, sequential, todo, fails
+   d. Data-driven: test.each(cases)(namePattern: string, fn: (...args) => void), test.for(cases)(namePattern, fn)
+3. Benchmarks
+   a. bench(name: string, fn: BenchFunction, options?: BenchOptions)
+   b. BenchOptions: time (ms, default 500), iterations (default 10), warmupTime (ms, default 100), warmupIterations (default 5), now(), signal, throws, setup(), teardown()
+4. Suite Organization
+   a. describe(name: string, fn: () => void)
+   b. Modifiers: skip, skipIf(cond), runIf(cond), only, concurrent, sequential, shuffle, todo
+   c. Data-driven: describe.each/for
+5. Hooks
+   a. beforeEach(fn, timeout?), afterEach(fn, timeout?), beforeAll(fn, timeout?), afterAll(fn, timeout?)
+6. Test Context Hooks
+   a. onTestFinished(callback)
+   b. onTestFailed(callback)
 
-1. Type Definitions
-Awaitable<T> = T | PromiseLike<T>
-TestFunction: () => Awaitable<void>
+Detailed:
+1.a. Awaitable: generic union.
+1.b. TestFunction signature.
+1.c. TestOptions fields with defaults.
+2.a. test(): signature; constraints; example.
+2.b. test() with options: exact ordering.
+2.c. Modifiers chainable: skip, only, concurrent, sequential, todo, fails.
+2.d. test.each: printf patterns: %s, %d, %i, %f, %j, %o, %#, %$, %%; $foo inject. For arrays, spreads. test.for: no spread of array.
+3.a. bench(): signature. Tinybench under the hood.
+3.b. BenchOptions exact field names and defaults.
+4.a. describe(): grouping; implicit suite.
+4.b. Suite modifiers with alias: suite.skip, suite.skipIf, suite.runIf, suite.only, suite.concurrent, suite.sequential, suite.shuffle, suite.todo.
+4.c. describe.each/for: similar to test.
+5.a. Lifecycle hooks signatures with optional timeouts.
+6.a/b. onTestFinished/Failed: signatures, usage patterns.
 
-2. TestOptions
-- timeout: number (milliseconds)
-- retry: number (default 0)
-- repeats: number (default 0)
-
-3. Test API Methods
-3.1 test(name: string, fn: TestFunction, timeoutMs?: number): void
-3.2 test(name: string, options: TestOptions, fn: TestFunction): void
-3.3 test.skip(name: string, fn: TestFunction): void
-3.4 test.only(name: string, fn: TestFunction): void
-3.5 test.concurrent(name: string, fn: TestFunction, timeoutMs?: number): void
-3.6 test.todo(name: string): void
-3.7 test.fails(name: string, fn: () => Promise<void>): void
-3.8 test.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-3.9 test.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-
-4. Suite API Methods
-4.1 describe(name: string, fn: () => void): void
-4.2 describe.skip(name: string, fn: () => void): void
-4.3 describe.only(name: string, fn: () => void): void
-4.4 describe.concurrent(name: string, fn: () => void): void
-4.5 describe.todo(name: string): void
-4.6 describe.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-4.7 describe.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-
-5. Benchmark API Methods
-5.1 bench(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.2 bench.skip(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.3 bench.only(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.4 bench.todo(name: string|Function): void
-
-6. Lifecycle Hooks
-6.1 beforeEach(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.2 afterEach(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.3 beforeAll(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.4 afterAll(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.5 onTestFinished(callback: () => void): void
-6.6 onTestFailed(callback: (ctx: ExtendedContext) => void): void
 
 ## Supplementary Details
-Global defaults and config parameters:
-- Default test timeout: 5000ms. Override in vitest.config.js: export default { test: { timeout: number } }
-- Global retries: none unless specified per testOptions.retry
-- Concurrency options in config: export default { sequence: { concurrent: boolean, shuffle: boolean, seed: number } }
-- Chai format: configure chaiConfig.truncateThreshold in config: export default { chai: { format: { truncateThreshold: number } } }
-- BenchOptions defaults: time 500ms, iterations 10, warmupTime 100ms, warmupIterations 5
-
+Parameter Defaults and Effects:
+- test timeout default: 5000ms; set via --testTimeout or config.sequence.timeout
+- retry default 0; repeats default 0; unlimited only via object.
+- bench time default: 500ms; iterations 10; warmupTime 100ms; warmupIterations 5.
+- describe.shuffle order randomized by config.sequence.seed or flag --sequence.shuffle.
+- Hooks optional cleanup return functions: beforeEach/beforeAll can return cleanup to be invoked after scope.
 Implementation Steps:
-1. Install Vitest: npm install --save-dev vitest
+1. Install Vitest: npm install -D vitest
 2. Add script: "test": "vitest"
-3. Import APIs in test files: import { test, expect, beforeEach, bench, describe } from 'vitest'
-4. Define tests and hooks as per normalizedExtract signatures
-5. Configure global settings in vitest.config.js under export default { test: {...}, sequence: {...}, chai: {...} }
+3. Create test files: *.test.ts or *.spec.ts
+4. Import APIs: import { test, expect, describe, bench, beforeEach,... } from 'vitest'
+5. Configure vitest.config.ts for global options:
+   export default {
+     test: { timeout: 10000, globalSetup: '', sequence: { concurrent: true, shuffle: true } },
+     bench: { time: 2000 }
+   }
+6. Run tests: npx vitest
+7. For CI, use --run flag.
 
 
 ## Reference Details
-Complete API Specifications and Examples:
+// Full API Signatures
 
-// Type Definitions
+// Type Aliases
+export type Awaitable<T> = T | PromiseLike<T>
+export type TestFunction = () => Awaitable<void>
 
-interface Awaitable<T> {
-  // T or PromiseLike<T>
+export interface TestOptions {
+  timeout?: number
+  retry?: number
+  repeats?: number
 }
 
-type TestFunction = () => void | Promise<void>
-
 // Test API
-/**
- * Runs a test
- * @param name test name
- * @param fn test function
- * @param timeout optional timeout in ms
- */
-function test(name: string, fn: TestFunction, timeout?: number): void
-
-/**
- * @param name test name
- * @param options { skip?: boolean, only?: boolean, concurrent?: boolean, timeout?: number, retry?: number, repeats?: number }
- * @param fn test function
- */
-function test(name: string, options: TestOptions, fn: TestFunction): void
-
-// Examples:
-test('addition', () => {
-  expect(1 + 2).toBe(3)
-})
-
-test('timeout example', { timeout: 10000 }, async () => {
-  await new Promise(r => setTimeout(r, 9000))
-})
-
-test.skip('skip sample', () => {})
-test.only('only this test', () => {})
-test.concurrent('parallel test', async () => {})
-test.todo('to be implemented')
-test.fails('should fail', async () => {
-  await expect(Promise.reject()).rejects.toBeUndefined()
-})
-
-test.each([ [1,1,2], [2,3,5] ])('sum(%i,%i)=%i', (a,b,exp) => {
-  expect(a+b).toBe(exp)
-})
-
-test.for([ [1,2,3] ])('forSum', ([a,b,exp]) => {
-  expect(a+b).toBe(exp)
-})
+export function test(name: string, fn: TestFunction, timeout?: number): void
+export function test(name: string, options: TestOptions, fn: TestFunction): void
+export namespace test {
+  function skip(name: string, fn: TestFunction): void
+  function only(name: string, fn: TestFunction): void
+  function concurrent(name: string, fn: TestFunction, timeout?: number): void
+  function sequential(name: string, fn: TestFunction): void
+  function todo(name: string): void
+  function fails(name: string, fn: TestFunction): void
+  function each<T extends any[]>(cases: readonly T[]): (name: string, fn: (...args: T) => void) => void
+  function for<T extends any[]>(cases: readonly T[]): (name: string, fn: (args: T) => void) => void
+  function skipIf(cond: boolean): (name: string, fn: TestFunction) => void
+  function runIf(cond: boolean): (name: string, fn: TestFunction) => void
+}
 
 // Suite API
-
-describe('suiteName', () => {
-  test('inside suite', () => {})
-})
-describe.skip('skipped suite', () => {})
-describe.only('exclusive suite', () => {})
-
-describe.concurrent('parallel suite', () => {})
-describe.todo('future suite')
-
-describe.each([ {x:1,y:2} ])('with each', ({x,y}) => {
-  test('calc', () => { expect(x+y).toBe(3) })
-})
-
-describe.for([ [1,2] ])('with for', ([x,y]) => {
-  test('calc', () => { expect(x*y).toBe(2) })
-})
-
-// Benchmark API
-import { bench } from 'vitest'
-bench('sort benchmark', () => {
-  [3,1,2].sort()
-}, { time: 1000, iterations: 20, warmupTime: 200, warmupIterations: 10 })
-bench.skip('skip bench', () => {})
-bench.only('only bench', () => {})
-bench.todo('bench to implement')
+export function describe(name: string, fn: () => void): void
+export namespace describe {
+  function skip(name: string, fn: () => void): void
+  function skipIf(cond: boolean): (name: string, fn: () => void) => void
+  function runIf(cond: boolean): (name: string, fn: () => void) => void
+  function only(name: string, fn: () => void): void
+  function concurrent(name: string, fn: () => void): void
+  function sequential(name: string, fn: () => void): void
+  function shuffle(name: string, options: { shuffle: boolean } , fn: () => void): void
+  function todo(name: string): void
+  function each<T extends any[]>(cases: readonly T[]): (name: string, fn: (...args: T) => void) => void
+  function for<T extends any[]>(cases: readonly T[]): (name: string, fn: (args: T) => void) => void
+}
 
 // Hooks
-beforeEach(async () => {
-  await setupDb()
-})
-afterEach(() => {
-  clearMocks()
-})
-beforeAll(() => {
-  startServer()
-})
-afterAll(async () => {
-  await stopServer()
+export function beforeEach(fn: () => Awaitable<void>, timeout?: number): void
+export function afterEach(fn: () => Awaitable<void>, timeout?: number): void
+export function beforeAll(fn: () => Awaitable<void>, timeout?: number): void
+export function afterAll(fn: () => Awaitable<void>, timeout?: number): void
+
+// Test Context Hooks
+export function onTestFinished(callback: () => void): void
+export function onTestFailed(callback: (ctx: { task: TaskResult }) => void): void
+
+// Bench API
+export type BenchFunction = () => Awaitable<void>
+export interface BenchOptions {
+  time?: number
+  iterations?: number
+  now?: () => number
+  signal?: AbortSignal
+  throws?: boolean
+  warmupTime?: number
+  warmupIterations?: number
+  setup?: () => Awaitable<void>
+  teardown?: () => Awaitable<void>
+}
+export function bench(name: string, fn: BenchFunction, options?: BenchOptions): void
+export namespace bench {
+  function skip(name: string, fn: BenchFunction, options?: BenchOptions): void
+  function only(name: string, fn: BenchFunction, options?: BenchOptions): void
+  function todo(name: string): void
+}
+
+// TaskResult
+export interface TaskResult {
+  error?: unknown
+  totalTime: number
+  min: number
+  max: number
+  hz: number
+  period: number
+  samples: number[]
+  mean: number
+  variance: number
+  sd: number
+  sem: number
+  df: number
+  critical: number
+  moe: number
+  rme: number
+  mad: number
+  p50: number
+  p75: number
+  p99: number
+  p995: number
+  p999: number
+}
+
+// Code Examples
+
+// test with fixture
+import { test, expect } from 'vitest'
+
+test.extend({
+  db: async ({}, use) => {
+    const conn = await connectDb()
+    await use(conn)
+    await conn.close()
+  }
+})('db test', async ({ db }) => {
+  const rows = await db.query('SELECT * FROM users')
+  expect(rows).toEqual([])
 })
 
-test('hooked test', ({ onTestFinished, onTestFailed }) => {
-  const conn = connect()
-  onTestFinished(() => conn.close())
-  onTestFailed(() => console.error('failed', conn))
-  conn.query('SELECT 1')
-})
+// CI invocation
+$ npx vitest --run --reporter=dot
 
 // Troubleshooting
-// 1. Increase test timeout: run 'vitest run --timeout=10000' or set test.timeout in config
-// 2. Debug async tests: return promise or use async/await, avoid done callback
-// 3. Chai truncation: set chai.format.truncateThreshold in vitest.config.js
-// 4. Concurrency issues: use test.concurrent with local expect(ctx)
+
+// Increase default timeout if tests hang
+export default { test: { timeout: 20000 }} in vitest.config.ts
+
+// Debug concurrent leaks
+$ npx vitest --run --detect-leaks
+
+// Show coverage
+$ npx vitest --coverage
 
 
 ## Information Dense Extract
-Awaitable<T>; TestFunction returns Awaitable<void>. TestOptions(timeout?:ms,retry?:0,repeats?:0). test(name,fn,timeout?); overload with options. Variants: skip,only,concurrent(timeout?),todo,fails,each,for. describe(name,fn) + skip,only,concurrent,todo,each,for. bench(name|Function,fn,options?) + skip,only,todo. BenchOptions(time:500ms,iterations:10,warmupTime:100ms,warmupIterations:5,now?,signal?,throws?,setup?,teardown?). Hooks: beforeEach/afterEach/beforeAll/afterAll(fn,timeout?), onTestFinished(cb), onTestFailed(cb). Defaults: testTimeout=5000ms, sequence.concurrent/shuffle/seed, chaiConfig.truncateThreshold.
+Awaitable<T>=T|PromiseLike<T>;TestFunction=()=>Awaitable<void>;TestOptions{timeout?:number;retry?:number=0;repeats?:number=0};test(name,fn[,timeout]);test(name,opts,fn); modifiers: skip,only,concurrent[,timeout],sequential,todo,fails;data-driven: test.each(cases)(namePattern,fn(args));test.for(cases)(namePattern,fn([args]));bench(name,fn,opts{time?:number=500;iterations?:10;warmupTime?:100;warmupIterations?:5;now?;signal?;throws?;setup?;teardown?});suite: describe(name,fn); suite.skip/skipIf(cond)/runIf(cond)/only/concurrent/sequential/shuffle({shuffle:true|false})/todo; suite.each/for;hooks: beforeEach/afterEach/beforeAll/afterAll(fn[,timeout]);test ctx hooks: onTestFinished(cb);onTestFailed(cb);TaskResult{error?,totalTime,min,max,hz,period,samples[],mean,variance,sd,sem,df,critical,moe,rme,mad,p50,p75,p99,p995,p999}
 
 ## Sanitised Extract
-Table of Contents:
-1. Type Definitions
-2. TestOptions
-3. Test API Methods
-4. Suite API Methods
-5. Benchmark API Methods
-6. Lifecycle Hooks
+Contents:
+1. Type Aliases & Interfaces
+   a. Awaitable<T>: T | PromiseLike<T>
+   b. TestFunction: () => Awaitable<void>
+   c. TestOptions: {timeout?: number, retry?: number (default 0), repeats?: number (default 0)}
+2. Test Functions
+   a. test(name: string, fn: TestFunction, timeout?: number)
+      - Default timeout 5000ms, positional timeout disallowed with options.
+   b. test(name: string, options: TestOptions, fn: TestFunction)
+   c. Modifiers: skip, only, concurrent, sequential, todo, fails
+   d. Data-driven: test.each(cases)(namePattern: string, fn: (...args) => void), test.for(cases)(namePattern, fn)
+3. Benchmarks
+   a. bench(name: string, fn: BenchFunction, options?: BenchOptions)
+   b. BenchOptions: time (ms, default 500), iterations (default 10), warmupTime (ms, default 100), warmupIterations (default 5), now(), signal, throws, setup(), teardown()
+4. Suite Organization
+   a. describe(name: string, fn: () => void)
+   b. Modifiers: skip, skipIf(cond), runIf(cond), only, concurrent, sequential, shuffle, todo
+   c. Data-driven: describe.each/for
+5. Hooks
+   a. beforeEach(fn, timeout?), afterEach(fn, timeout?), beforeAll(fn, timeout?), afterAll(fn, timeout?)
+6. Test Context Hooks
+   a. onTestFinished(callback)
+   b. onTestFailed(callback)
 
-1. Type Definitions
-Awaitable<T> = T | PromiseLike<T>
-TestFunction: () => Awaitable<void>
-
-2. TestOptions
-- timeout: number (milliseconds)
-- retry: number (default 0)
-- repeats: number (default 0)
-
-3. Test API Methods
-3.1 test(name: string, fn: TestFunction, timeoutMs?: number): void
-3.2 test(name: string, options: TestOptions, fn: TestFunction): void
-3.3 test.skip(name: string, fn: TestFunction): void
-3.4 test.only(name: string, fn: TestFunction): void
-3.5 test.concurrent(name: string, fn: TestFunction, timeoutMs?: number): void
-3.6 test.todo(name: string): void
-3.7 test.fails(name: string, fn: () => Promise<void>): void
-3.8 test.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-3.9 test.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-
-4. Suite API Methods
-4.1 describe(name: string, fn: () => void): void
-4.2 describe.skip(name: string, fn: () => void): void
-4.3 describe.only(name: string, fn: () => void): void
-4.4 describe.concurrent(name: string, fn: () => void): void
-4.5 describe.todo(name: string): void
-4.6 describe.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-4.7 describe.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-
-5. Benchmark API Methods
-5.1 bench(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.2 bench.skip(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.3 bench.only(name: string|Function, fn: () => void, options?: BenchOptions): void
-5.4 bench.todo(name: string|Function): void
-
-6. Lifecycle Hooks
-6.1 beforeEach(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.2 afterEach(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.3 beforeAll(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.4 afterAll(fn: () => Awaitable<void>, timeoutMs?: number): void
-6.5 onTestFinished(callback: () => void): void
-6.6 onTestFailed(callback: (ctx: ExtendedContext) => void): void
+Detailed:
+1.a. Awaitable: generic union.
+1.b. TestFunction signature.
+1.c. TestOptions fields with defaults.
+2.a. test(): signature; constraints; example.
+2.b. test() with options: exact ordering.
+2.c. Modifiers chainable: skip, only, concurrent, sequential, todo, fails.
+2.d. test.each: printf patterns: %s, %d, %i, %f, %j, %o, %#, %$, %%; $foo inject. For arrays, spreads. test.for: no spread of array.
+3.a. bench(): signature. Tinybench under the hood.
+3.b. BenchOptions exact field names and defaults.
+4.a. describe(): grouping; implicit suite.
+4.b. Suite modifiers with alias: suite.skip, suite.skipIf, suite.runIf, suite.only, suite.concurrent, suite.sequential, suite.shuffle, suite.todo.
+4.c. describe.each/for: similar to test.
+5.a. Lifecycle hooks signatures with optional timeouts.
+6.a/b. onTestFinished/Failed: signatures, usage patterns.
 
 ## Original Source
 vitest Testing Framework
@@ -240,98 +249,120 @@ https://vitest.dev/api/
 
 ## Digest of VITEST_API
 
-# Vitest API Reference
-Retrieved: 2024-06-15
+# Vitest API Reference (retrieved 2023-08-01)
 
-# Types
+## Type Definitions
+
+### Awaitable
+
 ```ts
+// Accepts a value or a promise-like value
 type Awaitable<T> = T | PromiseLike<T>
+```
+
+### TestFunction
+
+```ts
+// A function that returns void or a promise-like void
 type TestFunction = () => Awaitable<void>
 ```
 
-# Interface TestOptions
+### TestOptions
+
 ```ts
 interface TestOptions {
-  /** Will fail the test if it takes too long */
+  /** maximum execution time in ms before failing */
   timeout?: number
-  /** Number of retries on failure, default 0 */
+  /** number of retries on failure; default: 0 */
   retry?: number
-  /** Number of repeats per cycle, default 0 */
+  /** number of repeats regardless of pass/fail; default: 0 */
   repeats?: number
 }
 ```
 
-# Test API Methods
+## Test API Methods
+
+### test(name: string, fn: TestFunction, timeout?: number): void
+
 ```ts
-// Primary signatures
-function test(name: string, fn: TestFunction, timeout?: number): void
-overload function test(name: string, options: TestOptions, fn: TestFunction): void
+import { test } from 'vitest'
 
-// Control variants
-function test.skip(name: string, fn: TestFunction): void
-function test.only(name: string, fn: TestFunction): void
-function test.concurrent(name: string, fn: TestFunction, timeout?: number): void
-function test.todo(name: string): void
-function test.fails(name: string, fn: () => Promise<void>): void
-
-// Table-driven variants
-function test.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-function test.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-``` 
-
-# Suite API Methods
-```ts
-function describe(name: string, fn: () => void): void
-function describe.skip(name: string, fn: () => void): void
-function describe.only(name: string, fn: () => void): void
-function describe.concurrent(name: string, fn: () => void): void
-function describe.todo(name: string): void
-function describe.each<T>(cases: T[] | TemplateStringsArray)(title: string, fn: (ctx: T) => void): void
-function describe.for<T>(cases: T[])(title: string, fn: (ctx: T) => void): void
-``` 
-
-# Benchmark API Methods
-```ts
-function bench(name: string|Function, fn: () => void, options?: BenchOptions): void
-enum bench.skip(name: string|Function, fn: () => void, options?: BenchOptions): void
-function bench.only(name: string|Function, fn: () => void, options?: BenchOptions): void
-function bench.todo(name: string|Function): void
+// default timeout: 5000ms
+// 'timeout' as 3rd positional arg is disallowed when options object is provided
+test('basic test', () => {
+  // ... assertions
+}, 5000)
 ```
 
-# Interface BenchOptions
+### test(name: string, options: TestOptions, fn: TestFunction): void
+
+```ts
+// with options
+test('heavy test', { timeout: 10000, retry: 2, repeats: 1 }, async () => {
+  // async logic
+})
+```
+
+### test.skip(name: string, fn: TestFunction): void
+### test.only(name: string, fn: TestFunction): void
+### test.concurrent(name: string, fn: AsyncTestFunction, timeout?: number): void
+### test.sequential(name: string, fn: AsyncTestFunction): void
+### test.todo(name: string): void
+### test.fails(name: string, fn: TestFunction): void
+### test.each(cases)(name: string, fn: (...args: any[]) => void): void
+### test.for(cases)(name: string, fn: (args: any[]) => void): void
+
+## Benchmark API
+
+### bench(name: string, fn: BenchFunction, options?: BenchOptions): void
+
+```ts
+import { bench } from 'vitest'
+
+bench('sort time', () => {
+  [1,5,3,2].sort()
+}, { time: 1000, iterations: 20, warmupTime: 100, warmupIterations:5 })
+```
+
+### BenchOptions
+
 ```ts
 interface BenchOptions {
-  time?: number         // ms, default 500
-  iterations?: number   // default 10
+  time?: number    // ms, default 500
+  iterations?: number // default 10
   now?: () => number
   signal?: AbortSignal
   throws?: boolean
-  warmupTime?: number   // ms, default 100
+  warmupTime?: number // default 100
   warmupIterations?: number // default 5
-  setup?: Hook
-  teardown?: Hook
+  setup?: () => Awaitable<void>
+  teardown?: () => Awaitable<void>
 }
 ```
 
-# Lifecycle Hooks
-```ts
-function beforeEach(fn: () => Awaitable<void>, timeout?: number): void
-function afterEach(fn: () => Awaitable<void>, timeout?: number): void
-function beforeAll(fn: () => Awaitable<void>, timeout?: number): void
-function afterAll(fn: () => Awaitable<void>, timeout?: number): void
+## Test & Suite Hooks
 
-// Test-scoped hooks
-function onTestFinished(callback: () => void): void
-function onTestFailed(callback: (ctx: ExtendedContext) => void): void
+```ts
+beforeEach(fn: () => Awaitable<void>, timeout?: number)
+afterEach(fn: () => Awaitable<void>, timeout?: number)
+beforeAll(fn: () => Awaitable<void>, timeout?: number)
+afterAll(fn: () => Awaitable<void>, timeout?: number)
 ```
+
+### onTestFinished(callback: () => void)
+Called after each test (post-afterEach), reverse order
+
+### onTestFailed(callback: ({ task }) => void)
+Called after failed test (post-afterEach)
+
 
 ## Attribution
 - Source: vitest Testing Framework
 - URL: https://vitest.dev/api/
 - License: License: MIT
-- Crawl Date: 2025-05-12T06:31:04.531Z
-- Data Size: 26870519 bytes
-- Links Found: 21585
+- Crawl Date: 2025-05-12T12:31:49.356Z
+- Data Size: 41201758 bytes
+- Links Found: 26607
 
 ## Retrieved
 2025-05-12
