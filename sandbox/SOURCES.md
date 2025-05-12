@@ -57,3 +57,28 @@ Documentation and examples for EJS (`ejs@^3.1.10`), a simple JavaScript templati
 ## https://github.com/xn-intenton-z2a/agentic-lib
 Main repository for `agentic-lib`, the collection of reusable CI/CD workflows utilized here. Documents available workflow calls, input/output specifications, scheduling strategies, and integration patterns. Core to understanding and extending the automated code generation and maintenance system. Last commit: May 2024. License: Apache-2.0.
 ## License: Apache-2.0
+
+# GitHub Actions Workflow Syntax
+## https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+Detailed reference for the GitHub Actions workflow YAML schema, including triggers, jobs, steps, workflows structure, concurrency controls, environment variables, secrets, and permissions. Provides comprehensive examples and parameter explanations essential for authoring robust and maintainable reusable workflows in agentic-lib. Last updated: February 2024. Official documentation under CC BY 4.0.
+## License: CC BY 4.0
+
+# GitHub GraphQL API
+## https://docs.github.com/en/graphql
+Official documentation for GitHub’s GraphQL API, covering schema definitions, query and mutation structure, authentication, pagination, and error handling. Offers an efficient alternative to REST for complex data interactions such as issues, pull requests, and repository management in advanced agentic workflows. Last updated: March 2024. Official documentation under CC BY 4.0.
+## License: CC BY 4.0
+
+# OpenAI Chat Completions API Reference
+## https://platform.openai.com/docs/api-reference/chat
+Comprehensive API reference for OpenAI’s chat completion endpoints. Details request schema (messages, models, parameters), streaming and non-streaming responses, rate limits, error codes, and best practices for performance and cost optimization. Crucial for implementing reliable LLM interactions in the CLI and workflows. Last updated: June 2024. Official OpenAI documentation under OpenAI API Terms.
+## License: OpenAI API Terms
+
+# Prettier Configuration Guide
+## https://prettier.io/docs/en/configuration.html
+In-depth guide to Prettier configuration options, including file-based settings, supported editors integration, plugin usage, and formatting rule overrides. Essential for maintaining consistent code style across automated and manual contributions. Last updated: June 2024. Documentation maintained by Prettier under MIT.
+## License: MIT
+
+# ESLint Configuration Guide
+## https://eslint.org/docs/latest/user-guide/configuring
+Official ESLint guide for configuring linting rules, shareable configs, plugin ecosystems, and integration with code editors and CI tools. Provides actionable examples for rule customization and enforcing code quality in the repository. Last updated: May 2024. Official ESLint documentation under MIT.
+## License: MIT
