@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "2.1.0-0",
-  "description": "Add repository description here",
+  "description": "CLI demo of agentic workflows: help, mission, version, and argument echo.",
   "type": "module",
   "main": "sandbox/source/main.js",
   "imports": {
@@ -62,8 +62,17 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": ["package.json"],
-  "eslintIgnore": ["archive/**", "exports/**", "build/**", "coverage/**", "dist/**", "node_modules/**"],
+  "files": [
+    "package.json"
+  ],
+  "eslintIgnore": [
+    "archive/**",
+    "exports/**",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**"
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
