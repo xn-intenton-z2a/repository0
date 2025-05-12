@@ -62,7 +62,7 @@ describe("Help Output", () => {
       "Examples:",
       "  npm run start -- --help",
       "  npm run start -- --mission",
-      "  npm run start -- foo bar"
+      "  npm run start -- foo bar",
     ];
     expect(logs).toEqual(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
