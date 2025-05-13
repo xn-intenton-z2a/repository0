@@ -22,9 +22,9 @@ on:
   #
   schedule:
     #- cron: '19 4 */7 * *' # schedule-1
-    - cron: '19 */6 * * *' # schedule-2
+    #- cron: '19 */6 * * *' # schedule-2
     #- cron: '19 */3 * * *' # schedule-3
-    #- cron: '19 3 * * *' # schedule-4
+    - cron: '19 3 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

@@ -29,9 +29,9 @@ on:
         required: true
   schedule:
     #- cron: '4 0 1 */2 *' # schedule-1
-    - cron: '4 0 1 */1 *' # schedule-2
+    #- cron: '4 0 1 */1 *' # schedule-2
     #- cron: '4 0 * * 4' # schedule-3
-    #- cron: '4 0 * * 4' # schedule-4
+    - cron: '4 0 * * 4' # schedule-4
 
 env:
   mission: ${{ inputs.mission || '' }}

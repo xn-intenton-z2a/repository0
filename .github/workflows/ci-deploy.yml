@@ -36,9 +36,9 @@ on:
         required: true
   schedule:
     #- cron: '22 */12 */7 * *' # schedule-1
-    - cron: '22 */12 * * *' # schedule-2
+    #- cron: '22 */12 * * *' # schedule-2
     #- cron: '22 */3 * * *' # schedule-3
-    #- cron: '22 */3 * * *' # schedule-4
+    - cron: '22 */3 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -274,7 +274,7 @@ jobs:
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: |
-          synth=$(jq -r '.deployStacks' cdk.json)
+          synth=$(jq -r '.synthStacks' cdk.json)
           deploy=$(jq -r '.deployStacks' cdk.json)
           echo "deploy=${deploy?}" | tee -a "${GITHUB_OUTPUT?}"
           echo "synth=${synth?}" | tee -a "${GITHUB_OUTPUT?}"

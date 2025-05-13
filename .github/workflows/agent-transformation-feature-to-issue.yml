@@ -39,9 +39,9 @@ on:
         required: true
   schedule:
     #- cron: '29 4 */7 * *' # schedule-1
-    - cron: '29 4 * * *' # schedule-2
+    #- cron: '29 4 * * *' # schedule-2
     #- cron: '29 */6 * * *' # schedule-3
-    #- cron: '29 1 * * *' # schedule-4
+    - cron: '29 1 * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'
