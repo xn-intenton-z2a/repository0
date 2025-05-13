@@ -1,6 +1,6 @@
 # Node.js ESM Modules
 ## https://nodejs.org/api/esm.html
-Comprehensive guide to ECMAScript module (ESM) support in Node.js v20+, covering import/export syntax, package.json configurations, module resolution strategies, and interoperability with CommonJS. Essential for structuring the repository with modern ESM patterns, avoiding CommonJS pitfalls, and ensuring predictable behavior of dynamic imports. Last updated: Node.js v20.0.0 documentation (April 2023). Official documentation under CC BY 4.0.
+Comprehensive guide to ECMAScript module (ESM) support in Node.js v20+, covering import/export syntax, package.json configurations, module resolution strategies, and interoperability with CommonJS. Essential for structuring the CLI and library code with modern ESM patterns, avoiding CommonJS pitfalls, and ensuring predictable behavior of dynamic imports. Last updated: Node.js v20.0.0 documentation (April 2023). Official documentation under CC BY 4.0.
 ## License: CC BY 4.0
 
 # minimist CLI Argument Parsing
@@ -20,13 +20,8 @@ Complete reference for GitHub’s REST API endpoints, detailing operations on is
 
 # Octokit REST API Client
 ## https://github.com/octokit/rest.js
-Official repository for Octokit, GitHub’s officially supported Node.js client for REST API calls. Covers installation, authentication methods (OAuth, PAT, GitHub App), convenient paging utilities, pagination strategies, and method signatures for issues, pulls, branches, and more. Vital for client-side integrations and advanced automation scripts in agentic workflows. Last commit: May 2024. MIT-licensed.
+Official repository for Octokit, GitHub’s officially supported Node.js client for REST API calls. Covers installation, authentication methods (OAuth, PAT, GitHub App), convenient paging utilities, and method signatures for issues, pulls, branches, and more. Vital for client-side integrations and advanced automation scripts in agentic workflows. Last commit: May 2024. MIT-licensed.
 ## License: MIT
-
-# GitHub GraphQL API
-## https://docs.github.com/en/graphql
-Official documentation for GitHub’s GraphQL API, covering schema definitions, query and mutation structure, authentication, batching, pagination, and error handling. Offers an efficient alternative to REST for complex data interactions (e.g., nested resources, fewer round trips) in advanced agentic workflows. Last updated: March 2024. Official documentation under CC BY 4.0.
-## License: CC BY 4.0
 
 # GitHub Actions Environment Variables & Secrets
 ## https://docs.github.com/en/actions/learn-github-actions/variables
@@ -38,11 +33,6 @@ In-depth overview of built-in environment variables, custom declarations, and en
 Actionable security guidance for GitHub Actions, covering principle of least privilege, fine-grained token permissions, job isolation, supply chain defenses, and secure secret handling. Essential for safeguarding automated agentic workflows against common threats and ensuring compliance with enterprise policies. Last updated: March 2024. Official documentation under CC BY 4.0.
 ## License: CC BY 4.0
 
-# GitHub Actions Toolkit
-## https://github.com/actions/toolkit
-Official GitHub repository for the Actions Toolkit libraries (`@actions/core`, `@actions/github`, `@actions/io`, etc.). Provides JavaScript APIs for handling inputs/outputs, logging, file commands, authentication, and API calls within custom actions. Critical for building reliable, maintainable GitHub Actions in agentic-lib. Last commit: April 2024. MIT-licensed.
-## License: MIT
-
 # agentic-lib Reusable GitHub Workflows
 ## https://github.com/xn-intenton-z2a/agentic-lib
 Main repository for `agentic-lib`, the collection of reusable CI/CD workflows leveraged here. Documents available workflow calls, input/output specifications, scheduling, branching conventions, and integration patterns. Core for understanding and extending autonomous code generation and maintenance systems. Last commit: May 2024. Apache-2.0.
@@ -53,14 +43,9 @@ Main repository for `agentic-lib`, the collection of reusable CI/CD workflows le
 Official repository for the OpenAI Node.js client library (`openai@^4.98.0`). Demonstrates setup, authentication, methods for chat completions, streaming, embeddings, and handling rate limits and errors. Directly addresses how the repository invokes LLM calls, streams, and config tuning. Last commit: April 2024. MIT-licensed.
 ## License: MIT
 
-# OpenAI Chat Completions API Reference
+# OpenAI Chat Completions & Function Calling Guide
 ## https://platform.openai.com/docs/api-reference/chat
-Comprehensive API reference for OpenAI’s chat completion endpoints. Details request schemas (messages, models, parameters), streaming and non-streaming response handling, rate limits, error codes, and best practices for performance and cost optimization. Crucial for implementing reliable LLM interactions in the CLI and workflows. Last updated: June 2024. Official documentation under OpenAI API Terms.
-## License: OpenAI API Terms
-
-# OpenAI Function Calling Guide
-## https://platform.openai.com/docs/guides/function-calling
-Guide for defining and integrating function-calling capabilities with the Chat API. Covers how to declare function schemas, invoke user-defined callbacks, parse function arguments, handle edge cases, and validate responses. Offers actionable patterns to extend agentic workflows with safe, deterministic function executions. Last updated: June 2024. Official documentation under OpenAI API Terms.
+Comprehensive API reference and guide for OpenAI’s chat completion endpoints and function-calling capabilities. Combines schema definitions for messages, models, parameters, streaming and non-streaming response handling, function schema declaration, callback invocation patterns, argument validation, and error handling. Provides best practices for performance, cost optimization, and safe, deterministic function executions in agentic workflows. Last updated: June 2024. Official documentation under OpenAI API Terms.
 ## License: OpenAI API Terms
 
 # vitest Testing Framework
@@ -68,12 +53,27 @@ Guide for defining and integrating function-calling capabilities with the Chat A
 API reference and guides for Vitest, the test runner and assertion library. Covers test structure, mocking, spies, snapshot testing, coverage reports, and configuration. Key for authoring and maintaining reliable unit and integration tests across sandbox and source directories. Last published: March 2024. MIT-licensed.
 ## License: MIT
 
-# Zod Schema Validation
-## https://github.com/colinhacks/zod
-Official GitHub repository for Zod, a TypeScript-first schema validation library (`zod@^3.24.4`). Includes detailed API documentation on schemas, parsing, refinements, custom error formatting, and TypeScript inference. Fundamental for runtime data validation in workflows and agentic components. Last commit: April 2024. MIT-licensed.
-## License: MIT
-
 # dotenv Environment Configuration
 ## https://github.com/motdotla/dotenv
 Official dotenv repository (`dotenv@^16.5.0`) for loading environment variables from `.env` files. Details parsing rules, error handling, and security considerations for managing secrets in local development and CI environments. Last commit: January 2024. BSD-2-Clause.
 ## License: BSD-2-Clause
+
+# EJS Templating Engine
+## https://ejs.co/#docs
+Comprehensive documentation for EJS, the embedded JavaScript templating engine (`ejs@^3.1.10`). Covers template syntax, delimiter customization, includes/partials, data injection, and performance considerations. Vital for generating dynamic content in documentation, report generation, or workflow artifacts. Last updated: December 2023. MIT-licensed.
+## License: MIT
+
+# Node.js File System (FS) API
+## https://nodejs.org/api/fs.html
+Authoritative reference for Node.js File System module, detailing synchronous and asynchronous file operations, streams, file descriptors, and error handling. Crucial for reading configuration files, mission statements, and package metadata within CLI commands. Last updated: Node.js v20.0.0 documentation (April 2023). Official documentation under CC BY 4.0.
+## License: CC BY 4.0
+
+# Node.js Path Module API
+## https://nodejs.org/api/path.html
+Guide to Node.js path utilities for handling and transforming file paths, including normalization, joining, resolving, and relative path computation. Essential for constructing reliable, cross-platform file system operations in CLI and library code. Last updated: Node.js v20.0.0 documentation (April 2023). Official documentation under CC BY 4.0.
+## License: CC BY 4.0
+
+# Node.js URL Module API
+## https://nodejs.org/api/url.html
+Detailed reference for the URL module, covering URL parsing, formatting, resolution, and the WHATWG URL API. Utilized in converting import.meta URLs and CLI script paths within ESM contexts. Last updated: Node.js v20.0.0 documentation (April 2023). Official documentation under CC BY 4.0.
+## License: CC BY 4.0
