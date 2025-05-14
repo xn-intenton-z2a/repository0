@@ -1,14 +1,26 @@
 # repository0
 
-repository0 is a CLI demo of agentic workflows powered by intentïon agentic-lib, supporting a set of simple commands for interactive use.
+A CLI demo powered by intentïon agentic-lib.
+
+## Overview
+
+`repository0` is a command-line interface (CLI) demonstration harness built on intentïon agentic-lib. It provides basic commands to display the project mission, version, license, help information, or echo provided arguments.
+
+## Source Code
+
+The main CLI implementation is located at:
+
+```
+sandbox/source/main.js
+```
 
 ## Features
 
-- `--help`: Show help message with available options and usage examples.
-- `--mission`: Print the repository mission statement.
-- `--version`: Print the package version.
-- `--license`: Print the package license.
-- Argument echo: Echo provided arguments when no flags are used.
+- `--help`      Show help message with usage and examples
+- `--mission`   Print the repository mission statement
+- `--version`   Print the package version
+- `--license`   Print the package license
+- Argument echo  Echo provided arguments when no flags are used
 
 ## Links
 
@@ -19,10 +31,12 @@ repository0 is a CLI demo of agentic workflows powered by intentïon agentic-lib
 
 ## Getting Started
 
+Install dependencies, run tests, and start the CLI:
+
 ```bash
 npm install
 npm test
-npm run start -- [--help|--mission|--version|--license] [args]
+npm run start -- [options] [args]
 ```
 
 ## Usage Examples
@@ -33,39 +47,10 @@ npm run start -- [--help|--mission|--version|--license] [args]
 npm run start -- --help
 ```
 
-Output:
-
-```
-repository0: A CLI demo of our agentic workflows.
-
-Usage: sandbox/source/main.js [options] [arguments]
-
-Options:
-  --help      Show this help message
-  --mission   Print the repository mission statement
-  --version   Print the package version
-  --license   Print the package license
-
-Examples:
-  npm run start -- --help
-  npm run start -- --mission
-  npm run start -- --license
-  npm run start -- foo bar
-```
-
 ### Display Mission
 
 ```bash
 npm run start -- --mission
-```
-
-Output:
-
-```
-# Mission Statement
-
-repository0 is a repository template that showcases the GitHub workflows imported from intentïon agentic-lib. Its
-primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
 ```
 
 ### Display Version
@@ -74,28 +59,10 @@ primary purpose is to demonstrate these automated CI/CD workflows and provide a 
 npm run start -- --version
 ```
 
-Output:
-
-```
-2.1.0-0
-```
-
 ### Display License
 
 ```bash
 npm run start -- --license
-```
-
-Output (when license is set):
-
-```
-MIT
-```
-
-Output (when license is missing or empty):
-
-```
-No license specified in package.json.
 ```
 
 ### Echo Arguments
@@ -104,7 +71,7 @@ No license specified in package.json.
 npm run start -- foo bar
 ```
 
-Output:
+Outputs the provided arguments as an array:
 
 ```
 Run with: ["foo","bar"]
