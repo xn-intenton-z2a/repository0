@@ -13,9 +13,13 @@ describe("Main Output", () => {
   test("should display mission statement", () => {
     const mockContent = "# Mission Statement\nSample mission text";
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
     vi.spyOn(fs, "readFileSync").mockReturnValue(mockContent);
+
     main(["--mission"]);
+
     expect(log).toHaveBeenCalledWith(mockContent);
+    expect(exitSpy).toHaveBeenCalledWith(0);
     vi.restoreAllMocks();
   });
 

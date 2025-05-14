@@ -58,6 +58,7 @@ export function main(args) {
     try {
       const content = fs.readFileSync(missionPath, "utf8");
       console.log(content);
+      process.exit(0);
     } catch (err) {
       console.error(`Error reading mission file: ${err.message}`);
       process.exit(1);
