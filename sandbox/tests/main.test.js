@@ -58,10 +58,12 @@ describe("Help Output", () => {
       "  --help      Show this help message",
       "  --mission   Print the repository mission statement",
       "  --version   Print the package version",
+      "  --license   Print the package license",
       "",
       "Examples:",
       "  npm run start -- --help",
       "  npm run start -- --mission",
+      "  npm run start -- --license",
       "  npm run start -- foo bar",
     ];
     expect(logs).toEqual(expected);
@@ -92,5 +94,65 @@ describe("Help Output", () => {
     logSpy.mockRestore();
     exitSpy.mockRestore();
     errorSpy.mockRestore();
+  });
+});
+
+describe("License Output", () => {
+  test("should display license when license field is present", () => {
+    const mockPkg = { license: "MIT" };
+    const readSpy = vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(mockPkg));
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+
+    main(["--license"]);
+
+    expect(logSpy).toHaveBeenCalledWith("MIT");
+    expect(exitSpy).toHaveBeenCalledWith(0);
+
+    vi.restoreAllMocks();
+  });
+
+  test("should display missing message and exit with code 1 when license is missing", () => {
+    const mockPkg = {};
+    const readSpy = vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(mockPkg));
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+
+    main(["--license"]);
+
+    expect(logSpy).toHaveBeenCalledWith("No license specified in package.json.");
+    expect(exitSpy).toHaveBeenCalledWith(1);
+
+    vi.restoreAllMocks();
+  });
+
+  test("should display missing message and exit with code 1 when license is empty string", () => {
+    const mockPkg = { license: "" };
+    const readSpy = vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(mockPkg));
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+
+    main(["--license"]);
+
+    expect(logSpy).toHaveBeenCalledWith("No license specified in package.json.");
+    expect(exitSpy).toHaveBeenCalledWith(1);
+
+    vi.restoreAllMocks();
+  });
+
+  test("should display error and exit with code 1 on read/parse failure", () => {
+    const error = new Error("fail");
+    const readSpy = vi.spyOn(fs, "readFileSync").mockImplementation(() => {
+      throw error;
+    });
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+
+    main(["--license"]);
+
+    expect(errorSpy).toHaveBeenCalledWith("Error reading license from package.json: fail");
+    expect(exitSpy).toHaveBeenCalledWith(1);
+
+    vi.restoreAllMocks();
   });
 });
