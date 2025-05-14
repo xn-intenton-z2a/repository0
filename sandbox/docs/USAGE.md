@@ -34,6 +34,26 @@ Output:
 2.1.0-0
 ```
 
+## Display License
+
+Invoke the CLI with the `--license` flag:
+
+```bash
+npm run start -- --license
+```
+
+Output (when license is set):
+
+```
+MIT
+```
+
+Output (when license is missing or empty):
+
+```
+No license specified in package.json.
+```
+
 ## Default Behavior
 
 Without any flags, the CLI will echo the provided arguments:
@@ -67,9 +87,11 @@ Options:
   --help      Show this help message
   --mission   Print the repository mission statement
   --version   Print the package version
+  --license   Print the package license
 
 Examples:
   npm run start -- --help
   npm run start -- --mission
+  npm run start -- --license
   npm run start -- foo bar
 ```

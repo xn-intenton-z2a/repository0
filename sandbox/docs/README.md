@@ -7,6 +7,7 @@ repository0 is a CLI demo of agentic workflows powered by intentïon agentic-lib
 - `--help`: Show help message with available options and usage examples.
 - `--mission`: Print the repository mission statement.
 - `--version`: Print the package version.
+- `--license`: Print the package license.
 - Argument echo: Echo provided arguments when no flags are used.
 
 ## Links
@@ -21,7 +22,7 @@ repository0 is a CLI demo of agentic workflows powered by intentïon agentic-lib
 ```bash
 npm install
 npm test
-npm run start -- [--help|--mission|--version] [args]
+npm run start -- [--help|--mission|--version|--license] [args]
 ```
 
 ## Usage Examples
@@ -43,10 +44,12 @@ Options:
   --help      Show this help message
   --mission   Print the repository mission statement
   --version   Print the package version
+  --license   Print the package license
 
 Examples:
   npm run start -- --help
   npm run start -- --mission
+  npm run start -- --license
   npm run start -- foo bar
 ```
 
@@ -75,6 +78,24 @@ Output:
 
 ```
 2.1.0-0
+```
+
+### Display License
+
+```bash
+npm run start -- --license
+```
+
+Output (when license is set):
+
+```
+MIT
+```
+
+Output (when license is missing or empty):
+
+```
+No license specified in package.json.
 ```
 
 ### Echo Arguments
