@@ -41,8 +41,21 @@ env:
 
 jobs:
 
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    needs:
+      - check-secrets
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -55,7 +68,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-maintenance-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -86,7 +99,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.5.0'
     with:
       issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}

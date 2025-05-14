@@ -101,11 +101,11 @@ jobs:
   pr:
     needs: label
     if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@6.5.0'
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@6.5.0'
 
   ls:
     needs: label
@@ -154,7 +154,7 @@ jobs:
       pullNumber: ${{ steps.get-pull.outputs.pullNumber }}
 
   merge-check:
-    if: always()
+    if: ${{ !cancelled() }}
     needs:
       - pr
       - cs
@@ -220,12 +220,12 @@ jobs:
   automerge:
     needs:
       - merge-check
-    if: ${{ always() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
+    if: ${{ !cancelled() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
     permissions:
       contents: write
       pull-requests: write
       checks: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@6.5.0'
     with:
       pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
 
@@ -252,18 +252,18 @@ jobs:
       - merge-check
       - automerge
       - validate-issue-number
-    if: ${{ always() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.validate-issue-number.outputs.isValid == 'true' ) }}
+    if: ${{ !cancelled() && ( needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber != '' && needs.validate-issue-number.outputs.isValid == 'true' ) }}
     permissions:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@6.5.0'
     with:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
       issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
 
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -276,11 +276,11 @@ jobs:
   #    - automerge
   #    - validate-issue-number
   #    - label-issue-after-automerge
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.5.0'
   #  with:
   #    issueNumber: ''
   #    selectionLabel: 'ready'
@@ -295,12 +295,12 @@ jobs:
   #    - validate-issue-number
   #    - label-issue-after-automerge
   #    - select-next-issue
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    contents: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.5.0'
   #  with:
   #    cache: 'npm'
   #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

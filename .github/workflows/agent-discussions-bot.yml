@@ -68,8 +68,21 @@ env:
   # TODO: Post as the Bot's app account.
 
 jobs:
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    needs:
+      - check-secrets
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -77,6 +90,7 @@ jobs:
 
   process-discussion-post:
     needs:
+      - check-secrets
       - agentic-lib
     runs-on: ubuntu-latest
     steps:
@@ -209,13 +223,13 @@ jobs:
     needs:
       - process-discussion-post
       - agentic-lib
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -347,7 +361,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.5.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -360,7 +374,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -419,7 +433,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
     permissions:
       contents: write
       pull-requests: write
@@ -428,7 +442,7 @@ jobs:
       packages: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.5.0'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -442,7 +456,7 @@ jobs:
   #    - generate-response
   #    - seed-repository
   #    - agentic-lib
-  #  if: ${{ always() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+  #  if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
   #  permissions:
   #    contents: write
   #    pull-requests: write
@@ -451,7 +465,7 @@ jobs:
   #    packages: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.5.0'
   #  with:
   #    feature: ${{ needs.generate-response.outputs.detail }}
   #  secrets:
@@ -464,7 +478,7 @@ jobs:
       - generate-response
       - agentic-lib
       - feature-maintenance-flow
-    if: always() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop')
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -504,11 +518,11 @@ jobs:
   #    - feature-development-flow
   #    - feature-maintenance-flow
   #    - declare-status-and-halt
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.5.0'
   #  with:
   #    issueNumber: ''
   #    selectionLabel: 'ready'
@@ -525,12 +539,12 @@ jobs:
   #    - feature-development-flow
   #    - declare-status-and-halt
   #    - select-next-issue
-  #  if: always()
+  #  if: ${{ !cancelled() }}
   #  permissions:
   #    contents: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.5.0'
   #  with:
   #    cache: 'npm'
   #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

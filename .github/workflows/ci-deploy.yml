@@ -4,8 +4,8 @@
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
 name: ci-deploy
-concurrency: agentic-lib-deploy
-run-name: 'ci deploy [${{ github.ref_name }}] [${{ github.event.head_commit.message }}]'
+concurrency: agentic-lib-deploy-${{ inputs.environment || 'ci' }}
+run-name: "ci deploy [${{ github.ref_name }}] to [${{ inputs.environment || 'ci' }}]"
 
 on:
   #push:
@@ -24,6 +24,15 @@ on:
   #    - '!programs/**'
   #    - '!results/**'
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'ci'
+        type: choice
+        options:
+          - ci
+          - prod
   workflow_run:
     workflows:
       - seed-repository
@@ -41,6 +50,7 @@ on:
     - cron: '22 */3 * * *' # schedule-4
 
 env:
+  environment: ${{ inputs.environment || 'ci' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
   s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
@@ -167,6 +177,7 @@ jobs:
       - npm-test-and-run-main
       - mvn-package-cdk-synth
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'ci' }}
     permissions:
       id-token: write
       contents: read
@@ -269,15 +280,48 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+      - name: Log built files
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: |
+          echo "ls -lh target/:"
+          ls -lh target/
+          echo "du -h target/:"
+          du -h target/
+
+      - name: set-jar-path
+        id: jar-path
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: |
+          jarPath=$(mvn help:evaluate --quiet --define expression=project.build.directory --define forceStdout)
+          jarFilename=$(mvn help:evaluate --quiet --define expression=project.build.finalName --define forceStdout)
+          echo "jarFilepath=${jarPath?}/${jarFilename?}.jar" | tee -a "${GITHUB_OUTPUT?}"
+
       - name: stacks
         id: stacks
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: |
-          synth=$(jq -r '.synthStacks' cdk.json)
-          deploy=$(jq -r '.deployStacks' cdk.json)
+          synth=$(jq -r '.synthStacks' cdk.json | sed 's/WebStack-dev/WebStack-${{ inputs.environment || 'ci' }}/g')
+          deploy=$(jq -r '.deployStacks' cdk.json | sed 's/WebStack-dev/WebStack-${{ inputs.environment || 'ci' }}/g')
           echo "deploy=${deploy?}" | tee -a "${GITHUB_OUTPUT?}"
           echo "synth=${synth?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - name: log environment and repository variables
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: |
+          echo 'GITHUB_ACTOR: '${{ github.actor }}'
+          echo 'ENV_NAME: '${{ inputs.environment || 'ci' }}'
+          echo 'USE_EXISTING_HOSTED_ZONE: '${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}'
+          echo 'USE_EXISTING_CERTIFICATE: '${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}'
+          echo 'HOSTED_ZONE_NAME: '${{ vars.AWS_HOSTED_ZONE_NAME }}'
+          echo 'HOSTED_ZONE_ID: '${{ vars.AWS_HOSTED_ZONE_ID }}'
+          echo 'CERTIFICATE_ID: '${{ vars.AWS_CERTIFICATE_ID }}'
+          echo 'SUB_DOMAIN_NAME: '${{ inputs.environment || 'ci' }}'
+          echo 'LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: '${{ steps.jar-path.outputs.jarFilepath }}'
+          echo 'LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: '${{ steps.jar-path.outputs.jarFilepath }}'
 
       - name: synth
         id: synth
@@ -287,6 +331,21 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          ENV_NAME: ${{ inputs.environment || 'ci' }}
+          USE_EXISTING_HOSTED_ZONE: ${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}
+          USE_EXISTING_CERTIFICATE: ${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}
+          HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
+          HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
+          CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
+          SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}
+          LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
+          LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
+
+      - name: Log generated stacks
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: |
+          jq '.' cdk.out/tree.json
 
       - name: deploy
         id: deploy
@@ -296,3 +355,12 @@ jobs:
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          ENV_NAME: ${{ inputs.environment || 'ci' }}
+          USE_EXISTING_HOSTED_ZONE: ${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}
+          USE_EXISTING_CERTIFICATE: ${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}
+          HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
+          HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
+          CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
+          SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}
+          LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
+          LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}

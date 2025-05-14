@@ -36,22 +36,60 @@ env:
 
 jobs:
 
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    needs:
+      - check-secrets
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  # GitHub Script job which checks if the target path starts with one of writeableFilepaths and fails out if not
+  check-writeable-filepaths:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if target is writeable
+        id: check-writeable-filepaths
+        uses: actions/github-script@v7
+        env:
+          targetFilepath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+          writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+        with:
+          script: |
+            const writeableFilepaths = process.env.writeableFilepaths.split(';');
+            let targetFilepath;
+            targetFilepath = process.env.targetFilepath;
+            if (!writeableFilepaths.some(path => targetFilepath.startsWith(path))) {
+              core.setFailed(`targetFilepath "${targetFilepath}" is not in the list of writeable filepaths.`);
+              return;
+            } else {
+              core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
+            }
+
   # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
   maintain-library:
     needs:
       - agentic-lib
+      - check-writeable-filepaths
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-maintain-library.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}

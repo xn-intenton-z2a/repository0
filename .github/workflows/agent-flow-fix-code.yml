@@ -48,16 +48,63 @@ env:
 
 jobs:
 
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    needs:
+      - check-secrets
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  # GitHub Script job which checks if the target path starts with one of writeableFilepaths and fails out if not
+  check-writeable-filepaths:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if target is writeable
+        id: check-writeable-filepaths
+        uses: actions/github-script@v7
+        env:
+          targetFilepath1: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          targetFilepath2: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+          targetFilepath3: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+          targetFilepath4: ${{ needs.agentic-lib.outputs.documentationPath }}
+          writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+        with:
+          script: |
+            const writeableFilepaths = process.env.writeableFilepaths.split(';');
+            let targetFilepath1;
+            let targetFilepath2;
+            let targetFilepath3;
+            let targetFilepath4;
+            targetFilepath1 = process.env.targetFilepath1;
+            targetFilepath2 = process.env.targetFilepath2;
+            targetFilepath3 = process.env.targetFilepath3;
+            targetFilepath4 = process.env.targetFilepath4;
+            if (!writeableFilepaths.some(path => targetFilepath1.startsWith(path) ||  targetFilepath2.startsWith(path) || targetFilepath3.startsWith(path) || targetFilepath4.startsWith(path))) {
+              core.setFailed(`None of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", and "${targetFilepath4}" are in the list of writeable filepaths.`);
+              return;
+            } else {
+              core.info(`One of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", or "${targetFilepath4}" is in the list of writeable filepaths.`);
+            }
+
   select-branch:
     needs:
       - agentic-lib
+      - check-writeable-filepaths
     runs-on: ubuntu-latest
     env:
       branchPrefix: ${{ inputs.branchPrefix || 'agentic-lib-' }}
@@ -382,7 +429,7 @@ jobs:
       - npm-build
       - npm-run
     if: >
-      ${{ always() &&
+      ${{ !cancelled() &&
          (
            needs.npm-test.result != 'success' ||
            needs.npm-build.result != 'success' ||
@@ -433,7 +480,7 @@ jobs:
       - npm-run
       - needs-fix
       - validate-issue-number
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' && needs.validate-issue-number.outputs.isValid == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' && needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: write
       issues: write
@@ -474,7 +521,7 @@ jobs:
     needs:
       - select-branch
       - needs-fix
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-issue-'
@@ -506,12 +553,12 @@ jobs:
       - npm-build
       - npm-run
       - needs-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -548,7 +595,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -583,7 +630,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -618,7 +665,7 @@ jobs:
       - npm-run
       - needs-fix
       - apply-fix
-    if: ${{ always() && needs.needs-fix.outputs.needsFix == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix.outputs.needsFix == 'true' }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -657,7 +704,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - name: set-needs-fix
         id: set-needs-fix
@@ -707,7 +754,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -715,7 +762,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.5.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -736,7 +783,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ always() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && needs.branch-for-fix.outputs.branch != 'main' && needs.branch-for-fix.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       pull-requests: write
@@ -744,7 +791,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.5.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

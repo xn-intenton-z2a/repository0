@@ -51,22 +51,69 @@ env:
 
 jobs:
 
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CHATGPT_API_SECRET_KEY is available
+        run: |
+          if [ -z "${{ secrets.CHATGPT_API_SECRET_KEY }}" ]; then
+            echo "::error::CHATGPT_API_SECRET_KEY is not available. Stopping workflow."
+            exit 1
+          fi
+          echo "CHATGPT_API_SECRET_KEY is available."
+
   agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.4.7'
+    needs:
+      - check-secrets
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  # GitHub Script job which checks if the target path starts with one of writeableFilepaths and fails out if not
+  check-writeable-filepaths:
+    needs:
+      - agentic-lib
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if target is writeable
+        id: check-writeable-filepaths
+        uses: actions/github-script@v7
+        env:
+          targetFilepath1: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          targetFilepath2: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+          targetFilepath3: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+          targetFilepath4: ${{ needs.agentic-lib.outputs.documentationPath }}
+          writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+        with:
+          script: |
+            const writeableFilepaths = process.env.writeableFilepaths.split(';');
+            let targetFilepath1;
+            let targetFilepath2;
+            let targetFilepath3;
+            let targetFilepath4;
+            targetFilepath1 = process.env.targetFilepath1;
+            targetFilepath2 = process.env.targetFilepath2;
+            targetFilepath3 = process.env.targetFilepath3;
+            targetFilepath4 = process.env.targetFilepath4;
+            if (!writeableFilepaths.some(path => targetFilepath1.startsWith(path) ||  targetFilepath2.startsWith(path) || targetFilepath3.startsWith(path) || targetFilepath4.startsWith(path))) {
+              core.setFailed(`None of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", and "${targetFilepath4}" are in the list of writeable filepaths.`);
+              return;
+            } else {
+              core.info(`One of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", or "${targetFilepath4}" is in the list of writeable filepaths.`);
+            }
+
   # If the feature is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
   #maintain-features:
   #  needs:
   #    - agentic-lib
+  #    - check-writeable-filepaths
   #  permissions:
   #    contents: write
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.4.7'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.5.0'
   #  with:
   #    promptFilepath: '.github/agents/agent-maintain-features.md'
   #    agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -92,13 +139,14 @@ jobs:
   generate-feature-development-issue:
     needs:
       - agentic-lib
+      - check-writeable-filepaths
       #- maintain-features
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -131,7 +179,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.5.0'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -140,11 +188,11 @@ jobs:
   select-issue-to-enhance:
     needs:
       - create-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.5.0'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'automated'
@@ -176,12 +224,12 @@ jobs:
       - agentic-lib
       - select-issue-to-enhance
       - validate-issue-number
-    if: ${{ always() && needs.validate-issue-number.outputs.isValid == 'true' }}
+    if: ${{ !cancelled() && needs.validate-issue-number.outputs.isValid == 'true' }}
     permissions:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.5.0'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -209,11 +257,11 @@ jobs:
     needs:
       - create-issue
       - enhance-issue
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.5.0'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'ready'
@@ -226,7 +274,7 @@ jobs:
       - create-issue
       - enhance-issue
       - select-issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -235,7 +283,7 @@ jobs:
       id-token: write
       packages: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.5.0'
     with:
       issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
@@ -245,7 +293,7 @@ jobs:
   automerge-pr:
     needs:
       - issue-to-code
-    if: always()
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -253,7 +301,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.4.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.5.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
