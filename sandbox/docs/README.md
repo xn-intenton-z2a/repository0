@@ -53,6 +53,21 @@ npm run start -- --help
 npm run start -- --mission
 ```
 
+Outputs the mission statement:
+
+```
+# Mission Statement
+
+repository0 is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+```
+
+Error Case (when mission file is missing or unreadable):
+
+```
+Error reading mission file: <error message>
+```
+
 ### Display Version
 
 ```bash

@@ -16,8 +16,20 @@ Output:
 ```
 # Mission Statement
 
-repository0 is a repository template that showcases the GitHub workflows imported from intentïon agentic-lib. Its
+repository0 is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its
 primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+```
+
+### Error Case
+
+```bash
+npm run start -- --mission
+```
+
+Output (when mission file is missing or unreadable):
+
+```
+Error reading mission file: ENOENT: no such file or directory, open 'MISSION.md'
 ```
 
 ## Display Version
