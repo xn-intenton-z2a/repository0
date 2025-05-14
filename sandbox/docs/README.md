@@ -1,45 +1,90 @@
 # repository0
 
-`repository0` is a CLI demo of agentic workflows supporting `--help`, `--mission`, `--version`, and argument echo.
+repository0 is a CLI demo of agentic workflows powered by intentïon agentic-lib, supporting a set of simple commands for interactive use.
 
-**Links:**
-- [Mission Statement](../../MISSION.md)
-- [Contributing Guidelines](../../CONTRIBUTING.md)
-- [License](../../LICENSE.md)
-- [agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
-
-## Overview
+## Features
 
 - `--help`: Show help message with available options and usage examples.
 - `--mission`: Print the repository mission statement.
 - `--version`: Print the package version.
-- No flags: Echo provided arguments.
+- Argument echo: Echo provided arguments when no flags are used.
 
-## Source & Tests
+## Links
 
-- `sandbox/source/main.js`
-- `src/lib/main.js`
-- `sandbox/tests/`
-- `tests/unit/`
-
-## Scripts & Dependencies
-
-- `npm install`: Install project dependencies.
-- `npm test`: Run unit and feature tests.
-- `npm run start -- [--help|--mission|--version] [arguments]`: Execute the CLI with optional flags and arguments.
+- [Mission Statement](../../MISSION.md)
+- [Contributing Guidelines](../../CONTRIBUTING.md)
+- [License](../../LICENSE.md)
+- [agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
 
 ## Getting Started
 
 ```bash
 npm install
 npm test
-npm run start -- [--help|--mission|--version] [arguments]
+npm run start -- [--help|--mission|--version] [args]
 ```
 
-## Contributing
+## Usage Examples
 
-Please see [CONTRIBUTING.md](../../CONTRIBUTING.md) for details on how to contribute.
+### Display Help
 
-## License
+```bash
+npm run start -- --help
+```
 
-This project is licensed under the [Apache-2.0](../../LICENSE.md) license.
+Output:
+
+```
+repository0: A CLI demo of our agentic workflows.
+
+Usage: sandbox/source/main.js [options] [arguments]
+
+Options:
+  --help      Show this help message
+  --mission   Print the repository mission statement
+  --version   Print the package version
+
+Examples:
+  npm run start -- --help
+  npm run start -- --mission
+  npm run start -- foo bar
+```
+
+### Display Mission
+
+```bash
+npm run start -- --mission
+```
+
+Output:
+
+```
+# Mission Statement
+
+repository0 is a repository template that showcases the GitHub workflows imported from intentïon agentic-lib. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+```
+
+### Display Version
+
+```bash
+npm run start -- --version
+```
+
+Output:
+
+```
+2.1.0-0
+```
+
+### Echo Arguments
+
+```bash
+npm run start -- foo bar
+```
+
+Output:
+
+```
+Run with: ["foo","bar"]
+```
