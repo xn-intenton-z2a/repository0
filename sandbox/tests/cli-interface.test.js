@@ -54,7 +54,6 @@ describe("CLI Integration Tests", () => {
 
   test("--plot quadratic writes default plot.svg with SVG content", () => {
     const outfile = "plot.svg";
-    // cleanup before
     const outPath = path.resolve(process.cwd(), outfile);
     if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
     const result = spawnSync("node", [cliPath, "--plot", "quadratic"], { encoding: "utf8" });
@@ -93,5 +92,48 @@ describe("CLI Integration Tests", () => {
     const result = spawnSync("node", [cliPath, "--plot", "unknown"], { encoding: "utf8" });
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("Unsupported function: unknown");
+  });
+
+  // Polar CLI tests
+  test("--polar spiral writes default polar.svg with SVG content", () => {
+    const outfile = "polar.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "spiral"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/<svg[^>]*>/);
+    expect(content).toMatch(/<polyline[^>]*>/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("custom resolution: --polar spiral --resolution 50", () => {
+    const outfile = "polar.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "spiral", "--resolution", "50"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    const commaCount = (content.match(/,/g) || []).length;
+    expect(commaCount).toBe(50);
+    fs.unlinkSync(outPath);
+  });
+
+  test("custom output: --polar rose --output custom.svg writes to specified file", () => {
+    const outfile = "custom.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "rose", "--output", outfile], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/<svg[^>]*>/);
+    expect(content).toMatch(/<polyline[^>]*>/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("error for unsupported polar function", () => {
+    const result = spawnSync("node", [cliPath, "--polar", "foo"], { encoding: "utf8" });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Unsupported polar function: foo");
   });
 });

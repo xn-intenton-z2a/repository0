@@ -64,6 +64,24 @@ $ node sandbox/source/main.js --plot sine --range -3.14,3.14 --output sine.svg
 # Creates `sine.svg` with the sine curve over the specified range
 ```
 
+### --polar <function>
+
+Generates an SVG polar plot for the specified function. Supported functions: `spiral`, `rose`.
+
+Optional flags:
+- `--radius-range <rStart,rEnd>`: Defines the radius range for the plot (default: `0,5`).
+- `--angle-range <thetaStart,thetaEnd>`: Defines the angle range in radians (default: `0,6.28`).
+- `--resolution <points>`: Number of sample points (default: `100`).
+- `--output <filename>`: Specifies the output filename for the SVG (default: `polar.svg`).
+
+Examples:
+```
+$ node sandbox/source/main.js --polar spiral
+# Creates `polar.svg` displaying an Archimedean spiral with default settings
+$ node sandbox/source/main.js --polar rose --radius-range 0,1 --angle-range 0,6.28 --resolution 200 --output rose.svg
+# Creates `rose.svg` displaying a rose curve sampled at 200 points
+```
+
 ### Default behavior
 
 When no flags are provided, the CLI echoes all positional arguments as a JSON array:
