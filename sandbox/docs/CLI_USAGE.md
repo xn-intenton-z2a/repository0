@@ -82,7 +82,7 @@ Generate a quadratic plot as SVG with custom styling and annotations:
 
 ```bash
 node sandbox/source/main.js --plot quadratic --range 0,10 --resolution 50 --stroke-color red --stroke-width 2 \
-  --fill-color blue --background-color yellow --title "MyPlot" --xlabel "X-Axis" --_ylabel "Y-Axis" \
+  --fill-color blue --background-color yellow --title "MyPlot" --xlabel "X-Axis" --ylabel "Y-Axis" \
   --output styled_plot.svg
 ```
 
