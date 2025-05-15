@@ -1,93 +1,69 @@
 # CLI Usage
 
-This document describes the command-line interface for `repository0`.
+`repository0` demonstrates automated CLI workflows and SVG plot generation.
 
-## Commands
+## Overview
 
-### --help
+This command-line tool provides help, version, and mission information, and generates SVG plots of mathematical functions and polar plots.
 
-Displays help information, including a summary of all available commands and example invocations.
+## What’s Inside
 
-Example:
-```
-$ node sandbox/source/main.js --help
-Usage: node main.js [options]
+- **CLI Entrypoint**: `sandbox/source/main.js`
+- **Supported Commands & Flags:**
+  - `--help`              Show help information.
+  - `--version`           Show version number.
+  - `--mission`           Show mission statement.
+  - `--plot <function>`   Generate an SVG plot. Supported functions: `quadratic`, `sine`.
+    - `--range <start,end>`   X-axis range (default: `0,10`).
+    - `--output <filename>`   Output filename (default: `plot.svg`).
+  - `--polar <function>`  Generate an SVG polar plot. Supported functions: `spiral`, `rose`.
+    - `--radius-range <rStart,rEnd>`   Radius range (default: `0,5`).
+    - `--angle-range <thetaStart,thetaEnd>`  Angle range in radians (default: `0,6.28`).
+    - `--resolution <points>`  Number of sample points (default: `100`).
+    - `--output <filename>`   Output filename (default: `polar.svg`).
 
-Options:
-  --help      Show help information
-  --version   Show version number
-  --mission   Show mission statement
+## Usage
 
-Examples:
-  $ node main.js --help
-  $ node main.js --version
-  $ node main.js --mission
+### Installation
 
-For full mission statement see MISSION.md
-```
-
-### --version
-
-Prints the current version of the tool, as specified in `package.json`.
-
-Example:
-```
-$ node sandbox/source/main.js --version
-2.1.0-0
+```bash
+npm install
 ```
 
-### --mission
+### Run CLI
 
-Shows the first header and paragraph from the project's `MISSION.md` file.
-
-Example:
-```
-$ node sandbox/source/main.js --mission
-# Mission Statement
-
-`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`.
+```bash
+npm run start
 ```
 
-### --plot <function>
+### Examples
 
-Generates an SVG plot for the specified mathematical function. Supported functions: `quadratic`, `sine`.
+```bash
+# Display help
+node sandbox/source/main.js --help
 
-Optional flags:
-- `--range <start,end>`: Defines the x-axis range for the plot (default: `0,10`).
-- `--output <filename>`: Specifies the output filename for the SVG (default: `plot.svg`).
+# Show version
+node sandbox/source/main.js --version
 
-Examples:
-```
-$ node sandbox/source/main.js --plot quadratic
-# Creates `plot.svg` with the quadratic curve
-$ node sandbox/source/main.js --plot sine --range -3.14,3.14 --output sine.svg
-# Creates `sine.svg` with the sine curve over the specified range
-```
+# Show mission statement
+node sandbox/source/main.js --mission
 
-### --polar <function>
+# Generate quadratic plot
+node sandbox/source/main.js --plot quadratic --range 0,10 --output plot.svg
 
-Generates an SVG polar plot for the specified function. Supported functions: `spiral`, `rose`.
+# Generate sine plot over -3.14 to 3.14
+node sandbox/source/main.js --plot sine --range -3.14,3.14 --output sine.svg
 
-Optional flags:
-- `--radius-range <rStart,rEnd>`: Defines the radius range for the plot (default: `0,5`).
-- `--angle-range <thetaStart,thetaEnd>`: Defines the angle range in radians (default: `0,6.28`).
-- `--resolution <points>`: Number of sample points (default: `100`).
-- `--output <filename>`: Specifies the output filename for the SVG (default: `polar.svg`).
+# Generate spiral polar plot
+node sandbox/source/main.js --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --output polar.svg
 
-Examples:
-```
-$ node sandbox/source/main.js --polar spiral
-# Creates `polar.svg` displaying an Archimedean spiral with default settings
-$ node sandbox/source/main.js --polar rose --radius-range 0,1 --angle-range 0,6.28 --resolution 200 --output rose.svg
-# Creates `rose.svg` displaying a rose curve sampled at 200 points
+# Generate rose polar plot
+node sandbox/source/main.js --polar rose --radius-range 0,1 --angle-range 0,6.28 --resolution 200 --output rose.svg
 ```
 
-### Default behavior
+## Links
 
-When no flags are provided, the CLI echoes all positional arguments as a JSON array:
-
-Example:
-```
-$ node sandbox/source/main.js foo bar
-Run with: ["foo","bar"]
-```
+- [MISSION.md](../../MISSION.md)
+- [CONTRIBUTING.md](../../CONTRIBUTING.md)
+- [LICENSE.md](../../LICENSE.md)
+- [agentic-lib GitHub repository](https://github.com/xn-intenton-z2a/agentic-lib)
