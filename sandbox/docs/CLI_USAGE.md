@@ -45,8 +45,23 @@ Example:
 $ node sandbox/source/main.js --mission
 # Mission Statement
 
-`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its
-...
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic-lib`.
+```
+
+### --plot <function>
+
+Generates an SVG plot for the specified mathematical function. Supported functions: `quadratic`, `sine`.
+
+Optional flags:
+- `--range <start,end>`: Defines the x-axis range for the plot (default: `0,10`).
+- `--output <filename>`: Specifies the output filename for the SVG (default: `plot.svg`).
+
+Examples:
+```
+$ node sandbox/source/main.js --plot quadratic
+# Creates `plot.svg` with the quadratic curve
+$ node sandbox/source/main.js --plot sine --range -3.14,3.14 --output sine.svg
+# Creates `sine.svg` with the sine curve over the specified range
 ```
 
 ### Default behavior

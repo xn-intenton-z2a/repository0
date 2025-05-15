@@ -51,4 +51,47 @@ describe("CLI Integration Tests", () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
   });
+
+  test("--plot quadratic writes default plot.svg with SVG content", () => {
+    const outfile = "plot.svg";
+    // cleanup before
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/<svg[^>]*>/);
+    expect(content).toMatch(/<polyline[^>]*>/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("custom range: --plot sine --range -3.14,3.14 produces correct span", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "sine", "--range", "-3.14,3.14"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/-3\.14,/);
+    expect(content).toMatch(/3\.14,/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("custom output: --plot quadratic --output out.svg writes to specified file", () => {
+    const outfile = "out.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic", "--output", outfile], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/<svg[^>]*>/);
+    expect(content).toMatch(/<polyline[^>]*>/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("error for unsupported function", () => {
+    const result = spawnSync("node", [cliPath, "--plot", "unknown"], { encoding: "utf8" });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("Unsupported function: unknown");
+  });
 });
