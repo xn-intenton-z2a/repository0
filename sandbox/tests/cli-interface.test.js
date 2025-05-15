@@ -99,7 +99,7 @@ describe("CLI Integration Tests", () => {
     const outfile = "polar.svg";
     const outPath = path.resolve(process.cwd(), outfile);
     if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
-    const result = spawnSync("node", [cliPath, "--polar", "spiral"]), { encoding: "utf8" };
+    const result = spawnSync("node", [cliPath, "--polar", "spiral"], { encoding: "utf8" });
     expect(result.status).toBe(0);
     const content = fs.readFileSync(outPath, "utf8");
     expect(content).toMatch(/<svg[^>]*>/);
