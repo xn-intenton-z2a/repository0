@@ -85,7 +85,15 @@ function handlePlot() {
     process.exit(1);
   }
 
-  const rangeStr = argv.range || "0,10";
+  // Determine range string, prioritizing raw args for correct parsing of negative values
+  let rangeStr = "0,10";
+  const rangeIndex = args.indexOf("--range");
+  if (rangeIndex !== -1 && args[rangeIndex + 1] !== undefined) {
+    rangeStr = args[rangeIndex + 1];
+  } else if (argv.range) {
+    rangeStr = argv.range;
+  }
+
   const parts = rangeStr.split(",");
   if (parts.length !== 2) {
     console.error(`Invalid range: ${rangeStr}`);
