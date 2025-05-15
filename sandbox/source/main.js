@@ -23,7 +23,18 @@ const argv = minimist(args, {
     "angle-range",
     "resolution",
     "export-data",
-    "serve"
+    "serve",
+    "stroke-color",
+    "strokeColor",
+    "stroke-width",
+    "strokeWidth",
+    "fill-color",
+    "fillColor",
+    "background-color",
+    "backgroundColor",
+    "title",
+    "xlabel",
+    "ylabel"
   ],
   alias: { h: "help", v: "version", m: "mission" }
 });
@@ -51,29 +62,36 @@ function showHelp() {
   const script = path.basename(process.argv[1]);
   console.log(
     `Usage: node ${script} [options]\n\nOptions:\n` +
-    `  --help              Show help information\n` +
-    `  --version           Show version number\n` +
-    `  --mission           Show mission statement\n` +
-    `  --mission-full      Show full mission statement\n` +
-    `  --serve [port]      Start HTTP server (default: 3000)\n` +
-    `  --plot              Generate SVG plot (quadratic or sine)\n` +
-    `  --polar             Generate SVG polar plot (spiral or rose)\n` +
-    `  --export-data       Export data as CSV or JSON (takes precedence)\n` +
-    `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
-    `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
-    `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
-    `  --resolution        Specify number of sample points (default: 100)\n` +
-    `  --output            Specify output filename for SVG (default: plot.svg or polar.svg)\n` +
-    `  --export-data       Specify output filename for data export (.csv or .json)\n` +
-    `\nExamples:\n` +
-    `  $ node ${script} --help\n` +
-    `  $ node ${script} --version\n` +
-    `  $ node ${script} --mission\n` +
-    `  $ node ${script} --mission-full\n` +
-    `  $ node ${script} --serve 4000\n` +
-    `  $ node ${script} --plot quadratic --range 0,10 --export-data data.csv\n` +
-    `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --export-data data.json\n` +
-    `\nFor full mission statement see MISSION.md`
+      `  --help              Show help information\n` +
+      `  --version           Show version number\n` +
+      `  --mission           Show mission statement\n` +
+      `  --mission-full      Show full mission statement\n` +
+      `  --serve [port]      Start HTTP server (default: 3000)\n` +
+      `  --plot              Generate SVG plot (quadratic or sine)\n` +
+      `  --polar             Generate SVG polar plot (spiral or rose)\n` +
+      `  --export-data       Export data as CSV or JSON (takes precedence)\n` +
+      `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
+      `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
+      `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
+      `  --resolution        Specify number of sample points (default: 100)\n` +
+      `  --stroke-color      Set stroke color for plot (default: black)\n` +
+      `  --stroke-width      Set stroke width for plot (default: 1)\n` +
+      `  --fill-color        Set fill color for plot (default: none)\n` +
+      `  --background-color  Set background color for SVG (optional)\n` +
+      `  --title             Add title annotation to SVG\n` +
+      `  --xlabel            Add X-axis label (CLI and HTTP only)\n` +
+      `  --ylabel            Add Y-axis label (CLI and HTTP only)\n` +
+      `  --output            Specify output filename for SVG (default: plot.svg or polar.svg)\n` +
+      `  --export-data       Specify output filename for data export (.csv or .json)\n` +
+      `\nExamples:\n` +
+      `  $ node ${script} --help\n` +
+      `  $ node ${script} --version\n` +
+      `  $ node ${script} --mission\n` +
+      `  $ node ${script} --mission-full\n` +
+      `  $ node ${script} --serve 4000\n` +
+      `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg\n` +
+      `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg\n` +
+      `\nFor full mission statement see MISSION.md`
   );
   process.exit(0);
 }
@@ -163,6 +181,7 @@ function handlePlot() {
     process.exit(1);
   }
 
+  // Parse range
   let rangeStr = "0,10";
   const rangeIndex = args.indexOf("--range");
   if (rangeIndex !== -1 && args[rangeIndex + 1] !== undefined) {
@@ -170,7 +189,6 @@ function handlePlot() {
   } else if (argv.range) {
     rangeStr = argv.range;
   }
-
   const parts = rangeStr.split(",");
   if (parts.length !== 2) {
     console.error(`Invalid range: ${rangeStr}`);
@@ -183,6 +201,19 @@ function handlePlot() {
     process.exit(1);
   }
 
+  // Parse resolution
+  let resolution = 100;
+  const resIndex = args.indexOf("--resolution");
+  if (resIndex !== -1 && args[resIndex + 1] !== undefined) {
+    resolution = parseInt(args[resIndex + 1], 10);
+  } else if (argv.resolution) {
+    resolution = parseInt(argv.resolution, 10);
+  }
+  if (isNaN(resolution) || resolution <= 0) {
+    console.error(`Invalid resolution: ${argv.resolution}`);
+    process.exit(1);
+  }
+
   // Data export
   if (argv["export-data"]) {
     const exportFile = argv["export-data"];
@@ -190,7 +221,7 @@ function handlePlot() {
       console.error(`Invalid export file extension: ${exportFile}`);
       process.exit(1);
     }
-    const data = generatePlotData(funcName, start, end, 100);
+    const data = generatePlotData(funcName, start, end, resolution);
     const outputPath = path.resolve(process.cwd(), exportFile);
     try {
       if (exportFile.endsWith(".csv")) {
@@ -208,9 +239,16 @@ function handlePlot() {
     process.exit(0);
   }
 
-  const outputFile = argv.output || "plot.svg";
-  const samples = 100;
-  const data = generatePlotData(funcName, start, end, samples);
+  // Styling and annotations
+  const strokeColor = argv["stroke-color"] || argv.strokeColor || "black";
+  const strokeWidth = argv["stroke-width"] || argv.strokeWidth || 1;
+  const fillColor = argv["fill-color"] || argv.fillColor || "none";
+  const backgroundColor = argv["background-color"] || argv.backgroundColor;
+  const title = argv.title;
+  const xlabel = argv.xlabel;
+  const ylabel = argv.ylabel;
+
+  const data = generatePlotData(funcName, start, end, resolution);
   const ys = data.map((d) => d.y);
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
@@ -218,12 +256,39 @@ function handlePlot() {
   const height = maxY - minY;
   const points = data.map((d) => `${d.x},${d.y}`).join(" ");
 
-  const svg =
-    `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}">\n` +
-    `  <polyline fill="none" stroke="black" points="${points}" />\n` +
-    `</svg>\n`;
+  // Build SVG
+  const svgParts = [];
+  svgParts.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+  svgParts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}">`);
+  if (backgroundColor) {
+    svgParts.push(
+      `  <rect x="${start}" y="${minY}" width="${width}" height="${height}" fill="${backgroundColor}" />`
+    );
+  }
+  if (title) {
+    svgParts.push(`  <title>${title}</title>`);
+  }
+  if (xlabel) {
+    const xPos = start + width / 2;
+    const yPos = minY + height;
+    svgParts.push(
+      `  <text x="${xPos}" y="${yPos}" text-anchor="middle">${xlabel}</text>`
+    );
+  }
+  if (ylabel) {
+    const xPos = start;
+    const yPos = minY + height / 2;
+    svgParts.push(
+      `  <text x="${xPos}" y="${yPos}" transform="rotate(-90,${xPos},${yPos})" text-anchor="middle">${ylabel}</text>`
+    );
+  }
+  svgParts.push(
+    `  <polyline fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" points="${points}" />`
+  );
+  svgParts.push(`</svg>`);
+  const svg = svgParts.join("\n") + "\n";
 
+  const outputFile = argv.output || "plot.svg";
   const outputPath = path.resolve(process.cwd(), outputFile);
   try {
     fs.writeFileSync(outputPath, svg, "utf8");
@@ -281,6 +346,7 @@ function handlePolar() {
     process.exit(1);
   }
 
+  // Parse resolution
   let resolution = 100;
   const resIndex = args.indexOf("--resolution");
   if (resIndex !== -1 && args[resIndex + 1] !== undefined) {
@@ -318,7 +384,15 @@ function handlePolar() {
     process.exit(0);
   }
 
-  const outputFile = argv.output || "polar.svg";
+  // Styling and annotations
+  const strokeColor = argv["stroke-color"] || argv.strokeColor || "black";
+  const strokeWidth = argv["stroke-width"] || argv.strokeWidth || 1;
+  const fillColor = argv["fill-color"] || argv.fillColor || "none";
+  const backgroundColor = argv["background-color"] || argv.backgroundColor;
+  const title = argv.title;
+  const xlabel = argv.xlabel;
+  const ylabel = argv.ylabel;
+
   const data = generatePolarData(funcName, rStart, rEnd, thetaStart, thetaEnd, resolution);
   const xs = data.map((d) => d.x);
   const ys = data.map((d) => d.y);
@@ -330,12 +404,39 @@ function handlePolar() {
   const height = maxY - minY;
   const points = data.map((d) => `${d.x},${d.y}`).join(" ");
 
-  const svg =
-    `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">\n` +
-    `  <polyline fill="none" stroke="black" points="${points}" />\n` +
-    `</svg>\n`;
+  // Build SVG
+  const svgParts = [];
+  svgParts.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+  svgParts.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">`);
+  if (backgroundColor) {
+    svgParts.push(
+      `  <rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="${backgroundColor}" />`
+    );
+  }
+  if (title) {
+    svgParts.push(`  <title>${title}</title>`);
+  }
+  if (xlabel) {
+    const xPos = minX + width / 2;
+    const yPos = minY + height;
+    svgParts.push(
+      `  <text x="${xPos}" y="${yPos}" text-anchor="middle">${xlabel}</text>`
+    );
+  }
+  if (ylabel) {
+    const xPos = minX;
+    const yPos = minY + height / 2;
+    svgParts.push(
+      `  <text x="${xPos}" y="${yPos}" transform="rotate(-90,${xPos},${yPos})" text-anchor="middle">${ylabel}</text>`
+    );
+  }
+  svgParts.push(
+    `  <polyline fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" points="${points}" />`
+  );
+  svgParts.push(`</svg>`);
+  const svg = svgParts.join("\n") + "\n";
 
+  const outputFile = argv.output || "polar.svg";
   const outputPath = path.resolve(process.cwd(), outputFile);
   try {
     fs.writeFileSync(outputPath, svg, "utf8");
@@ -364,69 +465,7 @@ function handleRequest(req, res) {
   const pathname = reqUrl.pathname;
   const params = reqUrl.searchParams;
 
-  if (pathname === "/mission") {
-    const missionPath = path.resolve(__dirname, "../../MISSION.md");
-    try {
-      const content = fs.readFileSync(missionPath, "utf8");
-      const lines = content.split(/\r?\n/);
-      const headerLine = lines.find((l) => l.startsWith("# "));
-      let paragraph = "";
-      if (headerLine) {
-        const startIdx = lines.indexOf(headerLine) + 1;
-        for (let i = startIdx; i < lines.length; i++) {
-          if (lines[i].trim() !== "") {
-            paragraph = lines[i];
-            break;
-          }
-        }
-      }
-      const body = headerLine && paragraph ? `${headerLine}\n\n${paragraph}` : content;
-      res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end(body);
-    } catch (err) {
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end(`Error reading mission statement: ${err.message}`);
-    }
-  } else if (pathname === "/version") {
-    const pkgPath = path.resolve(__dirname, "../../package.json");
-    try {
-      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-      res.writeHead(200, { "Content-Type": "text/plain" });
-      res.end(pkg.version);
-    } catch (err) {
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end(`Error reading version: ${err.message}`);
-    }
-  } else if (pathname === "/help") {
-    const script = path.basename(process.argv[1]);
-    const helpText =
-      `Usage: node ${script} [options]\n\nOptions:\n` +
-      `  --help              Show help information\n` +
-      `  --version           Show version number\n` +
-      `  --mission           Show mission statement\n` +
-      `  --mission-full      Show full mission statement\n` +
-      `  --serve [port]      Start HTTP server (default: 3000)\n` +
-      `  --plot              Generate SVG plot (quadratic or sine)\n` +
-      `  --polar             Generate SVG polar plot (spiral or rose)\n` +
-      `  --export-data       Export data as CSV or JSON (takes precedence)\n` +
-      `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
-      `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
-      `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
-      `  --resolution        Specify number of sample points (default: 100)\n` +
-      `  --output            Specify output filename for SVG (default:(plot.svg or polar.svg))\n` +
-      `  --export-data       Specify output filename for data export (.csv or .json)\n` +
-      `\nExamples:\n` +
-      `  $ node ${script} --help\n` +
-      `  $ node ${script} --version\n` +
-      `  $ node ${script} --mission\n` +
-      `  $ node ${script} --mission-full\n` +
-      `  $ node ${script} --serve 4000\n` +
-      `  $ node ${script} --plot quadratic --range 0,10 --export-data data.csv\n` +
-      `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --export-data data.json\n` +
-      `\nFor full mission statement see MISSION.md`;
-    res.writeHead(200, { "Content-Type": "text/plain" });
-    res.end(helpText);
-  } else if (pathname === "/plot-data") {
+  if (pathname === "/plot-data") {
     const funcName = params.get("function");
     if (!["quadratic", "sine"].includes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
@@ -558,6 +597,7 @@ function handleRequest(req, res) {
       res.end(JSON.stringify(data2));
     }
   } else if (pathname === "/plot") {
+    // HTTP SVG plot endpoint with styling & annotations
     const funcName = params.get("function");
     if (!["quadratic", "sine"].includes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
@@ -589,7 +629,15 @@ function handleRequest(req, res) {
       res.end(`Invalid resolution: ${params.get("resolution")}`);
       return;
     }
-    const outputFile3 = params.get("output");
+    // styling & annotations from query
+    const strokeColor = params.get("strokeColor") || params.get("stroke-color") || "black";
+    const strokeWidth = params.get("strokeWidth") || params.get("stroke-width") || "1";
+    const fillColor = params.get("fillColor") || params.get("fill-color") || "none";
+    const backgroundColor = params.get("backgroundColor") || params.get("background-color");
+    const title = params.get("title");
+    const xlabel = params.get("xlabel");
+    const ylabel = params.get("ylabel");
+
     const data3 = generatePlotData(funcName, start2, end2, resolution2);
     const ys3 = data3.map((d) => d.y);
     const minY3 = Math.min(...ys3);
@@ -597,11 +645,40 @@ function handleRequest(req, res) {
     const width3 = end2 - start2;
     const height3 = maxY3 - minY3;
     const points3 = data3.map((d) => `${d.x},${d.y}`).join(" ");
-    const svg3 =
-      `<?xml version="1.0" encoding="UTF-8"?>\n` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start2} ${minY3} ${width3} ${height3}">\n` +
-      `  <polyline fill="none" stroke="black" points="${points3}" />\n` +
-      `</svg>`;
+
+    // Build SVG
+    const svgParts3 = [];
+    svgParts3.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+    svgParts3.push(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start2} ${minY3} ${width3} ${height3}">`);
+    if (backgroundColor) {
+      svgParts3.push(
+        `  <rect x="${start2}" y="${minY3}" width="${width3}" height="${height3}" fill="${backgroundColor}" />`
+      );
+    }
+    if (title) {
+      svgParts3.push(`  <title>${title}</title>`);
+    }
+    if (xlabel) {
+      const xPos = start2 + width3 / 2;
+      const yPos = minY3 + height3;
+      svgParts3.push(
+        `  <text x="${xPos}" y="${yPos}" text-anchor="middle">${xlabel}</text>`
+      );
+    }
+    if (ylabel) {
+      const xPos = start2;
+      const yPos = minY3 + height3 / 2;
+      svgParts3.push(
+        `  <text x="${xPos}" y="${yPos}" transform="rotate(-90,${xPos},${yPos})" text-anchor="middle">${ylabel}</text>`
+      );
+    }
+    svgParts3.push(
+      `  <polyline fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" points="${points3}" />`
+    );
+    svgParts3.push(`</svg>`);
+    const svg3 = svgParts3.join("\n");
+
+    const outputFile3 = params.get("output");
     if (outputFile3) {
       try {
         fs.writeFileSync(path.resolve(process.cwd(), outputFile3), svg3, "utf8");
@@ -614,6 +691,7 @@ function handleRequest(req, res) {
     res.writeHead(200, { "Content-Type": "image/svg+xml" });
     res.end(svg3);
   } else if (pathname === "/polar") {
+    // HTTP SVG polar endpoint with styling & annotations
     const funcName = params.get("function");
     if (!["spiral", "rose"].includes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
@@ -658,14 +736,26 @@ function handleRequest(req, res) {
       res.end(`Invalid angle range numbers: ${angleRange3}`);
       return;
     }
-    let res3 = parseInt(params.get("resolution") || "100", 10);
-    if (isNaN(res3) || res3 <= 0) {
+    let resolution3 = parseInt(params.get("resolution") || "100", 10);
+    if (isNaN(resolution3) || resolution3 <= 0) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid resolution: ${params.get("resolution")}`);
       return;
     }
-    const outputFile4 = params.get("output");
-    const data4 = generatePolarData(funcName, rStart3, rEnd3, thetaStart3, thetaEnd3, res3);
+    const strokeColor = params.get("strokeColor") || params.get("stroke-color") || "black";
+    const strokeWidth = params.get("strokeWidth") || params.get("stroke-width") || "1";
+    const fillColor = params.get("fillColor") || params.get("fill-color") || "none";
+    const backgroundColor = params.get("backgroundColor") || params.get("background-color");
+    const title = params.get("title");
+
+    const data4 = generatePolarData(
+      funcName,
+      rStart3,
+      rEnd3,
+      thetaStart3,
+      thetaEnd3,
+      resolution3
+    );
     const xs4 = data4.map((d) => d.x);
     const ys4 = data4.map((d) => d.y);
     const minX4 = Math.min(...xs4);
@@ -675,11 +765,28 @@ function handleRequest(req, res) {
     const width4 = maxX4 - minX4;
     const height4 = maxY4 - minY4;
     const points4 = data4.map((d) => `${d.x},${d.y}`).join(" ");
-    const svg4 =
-      `<?xml version="1.0" encoding="UTF-8"?>\n` +
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX4} ${minY4} ${width4} ${height4}">\n` +
-      `  <polyline fill="none" stroke="black" points="${points4}" />\n` +
-      `</svg>`;
+
+    // Build SVG
+    const svgParts4 = [];
+    svgParts4.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+    svgParts4.push(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX4} ${minY4} ${width4} ${height4}">`
+    );
+    if (backgroundColor) {
+      svgParts4.push(
+        `  <rect x="${minX4}" y="${minY4}" width="${width4}" height="${height4}" fill="${backgroundColor}" />`
+      );
+    }
+    if (title) {
+      svgParts4.push(`  <title>${title}</title>`);
+    }
+    svgParts4.push(
+      `  <polyline fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" points="${points4}" />`
+    );
+    svgParts4.push(`</svg>`);
+    const svg4 = svgParts4.join("\n");
+
+    const outputFile4 = params.get("output");
     if (outputFile4) {
       try {
         fs.writeFileSync(path.resolve(process.cwd(), outputFile4), svg4, "utf8");
@@ -691,6 +798,67 @@ function handleRequest(req, res) {
     }
     res.writeHead(200, { "Content-Type": "image/svg+xml" });
     res.end(svg4);
+  } else if (pathname === "/mission") {
+    const missionPath = path.resolve(__dirname, "../../MISSION.md");
+    try {
+      const content = fs.readFileSync(missionPath, "utf8");
+      const lines = content.split(/\r?\n/);
+      const headerLine = lines.find((l) => l.startsWith("# "));
+      let paragraph = "";
+      if (headerLine) {
+        const startIdx = lines.indexOf(headerLine) + 1;
+        for (let i = startIdx; i < lines.length; i++) {
+          if (lines[i].trim() !== "") {
+            paragraph = lines[i];
+            break;
+          }
+        }
+      }
+      const body = headerLine && paragraph ? `${headerLine}\n\n${paragraph}` : content;
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end(body);
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(`Error reading mission statement: ${err.message}`);
+    }
+  } else if (pathname === "/version") {
+    const pkgPath = path.resolve(__dirname, "../../package.json");
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end(pkg.version);
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(`Error reading version: ${err.message}`);
+    }
+  } else if (pathname === "/help") {
+    const script = path.basename(process.argv[1]);
+    const helpText =
+      `Usage: node ${script} [options]\n\nOptions:\n` +
+      `  --help              Show help information\n` +
+      `  --version           Show version number\n` +
+      `  --mission           Show mission statement\n` +
+      `  --mission-full      Show full mission statement\n` +
+      `  --serve [port]      Start HTTP server (default: 3000)\n` +
+      `  --plot              Generate SVG plot (quadratic or sine)\n` +
+      `  --polar             Generate SVG polar plot (spiral or rose)\n` +
+      `  --export-data       Export data as CSV or JSON (takes precedence)\n` +
+      `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
+      `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
+      `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
+      `  --resolution        Specify number of sample points (default: 100)\n` +
+      `  --stroke-color      Set stroke color for plot (default: black)\n` +
+      `  --stroke-width      Set stroke width for plot (default: 1)\n` +
+      `  --fill-color        Set fill color for plot (default: none)\n` +
+      `  --background-color  Set background color for SVG (optional)\n` +
+      `  --title             Add title annotation to SVG\n` +
+      `  --xlabel            Add X-axis label (HTTP only)\n` +
+      `  --ylabel            Add Y-axis label (HTTP only)\n` +
+      `  --output            Specify output filename for SVG\n` +
+      `\nExamples:\n` +
+      `  /plot?function=quadratic&range=0,5&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y`;
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(helpText);
   } else {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not Found");
