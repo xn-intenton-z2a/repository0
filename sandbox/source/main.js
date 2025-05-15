@@ -495,53 +495,53 @@ function handleRequest(req, res) {
       res.end("Missing radius-range parameter");
       return;
     }
-    const rrParts = radiusRange.split(",");
-    if (rrParts.length !== 2) {
+    const rrParts2 = radiusRange.split(",");
+    if (rrParts2.length !== 2) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid radius range: ${radiusRange}`);
       return;
     }
-    const rStart = parseFloat(rrParts[0]);
-    const rEnd = parseFloat(rrParts[1]);
-    if (isNaN(rStart) || isNaN(rEnd)) {
+    const rStart2 = parseFloat(rrParts2[0]);
+    const rEnd2 = parseFloat(rrParts2[1]);
+    if (isNaN(rStart2) || isNaN(rEnd2)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid radius range numbers: ${radiusRange}`);
       return;
     }
-    const angleRange = params.get("angle-range");
-    if (!angleRange) {
+    const angleRange2 = params.get("angle-range");
+    if (!angleRange2) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end("Missing angle-range parameter");
       return;
     }
-    const arParts = angleRange.split(",");
-    if (arParts.length !== 2) {
+    const arParts2 = angleRange2.split(",");
+    if (arParts2.length !== 2) {
       res.writeHead(400, { "Content-Type": "text/plain" });
-      res.end(`Invalid angle range: ${angleRange}`);
+      res.end(`Invalid angle range: ${angleRange2}`);
       return;
     }
-    const thetaStart = parseFloat(arParts[0]);
-    const thetaEnd = parseFloat(arParts[1]);
-    if (isNaN(thetaStart) || isNaN(thetaEnd)) {
+    const thetaStart2 = parseFloat(arParts2[0]);
+    const thetaEnd2 = parseFloat(arParts2[1]);
+    if (isNaN(thetaStart2) || isNaN(thetaEnd2)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
-      res.end(`Invalid angle range numbers: ${angleRange}`);
+      res.end(`Invalid angle range numbers: ${angleRange2}`);
       return;
     }
-    const format = params.get("format");
-    if (!["csv", "json"].includes(format)) {
+    const format2 = params.get("format");
+    if (!["csv", "json"].includes(format2)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
-      res.end(`Invalid format: ${format}`);
+      res.end(`Invalid format: ${format2}`);
       return;
     }
-    const outputFile = params.get("output");
-    const data = generatePolarData(funcName, rStart, rEnd, thetaStart, thetaEnd, 100);
-    if (outputFile) {
+    const outputFile2 = params.get("output");
+    const data2 = generatePolarData(funcName, rStart2, rEnd2, thetaStart2, thetaEnd2, 100);
+    if (outputFile2) {
       try {
-        if (format === "csv") {
-          const csv = "x,y\n" + data.map((pt) => `${pt.x},${pt.y}`).join("\n");
-          fs.writeFileSync(path.resolve(process.cwd(), outputFile), csv, "utf8");
+        if (format2 === "csv") {
+          const csv = "x,y\n" + data2.map((pt) => `${pt.x},${pt.y}`).join("\n");
+          fs.writeFileSync(path.resolve(process.cwd(), outputFile2), csv, "utf8");
         } else {
-          fs.writeFileSync(path.resolve(process.cwd(), outputFile), JSON.stringify(data), "utf8");
+          fs.writeFileSync(path.resolve(process.cwd(), outputFile2), JSON.stringify(data2), "utf8");
         }
       } catch (err) {
         res.writeHead(500, { "Content-Type": "text/plain" });
@@ -549,14 +549,148 @@ function handleRequest(req, res) {
         return;
       }
     }
-    if (format === "csv") {
-      const csv = "x,y\n" + data.map((pt) => `${pt.x},${pt.y}`).join("\n");
+    if (format2 === "csv") {
+      const csv = "x,y\n" + data2.map((pt) => `${pt.x},${pt.y}`).join("\n");
       res.writeHead(200, { "Content-Type": "text/csv" });
       res.end(csv);
     } else {
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(data));
+      res.end(JSON.stringify(data2));
     }
+  } else if (pathname === "/plot") {
+    const funcName = params.get("function");
+    if (!["quadratic", "sine"].includes(funcName)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid function: ${funcName}`);
+      return;
+    }
+    const rangeStr = params.get("range");
+    if (!rangeStr) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Missing range parameter");
+      return;
+    }
+    const parts2 = rangeStr.split(",");
+    if (parts2.length !== 2) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid range: ${rangeStr}`);
+      return;
+    }
+    const start2 = parseFloat(parts2[0]);
+    const end2 = parseFloat(parts2[1]);
+    if (isNaN(start2) || isNaN(end2)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid range numbers: ${rangeStr}`);
+      return;
+    }
+    let resolution2 = parseInt(params.get("resolution") || "100", 10);
+    if (isNaN(resolution2) || resolution2 <= 0) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid resolution: ${params.get("resolution")}`);
+      return;
+    }
+    const outputFile3 = params.get("output");
+    const data3 = generatePlotData(funcName, start2, end2, resolution2);
+    const ys3 = data3.map((d) => d.y);
+    const minY3 = Math.min(...ys3);
+    const maxY3 = Math.max(...ys3);
+    const width3 = end2 - start2;
+    const height3 = maxY3 - minY3;
+    const points3 = data3.map((d) => `${d.x},${d.y}`).join(" ");
+    const svg3 =
+      `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start2} ${minY3} ${width3} ${height3}">\n` +
+      `  <polyline fill="none" stroke="black" points="${points3}" />\n` +
+      `</svg>`;
+    if (outputFile3) {
+      try {
+        fs.writeFileSync(path.resolve(process.cwd(), outputFile3), svg3, "utf8");
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end(`Error writing SVG: ${err.message}`);
+        return;
+      }
+    }
+    res.writeHead(200, { "Content-Type": "image/svg+xml" });
+    res.end(svg3);
+  } else if (pathname === "/polar") {
+    const funcName = params.get("function");
+    if (!["spiral", "rose"].includes(funcName)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid function: ${funcName}`);
+      return;
+    }
+    const radiusRange3 = params.get("radius-range");
+    if (!radiusRange3) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Missing radius-range parameter");
+      return;
+    }
+    const rrParts3 = radiusRange3.split(",");
+    if (rrParts3.length !== 2) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid radius range: ${radiusRange3}`);
+      return;
+    }
+    const rStart3 = parseFloat(rrParts3[0]);
+    const rEnd3 = parseFloat(rrParts3[1]);
+    if (isNaN(rStart3) || isNaN(rEnd3)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid radius range numbers: ${radiusRange3}`);
+      return;
+    }
+    const angleRange3 = params.get("angle-range");
+    if (!angleRange3) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end("Missing angle-range parameter");
+      return;
+    }
+    const arParts3 = angleRange3.split(",");
+    if (arParts3.length !== 2) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid angle range: ${angleRange3}`);
+      return;
+    }
+    const thetaStart3 = parseFloat(arParts3[0]);
+    const thetaEnd3 = parseFloat(arParts3[1]);
+    if (isNaN(thetaStart3) || isNaN(thetaEnd3)) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid angle range numbers: ${angleRange3}`);
+      return;
+    }
+    let res3 = parseInt(params.get("resolution") || "100", 10);
+    if (isNaN(res3) || res3 <= 0) {
+      res.writeHead(400, { "Content-Type": "text/plain" });
+      res.end(`Invalid resolution: ${params.get("resolution")}`);
+      return;
+    }
+    const outputFile4 = params.get("output");
+    const data4 = generatePolarData(funcName, rStart3, rEnd3, thetaStart3, thetaEnd3, res3);
+    const xs4 = data4.map((d) => d.x);
+    const ys4 = data4.map((d) => d.y);
+    const minX4 = Math.min(...xs4);
+    const maxX4 = Math.max(...xs4);
+    const minY4 = Math.min(...ys4);
+    const maxY4 = Math.max(...ys4);
+    const width4 = maxX4 - minX4;
+    const height4 = maxY4 - minY4;
+    const points4 = data4.map((d) => `${d.x},${d.y}`).join(" ");
+    const svg4 =
+      `<?xml version="1.0" encoding="UTF-8"?>\n` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX4} ${minY4} ${width4} ${height4}">\n` +
+      `  <polyline fill="none" stroke="black" points="${points4}" />\n` +
+      `</svg>`;
+    if (outputFile4) {
+      try {
+        fs.writeFileSync(path.resolve(process.cwd(), outputFile4), svg4, "utf8");
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end(`Error writing SVG: ${err.message}`);
+        return;
+      }
+    }
+    res.writeHead(200, { "Content-Type": "image/svg+xml" });
+    res.end(svg4);
   } else {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not Found");
