@@ -1,55 +1,86 @@
 # PLOT_CUSTOMIZATION
 
 ## Purpose
-Allow users to control visual styling, data resolution, descriptive annotations, axes, grid lines, tick marks, and now tick labels on Cartesian and polar plots to enhance readability, context, and interpretability of data.
+Enhance visual styling and annotation controls for both Cartesian and polar plots, including line styling, grid and axis rendering, tick labels, data markers, and closed-area shading under curves. This feature centralizes all plot styling options to improve readability and presentation quality.
 
 ## CLI Behavior
-- Add flags for both plot and polar commands:
-  - --resolution <points> to set number of sample points (default: 100)
-  - --stroke-color <color> to set line color (default: black)
-  - --stroke-width <pixels> to set line width (default: 1)
-  - --fill-color <color> to set fill for polyline or polar shapes (default: none)
-  - --background-color <color> to set SVG background (default: transparent)
-  - --title <string> to add a title at the top center
-  - --xlabel <string> and --ylabel <string> to label axes
-  - --axis to draw X=0 and Y=0 axis lines
-  - --grid to draw grid lines at tick intervals
-  - --grid-color <color> and --grid-width <pixels> to style grid lines
-  - --ticks <number> to specify number of major ticks per axis (default: 5)
-  - --tick-labels to enable tick value labels at grid or axis ticks
-  - --tick-font-size <pixels> to set font size for tick labels (default: 10)
-  - --tick-font-color <color> to set font color for tick labels (default: uses stroke color)
-- Validate numeric flags are positive and colors are non-empty; exit code 1 on invalid values.
+
+Add flags for both plot and polar commands:
+
+  --resolution <points>         Number of sample points (default: 100)
+  --stroke-color <color>        Line stroke color (default: black)
+  --stroke-width <pixels>       Line stroke width in pixels (default: 1)
+  --fill-color <color>          Fill color for shapes when shading is enabled (default: none)
+  --background-color <color>    SVG background color (default: transparent)
+  --title <string>              Add a centered title
+  --xlabel <string>             Label for X axis
+  --ylabel <string>             Label for Y axis
+  --axis                         Draw X=0 and Y=0 axis lines
+  --grid                         Draw grid lines at major tick intervals
+  --grid-color <color>          Grid line color (default: lightgray)
+  --grid-width <pixels>         Grid line width (default: 1)
+  --ticks <number>              Number of major ticks per axis (default: 5)
+  --tick-labels                  Render numeric labels at major ticks
+  --tick-font-size <pixels>     Font size for tick labels (default: 10)
+  --tick-font-color <color>     Font color for tick labels (default: stroke color)
+  --markers                      Render circles at each data point
+  --marker-size <pixels>        Radius for markers (default: 3)
+  --marker-color <color>        Fill color for markers (default: stroke color)
+  --fill-under                   Shade the area under the curve down to the baseline
+  --baseline <value>             Baseline Y value for shading (default: 0)
+
+Validation:
+
+  Numeric flags must be positive numbers. Color flags must be non-empty valid CSS color strings. Flags are mutually respected according to documented precedence.
 
 ## HTTP Endpoints
-- Extend GET /plot and GET /polar endpoints to accept query parameters:
-  - resolution, strokeColor, strokeWidth, fillColor, backgroundColor, title, xlabel, ylabel
-  - axis=true to draw axes
-  - grid=true to draw grid lines
-  - gridColor, gridWidth, ticks, tickLabels=true, tickFontSize, tickFontColor
-- Apply defaults and respond with 400 on missing or invalid parameters.
+
+Extend GET /plot and GET /polar to accept query parameters:
+
+  resolution, strokeColor, strokeWidth, fillColor, backgroundColor, title, xlabel, ylabel
+  axis=true, grid=true, gridColor, gridWidth, ticks, tickLabels=true, tickFontSize, tickFontColor
+  markers=true, markerSize, markerColor
+  fillUnder=true, baseline=<number>
+
+Behavior mirrors CLI. Invalid parameter values return HTTP 400 with descriptive messages.
 
 ## Implementation Details
-- In handlePlot and handlePolar:
-  - Parse axis, grid, gridColor, gridWidth, ticks, tickLabels, tickFontSize, tickFontColor from argv or searchParams
-  - After computing data and before rendering the polyline:
-    1. If grid enabled, calculate tick positions evenly over the data range based on ticks count and insert background <line> elements for grid lines styled by gridColor and gridWidth.
-    2. If axis enabled, insert <line> elements for X=0 and Y=0 spanning the viewBox.
-    3. If tickLabels enabled:
-       - For Cartesian plots, at each major tick on X and Y axes insert <text> elements at appropriate coordinates showing numeric values.
-       - For polar plots, insert tick labels along the radius axis or angular axis when tickLabels is true.
-       - Use tickFontSize and tickFontColor for styling text.
-  - Order elements as: background rect, grid lines, axis lines, tick labels, polyline, markers (if any), title and axis labels.
-- Leverage existing viewBox calculations; compute tick coordinates from min/max bounds.
+
+In handlePlot and handlePolar handlers:
+
+1. Parse new flags from argv or searchParams:
+   - axis, grid, gridColor, gridWidth, ticks, tickLabels, tickFontSize, tickFontColor
+   - markers, markerSize, markerColor
+   - fillUnder, baseline
+2. After generating data array:
+   - Compute viewBox from data bounds
+   - Render background <rect> if backgroundColor is set
+   - If grid enabled: insert <line> elements at tick positions styled by gridColor and gridWidth
+   - If axis enabled: insert <line> for X=0 and Y=0 spanning viewBox
+   - If tickLabels enabled: insert <text> at each major tick showing value, styled by tickFontSize and tickFontColor
+   - Build the polyline string for data points
+   - If fillUnder enabled:
+     - Create a closed polygon by appending two points at baseline: first point x at baseline, last point x at baseline
+     - Render <polygon points="..." fill="fillColor" stroke="none" /> before or behind the polyline
+   - Insert polyline with strokeColor and strokeWidth
+   - If markers enabled: for each data point render <circle> with cx, cy, r=markerSize, fill=markerColor
+   - Append title, xlabel, ylabel using <text> elements positioned appropriately
+3. Output the assembled SVG with xmlns and viewBox attributes
+
+Re-use existing generatePlotSVG and generatePolarSVG or refactor into a common svgBuilder module.
 
 ## Testing
-- Add sandbox/tests/plot-customization-ticks.test.js covering:
-  - CLI: --plot sine --ticks 4 --tick-labels generates SVG with <text> elements at four evenly spaced X and Y tick positions with correct numeric content and styles.
-  - CLI: polar plot with --axis --ticks 3 --tick-labels generates tick label text along radius values.
-  - HTTP: GET /plot?function=quadratic&range=0,10&axis=true&grid=true&ticks=5&tickLabels=true returns SVG containing <text> tags with tick values.
-  - Error cases: invalid ticks, tickFontSize, or tickFontColor result in exit code 1 or 400 status.
+
+Add sandbox/tests/plot-customization.test.js with cases:
+
+- CLI: --plot sine --ticks 4 --tick-labels outputs SVG containing <text> elements at correct positions
+- CLI: --plot quadratic --markers generates <circle> elements with default marker size and color
+- CLI: --plot sine --fill-under --baseline -1 produces <polygon> element closing at Y=-1 with correct fill color
+- HTTP: GET /plot?function=quadratic&range=0,5&fillUnder=true returns SVG with <polygon> and fill attribute
+- Error handling: invalid ticks, markerSize, fillUnder values produce exit code 1 or HTTP 400
 
 ## Documentation
-- Update sandbox/docs/CLI_USAGE.md to document --tick-labels, --tick-font-size, and --tick-font-color with examples.
-- Update sandbox/docs/HTTP_SERVER.md to include tickLabels, tickFontSize, and tickFontColor query parameters.
-- Update README.md features section to include Axis, Grid, and Tick Labels Support.
+
+Update sandbox/docs/CLI_USAGE.md to document markers, marker-size, marker-color, fill-under, and baseline flags with examples.
+Update sandbox/docs/HTTP_SERVER.md to include markers and fillUnder query parameters.
+Update README.md features section to reflect enhanced styling and shading support under Plot Customization.
