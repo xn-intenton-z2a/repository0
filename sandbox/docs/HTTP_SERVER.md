@@ -1,50 +1,51 @@
 # HTTP Server Data Export API
 
-The CLI tool can run an HTTP server to expose data export endpoints.
+This tool can spin up an HTTP server to expose endpoints for exporting plot and polar data.
 
 ## Starting the Server
 
 ```bash
 node sandbox/source/main.js --serve [port]
 ```
-default port: `3000`.
+
+- Default port: `4000`
 
 ## Endpoints
 
 ### GET /plot-data
 
-Exports plot data for `quadratic` or `sine` functions.
+Generate and retrieve plot data for `quadratic` or `sine` functions.
 
 **Query parameters:**
+
 - `function`: `quadratic` or `sine` (required)
-- `range`: `<start,end>` range for x-axis (e.g., `0,10`) (required)
+- `range`: `<start,end>` range for X-axis (e.g., `0,10`) (required)
 - `format`: `csv` or `json` (required)
-- `output`: optional filename to save the data server-side.
+- `output`: Optional filename to save the data on the server
 
 **Response:**
-- HTTP 200 with `Content-Type: text/csv` for CSV or `application/json` for JSON.
-- Body contains exported data.
 
-**Example:**
-```bash
-curl "http://localhost:3000/plot-data?function=sine&range=0,6.28&format=json"
-```
+- **200 OK** with `Content-Type: text/csv` for CSV or `application/json` for JSON
+- Body contains the exported data
 
 ### GET /polar-data
 
-Exports polar plot data for `spiral` or `rose` functions.
+Generate and retrieve polar plot data for `spiral` or `rose` functions.
 
 **Query parameters:**
+
 - `function`: `spiral` or `rose` (required)
 - `radius-range`: `<rStart,rEnd>` e.g., `0,5` (required)
 - `angle-range`: `<thetaStart,thetaEnd>` e.g., `0,6.28` (required)
 - `format`: `csv` or `json` (required)
-- `output`: optional filename to save the data server-side.
+- `output`: Optional filename to save the data on the server
 
-**Example:**
-```bash
-curl "http://localhost:3000/polar-data?function=rose&radius-range=0,1&angle-range=0,6.28&format=csv"
-```
+**Response:**
 
-**Error Handling:**
-- Returns 400 if required parameters are missing or invalid.
+- **200 OK** with `Content-Type: text/csv` for CSV or `application/json` for JSON
+- Body contains the exported data
+
+### Error Handling
+
+- **400 Bad Request** if required parameters are missing or invalid
+- **404 Not Found** for other endpoints
