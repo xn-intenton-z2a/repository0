@@ -136,4 +136,18 @@ describe("CLI Integration Tests", () => {
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("Unsupported polar function: foo");
   });
+
+  // mission-full tests
+  test("--mission-full displays entire mission statement", () => {
+    const result = spawnSync("node", [cliPath, "--mission-full"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8");
+    expect(result.stdout).toBe(content + "\n");
+  });
+
+  test("flag precedence: help over mission-full", () => {
+    const result = spawnSync("node", [cliPath, "--mission-full", "--help"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
+  });
 });
