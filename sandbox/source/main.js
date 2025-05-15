@@ -264,7 +264,7 @@ function handlePolar() {
   if (arIndex !== -1 && args[arIndex + 1] !== undefined) {
     angleRangeStr = args[arIndex + 1];
   } else if (argv["angle-range"]) {
-    angleRangeStr = argv["angle-range"];
+    angleRange Str = argv["angle-range"];
   }
   const arParts = angleRangeStr.split(",");
   if (arParts.length !== 2) {
@@ -361,7 +361,69 @@ function handleRequest(req, res) {
   const pathname = reqUrl.pathname;
   const params = reqUrl.searchParams;
 
-  if (pathname === "/plot-data") {
+  if (pathname === "/mission") {
+    const missionPath = path.resolve(__dirname, "../../MISSION.md");
+    try {
+      const content = fs.readFileSync(missionPath, "utf8");
+      const lines = content.split(/\r?\n/);
+      const headerLine = lines.find((l) => l.startsWith("# "));
+      let paragraph = "";
+      if (headerLine) {
+        const startIdx = lines.indexOf(headerLine) + 1;
+        for (let i = startIdx; i < lines.length; i++) {
+          if (lines[i].trim() !== "") {
+            paragraph = lines[i];
+            break;
+          }
+        }
+      }
+      const body = headerLine && paragraph ? `${headerLine}\n\n${paragraph}` : content;
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end(body);
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(`Error reading mission statement: ${err.message}`);
+    }
+  } else if (pathname === "/version") {
+    const pkgPath = path.resolve(__dirname, "../../package.json");
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      res.writeHead(200, { "Content-Type": "text/plain" });
+      res.end(pkg.version);
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "text/plain" });
+      res.end(`Error reading version: ${err.message}`);
+    }
+  } else if (pathname === "/help") {
+    const script = path.basename(process.argv[1]);
+    const helpText =
+      `Usage: node ${script} [options]\n\nOptions:\n` +
+      `  --help              Show help information\n` +
+      `  --version           Show version number\n` +
+      `  --mission           Show mission statement\n` +
+      `  --mission-full      Show full mission statement\n` +
+      `  --serve [port]      Start HTTP server (default: 3000)\n` +
+      `  --plot              Generate SVG plot (quadratic or sine)\n` +
+      `  --polar             Generate SVG polar plot (spiral or rose)\n` +
+      `  --export-data       Export data as CSV or JSON (takes precedence)\n` +
+      `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
+      `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
+      `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
+      `  --resolution        Specify number of sample points (default: 100)\n` +
+      `  --output            Specify output filename for SVG (default:(plot.svg or polar.svg))\n` +
+      `  --export-data       Specify output filename for data export (.csv or .json)\n` +
+      `\nExamples:\n` +
+      `  $ node ${script} --help\n` +
+      `  $ node ${script} --version\n` +
+      `  $ node ${script} --mission\n` +
+      `  $ node ${script} --mission-full\n` +
+      `  $ node ${script} --serve 4000\n` +
+      `  $ node ${script} --plot quadratic --range 0,10 --export-data data.csv\n` +
+      `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --export-data data.json\n` +
+      `\nFor full mission statement see MISSION.md`;
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end(helpText);
+  } else if (pathname === "/plot-data") {
     const funcName = params.get("function");
     if (!["quadratic", "sine"].includes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
@@ -419,7 +481,7 @@ function handleRequest(req, res) {
     }
   } else if (pathname === "/polar-data") {
     const funcName = params.get("function");
-    if (!["spiral", "rose"].includes(funcName)) {
+    if (!["spiral", "rose"].ncludes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid function: ${funcName}`);
       return;
@@ -485,7 +547,8 @@ function handleRequest(req, res) {
       }
     }
     if (format === "csv") {
-      const csv = "x,y\n" + data.map((pt) => `${pt.x},${pt.y}`).join("\n");
+      const csv = "x,y\n" + data.map((pt) => `${pt.x},`${pt.y}`)
+        .join("\n");
       res.writeHead(200, { "Content-Type": "text/csv" });
       res.end(csv);
     } else {
