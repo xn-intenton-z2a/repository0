@@ -240,7 +240,15 @@ function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style) {
 function handlePlot() {
   const fn = argv.plot;
   try {
-    const range = parsePair(argv.range, [0, 10]);
+    // Retrieve raw range argument if minimist failed to parse negative ranges
+    let rangeStr = argv.range;
+    if (rangeStr === undefined) {
+      const idx = args.indexOf('--range');
+      if (idx !== -1 && idx < args.length - 1) {
+        rangeStr = args[idx + 1];
+      }
+    }
+    const range = parsePair(rangeStr, [0, 10]);
     const resolution = parseInt(argv.resolution || '100', 10);
     const style = {
       strokeColor: argv['stroke-color'] || argv.strokeColor || 'black',
@@ -357,6 +365,11 @@ function startServer() {
           res.statusCode = 400;
           return res.end('Bad Request');
         }
+        // reject unsupported plot functions
+        if (!['quadratic', 'sine'].includes(fn)) {
+          res.statusCode = 400;
+          return res.end('Bad Request');
+        }
         const resolution = parseInt(params.get('resolution') || '100', 10);
         const style = {
           strokeColor: params.get('strokeColor') || 'black',
@@ -371,6 +384,11 @@ function startServer() {
         const radiusRange = parsePair(params.get('radius-range'), null);
         const angleRange = parsePair(params.get('angle-range'), null);
         if (!fn || !params.get('radius-range') || !params.get('angle-range')) {
+          res.statusCode = 400;
+          return res.end('Bad Request');
+        }
+        // reject unsupported polar functions
+        if (!['spiral', 'rose'].includes(fn)) {
           res.statusCode = 400;
           return res.end('Bad Request');
         }
