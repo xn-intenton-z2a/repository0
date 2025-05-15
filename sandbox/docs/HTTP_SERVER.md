@@ -1,6 +1,6 @@
 # HTTP Server Data Export API
 
-This tool can spin up an HTTP server to expose endpoints for exporting plot and polar data.
+This tool can spin up an HTTP server to expose endpoints for exporting plot and polar data, as well as retrieving metadata and help.
 
 ## Starting the Server
 
@@ -45,7 +45,55 @@ Generate and retrieve polar plot data for `spiral` or `rose` functions.
 - **200 OK** with `Content-Type: text/csv` for CSV or `application/json` for JSON
 - Body contains the exported data
 
+### GET /mission
+
+Retrieve the brief mission statement (header and first paragraph) from the project.
+
+**Query parameters:** None
+
+**Response:**
+
+- **200 OK** with `Content-Type: text/plain`
+- Body contains the mission header and first paragraph
+
+**Example:**
+```bash
+curl "http://localhost:4000/mission"
+```
+
+### GET /version
+
+Retrieve the current version number from `package.json`.
+
+**Query parameters:** None
+
+**Response:**
+
+- **200 OK** with `Content-Type: text/plain`
+- Body contains the version string
+
+**Example:**
+```bash
+curl "http://localhost:4000/version"
+```
+
+### GET /help
+
+Retrieve the CLI usage guide (same text as the `--help` command).
+
+**Query parameters:** None
+
+**Response:**
+
+- **200 OK** with `Content-Type: text/plain`
+- Body contains the usage instructions
+
+**Example:**
+```bash
+curl "http://localhost:4000/help"
+```
+
 ### Error Handling
 
 - **400 Bad Request** if required parameters are missing or invalid
-- **404 Not Found** for other endpoints
+- **404 Not Found** for unsupported endpoints

@@ -71,4 +71,31 @@ describe('HTTP Data Export Endpoints', () => {
     const res = await fetch(`http://localhost:${port}/plot-data?function=sine&range=0,6.28`);
     expect(res.status).toBe(400);
   });
+
+  test('GET /mission returns mission statement', async () => {
+    const res = await fetch(`http://localhost:${port}/mission`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/plain');
+    const text = await res.text();
+    expect(text).toContain('# Mission Statement');
+  });
+
+  test('GET /version returns version number', async () => {
+    const res = await fetch(`http://localhost:${port}/version`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/plain');
+    const text = await res.text();
+    const pkg = JSON.parse(
+      fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8')
+    );
+    expect(text.trim()).toBe(pkg.version);
+  });
+
+  test('GET /help returns help guide', async () => {
+    const res = await fetch(`http://localhost:${port}/help`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/plain');
+    const text = await res.text();
+    expect(text).toContain('Usage:');
+  });
 });
