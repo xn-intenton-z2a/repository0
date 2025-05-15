@@ -98,4 +98,35 @@ describe('HTTP Data Export Endpoints', () => {
     const text = await res.text();
     expect(text).toContain('Usage:');
   });
+
+  // New tests for SVG endpoints
+  test('GET /plot returns SVG content', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,5`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    expect(text).toMatch(/<svg[^>]*>/);
+    expect(text).toMatch(/<polyline[^>]*>/);
+  });
+
+  test('GET /plot missing params returns 400', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic`);
+    expect(res.status).toBe(400);
+  });
+
+  test('GET /polar returns SVG content', async () => {
+    const res = await fetch(`http://localhost:${port}/polar?function=spiral&radius-range=0,2&angle-range=0,6.28&resolution=50`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    expect(text).toMatch(/<svg[^>]*>/);
+    expect(text).toMatch(/<polyline[^>]*>/);
+    const commaCount = (text.match(/,/g) || []).length;
+    expect(commaCount).toBe(50);
+  });
+
+  test('GET /polar invalid params returns 400', async () => {
+    const res = await fetch(`http://localhost:${port}/polar?function=unknown&radius-range=0,1&angle-range=0,6.28`);
+    expect(res.status).toBe(400);
+  });
 });
