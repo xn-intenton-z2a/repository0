@@ -65,6 +65,19 @@ node sandbox/source/main.js --polar spiral --radius-range 0,5 --angle-range 0,6.
 node sandbox/source/main.js --polar rose --radius-range 0,1 --angle-range 0,6.28 --resolution 200 --output rose.svg
 ```
 
+## Data Export
+
+- `--export-data <filename>`: Export computed plot data instead of SVG. The `<filename>` must end with `.csv` or `.json`. When used with `--plot` or `--polar`, data pairing of `x,y` points are exported.
+  - For CSV: file includes header `x,y` and data rows.
+  - For JSON: file is a JSON array of objects `{ x: number, y: number }`.
+
+### Examples
+
+```bash
+node sandbox/source/main.js --plot quadratic --export-data data.csv
+node sandbox/source/main.js --polar rose --export-data data.json
+```
+
 ## Links
 
 - [MISSION.md](../../MISSION.md)
