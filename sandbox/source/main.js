@@ -75,6 +75,7 @@ function showHelp() {
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --export-data data.json\n` +
     `\nFor full mission statement see MISSION.md`
   );
+  process.exit(0);
 }
 
 function showVersion() {
@@ -86,6 +87,7 @@ function showVersion() {
     console.error("Error reading version:", err);
     process.exit(1);
   }
+  process.exit(0);
 }
 
 function showMission() {
@@ -113,6 +115,7 @@ function showMission() {
     console.error("Error reading mission statement:", err);
     process.exit(1);
   }
+  process.exit(0);
 }
 
 function showFullMission() {
@@ -217,7 +220,7 @@ function handlePlot() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}\">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
@@ -264,7 +267,7 @@ function handlePolar() {
   if (arIndex !== -1 && args[arIndex + 1] !== undefined) {
     angleRangeStr = args[arIndex + 1];
   } else if (argv["angle-range"]) {
-    angleRange Str = argv["angle-range"];
+    angleRangeStr = argv["angle-range"];
   }
   const arParts = angleRangeStr.split(",");
   if (arParts.length !== 2) {
@@ -329,7 +332,7 @@ function handlePolar() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}\">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
@@ -481,7 +484,7 @@ function handleRequest(req, res) {
     }
   } else if (pathname === "/polar-data") {
     const funcName = params.get("function");
-    if (!["spiral", "rose"].ncludes(funcName)) {
+    if (!["spiral", "rose"].includes(funcName)) {
       res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid function: ${funcName}`);
       return;
@@ -547,8 +550,7 @@ function handleRequest(req, res) {
       }
     }
     if (format === "csv") {
-      const csv = "x,y\n" + data.map((pt) => `${pt.x},`${pt.y}`)
-        .join("\n");
+      const csv = "x,y\n" + data.map((pt) => `${pt.x},${pt.y}`).join("\n");
       res.writeHead(200, { "Content-Type": "text/csv" });
       res.end(csv);
     } else {
