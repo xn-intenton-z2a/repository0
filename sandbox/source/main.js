@@ -240,13 +240,13 @@ function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style) {
 function handlePlot() {
   const fn = argv.plot;
   try {
-    // Retrieve raw range argument if minimist failed to parse negative ranges
-    let rangeStr = argv.range;
-    if (rangeStr === undefined) {
-      const idx = args.indexOf('--range');
-      if (idx !== -1 && idx < args.length - 1) {
-        rangeStr = args[idx + 1];
-      }
+    // Determine raw range argument to support negative values correctly
+    let rangeStr;
+    const idx = args.indexOf('--range');
+    if (idx !== -1 && idx < args.length - 1) {
+      rangeStr = args[idx + 1];
+    } else {
+      rangeStr = argv.range;
     }
     const range = parsePair(rangeStr, [0, 10]);
     const resolution = parseInt(argv.resolution || '100', 10);
