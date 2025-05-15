@@ -1,38 +1,55 @@
 # CLI Interface
 
-Implement a robust command line interface to provide core utility commands alongside the existing argument echo functionality.
+Enhance the command line interface to support a new plot command in addition to existing help, version, and mission commands.
 
 # Commands
 
 ## --help
 
-Display a concise usage guide listing all available commands, flags, and examples of common invocations.
+Display a concise usage guide listing all available commands, flags, and examples of common invocations, including the new plot command.
 
 ## --version
 
-Read and print the `version` field from `package.json` to show the current release of the tool.
+Read and print the version field from package.json to show the current release of the tool.
 
 ## --mission
 
-Load and display the first section of the repository mission from `MISSION.md` to remind users of the project purpose.
+Load and display the first section of the repository mission from MISSION.md to remind users of the project purpose.
 
-## Default Behavior
+## --plot <function> [--range <start,end>] [--output <filename>]
 
-When no recognized flags are provided, echo the supplied arguments as JSON to maintain the existing argument echo feature.
+Generate an SVG plot of a mathematical function and write it to a file.
+
+Supported functions:
+- quadratic: y = x * x
+- sine: y = Math.sin(x)
+
+Options:
+- --range <start,end>: Two comma-separated numbers specifying the x-axis range. Default is 0,10.
+- --output <filename>: The filename for the SVG output. Default is plot.svg.
+
+Examples:
+  $ node main.js --plot quadratic
+  $ node main.js --plot sine --range -3.14,3.14 --output sine.svg
 
 # Implementation Details
 
-- Use the existing dependency `minimist` to parse command line arguments in `src/lib/main.js`.
-- Update `main(args)` to detect flags in priority order: `help`, `version`, `mission`, then fallback to echoing arguments.
-- Modify `sandbox/source/main.js` to delegate to the enhanced `main` implementation without additional logic.
-- No new files; update only `src/lib/main.js`, `sandbox/source/main.js`, existing tests, `README.md`, and `package.json` if necessary.
+- Update src/lib/main.js to detect the plot flag before echoing arguments.
+- Parse function name, range, and output parameters using minimist.
+- Compute sample points at regular intervals over the specified range.
+- Build a minimal SVG document string with a polyline element representing the function curve.
+- Use fs.writeFileSync to write the SVG string to the specified output file.
+- Preserve existing behavior for help, version, mission, and argument echo commands.
 
 # Testing
 
-- Extend `tests/unit/main.test.js` to include tests for each command: help output contains usage keywords, version matches `package.json`, mission includes mission header, and default echo returns valid JSON.
-- Add demonstration tests under `sandbox/tests/` to showcase the feature in sandbox mode, verifying the entire flow when running `npm run start -- --help` and similar invocations.
+- Extend sandbox/tests/cli-interface.test.js to cover:
+  - Successful invocation of --plot quadratic writes plot.svg with an <svg> tag and polyline data.
+  - Invocation with custom range generates curves spanning the specified x values.
+  - Invocation with --output writes to the given filename.
+  - Error case when an unsupported function name is provided: exit status non-zero and helpful error message.
 
-# Documentation Updates
+# Documentation
 
-- Add a **CLI Usage** section in `README.md` showing examples of each command alongside expected outputs.
-- Link to `MISSION.md` in the help output and the README.
+- Update README.md CLI Usage section with examples of the plot command and expected outputs.
+- Include a brief explanation of supported functions and options in the README.
