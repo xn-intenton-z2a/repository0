@@ -64,8 +64,8 @@ function showHelp() {
     `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
     `  --resolution        Specify number of sample points (default: 100)\n` +
     `  --output            Specify output filename for SVG (default: plot.svg or polar.svg)\n` +
-    `  --export-data       Specify output filename for data export (.csv or .json)\n
-Examples:\n` +
+    `  --export-data       Specify output filename for data export (.csv or .json)\n` +
+    `\nExamples:\n` +
     `  $ node ${script} --help\n` +
     `  $ node ${script} --version\n` +
     `  $ node ${script} --mission\n` +
@@ -217,7 +217,7 @@ function handlePlot() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}\">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
@@ -329,7 +329,7 @@ function handlePolar() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}\">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
@@ -346,7 +346,7 @@ function handlePolar() {
 
 function startServer() {
   const portNum = parseInt(argv.serve, 10);
-  const port = !isNaN(portNum) ? portNum : 3000;
+  const port = !isNaN(portNum) ? portNum : 4000;
   const server = http.createServer((req, res) => {
     handleRequest(req, res);
   });
@@ -458,7 +458,7 @@ function handleRequest(req, res) {
     const thetaStart = parseFloat(arParts[0]);
     const thetaEnd = parseFloat(arParts[1]);
     if (isNaN(thetaStart) || isNaN(thetaEnd)) {
-      res.writeHead(400, { "Content-Type": "text/plain");
+      res.writeHead(400, { "Content-Type": "text/plain" });
       res.end(`Invalid angle range numbers: ${angleRange}`);
       return;
     }
