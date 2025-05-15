@@ -1,28 +1,51 @@
 # CLI Interface
 
 ## Purpose
-Unify the command-line interface in the core library so that src/lib/main.js provides all CLI commands currently implemented in sandbox/source/main.js. This eliminates duplication and ensures consistent behavior when users invoke the tool from either entrypoint.
+Unify all command-line interface functionality into the core library entrypoint in `src/lib/main.js`, consolidating sandbox-specific commands and flags so that both the library and the sandbox entrypoint behave identically and support the full feature set (config file, custom expression, data export, styling, resolution, demo, and HTTP server).
 
-## Implementation Details
+# CLI Behavior
 
-- Refactor src/lib/main.js to import minimist and implement the same CLI flags and commands as sandbox/source/main.js:
-  - --help, -h  Show usage guide
-  - --version, -v  Show version from package.json
-  - --mission    Show first header and paragraph of MISSION.md
-  - --mission-full  Show full MISSION.md content
-  - --plot <function>  Generate SVG plot for quadratic or sine with --range and --output flags
-  - --polar <function>  Generate SVG polar plot for spiral or rose with --radius-range, --angle-range, --resolution and --output flags
-- Move all CLI parsing, validation, SVG generation and file writing logic into src/lib/main.js. Ensure viewBox and polyline rendering match current sandbox behavior.
-- Modify sandbox/source/main.js to delegate to the core implementation by calling main(args) exported from src/lib/main.js.
+- Support the following flags and subcommands in `src/lib/main.js`:
+  - Global flags: `--help`/`-h`, `--version`/`-v`, `--mission`, `--mission-full`, `--config <path>`
+  - Plot commands:
+    - `--plot <quadratic|sine>`
+      - `--range <start,end>` (default `0,10`)
+      - `--resolution <points>` (default `100`)
+      - `--expression <js expression>` to override named functions
+      - `--export-data <file.csv|file.json>` to export raw data
+      - `--stroke-color <color>`, `--stroke-width <number>`, `--fill-color <color>`, `--background-color <color>`
+      - `--output <filename>` for SVG output
+  - Polar commands:
+    - `--polar <spiral|rose>`
+      - `--radius-range <rStart,rEnd>` (default `0,5`)
+      - `--angle-range <start,end>` (default `0,6.28`)
+      - `--resolution <points>` (default `100`)
+      - `--export-data <file.csv|file.json>`
+      - Styling flags as above
+      - `--output <filename>` for SVG output
+  - Server command:
+    - `--serve [port]` to start the HTTP server on the specified or default port (default `3000`)
 
-## Testing
+- Process flag precedence: help > version > mission-full > mission > serve > polar > plot > demo.
+- Merge configuration file defaults when `--config` is provided or discovered in current/home directory, allowing default values for all CLI options.
 
-- Update existing integration tests to invoke src/lib/main.js directly:
-  - spawn node src/lib/main.js with each flag combination and validate stdout, stderr, output files.
-- Ensure unit tests for main export still pass and reflect the new signature accepting argv and option callbacks.
-- Retain and update sandbox/tests/cli-interface.test.js to validate delegation and backward compatibility.
+# Implementation Details
 
-## Documentation
+1. Consolidate CLI parsing, validation, data generation, SVG rendering, styling, and file writing logic in `src/lib/main.js` using `minimist`, `fs`, and core helpers.
+2. Implement support for JSON/YAML config file parsing (leveraging `js-yaml`), merging with CLI flags, and honoring explicit flags over config defaults.
+3. Compile and validate custom expressions with `new Function('x','return '+expression)` and sample evaluation to catch errors.
+4. Branch on data export when `--export-data` is present to write CSV/JSON files and exit.
+5. Integrate styling options by injecting `<rect>` for background and attributes on `<polyline>`.
+6. Move HTTP server routing logic (serve, `/plot`, `/polar`, `/plot-data`, `/polar-data`, `/mission`, `/version`, `/help`) into core; reuse the same handlers for CLI.
+7. In `sandbox/source/main.js`, delegate immediately to `main(args)` exported from `src/lib/main.js` after minimal setup (shebang, import, args slice).
 
-- Update README.md to document src/lib/main.js as the primary CLI entrypoint and note that sandbox/source/main.js delegates to it.
-- Update sandbox/docs/CLI_USAGE.md to reference core CLI commands under src/lib/main.js.
+# Testing
+
+- Update and extend integration tests in `sandbox/tests/` to invoke `src/lib/main.js` directly for all CLI and HTTP behaviors.
+- Ensure existing tests for help, version, mission, plot, polar, data export, expression, resolution, styling, config file, and server endpoints pass against the unified implementation.
+- Add new tests for config file support and styling in both CLI and HTTP contexts.
+
+# Documentation
+
+- Update `README.md` to point to `src/lib/main.js` as the primary CLI entrypoint and list the full set of commands and flags.
+- Update `sandbox/docs/CLI_USAGE.md` and `sandbox/docs/HTTP_SERVER.md` to reflect the unified CLI and HTTP API, including examples for config file, expression, styling, and export-data.
