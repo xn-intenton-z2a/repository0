@@ -99,7 +99,7 @@ describe("CLI Integration Tests", () => {
     const outfile = "polar.svg";
     const outPath = path.resolve(process.cwd(), outfile);
     if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
-    const result = spawnSync("node", [cliPath, "--polar", "spiral"], { encoding: "utf8" });
+    const result = spawnSync("node", [cliPath, "--polar", "spiral"]), { encoding: "utf8" };
     expect(result.status).toBe(0);
     const content = fs.readFileSync(outPath, "utf8");
     expect(content).toMatch(/<svg[^>]*>/);
@@ -135,5 +135,19 @@ describe("CLI Integration Tests", () => {
     const result = spawnSync("node", [cliPath, "--polar", "foo"], { encoding: "utf8" });
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("Unsupported polar function: foo");
+  });
+
+  // mission-full tests
+  test("--mission-full displays entire mission statement", () => {
+    const result = spawnSync("node", [cliPath, "--mission-full"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8");
+    expect(result.stdout).toBe(content + "\n");
+  });
+
+  test("flag precedence: help over mission-full", () => {
+    const result = spawnSync("node", [cliPath, "--mission-full", "--help"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
   });
 });

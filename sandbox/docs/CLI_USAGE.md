@@ -13,6 +13,7 @@ This command-line tool provides help, version, and mission information, and gene
   - `--help`              Show help information.
   - `--version`           Show version number.
   - `--mission`           Show mission statement.
+  - `--mission-full`      Show full mission statement.
   - `--plot <function>`   Generate an SVG plot. Supported functions: `quadratic`, `sine`.
     - `--range <start,end>`   X-axis range (default: `0,10`).
     - `--output <filename>`   Output filename (default: `plot.svg`).
@@ -47,6 +48,9 @@ node sandbox/source/main.js --version
 
 # Show mission statement
 node sandbox/source/main.js --mission
+
+# Show full mission statement
+node sandbox/source/main.js --mission-full
 
 # Generate quadratic plot
 node sandbox/source/main.js --plot quadratic --range 0,10 --output plot.svg

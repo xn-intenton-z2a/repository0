@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// CLI entrypoint with support for --help, --version, --mission, --plot, and --polar commands
+// CLI entrypoint with support for --help, --version, --mission, --mission-full, --plot, and --polar commands
 import minimist from "minimist";
 import fs from "fs";
 import path from "path";
@@ -11,16 +11,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 const argv = minimist(args, {
-  boolean: ["help", "version", "mission"],
+  boolean: ["help", "version", "mission", "mission-full"],
   string: ["plot", "range", "output", "polar", "radius-range", "angle-range", "resolution"],
   alias: { h: "help", v: "version", m: "mission" }
 });
 
-// Precedence: help > version > mission > polar > plot
+// Precedence: help > version > mission-full > mission > polar > plot
 if (argv.help) {
   showHelp();
 } else if (argv.version) {
   showVersion();
+} else if (argv["mission-full"]) {
+  showFullMission();
 } else if (argv.mission) {
   showMission();
 } else if (argv.polar !== undefined) {
@@ -34,7 +36,13 @@ if (argv.help) {
 function showHelp() {
   const script = path.basename(process.argv[1]);
   console.log(
-    `Usage: node ${script} [options]\n\nOptions:\n  --help              Show help information\n  --version           Show version number\n  --mission           Show mission statement\n  --plot              Generate SVG plot (quadratic or sine)\n  --polar             Generate SVG polar plot (spiral or rose)\n` +
+    `Usage: node ${script} [options]\n\nOptions:\n` +
+    `  --help              Show help information\n` +
+    `  --version           Show version number\n` +
+    `  --mission           Show mission statement\n` +
+    `  --mission-full      Show full mission statement\n` +
+    `  --plot              Generate SVG plot (quadratic or sine)\n` +
+    `  --polar             Generate SVG polar plot (spiral or rose)\n` +
     `  --range             Specify x-axis range for plot <start,end> (default: 0,10)\n` +
     `  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)\n` +
     `  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)\n` +
@@ -43,6 +51,7 @@ function showHelp() {
     `  $ node ${script} --help\n` +
     `  $ node ${script} --version\n` +
     `  $ node ${script} --mission\n` +
+    `  $ node ${script} --mission-full\n` +
     `  $ node ${script} --plot quadratic --range 0,10 --output plot.svg\n` +
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 100 --output polar.svg\n` +
     `\nFor full mission statement see MISSION.md`
@@ -87,6 +96,18 @@ function showMission() {
     console.error("Error reading mission statement:", err);
     process.exit(1);
   }
+}
+
+function showFullMission() {
+  const missionPath = path.resolve(__dirname, "../../MISSION.md");
+  try {
+    const content = fs.readFileSync(missionPath, "utf8");
+    console.log(content);
+  } catch (err) {
+    console.error("Error reading full mission statement:", err);
+    process.exit(1);
+  }
+  process.exit(0);
 }
 
 function handlePolar() {
@@ -183,7 +204,7 @@ function handlePolar() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}\">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
@@ -245,7 +266,7 @@ function handlePlot() {
 
   const svg =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}">\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${start} ${minY} ${width} ${height}\">\n` +
     `  <polyline fill="none" stroke="black" points="${points}" />\n` +
     `</svg>\n`;
 
