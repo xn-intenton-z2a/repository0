@@ -47,23 +47,35 @@ Generate and retrieve polar plot data for `spiral` or `rose` functions.
 
 ### GET /plot
 
-Generate and retrieve an SVG image for `quadratic` or `sine` functions.
+Generate and retrieve an SVG image for `quadratic` or `sine` functions with customization options.
 
 **Query parameters:**
 
 - `function`: `quadratic` or `sine` (required)
 - `range`: `<start,end>` X-axis range (e.g., `0,10`) (required)
-- `resolution`: Number of sample points (default: `100`)
+- `resolution`: Number of sample_points (default: `100`)
+- `strokeColor`: Stroke color (default: `black`)
+- `strokeWidth`: Stroke width (default: `1`)
+- `fillColor`: Fill color for the polyline (default: `none`)
+- `backgroundColor`: Background color for SVG (optional)
+- `title`: Add title annotation to SVG (optional)
+- `xlabel`: X-axis label at bottom center (optional)
+- `ylabel`: Y-axis label along left side (optional)
 - `output`: Optional filename to save the SVG on the server
 
 **Response:**
 
 - **200 OK** with `Content-Type: image/svg+xml`
-- Body contains the SVG markup with a `<polyline>` element
+- Body contains the SVG markup with customization applied
+
+**Example:**
+```bash
+curl "http://localhost:4000/plot?function=quadratic&range=0,5&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y"
+```
 
 ### GET /polar
 
-Generate and retrieve an SVG image for `spiral` or `rose` functions.
+Generate and retrieve an SVG image for `spiral` or `rose` functions with customization options.
 
 **Query parameters:**
 
@@ -71,62 +83,19 @@ Generate and retrieve an SVG image for `spiral` or `rose` functions.
 - `radius-range`: `<rStart,rEnd>` (required)
 - `angle-range`: `<thetaStart,thetaEnd>` (required)
 - `resolution`: Number of sample points (default: `100`)
+- `strokeColor`: Stroke color (default: `black`)
+- `strokeWidth`: Stroke width (default: `1`)
+- `fillColor`: Fill color for the polyline (default: `none`)
+- `backgroundColor`: Background color for SVG (optional)
+- `title`: Add title annotation to SVG (optional)
 - `output`: Optional filename to save the SVG on the server
 
 **Response:**
 
 - **200 OK** with `Content-Type: image/svg+xml`
-- Body contains the SVG markup with a `<polyline>` element
-
-### GET /mission
-
-Retrieve the brief mission statement (header and first paragraph) from the project.
-
-**Query parameters:** None
-
-**Response:**
-
-- **200 OK** with `Content-Type: text/plain`
-- Body contains the mission header and first paragraph
+- Body contains the SVG markup with customization applied
 
 **Example:**
 ```bash
-curl "http://localhost:4000/mission"
+curl "http://localhost:4000/polar?function=rose&radius-range=0,1&angle-range=0,6.28&resolution=30&strokeColor=purple&strokeWidth=1.5&fillColor=cyan&backgroundColor=white&title=PolarTitle"
 ```
-
-### GET /version
-
-Retrieve the current version number from `package.json`.
-
-**Query parameters:** None
-
-**Response:**
-
-- **200 OK** with `Content-Type: text/plain`
-- Body contains the version string
-
-**Example:**
-```bash
-curl "http://localhost:4000/version"
-```
-
-### GET /help
-
-Retrieve the CLI usage guide (same text as the `--help` command).
-
-**Query parameters:** None
-
-**Response:**
-
-- **200 OK** with `Content-Type: text/plain`
-- Body contains the usage instructions
-
-**Example:**
-```bash
-curl "http://localhost:4000/help"
-```
-
-### Error Handling
-
-- **400 Bad Request** if required parameters are missing or invalid
-- **404 Not Found** for unsupported endpoints
