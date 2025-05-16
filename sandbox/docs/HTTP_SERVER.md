@@ -76,11 +76,6 @@ Generate and retrieve an SVG image for `quadratic` or `sine` functions with cust
 - **400 Bad Request** if `logScale` has an invalid value or if any range values are non-positive when `logScale` is used.
 - **400 Bad Request** if `width` or `height` parameters are non-positive or non-integer.
 
-**Example:**
-```bash
-curl "http://localhost:4000/plot?function=quadratic&range=0,5&width=400&height=200&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y&logScale=x"
-```
-
 ### GET /polar
 
 Generate and retrieve an SVG image for `spiral` or `rose` functions with customization options.
@@ -113,5 +108,5 @@ Generate and retrieve an SVG image for `spiral` or `rose` functions with customi
 
 **Example:**
 ```bash
-curl "http://localhost:4000/polar?function=rose&radius-range=0,1&angle-range=0,6.28&width=300&height=300&resolution=30&strokeColor=purple&strokeWidth=1.5&fillColor=cyan&backgroundColor=white&title=PolarTitle"
+curl "http://localhost:4000/plot?function=quadratic&range=0,5&width=400&height=200&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y&logScale=x"
 ```
