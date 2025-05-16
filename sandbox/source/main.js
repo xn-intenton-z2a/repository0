@@ -74,7 +74,7 @@ function getHelpText() {
     "  --version           Show version number",
     "  --mission           Show mission statement",
     "    --mission-full      Show full mission statement",
-    "  --features          Show list of all available sandbox features",
+    "  --features          Show list of all available sandbox features (includes MISSION and MISSION-FULL)",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
     "  --plots             Generate multiple SVG plots in one output",
@@ -170,6 +170,9 @@ function showFullMission() {
 
 function handleFeatures() {
   const featuresDir = path.resolve(__dirname, "../../sandbox/features");
+  // Include built-in feature commands
+  console.log('MISSION');
+  console.log('MISSION-FULL');
   let files = [];
   try {
     files = fs.readdirSync(featuresDir);

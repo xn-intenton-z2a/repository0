@@ -71,7 +71,11 @@ describe("CLI Integration Tests", () => {
     // setup: create dummy feature files in sandbox/features
     const featuresDir = path.resolve(process.cwd(), "sandbox/features");
     const featureFiles = fs.readdirSync(featuresDir).filter(f => f.endsWith('.md'));
-    const expected = featureFiles.map(f => f.replace(/\.md$/, '').toUpperCase());
+    const expected = [
+      'MISSION',
+      'MISSION-FULL',
+      ...featureFiles.map(f => f.replace(/\.md$/, '').toUpperCase())
+    ];
 
     const result = spawnSync("node", [cliPath, "--features"], { encoding: "utf8" });
     expect(result.status).toBe(0);
