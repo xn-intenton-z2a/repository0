@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --features-full, --plot, --plots, --polar, --export-data, --serve commands and log-scale option
+// Complete CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --features-full, --plot, --plots, --polar, --export-data, --serve commands and log-scale option
 
 import minimist from "minimist";
 import fs from "fs";
@@ -37,6 +37,7 @@ const argv = minimist(args, {
     "xlabel",
     "ylabel",
     "log-scale",
+    "logScale",
     "width",
     "height"
   ],
@@ -173,7 +174,6 @@ function showFullMission() {
 }
 
 function handleFeaturesFull() {
-  // Print mission header and one-line summary
   const missionPath = path.resolve(__dirname, "../../MISSION.md");
   try {
     const content = fs.readFileSync(missionPath, "utf8");
@@ -196,7 +196,6 @@ function handleFeaturesFull() {
   } catch (err) {
     console.error("Error reading mission statement:", err);
   }
-  // Print each feature with first descriptive paragraph
   const featuresDir = path.resolve(__dirname, "../../sandbox/features");
   let files = [];
   try {
@@ -204,42 +203,37 @@ function handleFeaturesFull() {
   } catch {
     files = [];
   }
-  files
-    .filter((f) => f.endsWith('.md'))
-    .forEach((f) => {
-      const name = f.replace(/\.md$/, '').toUpperCase();
-      let summary = '';
-      try {
-        const fileContent = fs.readFileSync(path.join(featuresDir, f), 'utf8');
-        const lines = fileContent.split(/\r?\n/);
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (!line) continue;
-          if (line.startsWith('#')) continue;
-          summary = line;
-          break;
-        }
-      } catch {
-        summary = '';
+  files.filter((f) => f.endsWith('.md')).forEach((f) => {
+    const name = f.replace(/\.md$/, '').toUpperCase();
+    let summary = '';
+    try {
+      const fileContent = fs.readFileSync(path.join(featuresDir, f), 'utf8');
+      const lines = fileContent.split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        summary = trimmed;
+        break;
       }
-      console.log(`${name}: ${summary}`);
-    });
+    } catch {
+      summary = '';
+    }
+    console.log(`${name}: ${summary}`);
+  });
   process.exit(0);
 }
 
 function handleFeatures() {
-  const featuresDir = path.resolve(__dirname, "../../sandbox/features");
-  // Include built-in feature commands
   console.log('MISSION');
   console.log('MISSION-FULL');
+  const featuresDir = path.resolve(__dirname, "../../sandbox/features");
   let files = [];
   try {
     files = fs.readdirSync(featuresDir);
   } catch {
     files = [];
   }
-  files
-    .filter((f) => f.endsWith('.md'))
+  files.filter((f) => f.endsWith('.md'))
     .map((f) => f.replace(/\.md$/, '').toUpperCase())
     .forEach((name) => console.log(name));
   process.exit(0);
@@ -265,7 +259,7 @@ function linspace(start, end, num) {
 function generatePlotData(fnName, range, resolution) {
   const [start, end] = range;
   const xs = linspace(start, end, resolution);
-  const data = xs.map((x) => {
+  return xs.map((x) => {
     let y;
     if (fnName === 'quadratic') {
       y = x * x;
@@ -276,27 +270,25 @@ function generatePlotData(fnName, range, resolution) {
     }
     return { x, y };
   });
-  return data;
 }
 
 function generatePolarData(fnName, radiusRange, angleRange, resolution) {
   const [rStart, rEnd] = radiusRange;
   const [aStart, aEnd] = angleRange;
   const thetas = linspace(aStart, aEnd, resolution);
-  const data = thetas.map((theta, i) => {
+  return thetas.map((theta, i) => {
     let r;
     if (fnName === 'spiral') {
       r = rStart + (rEnd - rStart) * (i / (resolution - 1));
     } else if (fnName === 'rose') {
       r = Math.cos(theta);
     } else {
-      throw new Error(`Unsupported polar function: ${fnName}`);
+      throw new Error(`Unsupported function: ${fnName}`);
     }
     const x = r * Math.cos(theta);
     const y = r * Math.sin(theta);
     return { x, y };
   });
-  return data;
 }
 
 function makeCSV(data) {
@@ -306,10 +298,8 @@ function makeCSV(data) {
 }
 
 function handlePlot() {
-  const fnNames = argv.plots
-    ? argv.plots.split(',')
-    : [argv.plot];
-  if (!argv.plots && !argv.plot) {
+  const fnNames = argv.plots ? argv.plots.split(',') : [argv.plot];
+  if ((!argv.plots && !argv.plot) || fnNames.some((f) => !f)) {
     console.error('No plot function specified');
     process.exit(1);
   }
@@ -317,9 +307,7 @@ function handlePlot() {
   const resolution = argv.resolution ? parseInt(argv.resolution, 10) : 100;
   let seriesData;
   try {
-    seriesData = fnNames.map((fnName) =>
-      generatePlotData(fnName, range, resolution)
-    );
+    seriesData = fnNames.map((fn) => generatePlotData(fn, range, resolution));
   } catch (err) {
     console.error(err.message);
     process.exit(1);
@@ -343,18 +331,14 @@ function handlePlot() {
     const height = argv.height ? parseInt(argv.height, 10) : 600;
     const palette = ['black', 'red', 'blue', 'green', 'orange', 'purple'];
     const strokeColorArg = argv['stroke-color'] || argv.strokeColor;
-    const strokeColors = fnNames.map(
-      (_, i) => strokeColorArg || palette[i % palette.length]
-    );
-    const ysAll = seriesData.flat().map((d) => d.y);
-    const minY = Math.min(...ysAll);
-    const maxY = Math.max(...ysAll);
-    const polylines = seriesData
-      .map((data, i) => {
-        const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-        return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
-      })
-      .join('');
+    const strokeColors = fnNames.map((_, i) => strokeColorArg || palette[i % palette.length]);
+    const ys = seriesData.flat().map((d) => d.y);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const polylines = seriesData.map((data, i) => {
+      const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+      return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
+    }).join('');
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}">${polylines}</svg>`;
     const outFile = argv.output || 'plot.svg';
     fs.writeFileSync(outFile, svg, 'utf8');
@@ -367,7 +351,13 @@ function handlePolar() {
   const radiusRange = parsePair(argv['radius-range'], [0, 5]);
   const angleRange = parsePair(argv['angle-range'], [0, 6.28]);
   const resolution = argv.resolution ? parseInt(argv.resolution, 10) : 100;
-  const data = generatePolarData(fnName, radiusRange, angleRange, resolution);
+  let data;
+  try {
+    data = generatePolarData(fnName, radiusRange, angleRange, resolution);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
   if (argv['export-data']) {
     const out = argv['export-data'];
     let content;
@@ -395,30 +385,212 @@ function handlePolar() {
   process.exit(0);
 }
 
-function startServer() {
+export function startServer() {
   const port = argv.serve ? parseInt(argv.serve, 10) : 4000;
   const server = http.createServer((req, res) => {
-    const urlObj = new URL(req.url, `http://${req.headers.host}`);
-    const pathname = urlObj.pathname;
-    const params = urlObj.searchParams;
+    try {
+      const urlObj = new URL(req.url, `http://${req.headers.host}`);
+      const pathname = urlObj.pathname;
+      const params = urlObj.searchParams;
 
-    if (pathname === '/plot-data') {
-      const fn = params.get('function');
-      const rangeParam = params.get('range');
-      const format = params.get('format');
-      if (!fn || !rangeParam || !format) {
-        res.statusCode = 400;
-        res.end();
-        return;
-      }
-      const range = parsePair(rangeParam, [0, 10]);
-      const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
-      const data = generatePlotData(fn, range, resolution);
-      if (format === 'csv') {
-        res.setHeader('Content-Type', 'text/csv');
-        res.end(makeCSV(data));
-      } else if (format === 'json') {
-        res.setHeader('Content-Type', 'application/json');
-        res.end(JSON.stringify(data));
+      // Data endpoints
+      if (pathname === '/plot-data') {
+        const fn = params.get('function');
+        const rangeParam = params.get('range');
+        const format = params.get('format');
+        if (!fn || !rangeParam || !format) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        const range = parsePair(rangeParam, [0, 10]);
+        const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+        let data;
+        try {
+          data = generatePlotData(fn, range, resolution);
+        } catch (err) {
+          res.statusCode = 400;
+          res.end(err.message);
+          return;
+        }
+        if (format === 'csv') {
+          res.setHeader('Content-Type', 'text/csv');
+          res.end(makeCSV(data));
+        } else if (format === 'json') {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(data));
+        } else {
+          res.statusCode = 400;
+          res.end();
+        }
+
+      } else if (pathname === '/polar-data') {
+        const fn = params.get('function');
+        const rr = params.get('radius-range');
+        const ar = params.get('angle-range');
+        const format = params.get('format');
+        if (!fn || !rr || !ar || !format) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        const radiusRange = parsePair(rr, [0, 5]);
+        const angleRange = parsePair(ar, [0, 6.28]);
+        const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+        let data;
+        try {
+          data = generatePolarData(fn, radiusRange, angleRange, resolution);
+        } catch (err) {
+          res.statusCode = 400;
+          res.end(err.message);
+          return;
+        }
+        if (format === 'csv') {
+          res.setHeader('Content-Type', 'text/csv');
+          res.end(makeCSV(data));
+        } else if (format === 'json') {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(data));
+        } else {
+          res.statusCode = 400;
+          res.end();
+        }
+
+      } else if (pathname === '/mission') {
+        const missionPath = path.resolve(__dirname, '../../MISSION.md');
+        const content = fs.readFileSync(missionPath, 'utf8');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(content);
+
+      } else if (pathname === '/mission-full') {
+        const missionPath = path.resolve(__dirname, '../../MISSION.md');
+        const content = fs.readFileSync(missionPath, 'utf8');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(content);
+
+      } else if (pathname === '/version') {
+        const pkgPath = path.resolve(__dirname, '../../package.json');
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(pkg.version);
+
+      } else if (pathname === '/help') {
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(getHelpText());
+
+      } else if (pathname === '/plot') {
+        // HTTP SVG plot
+        const fnParam = params.get('plots') ? null : params.get('function');
+        const fnList = params.get('plots') ? params.get('plots').split(',') : fnParam ? [fnParam] : null;
+        const rangeParam = params.get('range');
+        if (!fnList || !rangeParam) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        const logScale = params.get('logScale');
+        const range = parsePair(rangeParam, [0, 10]);
+        const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+        const width = params.get('width') ? parseInt(params.get('width'), 10) : 800;
+        const height = params.get('height') ? parseInt(params.get('height'), 10) : 600;
+        if (!Number.isInteger(width) || width <= 0 || !Number.isInteger(height) || height <= 0) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        if (logScale && !['x','y','both'].includes(logScale)) {
+          res.statusCode = 400;
+          res.end('invalid logScale');
+          return;
+        }
+        if (logScale && (range[0] <= 0 || range[1] <= 0)) {
+          res.statusCode = 400;
+          res.end('log-scale values must be positive');
+          return;
+        }
+        let dataSeries;
+        try {
+          dataSeries = fnList.map((f) => generatePlotData(f, range, resolution));
+        } catch (err) {
+          res.statusCode = 400;
+          res.end(err.message);
+          return;
+        }
+        // apply log scaling
+        const transformed = dataSeries.map((series) => series.map((pt) => {
+          let nx = pt.x;
+          let ny = pt.y;
+          if (logScale === 'x' || logScale === 'both') nx = Math.log10(pt.x);
+          if (logScale === 'y' || logScale === 'both') ny = Math.log10(pt.y);
+          return { x: nx, y: ny };
+        }));
+        // compute bounds
+        const allX = transformed.flat().map((d) => d.x);
+        const allY = transformed.flat().map((d) => d.y);
+        const minX = Math.min(...allX);
+        const maxX = Math.max(...allX);
+        const minY = Math.min(...allY);
+        const maxY = Math.max(...allY);
+        const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+        const palette = ['black','red','blue','green','orange','purple'];
+        const strokeColor = params.get('strokeColor') || params.get('stroke-color');
+        const strokeColors = transformed.map((_,i) => strokeColor || palette[i%palette.length]);
+        const polylines = transformed.map((series,i) => {
+          const pts = series.map((d) => `${d.x},${d.y}`).join(' ');
+          return `<polyline points="${pts}" stroke="${strokeColors[i]}" fill="none"/>`;
+        }).join('');
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">${polylines}</svg>`;
+        res.setHeader('Content-Type','image/svg+xml');
+        res.end(svg);
+
+      } else if (pathname === '/polar') {
+        const fn = params.get('function');
+        const rr = params.get('radius-range');
+        const ar = params.get('angle-range');
+        if (!fn || !rr || !ar) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        const radiusRange = parsePair(rr, [0,5]);
+        const angleRange = parsePair(ar, [0,6.28]);
+        const resolution = params.get('resolution') ? parseInt(params.get('resolution'),10) : 100;
+        const width = params.get('width') ? parseInt(params.get('width'),10) : 800;
+        const height = params.get('height') ? parseInt(params.get('height'),10) : 600;
+        if (!Number.isInteger(width) || width <= 0 || !Number.isInteger(height) || height <= 0) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+        let data;
+        try {
+          data = generatePolarData(fn, radiusRange, angleRange, resolution);
+        } catch (err) {
+          res.statusCode = 400;
+          res.end(err.message);
+          return;
+        }
+        const xs = data.map((d) => d.x);
+        const ys = data.map((d) => d.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+        const pts = data.map((d) => `${d.x},${d.y}`).join(' ');
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${pts}" stroke="black" fill="none"/></svg>`;
+        res.setHeader('Content-Type','image/svg+xml');
+        res.end(svg);
+
       } else {
-        res.statusCod... (truncated for brevity)
+        res.statusCode = 404;
+        res.end();
+      }
+    } catch (e) {
+      res.statusCode = 500;
+      res.end(e.message);
+    }
+  });
+  server.listen(port);
+  return server;
+}
