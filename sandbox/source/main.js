@@ -5,7 +5,6 @@ import { main as libMain } from "../../src/lib/main.js";
 import process from "process";
 
 // Execute CLI with arguments
-default: no lint warnings
 const args = process.argv.slice(2);
 
 if (args[0] === "plot") {
