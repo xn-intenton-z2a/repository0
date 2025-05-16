@@ -1,0 +1,213 @@
+# .github/workflows/agent-archive-intentïon.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: archive-intentïon
+concurrency: archive-intentïon
+run-name: "archive intentïon"
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+  schedule:
+    #- cron: '57 8 * * 4' # schedule-1
+    #- cron: '57 8,16 * * *' # schedule-2
+    #- cron: '57 */4 * * *' # schedule-3
+    - cron: '57,27 * * * *' # schedule-4
+
+env:
+  gitUserEmail: 'action@github.com'
+  gitUserName: 'GitHub Actions[bot]'
+  archivePath: 'archive/'
+
+jobs:
+  uuid:
+    runs-on: ubuntu-latest
+    steps:
+      - id: uuid
+        name: uuid
+        shell: bash
+        run: |
+          uuid=$(uuidgen)
+          echo "uuid: ${uuid}"
+          echo "uuid=${uuid}" >> $GITHUB_OUTPUT
+    outputs:
+      uuid: ${{ steps.uuid.outputs.uuid }}
+
+  agentic-lib:
+    needs:
+      - uuid
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.0'
+    with:
+      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  intention:
+    needs:
+      - agentic-lib
+      - uuid
+    runs-on: ubuntu-latest
+    outputs:
+      branchUrl: ${{ steps.intention.outputs.branchUrl }}
+      branchName: ${{ steps.intention.outputs.branchName }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: intention
+        id: intention
+        uses: actions/github-script@v7
+        env:
+          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          uuid: ${{ needs.uuid.outputs.uuid }}
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            
+            const uuid = process.env.uuid;
+            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            
+            let branchUrl = ''; // branch URL
+            let branchName = '';
+            try {
+              core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
+        
+              if (fs.existsSync(seedDiscussionFilepath)) {
+                const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                const lines = seedDiscussionContent.split('\n');
+        
+                // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
+                const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
+                const branchUrlLines = lines.filter(line => branchUrlPattern.test(line));
+                if (branchUrlLines.length === 0) {
+                  core.warning(`No matching GitHub branch URL found in intentïon.md`);
+                } else {
+                  const lastUrlLine = branchUrlLines[branchUrlLines.length - 1];
+        
+                  // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
+                  const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
+                  if (urlMatch) {
+                    branchUrl = urlMatch[0];
+                    core.info(`Using URL from intentïon.md: ${url}`);
+                  } else {
+                    core.warning(`No matching GitHub branch URL found in intentïon.md: ${lastUrlLine}`);
+                  }
+                }
+              } else {
+                core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
+              }
+            } catch (error) {
+              core.warning(`Error reading intentïon.md: ${error.message}`);
+            }
+  
+            if(!branchUrl) {
+              // Create a branch URL where the branch will be of the form intention-<date>-<uuid>
+              const isoDateParts = new Date().toISOString().split(':');
+              const date = `${isoDateParts[0]}-${isoDateParts[1]}Z`;
+              branchName = `intention-${date}`;
+              branchUrl = `https://github.com/${owner}/${repo}/tree/${branchName}`;
+              core.info(`Created branch URL: ${branchUrl}`);
+            } else {
+              // Extract the branch name from the URL
+              const urlParts = branchUrl.split('/');
+              const branchIndex = urlParts.indexOf('tree') + 1;
+              if (branchIndex < urlParts.length) {
+                branchName = urlParts[branchIndex];
+                core.info(`Extracted branch name: ${branchName}`);
+              } else {
+                core.warning(`Branch name not found in URL: ${branchUrl}`);
+              }
+            }
+            
+            core.info(`branchName: ${branchName}`);
+            core.setOutput('branchName', branchName);
+            core.info(`branchUrl: ${branchUrl}`);
+            core.setOutput('branchUrl', branchUrl);
+
+  update-intention:
+    needs:
+      - agentic-lib
+      - intention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: Log seed in the intentïon file.
+        run: |
+          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+
+      - name: Commit and push
+        id: commit
+        continue-on-error: true
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m 'Log archive to branch ${{ needs.intention.intention.branchUrl }}'
+          git push -v
+          git status -v
+
+  # Idempotently create the branch matching the branch URL if it doesn't exist or succeed silently if it does.
+  create-branch-and-push:
+    needs:
+      - intention
+      - update-intention
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: create-branch-if-required-and-push
+        id: create-branch-if-required-and-push
+        run: |
+          echo 'Checking branch: ${{ needs.intention.outputs.branchName }}'
+          if [[ '${{ needs.intention.outputs.branchName }}' != *main ]] ; then
+            echo 'Creating or force pushing to branch: ${{ needs.intention.outputs.branchName }}'
+            git switch --force-create '${{ needs.intention.outputs.branchName }}'
+            git push -v --force origin '${{ needs.intention.outputs.branchName }}'
+          else
+            echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchName }}'
+          fi
+
+      #- name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}
+      #  id: push-to-branch
+      #  run: |
+      #    git config --local user.email '${{ env.gitUserEmail }}'
+      #    git config --local user.name '${{ env.gitUserName }}'
+      #    git push -v origin HEAD:${{ needs.agentic-lib.intention.branchUrl }}
+      #    git status -v

@@ -52,7 +52,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.5.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -76,21 +76,21 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ github.ref }}
 
-      - name: archive
-        id: archive
-        shell: bash
-        run: |
-          intention="$(head -1 ${{ needs.agentic-lib.outputs.contributingFilepath }} | sed 's/^# //')"
-          mkdir -p '${{ env.archivePath }}'
-          if [[ -e '${{ needs.agentic-lib.outputs.missionFilepath }}' ]]; then        cp -fv '${{ needs.agentic-lib.outputs.missionFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-MISSION.md" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' ]]; then cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-SOURCES.md" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' ]]; then find '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-LIBRARY.md" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.featuresPath }}' ]]; then         find '${{ needs.agentic-lib.outputs.featuresPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-FEATURES.md" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.targetTestsPath }}' ]]; then      find '${{ needs.agentic-lib.outputs.targetTestsPath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-tests.txt" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.targetSourcePath }}' ]]; then     find '${{ needs.agentic-lib.outputs.targetSourcePath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-source.txt" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' ]]; then cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-package.json" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.documentationPath }}' ]]; then    find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md" ; fi
-          if [[ -e '${{ needs.agentic-lib.outputs.readmeFilepath }}' ]]; then         cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md" ; fi
+      #- name: archive
+      #  id: archive
+      #  shell: bash
+      #  run: |
+      #    intention="$(head -1 ${{ needs.agentic-lib.outputs.contributingFilepath }} | sed 's/^# //')"
+      #    mkdir -p '${{ env.archivePath }}'
+      #    if [[ -e '${{ needs.agentic-lib.outputs.missionFilepath }}' ]]; then        cp -fv '${{ needs.agentic-lib.outputs.missionFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-MISSION.md" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' ]]; then cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-SOURCES.md" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' ]]; then find '${{ needs.agentic-lib.outputs.libraryDocumentsPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-LIBRARY.md" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.featuresPath }}' ]]; then         find '${{ needs.agentic-lib.outputs.featuresPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-FEATURES.md" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.targetTestsPath }}' ]]; then      find '${{ needs.agentic-lib.outputs.targetTestsPath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-tests.txt" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.targetSourcePath }}' ]]; then     find '${{ needs.agentic-lib.outputs.targetSourcePath }}' -maxdepth 2 -type f -name '*.js' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-source.txt" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' ]]; then cp -fv '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-package.json" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.documentationPath }}' ]]; then    find '${{ needs.agentic-lib.outputs.documentationPath }}' -maxdepth 2 -type f -name '*.md' -print -exec echo "# {}" \; -exec cat {} \; > "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-DOCS.md" ; fi
+      #    if [[ -e '${{ needs.agentic-lib.outputs.readmeFilepath }}' ]]; then         cp -fv '${{ needs.agentic-lib.outputs.readmeFilepath }}' "${{ env.archivePath }}${intention?}-$(date +%Y-%m-%d)-README.md" ; fi
 
       - name: Delete sandbox files
         if: needs.agentic-lib.outputs.sandboxReset == 'true'
@@ -193,8 +193,7 @@ jobs:
 
       - name: Log seed in the intentïon file.
         run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "seed repository at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "Repository seeded at $(date)" > ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
         id: commit
