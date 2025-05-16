@@ -129,4 +129,37 @@ describe('HTTP Data Export Endpoints', () => {
     const res = await fetch(`http://localhost:${port}/polar?function=unknown&radius-range=0,1&angle-range=0,6.28`);
     expect(res.status).toBe(400);
   });
+
+  // Log-scale HTTP tests
+  test('GET /plot with logScale=x transforms x-axis', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=1,100&logScale=x`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    // x at 1 => log10(1)=0, y at 1 => 1
+    expect(text).toMatch(/points="0,1/);
+  });
+
+  test('GET /plot with logScale=both transforms both axes', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=1,100&logScale=both`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    // both x and y at start -> log10(1)=0
+    expect(text).toMatch(/points="0,0/);
+  });
+
+  test('GET /plot with non-positive range returns 400', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,10&logScale=x`);
+    expect(res.status).toBe(400);
+    const text = await res.text();
+    expect(text).toMatch(/log-scale values must be positive/);
+  });
+
+  test('GET /plot with invalid logScale returns 400', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=1,10&logScale=foo`);
+    expect(res.status).toBe(400);
+    const text = await res.text();
+    expect(text).toMatch(/invalid logScale/);
+  });
 });

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --plot, --polar, --export-data, and --serve commands
+// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --plot, --polar, --export-data, --serve commands and log-scale option
 
 import minimist from "minimist";
 import fs from "fs";
@@ -34,7 +34,8 @@ const argv = minimist(args, {
     "backgroundColor",
     "title",
     "xlabel",
-    "ylabel"
+    "ylabel",
+    "log-scale"
   ],
   alias: { h: "help", v: "version", m: "mission" }
 });
@@ -73,6 +74,8 @@ function getHelpText() {
     "  --features          Show mission statement and list all available sandbox features",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
+    "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
+    "  --log-scale         Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values)",
     "  --polar             Generate SVG polar plot (spiral or rose)",
     "  --export-data       Export data as CSV or JSON (takes precedence)",
     "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
@@ -249,8 +252,21 @@ function makeCSV(data) {
   return [header, ...rows].join('\n');
 }
 
-function generatePlotSVG(fnName, range, resolution, style) {
-  const data = generatePlotData(fnName, range, resolution);
+function generatePlotSVG(fnName, range, resolution, style, logScale) {
+  let data = generatePlotData(fnName, range, resolution);
+  if (logScale) {
+    data = data.map((d) => {
+      let x = d.x;
+      let y = d.y;
+      if (logScale === 'x' || logScale === 'both') {
+        x = Math.log10(x);
+      }
+      if (logScale === 'y' || logScale === 'both') {
+        y = Math.log10(y);
+      }
+      return { x, y };
+    });
+  }
   const points = data.map((d) => `${d.x},${d.y}`).join(' ');
   const bg = style.backgroundColor ? `<rect width="100%" height="100%" fill="${style.backgroundColor}"/>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg">
@@ -271,6 +287,11 @@ function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style) {
 
 function handlePlot() {
   const fn = argv.plot;
+  const logScale = argv['log-scale'];
+  if (logScale !== undefined && !['x', 'y', 'both'].includes(logScale)) {
+    console.error('invalid logScale');
+    process.exit(1);
+  }
   try {
     let rangeStr;
     const idx = args.indexOf('--range');
@@ -280,6 +301,10 @@ function handlePlot() {
       rangeStr = argv.range;
     }
     const range = parsePair(rangeStr, [0, 10]);
+    if (logScale && (range[0] <= 0 || range[1] <= 0)) {
+      console.error('log-scale values must be positive');
+      process.exit(1);
+    }
     const resolution = parseInt(argv.resolution || '100', 10);
     const style = {
       strokeColor: argv['stroke-color'] || argv.strokeColor || 'black',
@@ -301,7 +326,7 @@ function handlePlot() {
       process.exit(0);
     } else {
       const out = argv.output || 'plot.svg';
-      const svg = generatePlotSVG(fn, range, resolution, style);
+      const svg = generatePlotSVG(fn, range, resolution, style, logScale);
       fs.writeFileSync(out, svg);
       process.exit(0);
     }
@@ -396,7 +421,6 @@ function startServer() {
           res.statusCode = 400;
           return res.end('Bad Request');
         }
-        // reject unsupported plot functions
         if (!['quadratic', 'sine'].includes(fn)) {
           res.statusCode = 400;
           return res.end('Bad Request');
@@ -407,7 +431,18 @@ function startServer() {
           strokeWidth: params.get('strokeWidth') || '1',
           backgroundColor: params.get('backgroundColor') || ''
         };
-        const svg = generatePlotSVG(fn, range, resolution, style);
+        const logScaleParam = params.get('logScale');
+        if (logScaleParam) {
+          if (!['x', 'y', 'both'].includes(logScaleParam)) {
+            res.statusCode = 400;
+            return res.end('invalid logScale');
+          }
+          if (range[0] <= 0 || range[1] <= 0) {
+            res.statusCode = 400;
+            return res.end('log-scale values must be positive');
+          }
+        }
+        const svg = generatePlotSVG(fn, range, resolution, style, logScaleParam);
         res.setHeader('Content-Type', 'image/svg+xml');
         return res.end(svg);
       } else if (url.pathname === '/polar') {
@@ -418,7 +453,6 @@ function startServer() {
           res.statusCode = 400;
           return res.end('Bad Request');
         }
-        // reject unsupported polar functions
         if (!['spiral', 'rose'].includes(fn)) {
           res.statusCode = 400;
           return res.end('Bad Request');
