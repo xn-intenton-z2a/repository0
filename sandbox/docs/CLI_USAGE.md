@@ -51,6 +51,8 @@ Plotting functions:
 - `--plot <quadratic|sine>`
   - `--range <start,end>`       Specify X-axis range (default: `0,10`)
   - `--log-scale <x|y|both>`    Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values)
+  - `--width <pixels>`          Specify SVG width in pixels (default: `800`)
+  - `--height <pixels>`         Specify SVG height in pixels (default: `600`)
   - `--resolution <points>`     Number of sample points (default: `100`)
   - `--stroke-color <color>`    Stroke color (default: `black`)
   - `--stroke-width <width>`    Stroke width (default: `1`)
@@ -67,6 +69,8 @@ Polar plots:
 - `--polar <spiral|rose>`
   - `--radius-range <rStart,rEnd>`   Specify radius limits (default: `0,5`)
   - `--angle-range <thetaStart,thetaEnd>`  Specify angle range in radians (default: `0,6.28`)
+  - `--width <pixels>`          Specify SVG width in pixels (default: `800`)
+  - `--height <pixels>`         Specify SVG height in pixels (default: `600`)
   - `--resolution <points>`          Number of sample points (default: `100`)
   - `--stroke-color <color>`         Stroke color (default: `black`)
   - `--stroke-width <width>`         Stroke width (default: `1`)
@@ -100,4 +104,10 @@ Fetch sine plot data via HTTP (CSV format):
 
 ```bash
 curl "http://localhost:4000/plot-data?function=sine&range=0,6.28&format=csv"
+```
+
+Generate a sine plot SVG with explicit dimensions:
+
+```bash
+node sandbox/source/main.js --plot sine --range 0,1 --width 500 --height 400
 ```

@@ -99,7 +99,7 @@ describe('HTTP Data Export Endpoints', () => {
     expect(text).toContain('Usage:');
   });
 
-  // New tests for SVG endpoints
+  // New HTTP SVG endpoint tests
   test('GET /plot returns SVG content', async () => {
     const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,5`);
     expect(res.status).toBe(200);
@@ -161,5 +161,37 @@ describe('HTTP Data Export Endpoints', () => {
     expect(res.status).toBe(400);
     const text = await res.text();
     expect(text).toMatch(/invalid logScale/);
+  });
+
+  // New HTTP dimension tests
+  test('GET /plot with width and height returns SVG with correct dimensions and viewBox', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,5&width=400&height=200`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    expect(text).toMatch(/width="400"/);
+    expect(text).toMatch(/height="200"/);
+    expect(text).toMatch(/viewBox="0 0 5 25"/);
+  });
+  test('GET /polar default width and height returns SVG with dimensions', async () => {
+    const res = await fetch(`http://localhost:${port}/polar?function=rose&radius-range=0,1&angle-range=0,6.28`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('image/svg+xml');
+    const text = await res.text();
+    expect(text).toMatch(/width="800"/);
+    expect(text).toMatch(/height="600"/);
+    expect(text).toMatch(/viewBox="[-0-9\.]+ [-0-9\.]+ [0-9\.]+ [0-9\.]+"/);
+  });
+  test('GET /plot with non-positive width or height returns 400', async () => {
+    let res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=0&height=100`);
+    expect(res.status).toBe(400);
+    res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=100&height=-5`);
+    expect(res.status).toBe(400);
+  });
+  test('GET /plot with non-integer width or height returns 400', async () => {
+    let res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=abc&height=100`);
+    expect(res.status).toBe(400);
+    res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=100&height=xyz`);
+    expect(res.status).toBe(400);
   });
 });
