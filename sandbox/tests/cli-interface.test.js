@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterEach } from "vitest";
 import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
