@@ -156,8 +156,8 @@ describe("CLI Integration Tests", () => {
     const result = spawnSync("node", [cliPath, "--features"], { encoding: "utf8" });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("# Mission Statement");
-    expect(result.stdout}).toMatch(/LOG_SCALE/);
-    expect(result.stdout}).toMatch(/MULTI_PLOT/);
+    expect(result.stdout).toMatch(/LOG_SCALE/);
+    expect(result.stdout).toMatch(/MULTI_PLOT/);
   });
 
   // Log-scale CLI tests
