@@ -1,3 +1,3 @@
-# log_scale
+# LOG_SCALE
 
-Enables base-10 logarithmic scaling of axes for plot functions.
+Support applying logarithmic scaling to axes in plots.

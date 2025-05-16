@@ -1,3 +1,3 @@
-# multi_plot
+# MULTI_PLOT
 
-Supports generating multiple functions in a single plot output as separate polylines.
+Support generating multiple plots in a single SVG output.
