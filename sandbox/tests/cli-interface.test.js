@@ -121,5 +121,17 @@ describe("CLI Integration Tests", () => {
     expect(result.stderr).toMatch(/Unsupported function: foo/);
   });
 
-  // further tests ...
+  // Embed mission test
+  test("--plot with embed mission includes mission comment", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic", "--embed-mission"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    const firstLine = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8").split(/\r?\n/)[0];
+    expect(content.startsWith("<!--")).toBe(true);
+    expect(content).toContain(firstLine);
+    fs.unlinkSync(outPath);
+  });
 });

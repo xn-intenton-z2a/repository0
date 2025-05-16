@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 const argv = minimist(args, {
-  boolean: ["help", "version", "mission", "mission-full", "features", "features-full"],
+  boolean: ["help", "version", "mission", "mission-full", "features", "features-full", "embed-mission"],
   string: [
     "plot",
     "plots",
@@ -41,7 +41,7 @@ const argv = minimist(args, {
     "width",
     "height"
   ],
-  alias: { h: "help", v: "version", m: "mission" }
+  alias: { h: "help", v: "version", m: "mission", embedMission: "embed-mission" }
 });
 
 // Precedence: help > version > mission-full > mission > features-full > features > serve > polar > plots/plot
@@ -99,6 +99,7 @@ function getHelpText() {
     "  --ylabel            Add Y-axis label (CLI and HTTP only)",
     "  --output            Specify output filename for SVG (default: plot.svg or polar.svg)",
     "  --export-data       Export data as CSV or JSON (takes precedence)",
+    "  --embed-mission     Embed full mission statement as XML comment at top of SVG output",
     "",
     "Examples:",
     `  $ node ${script} --help`,
@@ -111,6 +112,7 @@ function getHelpText() {
     `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg`,
     `  $ node ${script} --plots quadratic,sine --range 0,5 --output multi.svg`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
+    `  $ node ${script} --plot quadratic --embed-mission`,
     "",
     "For full mission statement see MISSION.md"
   ].join("\n");
@@ -339,7 +341,17 @@ function handlePlot() {
       const points = data.map((d) => `${d.x},${d.y}`).join(' ');
       return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
     }).join('');
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}">${polylines}</svg>`;
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}">${polylines}</svg>`;
+    // Embed mission statement if requested
+    const embed = argv['embed-mission'] || argv.embedMission;
+    if (embed) {
+      const missionPath = path.resolve(__dirname, '../../MISSION.md');
+      try {
+        const missionText = fs.readFileSync(missionPath, 'utf8');
+        const comment = `<!--\n${missionText}\n-->\n`;
+        svg = comment + svg;
+      } catch {}
+    }
     const outFile = argv.output || 'plot.svg';
     fs.writeFileSync(outFile, svg, 'utf8');
   }
@@ -377,8 +389,17 @@ function handlePolar() {
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
     const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
-    const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${data.map((d) => `${d.x},${d.y}`).join(' ')}" stroke="black" fill="none"/></svg>`;
+    // Embed mission statement if requested
+    const embed = argv['embed-mission'] || argv.embedMission;
+    if (embed) {
+      const missionPath = path.resolve(__dirname, '../../MISSION.md');
+      try {
+        const missionText = fs.readFileSync(missionPath, 'utf8');
+        const comment = `<!--\n${missionText}\n-->\n`;
+        svg = comment + svg;
+      } catch {}
+    }
     const outFile = argv.output || 'polar.svg';
     fs.writeFileSync(outFile, svg, 'utf8');
   }
@@ -539,7 +560,17 @@ export function startServer() {
           const pts = series.map((d) => `${d.x},${d.y}`).join(' ');
           return `<polyline points="${pts}" stroke="${strokeColors[i]}" fill="none"/>`;
         }).join('');
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">${polylines}</svg>`;
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">${polylines}</svg>`;
+        // Embed mission statement if requested
+        const embedParam = params.get('embedMission') || params.get('embed-mission');
+        if (embedParam === 'true') {
+          const missionPath = path.resolve(__dirname, '../../MISSION.md');
+          try {
+            const missionText = fs.readFileSync(missionPath, 'utf8');
+            const comment = `<!--\n${missionText}\n-->\n`;
+            svg = comment + svg;
+          } catch {}
+        }
         res.setHeader('Content-Type','image/svg+xml');
         res.end(svg);
 
@@ -577,8 +608,17 @@ export function startServer() {
         const minY = Math.min(...ys);
         const maxY = Math.max(...ys);
         const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
-        const pts = data.map((d) => `${d.x},${d.y}`).join(' ');
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${pts}" stroke="black" fill="none"/></svg>`;
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${data.map((d) => `${d.x},${d.y}`).join(' ')}" stroke="black" fill="none"/></svg>`;
+        // Embed mission statement if requested
+        const embedParam = params.get('embedMission') || params.get('embed-mission');
+        if (embedParam === 'true') {
+          const missionPath = path.resolve(__dirname, '../../MISSION.md');
+          try {
+            const missionText = fs.readFileSync(missionPath, 'utf8');
+            const comment = `<!--\n${missionText}\n-->\n`;
+            svg = comment + svg;
+          } catch {}
+        }
         res.setHeader('Content-Type','image/svg+xml');
         res.end(svg);
 

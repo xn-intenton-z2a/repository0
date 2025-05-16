@@ -65,6 +65,7 @@ Plotting functions:
   - `--ylabel <text>`           Y-axis label along left side
   - `--output <filename>`       Output SVG filename (default: `plot.svg`)
   - `--export-data <filename>`  Export computed data to `.csv` or `.json` (single-series only)
+  - `--embed-mission`           Embed full mission statement as XML comment at top of SVG output
 
 Polar plots:
 
@@ -98,6 +99,12 @@ Plot multiple functions in one SVG:
 
 ```bash
 node sandbox/source/main.js --plots quadratic,sine --range 0,5 --output multi.svg
+```
+
+Embed mission statement in SVG:
+
+```bash
+node sandbox/source/main.js --plot quadratic --embed-mission
 ```
 
 List all sandbox features with brief names:

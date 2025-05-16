@@ -68,6 +68,7 @@ Generate and retrieve an SVG image for `quadratic`, `sine`, or multiple function
 - `xlabel`: X-axis label at bottom center (optional)
 - `ylabel`: Y-axis label along left side (optional)
 - `output`: Optional filename to save the SVG on the server
+- `embedMission`: `true` to embed mission statement as XML comment at top of SVG (optional)
 
 **Response:**
 
@@ -81,7 +82,7 @@ Generate and retrieve an SVG image for `quadratic`, `sine`, or multiple function
 
 **Example:**
 ```bash
-curl "http://localhost:4000/plot?plots=quadratic,sine&range=0,5&width=400&height=200&resolution=50"
+curl "http://localhost:4000/plot?function=quadratic&range=0,10&embedMission=true"
 ```
 
 ### GET /polar

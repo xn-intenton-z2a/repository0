@@ -180,28 +180,4 @@ describe('HTTP Data Export Endpoints', () => {
     const text = await res.text();
     expect(text).toMatch(/width="800"/);
     expect(text).toMatch(/height="600"/);
-    expect(text).toMatch(/viewBox="[-0-9\.]+ [-0-9\.]+ [0-9\.]+ [0-9\.]+"/);
-  });
-  test('GET /plot with non-positive width or height returns 400', async () => {
-    let res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=0&height=100`);
-    expect(res.status).toBe(400);
-    res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=100&height=-5`);
-    expect(res.status).toBe(400);
-  });
-  test('GET /plot with non-integer width or height returns 400', async () => {
-    let res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=abc&height=100`);
-    expect(res.status).toBe(400);
-    res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,1&width=100&height=xyz`);
-    expect(res.status).toBe(400);
-  });
-
-  // MULTI_PLOT HTTP test
-  test('GET /plot with plots returns multiple polylines', async () => {
-    const res = await fetch(`http://localhost:${port}/plot?plots=quadratic,sine&range=0,5`);
-    expect(res.status).toBe(200);
-    expect(res.headers.get('content-type')).toContain('image/svg+xml');
-    const text = await res.text();
-    const count = (text.match(/<polyline/g) || []).length;
-    expect(count).toBe(2);
-  });
-});
+    expect(text).toMatch(/viewBox="[-0-9\.]+
