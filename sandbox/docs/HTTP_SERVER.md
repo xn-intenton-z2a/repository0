@@ -1,5 +1,7 @@
 # HTTP Server Data Export API
 
+**Note:** The CLI `--features` command now includes `MISSION` and `MISSION-FULL` at the top of the feature list.
+
 This tool can spin up an HTTP server to expose endpoints for exporting plot and polar data, as well as retrieving metadata, help, and SVG images.
 
 ## Starting the Server

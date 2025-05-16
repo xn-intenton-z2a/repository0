@@ -43,7 +43,7 @@ Supported options:
 - `--version`             Show version number
 - `--mission`             Show mission statement (brief)
 - `--mission-full`        Show full mission statement
-- `--features`            List all available sandbox feature names
+- `--features`            Show list of all available sandbox features (includes MISSION and MISSION-FULL)
 - `--serve [port]`        Start HTTP server (default: `4000`)
 
 Plotting functions:
@@ -103,24 +103,4 @@ List all sandbox features:
 
 ```bash
 node sandbox/source/main.js --features
-```
-
-Export rose polar plot data as JSON with custom settings:
-
-```bash
-node sandbox/source/main.js --polar rose --radius-range 0,1 --angle-range 0,6.28 --resolution 75 \
-  --stroke-color purple --stroke-width 1.5 --fill-color cyan --title "PolarTitle" \
-  --export-data data.json
-```
-
-Fetch sine plot data via HTTP (CSV format):
-
-```bash
-curl "http://localhost:4000/plot-data?function=sine&range=0,6.28&format=csv"
-```
-
-Generate a sine plot SVG with explicit dimensions:
-
-```bash
-node sandbox/source/main.js --plot sine --range 0,1 --width 500 --height 400
 ```
