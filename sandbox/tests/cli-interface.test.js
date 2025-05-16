@@ -88,3 +88,158 @@ describe("CLI Integration Tests", () => {
 
   // further tests ...
 });
+
+// CLI SCALE_MANAGEMENT Tests for width, height, and log-scale
+
+describe("CLI SCALE_MANAGEMENT Tests", () => {
+  const cliPath = path.resolve(process.cwd(), "sandbox/source/main.js");
+  const outfile = "plot.svg";
+  const outPath = path.resolve(process.cwd(), outfile);
+
+  afterEach(() => {
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+  });
+
+  test("Valid Dimensions Test", () => {
+    const result = spawnSync(
+      "node",
+      [
+        cliPath,
+        "--plot",
+        "quadratic",
+        "--range",
+        "0,5",
+        "--width",
+        "400",
+        "--height",
+        "200"
+      ],
+      { encoding: "utf8" }
+    );
+    expect(result.status).toBe(0);
+    expect(fs.existsSync(outPath)).toBe(true);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/width="400"/);
+    expect(content).toMatch(/height="200"/);
+    expect(content).toMatch(/viewBox="0 0 5 25"/);
+  });
+
+  test("Valid Log-Scale Test", () => {
+    const result = spawnSync(
+      "node",
+      [
+        cliPath,
+        "--plot",
+        "quadratic",
+        "--range",
+        "1,100",
+        "--log-scale",
+        "x"
+      ],
+      { encoding: "utf8" }
+    );
+    expect(result.status).toBe(0);
+    expect(fs.existsSync(outPath)).toBe(true);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/points="0,1/);
+  });
+
+  describe("Invalid Dimensions Tests", () => {
+    test("Zero or Negative Values", () => {
+      let result = spawnSync(
+        "node",
+        [
+          cliPath,
+          "--plot",
+          "quadratic",
+          "--range",
+          "0,5",
+          "--width",
+          "0",
+          "--height",
+          "100"
+        ],
+        { encoding: "utf8" }
+      );
+      expect(result.status).toBe(1);
+      expect(fs.existsSync(outPath)).toBe(false);
+      expect(result.stderr).toMatch(/width must be a positive integer/);
+
+      result = spawnSync(
+        "node",
+        [
+          cliPath,
+          "--plot",
+          "quadratic",
+          "--range",
+          "0,5",
+          "--width",
+          "100",
+          "--height",
+          "-5"
+        ],
+        { encoding: "utf8" }
+      );
+      expect(result.status).toBe(1);
+      expect(fs.existsSync(outPath)).toBe(false);
+      expect(result.stderr).toMatch(/height must be a positive integer/);
+    });
+
+    test("Non-Integer Values", () => {
+      let result = spawnSync(
+        "node",
+        [
+          cliPath,
+          "--plot",
+          "quadratic",
+          "--range",
+          "0,5",
+          "--width",
+          "abc",
+          "--height",
+          "100"
+        ],
+        { encoding: "utf8" }
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toMatch(/width must be a positive integer/);
+
+      result = spawnSync(
+        "node",
+        [
+          cliPath,
+          "--plot",
+          "quadratic",
+          "--range",
+          "0,5",
+          "--width",
+          "100",
+          "--height",
+          "xyz"
+        ],
+        { encoding: "utf8" }
+      );
+      expect(result.status).toBe(1);
+      expect(result.stderr).toMatch(/height must be a positive integer/);
+    });
+  });
+
+  test("Invalid Log-Scale Range Test", () => {
+    const result = spawnSync(
+      "node",
+      [
+        cliPath,
+        "--plot",
+        "quadratic",
+        "--range",
+        "0,10",
+        "--log-scale",
+        "x"
+      ],
+      { encoding: "utf8" }
+    );
+    expect(result.status).toBe(1);
+    expect(fs.existsSync(outPath)).toBe(false);
+    expect(result.stderr).toMatch(/log-scale values must be positive/);
+  });
+});
