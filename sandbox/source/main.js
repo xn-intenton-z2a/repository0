@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// CLI entrypoint with support for --help, --version, --mission, --mission-full, --plot, --polar, --export-data, and --serve commands
+// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --plot, --polar, --export-data, and --serve commands
 
 import minimist from "minimist";
 import fs from "fs";
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 const argv = minimist(args, {
-  boolean: ["help", "version", "mission", "mission-full"],
+  boolean: ["help", "version", "mission", "mission-full", "features"],
   string: [
     "plot",
     "range",
@@ -39,7 +39,7 @@ const argv = minimist(args, {
   alias: { h: "help", v: "version", m: "mission" }
 });
 
-// Precedence: help > version > mission-full > mission > serve > polar > plot
+// Precedence: help > version > mission-full > mission > features > serve > polar > plot
 if (argv.help) {
   showHelp();
 } else if (argv.version) {
@@ -48,6 +48,8 @@ if (argv.help) {
   showFullMission();
 } else if (argv.mission) {
   showMission();
+} else if (argv.features) {
+  handleFeatures();
 } else if (argv.serve !== undefined) {
   startServer();
 } else if (argv.polar !== undefined) {
@@ -68,6 +70,7 @@ function getHelpText() {
     "  --version           Show version number",
     "  --mission           Show mission statement",
     "    --mission-full      Show full mission statement",
+    "  --features          Show mission statement and list all available sandbox features",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
     "  --polar             Generate SVG polar plot (spiral or rose)",
@@ -91,6 +94,7 @@ function getHelpText() {
     `  $ node ${script} --version`,
     `  $ node ${script} --mission`,
     `  $ node ${script} --mission-full`,
+    `  $ node ${script} --features`,
     `  $ node ${script} --serve 4000`,
     `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
@@ -156,7 +160,35 @@ function showFullMission() {
   process.exit(0);
 }
 
-// Data generation helpers
+// New feature listing handler
+function handleFeatures() {
+  const missionPath = path.resolve(__dirname, "../../MISSION.md");
+  try {
+    const content = fs.readFileSync(missionPath, "utf8");
+    const lines = content.split(/\r?\n/);
+    const headerLine = lines.find((l) => l.startsWith("# "));
+    if (headerLine) console.log(headerLine);
+  } catch (err) {
+    console.error("Error reading mission statement:", err);
+    process.exit(1);
+  }
+  // List sandbox feature files
+  const featuresDir = path.resolve(__dirname, "../../sandbox/features");
+  let files = [];
+  try {
+    files = fs.readdirSync(featuresDir);
+  } catch {
+    files = [];
+  }
+  files
+    .filter((f) => f.endsWith('.md'))
+    .map((f) => f.replace(/\.md$/, '').toUpperCase())
+    .forEach((name) => console.log(name));
+  process.exit(0);
+}
+
+// ... existing data generation and HTTP handlers remain unchanged ...
+
 function parsePair(str, def) {
   if (!str) return def;
   const parts = str.split(",").map(Number);
@@ -240,7 +272,6 @@ function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style) {
 function handlePlot() {
   const fn = argv.plot;
   try {
-    // Determine raw range argument to support negative values correctly
     let rangeStr;
     const idx = args.indexOf('--range');
     if (idx !== -1 && idx < args.length - 1) {
