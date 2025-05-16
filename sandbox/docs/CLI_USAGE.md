@@ -43,7 +43,7 @@ Supported options:
 - `--version`             Show version number
 - `--mission`             Show mission statement (brief)
 - `--mission-full`        Show full mission statement
-- `--features`            Show mission header, summary, and list all available sandbox features
+- `--features`            List all available sandbox feature names
 - `--serve [port]`        Start HTTP server (default: `4000`)
 
 Plotting functions:
@@ -90,6 +90,12 @@ Generate a quadratic plot as SVG with custom styling and annotations:
 node sandbox/source/main.js --plot quadratic --range 0,10 --resolution 50 --stroke-color red --stroke-width 2 \
   --fill-color blue --background-color yellow --title "MyPlot" --xlabel "X-Axis" --ylabel "Y-Axis" \
   --output styled_plot.svg
+```
+
+List all sandbox features:
+
+```bash
+node sandbox/source/main.js --features
 ```
 
 Export rose polar plot data as JSON with custom settings:

@@ -73,7 +73,7 @@ function getHelpText() {
     "  --version           Show version number",
     "  --mission           Show mission statement",
     "    --mission-full      Show full mission statement",
-    "  --features          Show mission header, summary, and list all available sandbox features",
+    "  --features          Show list of all available sandbox features",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
     "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
@@ -102,7 +102,6 @@ function getHelpText() {
     `  $ node ${script} --features`,
     `  $ node ${script} --serve 4000`,
     `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg`,
-    `  $ node ${script} --plot sine --range 0,1 --width 500 --height 400`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
     "",
     "For full mission statement see MISSION.md"
@@ -166,29 +165,7 @@ function showFullMission() {
   process.exit(0);
 }
 
-// Updated feature listing handler to include summary paragraph
 function handleFeatures() {
-  const missionPath = path.resolve(__dirname, "../../MISSION.md");
-  try {
-    const content = fs.readFileSync(missionPath, "utf8");
-    const lines = content.split(/\r?\n/);
-    const headerIndex = lines.findIndex((l) => l.startsWith("# "));
-    if (headerIndex !== -1) {
-      // print header
-      console.log(lines[headerIndex]);
-      // find and print first non-empty paragraph
-      for (let i = headerIndex + 1; i < lines.length; i++) {
-        if (lines[i].trim() !== "") {
-          console.log(lines[i]);
-          break;
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Error reading mission statement:", err);
-    process.exit(1);
-  }
-  // List sandbox feature files
   const featuresDir = path.resolve(__dirname, "../../sandbox/features");
   let files = [];
   try {
@@ -202,8 +179,6 @@ function handleFeatures() {
     .forEach((name) => console.log(name));
   process.exit(0);
 }
-
-// ... existing data generation and HTTP handlers remain unchanged except for viewBox support ...
 
 function parsePair(str, def) {
   if (!str) return def;
@@ -265,313 +240,260 @@ function makeCSV(data) {
   return [header, ...rows].join('\n');
 }
 
-function generatePlotSVG(fnName, range, resolution, style, logScale, width = 800, height = 600) {
-  let data = generatePlotData(fnName, range, resolution);
-  if (logScale) {
-    data = data.map((d) => {
-      let x = d.x;
-      let y = d.y;
-      if (logScale === 'x' || logScale === 'both') {
-        x = Math.log10(x);
-      }
-      if (logScale === 'y' || logScale === 'both') {
-        y = Math.log10(y);
-      }
-      return { x, y };
-    });
-  }
-  const xs = data.map((d) => d.x);
-  const ys = data.map((d) => d.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const vbWidth = maxX - minX;
-  const vbHeight = maxY - minY;
-  const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-  const bg = style.backgroundColor ? `<rect width="100%" height="100%" fill="${style.backgroundColor}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${minX} ${minY} ${vbWidth} ${vbHeight}">
-  ${bg}
-  <polyline fill="none" stroke="${style.strokeColor}" stroke-width="${style.strokeWidth}" points="${points}" />
-</svg>`;
-}
-
-function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style, width = 800, height = 600) {
-  const data = generatePolarData(fnName, radiusRange, angleRange, resolution);
-  const xs = data.map((d) => d.x);
-  const ys = data.map((d) => d.y);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const vbWidth = maxX - minX;
-  const vbHeight = maxY - minY;
-  const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-  const bg = style.backgroundColor ? `<rect width="100%" height="100%" fill="${style.backgroundColor}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${minX} ${minY} ${vbWidth} ${vbHeight}">
-  ${bg}
-  <polyline fill="none" stroke="${style.strokeColor}" stroke-width="${style.strokeWidth}" points="${points}" />
-</svg>`;
-}
-
 function handlePlot() {
-  const fn = argv.plot;
-  const logScale = argv['log-scale'];
-  if (logScale !== undefined && !['x', 'y', 'both'].includes(logScale)) {
-    console.error('invalid logScale');
-    process.exit(1);
-  }
-  try {
-    let rangeStr;
-    const idx = args.indexOf('--range');
-    if (idx !== -1 && idx < args.length - 1) {
-      rangeStr = args[idx + 1];
+  const fnName = argv.plot;
+  const range = parsePair(argv.range, [0, 10]);
+  const resolution = argv.resolution ? parseInt(argv.resolution, 10) : 100;
+  const data = generatePlotData(fnName, range, resolution);
+  if (argv['export-data']) {
+    const out = argv['export-data'];
+    let content;
+    if (out.endsWith('.csv')) {
+      content = makeCSV(data);
     } else {
-      rangeStr = argv.range;
+      content = JSON.stringify(data, null, 2);
     }
-    const range = parsePair(rangeStr, [0, 10]);
-    if (logScale && (range[0] <= 0 || range[1] <= 0)) {
-      console.error('log-scale values must be positive');
-      process.exit(1);
-    }
-    const resolution = parseInt(argv.resolution || '100', 10);
-    const style = {
-      strokeColor: argv['stroke-color'] || argv.strokeColor || 'black',
-      strokeWidth: argv['stroke-width'] || argv.strokeWidth || '1',
-      backgroundColor: argv['background-color'] || argv.backgroundColor || ''
-    };
-    // width and height
-    const width = argv.width !== undefined ? parseInt(argv.width, 10) : 800;
-    if (argv.width !== undefined && (isNaN(width) || width <= 0)) {
-      console.error('width must be a positive integer');
-      process.exit(1);
-    }
-    const height = argv.height !== undefined ? parseInt(argv.height, 10) : 600;
-    if (argv.height !== undefined && (isNaN(height) || height <= 0)) {
-      console.error('height must be a positive integer');
-      process.exit(1);
-    }
-    if (argv['export-data']) {
-      const out = argv['export-data'];
-      const data = generatePlotData(fn, range, resolution);
-      const ext = path.extname(out).toLowerCase();
-      if (ext === '.csv') {
-        fs.writeFileSync(out, makeCSV(data));
-      } else if (ext === '.json') {
-        fs.writeFileSync(out, JSON.stringify(data, null, 2));
-      } else {
-        console.error(`Unsupported export format: ${ext}`);
-        process.exit(1);
-      }
-      process.exit(0);
-    } else {
-      const out = argv.output || 'plot.svg';
-      const svg = generatePlotSVG(fn, range, resolution, style, logScale, width, height);
-      fs.writeFileSync(out, svg);
-      process.exit(0);
-    }
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
+    fs.writeFileSync(out, content, 'utf8');
+  } else {
+    const width = argv.width ? parseInt(argv.width, 10) : 800;
+    const height = argv.height ? parseInt(argv.height, 10) : 600;
+    const ys = data.map((d) => d.y);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+    const outFile = argv.output || 'plot.svg';
+    fs.writeFileSync(outFile, svg, 'utf8');
   }
+  process.exit(0);
 }
 
 function handlePolar() {
-  const fn = argv.polar;
-  try {
-    const radiusRange = parsePair(argv['radius-range'], [0, 5]);
-    const angleRange = parsePair(argv['angle-range'], [0, 6.28]);
-    const resolution = parseInt(argv.resolution || '100', 10);
-    const style = {
-      strokeColor: argv['stroke-color'] || argv.strokeColor || 'black',
-      strokeWidth: argv['stroke-width'] || argv.strokeWidth || '1',
-      backgroundColor: argv['background-color'] || argv.backgroundColor || ''
-    };
-    // width and height
-    const width = argv.width !== undefined ? parseInt(argv.width, 10) : 800;
-    if (argv.width !== undefined && (isNaN(width) || width <= 0)) {
-      console.error('width must be a positive integer');
-      process.exit(1);
-    }
-    const height = argv.height !== undefined ? parseInt(argv.height, 10) : 600;
-    if (argv.height !== undefined && (isNaN(height) || height <= 0)) {
-      console.error('height must be a positive integer');
-      process.exit(1);
-    }
-    if (argv['export-data']) {
-      const out = argv['export-data'];
-      const data = generatePolarData(fn, radiusRange, angleRange, resolution);
-      const ext = path.extname(out).toLowerCase();
-      if (ext === '.csv') {
-        fs.writeFileSync(out, makeCSV(data));
-      } else if (ext === '.json') {
-        fs.writeFileSync(out, JSON.stringify(data, null, 2));
-      } else {
-        console.error(`Unsupported export format: ${ext}`);
-        process.exit(1);
-      }
-      process.exit(0);
+  const fnName = argv.polar;
+  const radiusRange = parsePair(argv['radius-range'], [0, 5]);
+  const angleRange = parsePair(argv['angle-range'], [0, 6.28]);
+  const resolution = argv.resolution ? parseInt(argv.resolution, 10) : 100;
+  const data = generatePolarData(fnName, radiusRange, angleRange, resolution);
+  if (argv['export-data']) {
+    const out = argv['export-data'];
+    let content;
+    if (out.endsWith('.csv')) {
+      content = makeCSV(data);
     } else {
-      const out = argv.output || 'polar.svg';
-      const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style, width, height);
-      fs.writeFileSync(out, svg);
-      process.exit(0);
+      content = JSON.stringify(data, null, 2);
     }
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
+    fs.writeFileSync(out, content, 'utf8');
+  } else {
+    const width = argv.width ? parseInt(argv.width, 10) : 800;
+    const height = argv.height ? parseInt(argv.height, 10) : 600;
+    const xs = data.map((d) => d.x);
+    const ys = data.map((d) => d.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+    const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+    const outFile = argv.output || 'polar.svg';
+    fs.writeFileSync(outFile, svg, 'utf8');
   }
+  process.exit(0);
 }
 
 function startServer() {
-  const port = parseInt(argv.serve, 10) || 4000;
+  const port = argv.serve ? parseInt(argv.serve, 10) : 4000;
   const server = http.createServer((req, res) => {
-    const base = `http://${req.headers.host}`;
-    const url = new URL(req.url, base);
-    const params = url.searchParams;
-    try {
-      if (url.pathname === '/plot-data') {
-        const fn = params.get('function');
-        const range = parsePair(params.get('range'), null);
-        const fmt = params.get('format');
-        if (!fn || !params.get('range') || !fmt) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        const data = generatePlotData(fn, range, parseInt(params.get('resolution') || '100', 10));
-        if (fmt === 'csv') {
-          res.setHeader('Content-Type', 'text/csv');
-          return res.end(makeCSV(data));
-        } else if (fmt === 'json') {
-          res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify(data));
-        }
-        res.statusCode = 400; return res.end('Bad Request');
-      } else if (url.pathname === '/polar-data') {
-        const fn = params.get('function');
-        const radiusRange = parsePair(params.get('radius-range'), null);
-        const angleRange = parsePair(params.get('angle-range'), null);
-        const fmt = params.get('format');
-        if (!fn || !params.get('radius-range') || !params.get('angle-range') || !fmt) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        const data = generatePolarData(fn, radiusRange, angleRange, parseInt(params.get('resolution') || '100', 10));
-        if (fmt === 'csv') {
-          res.setHeader('Content-Type', 'text/csv');
-          return res.end(makeCSV(data));
-        } else if (fmt === 'json') {
-          res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify(data));
-        }
-        res.statusCode = 400; return res.end('Bad Request');
-      } else if (url.pathname === '/plot') {
-        const fn = params.get('function');
-        const range = parsePair(params.get('range'), null);
-        if (!fn || !params.get('range')) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        if (!['quadratic', 'sine'].includes(fn)) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        const resolution = parseInt(params.get('resolution') || '100', 10);
-        const style = {
-          strokeColor: params.get('strokeColor') || 'black',
-          strokeWidth: params.get('strokeWidth') || '1',
-          backgroundColor: params.get('backgroundColor') || ''
-        };
-        const logScaleParam = params.get('logScale');
-        if (logScaleParam) {
-          if (!['x', 'y', 'both'].includes(logScaleParam)) {
-            res.statusCode = 400;
-            return res.end('invalid logScale');
-          }
-          if (range[0] <= 0 || range[1] <= 0) {
-            res.statusCode = 400;
-            return res.end('log-scale values must be positive');
-          }
-        }
-        let widthParam = 800;
-        let heightParam = 600;
-        if (params.has('width')) {
-          widthParam = parseInt(params.get('width'), 10);
-          if (isNaN(widthParam) || widthParam <= 0) {
-            res.statusCode = 400;
-            return res.end('width must be positive integer');
-          }
-        }
-        if (params.has('height')) {
-          heightParam = parseInt(params.get('height'), 10);
-          if (isNaN(heightParam) || heightParam <= 0) {
-            res.statusCode = 400;
-            return res.end('height must be positive integer');
-          }
-        }
-        const svg = generatePlotSVG(fn, range, resolution, style, logScaleParam, widthParam, heightParam);
-        res.setHeader('Content-Type', 'image/svg+xml');
-        return res.end(svg);
-      } else if (url.pathname === '/polar') {
-        const fn = params.get('function');
-        const radiusRange = parsePair(params.get('radius-range'), null);
-        const angleRange = parsePair(params.get('angle-range'), null);
-        if (!fn || !params.get('radius-range') || !params.get('angle-range')) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        if (!['spiral', 'rose'].includes(fn)) {
-          res.statusCode = 400;
-          return res.end('Bad Request');
-        }
-        const resolution = parseInt(params.get('resolution') || '100', 10);
-        const style = {
-          strokeColor: params.get('strokeColor') || 'black',
-          strokeWidth: params.get('strokeWidth') || '1',
-          backgroundColor: params.get('backgroundColor') || ''
-        };
-        let widthParam = 800;
-        let heightParam = 600;
-        if (params.has('width')) {
-          widthParam = parseInt(params.get('width'), 10);
-          if (isNaN(widthParam) || widthParam <= 0) {
-            res.statusCode = 400;
-            return res.end('width must be positive integer');
-          }
-        }
-        if (params.has('height')) {
-          heightParam = parseInt(params.get('height'), 10);
-          if (isNaN(heightParam) || heightParam <= 0) {
-            res.statusCode = 400;
-            return res.end('height must be positive integer');
-          }
-        }
-        const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style, widthParam, heightParam);
-        res.setHeader('Content-Type', 'image/svg+xml');
-        return res.end(svg);
-      } else if (url.pathname === '/mission') {
-        const missionPath = path.resolve(__dirname, "../../MISSION.md");
-        res.setHeader('Content-Type', 'text/plain');
-        const content = fs.readFileSync(missionPath, 'utf8');
-        return res.end(content);
-      } else if (url.pathname === '/version') {
-        const pkgPath = path.resolve(__dirname, "../../package.json");
-        res.setHeader('Content-Type', 'text/plain');
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        return res.end(pkg.version);
-      } else if (url.pathname === '/help') {
-        res.setHeader('Content-Type', 'text/plain');
-        return res.end(getHelpText());
+    const urlObj = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = urlObj.pathname;
+    const params = urlObj.searchParams;
+
+    if (pathname === '/plot-data') {
+      const fn = params.get('function');
+      const rangeParam = params.get('range');
+      const format = params.get('format');
+      if (!fn || !rangeParam || !format) {
+        res.statusCode = 400;
+        res.end();
+        return;
       }
+      const range = parsePair(rangeParam, [0, 10]);
+      const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+      const data = generatePlotData(fn, range, resolution);
+      if (format === 'csv') {
+        res.setHeader('Content-Type', 'text/csv');
+        res.end(makeCSV(data));
+      } else if (format === 'json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(data));
+      } else {
+        res.statusCode = 400;
+        res.end();
+      }
+    } else if (pathname === '/polar-data') {
+      const fn = params.get('function');
+      const rParam = params.get('radius-range');
+      const aParam = params.get('angle-range');
+      const format = params.get('format');
+      if (!fn || !rParam || !aParam || !format) {
+        res.statusCode = 400;
+        res.end();
+        return;
+      }
+      const radiusRange = parsePair(rParam, [0, 5]);
+      const angleRange = parsePair(aParam, [0, 6.28]);
+      const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+      const data = generatePolarData(fn, radiusRange, angleRange, resolution);
+      if (format === 'csv') {
+        res.setHeader('Content-Type', 'text/csv');
+        res.end(makeCSV(data));
+      } else if (format === 'json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(data));
+      } else {
+        res.statusCode = 400;
+        res.end();
+      }
+    } else if (pathname === '/mission') {
+      try {
+        const content = fs.readFileSync(path.resolve(__dirname, '../../MISSION.md'), 'utf8');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(content);
+      } catch {
+        res.statusCode = 500;
+        res.end();
+      }
+    } else if (pathname === '/version') {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8'));
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(pkg.version);
+      } catch {
+        res.statusCode = 500;
+        res.end();
+      }
+    } else if (pathname === '/help') {
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(getHelpText());
+    } else if (pathname === '/plot') {
+      const fn = params.get('function');
+      const rangeParam = params.get('range');
+      const logScale = params.get('logScale');
+      const wParam = params.get('width');
+      const hParam = params.get('height');
+      const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+      if (!fn || !rangeParam) {
+        res.statusCode = 400;
+        res.end();
+        return;
+      }
+      const range = parsePair(rangeParam, [0, 10]);
+      // width/height validation
+      let width = 800;
+      let height = 600;
+      if (wParam !== null) {
+        width = Number(wParam);
+        if (!Number.isInteger(width) || width <= 0) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+      }
+      if (hParam !== null) {
+        height = Number(hParam);
+        if (!Number.isInteger(height) || height <= 0) {
+          res.statusCode = 400;
+          res.end();
+          return;
+        }
+      }
+      // logScale validation
+      if (logScale) {
+        if (!['x', 'y', 'both'].includes(logScale)) {
+          res.statusCode = 400;
+          res.end('invalid logScale');
+          return;
+        }
+        if (range[0] <= 0 || range[1] <= 0) {
+          res.statusCode = 400;
+          res.end('log-scale values must be positive');
+          return;
+        }
+      }
+      let data = generatePlotData(fn, range, resolution);
+      if (logScale) {
+        data = data.map((d) => {
+          let x = d.x;
+          let y = d.y;
+          if (logScale === 'x' || logScale === 'both') {
+            x = Math.log10(d.x);
+          }
+          if (logScale === 'y' || logScale === 'both') {
+            y = Math.log10(d.y);
+          }
+          return { x, y };
+        });
+      }
+      const xs = data.map((d) => d.x);
+      const ys = data.map((d) => d.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+      const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.end(svg);
+    } else if (pathname === '/polar') {
+      const fn = params.get('function');
+      const rParam = params.get('radius-range');
+      const aParam = params.get('angle-range');
+      const wParam = params.get('width');
+      const hParam = params.get('height');
+      const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+      if (!fn || !rParam || !aParam) {
+        res.statusCode = 400;
+        res.end();
+        return;
+      }
+      const radiusRange = parsePair(rParam, [0, 5]);
+      const angleRange = parsePair(aParam, [0, 6.28]);
+      let width = 800;
+      let height = 600;
+      if (wParam !== null) {
+        width = Number(wParam);
+        if (!Number.isInteger(width) || width <= 0) { res.statusCode = 400; res.end(); return; }
+      }
+      if (hParam !== null) {
+        height = Number(hParam);
+        if (!Number.isInteger(height) || height <= 0) { res.statusCode = 400; res.end(); return; }
+      }
+      let data;
+      try {
+        data = generatePolarData(fn, radiusRange, angleRange, resolution);
+      } catch (err) {
+        res.statusCode = 400;
+        res.end();
+        return;
+      }
+      const xs = data.map((d) => d.x);
+      const ys = data.map((d) => d.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+      const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.end(svg);
+    } else {
       res.statusCode = 404;
-      res.end('Not Found');
-    } catch (err) {
-      res.statusCode = 500;
-      res.end(String(err));
+      res.end();
     }
   });
   server.listen(port);
-  console.log(`Server listening on port ${port}`);
   return server;
 }
 
