@@ -46,7 +46,7 @@ describe("CLI Integration Tests", () => {
 
   test("flag precedence: help over version and mission", () => {
     const result = spawnSync("node", [cliPath, "--mission", "--help"], {
-      encoding: "utf8"
+      encoding: "utf8",
     });
     expect(result.status).toBe(0);
     expect(result.stdout).toMatch(/Usage:.+--help.+--version.+--mission/s);
@@ -70,17 +70,36 @@ describe("CLI Integration Tests", () => {
   test("--features displays only feature list", () => {
     // setup: create dummy feature files in sandbox/features
     const featuresDir = path.resolve(process.cwd(), "sandbox/features");
-    const featureFiles = fs.readdirSync(featuresDir).filter(f => f.endsWith('.md'));
+    const featureFiles = fs.readdirSync(featuresDir).filter((f) => f.endsWith('.md'));
     const expected = [
       'MISSION',
       'MISSION-FULL',
-      ...featureFiles.map(f => f.replace(/\.md$/, '').toUpperCase())
+      ...featureFiles.map((f) => f.replace(/\.md$/, '').toUpperCase())
     ];
 
     const result = spawnSync("node", [cliPath, "--features"], { encoding: "utf8" });
     expect(result.status).toBe(0);
     const outLines = result.stdout.trim().split(/\r?\n/);
     expect(outLines).toEqual(expected);
+  });
+
+  test("--features-full displays mission header, summary, and feature summaries", () => {
+    const featuresDir = path.resolve(process.cwd(), "sandbox/features");
+    const featureFiles = fs.readdirSync(featuresDir).filter((f) => f.endsWith('.md'));
+    const result = spawnSync("node", [cliPath, "--features-full"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const lines = result.stdout.trim().split(/\r?\n/);
+    const content = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8");
+    const missionLines = content.split(/\r?\n/);
+    const header = missionLines.find((l) => l.startsWith("# "));
+    const summary = missionLines
+      .slice(missionLines.indexOf(header) + 1)
+      .find((l) => l.trim() !== "");
+    expect(lines[0]).toBe(header);
+    expect(lines[1]).toBe(summary);
+    const featureLines = lines.slice(2);
+    expect(featureLines.length).toBe(featureFiles.length);
+    featureLines.forEach((line) => expect(line).toMatch(/^[A-Z0-9_]+: .+$/));
   });
 
   // MULTI_PLOT tests
