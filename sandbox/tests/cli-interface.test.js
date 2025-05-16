@@ -79,7 +79,24 @@ describe("CLI Integration Tests", () => {
     expect(outLines).toEqual(expected);
   });
 
+  // MULTI_PLOT tests
+  test("--plots quadratic,sine writes two <polyline> elements", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plots", "quadratic,sine"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    const count = (content.match(/<polyline/g) || []).length;
+    expect(count).toBe(2);
+    fs.unlinkSync(outPath);
+  });
+
+  test("--plots with unsupported function errors", () => {
+    const result = spawnSync("node", [cliPath, "--plots", "quadratic,foo"], { encoding: "utf8" });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toMatch(/Unsupported function: foo/);
+  });
+
   // further tests ...
 });
-
-// ... remaining tests unchanged ...
