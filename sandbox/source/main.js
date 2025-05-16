@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// Complete CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --features-full, --plot, --plots, --polar, --export-data, --serve commands and log-scale option
+// Complete CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --features-full, --plot, --plots, --polar, --export-data, --serve commands and log-scale option, plus interactive HTML output
 
 import minimist from "minimist";
 import fs from "fs";
@@ -13,7 +13,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const args = process.argv.slice(2);
 const argv = minimist(args, {
-  boolean: ["help", "version", "mission", "mission-full", "features", "features-full", "embed-mission"],
+  boolean: [
+    "help",
+    "version",
+    "mission",
+    "mission-full",
+    "features",
+    "features-full",
+    "embed-mission",
+    "interactive"
+  ],
   string: [
     "plot",
     "plots",
@@ -41,10 +50,10 @@ const argv = minimist(args, {
     "width",
     "height"
   ],
-  alias: { h: "help", v: "version", m: "mission", embedMission: "embed-mission" }
+  alias: { h: "help", v: "version", m: "mission", embedMission: "embed-mission", i: "interactive" }
 });
 
-// Precedence: help > version > mission-full > mission > features-full > features > serve > polar > plots/plot
+// Precedence: help > version > mission-full > mission > features-full > features > serve > polar > plots/plot > interactive wrapping
 if (argv.help) {
   showHelp();
 } else if (argv.version) {
@@ -100,6 +109,7 @@ function getHelpText() {
     "  --output            Specify output filename for SVG (default: plot.svg or polar.svg)",
     "  --export-data       Export data as CSV or JSON (takes precedence)",
     "  --embed-mission     Embed full mission statement as XML comment at top of SVG output",
+    "  --interactive       Wrap SVG in interactive HTML scaffold with pan/zoom support",
     "",
     "Examples:",
     `  $ node ${script} --help`,
@@ -113,6 +123,7 @@ function getHelpText() {
     `  $ node ${script} --plots quadratic,sine --range 0,5 --output multi.svg`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
     `  $ node ${script} --plot quadratic --embed-mission`,
+    `  $ node ${script} --plot quadratic --interactive --embed-mission --output mission.html`,
     "",
     "For full mission statement see MISSION.md"
   ].join("\n");
@@ -329,6 +340,7 @@ function handlePlot() {
     }
     fs.writeFileSync(out, content, 'utf8');
   } else {
+    // Generate SVG
     const width = argv.width ? parseInt(argv.width, 10) : 800;
     const height = argv.height ? parseInt(argv.height, 10) : 600;
     const palette = ['black', 'red', 'blue', 'green', 'orange', 'purple'];
@@ -337,23 +349,33 @@ function handlePlot() {
     const ys = seriesData.flat().map((d) => d.y);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
-    const polylines = seriesData.map((data, i) => {
-      const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-      return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
-    }).join('');
+    const polylines = seriesData
+      .map((data, i) => {
+        const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+        return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
+      })
+      .join('');
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}">${polylines}</svg>`;
-    // Embed mission statement if requested
-    const embed = argv['embed-mission'] || argv.embedMission;
-    if (embed) {
-      const missionPath = path.resolve(__dirname, '../../MISSION.md');
-      try {
-        const missionText = fs.readFileSync(missionPath, 'utf8');
-        const comment = `<!--\n${missionText}\n-->\n`;
-        svg = comment + svg;
-      } catch {}
+    // Wrap in interactive HTML if requested
+    if (argv.interactive) {
+      const embed = argv['embed-mission'] || argv.embedMission;
+      const html = htmlTemplate(svg, { embedMission: embed });
+      const outFile = argv.output || 'plot.html';
+      fs.writeFileSync(outFile, html, 'utf8');
+    } else {
+      // Embed mission statement if requested for raw SVG
+      const embed = argv['embed-mission'] || argv.embedMission;
+      if (embed) {
+        const missionPath = path.resolve(__dirname, '../../MISSION.md');
+        try {
+          const missionText = fs.readFileSync(missionPath, 'utf8');
+          const comment = `<!--\n${missionText}\n-->\n`;
+          svg = comment + svg;
+        } catch {}
+      }
+      const outFile = argv.output || 'plot.svg';
+      fs.writeFileSync(outFile, svg, 'utf8');
     }
-    const outFile = argv.output || 'plot.svg';
-    fs.writeFileSync(outFile, svg, 'utf8');
   }
   process.exit(0);
 }
@@ -390,20 +412,81 @@ function handlePolar() {
     const maxY = Math.max(...ys);
     const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${data.map((d) => `${d.x},${d.y}`).join(' ')}" stroke="black" fill="none"/></svg>`;
-    // Embed mission statement if requested
-    const embed = argv['embed-mission'] || argv.embedMission;
-    if (embed) {
-      const missionPath = path.resolve(__dirname, '../../MISSION.md');
-      try {
-        const missionText = fs.readFileSync(missionPath, 'utf8');
-        const comment = `<!--\n${missionText}\n-->\n`;
-        svg = comment + svg;
-      } catch {}
+    // Wrap in interactive HTML if requested
+    if (argv.interactive) {
+      const embed = argv['embed-mission'] || argv.embedMission;
+      const html = htmlTemplate(svg, { embedMission: embed });
+      const outFile = argv.output || 'polar.html';
+      fs.writeFileSync(outFile, html, 'utf8');
+    } else {
+      // Embed mission statement if requested for raw SVG
+      const embed = argv['embed-mission'] || argv.embedMission;
+      if (embed) {
+        const missionPath = path.resolve(__dirname, '../../MISSION.md');
+        try {
+          const missionText = fs.readFileSync(missionPath, 'utf8');
+          const comment = `<!--\n${missionText}\n-->\n`;
+          svg = comment + svg;
+        } catch {}
+      }
+      const outFile = argv.output || 'polar.svg';
+      fs.writeFileSync(outFile, svg, 'utf8');
     }
-    const outFile = argv.output || 'polar.svg';
-    fs.writeFileSync(outFile, svg, 'utf8');
   }
   process.exit(0);
+}
+
+// Helper to wrap SVG into interactive HTML with pan/zoom and optional mission comment
+function htmlTemplate(svgString, { embedMission }) {
+  let comment = '';
+  if (embedMission) {
+    try {
+      const missionText = fs.readFileSync(path.resolve(__dirname, '../../MISSION.md'), 'utf8');
+      comment = `<!--\n${missionText}\n-->\n`;
+    } catch {}
+  }
+  const script = `<script>
+    // Pan and zoom script
+    document.addEventListener("DOMContentLoaded", function() {
+      const svg = document.querySelector("svg");
+      let isPanning = false;
+      let startX = 0;
+      let startY = 0;
+      svg.addEventListener("mousedown", function(e) {
+        isPanning = true;
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+      window.addEventListener("mousemove", function(e) {
+        if (!isPanning) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        const viewBox = svg
+          .getAttribute("viewBox")
+          .split(" ")
+          .map(Number);
+        viewBox[0] -= (dx * viewBox[2]) / svg.clientWidth;
+        viewBox[1] -= (dy * viewBox[3]) / svg.clientHeight;
+        svg.setAttribute("viewBox", viewBox.join(" "));
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+      window.addEventListener("mouseup", function() {
+        isPanning = false;
+      });
+    });
+  </script>`;
+  return `${comment}<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Interactive Plot</title>
+</head>
+<body>
+${svgString}
+${script}
+</body>
+</html>`;
 }
 
 export function startServer() {
@@ -500,7 +583,6 @@ export function startServer() {
         res.end(getHelpText());
 
       } else if (pathname === '/plot') {
-        // HTTP SVG plot
         const fnParam = params.get('plots') ? null : params.get('function');
         const fnList = params.get('plots') ? params.get('plots').split(',') : fnParam ? [fnParam] : null;
         const rangeParam = params.get('range');
@@ -519,7 +601,7 @@ export function startServer() {
           res.end();
           return;
         }
-        if (logScale && !['x','y','both'].includes(logScale)) {
+        if (logScale && !['x', 'y', 'both'].includes(logScale)) {
           res.statusCode = 400;
           res.end('invalid logScale');
           return;
@@ -553,41 +635,52 @@ export function startServer() {
         const minY = Math.min(...allY);
         const maxY = Math.max(...allY);
         const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
-        const palette = ['black','red','blue','green','orange','purple'];
+        const palette = ['black', 'red', 'blue', 'green', 'orange', 'purple'];
         const strokeColor = params.get('strokeColor') || params.get('stroke-color');
-        const strokeColors = transformed.map((_,i) => strokeColor || palette[i%palette.length]);
-        const polylines = transformed.map((series,i) => {
+        const strokeColors = transformed.map((_, i) => strokeColor || palette[i % palette.length]);
+        const polylines = transformed.map((series, i) => {
           const pts = series.map((d) => `${d.x},${d.y}`).join(' ');
           return `<polyline points="${pts}" stroke="${strokeColors[i]}" fill="none"/>`;
         }).join('');
         let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">${polylines}</svg>`;
-        // Embed mission statement if requested
+        // Determine response format
+        const wantHtml = params.get('format') === 'html' || params.get('html') === 'true';
         const embedParam = params.get('embedMission') || params.get('embed-mission');
-        if (embedParam === 'true') {
-          const missionPath = path.resolve(__dirname, '../../MISSION.md');
-          try {
-            const missionText = fs.readFileSync(missionPath, 'utf8');
-            const comment = `<!--\n${missionText}\n-->\n`;
-            svg = comment + svg;
-          } catch {}
+        const embed = embedParam === 'true';
+        if (wantHtml) {
+          const html = htmlTemplate(svg, { embedMission: embed });
+          res.setHeader('Content-Type', 'text/html');
+          res.end(html);
+        } else {
+          if (embed) {
+            const missionPath = path.resolve(__dirname, '../../MISSION.md');
+            try {
+              const missionText = fs.readFileSync(missionPath, 'utf8');
+              const comment = `<!--\n${missionText}\n-->\n`;
+              svg = comment + svg;
+            } catch {}
+          }
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.end(svg);
         }
-        res.setHeader('Content-Type','image/svg+xml');
-        res.end(svg);
 
       } else if (pathname === '/polar') {
         const fn = params.get('function');
         const rr = params.get('radius-range');
         const ar = params.get('angle-range');
+        const wantHtml = params.get('format') === 'html' || params.get('html') === 'true';
+        const embedParam = params.get('embedMission') || params.get('embed-mission');
+        const embed = embedParam === 'true';
         if (!fn || !rr || !ar) {
           res.statusCode = 400;
           res.end();
           return;
         }
-        const radiusRange = parsePair(rr, [0,5]);
-        const angleRange = parsePair(ar, [0,6.28]);
-        const resolution = params.get('resolution') ? parseInt(params.get('resolution'),10) : 100;
-        const width = params.get('width') ? parseInt(params.get('width'),10) : 800;
-        const height = params.get('height') ? parseInt(params.get('height'),10) : 600;
+        const radiusRange = parsePair(rr, [0, 5]);
+        const angleRange = parsePair(ar, [0, 6.28]);
+        const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
+        const width = params.get('width') ? parseInt(params.get('width'), 10) : 800;
+        const height = params.get('height') ? parseInt(params.get('height'), 10) : 600;
         if (!Number.isInteger(width) || width <= 0 || !Number.isInteger(height) || height <= 0) {
           res.statusCode = 400;
           res.end();
@@ -607,20 +700,24 @@ export function startServer() {
         const maxX = Math.max(...xs);
         const minY = Math.min(...ys);
         const maxY = Math.max(...ys);
-        const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
-        let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${data.map((d) => `${d.x},${d.y}`).join(' ')}" stroke="black" fill="none"/></svg>`;
-        // Embed mission statement if requested
-        const embedParam = params.get('embedMission') || params.get('embed-mission');
-        if (embedParam === 'true') {
-          const missionPath = path.resolve(__dirname, '../../MISSION.md');
-          try {
-            const missionText = fs.readFileSync(missionPath, 'utf8');
-            const comment = `<!--\n${missionText}\n-->\n`;
-            svg = comment + svg;
-          } catch {}
+        const viewBox2 = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+        let svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox2}"><polyline points="${data.map((d) => `${d.x},${d.y}`).join(' ')}" stroke="black" fill="none"/></svg>`;
+        if (wantHtml) {
+          const html = htmlTemplate(svg2, { embedMission: embed });
+          res.setHeader('Content-Type', 'text/html');
+          res.end(html);
+        } else {
+          if (embed) {
+            const missionPath = path.resolve(__dirname, '../../MISSION.md');
+            try {
+              const missionText = fs.readFileSync(missionPath, 'utf8');
+              const comment = `<!--\n${missionText}\n-->\n`;
+              svg2 = comment + svg2;
+            } catch {}
+          }
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.end(svg2);
         }
-        res.setHeader('Content-Type','image/svg+xml');
-        res.end(svg);
 
       } else {
         res.statusCode = 404;

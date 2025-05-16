@@ -134,4 +134,35 @@ describe("CLI Integration Tests", () => {
     expect(content).toContain(firstLine);
     fs.unlinkSync(outPath);
   });
+
+  // Interactive HTML tests
+  test("--plot interactive HTML with embed mission", () => {
+    const outfile = "plot.html";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic", "--interactive", "--embed-mission"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    const firstLine = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8").split(/\r?\n/)[0];
+    expect(content.startsWith("<!--")).toBe(true);
+    expect(content).toContain(firstLine);
+    expect(content).toMatch(/<html>/);
+    expect(content).toMatch(/<script>/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("--polar interactive HTML with embed mission", () => {
+    const outfile = "polar.html";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "spiral", "--interactive", "--embed-mission"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    const firstLine = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8").split(/\r?\n/)[0];
+    expect(content.startsWith("<!--")).toBe(true);
+    expect(content).toContain(firstLine);
+    expect(content).toMatch(/<html>/);
+    expect(content).toMatch(/<script>/);
+    fs.unlinkSync(outPath);
+  });
 });
