@@ -1,40 +1,45 @@
 # CUSTOM_FUNCTION
 
-Allow users to specify custom mathematical expressions for Cartesian and polar plots and support plotting multiple series in a single chart.
+Allow users to define and plot both built-in functions and custom mathematical expressions as multiple series in a single SVG output for Cartesian and polar plots.
 
 # CLI INTEGRATION
 
-Introduce two new flags on the plot and polar commands:
+Introduce or enhance three flags on the plot and polar commands:
 
-• --expression <expr>  
-  Accepts a single JavaScript-like mathematical expression in variable x for Cartesian or theta for polar. The tool evaluates the expression at each sample point to compute y or radius.
+• --plots <fn1,fn2,...>
+  Accepts a comma-separated list of built-in functions (e.g., quadratic,sine) to render each as a separate series. Overrides --plot if provided.
 
-• --expressions <expr1,expr2,...>  
-  Accepts a comma-separated list of expressions. Each expression is rendered as a separate polyline in the SVG output. If expressions is provided, ignore the --expression flag and predefined functions.
+• --expression <expr>
+  Define a single custom JavaScript-like mathematical expression in variable x for Cartesian or theta for polar.
+
+• --expressions <expr1,expr2,...>
+  Define a comma-separated list of custom expressions. When provided, ignore --expression and built-in functions flags.
 
 Behavior:
-- The tool parses each expression and validates allowed characters and operators.
-- For Cartesian plots, iterate x over the specified range. For each expression f, compute y = f(x).
-- For polar plots, iterate theta over angle-range. For each expression g, compute r = g(theta).
-- Assign distinct stroke colors to each series by cycling through a default palette if multiple series are given.
-- If evaluation fails for any expression, report an error and exit.
+  - If --expressions is present, build series from each custom expression.
+  - Else if --expression is present, build a single series from that expression.
+  - Else if --plots is present, build series for each named built-in function.
+  - Assign distinct stroke colors by cycling through the default palette unless a single --stroke-color is provided.
+  - On invalid names or expression errors, report an error and exit.
 
 # HTTP ENDPOINT SUPPORT
 
-Extend the /plot and /polar endpoints:
+Extend the /plot and /polar HTTP endpoints to recognize query parameters:
 
-• Accept query parameter expression=<expr> for a single series or expressions=<expr1,expr2,...> for multiple.
-• When expressions is present, generate multiple polylines in the SVG response, each for one expression.
-• Maintain existing flags and parameters such as range, resolution, width, height, and logScale.
-• On invalid expressions or evaluation errors, respond with 400 Bad Request and a clear error message.
+• plots=<fn1,fn2,...>
+• expression=<expr>
+• expressions=<expr1,expr2,...>
+
+Rules mirror CLI behavior. Respond with 400 Bad Request on invalid functions or expressions. Return an SVG containing one <polyline> per series with appropriate styling.
 
 # IMPLEMENTATION NOTES
 
-1. Add a helper function evaluateExpression(exprString, variableName, value) to sandbox/source/main.js that safely evaluates the expression. Restrict to Math functions and numeric operations.
-2. In handlePlot and handlePolar, detect argv.expression and argv.expressions, build an array of expression strings, and generate data arrays for each expression.
-3. Modify generatePlotSVG and generatePolarSVG signatures to accept an array of data series and an array of style objects. For each series, append a <polyline> element with its strokeColor and strokeWidth.
-4. Update CLI parser in sandbox/source/main.js to parse the new flags and pass expressions to SVG generators.
-5. Extend HTTP handlers for /plot and /polar to read params.get('expression') and params.get('expressions'), split the latter by comma, and pass the list of expressions to the SVG generators.
-6. Add unit tests in sandbox/tests/cli-interface.test.js to verify single and multiple expression behavior, including error cases.
-7. Add integration tests in sandbox/tests/data-export.test.js to verify that /plot and /polar return valid SVG with one or more <polyline> elements when using expression(s).
-8. Update sandbox/docs/CLI_USAGE.md, sandbox/docs/HTTP_SERVER.md, and README.md to document how to use the new expression flags, including examples for single and multiple expressions.
+1. Add evaluateExpression(exprString, variableName, value) helper in sandbox/source/main.js to safely compute custom expressions using Math functions.
+2. In handlePlot and handlePolar, detect params or argv for plots, expression, and expressions and build an array of data series:
+   - For plots, call generatePlotData for each named function.
+   - For custom expressions, linspace over x or theta and compute values via evaluateExpression.
+3. Refactor generatePlotSVG and generatePolarSVG signatures to accept an array of data series and corresponding style objects, then emit one <polyline> per series.
+4. Update CLI parser to parse --plots, --expression, --expressions and pass the series list to SVG generators.
+5. Extend HTTP handlers to read params.get('plots'), params.get('expression'), params.get('expressions') and forward to SVG generators.
+6. Add unit tests in sandbox/tests/cli-interface.test.js for single and multiple built-in and custom series, including error cases.
+7. Add integration tests in sandbox/tests/data-export.test.js to verify /plot and /polar HTTP endpoints return valid SVG with one <polyline> per series.
