@@ -73,7 +73,7 @@ function getHelpText() {
     "  --version           Show version number",
     "  --mission           Show mission statement",
     "    --mission-full      Show full mission statement",
-    "  --features          Show mission statement and list all available sandbox features",
+    "  --features          Show mission header, summary, and list all available sandbox features",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
     "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
@@ -93,7 +93,7 @@ function getHelpText() {
     "  --ylabel            Add Y-axis label (CLI and HTTP only)",
     "  --output            Specify output filename for SVG (default: plot.svg or polar.svg)",
     "  --export-data       Export data as CSV or JSON (takes precedence)",
-    "",    
+    "",
     "Examples:",
     `  $ node ${script} --help`,
     `  $ node ${script} --version`,
@@ -166,14 +166,24 @@ function showFullMission() {
   process.exit(0);
 }
 
-// New feature listing handler
+// Updated feature listing handler to include summary paragraph
 function handleFeatures() {
   const missionPath = path.resolve(__dirname, "../../MISSION.md");
   try {
     const content = fs.readFileSync(missionPath, "utf8");
     const lines = content.split(/\r?\n/);
-    const headerLine = lines.find((l) => l.startsWith("# "));
-    if (headerLine) console.log(headerLine);
+    const headerIndex = lines.findIndex((l) => l.startsWith("# "));
+    if (headerIndex !== -1) {
+      // print header
+      console.log(lines[headerIndex]);
+      // find and print first non-empty paragraph
+      for (let i = headerIndex + 1; i < lines.length; i++) {
+        if (lines[i].trim() !== "") {
+          console.log(lines[i]);
+          break;
+        }
+      }
+    }
   } catch (err) {
     console.error("Error reading mission statement:", err);
     process.exit(1);
@@ -483,7 +493,6 @@ function startServer() {
             return res.end('log-scale values must be positive');
           }
         }
-        // width and height parameters
         let widthParam = 800;
         let heightParam = 600;
         if (params.has('width')) {
@@ -521,7 +530,6 @@ function startServer() {
           strokeWidth: params.get('strokeWidth') || '1',
           backgroundColor: params.get('backgroundColor') || ''
         };
-        // width and height parameters
         let widthParam = 800;
         let heightParam = 600;
         if (params.has('width')) {
