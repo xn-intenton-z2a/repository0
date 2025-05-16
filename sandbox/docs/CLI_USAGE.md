@@ -43,7 +43,7 @@ Supported options:
 - `--version`             Show version number
 - `--mission`             Show mission statement (brief)
 - `--mission-full`        Show full mission statement
-- `--features`            Show mission statement and feature list
+- `--features`            Show mission header, summary, and list all available sandbox features
 - `--serve [port]`        Start HTTP server (default: `4000`)
 
 Plotting functions:
