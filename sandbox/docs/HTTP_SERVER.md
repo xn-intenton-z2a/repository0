@@ -53,6 +53,7 @@ Generate and retrieve an SVG image for `quadratic` or `sine` functions with cust
 
 - `function`: `quadratic` or `sine` (required)
 - `range`: `<start,end>` X-axis range (e.g., `0,10`) (required)
+- `logScale`: `<x|y|both>` Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values) (optional)
 - `resolution`: Number of sample_points (default: `100`)
 - `strokeColor`: Stroke color (default: `black`)
 - `strokeWidth`: Stroke width (default: `1`)
@@ -68,9 +69,13 @@ Generate and retrieve an SVG image for `quadratic` or `sine` functions with cust
 - **200 OK** with `Content-Type: image/svg+xml`
 - Body contains the SVG markup with customization applied
 
+**Errors:**
+
+- **400 Bad Request** if `logScale` has an invalid value or if any range values are non-positive when `logScale` is used.
+
 **Example:**
 ```bash
-curl "http://localhost:4000/plot?function=quadratic&range=0,5&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y"
+curl "http://localhost:4000/plot?function=quadratic&range=0,5&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y&logScale=x"
 ```
 
 ### GET /polar
@@ -88,6 +93,8 @@ Generate and retrieve an SVG image for `spiral` or `rose` functions with customi
 - `fillColor`: Fill color for the polyline (default: `none`)
 - `backgroundColor`: Background color for SVG (optional)
 - `title`: Add title annotation to SVG (optional)
+- `xlabel`: X-axis label at bottom center (optional)
+- `ylabel`: Y-axis label along left side (optional)
 - `output`: Optional filename to save the SVG on the server
 
 **Response:**

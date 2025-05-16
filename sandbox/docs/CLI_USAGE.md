@@ -43,13 +43,14 @@ Supported options:
 - `--version`             Show version number
 - `--mission`             Show mission statement (brief)
 - `--mission-full`        Show full mission statement
-- `--features`            Show mission statement and list all available sandbox features
+- `--features`            Show mission statement and feature list
 - `--serve [port]`        Start HTTP server (default: `4000`)
 
 Plotting functions:
 
 - `--plot <quadratic|sine>`
   - `--range <start,end>`       Specify X-axis range (default: `0,10`)
+  - `--log-scale <x|y|both>`    Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values)
   - `--resolution <points>`     Number of sample points (default: `100`)
   - `--stroke-color <color>`    Stroke color (default: `black`)
   - `--stroke-width <width>`    Stroke width (default: `1`)

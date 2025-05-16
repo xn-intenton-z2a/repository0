@@ -9,7 +9,7 @@ describe("CLI Integration Tests", () => {
   test("--help displays usage with help, version, mission", () => {
     const result = spawnSync("node", [cliPath, "--help"], { encoding: "utf8" });
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
+    expect(result.stdout).toMatch(/Usage:.+--help.+--version.+--mission/s);
   });
 
   test("--version displays version from package.json", () => {
@@ -49,7 +49,7 @@ describe("CLI Integration Tests", () => {
       encoding: "utf8"
     });
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
+    expect(result.stdout).toMatch(/Usage:.+--help.+--version.+--mission/s);
   });
 
   test("--plot quadratic writes default plot.svg with SVG content", () => {
@@ -148,7 +148,7 @@ describe("CLI Integration Tests", () => {
   test("flag precedence: help over mission-full", () => {
     const result = spawnSync("node", [cliPath, "--mission-full", "--help"], { encoding: "utf8" });
     expect(result.status).toBe(0);
-    expect(result.stdout).toMatch(/Usage:.*--help.*--version.*--mission/s);
+    expect(result.stdout).toMatch(/Usage:.+--help.+--version.+--mission/s);
   });
 
   // New features flag test
@@ -156,7 +156,38 @@ describe("CLI Integration Tests", () => {
     const result = spawnSync("node", [cliPath, "--features"], { encoding: "utf8" });
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("# Mission Statement");
-    expect(result.stdout).toMatch(/LOG_SCALE/);
-    expect(result.stdout).toMatch(/MULTI_PLOT/);
+    expect(result.stdout}).toMatch(/LOG_SCALE/);
+    expect(result.stdout}).toMatch(/MULTI_PLOT/);
+  });
+
+  // Log-scale CLI tests
+  test("--plot sine --range 1,100 --log-scale x transforms x-axis values", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "sine", "--range", "1,100", "--log-scale", "x"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    // x at 1 -> log10(1)=0, y at 1 -> sin(1)
+    expect(content).toMatch(/points="0,\s*-?\d+(\.\d+)?/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("--plot quadratic --range 1,100 --log-scale both transforms both axes", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic", "--range", "1,100", "--log-scale", "both"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    // both x and y at start = 1 -> log10(1)=0
+    expect(content).toMatch(/points="0,0/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("error for log-scale with non-positive range", () => {
+    const result = spawnSync("node", [cliPath, "--plot", "sine", "--range", "0,10", "--log-scale", "x"], { encoding: "utf8" });
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toMatch(/log-scale values must be positive/);
   });
 });
