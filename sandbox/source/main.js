@@ -35,7 +35,9 @@ const argv = minimist(args, {
     "title",
     "xlabel",
     "ylabel",
-    "log-scale"
+    "log-scale",
+    "width",
+    "height"
   ],
   alias: { h: "help", v: "version", m: "mission" }
 });
@@ -76,9 +78,9 @@ function getHelpText() {
     "  --plot              Generate SVG plot (quadratic or sine)",
     "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
     "  --log-scale         Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values)",
+    "  --width             Specify SVG width in pixels (default: 800)",
+    "  --height            Specify SVG height in pixels (default: 600)",
     "  --polar             Generate SVG polar plot (spiral or rose)",
-    "  --export-data       Export data as CSV or JSON (takes precedence)",
-    "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
     "  --radius-range      Specify radius range for polar plot <rStart,rEnd> (default: 0,5)",
     "  --angle-range       Specify angle range for polar plot <thetaStart,thetaEnd> (default: 0,6.28)",
     "  --resolution        Specify number of sample points (default: 100)",
@@ -90,8 +92,8 @@ function getHelpText() {
     "  --xlabel            Add X-axis label (CLI and HTTP only)",
     "  --ylabel            Add Y-axis label (CLI and HTTP only)",
     "  --output            Specify output filename for SVG (default: plot.svg or polar.svg)",
-    "  --export-data       Specify output filename for data export (.csv or .json)",
-    "",
+    "  --export-data       Export data as CSV or JSON (takes precedence)",
+    "",    
     "Examples:",
     `  $ node ${script} --help`,
     `  $ node ${script} --version`,
@@ -100,6 +102,7 @@ function getHelpText() {
     `  $ node ${script} --features`,
     `  $ node ${script} --serve 4000`,
     `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg`,
+    `  $ node ${script} --plot sine --range 0,1 --width 500 --height 400`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
     "",
     "For full mission statement see MISSION.md"
@@ -190,7 +193,7 @@ function handleFeatures() {
   process.exit(0);
 }
 
-// ... existing data generation and HTTP handlers remain unchanged ...
+// ... existing data generation and HTTP handlers remain unchanged except for viewBox support ...
 
 function parsePair(str, def) {
   if (!str) return def;
@@ -252,7 +255,7 @@ function makeCSV(data) {
   return [header, ...rows].join('\n');
 }
 
-function generatePlotSVG(fnName, range, resolution, style, logScale) {
+function generatePlotSVG(fnName, range, resolution, style, logScale, width = 800, height = 600) {
   let data = generatePlotData(fnName, range, resolution);
   if (logScale) {
     data = data.map((d) => {
@@ -267,19 +270,35 @@ function generatePlotSVG(fnName, range, resolution, style, logScale) {
       return { x, y };
     });
   }
+  const xs = data.map((d) => d.x);
+  const ys = data.map((d) => d.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const vbWidth = maxX - minX;
+  const vbHeight = maxY - minY;
   const points = data.map((d) => `${d.x},${d.y}`).join(' ');
   const bg = style.backgroundColor ? `<rect width="100%" height="100%" fill="${style.backgroundColor}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${minX} ${minY} ${vbWidth} ${vbHeight}">
   ${bg}
   <polyline fill="none" stroke="${style.strokeColor}" stroke-width="${style.strokeWidth}" points="${points}" />
 </svg>`;
 }
 
-function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style) {
+function generatePolarSVG(fnName, radiusRange, angleRange, resolution, style, width = 800, height = 600) {
   const data = generatePolarData(fnName, radiusRange, angleRange, resolution);
+  const xs = data.map((d) => d.x);
+  const ys = data.map((d) => d.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const vbWidth = maxX - minX;
+  const vbHeight = maxY - minY;
   const points = data.map((d) => `${d.x},${d.y}`).join(' ');
   const bg = style.backgroundColor ? `<rect width="100%" height="100%" fill="${style.backgroundColor}"/>` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${minX} ${minY} ${vbWidth} ${vbHeight}">
   ${bg}
   <polyline fill="none" stroke="${style.strokeColor}" stroke-width="${style.strokeWidth}" points="${points}" />
 </svg>`;
@@ -311,6 +330,17 @@ function handlePlot() {
       strokeWidth: argv['stroke-width'] || argv.strokeWidth || '1',
       backgroundColor: argv['background-color'] || argv.backgroundColor || ''
     };
+    // width and height
+    const width = argv.width !== undefined ? parseInt(argv.width, 10) : 800;
+    if (argv.width !== undefined && (isNaN(width) || width <= 0)) {
+      console.error('width must be a positive integer');
+      process.exit(1);
+    }
+    const height = argv.height !== undefined ? parseInt(argv.height, 10) : 600;
+    if (argv.height !== undefined && (isNaN(height) || height <= 0)) {
+      console.error('height must be a positive integer');
+      process.exit(1);
+    }
     if (argv['export-data']) {
       const out = argv['export-data'];
       const data = generatePlotData(fn, range, resolution);
@@ -326,7 +356,7 @@ function handlePlot() {
       process.exit(0);
     } else {
       const out = argv.output || 'plot.svg';
-      const svg = generatePlotSVG(fn, range, resolution, style, logScale);
+      const svg = generatePlotSVG(fn, range, resolution, style, logScale, width, height);
       fs.writeFileSync(out, svg);
       process.exit(0);
     }
@@ -347,6 +377,17 @@ function handlePolar() {
       strokeWidth: argv['stroke-width'] || argv.strokeWidth || '1',
       backgroundColor: argv['background-color'] || argv.backgroundColor || ''
     };
+    // width and height
+    const width = argv.width !== undefined ? parseInt(argv.width, 10) : 800;
+    if (argv.width !== undefined && (isNaN(width) || width <= 0)) {
+      console.error('width must be a positive integer');
+      process.exit(1);
+    }
+    const height = argv.height !== undefined ? parseInt(argv.height, 10) : 600;
+    if (argv.height !== undefined && (isNaN(height) || height <= 0)) {
+      console.error('height must be a positive integer');
+      process.exit(1);
+    }
     if (argv['export-data']) {
       const out = argv['export-data'];
       const data = generatePolarData(fn, radiusRange, angleRange, resolution);
@@ -362,7 +403,7 @@ function handlePolar() {
       process.exit(0);
     } else {
       const out = argv.output || 'polar.svg';
-      const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style);
+      const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style, width, height);
       fs.writeFileSync(out, svg);
       process.exit(0);
     }
@@ -442,7 +483,24 @@ function startServer() {
             return res.end('log-scale values must be positive');
           }
         }
-        const svg = generatePlotSVG(fn, range, resolution, style, logScaleParam);
+        // width and height parameters
+        let widthParam = 800;
+        let heightParam = 600;
+        if (params.has('width')) {
+          widthParam = parseInt(params.get('width'), 10);
+          if (isNaN(widthParam) || widthParam <= 0) {
+            res.statusCode = 400;
+            return res.end('width must be positive integer');
+          }
+        }
+        if (params.has('height')) {
+          heightParam = parseInt(params.get('height'), 10);
+          if (isNaN(heightParam) || heightParam <= 0) {
+            res.statusCode = 400;
+            return res.end('height must be positive integer');
+          }
+        }
+        const svg = generatePlotSVG(fn, range, resolution, style, logScaleParam, widthParam, heightParam);
         res.setHeader('Content-Type', 'image/svg+xml');
         return res.end(svg);
       } else if (url.pathname === '/polar') {
@@ -463,7 +521,24 @@ function startServer() {
           strokeWidth: params.get('strokeWidth') || '1',
           backgroundColor: params.get('backgroundColor') || ''
         };
-        const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style);
+        // width and height parameters
+        let widthParam = 800;
+        let heightParam = 600;
+        if (params.has('width')) {
+          widthParam = parseInt(params.get('width'), 10);
+          if (isNaN(widthParam) || widthParam <= 0) {
+            res.statusCode = 400;
+            return res.end('width must be positive integer');
+          }
+        }
+        if (params.has('height')) {
+          heightParam = parseInt(params.get('height'), 10);
+          if (isNaN(heightParam) || heightParam <= 0) {
+            res.statusCode = 400;
+            return res.end('height must be positive integer');
+          }
+        }
+        const svg = generatePolarSVG(fn, radiusRange, angleRange, resolution, style, widthParam, heightParam);
         res.setHeader('Content-Type', 'image/svg+xml');
         return res.end(svg);
       } else if (url.pathname === '/mission') {

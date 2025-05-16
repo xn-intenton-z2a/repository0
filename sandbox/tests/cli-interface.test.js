@@ -190,4 +190,56 @@ describe("CLI Integration Tests", () => {
     expect(result.status).not.toBe(0);
     expect(result.stderr).toMatch(/log-scale values must be positive/);
   });
+
+  // Width and height CLI tests
+  test("--plot sine --range 0,1 --width 500 --height 400 produces correct dimensions and viewBox", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "sine", "--range", "0,1", "--width", "500", "--height", "400"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/width="500"/);
+    expect(content).toMatch(/height="400"/);
+    expect(content).toMatch(/viewBox="0 0 1 [0-9\.]+"/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("default --plot quadratic yields default dimensions and viewBox", () => {
+    const outfile = "plot.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--plot", "quadratic"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/width="800"/);
+    expect(content).toMatch(/height="600"/);
+    expect(content).toMatch(/viewBox="0 0 10 100"/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("--polar spiral --resolution 50 --width 300 --height 300 produces correct dimensions", () => {
+    const outfile = "polar.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "spiral", "--resolution", "50", "--width", "300", "--height", "300"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/width="300"/);
+    expect(content).toMatch(/height="300"/);
+    expect(content).toMatch(/viewBox="[-0-9\.]+ [-0-9\.]+ [0-9\.]+ [0-9\.]+"/);
+    fs.unlinkSync(outPath);
+  });
+
+  test("default --polar rose yields default dimensions", () => {
+    const outfile = "polar.svg";
+    const outPath = path.resolve(process.cwd(), outfile);
+    if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    const result = spawnSync("node", [cliPath, "--polar", "rose"], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const content = fs.readFileSync(outPath, "utf8");
+    expect(content).toMatch(/width="800"/);
+    expect(content).toMatch(/height="600"/);
+    fs.unlinkSync(outPath);
+  });
 });
