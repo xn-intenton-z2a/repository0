@@ -312,16 +312,17 @@ jobs:
         if: steps.mvn.outputs.pomXmlExists == 'true'
         shell: bash
         run: |
-          echo 'GITHUB_ACTOR: '${{ github.actor }}'
-          echo 'ENV_NAME: '${{ inputs.environment || 'ci' }}'
-          echo 'USE_EXISTING_HOSTED_ZONE: '${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}'
-          echo 'USE_EXISTING_CERTIFICATE: '${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}'
-          echo 'HOSTED_ZONE_NAME: '${{ vars.AWS_HOSTED_ZONE_NAME }}'
-          echo 'HOSTED_ZONE_ID: '${{ vars.AWS_HOSTED_ZONE_ID }}'
-          echo 'CERTIFICATE_ID: '${{ vars.AWS_CERTIFICATE_ID }}'
-          echo 'SUB_DOMAIN_NAME: '${{ inputs.environment || 'ci' }}'
-          echo 'LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: '${{ steps.jar-path.outputs.jarFilepath }}'
-          echo 'LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: '${{ steps.jar-path.outputs.jarFilepath }}'
+          echo "GITHUB_ACTOR: ${{ github.actor }}"
+          echo "ENV_NAME: ${{ inputs.environment || 'ci' }}"
+          echo "USE_EXISTING_HOSTED_ZONE: ${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}"
+          echo "USE_EXISTING_CERTIFICATE: ${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}"
+          echo "CLOUD_TRAIL_ENABLED: ${{ vars.AWS_CLOUD_TRAIL_ENABLED || 'false' }}"
+          echo "HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}"
+          echo "HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}"
+          echo "CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}"
+          echo "SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}"
+          echo "LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}"
+          echo "LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}"
 
       - name: synth
         id: synth
@@ -334,6 +335,7 @@ jobs:
           ENV_NAME: ${{ inputs.environment || 'ci' }}
           USE_EXISTING_HOSTED_ZONE: ${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}
           USE_EXISTING_CERTIFICATE: ${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}
+          CLOUD_TRAIL_ENABLED: ${{ vars.AWS_CLOUD_TRAIL_ENABLED || 'false' }}
           HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
           HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
           CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
@@ -358,6 +360,7 @@ jobs:
           ENV_NAME: ${{ inputs.environment || 'ci' }}
           USE_EXISTING_HOSTED_ZONE: ${{ vars.USE_EXISTING_HOSTED_ZONE || 'true' }}
           USE_EXISTING_CERTIFICATE: ${{ vars.USE_EXISTING_CERTIFICATE || 'true' }}
+          CLOUD_TRAIL_ENABLED: ${{ vars.AWS_CLOUD_TRAIL_ENABLED || 'false' }}
           HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
           HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
           CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
