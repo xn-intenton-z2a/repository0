@@ -173,6 +173,7 @@ describe('HTTP Data Export Endpoints', () => {
     expect(text).toMatch(/height="200"/);
     expect(text).toMatch(/viewBox="0 0 5 25"/);
   });
+
   test('GET /polar default width and height returns SVG with dimensions', async () => {
     const res = await fetch(`http://localhost:${port}/polar?function=rose&radius-range=0,1&angle-range=0,6.28`);
     expect(res.status).toBe(200);
@@ -180,4 +181,6 @@ describe('HTTP Data Export Endpoints', () => {
     const text = await res.text();
     expect(text).toMatch(/width="800"/);
     expect(text).toMatch(/height="600"/);
-    expect(text).toMatch(/viewBox="[-0-9\.]+
+    expect(text).toMatch(/viewBox="[-0-9.]+ [-0-9.]+ [-0-9.]+ [-0-9.]+"/);
+  });
+});
