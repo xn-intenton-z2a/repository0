@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // sandbox/source/main.js
-// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --plot, --polar, --export-data, --serve commands and log-scale option
+// CLI entrypoint with support for --help, --version, --mission, --mission-full, --features, --plot, --plots, --polar, --export-data, --serve commands and log-scale option
 
 import minimist from "minimist";
 import fs from "fs";
@@ -16,6 +16,7 @@ const argv = minimist(args, {
   boolean: ["help", "version", "mission", "mission-full", "features"],
   string: [
     "plot",
+    "plots",
     "range",
     "output",
     "polar",
@@ -42,7 +43,7 @@ const argv = minimist(args, {
   alias: { h: "help", v: "version", m: "mission" }
 });
 
-// Precedence: help > version > mission-full > mission > features > serve > polar > plot
+// Precedence: help > version > mission-full > mission > features > serve > polar > plots/plot
 if (argv.help) {
   showHelp();
 } else if (argv.version) {
@@ -57,7 +58,7 @@ if (argv.help) {
   startServer();
 } else if (argv.polar !== undefined) {
   handlePolar();
-} else if (argv.plot !== undefined) {
+} else if (argv.plots !== undefined || argv.plot !== undefined) {
   handlePlot();
 } else {
   echoMain(args);
@@ -76,6 +77,7 @@ function getHelpText() {
     "  --features          Show list of all available sandbox features",
     "  --serve [port]      Start HTTP server (default: 4000)",
     "  --plot              Generate SVG plot (quadratic or sine)",
+    "  --plots             Generate multiple SVG plots in one output",
     "  --range             Specify x-axis range for plot <start,end> (default: 0,10)",
     "  --log-scale         Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values)",
     "  --width             Specify SVG width in pixels (default: 800)",
@@ -102,6 +104,7 @@ function getHelpText() {
     `  $ node ${script} --features`,
     `  $ node ${script} --serve 4000`,
     `  $ node ${script} --plot quadratic --range 0,10 --resolution 50 --stroke-color red --background-color yellow --title MyPlot --xlabel X --ylabel Y --output plot.svg`,
+    `  $ node ${script} --plots quadratic,sine --range 0,5 --output multi.svg`,
     `  $ node ${script} --polar spiral --radius-range 0,5 --angle-range 0,6.28 --resolution 75 --stroke-color blue --fill-color cyan --title SpiralPlot --output polar.svg`,
     "",
     "For full mission statement see MISSION.md"
@@ -241,12 +244,31 @@ function makeCSV(data) {
 }
 
 function handlePlot() {
-  const fnName = argv.plot;
+  const fnNames = argv.plots
+    ? argv.plots.split(',')
+    : [argv.plot];
+  if (!argv.plots && !argv.plot) {
+    console.error('No plot function specified');
+    process.exit(1);
+  }
   const range = parsePair(argv.range, [0, 10]);
   const resolution = argv.resolution ? parseInt(argv.resolution, 10) : 100;
-  const data = generatePlotData(fnName, range, resolution);
+  let seriesData;
+  try {
+    seriesData = fnNames.map((fnName) =>
+      generatePlotData(fnName, range, resolution)
+    );
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
   if (argv['export-data']) {
+    if (fnNames.length > 1) {
+      console.error('export-data with multiple plots not supported');
+      process.exit(1);
+    }
     const out = argv['export-data'];
+    const data = seriesData[0];
     let content;
     if (out.endsWith('.csv')) {
       content = makeCSV(data);
@@ -257,11 +279,21 @@ function handlePlot() {
   } else {
     const width = argv.width ? parseInt(argv.width, 10) : 800;
     const height = argv.height ? parseInt(argv.height, 10) : 600;
-    const ys = data.map((d) => d.y);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
-    const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+    const palette = ['black', 'red', 'blue', 'green', 'orange', 'purple'];
+    const strokeColorArg = argv['stroke-color'] || argv.strokeColor;
+    const strokeColors = fnNames.map(
+      (_, i) => strokeColorArg || palette[i % palette.length]
+    );
+    const ysAll = seriesData.flat().map((d) => d.y);
+    const minY = Math.min(...ysAll);
+    const maxY = Math.max(...ysAll);
+    const polylines = seriesData
+      .map((data, i) => {
+        const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+        return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
+      })
+      .join('');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${range[0]} ${minY} ${range[1] - range[0]} ${maxY - minY}">${polylines}</svg>`;
     const outFile = argv.output || 'plot.svg';
     fs.writeFileSync(outFile, svg, 'utf8');
   }
@@ -376,19 +408,20 @@ function startServer() {
       res.setHeader('Content-Type', 'text/plain');
       res.end(getHelpText());
     } else if (pathname === '/plot') {
-      const fn = params.get('function');
+      const plotsParam = params.get('plots');
+      const fnParam = params.get('function');
       const rangeParam = params.get('range');
       const logScale = params.get('logScale');
       const wParam = params.get('width');
       const hParam = params.get('height');
       const resolution = params.get('resolution') ? parseInt(params.get('resolution'), 10) : 100;
-      if (!fn || !rangeParam) {
+      if ((!plotsParam && !fnParam) || !rangeParam) {
         res.statusCode = 400;
         res.end();
         return;
       }
+      const fnNames = plotsParam ? plotsParam.split(',') : [fnParam];
       const range = parsePair(rangeParam, [0, 10]);
-      // width/height validation
       let width = 800;
       let height = 600;
       if (wParam !== null) {
@@ -407,7 +440,6 @@ function startServer() {
           return;
         }
       }
-      // logScale validation
       if (logScale) {
         if (!['x', 'y', 'both'].includes(logScale)) {
           res.statusCode = 400;
@@ -420,29 +452,48 @@ function startServer() {
           return;
         }
       }
-      let data = generatePlotData(fn, range, resolution);
-      if (logScale) {
-        data = data.map((d) => {
-          let x = d.x;
-          let y = d.y;
-          if (logScale === 'x' || logScale === 'both') {
-            x = Math.log10(d.x);
-          }
-          if (logScale === 'y' || logScale === 'both') {
-            y = Math.log10(d.y);
-          }
-          return { x, y };
-        });
+      let seriesData;
+      try {
+        seriesData = fnNames.map((fn) => generatePlotData(fn, range, resolution));
+      } catch (err) {
+        res.statusCode = 400;
+        res.end();
+        return;
       }
-      const xs = data.map((d) => d.x);
-      const ys = data.map((d) => d.y);
-      const minX = Math.min(...xs);
-      const maxX = Math.max(...xs);
-      const minY = Math.min(...ys);
-      const maxY = Math.max(...ys);
+      if (logScale) {
+        seriesData = seriesData.map((series) =>
+          series.map((d) => {
+            let x = d.x;
+            let y = d.y;
+            if (logScale === 'x' || logScale === 'both') {
+              x = Math.log10(d.x);
+            }
+            if (logScale === 'y' || logScale === 'both') {
+              y = Math.log10(d.y);
+            }
+            return { x, y };
+          })
+        );
+      }
+      const xsAll = seriesData.flat().map((d) => d.x);
+      const ysAll = seriesData.flat().map((d) => d.y);
+      const minX = Math.min(...xsAll);
+      const maxX = Math.max(...xsAll);
+      const minY = Math.min(...ysAll);
+      const maxY = Math.max(...ysAll);
       const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
-      const points = data.map((d) => `${d.x},${d.y}`).join(' ');
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}"><polyline points="${points}" stroke="black" fill="none"/></svg>`;
+      const palette = ['black', 'red', 'blue', 'green', 'orange', 'purple'];
+      const strokeColorParam = params.get('strokeColor') || params.get('stroke-color');
+      const strokeColors = fnNames.map(
+        (_, i) => strokeColorParam || palette[i % palette.length]
+      );
+      const polylines = seriesData
+        .map((data, i) => {
+          const points = data.map((d) => `${d.x},${d.y}`).join(' ');
+          return `<polyline points="${points}" stroke="${strokeColors[i]}" fill="none"/>`;
+        })
+        .join('');
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="${viewBox}">${polylines}</svg>`;
       res.setHeader('Content-Type', 'image/svg+xml');
       res.end(svg);
     } else if (pathname === '/polar') {

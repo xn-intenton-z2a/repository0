@@ -47,11 +47,12 @@ Generate and retrieve polar plot data for `spiral` or `rose` functions.
 
 ### GET /plot
 
-Generate and retrieve an SVG image for `quadratic` or `sine` functions with customization options.
+Generate and retrieve an SVG image for `quadratic`, `sine`, or multiple functions with customization options.
 
 **Query parameters:**
 
-- `function`: `quadratic` or `sine` (required)
+- `function`: `quadratic` or `sine` (required unless `plots` is used)
+- `plots`: `<fn1,fn2,...>` Comma-separated list of functions to plot in one SVG (e.g., `quadratic,sine`) (optional; overrides `function`)
 - `range`: `<start,end>` X-axis range (e.g., `0,10`) (required)
 - `logScale`: `<x|y|both>` Apply base-10 log scaling on X axis, Y axis, or both (requires strictly positive range values) (optional)
 - `width`: SVG width in pixels (default: `800`) (optional)
@@ -69,12 +70,17 @@ Generate and retrieve an SVG image for `quadratic` or `sine` functions with cust
 **Response:**
 
 - **200 OK** with `Content-Type: image/svg+xml`
-- Body contains the SVG markup with customization applied
+- Body contains the SVG markup with one or more `<polyline>` elements for each requested function
 
 **Errors:**
 
-- **400 Bad Request** if `logScale` has an invalid value or if any range values are non-positive when `logScale` is used.
+- **400 Bad Request** if required parameters are missing, `logScale` has an invalid value, any range values are non-positive when `logScale` is used, or if any function name is unsupported.
 - **400 Bad Request** if `width` or `height` parameters are non-positive or non-integer.
+
+**Example:**
+```bash
+curl "http://localhost:4000/plot?plots=quadratic,sine&range=0,5&width=400&height=200&resolution=50"
+```
 
 ### GET /polar
 
@@ -100,13 +106,8 @@ Generate and retrieve an SVG image for `spiral` or `rose` functions with customi
 **Response:**
 
 - **200 OK** with `Content-Type: image/svg+xml`
-- Body contains the SVG markup with customization applied
+- Body contains the SVG markup with a `<polyline>` element for each requested polar function
 
 **Errors:**
 
 - **400 Bad Request** if `width` or `height` parameters are non-positive or non-integer.
-
-**Example:**
-```bash
-curl "http://localhost:4000/plot?function=quadratic&range=0,5&width=400&height=200&resolution=25&strokeColor=green&strokeWidth=3&fillColor=none&backgroundColor=black&title=Title&xlabel=X&ylabel=Y&logScale=x"
-```
