@@ -183,4 +183,43 @@ describe('HTTP Data Export Endpoints', () => {
     expect(text).toMatch(/height="600"/);
     expect(text).toMatch(/viewBox="[-0-9.]+ [-0-9.]+ [-0-9.]+ [-0-9.]+"/);
   });
+
+  // New HTTP HTML endpoints tests
+  test('GET /plot with format=html and embedMission returns HTML with mission and script', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,5&format=html&embedMission=true`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    const text = await res.text();
+    expect(text.startsWith('<!--')).toBe(true);
+    expect(text).toMatch(/<html>/);
+    expect(text).toMatch(/<script>/);
+  });
+
+  test('GET /plot with format=html without embedMission returns HTML without mission comment', async () => {
+    const res = await fetch(`http://localhost:${port}/plot?function=quadratic&range=0,5&format=html`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    const text = await res.text();
+    expect(text.startsWith('<!--')).toBe(false);
+    expect(text).toMatch(/<html>/);
+  });
+
+  test('GET /polar with format=html and embedMission returns HTML with mission and script', async () => {
+    const res = await fetch(`http://localhost:${port}/polar?function=spiral&radius-range=0,1&angle-range=0,6.28&format=html&embedMission=true`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    const text = await res.text();
+    expect(text.startsWith('<!--')).toBe(true);
+    expect(text).toMatch(/<html>/);
+    expect(text).toMatch(/<script>/);
+  });
+
+  test('GET /polar with format=html without embedMission returns HTML without mission comment', async () => {
+    const res = await fetch(`http://localhost:${port}/polar?function=spiral&radius-range=0,1&angle-range=0,6.28&format=html`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('text/html');
+    const text = await res.text();
+    expect(text.startsWith('<!--')).toBe(false);
+    expect(text).toMatch(/<html>/);
+  });
 });

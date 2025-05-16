@@ -1,6 +1,6 @@
 # Command-Line Interface (CLI) Plotting Tool
 
-A simple, standalone CLI utility for generating SVG plots of mathematical functions, exporting data, and serving data over HTTP.
+A simple, standalone CLI utility for generating SVG plots of mathematical functions, exporting data, serving data over HTTP, and producing interactive HTML wrappers.
 
 ## Installation
 
@@ -66,6 +66,7 @@ Plotting functions:
   - `--output <filename>`       Output SVG filename (default: `plot.svg`)
   - `--export-data <filename>`  Export computed data to `.csv` or `.json` (single-series only)
   - `--embed-mission`           Embed full mission statement as XML comment at top of SVG output
+  - `--interactive`             Wrap SVG in interactive HTML scaffold with pan/zoom support
 
 Polar plots:
 
@@ -84,6 +85,7 @@ Polar plots:
   - `--ylabel <text>`                Y-axis label along left side
   - `--output <filename>`            Output SVG filename (default: `polar.svg`)
   - `--export-data <filename>`       Export computed data to `.csv` or `.json`
+  - `--interactive`                  Wrap SVG in interactive HTML scaffold with pan/zoom support
 
 ## Examples
 
@@ -93,6 +95,12 @@ Generate a quadratic plot as SVG with custom styling and annotations:
 node sandbox/source/main.js --plot quadratic --range 0,10 --resolution 50 --stroke-color red --stroke-width 2 \
   --fill-color blue --background-color yellow --title "MyPlot" --xlabel "X-Axis" --ylabel "Y-Axis" \
   --output styled_plot.svg
+```
+
+Generate an interactive HTML page embedding the mission statement:
+
+```bash
+node sandbox/source/main.js --plot quadratic --interactive --embed-mission --output mission.html
 ```
 
 Plot multiple functions in one SVG:
