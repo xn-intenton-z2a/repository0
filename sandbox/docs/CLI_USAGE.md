@@ -44,6 +44,7 @@ Supported options:
 - `--mission`             Show mission statement (brief)
 - `--mission-full`        Show full mission statement
 - `--features`            Show list of all available sandbox features (includes MISSION and MISSION-FULL)
+- `--features-full`       List features with mission context and one-line summaries (reads MISSION.md and sandbox/features/*.md)
 - `--serve [port]`        Start HTTP server (default: `4000`)
 
 Plotting functions:
@@ -99,8 +100,14 @@ Plot multiple functions in one SVG:
 node sandbox/source/main.js --plots quadratic,sine --range 0,5 --output multi.svg
 ```
 
-List all sandbox features:
+List all sandbox features with brief names:
 
 ```bash
 node sandbox/source/main.js --features
+```
+
+List all sandbox features with mission context and summaries:
+
+```bash
+node sandbox/source/main.js --features-full
 ```
