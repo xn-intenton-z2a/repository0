@@ -2,6 +2,38 @@
 
 This document describes the available CLI commands for the demo application.
 
+## Global Options
+
+- `--help` (`-h`): Show help usage guide.
+- `--version` (`-v`): Print the version number.
+- `--mission`: Print the mission statement from MISSION.md.
+- Default behavior: Echo arbitrary arguments.
+
+### Examples
+
+```bash
+npm run start -- --help
+```
+Displays the help usage guide.
+
+```bash
+npm run start -- --version
+```
+Outputs the current version, e.g., `2.1.0-0`.
+
+```bash
+npm run start -- --mission
+```
+Prints the full mission statement.
+
+```bash
+npm run start -- foo bar
+```
+Outputs:
+```
+Run with: ["foo","bar"]
+```
+
 ## `plot` Subcommand
 
 Generate an SVG plot for a supported function and print it to stdout or write to a file.
@@ -16,7 +48,7 @@ Generate an SVG plot for a supported function and print it to stdout or write to
 #### Quadratic Plot
 
 ```bash
-npm run start plot quadratic
+npm run start -- plot quadratic
 ```
 
 This command will output an SVG string starting with:
@@ -30,7 +62,7 @@ This command will output an SVG string starting with:
 #### Sine Plot
 
 ```bash
-npm run start plot sine
+npm run start -- plot sine
 ```
 
 This command will output an SVG string starting with:
@@ -43,21 +75,21 @@ This command will output an SVG string starting with:
 
 ### Optional Flags
 
-| Flag                | Description                              | Default   |
-|---------------------|------------------------------------------|-----------|
-| `--xmin <number>`   | Lower bound of the x-axis                | `-10`     |
-| `--xmax <number>`   | Upper bound of the x-axis                | `10`      |
-| `--samples <number>`| Number of intervals/samples             | `100`     |
-| `--output <filepath>`| Output file path to write SVG          | (stdout)  |
+| Flag                | Description                              | Default          |
+|---------------------|------------------------------------------|------------------|
+| `--xmin <number>`   | Lower bound of the x-axis                | `-10`            |
+| `--xmax <number>`   | Upper bound of the x-axis                | `10`             |
+| `--samples <number>`| Number of intervals/samples              | `100`            |
+| `--output <filepath>`| Output file path to write SVG          | (stdout)         |
 
 ### Examples with Flags
 
 Custom range and resolution:
 ```bash
-npm run start plot sine --xmin -5 --xmax 5 --samples 50
+npm run start -- plot sine --xmin -5 --xmax 5 --samples 50
 ```
 
 Write output to file:
 ```bash
-npm run start plot quadratic --output quad.svg
+npm run start -- plot quadratic --output quad.svg
 ```

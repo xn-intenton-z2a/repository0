@@ -94,3 +94,70 @@ describe("CLI Plot Subcommand Optional Flags", () => {
     cleanup(outFile);
   });
 });
+
+describe("CLI Global Commands", () => {
+  test("--help shows usage guide", () => {
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "--help"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/--help \(alias -h\)/);
+    expect(result.stdout).toMatch(/--version \(alias -v\)/);
+    expect(result.stdout).toMatch(/--mission/);
+  });
+
+  test("-h shows usage guide", () => {
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "-h"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toMatch(/--help \(alias -h\)/);
+  });
+
+  test("--version shows version", () => {
+    const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "--version"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe(pkg.version);
+  });
+
+  test("-v shows version", () => {
+    const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "-v"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe(pkg.version);
+  });
+
+  test("--mission shows mission statement", () => {
+    const mission = fs.readFileSync("MISSION.md", "utf-8");
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "--mission"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('# Mission Statement');
+  });
+
+  test("default echo behavior logs arguments", () => {
+    const result = spawnSync(
+      "node",
+      ["sandbox/source/main.js", "foo", "bar"],
+      { encoding: "utf-8" }
+    );
+    expect(result.status).toBe(0);
+    expect(result.stdout.trim()).toBe('Run with: ["foo","bar"]');
+  });
+});
