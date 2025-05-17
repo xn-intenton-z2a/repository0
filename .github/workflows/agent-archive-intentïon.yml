@@ -92,7 +92,8 @@ jobs:
                 const lines = seedDiscussionContent.split('\n');
         
                 // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
-                const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
+                //const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
+                const branchUrlPattern = /^.*https:\/\/.*\/tree\/.*$/
                 const branchUrlLines = lines.filter(line => branchUrlPattern.test(line));
                 if (branchUrlLines.length === 0) {
                   core.warning(`No matching GitHub branch URL found in intentïon.md`);

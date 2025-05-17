@@ -439,7 +439,7 @@ jobs:
             if (!fs.existsSync(path.dirname(seedDiscussionFilepath))) {
               fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
             }
-            const traceContent = `${url}\n\n# Discussion Seed Trace\n\nThis repository was seeded from a GitHub Discussion.\n\n- **Title**: ${title}\n- **URL**: ${url}\n- **Created at**: ${new Date().toISOString()}\n`;
+            const traceContent = ` ${new Date().toISOString()} - This repository was seeded from GitHub Discussion ${title} at ${url}\n`;
             fs.appendFileSync(seedDiscussionFilepath, traceContent);
 
             core.info(`Trace file saved to ${seedDiscussionFilepath}`);
