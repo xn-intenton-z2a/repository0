@@ -7,7 +7,8 @@ async function main(args) {
   if (args[0] === "mission") {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
-    const missionPath = resolve(__dirname, "../../..", "MISSION.md");
+    // Navigate two levels up from sandbox/source to the repository root
+    const missionPath = resolve(__dirname, "..", "..", "MISSION.md");
     const content = await readFile(missionPath, "utf8");
     console.log(content);
   } else {
