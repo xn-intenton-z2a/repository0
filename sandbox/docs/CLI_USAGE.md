@@ -45,6 +45,11 @@ npm run start -- <command> [args]
   • `--flags <flags>`: Flags for the regular expression (default: `g` when `--regex` is set)  
   • `--output <file>`: Write the result to the specified file instead of stdout  
   Example: `npm run start -- replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt`
+- **convert**: Bidirectional conversion between `.env`, JSON, and YAML formats. Options:  
+  • `--to-env`: Serialize input JSON to dotenv format  
+  • `--to-yaml`: Serialize input JSON to YAML format  
+  • `--output <file>`: Write the result to the specified file instead of stdout  
+  Example: `npm run start -- convert file.env --output out.json`
 
 ## Testing
 
