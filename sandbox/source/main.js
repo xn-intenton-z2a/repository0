@@ -17,6 +17,8 @@ Commands:
   mission-features   Print the mission statement and list available features
   csv-import         Import a CSV file and output JSON array
   render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
 
 Examples:
   npm run start -- help
@@ -29,7 +31,9 @@ Examples:
   npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
   npm run start -- render template.ejs
   npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html`);
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt`);
 }
 
 async function showMission() {
@@ -177,11 +181,64 @@ async function doRender(argv) {
   }
 }
 
+// New text replace functionality
+async function doTextReplace(argv) {
+  const inputFile = argv._[1];
+  const search = argv.search;
+  const replacement = argv.replace;
+  const useRegex = argv.regex;
+  const flagsStr = argv.flags;
+  const output = argv.output;
+
+  if (!search || replacement === undefined) {
+    console.error("Missing --search or --replace flag");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  if (useRegex) {
+    let regex;
+    try {
+      const flags = flagsStr || "g";
+      regex = new RegExp(search, flags);
+    } catch (err) {
+      console.error("Invalid regular expression:", err.message);
+      process.exit(1);
+    }
+    result = content.replace(regex, replacement);
+  } else {
+    result = content.replace(search, replacement);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+    process.exit(0);
+  }
+}
+
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header"],
-    string: ["output", "delimiter"],
-    default: { header: true, delimiter: "," }
+    boolean: ["header", "regex"],
+    string: ["output", "delimiter", "flags", "search", "replace"],
+    default: { header: true, delimiter: "," },
   });
   const [command, ...rest] = argv._;
   switch (command) {
@@ -211,6 +268,10 @@ async function main() {
       break;
     case "render":
       await doRender(argv);
+      break;
+    case "replace":
+    case "text-replace":
+      await doTextReplace(argv);
       break;
     default:
       console.log(`Unknown command: ${command}\n`);
