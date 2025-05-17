@@ -7,18 +7,20 @@ async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
 
 Commands:
-  help        Display this help message
-  mission     Print the mission statement
-  version     Print the current version
-  echo        Echo the provided arguments
-  features    List available feature documents
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
 
 Examples:
   npm run start -- help
   npm run start -- mission
   npm run start -- version
   npm run start -- echo Hello World
-  npm run start -- features`);
+  npm run start -- features
+  npm run start -- mission-features`);
 }
 
 async function showMission() {
@@ -90,6 +92,11 @@ async function main() {
       await doEcho(rest);
       break;
     case 'features':
+      await showFeatures();
+      break;
+    case 'mission-features':
+      await showMission();
+      console.log('');
       await showFeatures();
       break;
     default:
