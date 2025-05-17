@@ -104,7 +104,7 @@ jobs:
                   const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                   if (urlMatch) {
                     branchUrl = urlMatch[0];
-                    core.info(`Using URL from intentïon.md: ${url}`);
+                    core.info(`Using URL from intentïon.md: ${urlMatch}`);
                   } else {
                     core.warning(`No matching GitHub branch URL found in intentïon.md: ${lastUrlLine}`);
                   }
