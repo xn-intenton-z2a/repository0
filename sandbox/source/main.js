@@ -79,7 +79,6 @@ async function showFeatures() {
 }
 
 async function doCsvImport(argv) {
-  const cwd = process.cwd();
   const inputFile = argv._[1];
   if (!inputFile) {
     console.error("Error: No input file specified");
@@ -92,7 +91,8 @@ async function doCsvImport(argv) {
 
   let content;
   try {
-    content = await fs.readFile(path.join(cwd, inputFile), "utf-8");
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
   } catch (err) {
     console.error("Error reading input file:", err.message);
     process.exit(1);
@@ -110,7 +110,8 @@ async function doCsvImport(argv) {
 
   if (output) {
     try {
-      await fs.writeFile(path.join(cwd, output), json, "utf-8");
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, json, "utf-8");
       process.exit(0);
     } catch (err) {
       console.error("Error writing output file:", err.message);
