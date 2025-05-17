@@ -156,7 +156,7 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: 'Maintain sources of library content'
+          activity: 'Maintain sources of library content.'
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |

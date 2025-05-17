@@ -250,7 +250,7 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Worked to resolve: ${{ needs.apply-update.outputs.message }}"
+          activity: "Worked to update README with: ${{ needs.apply-update.outputs.message }}."
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |

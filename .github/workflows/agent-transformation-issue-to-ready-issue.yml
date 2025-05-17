@@ -174,7 +174,7 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Issue ${{ needs.select-issue.outputs.issueNumber }} was updated."
+          activity: "Updated issue ${{ needs.select-issue.outputs.issueNumber }}."
           seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
         with:
           script: |
