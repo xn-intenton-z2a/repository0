@@ -72,7 +72,7 @@ jobs:
         id: intention
         uses: actions/github-script@v7
         env:
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           uuid: ${{ needs.uuid.outputs.uuid }}
         with:
           script: |
@@ -80,15 +80,15 @@ jobs:
             const { owner, repo } = context.repo;
             
             const uuid = process.env.uuid;
-            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            const intentionFilepath = process.env.intentionFilepath;
             
             let branchUrl = ''; // branch URL
             let branchName = '';
             try {
-              core.info(`Looking for lines likely to be branches in intentïon.md at ${seedDiscussionFilepath}`);
+              core.info(`Looking for lines likely to be branches in intentïon.md at ${intentionFilepath}`);
         
-              if (fs.existsSync(seedDiscussionFilepath)) {
-                const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+              if (fs.existsSync(intentionFilepath)) {
+                const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
                 const lines = seedDiscussionContent.split('\n');
         
                 // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
@@ -110,7 +110,7 @@ jobs:
                   }
                 }
               } else {
-                core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
+                core.warning(`intentïon.md file not found at ${intentionFilepath}`);
               }
             } catch (error) {
               core.warning(`Error reading intentïon.md: ${error.message}`);
@@ -159,8 +159,8 @@ jobs:
 
       - name: Log seed in the intentïon file.
         run: |
-          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
 
       - name: Commit and push
         id: commit

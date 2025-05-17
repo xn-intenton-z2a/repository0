@@ -82,7 +82,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -111,7 +111,7 @@ jobs:
         env:
           discussionBody: ${{ inputs.discussionBody || env.defaultDiscussionBody }}
           userName: "${{ github.actor }} running workflow ${{ github.workflow }} using workflow event ${{ github.event_name }}"
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
             let authorAssociation; // discussion author_association
@@ -165,11 +165,11 @@ jobs:
               if (!url) {
                 try {
                   const fs = require('fs');
-                  const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
-                  core.info(`Looking for last */discussions/* in intentïon.md at ${seedDiscussionFilepath}`);
+                  const intentionFilepath = process.env.intentionFilepath;
+                  core.info(`Looking for last */discussions/* in intentïon.md at ${intentionFilepath}`);
 
-                  if (fs.existsSync(seedDiscussionFilepath)) {
-                    const seedDiscussionContent = fs.readFileSync(seedDiscussionFilepath, 'utf8');
+                  if (fs.existsSync(intentionFilepath)) {
+                    const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
                     const lines = seedDiscussionContent.split('\n');
 
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
@@ -189,7 +189,7 @@ jobs:
                       }
                     }
                   } else {
-                    core.warning(`intentïon.md file not found at ${seedDiscussionFilepath}`);
+                    core.warning(`intentïon.md file not found at ${intentionFilepath}`);
                   }
                 } catch (error) {
                   core.warning(`Error reading intentïon.md: ${error.message}`);
@@ -238,7 +238,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.6.2'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -370,7 +370,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.2'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -386,7 +386,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.6.2'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -420,13 +420,13 @@ jobs:
           discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
           discussionBody: ${{ needs.process-discussion-post.outputs.body }}
           discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
-          seedDiscussionFilepath: ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
             const title = process.env.discussionTitle;
             const body = process.env.discussionBody;
             const url = process.env.discussionUrl;
-            const seedDiscussionFilepath = process.env.seedDiscussionFilepath;
+            const intentionFilepath = process.env.intentionFilepath;
 
             core.info(`title: ${title}`);
             core.info(`body: ${body}`);
@@ -435,20 +435,20 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
-            // Create trace file and the parent directory of seedDiscussionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(seedDiscussionFilepath))) {
-              fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const traceContent = `${new Date().toISOString()} - This repository was seeded from GitHub Discussion ${title} at ${url}\n`;
-            fs.appendFileSync(seedDiscussionFilepath, traceContent);
+            fs.appendFileSync(intentionFilepath, traceContent);
 
-            core.info(`Trace file saved to ${seedDiscussionFilepath}`);
+            core.info(`Trace file saved to ${intentionFilepath}`);
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add  ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Add discussion seed trace" || echo "No changes to commit"
           git push
 
@@ -466,7 +466,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.2'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -485,7 +485,7 @@ jobs:
       packages: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.6.2'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -508,7 +508,7 @@ jobs:
   #    packages: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.6.1'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.6.2'
   #  with:
   #    feature: ${{ needs.generate-response.outputs.detail }}
   #  secrets:
@@ -537,16 +537,16 @@ jobs:
 
       - name: Log the declaration in the seed discussion file (intentïon) file.
         run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
-          echo "HALT" >> ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "HALT" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          git add ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push
         env:
@@ -565,7 +565,7 @@ jobs:
   #  permissions:
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.6.1'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.6.2'
   #  with:
   #    issueNumber: ''
   #    selectionLabel: 'ready'
@@ -587,7 +587,7 @@ jobs:
   #    contents: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.6.1'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.6.2'
   #  with:
   #    cache: 'npm'
   #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"

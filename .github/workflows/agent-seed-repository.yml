@@ -52,7 +52,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -193,7 +193,7 @@ jobs:
 
       - name: Truncate the intentïon file.
         run: |
-          > ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          > ${{ needs.agentic-lib.outputs.intentionFilepath }}
 
       - name: Commit and push
         id: commit
