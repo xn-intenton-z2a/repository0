@@ -2,34 +2,55 @@
 
 ## Overview
 
-Add support for standard CLI flags for help and version, while preserving the existing argument echo functionality.
+Enhance the command-line interface to support the following standard flags alongside the existing argument echo behavior:
+
+- `-h, --help`: Display usage instructions and exit.
+- `-v, --version`: Print the version from package.json and exit.
+- `-m, --mission`: Read and display the content of `MISSION.md` and exit.
+
+When none of these flags are present, the tool falls back to echoing the provided arguments.
 
 ## Usage
 
-The CLI tool can be invoked with optional flags followed by any number of arguments. Available flags are:
+Invoke the CLI tool using the entrypoint script with any combination of flags and positional arguments:
+```
+node sandbox/source/main.js [flags] [arguments...]
+```
 
-- -h, --help: Display the help message and exit with status code 0.
-- -v, --version: Display the version number from package.json and exit with status code 0.
+### Examples
 
-When no recognized flag is provided, the tool continues to echo provided arguments.
+- Show help:
+  `node sandbox/source/main.js --help`
+
+- Show version:
+  `node sandbox/source/main.js -v`
+
+- Show mission statement:
+  `node sandbox/source/main.js --mission`
+
+- Echo arguments:
+  `node sandbox/source/main.js arg1 arg2`
 
 ## Behavior
 
-- If help flag is present:
-    Display usage instructions summarizing available flags and exit with code 0.
-- If version flag is present:
-    Import version from package.json, print the version string, and exit with code 0.
-- Otherwise:
-    Use existing logic to log Run with: followed by a JSON array of the supplied arguments.
+1. If the help flag is present, print the usage instructions and exit with code 0.
+2. Else if the version flag is present, import the version from package.json, print it, and exit with code 0.
+3. Else if the mission flag is present, attempt to read `MISSION.md` from the working directory and print its contents; on read error, print an error message and exit.
+4. Otherwise, fallback to the existing echo behavior that logs `Run with: ${JSON.stringify(args)}`.
 
 ## Implementation Details
 
-Modify src/lib/main.js to:
+- Update `src/lib/main.js` or the CLI entrypoint in `sandbox/source/main.js` to:
+  - Import the `version` field from `package.json`.
+  - Use `minimist` to parse flags: alias `h` → `help`, `v` → `version`, `m` → `mission`, with boolean settings for each.
+  - Check flags in the order: help, version, mission, then fallback.
+  - For the mission flag, use `fs.promises.readFile` to read `MISSION.md` and handle errors gracefully.
 
-- Import a command line parser such as minimist to extract flags and positional arguments.
-- Import the version value from package.json.
-- Check for help flag before any other logic and print the usage message.
-- Check for version flag and print the version.
-- Fallback to the existing main implementation for echoing arguments.
+- Add unit tests in `sandbox/tests/main-cli.test.js` to cover:
+  - Help flag displays usage and exits.
+  - Version flag prints current version.
+  - Mission flag prints mocked mission content and handles file errors.
+  - Fallback behavior echoes arguments when no flags.
 
-Add new unit tests in tests/unit/main-cli.test.js to cover scenarios for help, version, and fallback behavior. Update README.md to include a CLI usage section illustrating flag examples.
+- Update `sandbox/docs/CLI.md` to reflect the new mission flag in the list of supported options.
+- Update `README.md` to include a CLI usage section demonstrating examples for help, version, and mission.
