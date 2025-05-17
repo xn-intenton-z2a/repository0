@@ -19,3 +19,5 @@ Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tr
 
 2025-05-17T15:00:00.318Z - Enhanced issue 2037.
 
+2025-05-17T15:23:10.014Z - Generated feature development issue with title Add `mission-features` CLI command to display mission and available features.
+
