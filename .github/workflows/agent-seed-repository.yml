@@ -191,9 +191,9 @@ jobs:
               echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
 
-      - name: Log seed in the intentïon file.
+      - name: Truncate the intentïon file.
         run: |
-          echo "Repository seeded at $(date)" > ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
+          > ${{ needs.agentic-lib.outputs.seedDiscussionFilepath }}
 
       - name: Commit and push
         id: commit
