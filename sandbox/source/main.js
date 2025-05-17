@@ -11,12 +11,14 @@ Commands:
   mission     Print the mission statement
   version     Print the current version
   echo        Echo the provided arguments
+  features    List available feature documents
 
 Examples:
   npm run start -- help
   npm run start -- mission
   npm run start -- version
-  npm run start -- echo Hello World`);
+  npm run start -- echo Hello World
+  npm run start -- features`);
 }
 
 async function showMission() {
@@ -46,6 +48,30 @@ async function doEcho(args) {
   console.log(args.join(' '));
 }
 
+async function showFeatures() {
+  try {
+    const cwd = process.cwd();
+    const featuresDir = path.join(cwd, 'sandbox/features');
+    const files = await fs.readdir(featuresDir);
+    for (const file of files) {
+      if (path.extname(file).toLowerCase() === '.md') {
+        const content = await fs.readFile(path.join(featuresDir, file), 'utf-8');
+        const lines = content.split('\n');
+        for (const line of lines) {
+          const match = line.match(/^#\s+(.*)/);
+          if (match) {
+            console.log(match[1]);
+            break;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error listing features:', err.message);
+    process.exit(1);
+  }
+}
+
 async function main() {
   const argv = minimist(process.argv.slice(2));
   const [command, ...rest] = argv._;
@@ -62,6 +88,9 @@ async function main() {
       break;
     case 'echo':
       await doEcho(rest);
+      break;
+    case 'features':
+      await showFeatures();
       break;
     default:
       console.log(`Unknown command: ${command}\n`);
