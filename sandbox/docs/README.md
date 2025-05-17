@@ -11,7 +11,7 @@ A template showcasing CLI argument echo behavior and agentic-lib workflows.
 ## Source Code
 
 - `src/lib/main.js`: Defines the `main(args)` function that logs provided arguments.
-- `sandbox/source/main.js`: CLI entry point that invokes `main(args)` with command-line arguments.
+- `sandbox/source/main.js`: CLI entry point that invokes `main(args)` with command-line arguments and supports the `mission` command.
 
 ## Getting Started
 
@@ -35,18 +35,28 @@ A template showcasing CLI argument echo behavior and agentic-lib workflows.
    ```sh
    Run with: ["foo","bar"]
    ```
+5. **View Mission:**
+   ```sh
+   npm run start mission
+   ```
+   **Expected output:**
+   The contents of `MISSION.md`, starting with:
+   ```sh
+   # Mission Statement
+   ```
 
 ## Scripts and Usage
 
-- `npm run start` &nbsp;&nbsp;&nbsp; Run the CLI (`sandbox/source/main.js`).
-- `npm test` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Run unit tests using Vitest.
-- `npm run build` &nbsp;&nbsp;&nbsp; Placeholder build script.
-- `npm run formatting` &nbsp;&nbsp;&nbsp;&nbsp; Check code formatting with Prettier.
-- `npm run formatting-fix` &nbsp;&nbsp;&nbsp; Fix code formatting.
-- `npm run linting` &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lint code with ESLint.
-- `npm run linting-fix` &nbsp;&nbsp;&nbsp; Fix linting issues.
-- `npm run update-to-minor` &nbsp;&nbsp;&nbsp; Update dependencies to latest minor versions.
-- `npm run update-to-greatest` &nbsp; Update dependencies to latest greatest versions (excluding alphas).
+- `npm run start`     Run the CLI (`sandbox/source/main.js`).
+- `npm run start mission`    Print the repository mission statement.
+- `npm test`           Run unit tests using Vitest.
+- `npm run build`      Placeholder build script.
+- `npm run formatting`    Check code formatting with Prettier.
+- `npm run formatting-fix`  Fix code formatting with Prettier.
+- `npm run linting`       Lint code with ESLint.
+- `npm run linting-fix`   Fix linting issues.
+- `npm run update-to-minor`   Update dependencies to latest minor versions.
+- `npm run update-to-greatest` Update dependencies to latest greatest versions (excluding alphas).
 
 ## Links
 
