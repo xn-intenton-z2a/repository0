@@ -12,6 +12,7 @@ describe("CLI Mission Flag", () => {
   });
 
   test("prints mission content and exits", () => {
+    // eslint-disable-next-line sonarjs/no-os-command-from-path
     const result = spawnSync("node", ["sandbox/source/main.js", "--mission"], {
       encoding: "utf8",
     });
