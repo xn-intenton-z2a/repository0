@@ -1,36 +1,40 @@
-# CSV Conversion
+# CSV Conversion and Streaming Import
 
 ## CLI Behavior
 
-Introduce two related commands for bidirectional CSV conversion:
+Extend the existing csv-import and csv-export commands and add optional streaming support for very large CSV files.
 
-- csv-import <inputFile> [--delimiter <char>] [--header <true|false>] [--output <outputFile>]
-  Converts a CSV file into a JSON array. By default the first row is used as header keys. Custom delimiter and headerless mode are supported. Writes JSON to stdout or to the specified output file.
+- **csv-import <inputFile> [--delimiter <char>] [--header <true|false>] [--output <outputFile>] [--stream] [--chunk-size <number>] [--progress]**
+  - By default, reads a CSV file into memory, parses with the specified delimiter, uses the first row as headers by default, and outputs a JSON array to stdout or writes to the file given by --output.
+  - When --stream is provided, processes the file in a streaming fashion using csv-parse streaming API. Emits parsed records in chunks of size given by --chunk-size (default 1000). Outputs each chunk as a separate JSON array on its own line in stdout or writes sequentially to the --output file. If --progress is set, prints a progress indicator to stderr (percentage of file bytes processed).
 
-- csv-export <inputFile> [--output <outputFile>]
-  Converts a JSON file containing an array of objects or arrays into a CSV string. When the array contains objects, use the keys of the first object as headers. Writes CSV to stdout or to the specified output file.
+- **csv-export <inputFile> [--output <outputFile>] [--delimiter <char>]**
+  - Reads a JSON file containing an array of objects or arrays and outputs a CSV string using the given delimiter (default comma). When items are objects, uses the keys of the first object as headers. Writes to stdout or to the specified output file.
 
 ## File Modifications
 
-- sandbox/source/main.js:
-  - Import the sync parse function from csv-parse and implement two cases in the CLI switch: csv-import and csv-export.
-  - For csv-import, retain existing logic to parse CSV into records and output JSON.
-  - For csv-export, read and parse the JSON input file, detect whether items are objects or arrays, construct a CSV string with an optional header row, join rows with the given delimiter comma, and handle the --output flag to write to disk or print.
+- **sandbox/source/main.js**
+  - Update the `doCsvImport` function to detect `argv.stream`, `argv["chunk-size"]`, and `argv.progress`. When streaming, use `fs.createReadStream` and `parse` from `csv-parse/sync` or `csv-parse` streaming API to read records chunk by chunk. For each chunk, serialize to JSON and write to stdout or append to output file. If `--progress` is set, compute processed bytes versus total file size and write progress updates to stderr.
+  - Ensure backward compatibility for non-streaming mode and preserve behavior of `--delimiter`, `--header`, and `--output` flags.
+  - In the csv-export case, add support for a `--delimiter` flag to override the comma.
 
-- sandbox/tests/csv-export.test.js:
-  - Add feature-level tests that create temporary JSON files with arrays of objects and arrays, invoke node sandbox/source/main.js csv-export, and assert that the CSV output or output file contains correctly formatted rows and headers where appropriate.
+- **sandbox/tests/csv-import-stream.test.js**
+  - Add tests to verify streaming import behavior on large synthetic CSVs: create a temporary CSV file with thousands of rows, invoke the CLI with `--stream --chunk-size 500` and assert that output consists of multiple JSON arrays, each containing at most 500 records.
+  - Test that `--progress` writes progress updates to stderr and does not interfere with JSON output on stdout.
+  - Verify that streaming import with `--output` writes all chunks sequentially to the target file and produces a valid JSON lines file.
 
-- README.md:
-  - Update the CLI Usage section to document the csv-export command with examples demonstrating conversion of object arrays and array-only data, and the --output flag.
+- **README.md**
+  - Update the CLI Usage section for `csv-import` to include examples demonstrating `--stream`, `--chunk-size`, and `--progress` flags.
+  - Add a note on use cases for streaming large CSV files without exhausting memory.
 
-- package.json:
-  - No new dependencies required; rely on existing csv-parse and core libraries.
+- **package.json**
+  - No new dependencies required; rely on the existing `csv-parse` package.
 
 ## Testing
 
 Add tests to verify:
 
-- Converting a JSON array of objects produces a header row followed by data rows.
-- Converting a JSON array of arrays produces rows without an additional header.
-- The --output flag writes the CSV string to the specified file path.
-- Existing csv-import tests continue to pass unchanged.
+- Default in-memory import works exactly as before.
+- Streaming mode splits output into appropriate chunk sizes.
+- Progress indication appears on stderr when requested.
+- Export command respects custom delimiter and writes correct CSV rows and headers.
