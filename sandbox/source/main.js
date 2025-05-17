@@ -3,18 +3,70 @@
 
 import minimist from "minimist";
 import fs from "fs";
-import { main as libMain } from "../../src/lib/main.js";
+import path from "path";
 import process from "process";
 
 // Parse CLI arguments
 const rawArgs = process.argv.slice(2);
 const argv = minimist(rawArgs, {
   string: ["xmin", "xmax", "output"],
+  boolean: ["help", "h", "version", "v", "mission"],
+  alias: { help: "h", version: "v" },
   default: { xmin: -10, xmax: 10, samples: 100 }
 });
 
-const [command, functionName] = argv._;
+// Global flags
+if (argv.help) {
+  const usage = [
+    "Usage: node sandbox/source/main.js [options] [arguments]",
+    "",
+    "Options:",
+    "  --help (alias -h)      Show help",
+    "  --version (alias -v)   Print version",
+    "  --mission              Print mission statement",
+    "",
+    "Commands:",
+    "  plot <function>        Plot function 'quadratic' or 'sine'",
+    "",
+    "Plot Options:",
+    "  --xmin <number>        Lower bound of x-axis (default -10)",
+    "  --xmax <number>        Upper bound of x-axis (default 10)",
+    "  --samples <number>     Number of samples (default 100)",
+    "  --output <filepath>    Output SVG file path",
+    "",
+    "Default behavior:",
+    "  Echo arbitrary arguments"
+  ].join("\n");
+  console.log(usage);
+  process.exit(0);
+}
 
+if (argv.version) {
+  // read version from package.json
+  try {
+    const pkgPath = path.resolve(process.cwd(), "package.json");
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    console.log(pkg.version);
+    process.exit(0);
+  } catch (err) {
+    console.error(`Error reading version: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+if (argv.mission) {
+  try {
+    const mission = fs.readFileSync(path.resolve(process.cwd(), "MISSION.md"), "utf8");
+    console.log(mission);
+    process.exit(0);
+  } catch (err) {
+    console.error(`Error reading mission: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// Handle plot subcommand
+const [command, functionName] = argv._;
 if (command === "plot") {
   if (!functionName) {
     console.error("Function name is required for plot subcommand.");
@@ -58,8 +110,7 @@ if (command === "plot") {
   // Map points to SVG coordinates
   const svgPoints = raw
     .map((p) => {
-      const xSvg =
-        ((p.x - xMin) / (xMax - xMin)) * (width - 2 * margin) + margin;
+      const xSvg = ((p.x - xMin) / (xMax - xMin)) * (width - 2 * margin) + margin;
       const ySvg =
         height -
         margin -
@@ -85,6 +136,8 @@ if (command === "plot") {
   } else {
     console.log(svg);
   }
-} else {
-  libMain(rawArgs);
+  return;
 }
+
+// Default echo behavior
+console.log(`Run with: ${JSON.stringify(argv._)}`);
