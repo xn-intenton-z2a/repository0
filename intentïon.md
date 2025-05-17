@@ -64,3 +64,4 @@ node sandbox/source/main.js plot       # Expect exit code 1 and specific stderr
 node sandbox/source/main.js plot foo   # Expect exit code 1 and stderr starting with "Unsupported function:"
 ```
 2025-05-17T00:53:58.218Z - Worked to resolved issue Add global CLI commands besides plot and update documentation and tests for help version mission and echo behaviors. Add global CLI commands besides plot and update documentation and tests for help version mission and echo behaviors
+2025-05-17T00:56:46.797Z - Issue 1998 was updated with 
