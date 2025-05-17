@@ -135,8 +135,8 @@ if (command === "plot") {
     }
   } else {
     console.log(svg);
+    process.exit(0);
   }
-  return;
 }
 
 // Default echo behavior
