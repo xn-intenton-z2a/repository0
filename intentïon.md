@@ -49,3 +49,5 @@ Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tr
 
 2025-05-17T16:43:03.832Z - Updated issue 2041.
 
+2025-05-17T16:47:24.711Z - Maintained feature CSV_IMPORT.
+
