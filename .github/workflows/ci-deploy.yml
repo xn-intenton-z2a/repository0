@@ -349,6 +349,14 @@ jobs:
         run: |
           jq '.' cdk.out/tree.json
 
+      - name: Upload tree.json as artifact
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-tree-json
+          path: cdk.out/tree.json
+          retention-days: 7
+
       - name: deploy
         id: deploy
         if: steps.mvn.outputs.pomXmlExists == 'true'
