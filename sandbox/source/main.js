@@ -3,6 +3,7 @@ import minimist from "minimist";
 import fs from "fs/promises";
 import path from "path";
 import { parse } from "csv-parse/sync";
+import ejs from "ejs";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -15,6 +16,7 @@ Commands:
   features           List available feature documents
   mission-features   Print the mission statement and list available features
   csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
 
 Examples:
   npm run start -- help
@@ -24,7 +26,10 @@ Examples:
   npm run start -- features
   npm run start -- mission-features
   npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false`);
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html`);
 }
 
 async function showMission() {
@@ -122,6 +127,56 @@ async function doCsvImport(argv) {
   }
 }
 
+async function doRender(argv) {
+  const templateFile = argv._[1];
+  const dataFile = argv._[2];
+  const output = argv.output;
+  if (!templateFile) {
+    console.error("Error: No template file specified");
+    process.exit(1);
+  }
+  let template;
+  try {
+    const templatePath = path.resolve(templateFile);
+    template = await fs.readFile(templatePath, "utf-8");
+  } catch (err) {
+    console.error("Error reading template file:", err.message);
+    process.exit(1);
+  }
+  let data = {};
+  if (dataFile) {
+    try {
+      const dataPath = path.resolve(dataFile);
+      const raw = await fs.readFile(dataPath, "utf-8");
+      data = JSON.parse(raw);
+    } catch (err) {
+      console.error("Error parsing data file:", err.message);
+      process.exit(1);
+    }
+  }
+  let rendered;
+  try {
+    rendered = ejs.render(template, data);
+  } catch (err) {
+    console.error("Error rendering template:", err.message);
+    process.exit(1);
+  }
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, rendered, "utf-8");
+      console.log(`Wrote rendered output to ${output}`);
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(rendered);
+    process.exit(0);
+  }
+}
+
 async function main() {
   const argv = minimist(process.argv.slice(2), {
     boolean: ["header"],
@@ -153,6 +208,9 @@ async function main() {
       break;
     case "csv-import":
       await doCsvImport(argv);
+      break;
+    case "render":
+      await doRender(argv);
       break;
     default:
       console.log(`Unknown command: ${command}\n`);

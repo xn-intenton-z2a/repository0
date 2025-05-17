@@ -12,6 +12,8 @@ The command-line interface provides the following commands:
   - `--output <file>`: Write JSON to the specified file instead of stdout.
   - `--delimiter <char>`: Use a custom field delimiter (default: `,`).
   - `--header <true|false>`: Treat the first row as header keys (default: `true`; set to `false` for array output).
+- **render**: Render an EJS template with optional JSON data file and output to stdout or file. Options:
+  - `--output <file>`: Write rendered output to the specified file instead of stdout.
 
 Examples:
 
@@ -35,4 +37,19 @@ npm run start -- csv-import data.csv
 ```bash
 npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
 # Writes JSON array of arrays to out.json
+```
+
+```bash
+npm run start -- render template.ejs
+# Renders and outputs template content to stdout
+```
+
+```bash
+npm run start -- render template.ejs data.json
+# Renders template with JSON data interpolation to stdout
+```
+
+```bash
+npm run start -- render template.ejs data.json --output out.html
+# Writes rendered HTML to out.html and logs confirmation message
 ```
