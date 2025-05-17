@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import minimist from "minimist";
-import dotenv from "dotenv";
 import path from "path";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { main as echoMain } from "../../src/lib/main.js";
-import pkg from "../../package.json" assert { type: "json" };
+
+// Load package.json without import assertions to avoid deprecation warnings
+const pkgPath = fileURLToPath(new URL("../../package.json", import.meta.url));
+const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
 
 // Parse CLI arguments
 const rawArgs = process.argv.slice(2);
