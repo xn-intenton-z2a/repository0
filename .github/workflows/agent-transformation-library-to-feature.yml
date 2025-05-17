@@ -171,7 +171,7 @@ jobs:
               fs.mkdirSync(path.dirname(seedDiscussionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n`;
+            const activityLogContent = `${isoDate} - ${activity}\n\n`;
             fs.appendFileSync(seedDiscussionFilepath, activityLogContent);
             core.info(`Activity logged to ${seedDiscussionFilepath}`);
 
