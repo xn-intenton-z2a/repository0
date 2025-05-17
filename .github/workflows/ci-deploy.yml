@@ -320,7 +320,7 @@ jobs:
           echo "HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}"
           echo "HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}"
           echo "CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}"
-          echo "SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}"
+          echo "SUB_DOMAIN_NAME: ${{ inputs.environment || 'web' }}"
           echo "LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}"
           echo "LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}"
 
@@ -339,7 +339,7 @@ jobs:
           HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
           HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
           CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
-          SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}
+          SUB_DOMAIN_NAME: ${{ inputs.environment || 'web' }}
           LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
           LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
 
@@ -364,6 +364,6 @@ jobs:
           HOSTED_ZONE_NAME: ${{ vars.AWS_HOSTED_ZONE_NAME }}
           HOSTED_ZONE_ID: ${{ vars.AWS_HOSTED_ZONE_ID }}
           CERTIFICATE_ID: ${{ vars.AWS_CERTIFICATE_ID }}
-          SUB_DOMAIN_NAME: ${{ inputs.environment || 'ci' }}
+          SUB_DOMAIN_NAME: ${{ inputs.environment || 'web' }}
           LOG_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
           LOG_GZIPPED_S3_OBJECT_EVENT_HANDLER_SOURCE: ${{ steps.jar-path.outputs.jarFilepath }}
