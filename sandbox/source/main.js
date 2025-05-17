@@ -4,6 +4,8 @@ import fs from "fs/promises";
 import path from "path";
 import { parse } from "csv-parse/sync";
 import ejs from "ejs";
+import dotenv from "dotenv";
+import jsYaml from "js-yaml";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -19,6 +21,7 @@ Commands:
   render             Render an EJS template with optional JSON data and output file
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
 
 Examples:
   npm run start -- help
@@ -33,7 +36,8 @@ Examples:
   npm run start -- render template.ejs data.json
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt`);
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml`);
 }
 
 async function showMission() {
@@ -234,9 +238,85 @@ async function doTextReplace(argv) {
   }
 }
 
+// Format conversion functionality
+async function doConvert(argv) {
+  const inputFile = argv._[1];
+  const toEnv = argv["to-env"];
+  const toYaml = argv["to-yaml"];
+  const output = argv.output;
+
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let data;
+  try {
+    if (toEnv || toYaml) {
+      data = JSON.parse(content);
+    } else {
+      const ext = path.extname(inputFile).toLowerCase();
+      if (ext === ".env") {
+        data = dotenv.parse(content);
+      } else if (ext === ".yml" || ext === ".yaml") {
+        data = jsYaml.load(content);
+      } else if (ext === ".json") {
+        data = JSON.parse(content);
+      } else {
+        console.error("Unsupported input format:", ext);
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error("Error parsing input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  try {
+    if (toEnv) {
+      if (typeof data !== "object" || data === null) {
+        throw new Error("Input JSON must be an object for env conversion");
+      }
+      result = Object.entries(data)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("\n");
+    } else if (toYaml) {
+      result = jsYaml.dump(data);
+    } else {
+      result = JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    console.error("Error serializing output:", err.message);
+    process.exit(1);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+  }
+}
+
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex"],
+    boolean: ["header", "regex", "to-env", "to-yaml"],
     string: ["output", "delimiter", "flags", "search", "replace"],
     default: { header: true, delimiter: "," },
   });
@@ -272,6 +352,9 @@ async function main() {
     case "replace":
     case "text-replace":
       await doTextReplace(argv);
+      break;
+    case "convert":
+      await doConvert(argv);
       break;
     default:
       console.log(`Unknown command: ${command}\n`);
