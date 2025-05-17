@@ -30,4 +30,10 @@ describe("CLI Flags", () => {
     expect(result.stdout.trim()).toBe('Run with: ["foo","bar"]');
     expect(result.status).toBe(0);
   });
+
+  test("mission flag", () => {
+    const result = spawnSync(node, [cliPath, "--mission"], { encoding: "utf-8" });
+    expect(result.stdout).toMatch(/^# Mission Statement/);
+    expect(result.status).toBe(0);
+  });
 });

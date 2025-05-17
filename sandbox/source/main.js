@@ -2,12 +2,14 @@
 import minimist from "minimist";
 import { main as echoMain } from "../../src/lib/main.js";
 import pkg from "../../package.json" assert { type: "json" };
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
 
 // Parse CLI arguments
 const rawArgs = process.argv.slice(2);
 const args = minimist(rawArgs, {
   alias: { h: "help", v: "version" },
-  boolean: ["help", "version"],
+  boolean: ["help", "version", "mission"],
   stopEarly: true,
 });
 
@@ -22,6 +24,7 @@ A demo CLI tool for repository0.
 Options:
   --help, -h     Show help.
   --version, -v  Show version.
+  --mission      Show mission statement.
 `);
 }
 
@@ -32,6 +35,17 @@ function showVersion() {
   console.log(pkg.version);
 }
 
+/**
+ * Display mission statement from MISSION.md
+ */
+function showMission() {
+  const missionPath = fileURLToPath(
+    new URL("../../MISSION.md", import.meta.url)
+  );
+  const content = readFileSync(missionPath, "utf-8");
+  console.log(content);
+}
+
 // Handle flags
 if (args.help) {
   showHelp();
@@ -40,6 +54,11 @@ if (args.help) {
 
 if (args.version) {
   showVersion();
+  process.exit(0);
+}
+
+if (args.mission) {
+  showMission();
   process.exit(0);
 }
 
