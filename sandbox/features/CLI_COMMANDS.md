@@ -1,38 +1,54 @@
 # CLI Commands
 
-Introduce standard command-line flags to enhance the main script as a true CLI utility.
+Introduce standard command-line flags to enhance the main CLI utility beyond simple argument echoing, fully implementing help and version outputs alongside the existing mission and echo behaviors.
 
 # Behavior
 
-- --help, -h: Display usage instructions listing all available commands and their descriptions.
-- --version, -v: Output the current version number as defined in package.json.
-- --mission, -m: Read and display the contents of MISSION.md to inform the user of the repository mission.
-- No flags or only positional arguments: Echo the provided arguments as before.
-- Unknown flags: Print an error message, display usage, and exit with a non-zero status.
+- --help, -h
+  - Display usage instructions listing all available commands and their descriptions.  
+  - Usage should include flag names, shorthand, and a brief description for each flag.
+- --version, -v
+  - Output the current version number as defined in package.json.  
+- --mission, -m
+  - Read and display the contents of MISSION.md to inform the user of the repository mission.  
+- No flags or only positional arguments
+  - Echo the provided arguments as before.
+- Unknown flags
+  - Print an error message indicating the unknown flag, display usage, and exit with a non-zero status.
 
 # Implementation
 
-1. Add dependency on minimist for argument parsing (or reuse existing minimist import).
-2. In src/lib/main.js:
-   - Parse argv using minimist to detect flags.
-   - For help/version/mission flags, perform the file read or version lookup and print appropriate output.
-   - For unknown flags, show error and help.
-   - Preserve existing argument echo functionality when no flags are set.
-3. Update sandbox/source/main.js to delegate to the enhanced main function.
-4. Modify package.json scripts or dependencies only if necessary to support file reading (no new packages beyond minimist). 
+1. Dependencies
+   - Already import minimist for argument parsing.  
+   - Use fs/promises for file reads.
+2. CLI Entrypoint (sandbox/source/main.js)
+   - Extend the minimist configuration to include alias for help and version.
+   - After parsing, check in order:  
+     - If help flag is set, print usage text and exit 0.  
+     - Else if version flag is set, read package.json version and print it, then exit 0.  
+     - Else if mission flag is set, read MISSION.md and print it, then exit 0.  
+     - Else if any unknown non-positional flags present, print error and usage, exit 1.  
+     - Else delegate to echoMain for positional arguments.
+3. Echo Function (src/lib/main.js)
+   - Remain unchanged, logging arguments with JSON.stringify.
+4. Usage Text
+   - Define a static usage string or generate dynamically reading flag descriptions.
+   - Ensure usage text matches spec in README and docs.
 
 # Testing
 
-- Write unit tests in tests/unit/main.test.js to cover each flag:
-  - Verify help output contains usage lines.
-  - Verify version output matches package.json version.
-  - Verify mission output matches MISSION.md content.
-  - Verify positional arguments are echoed correctly.
-  - Verify unknown flags produce an error and exit code.
-- Use Vitest to stub filesystem reads of MISSION.md and package version if needed.
+- sandbox/tests/cli-commands.test.js
+  - Verify --help and -h produce usage text containing flag list.  
+  - Verify --version and -v output the version from package.json.  
+  - Verify --mission and -m output MISSION.md content (existing tests cover mission).  
+  - Verify no flags fallback to echo behavior.  
+  - Verify unknown flags (e.g. --foo) produce error message, usage, and exit code non-zero.
+  
+- Update tests/unit/main.test.js if needed to stub version lookup and filesystem reads.
 
 # Documentation
 
-- Update README.md to include:
-  - A CLI usage section showing examples for --help, --version, --mission, and argument echo.
-  - Link to MISSION.md and section describing mission flag usage.
+- Update README.md:
+  - Add a section CLI Usage showing examples for --help, --version, --mission, unknown flag, and default echo.
+  - Link to USAGE.md or embed usage text.
+- Update sandbox/docs/USAGE.md to include help and version options and examples.
