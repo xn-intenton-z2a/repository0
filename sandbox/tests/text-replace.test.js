@@ -56,14 +56,7 @@ describe('text-replace command', () => {
       `${cli} replace ${filePath} --search a --replace X --regex --flags gi`,
       { encoding: 'utf-8' }
     );
-    expect(output.trim()).toBe('XXbB'.replace(/b/gi, 'X').replace(/B/gi, 'X')); // cover case-insensitive
-    // Actually expected: both a and A replaced -> 'XAbB' -> with gi b's also? perhaps not
-    // To assert properly, test for 'XXbB'? adjusting test:
-    const content = execSync(
-      `${cli} replace ${filePath} --search a --replace X --regex --flags gi`,
-      { encoding: 'utf-8' }
-    );
-    expect(content.trim()).toBe('XXbB');
+    expect(output.trim()).toBe('XXbB');
   });
 
   test('invalid regex reports error', () => {
