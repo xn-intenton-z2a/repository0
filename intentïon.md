@@ -119,3 +119,5 @@ Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tr
 
 2025-05-17T21:43:30.283Z - Enhanced issue 2051.
 
+2025-05-17T21:46:41.261Z - Worked to resolve issue Update CLI_USAGE.md to reflect current CLI functionality and usage. Update CLI_USAGE.md to reflect current CLI functionality and usage.
+
