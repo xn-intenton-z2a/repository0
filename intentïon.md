@@ -41,3 +41,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-18T18:32:43.933Z
+
+Generated feature development issue with title Implement CLI command parsing with help, version, and mission commands.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6399,"completion_tokens":1379,"total_tokens":7778,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
