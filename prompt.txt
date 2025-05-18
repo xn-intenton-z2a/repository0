@@ -1,0 +1,1796 @@
+
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
+
+Do as much as you can all at once.
+
+Follow the linting guidelines and the formatting guidelines from the included config.
+
+
+You must only add, remove, or change the files in the target writable locations. You can update multiple
+files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
+attribute, a second file would use updatedFile01Filepath updatedFile02Contents and so on to 16. Each file will
+be checked against the write permission in the Agent configuration file before being written. Feel free to
+add new files as long as they are in the target writable locations. You can also remove files, but only if
+they are in the target writable locations. To delete a file, set the updated file contents to "delete".
+
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+Other file will be supplied in the context but only the paths above should be written to.
+
+Only provide new or updated content for the target source files in sandbox/source.
+Only delete or update the target source files in sandbox/source.
+Only provide new or updated content for the target test files in sandbox/tests.
+Only delete or update the target test files in sandbox/tests.
+Only update dependency file package.json.
+Only update the target documentation files in sandbox/docs.
+
+Follow the attached Formatting file content and Linting file content.
+
+Consider the following when refining your response:
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
+
+Current feature names and specifications (for context, read only):
+CURRENT_FEATURES_START
+features/CLI_COMMANDS.md
+# features/CLI_COMMANDS.md
+# CLI Commands
+
+## Overview
+The CLI entrypoint supports core commands that showcase agentic workflow capabilities and provide basic utility functions directly from the terminal.
+
+## Commands
+
+### help
+Displays usage instructions and a summary of available commands.
+
+### mission
+Reads and prints the mission statement from MISSION.md to highlight the repository intent.
+
+### version
+Reads and prints the version field from package.json to show the current package version.
+
+### echo
+Prints any additional arguments passed after the echo command, demonstrating argument handling.
+
+## Implementation Details
+
+- Modify sandbox/source/main.js to:
+  - Parse process.argv using minimist.
+  - Implement a dispatch function that maps commands to handlers.
+  - Use fs/promises to read MISSION.md and package.json for mission and version commands.
+  - Default to help output when an unknown command is provided.
+
+- Update package.json scripts:
+  - Ensure "start" script accepts command arguments.
+
+## Testing
+
+- Create or update sandbox/tests/cli.test.js to cover:
+  - help: asserts help text contains list of commands.
+  - mission: mocks fs reading to return a dummy mission and asserts output.
+  - version: mocks package.json data and asserts correct version is printed.
+  - echo: asserts that provided arguments are concatenated and printed.
+  - unknown command: asserts that help text is printed.
+
+## Documentation
+
+- Update README.md:
+  - Add a "Commands" section under Usage that lists help, mission, version, and echo with examples.
+  - Include examples for running each command via npm run start.
+
+- No additional dependencies are required beyond minimist and built-in fs.
+CURRENT_FEATURES_END
+
+Source files (write new files or update files in sandbox/source as necessary):
+(Multiple files from both in writable locations and not.)
+SOURCE_FILE_START Filepath: sandbox/source/main.js
+#!/usr/bin/env node
+import minimist from "minimist";
+import fs from "fs/promises";
+import path from "path";
+import { parse } from "csv-parse/sync";
+import ejs from "ejs";
+import dotenv from "dotenv";
+import jsYaml from "js-yaml";
+
+async function showHelp() {
+  console.log(`Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml`);
+}
+
+async function showMission() {
+  try {
+    const cwd = process.cwd();
+    const content = await fs.readFile(path.join(cwd, "MISSION.md"), "utf-8");
+    console.log(content);
+  } catch (err) {
+    console.error("Error reading mission:", err.message);
+    process.exit(1);
+  }
+}
+
+async function showVersion() {
+  try {
+    const cwd = process.cwd();
+    const pkg = await fs.readFile(path.join(cwd, "package.json"), "utf-8");
+    const { version } = JSON.parse(pkg);
+    console.log(version);
+  } catch (err) {
+    console.error("Error reading version:", err.message);
+    process.exit(1);
+  }
+}
+
+async function doEcho(args) {
+  console.log(args.join(" "));
+}
+
+async function showFeatures() {
+  try {
+    const cwd = process.cwd();
+    const featuresDir = path.join(cwd, "sandbox/features");
+    const files = await fs.readdir(featuresDir);
+    for (const file of files) {
+      if (path.extname(file).toLowerCase() === ".md") {
+        const content = await fs.readFile(path.join(featuresDir, file), "utf-8");
+        const lines = content.split("\n");
+        for (const line of lines) {
+          const match = line.match(/^#\s+(.*)/);
+          if (match) {
+            console.log(match[1]);
+            break;
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error listing features:", err.message);
+    process.exit(1);
+  }
+}
+
+async function doCsvImport(argv) {
+  const inputFile = argv._[1];
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  const delimiter = argv.delimiter || ",";
+  const header = argv.header !== false;
+  const output = argv.output;
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let records;
+  try {
+    records = parse(content, { columns: header, delimiter, skip_empty_lines: true });
+  } catch (err) {
+    console.error("Error parsing CSV:", err.message);
+    process.exit(1);
+  }
+
+  const json = JSON.stringify(records, null, 2);
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, json, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(json);
+  }
+}
+
+async function doRender(argv) {
+  const templateFile = argv._[1];
+  const dataFile = argv._[2];
+  const output = argv.output;
+  if (!templateFile) {
+    console.error("Error: No template file specified");
+    process.exit(1);
+  }
+  let template;
+  try {
+    const templatePath = path.resolve(templateFile);
+    template = await fs.readFile(templatePath, "utf-8");
+  } catch (err) {
+    console.error("Error reading template file:", err.message);
+    process.exit(1);
+  }
+  let data = {};
+  if (dataFile) {
+    try {
+      const dataPath = path.resolve(dataFile);
+      const raw = await fs.readFile(dataPath, "utf-8");
+      data = JSON.parse(raw);
+    } catch (err) {
+      console.error("Error parsing data file:", err.message);
+      process.exit(1);
+    }
+  }
+  let rendered;
+  try {
+    rendered = ejs.render(template, data);
+  } catch (err) {
+    console.error("Error rendering template:", err.message);
+    process.exit(1);
+  }
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, rendered, "utf-8");
+      console.log(`Wrote rendered output to ${output}`);
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(rendered);
+    process.exit(0);
+  }
+}
+
+// New text replace functionality
+async function doTextReplace(argv) {
+  const inputFile = argv._[1];
+  const search = argv.search;
+  const replacement = argv.replace;
+  const useRegex = argv.regex;
+  const flagsStr = argv.flags;
+  const output = argv.output;
+
+  if (!search || replacement === undefined) {
+    console.error("Missing --search or --replace flag");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  if (useRegex) {
+    let regex;
+    try {
+      const flags = flagsStr || "g";
+      regex = new RegExp(search, flags);
+    } catch (err) {
+      console.error("Invalid regular expression:", err.message);
+      process.exit(1);
+    }
+    result = content.replace(regex, replacement);
+  } else {
+    result = content.replace(search, replacement);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+    process.exit(0);
+  }
+}
+
+// Format conversion functionality
+async function doConvert(argv) {
+  const inputFile = argv._[1];
+  const toEnv = argv["to-env"];
+  const toYaml = argv["to-yaml"];
+  const output = argv.output;
+
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let data;
+  try {
+    if (toEnv || toYaml) {
+      data = JSON.parse(content);
+    } else {
+      const ext = path.extname(inputFile).toLowerCase();
+      if (ext === ".env") {
+        data = dotenv.parse(content);
+      } else if (ext === ".yml" || ext === ".yaml") {
+        data = jsYaml.load(content);
+      } else if (ext === ".json") {
+        data = JSON.parse(content);
+      } else {
+        console.error("Unsupported input format:", ext);
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error("Error parsing input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  try {
+    if (toEnv) {
+      if (typeof data !== "object" || data === null) {
+        throw new Error("Input JSON must be an object for env conversion");
+      }
+      result = Object.entries(data)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("\n");
+    } else if (toYaml) {
+      result = jsYaml.dump(data);
+    } else {
+      result = JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    console.error("Error serializing output:", err.message);
+    process.exit(1);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+  }
+}
+
+async function main() {
+  const argv = minimist(process.argv.slice(2), {
+    boolean: ["header", "regex", "to-env", "to-yaml"],
+    string: ["output", "delimiter", "flags", "search", "replace"],
+    default: { header: true, delimiter: "," },
+  });
+  const [command, ...rest] = argv._;
+  switch (command) {
+    case "help":
+    case undefined:
+      await showHelp();
+      break;
+    case "mission":
+      await showMission();
+      break;
+    case "version":
+      await showVersion();
+      break;
+    case "echo":
+      await doEcho(rest);
+      break;
+    case "features":
+      await showFeatures();
+      break;
+    case "mission-features":
+      await showMission();
+      console.log("");
+      await showFeatures();
+      break;
+    case "csv-import":
+      await doCsvImport(argv);
+      break;
+    case "render":
+      await doRender(argv);
+      break;
+    case "replace":
+    case "text-replace":
+      await doTextReplace(argv);
+      break;
+    case "convert":
+      await doConvert(argv);
+      break;
+    default:
+      console.log(`Unknown command: ${command}\n`);
+      await showHelp();
+  }
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+
+SOURCE_FILE_END
+
+
+SOURCE_FILE_START Filepath: src/lib/main.js
+#!/usr/bin/env node
+// src/lib/main.js
+
+import { fileURLToPath } from "url";
+
+export function main(args) {
+  console.log(`Run with: ${JSON.stringify(args)}`);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2);
+  main(args);
+}
+
+SOURCE_FILE_END
+
+
+
+Test files (write new files or update files in sandbox/tests as necessary):
+(Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/convert.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import jsYaml from 'js-yaml';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('convert command', () => {
+  const tempDir = path.join(os.tmpdir(), 'convert-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('.env to JSON conversion', () => {
+    const envPath = path.join(tempDir, 'test.env');
+    fs.writeFileSync(envPath, 'KEY1=VALUE1\nKEY2=VALUE2');
+    const output = execSync(`${cli} convert ${envPath}`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual({ KEY1: 'VALUE1', KEY2: 'VALUE2' });
+  });
+
+  test('YAML to JSON conversion', () => {
+    const yamlPath = path.join(tempDir, 'test.yaml');
+    fs.writeFileSync(yamlPath, 'foo: bar\nnum: 10');
+    const output = execSync(`${cli} convert ${yamlPath}`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual({ foo: 'bar', num: 10 });
+  });
+
+  test('JSON to .env conversion with --to-env', () => {
+    const jsonPath = path.join(tempDir, 'test.json');
+    fs.writeFileSync(jsonPath, JSON.stringify({ A: '1', B: '2' }));
+    const output = execSync(`${cli} convert ${jsonPath} --to-env`, { encoding: 'utf-8' });
+    const lines = output.trim().split('\n');
+    expect(lines).toEqual(['A=1', 'B=2']);
+  });
+
+  test('JSON to YAML conversion with --to-yaml', () => {
+    const jsonPath = path.join(tempDir, 'test2.json');
+    fs.writeFileSync(jsonPath, JSON.stringify({ x: 'y', arr: [1, 2] }));
+    const output = execSync(`${cli} convert ${jsonPath} --to-yaml`, { encoding: 'utf-8' });
+    const parsed = jsYaml.load(output);
+    expect(parsed).toEqual({ x: 'y', arr: [1, 2] });
+  });
+
+  test('writes output to file with --output', () => {
+    const envPath = path.join(tempDir, 'test.env');
+    const outPath = path.join(tempDir, 'out.json');
+    fs.writeFileSync(envPath, 'Z=9');
+    execSync(`${cli} convert ${envPath} --output ${outPath}`, { encoding: 'utf-8' });
+    const fileContent = fs.readFileSync(outPath, 'utf-8');
+    const json = JSON.parse(fileContent);
+    expect(json).toEqual({ Z: '9' });
+  });
+
+  test('error on non-existent file', () => {
+    const non = path.join(tempDir, 'nope.env');
+    let err;
+    try {
+      execSync(`${cli} convert ${non}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Error reading input file');
+  });
+
+  test('error on invalid JSON input', () => {
+    const jsonPath = path.join(tempDir, 'bad.json');
+    fs.writeFileSync(jsonPath, '{invalid json');
+    let err;
+    try {
+      execSync(`${cli} convert ${jsonPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Error parsing input file');
+  });
+});
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/csv-import.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('csv-import command', () => {
+  const tempDir = path.join(os.tmpdir(), 'csv-import-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('Header Row Parsing', () => {
+    const csvPath = path.join(tempDir, 'data1.csv');
+    const csvContent = 'a,b\n1,2\n3,4';
+    fs.writeFileSync(csvPath, csvContent);
+    const output = execSync(`${cli} csv-import ${csvPath}`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual([{ a: '1', b: '2' }, { a: '3', b: '4' }]);
+  });
+
+  test('Headerless Mode', () => {
+    const csvPath = path.join(tempDir, 'data2.csv');
+    const csvContent = '1,2\n3,4';
+    fs.writeFileSync(csvPath, csvContent);
+    const output = execSync(`${cli} csv-import ${csvPath} --header false`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual([['1', '2'], ['3', '4']]);
+  });
+
+  test('Custom Delimiter', () => {
+    const csvPath = path.join(tempDir, 'data3.csv');
+    const csvContent = 'a;b;c\nx;y;z';
+    fs.writeFileSync(csvPath, csvContent);
+    const output = execSync(`${cli} csv-import ${csvPath} --delimiter ";"`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual([{ a: 'x', b: 'y', c: 'z' }]);
+  });
+
+  test('Output to File', () => {
+    const csvPath = path.join(tempDir, 'data4.csv');
+    const outPath = path.join(tempDir, 'out.json');
+    const csvContent = 'a,b\n5,6';
+    fs.writeFileSync(csvPath, csvContent);
+    execSync(`${cli} csv-import ${csvPath} --output ${outPath}`, { encoding: 'utf-8' });
+    const fileContent = fs.readFileSync(outPath, 'utf-8');
+    const json = JSON.parse(fileContent);
+    expect(json).toEqual([{ a: '5', b: '6' }]);
+  });
+
+  test('Error Handling for non-existent file', () => {
+    const nonExistPath = path.join(tempDir, 'nope.csv');
+    let error;
+    try {
+      execSync(`${cli} csv-import ${nonExistPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(1);
+    expect(error.stderr).toContain('Error reading input file');
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/features.test.js
+import { describe, test, expect } from 'vitest';
+import { execSync } from 'child_process';
+
+describe('CLI sandbox/source/main.js', () => {
+  test('features command lists headings of feature docs', () => {
+    const output = execSync('node sandbox/source/main.js features', { encoding: 'utf-8' });
+    expect(output).toContain('CLI Command Support');
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/mission-features.test.js
+import { describe, test, expect } from 'vitest';
+import { execSync } from 'child_process';
+
+describe('CLI sandbox/source/main.js', () => {
+  test('mission-features command outputs mission then features', () => {
+    const output = execSync('node sandbox/source/main.js mission-features', { encoding: 'utf-8' });
+    // Verify mission heading
+    expect(output).toContain('# Mission Statement');
+    // Verify at least one feature heading (e.g., CLI Command Support)
+    expect(output).toMatch(/CLI Command Support/);
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/render.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('render command', () => {
+  const tempDir = path.join(os.tmpdir(), 'render-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('renders static template without data file', () => {
+    const templatePath = path.join(tempDir, 'static.ejs');
+    fs.writeFileSync(templatePath, 'Hello World');
+    const output = execSync(`${cli} render ${templatePath}`, { encoding: 'utf-8' });
+    expect(output.trim()).toBe('Hello World');
+  });
+
+  test('renders template with JSON data file', () => {
+    const templatePath = path.join(tempDir, 'data.ejs');
+    const dataPath = path.join(tempDir, 'data.json');
+    fs.writeFileSync(templatePath, 'Value: <%= foo %>');
+    fs.writeFileSync(dataPath, JSON.stringify({ foo: 'bar' }));
+    const output = execSync(`${cli} render ${templatePath} ${dataPath}`, { encoding: 'utf-8' });
+    expect(output.trim()).toBe('Value: bar');
+  });
+
+  test('writes rendered output to file with --output flag', () => {
+    const templatePath = path.join(tempDir, 'out.ejs');
+    const dataPath = path.join(tempDir, 'out.json');
+    const outPath = path.join(tempDir, 'result.html');
+    fs.writeFileSync(templatePath, 'X: <%= x %>');
+    fs.writeFileSync(dataPath, JSON.stringify({ x: 123 }));
+    const stdout = execSync(
+      `${cli} render ${templatePath} ${dataPath} --output ${outPath}`,
+      { encoding: 'utf-8' }
+    );
+    const fileContent = fs.readFileSync(outPath, 'utf-8');
+    expect(fileContent).toBe('X: 123');
+    expect(stdout.trim()).toBe(`Wrote rendered output to ${outPath}`);
+  });
+
+  test('error when template file does not exist', () => {
+    const fakePath = path.join(tempDir, 'no.ejs');
+    let error;
+    try {
+      execSync(`${cli} render ${fakePath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(1);
+    expect(error.stderr).toContain('Error reading template file');
+  });
+
+  test('error when data file contains invalid JSON', () => {
+    const templatePath = path.join(tempDir, 'inv.ejs');
+    const dataPath = path.join(tempDir, 'inv.json');
+    fs.writeFileSync(templatePath, 'Test');
+    fs.writeFileSync(dataPath, '{invalid json');
+    let error;
+    try {
+      execSync(`${cli} render ${templatePath} ${dataPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      error = err;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(1);
+    expect(error.stderr).toContain('Error parsing data file');
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/text-replace.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('text-replace command', () => {
+  const tempDir = path.join(os.tmpdir(), 'text-replace-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('errors when missing --search or --replace', () => {
+    let err1;
+    try {
+      execSync(`${cli} replace`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      err1 = err;
+    }
+    expect(err1).toBeDefined();
+    expect(err1.status).toBe(1);
+    expect(err1.stderr).toContain('Missing --search or --replace flag');
+
+    let err2;
+    try {
+      execSync(`${cli} replace file.txt --search foo`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (err) {
+      err2 = err;
+    }
+    expect(err2).toBeDefined();
+    expect(err2.status).toBe(1);
+    expect(err2.stderr).toContain('Missing --search or --replace flag');
+  });
+
+  test('literal replacement replaces first occurrence only', () => {
+    const filePath = path.join(tempDir, 'lit.txt');
+    fs.writeFileSync(filePath, 'foo foo foo');
+    const output = execSync(
+      `${cli} replace ${filePath} --search foo --replace bar`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('bar foo foo');
+  });
+
+  test('regex replacement with flags replaces all matches', () => {
+    const filePath = path.join(tempDir, 'regex.txt');
+    fs.writeFileSync(filePath, 'aAbB');
+    const output = execSync(
+      `${cli} replace ${filePath} --search a --replace X --regex --flags gi`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('XXbB');
+  });
+
+  test('invalid regex reports error', () => {
+    const filePath = path.join(tempDir, 'inv.txt');
+    fs.writeFileSync(filePath, 'text');
+    let err;
+    try {
+      execSync(
+        `${cli} replace ${filePath} --search [ --replace x --regex`,
+        { encoding: 'utf-8', stdio: 'pipe' }
+      );
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Invalid regular expression');
+  });
+
+  test('writes output to file when --output is specified', () => {
+    const filePath = path.join(tempDir, 'out.txt');
+    const outPath = path.join(tempDir, 'result.txt');
+    fs.writeFileSync(filePath, 'hello hello');
+    const stdout = execSync(
+      `${cli} replace ${filePath} --search hello --replace hi --output ${outPath}`,
+      { encoding: 'utf-8' }
+    );
+    const fileContent = fs.readFileSync(outPath, 'utf-8');
+    expect(fileContent).toBe('hi hello');
+    expect(stdout).toBe('');
+  });
+});
+TEST_FILE_END
+
+
+TEST_FILE_START File: tests/unit/main.test.js
+import { describe, test, expect } from "vitest";
+import * as mainModule from "@src/lib/main.js";
+import { main } from "@src/lib/main.js";
+
+describe("Main Module Import", () => {
+  test("should be non-null", () => {
+    expect(mainModule).not.toBeNull();
+  });
+});
+
+describe("Main Output", () => {
+  test("should terminate without error", () => {
+    process.argv = ["node", "src/lib/main.js"];
+    main();
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: tests/unit/module-index.test.js
+import { describe, test, expect } from "vitest";
+import anything from "@src/index.js";
+
+describe("Index Module Exports", () => {
+  test("module index should be defined", () => {
+    expect(anything).toBeUndefined();
+  });
+});
+
+TEST_FILE_END
+
+
+
+Documentation files (write new files or update files in sandbox/docs as necessary):
+(Multiple files from both in writable locations and not.)
+DOCUMENTATION_FILE_START File: sandbox/docs/CLI_USAGE.md
+# CLI Sandbox Usage
+
+This repository provides a CLI demo showcasing a variety of utility commands implemented in `sandbox/source/main.js`. It demonstrates agentic workflow capabilities and provides basic file processing and conversion operations from the terminal.
+
+## Overview
+
+Available commands:
+
+- **help**               Display this help message
+- **mission**            Print the mission statement
+- **version**            Print the current package version
+- **echo**               Echo the provided arguments
+- **features**           List available feature documents
+- **mission-features**   Print the mission statement and list available features
+- **csv-import**         Import a CSV file and output a JSON array
+- **render**             Render an EJS template with optional JSON data and output to stdout or file
+- **replace**, **text-replace**
+                        Perform search-and-replace on a text file
+- **convert**            Convert between .env, JSON, and YAML formats
+
+## What’s Inside
+
+- **sandbox/source/main.js**  — CLI implementation using `minimist` and built-in libraries
+- **sandbox/tests/**          — Vitest tests covering each command and edge cases
+- **sandbox/docs/**           — Additional CLI usage documentation
+- **sandbox/features/**       — Feature documents with headings and descriptions
+- **package.json**            — Dependencies, scripts, and configuration
+
+## Usage
+
+Invoke the CLI via npm:
+
+```bash
+npm run start -- <command> [options]
+```
+
+### Examples
+
+#### Display help
+```bash
+npm run start -- help
+```
+
+#### Print mission statement
+```bash
+npm run start -- mission
+```
+
+#### Show current version
+```bash
+npm run start -- version
+```
+
+#### Echo arguments
+```bash
+npm run start -- echo Hello World
+```
+
+#### List feature documents
+```bash
+npm run start -- features
+```
+
+#### Mission and features
+```bash
+npm run start -- mission-features
+```
+
+#### CSV import (stdout)
+```bash
+npm run start -- csv-import data.csv
+```
+
+CSV import with options:
+```bash
+npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+```
+
+#### Render EJS template
+```bash
+npm run start -- render template.ejs [data.json]
+```
+
+Render with output file:
+```bash
+npm run start -- render template.ejs data.json --output out.html
+```
+
+#### Text replace
+```bash
+npm run start -- replace file.txt --search foo --replace bar
+```
+
+Regular-expression replace:
+```bash
+npm run start -- replace file.txt --search "^foo" --replace baz --regex --flags "gi" --output out.txt
+```
+
+#### Convert formats
+```bash
+npm run start -- convert file.env
+```
+
+JSON to .env:
+```bash
+npm run start -- convert file.json --to-env
+```
+
+JSON to YAML:
+```bash
+npm run start -- convert file.json --to-yaml
+```
+
+Convert with output file:
+```bash
+npm run start -- convert file.yaml --output out.json
+```
+
+## Testing
+
+Run the full test suite:
+
+```bash
+npm test
+```
+
+## Resources & Links
+
+- [Mission Statement](../../MISSION.md)
+- [Contributing Guide](../../CONTRIBUTING.md)
+- [License](../../LICENSE.md)
+- [agentic-lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+
+DOCUMENTATION_FILE_END
+
+
+
+README file (for context, read only): README.md
+README_FILE_START
+# `repository0`
+
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
+
+## Overview
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+
+## What’s Inside
+
+- **GitHub Workflows:**  
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+
+- **Source Code:**  
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+
+- **Dependencies:**  
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
+
+- **Tests:**  
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+
+- **Docs**  
+  This `README.md` can be modified by the workflow.
+
+## Getting Started
+
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+
+## intentïon `agentic-lib`
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
+
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
+
+## Should you use the `agentic-lib` Coding System?
+
+* Do you have access to an OpenAI account with necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how such a system can be built?
+* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+
+### Initiating the workflow
+
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
+If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
+The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
+
+#### Development Workflows:
+```
+On timer / Manual: Create Issue (new issue opened) 
+-> Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
+
+On timer: Review Issue (issue reviewed and closed)
+```
+(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+
+#### Running the workflows:
+
+The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
+
+### Running the Demo
+
+Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
+
+You can run the demo and tests locally:
+
+1. **Clone the Repository:**  
+   Run in your terminal:  
+   `git clone <repository_url>`
+
+2. **Install Dependencies:**  
+   Change into the project directory and run:  
+   `npm install`
+
+3. **Run Tests:**  
+   To verify that everything is working, run:  
+   `npm test`
+
+4. **Run the Demo:**  
+   Execute the main script with:  
+   `npm run start`  
+   This will display the plots for the quadratic and sine functions.
+
+### Tuning the agentic coding system
+
+The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `eslint.config.js` - Code style rules and additional plugins can be added here.
+
+The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+- `README.md`
+- `package.json`
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
+
+## Diary of an agentic coding system - Day 1
+(An narrative exploration from ChatGPT of the repository's evolution based on the commit log, when the repository was asked to create an Equation Plotter Library.)
+
+In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library that transformed simple mathematical functions into vivid SVG art. The very first strokes on the canvas showcased the elegance of quadratic curves and the rhythmic flow of sine waves—a promise of what was to come.
+
+Almost immediately, the code’s story took a literary turn. A series of impassioned revisions reimagined the header comment block—evolving it into a refreshed, README-style narrative. Each update sought to capture the essence of the project, meticulously detailing features like interactive zooming, custom styling, and the export of elegant SVG files. This poetic reinvention underscored a deep commitment to clarity and vision.
+
+Then came a daring expansion. A new chapter was written when polar plot functionality emerged—a feature that redefined boundaries by converting polar coordinates into stunning Cartesian displays. The SVG output itself grew, expanding in height to make room for this new visual symphony. The addition of the polar plot was a moment of triumph, heralding a leap into unexplored dimensions.
+
+Yet, the journey was not linear. As the repository matured, the narrative shifted once more. The demo run, once content with console outputs, was transformed to generate a tangible SVG file—a clear, striking emblem of the project’s potential. Alongside these innovations, there was a continuous cycle of refining code formatting and documentation, ensuring that every line of code echoed the clarity of its ambition.
+
+In a final act to secure its legacy, `repository0` embraced stability by adding a package-lock file. This strategic move locked in dependencies and promised reproducible builds, cementing the project’s foundation for the future.
+
+This has been story of [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib).
+
+**Summary:**  
+`repository0`’s evolution is marked by distinct arcs of initiative. It began with the core plotting of quadratic and sine functions, then shifted into a series of documentation and formatting enhancements. The dramatic introduction of polar plotting expanded its visual vocabulary, while changes in demo output transformed user interaction. Throughout, iterative revisions—sometimes even undoing earlier stylistic choices—revealed a dynamic, evolving vision striving for clarity and excellence.
+
+## Final Notes
+`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
+
+README_FILE_END
+
+MISSION file (for context, read only): MISSION.md
+MISSION_FILE_START
+# Mission Statement
+
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+We add features to showcase what we can confidently do with completion calls to an LLM with a 200,000 token limit used
+to create and update directory of JS source and test files. The files in `sandbox/` are maintained by the repository's 
+workflows and run using the same test suite as the main source file.
+
+We showcase what you can by generating a new feature showing it at work as the output of `npm run start` and with 
+feature level tests showing primary flows as well as classic unit tests. 
+
+The mission of the contributors, human or automated, is to show case the workflow capabilities of the repository.
+
+MISSION_FILE_END
+
+Contributing file (for context, read only): CONTRIBUTING.md
+CONTRIBUTING_FILE_START
+# repository0
+
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+We add features to showcase what we can confidently do with completion calls to an LLM with a 200,000 token limit used
+to create and update directory of JS source and test files. The files in `sandbox/` are maintained by the repository's
+workflows and run using the same test suite as the main source file.
+
+We showcase what you can by generating a new feature showing it at work as the output of `npm run start` and with
+feature level tests showing primary flows as well as classic unit tests.
+
+The mission of the contributors, human or automated, is to show case the workflow capabilities of the repository.
+
+## How to Contribute
+
+The guidelines below apply to human or automated contributions:
+
+1. **Report Issues or Ideas:**
+    - Open an issue on GitHub to share bug reports, feature requests, or any improvements you envision.
+    - Clear descriptions and reproducible steps are highly appreciated.
+
+2. **Submit Pull Requests:**
+    - Fork the repository and create a feature branch.
+    - Implement your changes, ensuring you follow the existing coding style and standards.
+    - Add tests to cover any new functionality.
+    - Update documentation if your changes affect usage or workflow behavior.
+    - Submit your pull request for review.
+
+## Guidelines
+
+- **Code Quality:**
+    - Ensure there are tests that cover your changes and any likely new cases they introduce.
+    - When making a change remain consistent with the existing code style and structure.
+    - When adding new functionality, consider if some unused or superseded code should be removed.
+
+- **Compatibility:**
+    - Ensure your code runs on Node 20 and adheres to ECMAScript Module (ESM) standards.
+    - Tests use vitest and competing test frameworks should not be added.
+    - Mocks in tests must not interfere with other tests.
+
+- **Issue Creation:**
+    - Don't create layers of configuration managers or similar abstractions.
+    - Work on adding valuable functionality not plumbing.
+
+- **Testing:**
+    - The command `npm test` should invoke the tests added for the new functionality (and pass).
+    - If you add new functionality, ensure it is covered by tests.
+
+- **Documentation:**
+    - When making a change to the main source file, review the readme to see if it needs to be updated and if so, update it.
+    - Where the source exports a function, consider that part of the API of the library and document it in the readme.
+    - Where the source stands-up an HTTP endpoint, consider that part of the API of the library and document it in the readme.
+    - Include usage examples including inline code usage and CLI and HTTP invocation, API references.
+
+- **README:**
+    - The README should begin with something inspired by the mission statement and describe the current state of the repository (rather than the journey)
+    - The README should include a link to MISSION.md, CONTRIBUTING.md, LICENSE.md.
+    - The README should include a link to the intentïon `agentic-lib` GitHub Repository which is https://github.com/xn-intenton-z2a/agentic-lib.
+
+## Sandbox mode
+
+Please note that the automation features of this repository are in sandbox mode. This means that
+automated changes should only be applied to the sandbox paths which are shown below:
+```yaml
+paths:
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 16
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 64
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 8
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+  readmeFilepath:
+    path: 'sandbox/README.md'
+    permissions: [ 'write' ]
+
+  # Not sandboxed and modifiable by the LLM-generated responses
+  dependenciesFilepath:
+    path: 'package.json'
+    permissions: [ 'write' ]
+```
+
+CONTRIBUTING_FILE_END
+
+Dependencies file (for context, read only): package.json
+DEPENDENCIES_FILE_START
+{
+  "name": "@xn-intenton-z2a/repository0",
+  "version": "2.1.0-0",
+  "description": "CLI demo of agentic workflows: help, mission, version, and argument echo.",
+  "type": "module",
+  "main": "sandbox/source/main.js",
+  "imports": {
+    "@src/*": "./src/*"
+  },
+  "scripts": {
+    "build": "echo 'Nothing to build'",
+    "formatting": "prettier --check .",
+    "formatting-fix": "prettier --write .",
+    "linting": "eslint",
+    "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif",
+    "linting-fix": "eslint --fix",
+    "update-to-minor": "npx ncu --upgrade --enginesNode --target minor --verbose --install always",
+    "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
+    "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
+    "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+    "start": "node sandbox/source/main.js"
+  },
+  "config": {
+    "issueToCodeConversionRate": 0.5
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "js-yaml": "^4.1.0",
+    "minimatch": "^10.0.1",
+    "minimist": "^1.2.8",
+    "openai": "^4.96.2",
+    "zod": "^3.24.4",
+    "csv-parse": "^5.4.8"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@vitest/coverage-v8": "^3.1.3",
+    "eslint-config-google": "^0.14.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.6",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-security": "^3.0.1",
+    "eslint-plugin-sonarjs": "^3.0.2",
+    "eslint": "^9.24.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-github": "^0.5.0",
+    "npm-check-updates": "^18.0.1",
+    "prettier": "^3.5.3",
+    "vitest": "^3.1.3"
+  },
+  "overrides": {
+    "rimraf": "^4.0.0",
+    "glob": "^9.3.0",
+    "@humanwhocodes/config-array": "^0.13.0",
+    "@humanwhocodes/object-schema": "^2.0.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "package.json"
+  ],
+  "eslintIgnore": [
+    "archive/**",
+    "exports/**",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "node_modules/**"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
+
+DEPENDENCIES_FILE_END
+
+Formatting file (for context, read only): .prettierrc
+FORMATTING_FILE_START
+{
+  "singleQuote": false,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "overrides": [
+    {
+      "files": ".prettierrc",
+      "options": { "parser": "json" }
+    }
+  ]
+}
+
+FORMATTING_FILE_END
+
+Linting file (for context, read only): eslint.config.js
+LINTING_FILE_START
+import js from "@eslint/js";
+import google from "eslint-config-google";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import globals from "globals";
+import promise from "eslint-plugin-promise";
+import security from "eslint-plugin-security";
+import sonarjs from "eslint-plugin-sonarjs";
+import react from "eslint-plugin-react";
+import importPlugin from "eslint-plugin-import";
+
+const modifiedGoogleConfig = { ...google, rules: { ...google.rules } };
+delete modifiedGoogleConfig.rules["valid-jsdoc"];
+delete modifiedGoogleConfig.rules["require-jsdoc"];
+
+/** @type {import('eslint').Linter.FlatConfig[]} */
+export default [
+  js.configs.recommended,
+  modifiedGoogleConfig,
+  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      promise,
+      security,
+      sonarjs,
+      react,
+      import: importPlugin,
+    },
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: "module",
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      "prettier/prettier": "error",
+      ...promise.configs.recommended.rules,
+      ...sonarjs.configs.recommended.rules,
+      "sonarjs/os-command": "off",
+
+      // Formatting and organisation
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "no-extra-semi": 2,
+      "object-curly-newline": ["error", { consistent: true }],
+      "array-element-newline": ["error", "consistent", { multiline: true, minItems: 10 }],
+      "import/newline-after-import": ["error", { count: 1 }],
+      "camelcase": "off",
+
+      // ESM import rules
+      "import/no-amd": "error",
+      "import/no-commonjs": "error",
+      "import/no-import-module-exports": "error",
+      "import/no-cycle": "error",
+      "import/no-dynamic-require": "error",
+      "import/no-self-import": "off",
+      "import/no-unresolved": "off",
+      "import/no-useless-path-segments": "error",
+      "import/no-duplicates": "error",
+      "sonarjs/fixme-tag": "warn",
+    },
+  },
+  {
+    files: ["**/*.js"],
+    ignores: ["**/tests/**/*.js", "**/*.test.js", "eslint.config.js"],
+    rules: {
+      ...security.configs.recommended.rules,
+      "security/detect-non-literal-fs-filename": "off",
+      "security/detect-non-literal-regexp": "off",
+      "security/detect-object-injection": "off",
+    },
+  },
+  {
+    settings: {
+      react: {
+        version: "18",
+      },
+    },
+  },
+  {
+    ignores: ["build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
+  },
+];
+
+LINTING_FILE_END
+
+Agent configuration file (for context, read only):
+AGENT_CONFIG_FILE_START
+# Which agentic-lib workflow schedule should be used?
+schedule: schedule-4
+
+# Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
+paths:
+  # Filepaths for elaborator workflows
+  missionFilepath:
+    path: 'MISSION.md'
+  librarySourcesFilepath:
+    path: 'sandbox/SOURCES.md'
+    permissions: [ 'write' ]
+    limit: 16
+  libraryDocumentsPath:
+    path: 'sandbox/library/'
+    permissions: [ 'write' ]
+    limit: 64
+  featuresPath:
+    path: 'sandbox/features/'
+    permissions: [ 'write' ]
+    limit: 8
+
+  # Filepaths for engineer workflows
+  contributingFilepath:
+    path: 'CONTRIBUTING.md'
+  targetTestsPath:
+    path: 'sandbox/tests/'
+    permissions: [ 'write' ]
+  otherTestsPaths:
+    paths: [ 'tests/unit/' ]
+  targetSourcePath:
+    path: 'sandbox/source/'
+    permissions: [ 'write' ]
+  otherSourcePaths:
+    paths: [ 'src/lib/' ]
+  dependenciesFilepath:
+    path: 'package.json'
+    permissions: [ 'write' ]
+  documentationPath:
+    path: 'sandbox/docs/'
+    permissions: [ 'write' ]
+
+  # Filepaths for maintainer workflows
+  formattingFilepath:
+    path: '.prettierrc'
+  lintingFilepath:
+    path: 'eslint.config.js'
+  readmeFilepath:
+    path: 'README.md'
+
+# Execution commands
+buildScript: 'npm run build'
+testScript: 'npm test'
+mainScript: 'npm run start'
+
+# How many issues should be available to be picked up?
+featureDevelopmentIssuesWipLimit: 3
+maintenanceIssuesWipLimit: 3
+
+# How many attempts should be made to work on an issue?
+attemptsPerBranch: 2
+attemptsPerIssue: 1
+
+# Web publishing
+docRoot: 'public'
+
+# Sandbox configuration
+sandbox:
+  sandboxReset: 'true'
+  sandboxPath: 'sandbox'
+
+# Repository seeding
+#seeding:
+#  repositoryReseed: 'true'
+#  sourcePath: 'seeds/zero-main.js'
+#  testsPath: 'seeds/zero-tests.js'
+#  dependenciesFilepath: 'seeds/zero-package.json'
+#  readmeFilepath: 'seeds/zero-README.md'
+
+# The intention is associated with the bot's discussion thread.
+intentionBot:
+  intentionFilepath: 'intentïon.md'
+
+AGENT_CONFIG_FILE_END
+
+Issue details:
+ISSUE_START
+title: [Documenter] Refresh root README to focus on CLI usage and streamline content
+description:
+Update README.md to provide a streamlined, user-focused entrypoint for the sandbox CLI that prioritizes clear instructions and examples.
+
+Testable Acceptance Criteria:
+
+1. Introduction & Prerequisites:
+   - The top of README.md includes a concise description of the sandbox CLI and its primary purpose.
+   - A "Prerequisites" section clearly states the requirement: Node.js ≥20.
+
+2. Content Structure:
+   - All narrative history, diary entries, and agentic workflow background are removed.
+   - Sections are ordered: Introduction, Prerequisites, Usage and Examples, Links.
+
+3. Usage and Examples:
+   - Under "Usage and Examples", each core command is listed with at least one working snippet of the form:
+     ```bash
+     npm run start -- <command> [options]
+     ```
+     Commands to cover: help, mission, version, echo, features, mission-features, csv-import, render, replace (alias text-replace), and convert.
+   - Example flags match the implementation in `sandbox/source/main.js`.
+
+4. Links:
+   - At the end, include hyperlinked references to:
+     - MISSION.md
+     - CONTRIBUTING.md
+     - LICENSE.md
+     - The agentic-lib GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib)
+
+5. Verification Steps:
+   - Preview the updated README on GitHub; the CLI usage section should be immediately visible without scrolling through narrative.
+   - Copy and run each code snippet locally (`npm run start -- <command>`); commands execute without error and produce the documented output.
+comments:
+Author:github-actions[bot], Created:2025-05-18T01:01:59Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b540597c98e30a9c4889694942cc843356b8dc9b
+Author:github-actions[bot], Created:2025-05-18T01:02:49Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T01:03:10Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5e149b63abd2d1c7af8f19c52549dd0b755443d8
+Author:github-actions[bot], Created:2025-05-18T01:04:15Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5e149b63abd2d1c7af8f19c52549dd0b755443d8
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── csv-parse@5.6.0
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@10.1.5
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.26.0
+├── js-yaml@4.1.0
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── minimist@1.2.8
+├── npm-check-updates@18.0.1
+├── openai@4.98.0
+├── prettier@3.5.3
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 765[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 964[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 330[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1085[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 145[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 629[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 146[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
+[2m   Start at [22m 01:05:29
+[2m   Duration [22m 2.09s[2m (transform 101ms, setup 0ms, collect 238ms, tests 3.74s, environment 2ms, prepare 780ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
+Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
+The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
+
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+
+Answer strictly with a JSON object following this schema:
+{
+  "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
+  "updatedFile01Filepath": "sandbox/source/orderParser.js",
+  "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Contents": "delete",
+  "updatedFile05Filepath": "unused",
+  "updatedFile05Contents": "unused",
+  "updatedFile06Filepath": "unused",
+  "updatedFile06Contents": "unused",
+  "updatedFile07Filepath": "unused",
+  "updatedFile07Contents": "unused",
+  "updatedFile08Filepath": "unused",
+  "updatedFile08Contents": "unused",
+  "updatedFile09Filepath": "unused",
+  "updatedFile09Contents": "unused",
+  "updatedFile10Filepath": "unused",
+  "updatedFile10Contents": "unused",
+  "updatedFile11Filepath": "unused",
+  "updatedFile11Contents": "unused",
+  "updatedFile12Filepath": "unused",
+  "updatedFile12Contents": "unused",
+  "updatedFile13Filepath": "unused",
+  "updatedFile13Contents": "unused",
+  "updatedFile14Filepath": "unused",
+  "updatedFile14Contents": "unused",
+  "updatedFile15Filepath": "unused",
+  "updatedFile15Contents": "unused",
+  "updatedFile16Filepath": "unused",
+  "updatedFile16Contents": "unused"
+}
+
+You can include up to 16 files using the updatedFileXXName and updatedFileXXContents pairs (where XX is a number from 01 to 16)
+Where a file name and contents slot is not used, populate tha name with "unused" and the contents with "unused".
+Where a file is to be deleted, set the name to the file path and the contents to "delete".
+Never truncate the files, when returning a file, always return the entire file content.
+
+Ensure valid JSON.
