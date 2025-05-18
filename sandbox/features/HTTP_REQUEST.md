@@ -1,8 +1,7 @@
 # HTTP Request
 
 ## CLI Behavior
-
-Introduce a unified http command to perform HTTP requests with various methods.
+Introduce a new top-level http command to perform HTTP requests with various methods.
 
 Subcommands and options:
 
@@ -13,33 +12,35 @@ Subcommands and options:
 
 Behavior:
 
-- Read URL and method from positional arguments.
-- --data reads a request body from a local file.
-- --json parses response as JSON and pretty-prints it.
-- --headers accepts multiple key:value pairs to set request headers.
+- Validate that [method] and [url] are provided; exit with code 1 if missing.
+- --data reads a request body from a local file for post and put operations.
+- --json parses the response as JSON and pretty-prints it.
+- --headers accepts multiple key:value pairs to set custom request headers.
 - --output writes the response to a file instead of stdout.
-- Exit with code 1 on network errors or non-2xx status codes, printing descriptive messages.
+- Exit with code 1 on network errors or non-2xx status codes, printing descriptive error messages.
 
 ## Implementation
 
-- sandbox/source/main.js: import global fetch, add a new case http in the CLI switch that calls await doHttpCommand(argv).
-- Implement async function doHttpCommand(argv):
-  - Validate method and URL arguments; exit with error if missing.
-  - Collect flags: data, json, headers, output.
-  - Build a fetch options object with method, headers, and optional body from data file.
-  - Await fetch call; on non-ok status, read text and print error with status code.
-  - Read response as text or JSON based on --json, format accordingly.
-  - Write result to stdout or file per --output.
+- sandbox/source/main.js: import global fetch and add a new case "http" in the CLI switch to call await doHttpCommand(argv).
+- Define async function doHttpCommand(argv):
+  - Extract method from argv._[1] and URL from argv._[2]. Validate presence.
+  - Collect flags: data, json, headers, output from argv.
+  - If --data is present for post/put, read the specified file to use as request body.
+  - Build a fetch options object with method, headers (parsed into an object), and body if provided.
+  - Call fetch(url, options). On response.ok === false, read response text and print an error including status code.
+  - On success, parse response via response.json() or response.text() based on --json, formatting JSON with two-space indentation.
+  - Write the final output to stdout or to the file specified by --output.
+  - Ensure all errors are caught and logged, and exit codes reflect success (0) or failure (1).
 
 ## Testing
 
-- sandbox/tests/http-request.test.js:
-  - Start temporary HTTP server endpoints for GET, POST, PUT, DELETE, returning text or JSON.
-  - Test each method with and without --data, with headers, and with --json flag.
-  - Verify --output writes correct contents.
-  - Simulate error responses (e.g., 500) and invalid URLs to confirm exit code and error messages.
+- Create sandbox/tests/http-request.test.js to cover:
+  - Starting a local HTTP server with endpoints for GET, POST, PUT, DELETE returning JSON or text.
+  - Invoking each http subcommand with and without --data, with custom headers, and the --json flag.
+  - Verifying that --output writes the correct content to a file.
+  - Simulating non-2xx responses and invalid URLs to confirm exit code 1 and appropriate error messages.
 
 ## Documentation
 
-- README.md: update Commands Reference with http command and examples.
-- sandbox/docs/CLI_USAGE.md: add a new section describing http subcommands, flags, usage, and examples.
+- README.md: update the Commands Reference to include the http command with its usage and examples.
+- sandbox/docs/CLI_USAGE.md: add a new section describing the http subcommands, flags, behavior, and examples.
