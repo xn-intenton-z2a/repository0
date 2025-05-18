@@ -1,123 +1,87 @@
-# CLI Sandbox CLI Usage
+# CLI Sandbox
 
-This CLI provides a set of utility commands to demonstrate agentic workflow capabilities and basic file processing operations from the terminal.
+Project Overview:
 
-## Prerequisites
+> CLI sandbox showcasing agentic-lib workflows and utility commands.
 
-- Node.js ≥ 20
-- Dependencies installed via `npm install`
+## What’s Inside
 
-## Usage and Examples
+- **Entry point:** `sandbox/source/main.js` implements all supported CLI commands.
+- **Tests:** `sandbox/tests/` contains feature-level and unit tests for each command.
+- **Features:** `sandbox/features/` holds Markdown documentation outlining individual features.
 
-Invoke the CLI via npm:
+## Getting Started
 
-```bash
-npm run start -- <command> [options]
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the test suite:
+   ```bash
+   npm test
+   ```
+3. Invoke the CLI:
+   ```bash
+   npm run start -- <command> [options]
+   ```
 
-### help
-Display a summary of available commands.
+## Commands Reference
 
-```bash
-npm run start -- help
-```
+| Command            | Description                                                                      |
+|--------------------|----------------------------------------------------------------------------------|
+| help               | Display help message listing all commands and usage examples                     |
+| mission            | Print the mission statement from `MISSION.md`                                    |
+| version            | Show the current version from `package.json`                                      |
+| echo               | Echo the provided arguments                                                       |
+| features           | List headings of Markdown files in `sandbox/features/`                            |
+| mission-features   | Print the mission statement, then list available features                         |
+| csv-import         | Import a CSV file and output a JSON array                                        |
+| render             | Render an EJS template with optional JSON data to stdout or file                 |
+| replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
+| convert            | Convert between .env, JSON, and YAML formats                                      |
 
-### mission
-Print the mission statement from `MISSION.md`.
+## Examples
 
-```bash
-npm run start -- mission
-```
+- Display help:
+  ```bash
+  npm run start -- help
+  ```
+- Show mission:
+  ```bash
+  npm run start -- mission
+  ```
+- Get version:
+  ```bash
+  npm run start -- version
+  ```
+- Echo arguments:
+  ```bash
+  npm run start -- echo Hello World
+  ```
+- List features:
+  ```bash
+  npm run start -- features
+  ```
+- CSV import with header row and custom delimiter:
+  ```bash
+  npm run start -- csv-import data.csv --delimiter ";" --header false --output out.json
+  ```
+- Render template with data file:
+  ```bash
+  npm run start -- render template.ejs data.json --output report.html
+  ```
+- Replace text using regex:
+  ```bash
+  npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
+  ```
+- Convert JSON to YAML:
+  ```bash
+  npm run start -- convert config.json --to-yaml
+  ```
 
-### version
-Show the current package version from `package.json`.
-
-```bash
-npm run start -- version
-```
-
-### echo
-Echo the provided arguments.
-
-```bash
-npm run start -- echo Hello World
-```
-
-### features
-List headings of Markdown files in `sandbox/features/`.
-
-```bash
-npm run start -- features
-```
-
-### mission-features
-Print the mission statement and then list available features.
-
-```bash
-npm run start -- mission-features
-```
-
-### csv-import
-Import a CSV file and output a JSON array.
-
-```bash
-npm run start -- csv-import data.csv
-```
-
-With options:
-```bash
-npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-```
-
-### render
-Render an EJS template with optional JSON data and output to stdout or file.
-
-```bash
-npm run start -- render template.ejs [data.json]
-```
-
-Write to a file:
-```bash
-npm run start -- render template.ejs data.json --output out.html
-```
-
-### replace (alias: text-replace)
-Perform search-and-replace on a text file (literal or regex).
-
-```bash
-npm run start -- replace file.txt --search foo --replace bar
-```
-
-Regex replace with flags:
-```bash
-npm run start -- replace file.txt --search "^foo" --replace baz --regex --flags "gi" --output out.txt
-```
-
-### convert
-Convert between `.env`, JSON, and YAML formats.
-
-```bash
-npm run start -- convert file.env
-```
-
-JSON to .env:
-```bash
-npm run start -- convert file.json --to-env
-```
-
-JSON to YAML:
-```bash
-npm run start -- convert file.json --to-yaml
-```
-
-With an output file:
-```bash
-npm run start -- convert file.yaml --output out.json
-```
-
-## Links
+## Related Documents
 
 - [Mission Statement](../../MISSION.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
 - [License](../../LICENSE.md)
-- [agentic-lib GitHub Repository](https://github.com/xn-intenton-z2a/agentic-lib)
+- [Agentic-lib Repository](https://github.com/xn-intenton-z2a/agentic-lib)
