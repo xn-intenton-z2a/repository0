@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -681,6 +685,35 @@ describe('CLI sandbox/source/main.js', () => {
 TEST_FILE_END
 
 
+TEST_FILE_START File: sandbox/tests/help-fallback.test.js
+import { describe, test, expect } from 'vitest';
+import { execSync } from 'child_process';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('help and fallback behavior', () => {
+  test('help command outputs usage and lists help command', () => {
+    const output = execSync(`${cli} help`, { encoding: 'utf-8' });
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+
+  test('no command provided outputs help usage', () => {
+    const output = execSync('node sandbox/source/main.js', { encoding: 'utf-8' });
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+
+  test('unknown command fallback prints unknown and usage', () => {
+    const output = execSync(`${cli} foobar`, { encoding: 'utf-8' });
+    expect(output).toContain('Unknown command: foobar');
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+});
+TEST_FILE_END
+
+
 TEST_FILE_START File: sandbox/tests/mission-features.test.js
 import { describe, test, expect } from 'vitest';
 import { execSync } from 'child_process';
@@ -695,6 +728,53 @@ describe('CLI sandbox/source/main.js', () => {
   });
 });
 
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/mission.test.js
+import { describe, test, expect, beforeEach, afterEach } from "vitest";
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+const cli = "node sandbox/source/main.js";
+
+describe("mission command", () => {
+  const tempDir = path.join(os.tmpdir(), "mission-tests");
+
+  beforeEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test("success case: prints mission statement", () => {
+    const missionContent = "# Mission Statement\nThis is a test mission.\nDetails here.";
+    const missionPath = path.join(tempDir, "MISSION.md");
+    fs.writeFileSync(missionPath, missionContent);
+    const output = execSync(`${cli} mission`, { encoding: "utf-8", cwd: tempDir });
+    expect(output).toContain("# Mission Statement");
+    expect(output).toContain("This is a test mission.");
+    const expected = fs.readFileSync(missionPath, "utf-8");
+    expect(output).toContain(expected);
+  });
+
+  test("error case: missing MISSION.md errors out", () => {
+    let error;
+    try {
+      execSync(`${cli} mission`, { encoding: "utf-8", cwd: tempDir, stdio: "pipe" });
+    } catch (e) {
+      error = e;
+    }
+    expect(error).toBeDefined();
+    expect(error.status).toBe(1);
+    expect(error.stderr).toContain("Error reading mission:");
+  });
+});
 TEST_FILE_END
 
 
@@ -1454,9 +1534,210 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 448 packages, and audited 449 packages in 4s
+
+150 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 705[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 817[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1030[2mms[22m[39m
+node:internal/modules/cjs/loader:1215
+  throw err;
+  ^
+
+Error: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v20.19.1
+ [31m❯[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 99[2mms[22m[39m
+[31m   [31m×[31m mission command[2m > [22msuccess case: prints mission statement[39m[32m 37[2mms[22m[39m
+[31m     → Command failed: node sandbox/source/main.js mission
+node:internal/modules/cjs/loader:1215
+  throw err;
+  ^
+
+Error: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v20.19.1
+[39m
+[31m   [31m×[31m mission command[2m > [22merror case: missing MISSION.md errors out[39m[32m 60[2mms[22m[39m
+[31m     → expected 'node:internal/modules/cjs/loader:1215…' to contain 'Error reading mission:'[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 149[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 629[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 115[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/mission.test.js[2m > [22mmission command[2m > [22msuccess case: prints mission statement
+[31m[1mError[22m: Command failed: node sandbox/source/main.js mission
+node:internal/modules/cjs/loader:1215
+  throw err;
+  ^
+
+Error: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+    at node:internal/main/run_main_module:28:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v20.19.1
+[39m
+[36m [2m❯[22m sandbox/tests/mission.test.js:[2m25:28[22m[39m
+    [90m 23| [39m    [35mconst[39m missionPath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m"MISSION.md"[39m)[33m;[39m
+    [90m 24| [39m    fs[33m.[39m[34mwriteFileSync[39m(missionPath[33m,[39m missionContent)[33m;[39m
+    [90m 25| [39m    const output = execSync(`${cli} mission`, { encoding: "utf-8", cwd…
+    [90m   | [39m                           [31m^[39m
+    [90m 26| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m"# Mission Statement"[39m)[33m;[39m
+    [90m 27| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m"This is a test mission."[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/mission.test.js[2m > [22mmission command[2m > [22merror case: missing MISSION.md errors out
+[31m[1mAssertionError[22m: expected 'node:internal/modules/cjs/loader:1215…' to contain 'Error reading mission:'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Error reading mission:[39m
+[31m+ node:internal/modules/cjs/loader:1215[39m
+[31m+   throw err;[39m
+[31m+   ^[39m
+[31m+[39m
+[31m+ Error: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'[39m
+[31m+     at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)[39m
+[31m+     at Module._load (node:internal/modules/cjs/loader:1043:27)[39m
+[31m+     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)[39m
+[31m+     at node:internal/main/run_main_module:28:49 {[39m
+[31m+   code: 'MODULE_NOT_FOUND',[39m
+[31m+   requireStack: [][39m
+[31m+ }[39m
+[31m+[39m
+[31m+ Node.js v20.19.1[39m
+[31m+[39m
+
+[36m [2m❯[22m sandbox/tests/mission.test.js:[2m41:26[22m[39m
+    [90m 39| [39m    [34mexpect[39m(error)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m 40| [39m    [34mexpect[39m(error[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m 41| [39m    [34mexpect[39m(error[33m.[39mstderr)[33m.[39m[34mtoContain[39m([32m"Error reading mission:"[39m)[33m;[39m
+    [90m   | [39m                         [31m^[39m
+    [90m 42| [39m  })[33m;[39m
+    [90m 43| [39m})[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (32)[39m
+[2m   Start at [22m 04:10:06
+[2m   Duration [22m 2.24s[2m (transform 81ms, setup 0ms, collect 216ms, tests 3.93s, environment 2ms, prepare 837ms)[22m
+
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/mission.test.js,title=sandbox/tests/mission.test.js > mission command > success case%3A prints mission statement,line=25,column=28::Error: Command failed: node sandbox/source/main.js mission%0Anode:internal/modules/cjs/loader:1215%0A  throw err;%0A  ^%0A%0AError: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'%0A    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)%0A    at Module._load (node:internal/modules/cjs/loader:1043:27)%0A    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)%0A    at node:internal/main/run_main_module:28:49 {%0A  code: 'MODULE_NOT_FOUND',%0A  requireStack: []%0A}%0A%0ANode.js v20.19.1%0A%0A ❯ sandbox/tests/mission.test.js:25:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'node:internal/modules/cjs/loader:1215\n  throw err;\n  ^\n\nError: Cannot find module \'/tmp/mission-tests/sandbox/source/main.js\'\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)\n    at Module._load (node:internal/modules/cjs/loader:1043:27)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n    at node:internal/main/run_main_module:28:49 {\n  code: \'MODULE_NOT_FOUND\',\n  requireStack: []\n}\n\nNode.js v20.19.1\n' ], pid: 2611, stdout: '', stderr: 'node:internal/modules/cjs/loader:1215\n  throw err;\n  ^\n\nError: Cannot find module \'/tmp/mission-tests/sandbox/source/main.js\'\n    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)\n    at Module._load (node:internal/modules/cjs/loader:1043:27)\n    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)\n    at node:internal/main/run_main_module:28:49 {\n  code: \'MODULE_NOT_FOUND\',\n  requireStack: []\n}\n\nNode.js v20.19.1\n' }%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/mission.test.js,title=sandbox/tests/mission.test.js > mission command > error case%3A missing MISSION.md errors out,line=41,column=26::AssertionError: expected 'node:internal/modules/cjs/loader:1215…' to contain 'Error reading mission:'%0A%0A- Expected%0A+ Received%0A%0A- Error reading mission:%0A+ node:internal/modules/cjs/loader:1215%0A+   throw err;%0A+   ^%0A+%0A+ Error: Cannot find module '/tmp/mission-tests/sandbox/source/main.js'%0A+     at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)%0A+     at Module._load (node:internal/modules/cjs/loader:1043:27)%0A+     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)%0A+     at node:internal/main/run_main_module:28:49 {%0A+   code: 'MODULE_NOT_FOUND',%0A+   requireStack: []%0A+ }%0A+%0A+ Node.js v20.19.1%0A+%0A%0A ❯ sandbox/tests/mission.test.js:41:26%0A%0A
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -1542,176 +1823,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: [Test maintenance] Add coverage for help and unknown command fallback in CLI
-description:
-Context:
-The sandbox CLI (`sandbox/source/main.js`) supports a `help` command, falls back to displaying usage when no command is provided, and reports unknown commands before showing usage. These behaviors are critical to the core CLI experience but currently lack direct test coverage.
-
-Goal:
-Enhance the test suite to cover the following acceptance criteria for high-impact core functionality:
-
-Acceptance Criteria:
-1. Help Command:
-   - Invoke: `node sandbox/source/main.js help`
-   - Expect: Exit code 0, stdout includes a line starting with `Usage: npm run start --`, and lists at least one known command (e.g., `help`).
-2. No Command Provided:
-   - Invoke: `node sandbox/source/main.js` (no args)
-   - Expect: Exit code 0, stdout matches the help output (same `Usage:` header and command list).
-3. Unknown Command Fallback:
-   - Invoke: `node sandbox/source/main.js foobar`
-   - Expect: Exit code 0, stdout contains `Unknown command: foobar` followed by the `Usage:` header and command list.
-
-How to Apply:
-- Update `sandbox/tests/features.test.js` or create a new test file (e.g., `sandbox/tests/help-fallback.test.js`).
-- Use Node's `execSync` in Vitest to capture exit code and stdout.
-- Add new `test` blocks under the existing `describe('CLI sandbox/source/main.js')` suite to assert each scenario.
-- Confirm all tests pass and coverage includes the new code paths.
-
-Verification:
-- Run `npm test` and ensure no regressions.
-- Confirm coverage reports include the help and fallback branches in `sandbox/source/main.js`.
-comments:
-Author:github-actions[bot], Created:2025-05-18T03:54:06Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fe9022a9be7c9cf121a7918e84262f9467e4adee
-Author:github-actions[bot], Created:2025-05-18T03:54:48Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T03:55:12Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/4e6a818d436461f6538c53ae8bb2801dcfa5eff0
-Author:github-actions[bot], Created:2025-05-18T03:56:15Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2aa7e64695178c4c2b4ccbec754d6a656ea4cb85
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── csv-parse@5.6.0
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@10.1.5
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.26.0
-├── js-yaml@4.1.0
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── minimist@1.2.8
-├── npm-check-updates@18.0.1
-├── openai@4.98.0
-├── prettier@3.5.3
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 718[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 783[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 327[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 987[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 132[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 107[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 605[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
-[2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
-[2m   Start at [22m 03:57:26
-[2m   Duration [22m 1.94s[2m (transform 131ms, setup 0ms, collect 231ms, tests 3.34s, environment 2ms, prepare 759ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
