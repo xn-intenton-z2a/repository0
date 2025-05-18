@@ -6,3 +6,5 @@
 
 2025-05-18T15:44:37.322Z - Enhanced issue 2089.
 
+2025-05-18T15:49:26.804Z - Worked to resolve issue Fix --validate-mission flag parsing and update docs. Fix --validate-mission flag parsing and update docs.
+
