@@ -2,3 +2,5 @@
 
 2025-05-18T04:17:39.948Z - Maintained feature FILE_ANALYSIS.
 
+2025-05-18T04:24:36.249Z - Generated feature development issue with title Implement "markdown" CLI command for Markdown to HTML conversion.
+
