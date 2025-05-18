@@ -130,7 +130,7 @@ Commands:
   render             Render an EJS template with optional JSON data and output file
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
   markdown           Convert a Markdown file to HTML
 
 Examples:
@@ -147,7 +147,9 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
   npm run start -- markdown file.md --output file.html`);
 }
 
@@ -391,10 +393,18 @@ async function doConvert(argv) {
   const inputFile = argv._[1];
   const toEnv = argv["to-env"];
   const toYaml = argv["to-yaml"];
+  const toJson = argv["to-json"];
   const output = argv.output;
 
   if (!inputFile) {
     console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  // Validate exclusive flags
+  const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
+  if (flagCount > 1) {
+    console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
     process.exit(1);
   }
 
@@ -409,23 +419,19 @@ async function doConvert(argv) {
 
   let data;
   try {
-    if (toEnv || toYaml) {
+    const ext = path.extname(inputFile).toLowerCase();
+    if (ext === ".env") {
+      data = dotenv.parse(content);
+    } else if (ext === ".json") {
       data = JSON.parse(content);
+    } else if (ext === ".yaml" || ext === ".yml") {
+      data = jsYaml.load(content);
     } else {
-      const ext = path.extname(inputFile).toLowerCase();
-      if (ext === ".env") {
-        data = dotenv.parse(content);
-      } else if (ext === ".yml" || ext === ".yaml") {
-        data = jsYaml.load(content);
-      } else if (ext === ".json") {
-        data = JSON.parse(content);
-      } else {
-        console.error("Unsupported input format:", ext);
-        process.exit(1);
-      }
+      console.error(`Unsupported input format: ${ext}`);
+      process.exit(1);
     }
   } catch (err) {
-    console.error("Error parsing input file:", err.message);
+    console.error(`Error parsing input file: ${err.message}`);
     process.exit(1);
   }
 
@@ -441,6 +447,7 @@ async function doConvert(argv) {
     } else if (toYaml) {
       result = jsYaml.dump(data);
     } else {
+      // Default or --to-json
       result = JSON.stringify(data, null, 2);
     }
   } catch (err) {
@@ -464,7 +471,7 @@ async function doConvert(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json"],
     string: ["output", "delimiter", "flags", "search", "replace"],
     default: { header: true, delimiter: "," },
   });
@@ -508,7 +515,7 @@ async function main() {
       await doMarkdown(argv);
       break;
     default:
-      console.log(`Unknown command: ${command}\n`);
+      console.log(`Unknown command: ${command}` + "\n");
       await showHelp();
   }
 }
@@ -631,7 +638,47 @@ describe('convert command', () => {
     expect(err.status).toBe(1);
     expect(err.stderr).toContain('Error parsing input file');
   });
+
+  // New tests for bidirectional conversions and flag validation
+  test('.env to YAML conversion with --to-yaml', () => {
+    const envPath = path.join(tempDir, 'test2.env');
+    fs.writeFileSync(envPath, 'A=apple\nB=banana');
+    const output = execSync(`${cli} convert ${envPath} --to-yaml`, { encoding: 'utf-8' });
+    const parsed = jsYaml.load(output);
+    expect(parsed).toEqual({ A: 'apple', B: 'banana' });
+  });
+
+  test('YAML to .env conversion with --to-env', () => {
+    const yamlPath = path.join(tempDir, 'test2.yaml');
+    fs.writeFileSync(yamlPath, 'X: 123\nY: 456');
+    const output = execSync(`${cli} convert ${yamlPath} --to-env`, { encoding: 'utf-8' });
+    const lines = output.trim().split('\n');
+    expect(lines.sort()).toEqual(['X=123', 'Y=456'].sort());
+  });
+
+  test('.env to JSON conversion with --to-json', () => {
+    const envPath = path.join(tempDir, 'test3.env');
+    fs.writeFileSync(envPath, 'K1=V1\nK2=V2');
+    const output = execSync(`${cli} convert ${envPath} --to-json`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual({ K1: 'V1', K2: 'V2' });
+  });
+
+  test('error on invalid flag combinations', () => {
+    const envPath = path.join(tempDir, 'test4.env');
+    fs.writeFileSync(envPath, 'A=1\nB=2');
+    let err;
+    try {
+      execSync(`${cli} convert ${envPath} --to-env --to-yaml`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Specify exactly one of');
+  });
 });
+
 TEST_FILE_END
 
 
@@ -1146,7 +1193,7 @@ Project Overview:
 | csv-import         | Import a CSV file and output a JSON array                                        |
 | render             | Render an EJS template with optional JSON data to stdout or file                 |
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
-| convert            | Convert between .env, JSON, and YAML formats                                      |
+| convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
 | markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
 
 ## Examples
@@ -1183,9 +1230,21 @@ Project Overview:
   ```bash
   npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
   ```
+- Convert `.env` to JSON (default):
+  ```bash
+  npm run start -- convert config.env
+  ```
+- Convert `.env` explicitly to JSON:
+  ```bash
+  npm run start -- convert config.env --to-json
+  ```
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
+  ```
+- Convert YAML to `.env`:
+  ```bash
+  npm run start -- convert config.yaml --to-env
   ```
 - Convert Markdown to HTML (stdout):
   ```bash
@@ -1744,190 +1803,67 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Enhance convert CLI command for full bidirectional conversion and add --to-json flag
+title: Add import-data CLI command for structured data ingestion into SQLite database
 description:
-Refactor the `convert` CLI command in `sandbox/source/main.js` to support full bidirectional conversion across `.env`, `.json`, and `.yaml/.yml` formats with a new `--to-json` flag, strict flag validation, and updated documentation and test coverage.
+We need to implement a new top-level CLI command `import-data` to ingest structured data files into a SQLite database. The command must support .csv, .json, .yaml/.yml, and .env inputs and allow configuration of database path, table name, CSV delimiter and header behavior, and optional overwrite of existing tables.
 
-Acceptance Criteria:
-1. Parsing Input by Extension:
-   • `.env` → parsed with `dotenv.parse`.
-   • `.json` → parsed with `JSON.parse`.
-   • `.yaml`/`.yml` → parsed with `jsYaml.load`.
-2. Output Format Determination:
-   • Default (no flags) and `--to-json` → serializes to `JSON.stringify(data, null, 2)`.
-   • `--to-env` → serializes to dotenv-style `KEY=VALUE` lines.
-   • `--to-yaml` → serializes to YAML via `jsYaml.dump(data)`.
-3. Flag Validation:
-   • Exactly one of `--to-json`, `--to-env`, or `--to-yaml` may be specified.
-   • If none or more than one are provided, print `Error: Specify exactly one of --to-json, --to-env, or --to-yaml` and exit with status code 1.
-4. Output Handling:
-   • Without `--output`, write result to stdout.
-   • With `--output <file>`, write result to the specified file, preserving existing behavior.
-5. Error Conditions:
-   • Unsupported input extension → print `Unsupported input format: <ext>`, exit 1.
-   • File read/write errors or parse errors → print the original error message and exit 1.
-6. Test Coverage:
-   • Existing `sandbox/tests/convert.test.js` tests must continue passing.
-   • Add new tests for:
-     a. Explicit `.env` → YAML conversion with `--to-yaml`.
-     b. Explicit `.yaml` → `.env` conversion with `--to-env`.
-     c. Explicit `.env` → JSON conversion with `--to-json`.
-     d. Invalid flag combinations (e.g., `--to-env` + `--to-yaml`) produce an error exit.
-     e. Explicit default (`--to-json`) behavior mirrors no-flag behavior.
-7. Documentation Updates:
-   • Update `README.md` under the `convert` command section to list `--to-json`, enforce flag exclusivity, and show examples for:
-     - `.env` → JSON
-     - `.json` → YAML
-     - `.yaml` → `.env`
-     - Default behavior
-   • Update `sandbox/features/FORMAT_CONVERT.md` to describe the `--to-json` flag, conflict rules, and examples for all conversion directions.
+Testable Acceptance Criteria:
 
-Implementation Notes:
-- Extend `minimist` configuration to include boolean `to-json`.
-- In `doConvert(argv)`: determine the input extension, validate that exactly one conversion flag is set, perform parsing, select serialization branch, and handle `--output` consistently.
+1. **Command Invocation & Exit Codes**
+   - Running without required flags (`--db` or input file) exits code 1 and prints a descriptive error.
+   - Running with valid args exits code 0 and prints a summary: `Inserted X records into table '<table>' in database <path>`.
+
+2. **File Parsing & Record Extraction**
+   - `.csv` files: honors `--delimiter <char>` (default `,`), `--header <true|false>` (default `true`), produces an array of records.
+   - `.json` files: parses an array of objects; errors if input is not an array.
+   - `.yaml/.yml` files: parses an array of objects; errors on invalid YAML or non-array.
+   - `.env` files: parses key/value pairs and wraps as an array of single-object records.
+
+3. **Database Integration**
+   - Creates the SQLite database file if it does not exist.
+   - Infers table schema from keys of the first record and creates table `<table>` (default `data`).
+   - If `--overwrite` is provided, drops existing table before creating a new one; otherwise, errors if table exists.
+   - Inserts all records inside a single transaction.
+
+4. **Validation of Results**
+   - After execution, opening the database with `better-sqlite3` yields:
+     • Table `<table>` exists.
+     • The number of rows in `<table>` matches the number of parsed records.
+     • Column names correspond exactly to record keys.
+
+5. **Documentation & Tests**
+   - New tests in `sandbox/tests/import-data.test.js` cover successful imports for CSV, JSON, YAML, and ENV, custom flags, overwrite behavior, and error cases (missing flags, unsupported extension, invalid content).
+   - `README.md` and `sandbox/docs/CLI_USAGE.md` are updated under **Commands Reference** with usage examples:
+     ```bash
+     npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
+     ```
+   - `package.json` lists `better-sqlite3` in `dependencies`.
+
+**Implementation Notes**
+- Modify `sandbox/source/main.js`: import `Database` from `better-sqlite3`; add `import-data` case; implement `doImportData(argv)` following the criteria above.
+- Ensure all new functionality is covered by the existing test runner (`npm test`).
 comments:
-Author:github-actions[bot], Created:2025-05-17T23:58:57Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090265502
+Author:github-actions[bot], Created:2025-05-18T05:44:50Z, Comment: Workflow name: discussions-bot
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092821765
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/dd7c972773224a4d76895d38e4e7f6546d0ee14c
-Author:github-actions[bot], Created:2025-05-17T23:59:52Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T00:42:39Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090641764
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7226361b07d93d4c2502600342a39a74b81f9e56
-Author:github-actions[bot], Created:2025-05-18T00:42:50Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090613257
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/49b145fd6690c78b68bd938973b00e91ee8984c0
+Author:github-actions[bot], Created:2025-05-18T05:45:32Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T05:48:05Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092872876
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7226361b07d93d4c2502600342a39a74b81f9e56
-Author:github-actions[bot], Created:2025-05-18T00:44:09Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090645722
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:45:27Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090656347
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bca2c7180ac46714c12299f03df811953af06076
+Author:github-actions[bot], Created:2025-05-18T05:48:23Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092872876
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:47:06Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090676465
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:52:02Z, Comment: Workflow name: ci-publish-web
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090713827
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bca2c7180ac46714c12299f03df811953af06076
+Author:github-actions[bot], Created:2025-05-18T05:49:27Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092872876
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/822daf100d819afb102de02e6e7963ca414f5665
-Author:github-actions[bot], Created:2025-05-18T00:54:32Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090732565
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/4efed2249275e4082f2b32cd76db3c9f23a560cf
-Author:github-actions[bot], Created:2025-05-18T01:16:06Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090891640
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/d8f783194b1089eb9a81022b1bc6c2c471e23968
-Author:github-actions[bot], Created:2025-05-18T01:17:12Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090863024
-Workflow event: discussion_comment
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d3afc60746f36654dfed18b416e17cff15b589f
-Author:github-actions[bot], Created:2025-05-18T01:17:56Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090905021
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/627b822166428e8d728a851a33304a5b19b4ef01
-Author:github-actions[bot], Created:2025-05-18T01:18:08Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T01:22:16Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090935749
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/991139eee4bdfa0e39272c01a4b60175bbfafeb7
-Author:github-actions[bot], Created:2025-05-18T01:24:51Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090938559
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fb2e9a9da7ffed0f0805a14c5c103a26ab0ad6a2
-Author:github-actions[bot], Created:2025-05-18T01:46:32Z, Comment: Workflow name: transformation-06-issue-to-code
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091118040
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:55:51Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:56:13Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:57:19Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:59:28Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091219827
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T02:00:57Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091232213
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T02:09:44Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091302554
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6071a01ead83ec79db9a2f61d54689c037567f7a
-Author:github-actions[bot], Created:2025-05-18T02:10:57Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091312779
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6071a01ead83ec79db9a2f61d54689c037567f7a
-Author:github-actions[bot], Created:2025-05-18T02:54:53Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091631550
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:55:58Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091633346
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:57:19Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091648539
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:59:02Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091662599
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T03:38:40Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091958870
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
-Author:github-actions[bot], Created:2025-05-18T03:39:51Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091962933
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
-Author:github-actions[bot], Created:2025-05-18T03:42:50Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091992494
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bca2c7180ac46714c12299f03df811953af06076
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1977,26 +1913,26 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1016[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1072[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 373[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1268[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 572[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 337[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 869[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 971[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1013[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 356[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 528[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 1902[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 874[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 320[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 169[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 199[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 505[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 159[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 470[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 116[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
-[2m      Tests [22m [1m[32m35 passed[39m[22m[90m (35)[39m
-[2m   Start at [22m 05:25:43
-[2m   Duration [22m 3.07s[2m (transform 106ms, setup 0ms, collect 266ms, tests 6.01s, environment 3ms, prepare 1.00s)[22m
+[2m      Tests [22m [1m[32m39 passed[39m[22m[90m (39)[39m
+[2m   Start at [22m 05:50:42
+[2m   Duration [22m 3.23s[2m (transform 100ms, setup 0ms, collect 235ms, tests 6.37s, environment 2ms, prepare 947ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -2018,7 +1954,7 @@ Commands:
   render             Render an EJS template with optional JSON data and output file
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
   markdown           Convert a Markdown file to HTML
 
 Examples:
@@ -2035,7 +1971,9 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
   npm run start -- markdown file.md --output file.html
 MAIN_OUTPUT_END    
 

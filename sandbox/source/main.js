@@ -7,6 +7,7 @@ import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
+import Database from "better-sqlite3";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -24,6 +25,7 @@ Commands:
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
   markdown           Convert a Markdown file to HTML
+  import-data        Import structured data files into a SQLite database
 
 Examples:
   npm run start -- help
@@ -42,7 +44,8 @@ Examples:
   npm run start -- convert file.env --to-yaml --output out.yaml
   npm run start -- convert file.env --to-json
   npm run start -- convert config.json --to-env
-  npm run start -- markdown file.md --output file.html`);
+  npm run start -- markdown file.md --output file.html
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite`);
 }
 
 async function showMission() {
@@ -190,96 +193,6 @@ async function doRender(argv) {
   }
 }
 
-// Markdown rendering functionality
-async function doMarkdown(argv) {
-  const inputFile = argv._[1];
-  const output = argv.output;
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-  const md = new MarkdownIt();
-  let html;
-  try {
-    html = md.render(content);
-  } catch (err) {
-    console.error("Error rendering markdown:", err.message);
-    process.exit(1);
-  }
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, html, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(html);
-  }
-}
-
-async function doTextReplace(argv) {
-  const inputFile = argv._[1];
-  const search = argv.search;
-  const replacement = argv.replace;
-  const useRegex = argv.regex;
-  const flagsStr = argv.flags;
-  const output = argv.output;
-
-  if (!search || replacement === undefined) {
-    console.error("Missing --search or --replace flag");
-    process.exit(1);
-  }
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let result;
-  if (useRegex) {
-    let regex;
-    try {
-      const flags = flagsStr || "g";
-      regex = new RegExp(search, flags);
-    } catch (err) {
-      console.error("Invalid regular expression:", err.message);
-      process.exit(1);
-    }
-    result = content.replace(regex, replacement);
-  } else {
-    result = content.replace(search, replacement);
-  }
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, result, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(result);
-    process.exit(0);
-  }
-}
-
 // Format conversion functionality
 async function doConvert(argv) {
   const inputFile = argv._[1];
@@ -361,10 +274,160 @@ async function doConvert(argv) {
   }
 }
 
+// Data import functionality
+async function doImportData(argv) {
+  const inputFile = argv._[1];
+  const dbPath = argv.db;
+  const table = argv.table || 'data';
+  const delimiter = argv.delimiter || ',';
+  const header = argv.header !== false;
+  const overwrite = argv.overwrite || false;
+
+  if (!inputFile) {
+    console.error('Error: No input file specified');
+    process.exit(1);
+  }
+  if (!dbPath) {
+    console.error('Error: --db <database path> is required');
+    process.exit(1);
+  }
+
+  let raw;
+  try {
+    raw = await fs.readFile(path.resolve(inputFile), 'utf-8');
+  } catch (err) {
+    console.error('Error reading input file:', err.message);
+    process.exit(1);
+  }
+
+  let records;
+  const ext = path.extname(inputFile).toLowerCase();
+  try {
+    if (ext === '.csv') {
+      records = parse(raw, { columns: header, delimiter, skip_empty_lines: true });
+    } else if (ext === '.json') {
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data)) {
+        console.error('Error: JSON input must be an array of objects');
+        process.exit(1);
+      }
+      records = data;
+    } else if (ext === '.yaml' || ext === '.yml') {
+      const data = jsYaml.load(raw);
+      if (!Array.isArray(data)) {
+        console.error('Error: YAML input must be an array of objects');
+        process.exit(1);
+      }
+      records = data;
+    } else if (ext === '.env') {
+      const envObj = dotenv.parse(raw);
+      records = [envObj];
+    } else {
+      console.error(`Unsupported input format: ${ext}`);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error(`Error parsing input file: ${err.message}`);
+    process.exit(1);
+  }
+
+  // Initialize database
+  let db;
+  try {
+    db = new Database(dbPath);
+  } catch (err) {
+    console.error('Error opening database:', err.message);
+    process.exit(1);
+  }
+
+  // Handle table existence
+  try {
+    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
+    if (exists) {
+      if (overwrite) {
+        db.prepare(`DROP TABLE "${table}"`).run();
+      } else {
+        console.error(`Error: Table '${table}' already exists. Use --overwrite to replace.`);
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error('Error checking table existence:', err.message);
+    process.exit(1);
+  }
+
+  // Create table schema
+  const keys = Object.keys(records[0] || {});
+  const colsDef = keys.map((k) => `"${k}" TEXT`).join(', ');
+  try {
+    db.prepare(`CREATE TABLE "${table}" (${colsDef})`).run();
+  } catch (err) {
+    console.error('Error creating table:', err.message);
+    process.exit(1);
+  }
+
+  // Insert records in transaction
+  const placeholders = keys.map(() => '?').join(', ');
+  const insertSQL = `INSERT INTO "${table}" (${keys.map((k) => `"${k}"`).join(', ')}) VALUES (${placeholders})`;
+  const insertStmt = db.prepare(insertSQL);
+  const insertMany = db.transaction((recs) => {
+    for (const r of recs) {
+      insertStmt.run(...keys.map((k) => r[k]));
+    }
+  });
+  try {
+    insertMany(records);
+  } catch (err) {
+    console.error('Error inserting records:', err.message);
+    process.exit(1);
+  }
+
+  db.close();
+  console.log(`Inserted ${records.length} records into table '${table}' in database ${dbPath}`);
+  process.exit(0);
+}
+
+async function doMarkdown(argv) {
+  const inputFile = argv._[1];
+  const output = argv.output;
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+  const md = new MarkdownIt();
+  let html;
+  try {
+    html = md.render(content);
+  } catch (err) {
+    console.error("Error rendering markdown:", err.message);
+    process.exit(1);
+  }
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, html, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(html);
+  }
+}
+
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json"],
-    string: ["output", "delimiter", "flags", "search", "replace"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite"],
+    string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
     default: { header: true, delimiter: "," },
   });
   const [command, ...rest] = argv._;
@@ -405,6 +468,9 @@ async function main() {
       break;
     case "markdown":
       await doMarkdown(argv);
+      break;
+    case "import-data":
+      await doImportData(argv);
       break;
     default:
       console.log(`Unknown command: ${command}` + "\n");

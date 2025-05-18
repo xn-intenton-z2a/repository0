@@ -40,6 +40,7 @@ Project Overview:
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
 | convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
 | markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
+| import-data        | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
 
 ## Examples
 
@@ -79,10 +80,6 @@ Project Overview:
   ```bash
   npm run start -- convert config.env
   ```
-- Convert `.env` explicitly to JSON:
-  ```bash
-  npm run start -- convert config.env --to-json
-  ```
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
@@ -98,6 +95,10 @@ Project Overview:
 - Convert Markdown to HTML and write to file:
   ```bash
   npm run start -- markdown README.md --output README.html
+  ```
+- Import data file into SQLite database:
+  ```bash
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
   ```
 
 ## Related Documents
