@@ -105,6 +105,92 @@ CURRENT_FEATURES_END
 
 Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
+SOURCE_FILE_START Filepath: sandbox/source/main.js
+#!/usr/bin/env node
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs/promises";
+import minimist from "minimist";
+import ejs from "ejs";
+import yaml from "js-yaml";
+
+/**
+ * Main entrypoint for CLI commands.
+ * @param {string[]} argv - Command-line arguments (excluding node and script path).
+ */
+export async function main(argv) {
+  const args = minimist(argv, {
+    boolean: ["help", "mission", "version", "render"],
+    alias: { h: "help" },
+  });
+
+  // Help command
+  if (args.help) {
+    console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+    console.log(`\nCommands:`);
+    console.log(`  --help                      Display usage instructions`);
+    console.log(`  --mission                   Print mission statement`);
+    console.log(`  --version                   Print version`);
+    console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
+    console.log(`  echo <message>              Echo message`);
+    return;
+  }
+
+  // Mission statement
+  if (args.mission) {
+    const mission = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
+    console.log(mission);
+    return;
+  }
+
+  // Version
+  if (args.version) {
+    const pkg = JSON.parse(await fs.readFile(path.resolve("package.json"), "utf-8"));
+    console.log(pkg.version);
+    return;
+  }
+
+  // Render EJS template
+  if (args.render) {
+    const [templatePath, dataPath] = args._;
+    if (!templatePath || !dataPath) {
+      console.error("Error: --render requires <templatePath> and <dataPath>");
+      process.exit(1);
+    }
+    const tpl = await fs.readFile(path.resolve(templatePath), "utf-8");
+    const dataRaw = await fs.readFile(path.resolve(dataPath), "utf-8");
+    let data;
+    if (dataPath.endsWith(".json")) {
+      data = JSON.parse(dataRaw);
+    } else if (dataPath.endsWith(".yaml") || dataPath.endsWith(".yml")) {
+      data = yaml.load(dataRaw);
+    } else {
+      // Fallback to JSON parse
+      data = JSON.parse(dataRaw);
+    }
+    const output = ejs.render(tpl, data);
+    console.log(output);
+    return;
+  }
+
+  // Echo command
+  if (args._.length > 0 && args._[0] === "echo") {
+    console.log(args._.slice(1).join(" "));
+    return;
+  }
+
+  // Default to help
+  console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+}
+
+// If the script is run directly, invoke main with process arguments
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main(process.argv.slice(2));
+}
+
+SOURCE_FILE_END
+
+
 SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
@@ -126,6 +212,40 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/render.test.js
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import path from "path";
+import { main } from "../source/main.js";
+
+describe("--render CLI option", () => {
+  let logSpy;
+
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+  });
+
+  test("renders EJS with JSON data", async () => {
+    const tpl = path.resolve("sandbox/tests/fixtures/template.ejs");
+    const data = path.resolve("sandbox/tests/fixtures/data.json");
+    await main(["--render", tpl, data]);
+    expect(logSpy).toHaveBeenCalledWith("Hello Alice! You have 3 items.");
+  });
+
+  test("renders EJS with YAML data", async () => {
+    const tpl = path.resolve("sandbox/tests/fixtures/template.ejs");
+    const data = path.resolve("sandbox/tests/fixtures/data.yaml");
+    await main(["--render", tpl, data]);
+    expect(logSpy).toHaveBeenCalledWith("Hello Alice! You have 3 items.");
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
@@ -166,7 +286,7 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/README.md
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, and **echo** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **echo**, and **render** functionality.
 
 ## Links
 
@@ -177,21 +297,22 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-The CLI supports the following commands:
-
-- `--help`
+- `--help`  
   : Displays usage instructions and a summary of available commands.
 
-- `--mission`
+- `--mission`  
   : Reads and prints the mission statement from `MISSION.md`.
 
-- `--version`
+- `--version`  
   : Reads and prints the version from `package.json`.
 
-- `echo` _<message>..._
+- `--render <templatePath> <dataPath>`  
+  : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
+
+- `echo` _<message>..._  
   : Prints any additional arguments passed after the `echo` command.
 
-### Usage Examples
+## Usage Examples
 
 ```bash
 # Display help text
@@ -205,27 +326,40 @@ npm run start -- --version
 
 # Echo a message
 npm run start -- echo hello world
+
+# Render an EJS template with JSON data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json
+
+# Render an EJS template with YAML data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml
+```
+
+### Expected Output
+
+```bash
+Hello Alice! You have 3 items.
 ```
 
 ## Getting Started
 
 1. **Clone the repository**:
    ```bash
-git clone <repository_url>
-cd repository0
-```
+   git clone <repository_url>
+   cd repository0
+   ```
 2. **Install dependencies**:
    ```bash
-npm install
-```
+   npm install
+   ```
 3. **Run tests**:
    ```bash
-npm test
-```
+   npm test
+   ```
 4. **Run the CLI**:
    ```bash
-npm run start -- --help
-```
+   npm run start -- --help
+   ```
+
 DOCUMENTATION_FILE_END
 
 
@@ -768,44 +902,42 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Implement --render EJS template rendering CLI option
+title: Add alias support and tests for --mission CLI option
 description:
-Implement a new `--render` CLI option that reads an EJS template and a JSON or YAML data file, renders the template with the data context, and prints the output to stdout.  
+Currently the CLI supports --mission to output the repository’s mission statement, but there are no tests or documentation for this command and no shorthand alias. To strengthen reliability and usability, we should:
 
-Acceptance Criteria:  
-1. Given a valid EJS template `template.ejs` and JSON data file `data.json`, running `npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json` outputs the correct rendered string (e.g. "Hello Alice! You have 3 items.") to stdout.  
-2. Given a valid EJS template and YAML data file `data.yaml`, running `npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml` outputs the correct rendered string to stdout.  
-3. The CLI returns early after rendering, and other flags (`--help`, `--version`, `--mission`, `--config`, `--env`, `--csv`, default echo) behave exactly as before when `--render` is not present.  
-4. A new test file at `sandbox/tests/render.test.js` exists, with fixtures under `sandbox/tests/fixtures/` (`template.ejs`, `data.json`, `data.yaml`), and Vitest tests that spy on `console.log` to assert correct rendered output for both JSON and YAML.  
-5. Documentation in `sandbox/docs/README.md` (and mirrored in top-level `README.md`) includes:  
-   - A description of `--render <templatePath> <dataPath>`.  
-   - CLI usage examples for JSON and YAML.  
-   - Expected output snippet.  
-6. `package.json` includes `ejs` and `js-yaml` in dependencies and no new dependencies are added.  
+1. Update sandbox/source/main.js
+   • Extend the minimist configuration to add alias `-m` for `--mission` (e.g. `{ alias: { h: "help", m: "mission" } }`).
+   • Ensure existing behavior for `--mission` remains unchanged.
 
-Implement the feature in `src/lib/main.js`, update or create necessary test fixtures and tests, and update documentation accordingly.
+2. Add unit tests in sandbox/tests/mission.test.js
+   • Import `main` from `../source/main.js`, spy on `console.log`.  
+   • Read the real MISSION.md file via fs.promises.readFile in the test, then invoke `await main(["--mission"])` and `await main(["-m"])`.  
+   • Assert that `console.log` is called with the exact mission content in both cases.
+
+3. Update sandbox/docs/README.md (documentation for the sandbox CLI)
+   • In the Commands section, add `-m, --mission  : Print mission statement (alias -m)` under the mission entry.  
+   • Add usage examples demonstrating both `--mission` and `-m` invocations.
+
+Verification:
+- Run `npm test` and ensure all existing tests (including new mission tests) pass.  
+- Manually run `node sandbox/source/main.js --mission` and `node sandbox/source/main.js -m` to confirm the output matches MISSION.md content.
 comments:
-Author:github-actions[bot], Created:2025-05-18T21:59:03Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100426108
+Author:github-actions[bot], Created:2025-05-18T22:48:24Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5353287525dd8504af6461aa9953025fd19b37d2
-Author:github-actions[bot], Created:2025-05-18T21:59:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T22:22:30Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
+Author:github-actions[bot], Created:2025-05-18T22:48:51Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
-Author:github-actions[bot], Created:2025-05-18T22:22:50Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
+Author:github-actions[bot], Created:2025-05-18T22:49:59Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
-Author:github-actions[bot], Created:2025-05-18T22:23:50Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -857,16 +989,17 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
-[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m   Start at [22m 22:25:02
-[2m   Duration [22m 278ms[2m (transform 35ms, setup 0ms, collect 38ms, tests 8ms, environment 0ms, prepare 172ms)[22m
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 22:51:20
+[2m   Duration [22m 316ms[2m (transform 63ms, setup 0ms, collect 109ms, tests 22ms, environment 1ms, prepare 254ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
