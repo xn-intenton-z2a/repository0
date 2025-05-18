@@ -915,35 +915,16 @@ TEST_FILE_END
 Documentation files (write new files or update files in sandbox/docs as necessary):
 (Multiple files from both in writable locations and not.)
 DOCUMENTATION_FILE_START File: sandbox/docs/CLI_USAGE.md
-# CLI Sandbox Usage
+# CLI Sandbox CLI Usage
 
-This repository provides a CLI demo showcasing a variety of utility commands implemented in `sandbox/source/main.js`. It demonstrates agentic workflow capabilities and provides basic file processing and conversion operations from the terminal.
+This CLI provides a set of utility commands to demonstrate agentic workflow capabilities and basic file processing operations from the terminal.
 
-## Overview
+## Prerequisites
 
-Available commands:
+- Node.js ≥ 20
+- Dependencies installed via `npm install`
 
-- **help**               Display this help message
-- **mission**            Print the mission statement
-- **version**            Print the current package version
-- **echo**               Echo the provided arguments
-- **features**           List available feature documents
-- **mission-features**   Print the mission statement and list available features
-- **csv-import**         Import a CSV file and output a JSON array
-- **render**             Render an EJS template with optional JSON data and output to stdout or file
-- **replace**, **text-replace**
-                        Perform search-and-replace on a text file
-- **convert**            Convert between .env, JSON, and YAML formats
-
-## What’s Inside
-
-- **sandbox/source/main.js**  — CLI implementation using `minimist` and built-in libraries
-- **sandbox/tests/**          — Vitest tests covering each command and edge cases
-- **sandbox/docs/**           — Additional CLI usage documentation
-- **sandbox/features/**       — Feature documents with headings and descriptions
-- **package.json**            — Dependencies, scripts, and configuration
-
-## Usage
+## Usage and Examples
 
 Invoke the CLI via npm:
 
@@ -951,69 +932,87 @@ Invoke the CLI via npm:
 npm run start -- <command> [options]
 ```
 
-### Examples
+### help
+Display a summary of available commands.
 
-#### Display help
 ```bash
 npm run start -- help
 ```
 
-#### Print mission statement
+### mission
+Print the mission statement from `MISSION.md`.
+
 ```bash
 npm run start -- mission
 ```
 
-#### Show current version
+### version
+Show the current package version from `package.json`.
+
 ```bash
 npm run start -- version
 ```
 
-#### Echo arguments
+### echo
+Echo the provided arguments.
+
 ```bash
 npm run start -- echo Hello World
 ```
 
-#### List feature documents
+### features
+List headings of Markdown files in `sandbox/features/`.
+
 ```bash
 npm run start -- features
 ```
 
-#### Mission and features
+### mission-features
+Print the mission statement and then list available features.
+
 ```bash
 npm run start -- mission-features
 ```
 
-#### CSV import (stdout)
+### csv-import
+Import a CSV file and output a JSON array.
+
 ```bash
 npm run start -- csv-import data.csv
 ```
 
-CSV import with options:
+With options:
 ```bash
 npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
 ```
 
-#### Render EJS template
+### render
+Render an EJS template with optional JSON data and output to stdout or file.
+
 ```bash
 npm run start -- render template.ejs [data.json]
 ```
 
-Render with output file:
+Write to a file:
 ```bash
 npm run start -- render template.ejs data.json --output out.html
 ```
 
-#### Text replace
+### replace (alias: text-replace)
+Perform search-and-replace on a text file (literal or regex).
+
 ```bash
 npm run start -- replace file.txt --search foo --replace bar
 ```
 
-Regular-expression replace:
+Regex replace with flags:
 ```bash
 npm run start -- replace file.txt --search "^foo" --replace baz --regex --flags "gi" --output out.txt
 ```
 
-#### Convert formats
+### convert
+Convert between `.env`, JSON, and YAML formats.
+
 ```bash
 npm run start -- convert file.env
 ```
@@ -1028,20 +1027,12 @@ JSON to YAML:
 npm run start -- convert file.json --to-yaml
 ```
 
-Convert with output file:
+With an output file:
 ```bash
 npm run start -- convert file.yaml --output out.json
 ```
 
-## Testing
-
-Run the full test suite:
-
-```bash
-npm test
-```
-
-## Resources & Links
+## Links
 
 - [Mission Statement](../../MISSION.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
@@ -1589,55 +1580,66 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: [Documenter] Refresh root README to focus on CLI usage and streamline content
+title: Revise README to align with CLI sandbox mission and remove outdated plot narrative
 description:
-Update README.md to provide a streamlined, user-focused entrypoint for the sandbox CLI that prioritizes clear instructions and examples.
+Revise README.md to accurately describe the CLI sandbox’s purpose and remove outdated plot narrative.
 
-Testable Acceptance Criteria:
+Acceptance Criteria:
 
-1. Introduction & Prerequisites:
-   - The top of README.md includes a concise description of the sandbox CLI and its primary purpose.
-   - A "Prerequisites" section clearly states the requirement: Node.js ≥20.
+1. Project Overview:
+   - README begins with a clear summary: "CLI sandbox showcasing agentic-lib workflows and utility commands."  
+2. Narrative Removal:
+   - No mention of equation plotting, SVG art, quadratics, sine waves, polar plotting, or diary entries remains.
+3. Getting Started Section:
+   - Steps to install dependencies (`npm install`), run tests (`npm test`), and invoke the CLI (`npm run start -- <command>`) are present and formatted as a numbered list.
+4. Commands Reference:
+   - README lists and briefly describes every supported command: `help`, `mission`, `version`, `echo`, `features`, `mission-features`, `csv-import`, `render`, `replace`/`text-replace`, and `convert`.
+5. Useful Links:
+   - Links to `MISSION.md`, `CONTRIBUTING.md`, and `LICENSE.md` are included in a "Resources & Links" or "Related Documents" section.
+   - A link to the intentïon `agentic-lib` GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib) is clearly visible.
+6. What’s Inside / Overview:
+   - Sections reference `sandbox/source/main.js`, `sandbox/tests/`, and `sandbox/features/` to orient new contributors.
+7. Example Commands:
+   - All example CLI invocations reflect the actual commands and flags supported by the current implementation.
 
-2. Content Structure:
-   - All narrative history, diary entries, and agentic workflow background are removed.
-   - Sections are ordered: Introduction, Prerequisites, Usage and Examples, Links.
-
-3. Usage and Examples:
-   - Under "Usage and Examples", each core command is listed with at least one working snippet of the form:
-     ```bash
-     npm run start -- <command> [options]
-     ```
-     Commands to cover: help, mission, version, echo, features, mission-features, csv-import, render, replace (alias text-replace), and convert.
-   - Example flags match the implementation in `sandbox/source/main.js`.
-
-4. Links:
-   - At the end, include hyperlinked references to:
-     - MISSION.md
-     - CONTRIBUTING.md
-     - LICENSE.md
-     - The agentic-lib GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib)
-
-5. Verification Steps:
-   - Preview the updated README on GitHub; the CLI usage section should be immediately visible without scrolling through narrative.
-   - Copy and run each code snippet locally (`npm run start -- <command>`); commands execute without error and produce the documented output.
+Each acceptance criterion can be validated by searching for the exact headings, link URLs, and absence of outdated terms within README.md.
 comments:
-Author:github-actions[bot], Created:2025-05-18T01:01:59Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+Author:github-actions[bot], Created:2025-05-18T00:43:30Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090627459
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b540597c98e30a9c4889694942cc843356b8dc9b
-Author:github-actions[bot], Created:2025-05-18T01:02:49Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T01:03:10Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
+Author:github-actions[bot], Created:2025-05-18T00:43:57Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090627459
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5e149b63abd2d1c7af8f19c52549dd0b755443d8
-Author:github-actions[bot], Created:2025-05-18T01:04:15Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090772782
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
+Author:github-actions[bot], Created:2025-05-18T00:45:12Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090627459
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5e149b63abd2d1c7af8f19c52549dd0b755443d8
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
+Author:github-actions[bot], Created:2025-05-18T00:55:33Z, Comment: Workflow name: transformation-05-issue-to-ready-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090740790
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/4efed2249275e4082f2b32cd76db3c9f23a560cf
+Author:github-actions[bot], Created:2025-05-18T00:56:39Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T01:12:11Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090855067
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9384a219c66acc84f8543ec5e120419e3a662de7
+Author:github-actions[bot], Created:2025-05-18T01:12:29Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090855067
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9384a219c66acc84f8543ec5e120419e3a662de7
+Author:github-actions[bot], Created:2025-05-18T01:13:31Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090855067
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9384a219c66acc84f8543ec5e120419e3a662de7
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1687,23 +1689,22 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 765[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 964[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 330[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1085[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 708[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 815[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 986[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 132[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 629[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 146[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 126[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 617[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
 [2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
-[2m   Start at [22m 01:05:29
-[2m   Duration [22m 2.09s[2m (transform 101ms, setup 0ms, collect 238ms, tests 3.74s, environment 2ms, prepare 780ms)[22m
+[2m   Start at [22m 01:14:43
+[2m   Duration [22m 1.88s[2m (transform 75ms, setup 0ms, collect 149ms, tests 3.39s, environment 2ms, prepare 696ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
