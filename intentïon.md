@@ -10,3 +10,5 @@
 
 2025-05-18T03:58:14.399Z - Enhanced issue 2061.
 
+2025-05-18T04:02:14.363Z - Generated feature development issue with title Add feature-level tests for mission CLI command.
+
