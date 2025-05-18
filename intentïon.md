@@ -147,3 +147,5 @@ Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tr
 
 2025-05-18T00:42:22.883Z - Maintained feature CSV_TO_SQLITE.
 
+2025-05-18T00:42:54.157Z - Generated feature development issue with title Revise README to align with CLI sandbox mission and remove outdated plot narrative.
+
