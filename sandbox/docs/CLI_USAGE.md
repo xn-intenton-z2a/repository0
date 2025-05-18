@@ -37,11 +37,11 @@ Project Overview:
 | mission-features               | Print the mission statement, then list available features                                                                         |
 | csv-import                     | Import a CSV file and output a JSON array                                                                                         |
 | render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
-| replace / text-replace         | Perform search-and-replace on a text file (literal or regex)                                                                      |
-| convert                        | Convert between `.env`, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                          |
+| replace / text-replace         | Perform search-and-replace on a text file (literal or regex). Supports `--all` for global literal replacements and default global regex when no `--flags` are provided. |
+| convert                        | Convert between `.env`, JSON, and YAML formats (use `--to-json`, `--to-env`, or `--to-yaml`)                                          |
 | validate `<jsonFile>` [--schema `<schemaFile>`] [--output `<file>`] | Validate JSON file syntax and optionally validate against a JSON Schema (Draft-07) using AJV, writing results to stdout or file |
 | markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
-| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
+| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options `--db`, `--table`, `--delimiter`, `--header`, `--overwrite` |
 
 ### validate
 
@@ -101,6 +101,14 @@ Behavior:
 - Replace text using regex:
   ```bash
   npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
+  ```
+- Replace all occurrences literally:
+  ```bash
+  npm run start -- replace file.txt --search "foo" --replace "bar" --all
+  ```
+- Replace all occurrences using regex by default:
+  ```bash
+  npm run start -- replace file.txt --search "a" --replace "x" --regex
   ```
 - Convert `.env` to JSON (default):
   ```bash

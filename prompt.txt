@@ -116,6 +116,7 @@ import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
 import Database from "better-sqlite3";
+import Ajv from "ajv";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -132,6 +133,7 @@ Commands:
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  validate           Validate JSON syntax and optionally JSON Schema
   markdown           Convert a Markdown file to HTML
   import-data        Import structured data files into a SQLite database
 
@@ -153,6 +155,9 @@ Examples:
   npm run start -- convert file.env --to-yaml --output out.yaml
   npm run start -- convert file.env --to-json
   npm run start -- convert config.json --to-env
+  npm run start -- validate data.json
+  npm run start -- validate data.json --schema schema.json
+  npm run start -- validate data.json --schema schema.json --output report.txt
   npm run start -- markdown file.md --output file.html
   npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite`);
 }
@@ -185,7 +190,7 @@ async function doEcho(args) {
 }
 
 async function showFeatures(argv) {
-  const validate = argv && argv['validate-mission'];
+  const validate = argv && argv["validate-mission"];
   try {
     const cwd = process.cwd();
     const featuresDir = path.join(cwd, "sandbox/features");
@@ -442,6 +447,84 @@ async function doConvert(argv) {
   }
 }
 
+async function doValidateCommand(argv) {
+  const args = argv._;
+  const fileArg = args[1];
+  const schemaArg = argv.schema;
+  const outFile = argv.output;
+  const usage = "Usage: npm run start -- validate <jsonFile> [--schema <schemaFile>] [--output <file>]";
+
+  if (!fileArg) {
+    if (outFile) {
+      await fs.writeFile(path.resolve(outFile), usage, "utf-8");
+      process.exit(1);
+    }
+    console.error(usage);
+    process.exit(1);
+  }
+
+  let data;
+  try {
+    const content = await fs.readFile(path.resolve(fileArg), "utf-8");
+    data = JSON.parse(content);
+  } catch (err) {
+    const msg = err.name === "SyntaxError"
+      ? `Error parsing ${fileArg}: ${err.message}`
+      : `Error reading ${fileArg}: ${err.message}`;
+    if (outFile) {
+      await fs.writeFile(path.resolve(outFile), msg, "utf-8");
+      process.exit(1);
+    }
+    console.error(msg);
+    process.exit(1);
+  }
+
+  let messages = [];
+  let valid = true;
+  if (schemaArg) {
+    let schema;
+    try {
+      const schemaContent = await fs.readFile(path.resolve(schemaArg), "utf-8");
+      schema = JSON.parse(schemaContent);
+    } catch (err) {
+      const msg = `Error reading schema: ${err.message}`;
+      if (outFile) {
+        await fs.writeFile(path.resolve(outFile), msg, "utf-8");
+        process.exit(1);
+      }
+      console.error(msg);
+      process.exit(1);
+    }
+    const ajv = new Ajv({ strict: false });
+    const validateFn = ajv.compile(schema);
+    valid = validateFn(data);
+    if (!valid && validateFn.errors) {
+      for (const err of validateFn.errors) {
+        const dataPath = err.instancePath || err.dataPath || "";
+        messages.push(`${dataPath}: ${err.message}`);
+      }
+    }
+  }
+
+  if (valid) {
+    messages.push(`Validation passed for ${fileArg}`);
+  }
+
+  if (outFile) {
+    await fs.writeFile(path.resolve(outFile), messages.join("\n"), "utf-8");
+    process.exit(valid ? 0 : 1);
+  } else {
+    if (valid) {
+      console.log(messages[0]);
+      process.exit(0);
+    }
+    for (const msg of messages) {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
+}
+
 async function doImportData(argv) {
   const inputFile = argv._[1];
   const dbPath = argv.db;
@@ -590,7 +673,7 @@ async function doMarkdown(argv) {
 async function main() {
   const argv = minimist(process.argv.slice(2), {
     boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
-    string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
+    string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
     default: { header: true, delimiter: "," },
   });
   const [command, ...rest] = argv._;
@@ -628,6 +711,9 @@ async function main() {
       break;
     case "convert":
       await doConvert(argv);
+      break;
+    case "validate":
+      await doValidateCommand(argv);
       break;
     case "markdown":
       await doMarkdown(argv);
@@ -1392,6 +1478,129 @@ describe('text-replace command', () => {
 TEST_FILE_END
 
 
+TEST_FILE_START File: sandbox/tests/validate.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('validate command', () => {
+  const tempDir = path.join(os.tmpdir(), 'validate-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('syntax validation success', () => {
+    const file = path.join(tempDir, 'valid.json');
+    fs.writeFileSync(file, JSON.stringify({ a: 1 }));
+    const output = execSync(`${cli} validate ${file}`, { encoding: 'utf-8' });
+    expect(output.trim()).toBe(`Validation passed for ${file}`);
+  });
+
+  test('syntax validation failure for invalid JSON', () => {
+    const file = path.join(tempDir, 'bad.json');
+    fs.writeFileSync(file, '{invalid json');
+    let err;
+    try {
+      execSync(`${cli} validate ${file}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain(`Error parsing ${file}:`);
+  });
+
+  test('schema validation success', () => {
+    const dataFile = path.join(tempDir, 'data.json');
+    const schemaFile = path.join(tempDir, 'schema.json');
+    fs.writeFileSync(dataFile, JSON.stringify({ foo: 'bar' }));
+    fs.writeFileSync(
+      schemaFile,
+      JSON.stringify({
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+        required: ['foo'],
+      }),
+    );
+    const output = execSync(`${cli} validate ${dataFile} --schema ${schemaFile}`, { encoding: 'utf-8' });
+    expect(output.trim()).toBe(`Validation passed for ${dataFile}`);
+  });
+
+  test('schema validation failure', () => {
+    const dataFile = path.join(tempDir, 'data2.json');
+    const schemaFile = path.join(tempDir, 'schema2.json');
+    fs.writeFileSync(dataFile, JSON.stringify({ foo: 123 }));
+    fs.writeFileSync(
+      schemaFile,
+      JSON.stringify({
+        $schema: 'http://json-schema.org/draft-07/schema#',
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+        required: ['foo'],
+      }),
+    );
+    let err;
+    try {
+      execSync(`${cli} validate ${dataFile} --schema ${schemaFile}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('must be string');
+  });
+
+  test('missing file argument', () => {
+    let err;
+    try {
+      execSync(`${cli} validate`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Usage: npm run start -- validate');
+  });
+
+  test('writes output to file with --output', () => {
+    const file = path.join(tempDir, 'valid2.json');
+    const out = path.join(tempDir, 'report.txt');
+    fs.writeFileSync(file, JSON.stringify({ a: 2 }));
+    const stdout = execSync(`${cli} validate ${file} --output ${out}`, { encoding: 'utf-8' });
+    expect(stdout).toBe('');
+    const content = fs.readFileSync(out, 'utf-8');
+    expect(content.trim()).toBe(`Validation passed for ${file}`);
+  });
+
+  test('writes errors to file with --output on failure', () => {
+    const file = path.join(tempDir, 'bad2.json');
+    const out = path.join(tempDir, 'report2.txt');
+    fs.writeFileSync(file, '{bad json');
+    let err;
+    try {
+      execSync(`${cli} validate ${file} --output ${out}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    const content = fs.readFileSync(out, 'utf-8');
+    expect(content).toContain(`Error parsing ${file}:`);
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
@@ -1462,7 +1671,7 @@ Project Overview:
 | Command                        | Description                                                                                                                      |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | help                           | Display help message listing all commands and usage examples                                                                     |
-| mission                        | Print the mission statement from `MISSION.md`                                                                                      |
+| mission                        | Print the mission statement from `MISSION.md`                                                                                     |
 | version                        | Show the current version from `package.json`                                                                                      |
 | echo                           | Echo the provided arguments                                                                                                       |
 | features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only those feature docs that do not reference the mission statement. |
@@ -1470,9 +1679,27 @@ Project Overview:
 | csv-import                     | Import a CSV file and output a JSON array                                                                                         |
 | render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
 | replace / text-replace         | Perform search-and-replace on a text file (literal or regex)                                                                      |
-| convert                        | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                             |
+| convert                        | Convert between `.env`, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                          |
+| validate `<jsonFile>` [--schema `<schemaFile>`] [--output `<file>`] | Validate JSON file syntax and optionally validate against a JSON Schema (Draft-07) using AJV, writing results to stdout or file |
 | markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
 | import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
+
+### validate
+
+Usage:
+```bash
+npm run start -- validate <jsonFile> [--schema <schemaFile>] [--output <file>]
+```
+
+Flags:
+- `--schema <schemaFile>` Validate data against the provided JSON Schema (Draft-07).
+- `--output <file>` Write validation results to the specified file instead of stdout.
+
+Behavior:
+- Syntax-only validation ensures the JSON is well-formed.
+- Schema validation reports each error on its own line as `dataPath: message`.
+- On success, outputs `Validation passed for <jsonFile>`.
+- Exits with code 0 on success, 1 on failure.
 
 ## Examples
 
@@ -1842,7 +2069,8 @@ DEPENDENCIES_FILE_START
     "openai": "^4.96.2",
     "zod": "^3.24.4",
     "csv-parse": "^5.4.8",
-    "better-sqlite3": "^8.4.0"
+    "better-sqlite3": "^8.4.0",
+    "ajv": "^8.12.0"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
@@ -2082,76 +2310,68 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add validate CLI command for JSON syntax and JSON Schema validation
+title: Enhance text-replace for true global replacements (default regex behavior and new --all flag)
 description:
-Title: Add validate CLI command for JSON syntax and JSON Schema validation
+Title: Enhance text-replace for true global replacements (default regex behavior and new --all flag)
 
-Description:
-Introduce a new top-level CLI command `validate` to provide two essential capabilities:
+Problem:
+The current text-replace (alias text-replace) command only replaces the first literal match by default and requires explicit “g” flag to perform global regex replacements. This deviates from common user expectations.
 
-1. **Syntax Validation**: Verify that a JSON file is syntactically correct.
-2. **Schema Validation**: Optionally validate the JSON data against a JSON Schema (Draft-07) using AJV.
-
-This feature will:
-- Add dependency on AJV in `package.json`.
-- Extend `sandbox/source/main.js`:
-  • Import `Ajv` from "ajv".
-  • Add a `validate` case in the CLI `switch` to call `doValidateCommand(argv)`.
-  • Implement `async function doValidateCommand(argv)` that:
-    1. Validates presence of `argv._[1]` (JSON file path); on missing argument, prints usage and exits 1.
-    2. Reads and parses the JSON file; on parse error, prints `Error parsing <file>: <error message>` to stderr and exits 1.
-    3. If `--schema <schemaFile>` is provided:
-       a. Read and parse the schema file; on error, prints `Error reading schema: <message>` and exits 1.
-       b. Instantiate AJV, compile the schema, and validate the data.
-       c. On validation failure, print each error on its own line as `dataPath: message`, then exit 1.
-    4. On successful syntax-only or schema validation, produce message `Validation passed for <jsonFile>`.
-       - If `--output <file>` is provided, write the message to the file; otherwise, print to stdout.
-
-- Create `sandbox/tests/validate.test.js` covering all scenarios:
-  • Syntax success (exit 0, stdout message).
-  • Syntax failure (exit 1, stderr contains parse error).
-  • Schema success (exit 0, stdout message).
-  • Schema failure (exit 1, stderr lists AJV errors).
-  • Missing file argument (exit 1, stderr shows usage).
-  • `--output` flag writes report to file; stdout empty.
-
-- Update documentation:
-  • **README.md**: Add `validate <jsonFile> [--schema <schemaFile>] [--output <file>]` in the Commands Reference table, plus two usage examples.
-  • **sandbox/docs/CLI_USAGE.md**: Add a `### validate` section under Commands Reference with usage, flags, and behavior details.
+Proposed Solution:
+1. Add a new boolean flag `--all` for literal search-and-replace to perform global replacements.
+2. When `--regex` is provided without any `--flags`, default to global regex replacement (equivalent to adding the “g” flag automatically).
+3. Preserve existing behavior when `--regex` is used with explicit `--flags`, and ensure `--all` only affects literal replacements.
+4. Maintain full support for the `--output` flag and existing error handling.
 
 Acceptance Criteria:
-1. Running `npm run start -- validate valid.json` exits 0 and prints `Validation passed for valid.json`.
-2. Running `npm run start -- validate invalid.json` with malformed JSON exits 1 and stderr contains `Error parsing invalid.json:`.
-3. Running `npm run start -- validate data.json --schema schema.json` with conforming data exits 0 and prints success message.
-4. Running `npm run start -- validate data.json --schema schema.json` with non-conforming data exits 1 and prints each AJV error in `dataPath: message` format.
-5. Running `npm run start -- validate` (no file) exits 1 and stderr shows usage guidance for the `validate` command.
-6. Using `--output report.txt` writes success or error messages to `report.txt`, produces no stdout, and exits with the correct status.
-7. `package.json` lists `ajv` under `dependencies`.
-8. `sandbox/tests/validate.test.js` is added and passes when running `npm test`.
-9. The README and CLI_USAGE.md include accurate, up-to-date documentation and examples for the `validate` command.
+- CLI recognizes a new `--all` boolean flag.
+- `node sandbox/source/main.js replace file.txt --search foo --replace bar --all`
+  • All occurrences of "foo" in `file.txt` are replaced with "bar".
+  • Exit code: 0; prints nothing to stdout unless `--output` is omitted (prints replaced content).
+- `node sandbox/source/main.js replace file.txt --search a --replace x --regex`
+  • All occurrences of "a" (case-sensitive) in `file.txt` are replaced with "x".
+  • Exit code: 0; prints replaced content to stdout or writes to file with `--output`.
+- Existing behavior remains: `--regex --flags` combination works as before; literal replace without `--all` still replaces only first match.
+- Add/Update tests in `sandbox/tests/text-replace.test.js`:
+  • Test global regex replacement when `--regex` without `--flags`.
+  • Test global literal replacement when `--all` without `--regex`.
+  • Ensure existing tests are updated or extended accordingly.
+- Update documentation:
+  • `sandbox/docs/CLI_USAGE.md` and root `README.md` to document the new `--all` flag and default global behavior for regex without flags.
+  • `sandbox/features/TEXT_MANIPULATION.md` to describe the `--all` flag and updated regex behavior.
 
+Verification:
+- Run `npm test` to confirm all tests (existing and new) pass.
+- Manual validation:
+  • `node sandbox/source/main.js replace file.txt --search a --replace x --regex` should output global replacements.
+  • `node sandbox/source/main.js replace file.txt --search foo --replace bar --all` should output global literal replacements.
 comments:
-Author:github-actions[bot], Created:2025-05-18T07:44:53Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093696742
+Author:github-actions[bot], Created:2025-05-18T08:46:37Z, Comment: Workflow name: discussions-bot
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094162772
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bbcd2bdd29068fd74e9795869fc8310ac81aa302
-Author:github-actions[bot], Created:2025-05-18T07:45:44Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T07:48:07Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093752282
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/d062bd925f381f36f624f22a4ac5ec47e7ea6eaf
+Author:github-actions[bot], Created:2025-05-18T08:47:21Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T08:49:30Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/cca82786bcd2e751872b2df811509f25411113b5
-Author:github-actions[bot], Created:2025-05-18T07:48:30Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093752282
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
+Author:github-actions[bot], Created:2025-05-18T08:49:35Z, Comment: Workflow name: flow-update-readme
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094209775
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/cca82786bcd2e751872b2df811509f25411113b5
-Author:github-actions[bot], Created:2025-05-18T07:49:47Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093752282
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
+Author:github-actions[bot], Created:2025-05-18T08:49:48Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/cca82786bcd2e751872b2df811509f25411113b5
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
+Author:github-actions[bot], Created:2025-05-18T08:50:48Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -2159,6 +2379,7 @@ DEPENDENCIES_LIST_START
 @xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
 ├── @microsoft/eslint-formatter-sarif@3.1.0
 ├── @vitest/coverage-v8@3.1.3
+├── ajv@8.17.1
 ├── better-sqlite3@8.7.0
 ├── csv-parse@5.6.0
 ├── dotenv@16.5.0
@@ -2202,29 +2423,32 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 960[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2040[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2240[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 387[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 598[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1147[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 410[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 396[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 580[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 893[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 202[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+ [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1809[2mms[22m[39m
+   [33m[2m✓[22m[39m validate command[2m > [22mschema validation failure [33m 307[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2641[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2855[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 515[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22mCSV import with default options [33m 318[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 763[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1107[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 671[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1128[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1417[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 421[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 482[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 511[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 690[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 558[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 211[2mms[22m[39m
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
-[2m      Tests [22m [1m[32m48 passed[39m[22m[90m (48)[39m
-[2m   Start at [22m 07:51:12
-[2m   Duration [22m 4.23s[2m (transform 116ms, setup 0ms, collect 272ms, tests 9.38s, environment 4ms, prepare 1.09s)[22m
+[2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[32m55 passed[39m[22m[90m (55)[39m
+[2m   Start at [22m 08:52:08
+[2m   Duration [22m 5.67s[2m (transform 112ms, setup 0ms, collect 295ms, tests 13.53s, environment 3ms, prepare 1.19s)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -2247,6 +2471,7 @@ Commands:
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  validate           Validate JSON syntax and optionally JSON Schema
   markdown           Convert a Markdown file to HTML
   import-data        Import structured data files into a SQLite database
 
@@ -2268,6 +2493,9 @@ Examples:
   npm run start -- convert file.env --to-yaml --output out.yaml
   npm run start -- convert file.env --to-json
   npm run start -- convert config.json --to-env
+  npm run start -- validate data.json
+  npm run start -- validate data.json --schema schema.json
+  npm run start -- validate data.json --schema schema.json --output report.txt
   npm run start -- markdown file.md --output file.html
   npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
 MAIN_OUTPUT_END    

@@ -216,7 +216,8 @@ async function doTextReplace(argv) {
   const search = argv.search;
   const replacement = argv.replace;
   const regexFlag = argv.regex;
-  const flags = argv.flags || "";
+  const allFlag = argv.all;
+  const flagsArg = argv.flags || "";
   const output = argv.output;
 
   if (!inputFile || search === undefined || replacement === undefined) {
@@ -235,6 +236,10 @@ async function doTextReplace(argv) {
 
   let result;
   if (regexFlag) {
+    let flags = flagsArg;
+    if (!flags) {
+      flags = "g";
+    }
     let re;
     try {
       re = new RegExp(search, flags);
@@ -244,7 +249,16 @@ async function doTextReplace(argv) {
     }
     result = content.replace(re, replacement);
   } else {
-    result = content.replace(search, replacement);
+    if (allFlag) {
+      // global literal replacement
+      if (typeof content.replaceAll === "function") {
+        result = content.replaceAll(search, replacement);
+      } else {
+        result = content.split(search).join(replacement);
+      }
+    } else {
+      result = content.replace(search, replacement);
+    }
   }
 
   if (output) {
@@ -564,7 +578,7 @@ async function doMarkdown(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission", "all"],
     string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
     default: { header: true, delimiter: "," },
   });
