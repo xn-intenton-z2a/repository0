@@ -1,32 +1,40 @@
-# CLI Tool Functionality
-
-Enhance the main script to support a new CSV parsing option along with existing commands.
+# CLI Tool Enhancements
 
 # Options
-1. --help    : Display usage instructions and available commands.
-2. --version : Print the package version from package.json.
-3. --mission : Output the contents of MISSION.md.
-4. --config <path> : Load configuration from the specified JSON or YAML file and output parsed result.
-5. --env     : Load environment variables from a .env file and output key/value pairs as JSON.
-6. --csv <path> : Read the specified CSV file, parse records using csv-parse, and output the result as a JSON array.
-7. Default   : Echo the positional arguments in JSON format.
+1. --help                 : Display usage instructions and summary of available commands.
+2. --version              : Print the package version from package.json.
+3. --mission, -m          : Output the contents of MISSION.md.
+4. --config <path>        : Read a JSON or YAML configuration file and output the parsed object as JSON.
+5. --env                  : Load variables from a .env file and print key/value pairs as JSON.
+6. --csv <path>           : Read and parse a CSV file using the synchronous csv-parse parser, then output an array of record objects as JSON.
+7. --render <template> <data> : Render an EJS template with JSON or YAML data and print the rendered string to stdout.
+8. echo <message>...      : Print any additional arguments passed after the echo command.
 
 # Source File Changes
-- Import the sync parser from csv-parse/sync alongside minimist, fs, path, dotenv, and js-yaml.
-- Detect the --csv option in argument dispatch:
-  - Resolve the CSV file path, read its content, parse using the sync CSV parser, then console.log the resulting array of record objects.
-- Retain existing behavior for --help, --version, --mission, --config, --env, and default echo.
+- In sandbox/source/main.js, import dotenv and the sync parser from csv-parse/sync alongside existing imports of minimist, fs, path, ejs, and js-yaml.
+- Update argument dispatch in the main function to handle:
+  - --config: resolve file path, read content, detect JSON or YAML by extension, parse accordingly, and console.log the resulting object.
+  - --env: load environment variables using dotenv.config(), then console.log(process.env) filtered to loaded keys.
+  - --csv: resolve CSV path, read file, parse with the sync CSV parser, and console.log the array of records.
+  - --render: resolve template and data paths, read the files, parse data by extension, render via ejs.render, and console.log the result.
+- Retain behavior for --help, --version, --mission, and default echo command.
 
 # Tests
-- Add fixture file sandbox/tests/fixtures/sample.csv containing comma separated values with header row.
-- Create sandbox/tests/csv.test.js:
-  • When main is invoked with --csv against the sample.csv fixture, capture stdout and verify it prints the expected JSON array of records.
-  • Ensure that invoking with other options still produces correct output and existing tests continue to pass.
+- Add fixture sandbox/tests/fixtures/sample.csv with a header row and sample records.
+- Add sandbox/tests/csv.test.js to invoke main with --csv and verify JSON output matches expected records.
+- Add render test in sandbox/tests/render.test.js to cover both JSON and YAML data as before.
+- Add sandbox/tests/config.test.js to invoke main with --config for JSON and YAML fixtures and verify parsed output.
+- Add sandbox/tests/env.test.js to create a temporary .env fixture, invoke main with --env, and verify printed environment variables.
+- Ensure existing help, mission, version, and echo tests continue to pass unchanged.
 
 # README Updates
-- Update Usage section to document --csv option with example:
-  npm run start -- --csv sandbox/tests/fixtures/sample.csv
-- Provide sample output snippet showing a JSON array of records.
+- Update Usage section in sandbox/docs/README.md and top-level README.md to document all new options with examples:
+  npm run start -- --config path/to/config.yaml
+  npm run start -- --env
+  npm run start -- --csv path/to/sample.csv
+  npm run start -- --render path/to/template.ejs path/to/data.json
+- Provide expected output snippets for each new option.
 
 # Dependencies
-- Ensure csv-parse is listed under dependencies in package.json (already present).
+- Ensure dotenv and csv-parse are listed under dependencies in package.json (dotenv may be added if missing).
+- Verify ejs and js-yaml remain listed for rendering and YAML parsing.
