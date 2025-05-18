@@ -10,3 +10,5 @@
 
 2025-05-18T05:43:41.668Z - Maintained feature IMPORT_DATA.
 
+2025-05-18T05:44:33.667Z - Generated feature development issue with title Add import-data CLI command for structured data ingestion into SQLite database.
+
