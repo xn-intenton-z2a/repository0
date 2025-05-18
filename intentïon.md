@@ -8,3 +8,5 @@
 
 2025-05-18T03:58:13.032Z - Worked to resolve issue Add tests covering help command no-arg fallback and unknown command fallback. Add tests covering help command no-arg fallback and unknown command fallback.
 
+2025-05-18T03:58:14.399Z - Enhanced issue 2061.
+
