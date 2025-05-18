@@ -20,3 +20,5 @@
 
 2025-05-18T06:15:08.576Z - Maintained feature CSV_IO.
 
+2025-05-18T06:24:48.621Z - Generated feature development issue with title Add --validate-mission flag to features command to verify feature docs reference mission.
+
