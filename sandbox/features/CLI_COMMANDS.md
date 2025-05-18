@@ -1,86 +1,44 @@
-# CLI Commands
+# CLI Command Support
 
-## Overview
+This document describes the core CLI commands available in this tool:
 
-Unify and maintain all core CLI commands in a single feature, covering help, mission, version, echo, feature listing, and file utilities including stats, replace, convert, validate, markdown, render, csv-import, and import-data. Ensure consistent behavior, implementation, testing, and documentation.
+## Commands
 
-## Help Command
+### help
+Displays usage instructions and a summary of available commands.
 
-### CLI Behavior
+### mission
+Reads and prints the mission statement to highlight the repository intent.
 
-- `help` or no command: print general usage and list of commands.
-- `help <command>`: print detailed usage, flags, and examples for the specified command. Unknown commands produce an error and exit code 1.
+### version
+Prints the current version from package.json.
 
-### Implementation
+### echo
+Echoes any additional arguments passed after the echo command, demonstrating argument handling.
 
-- Extend `showHelp(argv)` in `sandbox/source/main.js` to accept an optional command name.
-- Map command names to usage strings and examples.
-- In the main switch, handle `help` by delegating to the extended `showHelp`.
-
-## Mission and Version Commands
-
-### Mission
-
-- `mission`: read and print contents of `MISSION.md`; on error exit code 1 with descriptive message.
-
-### Version
-
-- `version`: read `package.json` version field and print; on error exit code 1.
-
-## Echo Command
-
-- `echo <args>`: print the provided arguments joined by spaces.
-- Implement in `doEcho(args)` in `main.js`.
-
-## Features Commands
-
-### features [--validate-mission]
-
-- List headings of Markdown files in `sandbox/features/`.
-- With `--validate-mission`, list only those without mission references; if any reference mission then report filenames and exit 1.
+### features
+Lists available feature documents (use --validate-mission to list those without mission references).
 
 ### mission-features
+Prints the mission statement and then lists available features.
 
-- Print mission statement then list available features.
+### csv-import
+Imports a CSV file and outputs a JSON array.
 
-## Stats Command
+### render
+Renders an EJS template with optional JSON data to stdout or a file.
 
-### CLI Behavior
+### replace / text-replace
+Performs search-and-replace on a text file (literal or regex). Supports --all for global literal replacements and default global regex when no --flags are provided.
 
-Introduce a new `stats` command to compute file metrics.
+### convert
+Converts between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml).
 
-Usage:
+### validate
+Validates JSON syntax and optionally validates against a JSON Schema.
 
-    npm run start -- stats <filePath> [--lines] [--words] [--chars] [--bytes] [--json] [--output <file>]
+### markdown
+Converts a Markdown file to HTML.
 
-- Default (no metric flags): report all metrics.
-- `--lines`: report line count.
-- `--words`: report word count.
-- `--chars`: report character count.
-- `--bytes`: report byte size.
-- `--json`: output metrics as compact JSON object.
-- `--output <file>`: write results to file instead of stdout.
-
-### Implementation
-
-- In `sandbox/source/main.js`: import `fs/promises` and optionally Node's `readline` for streaming large files.
-- Add a case `stats` in the CLI switch that calls `await doStatsCommand(argv)`.
-- Implement `async function doStatsCommand(argv)`:
-  - Validate `argv._[1]` exists; on missing print usage and exit 1.
-  - Read file content (stream for large files): count lines by incrementing on newline, words by splitting on whitespace, chars via `content.length`, bytes via `Buffer.byteLength(content)`.
-  - Build an object with requested metrics.
-  - Serialize as plain text or JSON based on `--json`.
-  - If `--output` is set, write to file; otherwise print to stdout.
-
-### Testing
-
-- Add `stats.test.js` in `sandbox/tests/`:
-  - Test default metrics on a small text file.
-  - Test each metric flag individually.
-  - Test `--json` produces valid JSON object.
-  - Test `--output` writes to file.
-  - Test error on missing file or unreadable file.
-
-### Documentation
-
-- Update `README.md` and `sandbox/docs/CLI_USAGE.md` to include the `stats` command under Commands Reference with usage, flags, and examples.
+### import-data
+Imports structured data files into a SQLite database.
