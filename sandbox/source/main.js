@@ -7,7 +7,6 @@ import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
-import markdownItGithub from "markdown-it-github";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -189,7 +188,7 @@ async function doRender(argv) {
   }
 }
 
-// New markdown rendering functionality
+// Markdown rendering functionality
 async function doMarkdown(argv) {
   const inputFile = argv._[1];
   const output = argv.output;
@@ -205,7 +204,7 @@ async function doMarkdown(argv) {
     console.error("Error reading input file:", err.message);
     process.exit(1);
   }
-  let md = new MarkdownIt().use(markdownItGithub);
+  const md = new MarkdownIt();
   let html;
   try {
     html = md.render(content);

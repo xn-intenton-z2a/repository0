@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -114,6 +118,8 @@ import { parse } from "csv-parse/sync";
 import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
+import MarkdownIt from "markdown-it";
+import markdownItGithub from "markdown-it-github";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -130,6 +136,7 @@ Commands:
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats
+  markdown           Convert a Markdown file to HTML
 
 Examples:
   npm run start -- help
@@ -145,7 +152,8 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml`);
+  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- markdown file.md --output file.html`);
 }
 
 async function showMission() {
@@ -293,7 +301,44 @@ async function doRender(argv) {
   }
 }
 
-// New text replace functionality
+// New markdown rendering functionality
+async function doMarkdown(argv) {
+  const inputFile = argv._[1];
+  const output = argv.output;
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+  let md = new MarkdownIt().use(markdownItGithub);
+  let html;
+  try {
+    html = md.render(content);
+  } catch (err) {
+    console.error("Error rendering markdown:", err.message);
+    process.exit(1);
+  }
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, html, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(html);
+  }
+}
+
 async function doTextReplace(argv) {
   const inputFile = argv._[1];
   const search = argv.search;
@@ -463,6 +508,9 @@ async function main() {
       break;
     case "convert":
       await doConvert(argv);
+      break;
+    case "markdown":
+      await doMarkdown(argv);
       break;
     default:
       console.log(`Unknown command: ${command}\n`);
@@ -707,6 +755,76 @@ describe('help and fallback behavior', () => {
     expect(output).toContain('help');
   });
 });
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/markdown.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('markdown command', () => {
+  const tempDir = path.join(os.tmpdir(), 'markdown-tests');
+
+  beforeEach(() => {
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('renders markdown to HTML on stdout', () => {
+    const mdPath = path.join(tempDir, 'test.md');
+    const mdContent = `# Heading
+
+This is a [link](http://example.com).
+
+\
+\`\`\`
+code
+\`\`\`\n
+| A | B |
+| - | - |
+| 1 | 2 |`;
+    fs.writeFileSync(mdPath, mdContent, 'utf-8');
+    const output = execSync(`${cli} markdown ${mdPath}`, { encoding: 'utf-8' });
+    expect(output).toContain('<h1>Heading</h1>');
+    expect(output).toContain('<a href="http://example.com">link</a>');
+    expect(output).toContain('<pre><code>code');
+    expect(output).toContain('<table>');
+  });
+
+  test('writes HTML output to file with --output', () => {
+    const mdPath = path.join(tempDir, 'test2.md');
+    const outPath = path.join(tempDir, 'out.html');
+    const mdContent = '# Test\nContent';
+    fs.writeFileSync(mdPath, mdContent, 'utf-8');
+    const stdout = execSync(`${cli} markdown ${mdPath} --output ${outPath}`, { encoding: 'utf-8' });
+    expect(stdout).toBe('');
+    const fileContent = fs.readFileSync(outPath, 'utf-8');
+    expect(fileContent).toContain('<h1>Test</h1>');
+    expect(fileContent).toContain('<p>Content</p>');
+  });
+
+  test('error on non-existent file', () => {
+    const non = path.join(tempDir, 'nope.md');
+    let err;
+    try {
+      execSync(`${cli} markdown ${non}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Error reading input file');
+  });
+});
+
 TEST_FILE_END
 
 
@@ -1034,6 +1152,7 @@ Project Overview:
 | render             | Render an EJS template with optional JSON data to stdout or file                 |
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
 | convert            | Convert between .env, JSON, and YAML formats                                      |
+| markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
 
 ## Examples
 
@@ -1072,6 +1191,14 @@ Project Overview:
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
+  ```
+- Convert Markdown to HTML (stdout):
+  ```bash
+  npm run start -- markdown README.md
+  ```
+- Convert Markdown to HTML and write to file:
+  ```bash
+  npm run start -- markdown README.md --output README.html
   ```
 
 ## Related Documents
@@ -1532,9 +1659,185 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 448 packages, and audited 449 packages in 5s
+
+150 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1088[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1262[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 447[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1454[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 471[2mms[22m[39m
+ [31m❯[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 686[2mms[22m[39m
+[31m   [31m×[31m markdown command[2m > [22mrenders markdown to HTML on stdout[39m[32m 240[2mms[22m[39m
+[31m     → expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'[39m
+[31m   [31m×[31m markdown command[2m > [22mwrites HTML output to file with --output[39m[32m 227[2mms[22m[39m
+[31m     → expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'[39m
+   [32m✓[39m markdown command[2m > [22merror on non-existent file[32m 218[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 952[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 225[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 578[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 200[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/markdown.test.js[2m > [22mmarkdown command[2m > [22mrenders markdown to HTML on stdout
+[31m[1mAssertionError[22m: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- <h1[7m>Heading</h1>[27m[39m
+[31m+ <h1[7m class="md-github"><a class="md-github__anchor" name="heading" href="#heading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Heading</h1>[27m[39m
+[31m+ <p class="md-github">This is a <a href="http://example.com" class="md-github">link</a>.</p>[39m
+[31m+ <pre class="md-github"><code class="md-github">code[39m
+[31m+ </code></pre>[39m
+[31m+ <table class="md-github">[39m
+[31m+ <thead class="md-github">[39m
+[31m+ <tr class="md-github">[39m
+[31m+ <th class="md-github">A</th>[39m
+[31m+ <th class="md-github">B</th>[39m
+[31m+ </tr>[39m
+[31m+ </thead>[39m
+[31m+ <tbody class="md-github">[39m
+[31m+ <tr class="md-github">[39m
+[31m+ <td class="md-github">1</td>[39m
+[31m+ <td class="md-github">2</td>[39m
+[31m+ </tr>[39m
+[31m+ </tbody>[39m
+[31m+ </table>[39m
+[31m+[39m
+[31m+[39m
+
+[36m [2m❯[22m sandbox/tests/markdown.test.js:[2m35:20[22m[39m
+    [90m 33| [39m    fs[33m.[39m[34mwriteFileSync[39m(mdPath[33m,[39m mdContent[33m,[39m [32m'utf-8'[39m)[33m;[39m
+    [90m 34| [39m    const output = execSync(`${cli} markdown ${mdPath}`, { encoding: '…
+    [90m 35| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<h1>Heading</h1>'[39m)[33m;[39m
+    [90m   | [39m                   [31m^[39m
+    [90m 36| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<a href="http://example.com">link</a>'[39m)[33m;[39m
+    [90m 37| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<pre><code>code'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/markdown.test.js[2m > [22mmarkdown command[2m > [22mwrites HTML output to file with --output
+[31m[1mAssertionError[22m: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- <h1[7m>Test</h1>[27m[39m
+[31m+ <h1[7m class="md-github"><a class="md-github__anchor" name="test" href="#test"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Test</h1>[27m[39m
+[31m+ <p class="md-github">Content</p>[39m
+[31m+[39m
+
+[36m [2m❯[22m sandbox/tests/markdown.test.js:[2m49:25[22m[39m
+    [90m 47| [39m    [34mexpect[39m(stdout)[33m.[39m[34mtoBe[39m([32m''[39m)[33m;[39m
+    [90m 48| [39m    [35mconst[39m fileContent [33m=[39m fs[33m.[39m[34mreadFileSync[39m(outPath[33m,[39m [32m'utf-8'[39m)[33m;[39m
+    [90m 49| [39m    [34mexpect[39m(fileContent)[33m.[39m[34mtoContain[39m([32m'<h1>Test</h1>'[39m)[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 50| [39m    [34mexpect[39m(fileContent)[33m.[39m[34mtoContain[39m([32m'<p>Content</p>'[39m)[33m;[39m
+    [90m 51| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m33 passed[39m[22m[90m (35)[39m
+[2m   Start at [22m 04:34:51
+[2m   Duration [22m 3.50s[2m (transform 138ms, setup 0ms, collect 306ms, tests 6.93s, environment 3ms, prepare 1.12s)[22m
+
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/markdown.test.js,title=sandbox/tests/markdown.test.js > markdown command > renders markdown to HTML on stdout,line=35,column=20::AssertionError: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'%0A%0A- Expected%0A+ Received%0A%0A- <h1>Heading</h1>%0A+ <h1 class="md-github"><a class="md-github__anchor" name="heading" href="#heading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Heading</h1>%0A+ <p class="md-github">This is a <a href="http://example.com" class="md-github">link</a>.</p>%0A+ <pre class="md-github"><code class="md-github">code%0A+ </code></pre>%0A+ <table class="md-github">%0A+ <thead class="md-github">%0A+ <tr class="md-github">%0A+ <th class="md-github">A</th>%0A+ <th class="md-github">B</th>%0A+ </tr>%0A+ </thead>%0A+ <tbody class="md-github">%0A+ <tr class="md-github">%0A+ <td class="md-github">1</td>%0A+ <td class="md-github">2</td>%0A+ </tr>%0A+ </tbody>%0A+ </table>%0A+%0A+%0A%0A ❯ sandbox/tests/markdown.test.js:35:20%0A%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/markdown.test.js,title=sandbox/tests/markdown.test.js > markdown command > writes HTML output to file with --output,line=49,column=25::AssertionError: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'%0A%0A- Expected%0A+ Received%0A%0A- <h1>Test</h1>%0A+ <h1 class="md-github"><a class="md-github__anchor" name="test" href="#test"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Test</h1>%0A+ <p class="md-github">Content</p>%0A+%0A%0A ❯ sandbox/tests/markdown.test.js:49:25%0A%0A
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
+  markdown           Convert a Markdown file to HTML
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- markdown file.md --output file.html
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -1620,193 +1923,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: Implement "markdown" CLI command for Markdown to HTML conversion
-description:
-Overview:
-Introduce a new top-level CLI command `markdown` to convert a Markdown file into HTML using `markdown-it` and the GitHub plugin. Users should be able to render a `.md` file to stdout or write the output to a file via `--output`.
-
-Change scope:
-- **sandbox/source/main.js**
-  • Import `MarkdownIt` from `markdown-it` and `markdownItGithub` from `markdown-it-github`.
-  • Add a new case for `markdown` in the CLI switch:
-    - Parse `argv._[1]` as the input Markdown file path.
-    - Read the file with `fs/promises`.
-    - Instantiate `new MarkdownIt().use(markdownItGithub)`.
-    - Call `.render()` on the file content to produce HTML.
-    - If `argv.output` is provided, write HTML to that path; otherwise, print to stdout.
-    - Handle missing file or write errors with descriptive messages and exit code 1.
-
-- **sandbox/tests/markdown.test.js**
-  • Create a feature-level test suite that:
-    1. Writes a temporary Markdown file containing headings, links, code blocks, and tables.
-    2. Invokes `node sandbox/source/main.js markdown <file>` and asserts HTML tags (`<h1>`, `<a>`, `<pre>`, `<table>`) appear in stdout.
-    3. Verifies the `--output <path>` flag writes the expected HTML to disk and prints nothing (or a success message).
-    4. Tests error handling when the input file does not exist (exit code 1 and error message).
-
-- **README.md**
-  • Update the **Commands Reference** section:
-    - Add the `markdown` command usage:
-      ```bash
-      npm run start -- markdown <input.md> [--output <output.html>]
-      ```
-    - Provide a brief example converting `README.md` to `README.html`.
-
-- **package.json**
-  • Ensure `markdown-it` and `markdown-it-github` appear under `dependencies`.
-
-Verification:
-1. Run `npm install` to pick up any new dependencies.
-2. Execute `npm test` to confirm `sandbox/tests/markdown.test.js` passes alongside existing suites.
-3. Manually try:
-   ```bash
-   npm run start -- markdown sandbox/features/MARKDOWN_RENDER.md
-   npm run start -- markdown sandbox/features/MARKDOWN_RENDER.md --output feature.html
-   ```
-   and inspect the rendered HTML.
-
-All changes should be delivered in a single LLM invocation updating only `sandbox/source/main.js`, `sandbox/tests/markdown.test.js`, `README.md`, and `package.json`. No new files should be created or other files modified.
-comments:
-Author:github-actions[bot], Created:2025-05-18T04:24:55Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092283966
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/827c8d0ac6746b06a8e9b644f7c3fede962cac6d
-Author:github-actions[bot], Created:2025-05-18T04:25:29Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092283966
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/827c8d0ac6746b06a8e9b644f7c3fede962cac6d
-Author:github-actions[bot], Created:2025-05-18T04:26:36Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092283966
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/827c8d0ac6746b06a8e9b644f7c3fede962cac6d
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── csv-parse@5.6.0
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@10.1.5
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.26.0
-├── js-yaml@4.1.0
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── minimist@1.2.8
-├── npm-check-updates@18.0.1
-├── openai@4.98.0
-├── prettier@3.5.3
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 721[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 872[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1010[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 268[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 692[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 411[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 112[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 114[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m10 passed[39m[22m[90m (10)[39m
-[2m      Tests [22m [1m[32m32 passed[39m[22m[90m (32)[39m
-[2m   Start at [22m 04:27:47
-[2m   Duration [22m 2.33s[2m (transform 117ms, setup 0ms, collect 228ms, tests 4.21s, environment 2ms, prepare 899ms)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
