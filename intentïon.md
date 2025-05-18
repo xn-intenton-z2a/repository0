@@ -4,3 +4,5 @@
 
 2025-05-18T16:58:10.190Z - Maintained feature SEARCH.
 
+2025-05-18T17:57:37.681Z - Maintained feature JSON_QUERY.
+
