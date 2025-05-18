@@ -3,3 +3,5 @@
 
 2025-05-18T01:16:38.357Z - Maintained feature TEXT_REPLACE.
 
+2025-05-18T01:24:17.794Z - Maintained feature CSV_IO.
+
