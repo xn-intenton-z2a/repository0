@@ -1,53 +1,45 @@
-# CSV Input/Output
+# CSV Input and Database Import
 
 ## CLI Behavior
 
-Introduce a unified `csv` command with the following subcommands and options:
+Add a top-level csv command with the following subcommands and options:
 
-- `csv convert <inputFile>`
-  - Convert a CSV file to JSON array.
-  - Flags: `--delimiter <char>`, `--header <true|false>` (default true), `--output <file>`.
+- csv convert <inputFile>
+  - Read a CSV file and output a JSON array of records.
+  - Options: --delimiter <char> (default comma), --header <true|false> (default true), --output <file>
 
-- `csv export <inputFile>`
-  - Convert a JSON array file to CSV.
-  - Flags: `--delimiter <char>`, `--output <file>`.
+- csv export <inputFile>
+  - Read a JSON array file and output a CSV file.
+  - Options: --delimiter <char>, --output <file>
 
-- `csv stream <inputFile>`
+- csv stream <inputFile>
   - Stream-process large CSV files, emitting JSON arrays in chunks.
-  - Flags: `--delimiter <char>`, `--header <true|false>`, `--chunk-size <number>` (default 1000), `--progress`, `--output <file>`.
+  - Options: --delimiter <char>, --header <true|false>, --chunk-size <number> (default 1000), --progress, --output <file>
 
-- `csv db-import <inputFile> --db <dbFile>`
+- csv db-import <inputFile> --db <dbFile>
   - Import CSV rows into a SQLite database table.
-  - Flags: `--table <name>` (default data), `--delimiter <char>`, `--header <true|false>`, `--overwrite`, `--chunk-size <number>` (default 1000).
+  - Options: --table <name> (default data), --delimiter <char>, --header <true|false>, --overwrite, --chunk-size <number> (default 1000)
 
-# File Modifications
+Each subcommand should read the input file, parse or serialize accordingly, and write result to stdout or to the specified output file. The db-import subcommand should batch insert rows in a transaction and report insertion counts.
 
-- **sandbox/source/main.js**
-  - Add a new `csv` case in the CLI switch to delegate to `doCsvCommand(argv)`.
-  - Implement `async function doCsvCommand(argv)` that inspects `argv._[1]` for the subcommand and calls:
-    - `doCsvConvert(argv)`
-    - `doCsvExport(argv)`
-    - `doCsvStream(argv)`
-    - `doCsvDbImport(argv)`
-  - Update or reuse the existing CSV parser for in-memory convert and export.
-  - Use `fs.createReadStream` and the `csv-parse` streaming API for the `stream` subcommand, writing JSON chunks to stdout or file and emitting progress to stderr when requested.
-  - Import and use `better-sqlite3` for the `db-import` subcommand, handling table creation, optional overwrite, batch inserts in transactions, and error handling.
+## File Modifications
 
-- **sandbox/tests/csv-io.test.js**
-  - Create feature-level tests covering each subcommand: convert, export, stream, and db-import.
-  - Verify correct JSON/CSV transformation, chunking behavior, progress output, file writes, database table creation, row counts, and error conditions.
+- sandbox/source/main.js
+  - Add a new case csv in the CLI switch to call doCsvCommand(argv).
+  - Implement doCsvCommand to dispatch to convert, export, stream, and db-import helpers based on argv._[1].
+  - For convert and export use parse and stringify from csv-parse/sync and JSON methods.
+  - For stream use fs.createReadStream with csv-parse streaming API, emit chunked JSON arrays, and print progress to stderr when requested.
+  - For db-import use better-sqlite3: connect to the database, optionally drop and recreate table when overwrite is true, prepare an insert statement, and run a transaction to insert each record.
 
-- **README.md**
-  - Add a new CLI Usage section for the `csv` command, describing each subcommand, options, and examples.
+- sandbox/tests/csv-io.test.js
+  - Cover each subcommand: convert with and without header, export round-trip, stream chunking and progress, db-import table creation, overwrite behavior, and error handling for missing files or parse errors.
 
-- **package.json**
-  - Add `better-sqlite3` to dependencies if not already present.
+- README.md and sandbox/docs/CLI_USAGE.md
+  - Update the Commands Reference and examples to document the csv command and each subcommand with usage scenarios.
 
-# Testing
+- package.json
+  - Ensure csv-parse and better-sqlite3 are listed as dependencies.
 
-- Ensure `npm test` runs the new `sandbox/tests/csv-io.test.js` alongside existing tests.
-- Test convert subcommand with and without headers and custom delimiters.
-- Test export subcommand converts JSON to CSV with correct headers.
-- Test stream subcommand produces multiple JSON chunks and progress stderr output.
-- Test db-import subcommand creates or overwrites tables and imports data correctly in batches.
-- Validate appropriate exit codes and error messages for missing files, invalid formats, or database errors.
+## Testing
+
+Write tests to verify JSON and CSV transformation accuracy, correct handling of headers and delimiters, streaming behavior with chunk size and progress output, file writing via --output, and database imports reflecting correct rows, schema, and overwrite behavior.
