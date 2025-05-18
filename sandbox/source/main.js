@@ -13,15 +13,19 @@ import yaml from "js-yaml";
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render"],
-    alias: { h: "help" },
+    alias: { h: "help", m: "mission" },
   });
 
   // Help command
   if (args.help) {
-    console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+    console.log(
+      `Usage: ${path.basename(
+        process.argv[1]
+      )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+    );
     console.log(`\nCommands:`);
     console.log(`  --help                      Display usage instructions`);
-    console.log(`  --mission                   Print mission statement`);
+    console.log(`  -m, --mission               Print mission statement`);
     console.log(`  --version                   Print version`);
     console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
     console.log(`  echo <message>              Echo message`);
@@ -37,7 +41,9 @@ export async function main(argv) {
 
   // Version
   if (args.version) {
-    const pkg = JSON.parse(await fs.readFile(path.resolve("package.json"), "utf-8"));
+    const pkg = JSON.parse(
+      await fs.readFile(path.resolve("package.json"), "utf-8")
+    );
     console.log(pkg.version);
     return;
   }
@@ -72,7 +78,11 @@ export async function main(argv) {
   }
 
   // Default to help
-  console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+  console.log(
+    `Usage: ${path.basename(
+      process.argv[1]
+    )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+  );
 }
 
 // If the script is run directly, invoke main with process arguments

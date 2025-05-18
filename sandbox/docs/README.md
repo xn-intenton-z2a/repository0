@@ -14,8 +14,8 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 - `--help`  
   : Displays usage instructions and a summary of available commands.
 
-- `--mission`  
-  : Reads and prints the mission statement from `MISSION.md`.
+- `-m, --mission`  
+  : Reads and prints the mission statement from `MISSION.md` (alias -m).
 
 - `--version`  
   : Reads and prints the version from `package.json`.
@@ -34,6 +34,9 @@ npm run start -- --help
 
 # Display mission statement
 npm run start -- --mission
+
+# Display mission statement using alias
+npm run start -- -m
 
 # Display current version
 npm run start -- --version
