@@ -1,6 +1,6 @@
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, and **echo** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **echo**, and **render** functionality.
 
 ## Links
 
@@ -11,21 +11,22 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-The CLI supports the following commands:
-
-- `--help`
+- `--help`  
   : Displays usage instructions and a summary of available commands.
 
-- `--mission`
+- `--mission`  
   : Reads and prints the mission statement from `MISSION.md`.
 
-- `--version`
+- `--version`  
   : Reads and prints the version from `package.json`.
 
-- `echo` _<message>..._
+- `--render <templatePath> <dataPath>`  
+  : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
+
+- `echo` _<message>..._  
   : Prints any additional arguments passed after the `echo` command.
 
-### Usage Examples
+## Usage Examples
 
 ```bash
 # Display help text
@@ -39,24 +40,36 @@ npm run start -- --version
 
 # Echo a message
 npm run start -- echo hello world
+
+# Render an EJS template with JSON data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json
+
+# Render an EJS template with YAML data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml
+```
+
+### Expected Output
+
+```bash
+Hello Alice! You have 3 items.
 ```
 
 ## Getting Started
 
 1. **Clone the repository**:
    ```bash
-git clone <repository_url>
-cd repository0
-```
+   git clone <repository_url>
+   cd repository0
+   ```
 2. **Install dependencies**:
    ```bash
-npm install
-```
+   npm install
+   ```
 3. **Run tests**:
    ```bash
-npm test
-```
+   npm test
+   ```
 4. **Run the CLI**:
    ```bash
-npm run start -- --help
-```
+   npm run start -- --help
+   ```
