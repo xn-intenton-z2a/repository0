@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -125,7 +129,7 @@ Commands:
   mission            Print the mission statement
   version            Print the current version
   echo               Echo the provided arguments
-  features           List available feature documents
+  features           List available feature documents (use --validate-mission to list those without mission reference)
   mission-features   Print the mission statement and list available features
   csv-import         Import a CSV file and output JSON array
   render             Render an EJS template with optional JSON data and output file
@@ -141,6 +145,7 @@ Examples:
   npm run start -- version
   npm run start -- echo Hello World
   npm run start -- features
+  npm run start -- features --validate-mission
   npm run start -- mission-features
   npm run start -- csv-import data.csv
   npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
@@ -183,22 +188,34 @@ async function doEcho(args) {
   console.log(args.join(" "));
 }
 
-async function showFeatures() {
+async function showFeatures(argv) {
+  const validate = argv && argv['validate-mission'];
   try {
     const cwd = process.cwd();
     const featuresDir = path.join(cwd, "sandbox/features");
     const files = await fs.readdir(featuresDir);
     for (const file of files) {
       if (path.extname(file).toLowerCase() === ".md") {
-        const content = await fs.readFile(path.join(featuresDir, file), "utf-8");
+        const filePath = path.join(featuresDir, file);
+        const content = await fs.readFile(filePath, "utf-8");
         const lines = content.split("\n");
+        let heading = null;
         for (const line of lines) {
           const match = line.match(/^#\s+(.*)/);
           if (match) {
-            console.log(match[1]);
+            heading = match[1];
             break;
           }
         }
+        if (!heading) {
+          continue;
+        }
+        if (validate) {
+          if (content.includes("MISSION.md") || content.includes("# Mission Statement")) {
+            continue;
+          }
+        }
+        console.log(heading);
       }
     }
   } catch (err) {
@@ -301,7 +318,6 @@ async function doRender(argv) {
   }
 }
 
-// Text replacement functionality
 async function doTextReplace(argv) {
   const inputFile = argv._[1];
   const search = argv.search;
@@ -352,7 +368,6 @@ async function doTextReplace(argv) {
   }
 }
 
-// Format conversion functionality
 async function doConvert(argv) {
   const inputFile = argv._[1];
   const toEnv = argv["to-env"];
@@ -365,7 +380,6 @@ async function doConvert(argv) {
     process.exit(1);
   }
 
-  // Validate exclusive flags
   const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
   if (flagCount > 1) {
     console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
@@ -411,7 +425,6 @@ async function doConvert(argv) {
     } else if (toYaml) {
       result = jsYaml.dump(data);
     } else {
-      // Default or --to-json
       result = JSON.stringify(data, null, 2);
     }
   } catch (err) {
@@ -433,7 +446,6 @@ async function doConvert(argv) {
   }
 }
 
-// Data import functionality
 async function doImportData(argv) {
   const inputFile = argv._[1];
   const dbPath = argv.db;
@@ -490,7 +502,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Initialize database
   let db;
   try {
     db = new Database(dbPath);
@@ -499,7 +510,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Handle table existence
   try {
     const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
     if (exists) {
@@ -515,7 +525,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Create table schema
   const keys = Object.keys(records[0] || {});
   const colsDef = keys.map((k) => `"${k}" TEXT`).join(', ');
   try {
@@ -525,7 +534,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Insert records in transaction
   const placeholders = keys.map(() => '?').join(', ');
   const insertSQL = `INSERT INTO "${table}" (${keys.map((k) => `"${k}"`).join(', ')}) VALUES (${placeholders})`;
   const insertStmt = db.prepare(insertSQL);
@@ -585,7 +593,7 @@ async function doMarkdown(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
     string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
     default: { header: true, delimiter: "," },
   });
@@ -605,12 +613,12 @@ async function main() {
       await doEcho(rest);
       break;
     case "features":
-      await showFeatures();
+      await showFeatures(argv);
       break;
     case "mission-features":
       await showMission();
       console.log("");
-      await showFeatures();
+      await showFeatures(argv);
       break;
     case "csv-import":
       await doCsvImport(argv);
@@ -641,6 +649,7 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
+
 SOURCE_FILE_END
 
 
@@ -880,6 +889,11 @@ import { execSync } from 'child_process';
 describe('CLI sandbox/source/main.js', () => {
   test('features command lists headings of feature docs', () => {
     const output = execSync('node sandbox/source/main.js features', { encoding: 'utf-8' });
+    expect(output).toContain('CLI Command Support');
+  });
+
+  test('features command with --validate-mission lists headings without mission references', () => {
+    const output = execSync('node sandbox/source/main.js features --validate-mission', { encoding: 'utf-8' });
     expect(output).toContain('CLI Command Support');
   });
 });
@@ -1449,20 +1463,20 @@ Project Overview:
 
 ## Commands Reference
 
-| Command            | Description                                                                      |
-|--------------------|----------------------------------------------------------------------------------|
-| help               | Display help message listing all commands and usage examples                     |
-| mission            | Print the mission statement from `MISSION.md`                                    |
-| version            | Show the current version from `package.json`                                      |
-| echo               | Echo the provided arguments                                                       |
-| features           | List headings of Markdown files in `sandbox/features/`                            |
-| mission-features   | Print the mission statement, then list available features                         |
-| csv-import         | Import a CSV file and output a JSON array                                        |
-| render             | Render an EJS template with optional JSON data to stdout or file                 |
-| replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
-| convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
-| markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
-| import-data        | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
+| Command                        | Description                                                                                                                      |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| help                           | Display help message listing all commands and usage examples                                                                     |
+| mission                        | Print the mission statement from `MISSION.md`                                                                                      |
+| version                        | Show the current version from `package.json`                                                                                      |
+| echo                           | Echo the provided arguments                                                                                                       |
+| features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only those feature docs that do not reference the mission statement. |
+| mission-features               | Print the mission statement, then list available features                                                                         |
+| csv-import                     | Import a CSV file and output a JSON array                                                                                         |
+| render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
+| replace / text-replace         | Perform search-and-replace on a text file (literal or regex)                                                                      |
+| convert                        | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                             |
+| markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
+| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
 
 ## Examples
 
@@ -1485,6 +1499,14 @@ Project Overview:
 - List features:
   ```bash
   npm run start -- features
+  ```
+- Validate mission references in feature docs:
+  ```bash
+  npm run start -- features --validate-mission
+  ```
+- Mission and features:
+  ```bash
+  npm run start -- mission-features
   ```
 - CSV import with header row and custom delimiter:
   ```bash
@@ -1522,13 +1544,6 @@ Project Overview:
   ```bash
   npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
   ```
-
-## Related Documents
-
-- [Mission Statement](../../MISSION.md)
-- [Contributing Guide](../../CONTRIBUTING.md)
-- [License](../../LICENSE.md)
-- [Agentic-lib Repository](https://github.com/xn-intenton-z2a/agentic-lib)
 
 DOCUMENTATION_FILE_END
 
@@ -1981,9 +1996,121 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 481 packages, and audited 482 packages in 5s
+
+157 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1052[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2114[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2202[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 414[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 629[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1066[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 321[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 585[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 379[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 889[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 366[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 191[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 506[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m48 passed[39m[22m[90m (48)[39m
+[2m   Start at [22m 07:28:43
+[2m   Duration [22m 4.26s[2m (transform 122ms, setup 0ms, collect 288ms, tests 9.36s, environment 3ms, prepare 1.12s)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents (use --validate-mission to list those without mission reference)
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  markdown           Convert a Markdown file to HTML
+  import-data        Import structured data files into a SQLite database
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- features --validate-mission
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
+  npm run start -- markdown file.md --output file.html
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -2069,201 +2196,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: Add --validate-mission flag to features command to verify feature docs reference mission
-description:
-**Background**
-
-Currently, the `features` CLI command lists the top-level headings of all Markdown files in `sandbox/features/`. We need to introduce a new validation mode so that maintainers can quickly identify which feature documents do not reference the mission statement (e.g., link to `MISSION.md` or include the phrase “Mission Statement”).
-
-**Objectives**
-
-1. Extend the `features` command in `sandbox/source/main.js` to accept a new boolean flag `--validate-mission`.
-2. When `--validate-mission` is provided, scan each Markdown file under `sandbox/features/`. For each file:
-   - If the content does **not** contain a reference to the mission statement (a link or the string `MISSION.md` or `# Mission Statement`), include its heading in the output.
-   - If the content **does** contain a reference, skip it.
-3. Exit with code `0` after printing all non-referencing feature headings to `stdout`. (No errors for missing references; it's informational.)
-4. Update testing to cover the new behavior.
-5. Update documentation (CLI_USAGE.md and README.md) to describe the new `--validate-mission` flag under the `features` command.
-
-**Changes**
-
-1. **Source (`sandbox/source/main.js`)**
-   - Modify the `features` switch case to pass `argv` into `showFeatures(argv)`.
-   - Change `showFeatures` to accept an `argv` parameter and check `argv['validate-mission']`.
-   - When `argv['validate-mission']` is true, read each feature file's content and apply the filter logic described above.
-
-2. **Tests (`sandbox/tests/features.test.js`)**
-   - Add a test case for invoking `node sandbox/source/main.js features --validate-mission`.
-   - Confirm that the output lists all feature headings (since none currently reference the mission statement).
-   - Optionally, simulate a Markdown file containing a mission reference (e.g., injecting a `# Mission Statement` line) and verify it is excluded from the output.
-
-3. **Documentation**
-   - **CLI_USAGE.md**: Under the Commands Reference, add `--validate-mission` to the `features` entry, with a description and example.
-   - **README.md**: Add the new flag to the `features` section, showing usage.
-
-**Verification**
-
-- Run `npm test` to ensure all existing tests still pass and the new tests are green.
-- Manually run:
-  - `npm run start -- features` (should list all feature headings as before)
-  - `npm run start -- features --validate-mission` (should list the same headings because no docs reference the mission yet)
-  - Verify exit code is `0` and output format is one heading per line.
-
-No other files should be modified. Once this issue is complete, maintainers can start integrating mission references into feature docs and use this validation flag to track coverage.
-comments:
-Author:github-actions[bot], Created:2025-05-18T06:25:15Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
-Author:github-actions[bot], Created:2025-05-18T06:25:44Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
-Author:github-actions[bot], Created:2025-05-18T06:26:45Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── better-sqlite3@8.7.0
-├── csv-parse@5.6.0
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@10.1.5
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.26.0
-├── js-yaml@4.1.0
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── minimist@1.2.8
-├── npm-check-updates@18.0.1
-├── openai@4.98.0
-├── prettier@3.5.3
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1095[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2354[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 439[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 592[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2381[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1095[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 362[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 359[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 600[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 982[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 198[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 474[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 148[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
-[2m      Tests [22m [1m[32m47 passed[39m[22m[90m (47)[39m
-[2m   Start at [22m 06:27:57
-[2m   Duration [22m 4.39s[2m (transform 114ms, setup 0ms, collect 289ms, tests 9.69s, environment 3ms, prepare 1.10s)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
-  markdown           Convert a Markdown file to HTML
-  import-data        Import structured data files into a SQLite database
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --to-yaml --output out.yaml
-  npm run start -- convert file.env --to-json
-  npm run start -- convert config.json --to-env
-  npm run start -- markdown file.md --output file.html
-  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
