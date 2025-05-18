@@ -86,4 +86,43 @@ describe('convert command', () => {
     expect(err.status).toBe(1);
     expect(err.stderr).toContain('Error parsing input file');
   });
+
+  // New tests for bidirectional conversions and flag validation
+  test('.env to YAML conversion with --to-yaml', () => {
+    const envPath = path.join(tempDir, 'test2.env');
+    fs.writeFileSync(envPath, 'A=apple\nB=banana');
+    const output = execSync(`${cli} convert ${envPath} --to-yaml`, { encoding: 'utf-8' });
+    const parsed = jsYaml.load(output);
+    expect(parsed).toEqual({ A: 'apple', B: 'banana' });
+  });
+
+  test('YAML to .env conversion with --to-env', () => {
+    const yamlPath = path.join(tempDir, 'test2.yaml');
+    fs.writeFileSync(yamlPath, 'X: 123\nY: 456');
+    const output = execSync(`${cli} convert ${yamlPath} --to-env`, { encoding: 'utf-8' });
+    const lines = output.trim().split('\n');
+    expect(lines.sort()).toEqual(['X=123', 'Y=456'].sort());
+  });
+
+  test('.env to JSON conversion with --to-json', () => {
+    const envPath = path.join(tempDir, 'test3.env');
+    fs.writeFileSync(envPath, 'K1=V1\nK2=V2');
+    const output = execSync(`${cli} convert ${envPath} --to-json`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual({ K1: 'V1', K2: 'V2' });
+  });
+
+  test('error on invalid flag combinations', () => {
+    const envPath = path.join(tempDir, 'test4.env');
+    fs.writeFileSync(envPath, 'A=1\nB=2');
+    let err;
+    try {
+      execSync(`${cli} convert ${envPath} --to-env --to-yaml`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Specify exactly one of');
+  });
 });

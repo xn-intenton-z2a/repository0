@@ -22,7 +22,7 @@ Commands:
   render             Render an EJS template with optional JSON data and output file
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
   markdown           Convert a Markdown file to HTML
 
 Examples:
@@ -39,7 +39,9 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
   npm run start -- markdown file.md --output file.html`);
 }
 
@@ -283,10 +285,18 @@ async function doConvert(argv) {
   const inputFile = argv._[1];
   const toEnv = argv["to-env"];
   const toYaml = argv["to-yaml"];
+  const toJson = argv["to-json"];
   const output = argv.output;
 
   if (!inputFile) {
     console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  // Validate exclusive flags
+  const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
+  if (flagCount > 1) {
+    console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
     process.exit(1);
   }
 
@@ -301,23 +311,19 @@ async function doConvert(argv) {
 
   let data;
   try {
-    if (toEnv || toYaml) {
+    const ext = path.extname(inputFile).toLowerCase();
+    if (ext === ".env") {
+      data = dotenv.parse(content);
+    } else if (ext === ".json") {
       data = JSON.parse(content);
+    } else if (ext === ".yaml" || ext === ".yml") {
+      data = jsYaml.load(content);
     } else {
-      const ext = path.extname(inputFile).toLowerCase();
-      if (ext === ".env") {
-        data = dotenv.parse(content);
-      } else if (ext === ".yml" || ext === ".yaml") {
-        data = jsYaml.load(content);
-      } else if (ext === ".json") {
-        data = JSON.parse(content);
-      } else {
-        console.error("Unsupported input format:", ext);
-        process.exit(1);
-      }
+      console.error(`Unsupported input format: ${ext}`);
+      process.exit(1);
     }
   } catch (err) {
-    console.error("Error parsing input file:", err.message);
+    console.error(`Error parsing input file: ${err.message}`);
     process.exit(1);
   }
 
@@ -333,6 +339,7 @@ async function doConvert(argv) {
     } else if (toYaml) {
       result = jsYaml.dump(data);
     } else {
+      // Default or --to-json
       result = JSON.stringify(data, null, 2);
     }
   } catch (err) {
@@ -356,7 +363,7 @@ async function doConvert(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json"],
     string: ["output", "delimiter", "flags", "search", "replace"],
     default: { header: true, delimiter: "," },
   });
@@ -400,7 +407,7 @@ async function main() {
       await doMarkdown(argv);
       break;
     default:
-      console.log(`Unknown command: ${command}\n`);
+      console.log(`Unknown command: ${command}` + "\n");
       await showHelp();
   }
 }

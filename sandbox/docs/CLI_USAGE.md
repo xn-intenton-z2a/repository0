@@ -38,7 +38,7 @@ Project Overview:
 | csv-import         | Import a CSV file and output a JSON array                                        |
 | render             | Render an EJS template with optional JSON data to stdout or file                 |
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
-| convert            | Convert between .env, JSON, and YAML formats                                      |
+| convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
 | markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
 
 ## Examples
@@ -75,9 +75,21 @@ Project Overview:
   ```bash
   npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
   ```
+- Convert `.env` to JSON (default):
+  ```bash
+  npm run start -- convert config.env
+  ```
+- Convert `.env` explicitly to JSON:
+  ```bash
+  npm run start -- convert config.env --to-json
+  ```
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
+  ```
+- Convert YAML to `.env`:
+  ```bash
+  npm run start -- convert config.yaml --to-env
   ```
 - Convert Markdown to HTML (stdout):
   ```bash
