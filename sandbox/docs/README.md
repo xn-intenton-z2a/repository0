@@ -66,13 +66,13 @@ Example:
 npm run start -- echo Hello World
 ```
 
-**features**
+**features [--validate-mission]**
 
-List feature document headings.
+List feature document headings. With `--validate-mission`, report and fail on any mission references in feature docs (exit code 1).
 
 Example:  
 ```bash
-npm run start -- features
+npm run start -- features --validate-mission
 ```
 
 **mission-features**

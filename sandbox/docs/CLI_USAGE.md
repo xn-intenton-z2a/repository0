@@ -33,7 +33,7 @@ Project Overview:
 | mission                        | Print the mission statement from `MISSION.md`                                                                                     |
 | version                        | Show the current version from `package.json`                                                                                      |
 | echo                           | Echo the provided arguments                                                                                                       |
-| features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only those feature docs that do not reference the mission statement. |
+| features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only feature docs without mission references; reports and fails (exit code 1) if any docs reference the mission statement. |
 | mission-features               | Print the mission statement, then list available features                                                                         |
 | csv-import                     | Import a CSV file and output a JSON array                                                                                         |
 | render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
