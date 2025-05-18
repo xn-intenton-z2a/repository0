@@ -163,8 +163,69 @@ TEST_FILE_END
 
 Documentation files (write new files or update files in sandbox/docs as necessary):
 (Multiple files from both in writable locations and not.)
-DOCUMENTATION_FILE_START File: sandbox/docs
+DOCUMENTATION_FILE_START File: sandbox/docs/README.md
+# CLI Demo of Agentic Workflows
 
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, and **echo** functionality.
+
+## Links
+
+- [Mission Statement](../../MISSION.md)
+- [Contributing Guidelines](../../CONTRIBUTING.md)
+- [License](../../LICENSE.md)
+- [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
+
+## Commands
+
+The CLI supports the following commands:
+
+- `--help`
+  : Displays usage instructions and a summary of available commands.
+
+- `--mission`
+  : Reads and prints the mission statement from `MISSION.md`.
+
+- `--version`
+  : Reads and prints the version from `package.json`.
+
+- `echo` _<message>..._
+  : Prints any additional arguments passed after the `echo` command.
+
+### Usage Examples
+
+```bash
+# Display help text
+npm run start -- --help
+
+# Display mission statement
+npm run start -- --mission
+
+# Display current version
+npm run start -- --version
+
+# Echo a message
+npm run start -- echo hello world
+```
+
+## Getting Started
+
+1. **Clone the repository**:
+   ```bash
+git clone <repository_url>
+cd repository0
+```
+2. **Install dependencies**:
+   ```bash
+npm install
+```
+3. **Run tests**:
+   ```bash
+npm test
+```
+4. **Run the CLI**:
+   ```bash
+npm run start -- --help
+```
 DOCUMENTATION_FILE_END
 
 
@@ -707,57 +768,44 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Documenter: Refresh README to reflect actual CLI commands and usage
+title: Implement --render EJS template rendering CLI option
 description:
-Title: Documenter: Refresh README to reflect actual CLI commands and usage
+Implement a new `--render` CLI option that reads an EJS template and a JSON or YAML data file, renders the template with the data context, and prints the output to stdout.  
 
-Description:
-The current README contains descriptions of features (equation plotting, SVG output, interactive zooming, polar plots) that are not implemented in this repository’s CLI demo. This mismatch confuses users and obscures the project’s core purpose of demonstrating agentic workflows via simple CLI commands.
+Acceptance Criteria:  
+1. Given a valid EJS template `template.ejs` and JSON data file `data.json`, running `npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json` outputs the correct rendered string (e.g. "Hello Alice! You have 3 items.") to stdout.  
+2. Given a valid EJS template and YAML data file `data.yaml`, running `npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml` outputs the correct rendered string to stdout.  
+3. The CLI returns early after rendering, and other flags (`--help`, `--version`, `--mission`, `--config`, `--env`, `--csv`, default echo) behave exactly as before when `--render` is not present.  
+4. A new test file at `sandbox/tests/render.test.js` exists, with fixtures under `sandbox/tests/fixtures/` (`template.ejs`, `data.json`, `data.yaml`), and Vitest tests that spy on `console.log` to assert correct rendered output for both JSON and YAML.  
+5. Documentation in `sandbox/docs/README.md` (and mirrored in top-level `README.md`) includes:  
+   - A description of `--render <templatePath> <dataPath>`.  
+   - CLI usage examples for JSON and YAML.  
+   - Expected output snippet.  
+6. `package.json` includes `ejs` and `js-yaml` in dependencies and no new dependencies are added.  
 
-Goal:
-Revise README.md to accurately reflect the implemented functionality by focusing solely on the CLI demo commands and usage instructions.
-
-Acceptance Criteria:
-1. Remove all sections and narrative related to equation plotting, SVG output, interactive zooming, and polar plots.
-2. Update the README header/introduction to include:
-   - A concise mission-inspired sentence about the CLI demo of agentic workflows.
-   - Links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the intentïon agentic-lib GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib).
-3. Add a new "Commands" section that:
-   - Lists the four core commands: `--help`, `--mission`, `--version`, and echo (positional arguments).
-   - Provides usage examples such as:
-     - `npm run start -- --help`
-     - `npm run start -- --mission`
-     - `npm run start -- --version`
-     - `npm run start -- echo hello world`
-4. Update the "Getting Started" section to include:
-   - `git clone <repository_url>`
-   - `npm install`
-   - `npm test`
-   - Examples of running the CLI commands as shown above.
-5. Ensure all links (to docs and external repo) are valid and clickable in the rendered GitHub README.
-6. Verify locally by executing each example command and confirming the output matches the documented behavior.
-
-Verification Steps:
-- Check revised README.md for removed outdated content and correct new sections.
-- Run each documented command locally to ensure output is as expected.
-- Validate that links to documentation files and external repositories are functional.
+Implement the feature in `src/lib/main.js`, update or create necessary test fixtures and tests, and update documentation accordingly.
 comments:
-Author:github-actions[bot], Created:2025-05-18T21:42:28Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+Author:github-actions[bot], Created:2025-05-18T21:59:03Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100426108
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/cd04daed9537398bc91dcd7a74f26219603239a5
-Author:github-actions[bot], Created:2025-05-18T21:43:10Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T21:43:39Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5353287525dd8504af6461aa9953025fd19b37d2
+Author:github-actions[bot], Created:2025-05-18T21:59:58Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T22:22:30Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bba3190f29fbac59c8955e54a3668a32c6b03f5
-Author:github-actions[bot], Created:2025-05-18T21:44:40Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
+Author:github-actions[bot], Created:2025-05-18T22:22:50Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bba3190f29fbac59c8955e54a3668a32c6b03f5
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
+Author:github-actions[bot], Created:2025-05-18T22:23:50Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100619296
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7ff6e3ea10a95ec670b7e47da6bd5b5f684f8744
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -809,7 +857,7 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
@@ -817,8 +865,8 @@ TEST_OUTPUT_START
 
 [2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
 [2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m   Start at [22m 21:45:55
-[2m   Duration [22m 259ms[2m (transform 43ms, setup 0ms, collect 34ms, tests 8ms, environment 0ms, prepare 146ms)[22m
+[2m   Start at [22m 22:25:02
+[2m   Duration [22m 278ms[2m (transform 35ms, setup 0ms, collect 38ms, tests 8ms, environment 0ms, prepare 172ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
