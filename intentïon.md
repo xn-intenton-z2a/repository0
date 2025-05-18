@@ -10,3 +10,5 @@
 
 2025-05-18T07:58:10.510Z - Maintained feature CSV_IO.
 
+2025-05-18T08:15:10.290Z - Maintained feature LOG_SCALE.
+
