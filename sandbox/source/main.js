@@ -193,6 +193,57 @@ async function doRender(argv) {
   }
 }
 
+// Text replacement functionality
+async function doTextReplace(argv) {
+  const inputFile = argv._[1];
+  const search = argv.search;
+  const replacement = argv.replace;
+  const regexFlag = argv.regex;
+  const flags = argv.flags || "";
+  const output = argv.output;
+
+  if (!inputFile || search === undefined || replacement === undefined) {
+    console.error("Missing --search or --replace flag");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  if (regexFlag) {
+    let re;
+    try {
+      re = new RegExp(search, flags);
+    } catch (err) {
+      console.error("Invalid regular expression:", err.message);
+      process.exit(1);
+    }
+    result = content.replace(re, replacement);
+  } else {
+    result = content.replace(search, replacement);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+  }
+}
+
 // Format conversion functionality
 async function doConvert(argv) {
   const inputFile = argv._[1];
