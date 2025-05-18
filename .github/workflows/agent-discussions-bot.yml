@@ -419,7 +419,7 @@ jobs:
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
-          usage: ${{ needs.process-discussion-post.outputs.usage }}
+          usage: ${{ needs.generate-response.outputs.usage }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
