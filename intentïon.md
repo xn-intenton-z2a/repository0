@@ -6,3 +6,5 @@
 
 2025-05-18T13:57:48.342Z - Maintained feature STATS.
 
+2025-05-18T13:58:35.091Z - Generated feature development issue with title Implement `stats` CLI command to report file metrics.
+
