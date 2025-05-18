@@ -2,3 +2,5 @@
 
 2025-05-18T13:18:52.949Z - Maintained feature STATS.
 
+2025-05-18T13:40:13.978Z - Reviewed in-progress issue 2087.
+
