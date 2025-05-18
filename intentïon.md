@@ -10,3 +10,5 @@
 
 2025-05-18T15:57:43.530Z - Maintained feature FILE_COMPRESS.
 
+2025-05-18T15:58:35.110Z - Generated feature development issue with title Implement compress/decompress CLI commands for gzip and brotli.
+
