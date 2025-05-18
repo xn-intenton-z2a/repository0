@@ -2,46 +2,85 @@
 
 ## Overview
 
-Unify core CLI command support, file utilities, and detailed help into a single feature. This feature covers the `help`, `help <command>`, `replace`/`text-replace`, and `stats` commands under one conceptual grouping, ensuring consistent documentation, usage, and maintenance.
+Unify and maintain all core CLI commands in a single feature, covering help, mission, version, echo, feature listing, and file utilities including stats, replace, convert, validate, markdown, render, csv-import, and import-data. Ensure consistent behavior, implementation, testing, and documentation.
 
-## Detailed Help
+## Help Command
 
 ### CLI Behavior
 
-- Running `help` or no command prints the general usage message and lists all available commands.
-- Running `help <command>` prints detailed usage, flags, and examples for the specified command. If the command does not exist, prints an error message and exits with code 1.
+- `help` or no command: print general usage and list of commands.
+- `help <command>`: print detailed usage, flags, and examples for the specified command. Unknown commands produce an error and exit code 1.
 
 ### Implementation
 
-- **sandbox/source/main.js**:
-  - Extend the existing `showHelp` function to accept an optional command argument.
-  - Create a mapping from command names to their usage strings and examples.
-  - In the main switch block, handle `help` by checking `argv._[1]`: if present, lookup and print detailed help; otherwise, fallback to general help.
-  - For unknown commands in `help <command>`, print `Unknown command: <command>` and exit code 1.
+- Extend `showHelp(argv)` in `sandbox/source/main.js` to accept an optional command name.
+- Map command names to usage strings and examples.
+- In the main switch, handle `help` by delegating to the extended `showHelp`.
 
-- **README.md** and **sandbox/docs/CLI_USAGE.md**:
-  - Update the Commands Reference to document the `help <command>` syntax and include per-command usage sections for `replace`, `text-replace`, and `stats` under a unified File Utilities section.
+## Mission and Version Commands
 
-## File Utilities
+### Mission
 
-### replace / text-replace
+- `mission`: read and print contents of `MISSION.md`; on error exit code 1 with descriptive message.
 
-Perform search-and-replace on a text file with options for literal or regex replacement.
+### Version
 
-- Flags: `--search <pattern>`, `--replace <string>`, optional `--regex`, `--flags <regexFlags>`, `--all`, `--output <file>`.
-- Default behavior: first occurrence literal replacement; `--all` for global literal replacement; `--regex` defaults to global when no flags are provided.
+- `version`: read `package.json` version field and print; on error exit code 1.
 
-### stats
+## Echo Command
 
-Compute file metrics: lines, words, characters, bytes.
+- `echo <args>`: print the provided arguments joined by spaces.
+- Implement in `doEcho(args)` in `main.js`.
 
-- Usage: `stats <filePath> [--lines] [--words] [--chars] [--bytes] [--json] [--output <file>]`.
-- When no metric flags are provided, report all metrics.
-- Support streaming mode for large files.
+## Features Commands
 
-## Testing
+### features [--validate-mission]
 
-- Add tests under `sandbox/tests` to cover:
-  - `help help` and `help replace` produce correct detailed usage.
-  - Error on `help unknown` with exit code 1.
-  - Existing tests for `replace` and `stats` continue to pass unchanged.
+- List headings of Markdown files in `sandbox/features/`.
+- With `--validate-mission`, list only those without mission references; if any reference mission then report filenames and exit 1.
+
+### mission-features
+
+- Print mission statement then list available features.
+
+## Stats Command
+
+### CLI Behavior
+
+Introduce a new `stats` command to compute file metrics.
+
+Usage:
+
+    npm run start -- stats <filePath> [--lines] [--words] [--chars] [--bytes] [--json] [--output <file>]
+
+- Default (no metric flags): report all metrics.
+- `--lines`: report line count.
+- `--words`: report word count.
+- `--chars`: report character count.
+- `--bytes`: report byte size.
+- `--json`: output metrics as compact JSON object.
+- `--output <file>`: write results to file instead of stdout.
+
+### Implementation
+
+- In `sandbox/source/main.js`: import `fs/promises` and optionally Node's `readline` for streaming large files.
+- Add a case `stats` in the CLI switch that calls `await doStatsCommand(argv)`.
+- Implement `async function doStatsCommand(argv)`:
+  - Validate `argv._[1]` exists; on missing print usage and exit 1.
+  - Read file content (stream for large files): count lines by incrementing on newline, words by splitting on whitespace, chars via `content.length`, bytes via `Buffer.byteLength(content)`.
+  - Build an object with requested metrics.
+  - Serialize as plain text or JSON based on `--json`.
+  - If `--output` is set, write to file; otherwise print to stdout.
+
+### Testing
+
+- Add `stats.test.js` in `sandbox/tests/`:
+  - Test default metrics on a small text file.
+  - Test each metric flag individually.
+  - Test `--json` produces valid JSON object.
+  - Test `--output` writes to file.
+  - Test error on missing file or unreadable file.
+
+### Documentation
+
+- Update `README.md` and `sandbox/docs/CLI_USAGE.md` to include the `stats` command under Commands Reference with usage, flags, and examples.
