@@ -10,3 +10,5 @@
 
 2025-05-18T08:57:42.934Z - Maintained feature JSON_QUERY.
 
+2025-05-18T09:38:47.328Z - Reviewed in-progress issue 2080.
+
