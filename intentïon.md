@@ -6,3 +6,5 @@
 
 2025-05-18T12:57:31.736Z - Enhanced issue 2087.
 
+2025-05-18T13:05:25.832Z - Maintained feature HTTP_SERVE.
+
