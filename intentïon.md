@@ -32,3 +32,5 @@
 
 2025-05-18T06:53:36.107Z - Generated feature development issue with title Add --fix-mission flag to features command to annotate feature docs with mission reference.
 
+2025-05-18T06:58:01.234Z - Maintained feature HTTP_REQUEST.
+
