@@ -18,7 +18,7 @@
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
-    "start": "node sandbox/source/main.js"
+    "start": "node src/lib/main.js"
   },
   "config": {
     "issueToCodeConversionRate": 0.5
