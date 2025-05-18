@@ -1,21 +1,12 @@
-2025-05-18T16:13:58.839Z - This repository was seeded from GitHub Discussion 
+# Mission Statement
 
-2025-05-18T16:15:59.269Z - Maintained feature CLI_COMMAND_SUPPORT.
+`repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
+primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
+We add features to showcase what we can confidently do with completion calls to an LLM with a 200,000 token limit used
+to create and update directory of JS source and test files. The files in `sandbox/` are maintained by the repository's 
+workflows and run using the same test suite as the main source file.
 
-2025-05-18T16:58:10.190Z - Maintained feature SEARCH.
+We showcase what you can by generating a new feature showing it at work as the output of `npm run start` and with 
+feature level tests showing primary flows as well as classic unit tests. 
 
-2025-05-18T17:57:37.681Z - Maintained feature JSON_QUERY.
-
-## Activity at 2025-05-18T18:14:07.053Z
-
-
-
-[Posted on "https://github.com/xn-intenton-z2a/repository0/discussions/1862#discussioncomment-13185862" by the repository bot which took the action "" with the detail "".]
-
-LLM API Usage:
-
-```json
-```
-
----
-
+The mission of the contributors, human or automated, is to show case the workflow capabilities of the repository.
