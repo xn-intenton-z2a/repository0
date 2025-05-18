@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
 import Database from "better-sqlite3";
+import Ajv from "ajv";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -24,6 +25,7 @@ Commands:
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  validate           Validate JSON syntax and optionally JSON Schema
   markdown           Convert a Markdown file to HTML
   import-data        Import structured data files into a SQLite database
 
@@ -45,6 +47,9 @@ Examples:
   npm run start -- convert file.env --to-yaml --output out.yaml
   npm run start -- convert file.env --to-json
   npm run start -- convert config.json --to-env
+  npm run start -- validate data.json
+  npm run start -- validate data.json --schema schema.json
+  npm run start -- validate data.json --schema schema.json --output report.txt
   npm run start -- markdown file.md --output file.html
   npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite`);
 }
@@ -77,7 +82,7 @@ async function doEcho(args) {
 }
 
 async function showFeatures(argv) {
-  const validate = argv && argv['validate-mission'];
+  const validate = argv && argv["validate-mission"];
   try {
     const cwd = process.cwd();
     const featuresDir = path.join(cwd, "sandbox/features");
@@ -334,6 +339,84 @@ async function doConvert(argv) {
   }
 }
 
+async function doValidateCommand(argv) {
+  const args = argv._;
+  const fileArg = args[1];
+  const schemaArg = argv.schema;
+  const outFile = argv.output;
+  const usage = "Usage: npm run start -- validate <jsonFile> [--schema <schemaFile>] [--output <file>]";
+
+  if (!fileArg) {
+    if (outFile) {
+      await fs.writeFile(path.resolve(outFile), usage, "utf-8");
+      process.exit(1);
+    }
+    console.error(usage);
+    process.exit(1);
+  }
+
+  let data;
+  try {
+    const content = await fs.readFile(path.resolve(fileArg), "utf-8");
+    data = JSON.parse(content);
+  } catch (err) {
+    const msg = err.name === "SyntaxError"
+      ? `Error parsing ${fileArg}: ${err.message}`
+      : `Error reading ${fileArg}: ${err.message}`;
+    if (outFile) {
+      await fs.writeFile(path.resolve(outFile), msg, "utf-8");
+      process.exit(1);
+    }
+    console.error(msg);
+    process.exit(1);
+  }
+
+  let messages = [];
+  let valid = true;
+  if (schemaArg) {
+    let schema;
+    try {
+      const schemaContent = await fs.readFile(path.resolve(schemaArg), "utf-8");
+      schema = JSON.parse(schemaContent);
+    } catch (err) {
+      const msg = `Error reading schema: ${err.message}`;
+      if (outFile) {
+        await fs.writeFile(path.resolve(outFile), msg, "utf-8");
+        process.exit(1);
+      }
+      console.error(msg);
+      process.exit(1);
+    }
+    const ajv = new Ajv({ strict: false });
+    const validateFn = ajv.compile(schema);
+    valid = validateFn(data);
+    if (!valid && validateFn.errors) {
+      for (const err of validateFn.errors) {
+        const dataPath = err.instancePath || err.dataPath || "";
+        messages.push(`${dataPath}: ${err.message}`);
+      }
+    }
+  }
+
+  if (valid) {
+    messages.push(`Validation passed for ${fileArg}`);
+  }
+
+  if (outFile) {
+    await fs.writeFile(path.resolve(outFile), messages.join("\n"), "utf-8");
+    process.exit(valid ? 0 : 1);
+  } else {
+    if (valid) {
+      console.log(messages[0]);
+      process.exit(0);
+    }
+    for (const msg of messages) {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
+}
+
 async function doImportData(argv) {
   const inputFile = argv._[1];
   const dbPath = argv.db;
@@ -482,7 +565,7 @@ async function doMarkdown(argv) {
 async function main() {
   const argv = minimist(process.argv.slice(2), {
     boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
-    string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
+    string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
     default: { header: true, delimiter: "," },
   });
   const [command, ...rest] = argv._;
@@ -520,6 +603,9 @@ async function main() {
       break;
     case "convert":
       await doConvert(argv);
+      break;
+    case "validate":
+      await doValidateCommand(argv);
       break;
     case "markdown":
       await doMarkdown(argv);
