@@ -299,3 +299,15 @@ LLM API Usage:
 
 ---
 
+## Activity at 2025-05-18T22:48:06.451Z
+
+Generated feature development issue with title Add alias support and tests for --mission CLI option.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8699,"completion_tokens":1906,"total_tokens":10605,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
