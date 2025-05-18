@@ -17,7 +17,7 @@ Commands:
   mission            Print the mission statement
   version            Print the current version
   echo               Echo the provided arguments
-  features           List available feature documents
+  features           List available feature documents (use --validate-mission to list those without mission reference)
   mission-features   Print the mission statement and list available features
   csv-import         Import a CSV file and output JSON array
   render             Render an EJS template with optional JSON data and output file
@@ -33,6 +33,7 @@ Examples:
   npm run start -- version
   npm run start -- echo Hello World
   npm run start -- features
+  npm run start -- features --validate-mission
   npm run start -- mission-features
   npm run start -- csv-import data.csv
   npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
@@ -75,22 +76,34 @@ async function doEcho(args) {
   console.log(args.join(" "));
 }
 
-async function showFeatures() {
+async function showFeatures(argv) {
+  const validate = argv && argv['validate-mission'];
   try {
     const cwd = process.cwd();
     const featuresDir = path.join(cwd, "sandbox/features");
     const files = await fs.readdir(featuresDir);
     for (const file of files) {
       if (path.extname(file).toLowerCase() === ".md") {
-        const content = await fs.readFile(path.join(featuresDir, file), "utf-8");
+        const filePath = path.join(featuresDir, file);
+        const content = await fs.readFile(filePath, "utf-8");
         const lines = content.split("\n");
+        let heading = null;
         for (const line of lines) {
           const match = line.match(/^#\s+(.*)/);
           if (match) {
-            console.log(match[1]);
+            heading = match[1];
             break;
           }
         }
+        if (!heading) {
+          continue;
+        }
+        if (validate) {
+          if (content.includes("MISSION.md") || content.includes("# Mission Statement")) {
+            continue;
+          }
+        }
+        console.log(heading);
       }
     }
   } catch (err) {
@@ -193,7 +206,6 @@ async function doRender(argv) {
   }
 }
 
-// Text replacement functionality
 async function doTextReplace(argv) {
   const inputFile = argv._[1];
   const search = argv.search;
@@ -244,7 +256,6 @@ async function doTextReplace(argv) {
   }
 }
 
-// Format conversion functionality
 async function doConvert(argv) {
   const inputFile = argv._[1];
   const toEnv = argv["to-env"];
@@ -257,7 +268,6 @@ async function doConvert(argv) {
     process.exit(1);
   }
 
-  // Validate exclusive flags
   const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
   if (flagCount > 1) {
     console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
@@ -303,7 +313,6 @@ async function doConvert(argv) {
     } else if (toYaml) {
       result = jsYaml.dump(data);
     } else {
-      // Default or --to-json
       result = JSON.stringify(data, null, 2);
     }
   } catch (err) {
@@ -325,7 +334,6 @@ async function doConvert(argv) {
   }
 }
 
-// Data import functionality
 async function doImportData(argv) {
   const inputFile = argv._[1];
   const dbPath = argv.db;
@@ -382,7 +390,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Initialize database
   let db;
   try {
     db = new Database(dbPath);
@@ -391,7 +398,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Handle table existence
   try {
     const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
     if (exists) {
@@ -407,7 +413,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Create table schema
   const keys = Object.keys(records[0] || {});
   const colsDef = keys.map((k) => `"${k}" TEXT`).join(', ');
   try {
@@ -417,7 +422,6 @@ async function doImportData(argv) {
     process.exit(1);
   }
 
-  // Insert records in transaction
   const placeholders = keys.map(() => '?').join(', ');
   const insertSQL = `INSERT INTO "${table}" (${keys.map((k) => `"${k}"`).join(', ')}) VALUES (${placeholders})`;
   const insertStmt = db.prepare(insertSQL);
@@ -477,7 +481,7 @@ async function doMarkdown(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
     string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
     default: { header: true, delimiter: "," },
   });
@@ -497,12 +501,12 @@ async function main() {
       await doEcho(rest);
       break;
     case "features":
-      await showFeatures();
+      await showFeatures(argv);
       break;
     case "mission-features":
       await showMission();
       console.log("");
-      await showFeatures();
+      await showFeatures(argv);
       break;
     case "csv-import":
       await doCsvImport(argv);

@@ -1,23 +1,18 @@
 
-You are providing the entire new content of source files, test files, documentation files, 
-and other necessary files with all necessary changes applied to resolve a possible build or test 
-problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
-changes or excessive debugging or validation. If the problem is in an area of the code with little
-value you may re-implement it or remove it.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
-and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
-and maintain the integrity of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-You may complete the implementation of a feature and/or bring the code output in line with the README
-or other documentation. Do as much as you can all at once so that the build runs (even with nothing
-to build) and the tests pass and the main at least doesn't output an error.
+Do as much as you can all at once.
 
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-
-Examine the "Build output from command","Test output from command", and "Main execution output from command" 
-to determine if there are any problems with the code to fix such as failing tests or output 
-not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -26,7 +21,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -39,21 +34,22 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content
-  * Test file content
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Formatting file content
-  * Linting file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -302,6 +298,57 @@ async function doRender(argv) {
   } else {
     console.log(rendered);
     process.exit(0);
+  }
+}
+
+// Text replacement functionality
+async function doTextReplace(argv) {
+  const inputFile = argv._[1];
+  const search = argv.search;
+  const replacement = argv.replace;
+  const regexFlag = argv.regex;
+  const flags = argv.flags || "";
+  const output = argv.output;
+
+  if (!inputFile || search === undefined || replacement === undefined) {
+    console.error("Missing --search or --replace flag");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let result;
+  if (regexFlag) {
+    let re;
+    try {
+      re = new RegExp(search, flags);
+    } catch (err) {
+      console.error("Invalid regular expression:", err.message);
+      process.exit(1);
+    }
+    result = content.replace(re, replacement);
+  } else {
+    result = content.replace(search, replacement);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
   }
 }
 
@@ -594,7 +641,6 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
 SOURCE_FILE_END
 
 
@@ -1935,295 +1981,9 @@ export default [
   },
 ];
 
-LINTING_FILE_END        
+LINTING_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-
-added 481 packages, and audited 482 packages in 4s
-
-157 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
-
-Issue details:
-ISSUE_START
-title: No issue number provided
-description:
-No issue description provided ( parsed to )
-comments:
-No issue comments provided
-ISSUE_END
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1003[2mms[22m[39m
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2033[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2205[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 403[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 618[2mms[22m[39m
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
- [31m❯[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 987[2mms[22m[39m
-[31m   [31m×[31m text-replace command[2m > [22merrors when missing --search or --replace[39m[32m 221[2mms[22m[39m
-[31m     → expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'[39m
-[31m   [31m×[31m text-replace command[2m > [22mliteral replacement replaces first occurrence only[39m[32m 194[2mms[22m[39m
-[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
-[31m   [31m×[31m text-replace command[2m > [22mregex replacement with flags replaces all matches[39m[32m 187[2mms[22m[39m
-[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
-[31m   [31m×[31m text-replace command[2m > [22minvalid regex reports error[39m[32m 199[2mms[22m[39m
-[31m     → expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'[39m
-[31m   [31m×[31m text-replace command[2m > [22mwrites output to file when --output is specified[39m[32m 184[2mms[22m[39m
-[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 394[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 535[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 874[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 199[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 457[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 133[2mms[22m[39m
-
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22merrors when missing --search or --replace
-[31m[1mAssertionError[22m: expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'[39m
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- Missing --search or --replace flag[39m
-[31m+ ReferenceError: doTextReplace is not defined[39m
-[31m+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)[39m
-[31m+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1[39m
-[31m+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)[39m
-[31m+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)[39m
-[31m+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)[39m
-[31m+[39m
-
-[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m29:25[22m[39m
-    [90m 27| [39m    [34mexpect[39m(err1)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
-    [90m 28| [39m    [34mexpect[39m(err1[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
-    [90m 29| [39m    expect(err1.stderr).toContain('Missing --search or --replace flag'…
-    [90m   | [39m                        [31m^[39m
-    [90m 30| [39m
-    [90m 31| [39m    [35mlet[39m err2[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mliteral replacement replaces first occurrence only
-[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
-[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
-[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
-[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m45:28[22m[39m
-    [90m 43| [39m    [35mconst[39m filePath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'lit.txt'[39m)[33m;[39m
-    [90m 44| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'foo foo foo'[39m)[33m;[39m
-    [90m 45| [39m    [35mconst[39m output [33m=[39m [34mexecSync[39m(
-    [90m   | [39m                           [31m^[39m
-    [90m 46| [39m      [32m`[39m[36m${[39mcli[36m}[39m[32m replace [39m[36m${[39mfilePath[36m}[39m[32m --search foo --replace bar`[39m[33m,[39m
-    [90m 47| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mregex replacement with flags replaces all matches
-[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
-[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
-[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
-[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m55:28[22m[39m
-    [90m 53| [39m    [35mconst[39m filePath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'regex.txt'[39m)[33m;[39m
-    [90m 54| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'aAbB'[39m)[33m;[39m
-    [90m 55| [39m    [35mconst[39m output [33m=[39m [34mexecSync[39m(
-    [90m   | [39m                           [31m^[39m
-    [90m 56| [39m      `${cli} replace ${filePath} --search a --replace X --regex --fla…
-    [90m 57| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22minvalid regex reports error
-[31m[1mAssertionError[22m: expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'[39m
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- Invalid regular expression[39m
-[31m+ ReferenceError: doTextReplace is not defined[39m
-[31m+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)[39m
-[31m+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1[39m
-[31m+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)[39m
-[31m+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)[39m
-[31m+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)[39m
-[31m+[39m
-
-[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m76:24[22m[39m
-    [90m 74| [39m    [34mexpect[39m(err)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
-    [90m 75| [39m    [34mexpect[39m(err[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
-    [90m 76| [39m    [34mexpect[39m(err[33m.[39mstderr)[33m.[39m[34mtoContain[39m([32m'Invalid regular expression'[39m)[33m;[39m
-    [90m   | [39m                       [31m^[39m
-    [90m 77| [39m  })[33m;[39m
-    [90m 78| [39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mwrites output to file when --output is specified
-[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt
-ReferenceError: doTextReplace is not defined
-    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
-    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
-    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
-    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
-    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
-[39m
-[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
-[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
-[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m83:28[22m[39m
-    [90m 81| [39m    [35mconst[39m outPath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'result.txt'[39m)[33m;[39m
-    [90m 82| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'hello hello'[39m)[33m;[39m
-    [90m 83| [39m    [35mconst[39m stdout [33m=[39m [34mexecSync[39m(
-    [90m   | [39m                           [31m^[39m
-    [90m 84| [39m      `${cli} replace ${filePath} --search hello --replace hi --output…
-    [90m 85| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (12)[39m
-[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (47)[39m
-[2m   Start at [22m 05:57:15
-[2m   Duration [22m 4.10s[2m (transform 86ms, setup 0ms, collect 243ms, tests 8.83s, environment 3ms, prepare 1.05s)[22m
-
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > errors when missing --search or --replace,line=29,column=25::AssertionError: expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'%0A%0A- Expected%0A+ Received%0A%0A- Missing --search or --replace flag%0A+ ReferenceError: doTextReplace is not defined%0A+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A+%0A%0A ❯ sandbox/tests/text-replace.test.js:29:25%0A%0A
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > literal replacement replaces first occurrence only,line=45,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:45:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2583, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > regex replacement with flags replaces all matches,line=55,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:55:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2619, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > invalid regex reports error,line=76,column=24::AssertionError: expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'%0A%0A- Expected%0A+ Received%0A%0A- Invalid regular expression%0A+ ReferenceError: doTextReplace is not defined%0A+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A+%0A%0A ❯ sandbox/tests/text-replace.test.js:76:24%0A%0A
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > writes output to file when --output is specified,line=83,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:83:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2692, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
-  markdown           Convert a Markdown file to HTML
-  import-data        Import structured data files into a SQLite database
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --to-yaml --output out.yaml
-  npm run start -- convert file.env --to-json
-  npm run start -- convert config.json --to-env
-  npm run start -- markdown file.md --output file.html
-  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -2309,23 +2069,201 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the files that resolve the possible build or test problem.
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+Issue details:
+ISSUE_START
+title: Add --validate-mission flag to features command to verify feature docs reference mission
+description:
+**Background**
+
+Currently, the `features` CLI command lists the top-level headings of all Markdown files in `sandbox/features/`. We need to introduce a new validation mode so that maintainers can quickly identify which feature documents do not reference the mission statement (e.g., link to `MISSION.md` or include the phrase “Mission Statement”).
+
+**Objectives**
+
+1. Extend the `features` command in `sandbox/source/main.js` to accept a new boolean flag `--validate-mission`.
+2. When `--validate-mission` is provided, scan each Markdown file under `sandbox/features/`. For each file:
+   - If the content does **not** contain a reference to the mission statement (a link or the string `MISSION.md` or `# Mission Statement`), include its heading in the output.
+   - If the content **does** contain a reference, skip it.
+3. Exit with code `0` after printing all non-referencing feature headings to `stdout`. (No errors for missing references; it's informational.)
+4. Update testing to cover the new behavior.
+5. Update documentation (CLI_USAGE.md and README.md) to describe the new `--validate-mission` flag under the `features` command.
+
+**Changes**
+
+1. **Source (`sandbox/source/main.js`)**
+   - Modify the `features` switch case to pass `argv` into `showFeatures(argv)`.
+   - Change `showFeatures` to accept an `argv` parameter and check `argv['validate-mission']`.
+   - When `argv['validate-mission']` is true, read each feature file's content and apply the filter logic described above.
+
+2. **Tests (`sandbox/tests/features.test.js`)**
+   - Add a test case for invoking `node sandbox/source/main.js features --validate-mission`.
+   - Confirm that the output lists all feature headings (since none currently reference the mission statement).
+   - Optionally, simulate a Markdown file containing a mission reference (e.g., injecting a `# Mission Statement` line) and verify it is excluded from the output.
+
+3. **Documentation**
+   - **CLI_USAGE.md**: Under the Commands Reference, add `--validate-mission` to the `features` entry, with a description and example.
+   - **README.md**: Add the new flag to the `features` section, showing usage.
+
+**Verification**
+
+- Run `npm test` to ensure all existing tests still pass and the new tests are green.
+- Manually run:
+  - `npm run start -- features` (should list all feature headings as before)
+  - `npm run start -- features --validate-mission` (should list the same headings because no docs reference the mission yet)
+  - Verify exit code is `0` and output format is one heading per line.
+
+No other files should be modified. Once this issue is complete, maintainers can start integrating mission references into feature docs and use this validation flag to track coverage.
+comments:
+Author:github-actions[bot], Created:2025-05-18T06:25:15Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
+Author:github-actions[bot], Created:2025-05-18T06:25:44Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
+Author:github-actions[bot], Created:2025-05-18T06:26:45Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15093130435
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d961dd4fc242acf2899c4827af7e78874fb782c
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── better-sqlite3@8.7.0
+├── csv-parse@5.6.0
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@10.1.5
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.26.0
+├── js-yaml@4.1.0
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── minimist@1.2.8
+├── npm-check-updates@18.0.1
+├── openai@4.98.0
+├── prettier@3.5.3
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1095[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2354[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 439[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 592[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2381[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1095[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 362[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 359[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 600[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 982[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 198[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 474[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 148[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[32m47 passed[39m[22m[90m (47)[39m
+[2m   Start at [22m 06:27:57
+[2m   Duration [22m 4.39s[2m (transform 114ms, setup 0ms, collect 289ms, tests 9.69s, environment 3ms, prepare 1.10s)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  markdown           Convert a Markdown file to HTML
+  import-data        Import structured data files into a SQLite database
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
+  npm run start -- markdown file.md --output file.html
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
