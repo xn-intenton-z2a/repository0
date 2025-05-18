@@ -324,7 +324,8 @@ async function doTextReplace(argv) {
   const search = argv.search;
   const replacement = argv.replace;
   const regexFlag = argv.regex;
-  const flags = argv.flags || "";
+  const allFlag = argv.all;
+  const flagsArg = argv.flags || "";
   const output = argv.output;
 
   if (!inputFile || search === undefined || replacement === undefined) {
@@ -343,6 +344,10 @@ async function doTextReplace(argv) {
 
   let result;
   if (regexFlag) {
+    let flags = flagsArg;
+    if (!flags) {
+      flags = "g";
+    }
     let re;
     try {
       re = new RegExp(search, flags);
@@ -352,7 +357,16 @@ async function doTextReplace(argv) {
     }
     result = content.replace(re, replacement);
   } else {
-    result = content.replace(search, replacement);
+    if (allFlag) {
+      // global literal replacement
+      if (typeof content.replaceAll === "function") {
+        result = content.replaceAll(search, replacement);
+      } else {
+        result = content.split(search).join(replacement);
+      }
+    } else {
+      result = content.replace(search, replacement);
+    }
   }
 
   if (output) {
@@ -672,7 +686,7 @@ async function doMarkdown(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission", "all"],
     string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
     default: { header: true, delimiter: "," },
   });
@@ -1474,7 +1488,29 @@ describe('text-replace command', () => {
     expect(fileContent).toBe('hi hello');
     expect(stdout).toBe('');
   });
+
+  // New tests for global replacement behavior
+  test('literal replacement replaces all occurrences when --all flag is provided', () => {
+    const filePath = path.join(tempDir, 'litall.txt');
+    fs.writeFileSync(filePath, 'foo bar foo', 'utf-8');
+    const output = execSync(
+      `${cli} replace ${filePath} --search foo --replace baz --all`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('baz bar baz');
+  });
+
+  test('regex replacement without flags defaults to global replacement', () => {
+    const filePath = path.join(tempDir, 'regexall.txt');
+    fs.writeFileSync(filePath, 'aba aba', 'utf-8');
+    const output = execSync(
+      `${cli} replace ${filePath} --search a --replace x --regex`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('xbx xbx');
+  });
 });
+
 TEST_FILE_END
 
 
@@ -1678,11 +1714,11 @@ Project Overview:
 | mission-features               | Print the mission statement, then list available features                                                                         |
 | csv-import                     | Import a CSV file and output a JSON array                                                                                         |
 | render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
-| replace / text-replace         | Perform search-and-replace on a text file (literal or regex)                                                                      |
-| convert                        | Convert between `.env`, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                          |
+| replace / text-replace         | Perform search-and-replace on a text file (literal or regex). Supports `--all` for global literal replacements and default global regex when no `--flags` are provided. |
+| convert                        | Convert between `.env`, JSON, and YAML formats (use `--to-json`, `--to-env`, or `--to-yaml`)                                          |
 | validate `<jsonFile>` [--schema `<schemaFile>`] [--output `<file>`] | Validate JSON file syntax and optionally validate against a JSON Schema (Draft-07) using AJV, writing results to stdout or file |
 | markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
-| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
+| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options `--db`, `--table`, `--delimiter`, `--header`, `--overwrite` |
 
 ### validate
 
@@ -1742,6 +1778,14 @@ Behavior:
 - Replace text using regex:
   ```bash
   npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
+  ```
+- Replace all occurrences literally:
+  ```bash
+  npm run start -- replace file.txt --search "foo" --replace "bar" --all
+  ```
+- Replace all occurrences using regex by default:
+  ```bash
+  npm run start -- replace file.txt --search "a" --replace "x" --regex
   ```
 - Convert `.env` to JSON (default):
   ```bash
@@ -2310,68 +2354,61 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Enhance text-replace for true global replacements (default regex behavior and new --all flag)
+title: [Documenter] Refresh README to reflect current CLI features and usage
 description:
-Title: Enhance text-replace for true global replacements (default regex behavior and new --all flag)
+Title: Refresh README.md to reflect current CLI features and usage
 
-Problem:
-The current text-replace (alias text-replace) command only replaces the first literal match by default and requires explicit “g” flag to perform global regex replacements. This deviates from common user expectations.
+Description:
+The current `README.md` is outdated—it focuses on the Equation Plotter demo and narrative history, which no longer represent this repository’s primary functionality. We need to update the file to accurately describe and document the sandbox CLI tool implemented in `sandbox/source/main.js`.
 
-Proposed Solution:
-1. Add a new boolean flag `--all` for literal search-and-replace to perform global replacements.
-2. When `--regex` is provided without any `--flags`, default to global regex replacement (equivalent to adding the “g” flag automatically).
-3. Preserve existing behavior when `--regex` is used with explicit `--flags`, and ensure `--all` only affects literal replacements.
-4. Maintain full support for the `--output` flag and existing error handling.
+Acceptance Criteria (testable):
+1. README.md includes at the top (immediately under the main title): links to `MISSION.md`, `CONTRIBUTING.md`, and `LICENSE.md`.
+2. Overview section clearly states: “This repository provides a CLI sandbox tool implemented in `sandbox/source/main.js` for commands such as help, mission, version, echo, and more.”
+3. “What’s Inside” section lists the following items (with links or paths):
+   - CLI entrypoint: `sandbox/source/main.js`
+   - Feature documentation: files under `sandbox/features/`
+   - Tests: files under `sandbox/tests/` and `tests/unit/`
+   - Additional docs: `sandbox/docs/CLI_USAGE.md`
+4. “Getting Started” section provides exactly three numbered steps:
+   a. `npm install` (to install dependencies)
+   b. `npm test` (to run the full test suite)
+   c. `npm run start -- <command> [options]` (to invoke the CLI)
+5. “Commands” section enumerates each supported command with a one-line description and a one-line example:
+   - help
+   - mission
+   - version
+   - echo
+   - features
+   - mission-features
+   - csv-import
+   - render
+   - replace / text-replace
+   - convert
+   - validate
+   - markdown
+   - import-data
+6. All references to the plotting library demo, narrative history, and outdated agentic-lib workflows are removed.
+7. The file renders correctly as Markdown (no broken links or formatting errors).
+8. The “Commands Reference” table (if present) matches the list above and links to `sandbox/docs/CLI_USAGE.md` for full details.
 
-Acceptance Criteria:
-- CLI recognizes a new `--all` boolean flag.
-- `node sandbox/source/main.js replace file.txt --search foo --replace bar --all`
-  • All occurrences of "foo" in `file.txt` are replaced with "bar".
-  • Exit code: 0; prints nothing to stdout unless `--output` is omitted (prints replaced content).
-- `node sandbox/source/main.js replace file.txt --search a --replace x --regex`
-  • All occurrences of "a" (case-sensitive) in `file.txt` are replaced with "x".
-  • Exit code: 0; prints replaced content to stdout or writes to file with `--output`.
-- Existing behavior remains: `--regex --flags` combination works as before; literal replace without `--all` still replaces only first match.
-- Add/Update tests in `sandbox/tests/text-replace.test.js`:
-  • Test global regex replacement when `--regex` without `--flags`.
-  • Test global literal replacement when `--all` without `--regex`.
-  • Ensure existing tests are updated or extended accordingly.
-- Update documentation:
-  • `sandbox/docs/CLI_USAGE.md` and root `README.md` to document the new `--all` flag and default global behavior for regex without flags.
-  • `sandbox/features/TEXT_MANIPULATION.md` to describe the `--all` flag and updated regex behavior.
-
-Verification:
-- Run `npm test` to confirm all tests (existing and new) pass.
-- Manual validation:
-  • `node sandbox/source/main.js replace file.txt --search a --replace x --regex` should output global replacements.
-  • `node sandbox/source/main.js replace file.txt --search foo --replace bar --all` should output global literal replacements.
+Once updated, verify by inspecting `README.md` in the PR and ensuring that running `npm run start` and `npm test` still succeed without errors.
 comments:
-Author:github-actions[bot], Created:2025-05-18T08:46:37Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094162772
+Author:github-actions[bot], Created:2025-05-18T09:43:36Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/d062bd925f381f36f624f22a4ac5ec47e7ea6eaf
-Author:github-actions[bot], Created:2025-05-18T08:47:21Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T08:49:30Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bf8d34a664371bb48134045bcaff4e9a165fe15
+Author:github-actions[bot], Created:2025-05-18T09:44:42Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T09:45:08Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
-Author:github-actions[bot], Created:2025-05-18T08:49:35Z, Comment: Workflow name: flow-update-readme
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094209775
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/e99e003646f36cf2c04d40e7db0a007510153a9a
+Author:github-actions[bot], Created:2025-05-18T09:46:16Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
-Author:github-actions[bot], Created:2025-05-18T08:49:48Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
-Author:github-actions[bot], Created:2025-05-18T08:50:48Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094221711
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5f413932aafac1abee78917dfcfdef16c5103c14
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0873d7c8ea5e96bf254d98e07b7bbc397b30009f
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -2423,32 +2460,30 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1809[2mms[22m[39m
-   [33m[2m✓[22m[39m validate command[2m > [22mschema validation failure [33m 307[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2641[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2855[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 515[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22mCSV import with default options [33m 318[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 763[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1107[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 671[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1128[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1417[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 421[2mms[22m[39m
+ [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1744[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2584[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2792[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 480[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 749[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1806[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 454[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1204[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1124[2mms[22m[39m
  [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 482[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 511[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 690[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 691[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 620[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 234[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 211[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 434[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
-[2m      Tests [22m [1m[32m55 passed[39m[22m[90m (55)[39m
-[2m   Start at [22m 08:52:08
-[2m   Duration [22m 5.67s[2m (transform 112ms, setup 0ms, collect 295ms, tests 13.53s, environment 3ms, prepare 1.19s)[22m
+[2m      Tests [22m [1m[32m57 passed[39m[22m[90m (57)[39m
+[2m   Start at [22m 09:47:27
+[2m   Duration [22m 5.82s[2m (transform 139ms, setup 0ms, collect 325ms, tests 13.72s, environment 4ms, prepare 1.23s)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
