@@ -62,7 +62,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -558,7 +558,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.7.0'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -611,12 +611,16 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Worked to fix: ${{ needs.apply-issue-resolution.outputs.message }}."
+          fixApplied: ${{ needs.apply-issue-resolution.outputs.fixApplied }}
+          message: ${{ needs.apply-issue-resolution.outputs.message }}
+          allValidationStepsSuccessful: ${{ needs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.apply-issue-resolution.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n[allValidationStepsSuccessful: ${process.env.allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -629,7 +633,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n\n`;
+            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -638,7 +642,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-flow-fix-code.yml" || echo "No changes to commit"
           git push
 
   npm-test-after-fix:
@@ -816,7 +820,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -845,7 +849,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.7.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

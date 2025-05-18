@@ -52,7 +52,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -102,8 +102,8 @@ jobs:
         if: needs.agentic-lib.outputs.repositoryReseed == 'true'
         shell: bash
         run: |
-          rm -rvf '${{ needs.agentic-lib.outputs.librarySourcesPath }}'
-          echo "Library sources emptied from ${{ needs.agentic-lib.outputs.librarySourcesPath }}."
+          rm -rvf '${{ needs.agentic-lib.outputs.librarySourcesFilepath }}'
+          echo "Library sources emptied from ${{ needs.agentic-lib.outputs.librarySourcesFilepath }}."
 
       - name: empty-library-documents
         if: needs.agentic-lib.outputs.repositoryReseed == 'true'
@@ -146,8 +146,8 @@ jobs:
         run: |          
           # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
           mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
-          if [ -n '${{ env.mission }}' ]; then
-            echo '${{ env.mission }}' >> '${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md'
+          if [ -n "${{ env.mission }}" ]; then
+            echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md'
             echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md"
           fi
 
@@ -182,18 +182,18 @@ jobs:
 
             # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
             mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.missionFilepath }}')"
-            if [ -n '${{ env.mission }}' ]; then
+            if [ -n "${{ env.mission }}" ]; then
               echo "# ${GITHUB_REPOSITORY}" > '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo '${{ env.mission }}' >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
               echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
             else
               cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}'
               echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
             fi
 
-      - name: Truncate the intentïon file.
+      - name: Truncate the intentïon file and seed it with the mission
         run: |
-          > ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          cp -v '${{ needs.agentic-lib.outputs.missionFilepath }}' '${{ needs.agentic-lib.outputs.intentionFilepath }}'
 
       - name: Commit and push
         id: commit
@@ -306,9 +306,8 @@ jobs:
               const issuesResponse = await github.rest.issues.listForRepo({
                 owner,
                 repo,
-                state: 'all',
-                per_page: perPage,
                 state: 'open',
+                per_page: perPage,
                 page
               });
               const issues = issuesResponse.data;

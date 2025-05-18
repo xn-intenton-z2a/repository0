@@ -15,21 +15,11 @@ on:
       - answered
       - unanswered
       - deleted
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   discussion_comment:
     types:
       - created
       - edited
       - deleted
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   workflow_dispatch:
     inputs:
       discussionBody:
@@ -82,7 +72,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -114,18 +104,15 @@ jobs:
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            let authorAssociation; // discussion author_association
+            // Initialize variables with default values
+            let authorAssociation = ''; // discussion author_association
             let body = ''; // discussion body
             let state = ''; // discussion state
             let title = ''; // discussion title
             let url = ''; // discussion html_url
-
             let categoryName = ''; // discussion category name
-
-            let userName = '' // discussion user name
-
+            let userName = ''; // discussion user name
             let labels = ''; // discussion labels.*
-
             let reactions = ''; // discussion reactions confused + eyes + heart + hooray + laugh + rocket
 
             if (context.eventName === 'discussion') {
@@ -169,30 +156,34 @@ jobs:
                   core.info(`Looking for last */discussions/* in intentïon.md at ${intentionFilepath}`);
 
                   if (fs.existsSync(intentionFilepath)) {
-                    const seedDiscussionContent = fs.readFileSync(intentionFilepath, 'utf8');
-                    const lines = seedDiscussionContent.split('\n');
+                    const intentionFileContent = fs.readFileSync(intentionFilepath, 'utf8');
+                    const lines = intentionFileContent.split('\n');
 
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
                     const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
                     if (discussionsUrlLines.length === 0) {
-                      core.warning(`No matching GitHub Discussions URL found in intentïon.md`);
+                      core.setFailed(`No matching GitHub Discussions URL found in intentïon.md at ${intentionFilepath}`);
+                      return;
                     } else {
                       const lastUrlLine = discussionsUrlLines[discussionsUrlLines.length - 1];
-              
+
                       // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
                       const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                       if (urlMatch) {
                         url = urlMatch[0];
-                        core.info(`Using URL from intentïon.md: ${url}`);
+                        core.info(`Using URL from intentïon.md at ${intentionFilepath}: ${url}`);
                       } else {
-                        core.warning(`No matching GitHub Discussions URL found in intentïon.md: ${lastUrlLine}`);
+                        core.setFailed(`No matching GitHub Discussions URL found in selected line "${lastUrlLine}" in intentïon.md at ${intentionFilepath}`);
+                        return;
                       }
                     }
                   } else {
-                    core.warning(`intentïon.md file not found at ${intentionFilepath}`);
+                    core.setFailed(`intentïon.md file not found at ${intentionFilepath}`);
+                    return;
                   }
                 } catch (error) {
-                  core.warning(`Error reading intentïon.md: ${error.message}`);
+                  core.setFailed(`Error reading intentïon.md at ${intentionFilepath}: ${error.message}`);
+                  return;
                 }
               }
             }
@@ -232,13 +223,13 @@ jobs:
     needs:
       - process-discussion-post
       - agentic-lib
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.7.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -271,7 +262,7 @@ jobs:
     needs:
       - process-discussion-post
       - generate-response
-    if: ${{ needs.generate-response.outputs.action != 'nop' }}
+    if: ${{ needs.generate-response.outputs.action != 'nop' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     permissions:
       discussions: write
@@ -280,15 +271,19 @@ jobs:
       - name: Post reply
         uses: actions/github-script@v7
         env:
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Grab the reply text and URL from the job outputs
+            const action = process.env.action;
+            const detail = process.env.detail;
             const reply = process.env.reply;
             const url = process.env.url;
-            const body = process.env.reply;
+            let body = `${reply}\n\n[action: "${action}" with detail: "${detail}"]`;
 
             // Determine discussion number and ID
             let discussionNumber;
@@ -362,7 +357,7 @@ jobs:
   archive-intention:
     needs:
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
@@ -370,7 +365,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.7.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -378,7 +373,7 @@ jobs:
     needs:
       - archive-intention
       - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
@@ -386,7 +381,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.7.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -399,7 +394,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -420,12 +415,22 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "This repository was seeded from GitHub Discussion ${{ needs.process-discussion-post.outputs.title }}"
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
+          usage: ${{ needs.process-discussion-post.outputs.usage }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            const activity = process.env.activity;
+            const action = process.env.action;
+            const detail = process.env.detail;
+            const reply = process.env.reply;
+            const url = process.env.url;
+            const usage = process.env.usage;
             const intentionFilepath = process.env.intentionFilepath;
+
+            const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -438,8 +443,15 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `${isoDate} - ${activity}\n\n`;
-            fs.writeFileSync(intentionFilepath, activityLogContent);
+            let activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
+            if (action == 'seed-repository') {
+              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
+            }
+            if (fs.existsSync(intentionFilepath)) {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
+            }
             core.info(`Activity logged to ${intentionFilepath}`);
 
       - name: Commit changes
@@ -447,7 +459,7 @@ jobs:
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged" || echo "No changes to commit"
+          git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
 
   archive-seeded-intention:
@@ -456,7 +468,7 @@ jobs:
       - seed-repository
       - agentic-lib
       - log-intention-activity
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     permissions:
       contents: write
       pull-requests: write
@@ -464,7 +476,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.7.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -474,7 +486,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-    if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
     permissions:
       contents: write
       pull-requests: write
@@ -483,7 +495,7 @@ jobs:
       packages: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.6.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.0'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -497,7 +509,7 @@ jobs:
   #    - generate-response
   #    - seed-repository
   #    - agentic-lib
-  #  if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature' }}
+  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
   #  permissions:
   #    contents: write
   #    pull-requests: write
@@ -506,7 +518,7 @@ jobs:
   #    packages: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.6.4'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.7.0'
   #  with:
   #    feature: ${{ needs.generate-response.outputs.detail }}
   #  secrets:
@@ -519,7 +531,7 @@ jobs:
       - generate-response
       - agentic-lib
       - feature-maintenance-flow
-    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mark-complete' || needs.generate-response.outputs.action == 'stop') }}
+    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mission-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -535,16 +547,20 @@ jobs:
 
       - name: Log the declaration in the seed discussion file (intentïon) file.
         run: |
-          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "HALT" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          mkdir -p "$(dirname "${{ needs.agentic-lib.outputs.intentionFilepath }}")"
+          if [ ! -f "${{ needs.agentic-lib.outputs.intentionFilepath }}" ]; then
+            touch "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          fi
+          echo "" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "${{ needs.generate-response.outputs.action }} at $(date)" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
+          echo "HALT" >> "${{ needs.agentic-lib.outputs.intentionFilepath }}"
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git add ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git add "${{ needs.agentic-lib.outputs.intentionFilepath }}"
           git commit -m "HALT with ${{ needs.generate-response.outputs.action }}"
           git push
         env:
@@ -563,7 +579,7 @@ jobs:
   #  permissions:
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.6.4'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.0'
   #  with:
   #    issueNumber: ''
   #    selectionLabel: 'ready'
@@ -578,6 +594,7 @@ jobs:
   #    - seed-repository
   #    - agentic-lib
   #    - feature-development-flow
+  #    - feature-maintenance-flow
   #    - declare-status-and-halt
   #    - select-next-issue
   #  if: ${{ !cancelled() }}
@@ -585,7 +602,7 @@ jobs:
   #    contents: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.6.4'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.7.0'
   #  with:
   #    cache: 'npm'
   #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
