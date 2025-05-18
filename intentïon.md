@@ -30,3 +30,5 @@
 
 2025-05-18T06:48:01.216Z - Enhanced issue 2076.
 
+2025-05-18T06:53:36.107Z - Generated feature development issue with title Add --fix-mission flag to features command to annotate feature docs with mission reference.
+
