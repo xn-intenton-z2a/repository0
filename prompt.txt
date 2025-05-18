@@ -1,18 +1,23 @@
 
-You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
-functional solutions that address core issues rather than superficial changes or excessive code polishing.
-Implement as much as you can and refer to the projects features and mission statement when expanding the code
-beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
+You are providing the entire new content of source files, test files, documentation files, 
+and other necessary files with all necessary changes applied to resolve a possible build or test 
+problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
+changes or excessive debugging or validation. If the problem is in an area of the code with little
+value you may re-implement it or remove it.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
-of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
-of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
+and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
+and maintain the integrity of the codebase's primary purpose.
 
-Do as much as you can all at once.
+You may complete the implementation of a feature and/or bring the code output in line with the README
+or other documentation. Do as much as you can all at once so that the build runs (even with nothing
+to build) and the tests pass and the main at least doesn't output an error.
 
-Follow the linting guidelines and the formatting guidelines from the included config.
 
+
+Examine the "Build output from command","Test output from command", and "Main execution output from command" 
+to determine if there are any problems with the code to fix such as failing tests or output 
+not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -21,7 +26,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -34,22 +39,21 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-* Current feature names and specifications in the repository
-* Source file content
-* Test file content
-* Documentation file content
-* README file content
-* MISSION file content
-* Contributing file content
-* Dependencies file content
-* Formatting file content
-* Linting file content
-* Agent configuration file content
-* Issue details
-* Dependency list
-* Build output
-* Test output
-* Main execution output
+  * Current feature names and specifications in the repository
+  * Source file content
+  * Test file content
+  * Documentation file content
+  * README file content
+  * MISSION file content
+  * Contributing file content
+  * Dependencies file content
+  * Formatting file content
+  * Linting file content
+  * Dependency install output
+  * Issue details (if any)
+  * Build output
+  * Test output
+  * Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -115,6 +119,7 @@ import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
+import Database from "better-sqlite3";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -130,8 +135,9 @@ Commands:
   render             Render an EJS template with optional JSON data and output file
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
   markdown           Convert a Markdown file to HTML
+  import-data        Import structured data files into a SQLite database
 
 Examples:
   npm run start -- help
@@ -147,8 +153,11 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
-  npm run start -- markdown file.md --output file.html`);
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
+  npm run start -- markdown file.md --output file.html
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite`);
 }
 
 async function showMission() {
@@ -296,7 +305,200 @@ async function doRender(argv) {
   }
 }
 
-// Markdown rendering functionality
+// Format conversion functionality
+async function doConvert(argv) {
+  const inputFile = argv._[1];
+  const toEnv = argv["to-env"];
+  const toYaml = argv["to-yaml"];
+  const toJson = argv["to-json"];
+  const output = argv.output;
+
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+
+  // Validate exclusive flags
+  const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
+  if (flagCount > 1) {
+    console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
+    process.exit(1);
+  }
+
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+
+  let data;
+  try {
+    const ext = path.extname(inputFile).toLowerCase();
+    if (ext === ".env") {
+      data = dotenv.parse(content);
+    } else if (ext === ".json") {
+      data = JSON.parse(content);
+    } else if (ext === ".yaml" || ext === ".yml") {
+      data = jsYaml.load(content);
+    } else {
+      console.error(`Unsupported input format: ${ext}`);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error(`Error parsing input file: ${err.message}`);
+    process.exit(1);
+  }
+
+  let result;
+  try {
+    if (toEnv) {
+      if (typeof data !== "object" || data === null) {
+        throw new Error("Input JSON must be an object for env conversion");
+      }
+      result = Object.entries(data)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("\n");
+    } else if (toYaml) {
+      result = jsYaml.dump(data);
+    } else {
+      // Default or --to-json
+      result = JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    console.error("Error serializing output:", err.message);
+    process.exit(1);
+  }
+
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, result, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(result);
+  }
+}
+
+// Data import functionality
+async function doImportData(argv) {
+  const inputFile = argv._[1];
+  const dbPath = argv.db;
+  const table = argv.table || 'data';
+  const delimiter = argv.delimiter || ',';
+  const header = argv.header !== false;
+  const overwrite = argv.overwrite || false;
+
+  if (!inputFile) {
+    console.error('Error: No input file specified');
+    process.exit(1);
+  }
+  if (!dbPath) {
+    console.error('Error: --db <database path> is required');
+    process.exit(1);
+  }
+
+  let raw;
+  try {
+    raw = await fs.readFile(path.resolve(inputFile), 'utf-8');
+  } catch (err) {
+    console.error('Error reading input file:', err.message);
+    process.exit(1);
+  }
+
+  let records;
+  const ext = path.extname(inputFile).toLowerCase();
+  try {
+    if (ext === '.csv') {
+      records = parse(raw, { columns: header, delimiter, skip_empty_lines: true });
+    } else if (ext === '.json') {
+      const data = JSON.parse(raw);
+      if (!Array.isArray(data)) {
+        console.error('Error: JSON input must be an array of objects');
+        process.exit(1);
+      }
+      records = data;
+    } else if (ext === '.yaml' || ext === '.yml') {
+      const data = jsYaml.load(raw);
+      if (!Array.isArray(data)) {
+        console.error('Error: YAML input must be an array of objects');
+        process.exit(1);
+      }
+      records = data;
+    } else if (ext === '.env') {
+      const envObj = dotenv.parse(raw);
+      records = [envObj];
+    } else {
+      console.error(`Unsupported input format: ${ext}`);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error(`Error parsing input file: ${err.message}`);
+    process.exit(1);
+  }
+
+  // Initialize database
+  let db;
+  try {
+    db = new Database(dbPath);
+  } catch (err) {
+    console.error('Error opening database:', err.message);
+    process.exit(1);
+  }
+
+  // Handle table existence
+  try {
+    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
+    if (exists) {
+      if (overwrite) {
+        db.prepare(`DROP TABLE "${table}"`).run();
+      } else {
+        console.error(`Error: Table '${table}' already exists. Use --overwrite to replace.`);
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error('Error checking table existence:', err.message);
+    process.exit(1);
+  }
+
+  // Create table schema
+  const keys = Object.keys(records[0] || {});
+  const colsDef = keys.map((k) => `"${k}" TEXT`).join(', ');
+  try {
+    db.prepare(`CREATE TABLE "${table}" (${colsDef})`).run();
+  } catch (err) {
+    console.error('Error creating table:', err.message);
+    process.exit(1);
+  }
+
+  // Insert records in transaction
+  const placeholders = keys.map(() => '?').join(', ');
+  const insertSQL = `INSERT INTO "${table}" (${keys.map((k) => `"${k}"`).join(', ')}) VALUES (${placeholders})`;
+  const insertStmt = db.prepare(insertSQL);
+  const insertMany = db.transaction((recs) => {
+    for (const r of recs) {
+      insertStmt.run(...keys.map((k) => r[k]));
+    }
+  });
+  try {
+    insertMany(records);
+  } catch (err) {
+    console.error('Error inserting records:', err.message);
+    process.exit(1);
+  }
+
+  db.close();
+  console.log(`Inserted ${records.length} records into table '${table}' in database ${dbPath}`);
+  process.exit(0);
+}
+
 async function doMarkdown(argv) {
   const inputFile = argv._[1];
   const output = argv.output;
@@ -334,138 +536,10 @@ async function doMarkdown(argv) {
   }
 }
 
-async function doTextReplace(argv) {
-  const inputFile = argv._[1];
-  const search = argv.search;
-  const replacement = argv.replace;
-  const useRegex = argv.regex;
-  const flagsStr = argv.flags;
-  const output = argv.output;
-
-  if (!search || replacement === undefined) {
-    console.error("Missing --search or --replace flag");
-    process.exit(1);
-  }
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let result;
-  if (useRegex) {
-    let regex;
-    try {
-      const flags = flagsStr || "g";
-      regex = new RegExp(search, flags);
-    } catch (err) {
-      console.error("Invalid regular expression:", err.message);
-      process.exit(1);
-    }
-    result = content.replace(regex, replacement);
-  } else {
-    result = content.replace(search, replacement);
-  }
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, result, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(result);
-    process.exit(0);
-  }
-}
-
-// Format conversion functionality
-async function doConvert(argv) {
-  const inputFile = argv._[1];
-  const toEnv = argv["to-env"];
-  const toYaml = argv["to-yaml"];
-  const output = argv.output;
-
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let data;
-  try {
-    if (toEnv || toYaml) {
-      data = JSON.parse(content);
-    } else {
-      const ext = path.extname(inputFile).toLowerCase();
-      if (ext === ".env") {
-        data = dotenv.parse(content);
-      } else if (ext === ".yml" || ext === ".yaml") {
-        data = jsYaml.load(content);
-      } else if (ext === ".json") {
-        data = JSON.parse(content);
-      } else {
-        console.error("Unsupported input format:", ext);
-        process.exit(1);
-      }
-    }
-  } catch (err) {
-    console.error("Error parsing input file:", err.message);
-    process.exit(1);
-  }
-
-  let result;
-  try {
-    if (toEnv) {
-      if (typeof data !== "object" || data === null) {
-        throw new Error("Input JSON must be an object for env conversion");
-      }
-      result = Object.entries(data)
-        .map(([key, value]) => `${key}=${value}`)
-        .join("\n");
-    } else if (toYaml) {
-      result = jsYaml.dump(data);
-    } else {
-      result = JSON.stringify(data, null, 2);
-    }
-  } catch (err) {
-    console.error("Error serializing output:", err.message);
-    process.exit(1);
-  }
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, result, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(result);
-  }
-}
-
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml"],
-    string: ["output", "delimiter", "flags", "search", "replace"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite"],
+    string: ["output", "delimiter", "flags", "search", "replace", "db", "table"],
     default: { header: true, delimiter: "," },
   });
   const [command, ...rest] = argv._;
@@ -507,8 +581,11 @@ async function main() {
     case "markdown":
       await doMarkdown(argv);
       break;
+    case "import-data":
+      await doImportData(argv);
+      break;
     default:
-      console.log(`Unknown command: ${command}\n`);
+      console.log(`Unknown command: ${command}` + "\n");
       await showHelp();
   }
 }
@@ -631,7 +708,47 @@ describe('convert command', () => {
     expect(err.status).toBe(1);
     expect(err.stderr).toContain('Error parsing input file');
   });
+
+  // New tests for bidirectional conversions and flag validation
+  test('.env to YAML conversion with --to-yaml', () => {
+    const envPath = path.join(tempDir, 'test2.env');
+    fs.writeFileSync(envPath, 'A=apple\nB=banana');
+    const output = execSync(`${cli} convert ${envPath} --to-yaml`, { encoding: 'utf-8' });
+    const parsed = jsYaml.load(output);
+    expect(parsed).toEqual({ A: 'apple', B: 'banana' });
+  });
+
+  test('YAML to .env conversion with --to-env', () => {
+    const yamlPath = path.join(tempDir, 'test2.yaml');
+    fs.writeFileSync(yamlPath, 'X: 123\nY: 456');
+    const output = execSync(`${cli} convert ${yamlPath} --to-env`, { encoding: 'utf-8' });
+    const lines = output.trim().split('\n');
+    expect(lines.sort()).toEqual(['X=123', 'Y=456'].sort());
+  });
+
+  test('.env to JSON conversion with --to-json', () => {
+    const envPath = path.join(tempDir, 'test3.env');
+    fs.writeFileSync(envPath, 'K1=V1\nK2=V2');
+    const output = execSync(`${cli} convert ${envPath} --to-json`, { encoding: 'utf-8' });
+    const json = JSON.parse(output);
+    expect(json).toEqual({ K1: 'V1', K2: 'V2' });
+  });
+
+  test('error on invalid flag combinations', () => {
+    const envPath = path.join(tempDir, 'test4.env');
+    fs.writeFileSync(envPath, 'A=1\nB=2');
+    let err;
+    try {
+      execSync(`${cli} convert ${envPath} --to-env --to-yaml`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Specify exactly one of');
+  });
 });
+
 TEST_FILE_END
 
 
@@ -748,6 +865,157 @@ describe('help and fallback behavior', () => {
     expect(output).toContain('Unknown command: foobar');
     expect(output).toContain('Usage: npm run start --');
     expect(output).toContain('help');
+  });
+});
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/import-data.test.js
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import Database from 'better-sqlite3';
+import jsYaml from 'js-yaml';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('import-data command', () => {
+  const tempDir = path.join(os.tmpdir(), 'import-data-tests');
+
+  beforeEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+    fs.mkdirSync(tempDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  test('errors when missing arguments', () => {
+    let err1;
+    try {
+      execSync(`${cli} import-data`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err1 = e;
+    }
+    expect(err1).toBeDefined();
+    expect(err1.status).toBe(1);
+    expect(err1.stderr).toContain('No input file specified');
+
+    const csvPath = path.join(tempDir, 'd.csv');
+    fs.writeFileSync(csvPath, 'a,b\n1,2');
+    let err2;
+    try {
+      execSync(`${cli} import-data ${csvPath}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err2 = e;
+    }
+    expect(err2).toBeDefined();
+    expect(err2.status).toBe(1);
+    expect(err2.stderr).toContain('--db <database path> is required');
+  });
+
+  test('errors on unsupported extension', () => {
+    const txtPath = path.join(tempDir, 'file.txt');
+    fs.writeFileSync(txtPath, 'text');
+    let err;
+    try {
+      execSync(`${cli} import-data ${txtPath} --db ${path.join(tempDir, 'db.sqlite')}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.status).toBe(1);
+    expect(err.stderr).toContain('Unsupported input format');
+  });
+
+  test('CSV import with default options', () => {
+    const csvPath = path.join(tempDir, 'data.csv');
+    const dbPath = path.join(tempDir, 'data.sqlite');
+    fs.writeFileSync(csvPath, 'x,y\n10,20\n30,40');
+    const out = execSync(`${cli} import-data ${csvPath} --db ${dbPath}`, { encoding: 'utf-8' });
+    expect(out.trim()).toBe(`Inserted 2 records into table 'data' in database ${dbPath}`);
+
+    const db = new Database(dbPath, { readonly: true });
+    const rowCount = db.prepare('SELECT COUNT(*) AS count FROM data').get().count;
+    expect(rowCount).toBe(2);
+    const cols = db.prepare("PRAGMA table_info('data')").all().map((c) => c.name);
+    expect(cols.sort()).toEqual(['x', 'y'].sort());
+    db.close();
+  });
+
+  test('JSON import', () => {
+    const jsonPath = path.join(tempDir, 'data.json');
+    const dbPath = path.join(tempDir, 'j.sqlite');
+    fs.writeFileSync(jsonPath, JSON.stringify([{ a: 1 }, { a: 2 }]));
+    const out = execSync(`${cli} import-data ${jsonPath} --db ${dbPath} --table tbl`, { encoding: 'utf-8' });
+    expect(out.trim()).toBe(`Inserted 2 records into table 'tbl' in database ${dbPath}`);
+
+    const db = new Database(dbPath, { readonly: true });
+    const count = db.prepare('SELECT COUNT(*) AS c FROM tbl').get().c;
+    expect(count).toBe(2);
+    db.close();
+  });
+
+  test('YAML import', () => {
+    const yamlPath = path.join(tempDir, 'data.yaml');
+    const dbPath = path.join(tempDir, 'y.sqlite');
+    fs.writeFileSync(yamlPath, '- foo: bar\n- foo: baz');
+    const out = execSync(`${cli} import-data ${yamlPath} --db ${dbPath}`, { encoding: 'utf-8' });
+    expect(out.trim()).toMatch(/Inserted 2 records into table 'data'/);
+
+    const db = new Database(dbPath, { readonly: true });
+    const rows = db.prepare('SELECT foo FROM data ORDER BY foo').all().map((r) => r.foo);
+    expect(rows).toEqual(['bar', 'baz']);
+    db.close();
+  });
+
+  test('ENV import', () => {
+    const envPath = path.join(tempDir, 'data.env');
+    const dbPath = path.join(tempDir, 'e.sqlite');
+    fs.writeFileSync(envPath, 'K=V');
+    const out = execSync(`${cli} import-data ${envPath} --db ${dbPath}`, { encoding: 'utf-8' });
+    expect(out.trim()).toMatch(/Inserted 1 records into table 'data'/);
+
+    const db = new Database(dbPath, { readonly: true });
+    const row = db.prepare('SELECT K FROM data').get();
+    expect(row.K).toBe('V');
+    db.close();
+  });
+
+  test('overwrite existing table', () => {
+    const csvPath = path.join(tempDir, 'data.csv');
+    const dbPath = path.join(tempDir, 'o.sqlite');
+    fs.writeFileSync(csvPath, 'a,b\n1,2');
+    // First import
+    execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t`, { encoding: 'utf-8' });
+    // Second without overwrite should error
+    let err;
+    try {
+      execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.stderr).toContain('already exists');
+    // With overwrite should succeed
+    const out = execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t --overwrite`, { encoding: 'utf-8' });
+    expect(out.trim()).toMatch(/Inserted 1 records into table 't'/);
+  });
+
+  test('error on invalid JSON content', () => {
+    const badPath = path.join(tempDir, 'bad.json');
+    fs.writeFileSync(badPath, '{ invalid');
+    let err;
+    try {
+      execSync(`${cli} import-data ${badPath} --db ${path.join(tempDir, 'db.sqlite')}`, { encoding: 'utf-8', stdio: 'pipe' });
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeDefined();
+    expect(err.stderr).toContain('Error parsing input file');
   });
 });
 TEST_FILE_END
@@ -1146,8 +1414,9 @@ Project Overview:
 | csv-import         | Import a CSV file and output a JSON array                                        |
 | render             | Render an EJS template with optional JSON data to stdout or file                 |
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
-| convert            | Convert between .env, JSON, and YAML formats                                      |
+| convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
 | markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
+| import-data        | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
 
 ## Examples
 
@@ -1183,9 +1452,17 @@ Project Overview:
   ```bash
   npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
   ```
+- Convert `.env` to JSON (default):
+  ```bash
+  npm run start -- convert config.env
+  ```
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
+  ```
+- Convert YAML to `.env`:
+  ```bash
+  npm run start -- convert config.yaml --to-env
   ```
 - Convert Markdown to HTML (stdout):
   ```bash
@@ -1194,6 +1471,10 @@ Project Overview:
 - Convert Markdown to HTML and write to file:
   ```bash
   npm run start -- markdown README.md --output README.html
+  ```
+- Import data file into SQLite database:
+  ```bash
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
   ```
 
 ## Related Documents
@@ -1503,7 +1784,8 @@ DEPENDENCIES_FILE_START
     "minimist": "^1.2.8",
     "openai": "^4.96.2",
     "zod": "^3.24.4",
-    "csv-parse": "^5.4.8"
+    "csv-parse": "^5.4.8",
+    "better-sqlite3": "^8.4.0"
   },
   "devDependencies": {
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
@@ -1547,7 +1829,6 @@ DEPENDENCIES_FILE_START
     "registry": "https://npm.pkg.github.com"
   }
 }
-
 DEPENDENCIES_FILE_END
 
 Formatting file (for context, read only): .prettierrc
@@ -1654,9 +1935,295 @@ export default [
   },
 ];
 
-LINTING_FILE_END
+LINTING_FILE_END        
 
-Agent configuration file (for context, read only):
+Dependencies install from command: npm install
+DEPENDENCIES_INSTALL_START
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 481 packages, and audited 482 packages in 4s
+
+157 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+DEPENDENCIES_INSTALL_END    
+
+Issue details:
+ISSUE_START
+title: No issue number provided
+description:
+No issue description provided ( parsed to )
+comments:
+No issue comments provided
+ISSUE_END
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1003[2mms[22m[39m
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2033[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2205[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 403[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 618[2mms[22m[39m
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+ [31m❯[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[33m 987[2mms[22m[39m
+[31m   [31m×[31m text-replace command[2m > [22merrors when missing --search or --replace[39m[32m 221[2mms[22m[39m
+[31m     → expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'[39m
+[31m   [31m×[31m text-replace command[2m > [22mliteral replacement replaces first occurrence only[39m[32m 194[2mms[22m[39m
+[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+[31m   [31m×[31m text-replace command[2m > [22mregex replacement with flags replaces all matches[39m[32m 187[2mms[22m[39m
+[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+[31m   [31m×[31m text-replace command[2m > [22minvalid regex reports error[39m[32m 199[2mms[22m[39m
+[31m     → expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'[39m
+[31m   [31m×[31m text-replace command[2m > [22mwrites output to file when --output is specified[39m[32m 184[2mms[22m[39m
+[31m     → Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 394[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 535[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 874[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 199[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 457[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 133[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22merrors when missing --search or --replace
+[31m[1mAssertionError[22m: expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Missing --search or --replace flag[39m
+[31m+ ReferenceError: doTextReplace is not defined[39m
+[31m+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)[39m
+[31m+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1[39m
+[31m+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)[39m
+[31m+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)[39m
+[31m+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)[39m
+[31m+[39m
+
+[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m29:25[22m[39m
+    [90m 27| [39m    [34mexpect[39m(err1)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m 28| [39m    [34mexpect[39m(err1[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m 29| [39m    expect(err1.stderr).toContain('Missing --search or --replace flag'…
+    [90m   | [39m                        [31m^[39m
+    [90m 30| [39m
+    [90m 31| [39m    [35mlet[39m err2[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mliteral replacement replaces first occurrence only
+[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
+[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
+[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m45:28[22m[39m
+    [90m 43| [39m    [35mconst[39m filePath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'lit.txt'[39m)[33m;[39m
+    [90m 44| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'foo foo foo'[39m)[33m;[39m
+    [90m 45| [39m    [35mconst[39m output [33m=[39m [34mexecSync[39m(
+    [90m   | [39m                           [31m^[39m
+    [90m 46| [39m      [32m`[39m[36m${[39mcli[36m}[39m[32m replace [39m[36m${[39mfilePath[36m}[39m[32m --search foo --replace bar`[39m[33m,[39m
+    [90m 47| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mregex replacement with flags replaces all matches
+[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
+[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
+[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m55:28[22m[39m
+    [90m 53| [39m    [35mconst[39m filePath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'regex.txt'[39m)[33m;[39m
+    [90m 54| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'aAbB'[39m)[33m;[39m
+    [90m 55| [39m    [35mconst[39m output [33m=[39m [34mexecSync[39m(
+    [90m   | [39m                           [31m^[39m
+    [90m 56| [39m      `${cli} replace ${filePath} --search a --replace X --regex --fla…
+    [90m 57| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22minvalid regex reports error
+[31m[1mAssertionError[22m: expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Invalid regular expression[39m
+[31m+ ReferenceError: doTextReplace is not defined[39m
+[31m+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)[39m
+[31m+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1[39m
+[31m+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)[39m
+[31m+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)[39m
+[31m+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)[39m
+[31m+[39m
+
+[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m76:24[22m[39m
+    [90m 74| [39m    [34mexpect[39m(err)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m 75| [39m    [34mexpect[39m(err[33m.[39mstatus)[33m.[39m[34mtoBe[39m([34m1[39m)[33m;[39m
+    [90m 76| [39m    [34mexpect[39m(err[33m.[39mstderr)[33m.[39m[34mtoContain[39m([32m'Invalid regular expression'[39m)[33m;[39m
+    [90m   | [39m                       [31m^[39m
+    [90m 77| [39m  })[33m;[39m
+    [90m 78| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/text-replace.test.js[2m > [22mtext-replace command[2m > [22mwrites output to file when --output is specified
+[31m[1mError[22m: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt
+ReferenceError: doTextReplace is not defined
+    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)
+    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+[39m
+[90m [2m❯[22m main sandbox/source/main.js:[2m464:7[22m[39m
+[90m [2m❯[22m sandbox/source/main.js:[2m481:1[22m[39m
+[36m [2m❯[22m sandbox/tests/text-replace.test.js:[2m83:28[22m[39m
+    [90m 81| [39m    [35mconst[39m outPath [33m=[39m path[33m.[39m[34mjoin[39m(tempDir[33m,[39m [32m'result.txt'[39m)[33m;[39m
+    [90m 82| [39m    fs[33m.[39m[34mwriteFileSync[39m(filePath[33m,[39m [32m'hello hello'[39m)[33m;[39m
+    [90m 83| [39m    [35mconst[39m stdout [33m=[39m [34mexecSync[39m(
+    [90m   | [39m                           [31m^[39m
+    [90m 84| [39m      `${cli} replace ${filePath} --search hello --replace hi --output…
+    [90m 85| [39m      { encoding[33m:[39m [32m'utf-8'[39m }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (12)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m42 passed[39m[22m[90m (47)[39m
+[2m   Start at [22m 05:57:15
+[2m   Duration [22m 4.10s[2m (transform 86ms, setup 0ms, collect 243ms, tests 8.83s, environment 3ms, prepare 1.05s)[22m
+
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > errors when missing --search or --replace,line=29,column=25::AssertionError: expected 'ReferenceError: doTextReplace is not …' to contain 'Missing --search or --replace flag'%0A%0A- Expected%0A+ Received%0A%0A- Missing --search or --replace flag%0A+ ReferenceError: doTextReplace is not defined%0A+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A+%0A%0A ❯ sandbox/tests/text-replace.test.js:29:25%0A%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > literal replacement replaces first occurrence only,line=45,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/lit.txt --search foo --replace bar%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:45:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2583, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > regex replacement with flags replaces all matches,line=55,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/regex.txt --search a --replace X --regex --flags gi%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:55:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2619, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > invalid regex reports error,line=76,column=24::AssertionError: expected 'ReferenceError: doTextReplace is not …' to contain 'Invalid regular expression'%0A%0A- Expected%0A+ Received%0A%0A- Invalid regular expression%0A+ ReferenceError: doTextReplace is not defined%0A+     at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A+     at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A+     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A+     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A+     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A+%0A%0A ❯ sandbox/tests/text-replace.test.js:76:24%0A%0A
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js,title=sandbox/tests/text-replace.test.js > text-replace command > writes output to file when --output is specified,line=83,column=28::Error: Command failed: node sandbox/source/main.js replace /tmp/text-replace-tests/out.txt --search hello --replace hi --output /tmp/text-replace-tests/result.txt%0AReferenceError: doTextReplace is not defined%0A    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)%0A    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1%0A    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)%0A    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)%0A    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)%0A%0A ❯ main sandbox/source/main.js:464:7%0A ❯ sandbox/source/main.js:481:1%0A ❯ sandbox/tests/text-replace.test.js:83:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' ], pid: 2692, stdout: '', stderr: 'ReferenceError: doTextReplace is not defined\n    at main (file:///home/runner/work/repository0/repository0/sandbox/source/main.js:464:7)\n    at file:///home/runner/work/repository0/repository0/sandbox/source/main.js:481:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)\n    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)\n' }%0A
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
+  markdown           Convert a Markdown file to HTML
+  import-data        Import structured data files into a SQLite database
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --to-yaml --output out.yaml
+  npm run start -- convert file.env --to-json
+  npm run start -- convert config.json --to-env
+  npm run start -- markdown file.md --output file.html
+  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
+MAIN_OUTPUT_END    
+
+Agent configuration file:
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -1742,320 +2309,23 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Issue details:
-ISSUE_START
-title: Enhance convert CLI command for full bidirectional conversion and add --to-json flag
-description:
-Refactor the `convert` CLI command in `sandbox/source/main.js` to support full bidirectional conversion across `.env`, `.json`, and `.yaml/.yml` formats with a new `--to-json` flag, strict flag validation, and updated documentation and test coverage.
-
-Acceptance Criteria:
-1. Parsing Input by Extension:
-   • `.env` → parsed with `dotenv.parse`.
-   • `.json` → parsed with `JSON.parse`.
-   • `.yaml`/`.yml` → parsed with `jsYaml.load`.
-2. Output Format Determination:
-   • Default (no flags) and `--to-json` → serializes to `JSON.stringify(data, null, 2)`.
-   • `--to-env` → serializes to dotenv-style `KEY=VALUE` lines.
-   • `--to-yaml` → serializes to YAML via `jsYaml.dump(data)`.
-3. Flag Validation:
-   • Exactly one of `--to-json`, `--to-env`, or `--to-yaml` may be specified.
-   • If none or more than one are provided, print `Error: Specify exactly one of --to-json, --to-env, or --to-yaml` and exit with status code 1.
-4. Output Handling:
-   • Without `--output`, write result to stdout.
-   • With `--output <file>`, write result to the specified file, preserving existing behavior.
-5. Error Conditions:
-   • Unsupported input extension → print `Unsupported input format: <ext>`, exit 1.
-   • File read/write errors or parse errors → print the original error message and exit 1.
-6. Test Coverage:
-   • Existing `sandbox/tests/convert.test.js` tests must continue passing.
-   • Add new tests for:
-     a. Explicit `.env` → YAML conversion with `--to-yaml`.
-     b. Explicit `.yaml` → `.env` conversion with `--to-env`.
-     c. Explicit `.env` → JSON conversion with `--to-json`.
-     d. Invalid flag combinations (e.g., `--to-env` + `--to-yaml`) produce an error exit.
-     e. Explicit default (`--to-json`) behavior mirrors no-flag behavior.
-7. Documentation Updates:
-   • Update `README.md` under the `convert` command section to list `--to-json`, enforce flag exclusivity, and show examples for:
-     - `.env` → JSON
-     - `.json` → YAML
-     - `.yaml` → `.env`
-     - Default behavior
-   • Update `sandbox/features/FORMAT_CONVERT.md` to describe the `--to-json` flag, conflict rules, and examples for all conversion directions.
-
-Implementation Notes:
-- Extend `minimist` configuration to include boolean `to-json`.
-- In `doConvert(argv)`: determine the input extension, validate that exactly one conversion flag is set, perform parsing, select serialization branch, and handle `--output` consistently.
-comments:
-Author:github-actions[bot], Created:2025-05-17T23:58:57Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090265502
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/dd7c972773224a4d76895d38e4e7f6546d0ee14c
-Author:github-actions[bot], Created:2025-05-17T23:59:52Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T00:42:39Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090641764
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7226361b07d93d4c2502600342a39a74b81f9e56
-Author:github-actions[bot], Created:2025-05-18T00:42:50Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090613257
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7226361b07d93d4c2502600342a39a74b81f9e56
-Author:github-actions[bot], Created:2025-05-18T00:44:09Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090645722
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:45:27Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090656347
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:47:06Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090676465
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9ccfccc72af1f6fe811de0984d4ca792b10518f1
-Author:github-actions[bot], Created:2025-05-18T00:52:02Z, Comment: Workflow name: ci-publish-web
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090713827
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/822daf100d819afb102de02e6e7963ca414f5665
-Author:github-actions[bot], Created:2025-05-18T00:54:32Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090732565
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/4efed2249275e4082f2b32cd76db3c9f23a560cf
-Author:github-actions[bot], Created:2025-05-18T01:16:06Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090891640
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/d8f783194b1089eb9a81022b1bc6c2c471e23968
-Author:github-actions[bot], Created:2025-05-18T01:17:12Z, Comment: Workflow name: discussions-bot
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090863024
-Workflow event: discussion_comment
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d3afc60746f36654dfed18b416e17cff15b589f
-Author:github-actions[bot], Created:2025-05-18T01:17:56Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090905021
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/627b822166428e8d728a851a33304a5b19b4ef01
-Author:github-actions[bot], Created:2025-05-18T01:18:08Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T01:22:16Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090935749
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/991139eee4bdfa0e39272c01a4b60175bbfafeb7
-Author:github-actions[bot], Created:2025-05-18T01:24:51Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15090938559
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fb2e9a9da7ffed0f0805a14c5c103a26ab0ad6a2
-Author:github-actions[bot], Created:2025-05-18T01:46:32Z, Comment: Workflow name: transformation-06-issue-to-code
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091118040
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:55:51Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:56:13Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:57:19Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091183504
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T01:59:28Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091219827
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T02:00:57Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091232213
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8096d5e69871551974ae7fb49d1e2e852ebc4621
-Author:github-actions[bot], Created:2025-05-18T02:09:44Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091302554
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6071a01ead83ec79db9a2f61d54689c037567f7a
-Author:github-actions[bot], Created:2025-05-18T02:10:57Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091312779
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6071a01ead83ec79db9a2f61d54689c037567f7a
-Author:github-actions[bot], Created:2025-05-18T02:54:53Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091631550
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:55:58Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091633346
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:57:19Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091648539
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T02:59:02Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091662599
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0d5dec10317129e4119b138db685587d75eecd22
-Author:github-actions[bot], Created:2025-05-18T03:38:40Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091958870
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
-Author:github-actions[bot], Created:2025-05-18T03:39:51Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091962933
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
-Author:github-actions[bot], Created:2025-05-18T03:42:50Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15091992494
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/135f8e8f24858dc1d8baae0c0efa2766a391811b
-ISSUE_END            
-
-Dependencies list from command: npm list
-DEPENDENCIES_LIST_START
-@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
-├── @microsoft/eslint-formatter-sarif@3.1.0
-├── @vitest/coverage-v8@3.1.3
-├── csv-parse@5.6.0
-├── dotenv@16.5.0
-├── ejs@3.1.10
-├── eslint-config-google@0.14.0
-├── eslint-config-prettier@10.1.5
-├── eslint-plugin-import@2.31.0
-├── eslint-plugin-prettier@5.4.0
-├── eslint-plugin-promise@7.2.1
-├── eslint-plugin-react@7.37.5
-├── eslint-plugin-security@3.0.1
-├── eslint-plugin-sonarjs@3.0.2
-├── eslint@9.26.0
-├── js-yaml@4.1.0
-├── markdown-it-github@0.5.0
-├── markdown-it@14.1.0
-├── minimatch@10.0.1
-├── minimist@1.2.8
-├── npm-check-updates@18.0.1
-├── openai@4.98.0
-├── prettier@3.5.3
-├── vitest@3.1.3
-└── zod@3.24.4
-DEPENDENCIES_LIST_END    
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1016[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1072[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 373[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1268[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 572[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 337[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 869[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 199[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 505[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 159[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
-[2m      Tests [22m [1m[32m35 passed[39m[22m[90m (35)[39m
-[2m   Start at [22m 05:25:43
-[2m   Duration [22m 3.07s[2m (transform 106ms, setup 0ms, collect 266ms, tests 6.01s, environment 3ms, prepare 1.00s)[22m
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
-  markdown           Convert a Markdown file to HTML
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
-  npm run start -- markdown file.md --output file.html
-MAIN_OUTPUT_END    
-
-Please produce updated versions of the files that resolve the issue.
+Please produce updated versions of the files that resolve the possible build or test problem.
+If there are no changes required, please provide the original content and state that no changes are necessary in the message.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
-Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
