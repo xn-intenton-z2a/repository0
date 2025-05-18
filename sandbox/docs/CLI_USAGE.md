@@ -1,32 +1,13 @@
-# CLI Sandbox Usage
+# CLI Sandbox CLI Usage
 
-This repository provides a CLI demo showcasing a variety of utility commands implemented in `sandbox/source/main.js`. It demonstrates agentic workflow capabilities and provides basic file processing and conversion operations from the terminal.
+This CLI provides a set of utility commands to demonstrate agentic workflow capabilities and basic file processing operations from the terminal.
 
-## Overview
+## Prerequisites
 
-Available commands:
+- Node.js ≥ 20
+- Dependencies installed via `npm install`
 
-- **help**               Display this help message
-- **mission**            Print the mission statement
-- **version**            Print the current package version
-- **echo**               Echo the provided arguments
-- **features**           List available feature documents
-- **mission-features**   Print the mission statement and list available features
-- **csv-import**         Import a CSV file and output a JSON array
-- **render**             Render an EJS template with optional JSON data and output to stdout or file
-- **replace**, **text-replace**
-                        Perform search-and-replace on a text file
-- **convert**            Convert between .env, JSON, and YAML formats
-
-## What’s Inside
-
-- **sandbox/source/main.js**  — CLI implementation using `minimist` and built-in libraries
-- **sandbox/tests/**          — Vitest tests covering each command and edge cases
-- **sandbox/docs/**           — Additional CLI usage documentation
-- **sandbox/features/**       — Feature documents with headings and descriptions
-- **package.json**            — Dependencies, scripts, and configuration
-
-## Usage
+## Usage and Examples
 
 Invoke the CLI via npm:
 
@@ -34,69 +15,87 @@ Invoke the CLI via npm:
 npm run start -- <command> [options]
 ```
 
-### Examples
+### help
+Display a summary of available commands.
 
-#### Display help
 ```bash
 npm run start -- help
 ```
 
-#### Print mission statement
+### mission
+Print the mission statement from `MISSION.md`.
+
 ```bash
 npm run start -- mission
 ```
 
-#### Show current version
+### version
+Show the current package version from `package.json`.
+
 ```bash
 npm run start -- version
 ```
 
-#### Echo arguments
+### echo
+Echo the provided arguments.
+
 ```bash
 npm run start -- echo Hello World
 ```
 
-#### List feature documents
+### features
+List headings of Markdown files in `sandbox/features/`.
+
 ```bash
 npm run start -- features
 ```
 
-#### Mission and features
+### mission-features
+Print the mission statement and then list available features.
+
 ```bash
 npm run start -- mission-features
 ```
 
-#### CSV import (stdout)
+### csv-import
+Import a CSV file and output a JSON array.
+
 ```bash
 npm run start -- csv-import data.csv
 ```
 
-CSV import with options:
+With options:
 ```bash
 npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
 ```
 
-#### Render EJS template
+### render
+Render an EJS template with optional JSON data and output to stdout or file.
+
 ```bash
 npm run start -- render template.ejs [data.json]
 ```
 
-Render with output file:
+Write to a file:
 ```bash
 npm run start -- render template.ejs data.json --output out.html
 ```
 
-#### Text replace
+### replace (alias: text-replace)
+Perform search-and-replace on a text file (literal or regex).
+
 ```bash
 npm run start -- replace file.txt --search foo --replace bar
 ```
 
-Regular-expression replace:
+Regex replace with flags:
 ```bash
 npm run start -- replace file.txt --search "^foo" --replace baz --regex --flags "gi" --output out.txt
 ```
 
-#### Convert formats
+### convert
+Convert between `.env`, JSON, and YAML formats.
+
 ```bash
 npm run start -- convert file.env
 ```
@@ -111,20 +110,12 @@ JSON to YAML:
 npm run start -- convert file.json --to-yaml
 ```
 
-Convert with output file:
+With an output file:
 ```bash
 npm run start -- convert file.yaml --output out.json
 ```
 
-## Testing
-
-Run the full test suite:
-
-```bash
-npm test
-```
-
-## Resources & Links
+## Links
 
 - [Mission Statement](../../MISSION.md)
 - [Contributing Guide](../../CONTRIBUTING.md)
