@@ -39,6 +39,7 @@ Project Overview:
 | render             | Render an EJS template with optional JSON data to stdout or file                 |
 | replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
 | convert            | Convert between .env, JSON, and YAML formats                                      |
+| markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
 
 ## Examples
 
@@ -77,6 +78,14 @@ Project Overview:
 - Convert JSON to YAML:
   ```bash
   npm run start -- convert config.json --to-yaml
+  ```
+- Convert Markdown to HTML (stdout):
+  ```bash
+  npm run start -- markdown README.md
+  ```
+- Convert Markdown to HTML and write to file:
+  ```bash
+  npm run start -- markdown README.md --output README.html
   ```
 
 ## Related Documents
