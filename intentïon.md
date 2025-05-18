@@ -2,3 +2,5 @@
 
 2025-05-18T14:15:11.746Z - Maintained feature STATS.
 
+2025-05-18T14:28:11.392Z - Worked to resolve issue Add stats CLI command with metrics filtering output-to-file support tests and documentation. Add stats CLI command with metrics filtering output-to-file support tests and documentation.
+
