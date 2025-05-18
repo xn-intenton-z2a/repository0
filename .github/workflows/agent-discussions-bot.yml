@@ -82,7 +82,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.6.4'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -238,7 +238,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.6.4'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -370,7 +370,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.4'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -386,14 +386,14 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.6.4'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
-  trace-discussion:
+  log-intention-activity:
     needs:
       - process-discussion-post
       - generate-response
@@ -401,6 +401,9 @@ jobs:
       - agentic-lib
     if: ${{ !cancelled() && needs.generate-response.outputs.action == 'seed-repository' }}
     runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -413,24 +416,19 @@ jobs:
           git config --local user.name "${{ env.gitUserName }}"
           git pull --ff-only origin ${{ github.ref }}
 
-      - name: trace-discussion
-        id: trace-discussion
+      - name: log-intention-activity
+        id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          discussionTitle: ${{ needs.process-discussion-post.outputs.title }}
-          discussionBody: ${{ needs.process-discussion-post.outputs.body }}
-          discussionUrl: ${{ needs.process-discussion-post.outputs.url }}
+          activity: "This repository was seeded from GitHub Discussion ${{ needs.process-discussion-post.outputs.title }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
-            const title = process.env.discussionTitle;
-            const body = process.env.discussionBody;
-            const url = process.env.discussionUrl;
+            const activity = process.env.activity;
             const intentionFilepath = process.env.intentionFilepath;
 
-            core.info(`title: ${title}`);
-            core.info(`body: ${body}`);
-            core.info(`url: ${url}`);
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
 
             const fs = require('fs');
             const path = require('path');
@@ -439,17 +437,17 @@ jobs:
             if (!fs.existsSync(path.dirname(intentionFilepath))) {
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
-            const traceContent = `${new Date().toISOString()} - This repository was seeded from GitHub Discussion ${title} at ${url}\n`;
-            fs.appendFileSync(intentionFilepath, traceContent);
-
-            core.info(`Trace file saved to ${intentionFilepath}`);
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `${isoDate} - ${activity}\n\n`;
+            fs.writeFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
 
       - name: Commit changes
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Add discussion seed trace" || echo "No changes to commit"
+          git commit -m "Activity logged" || echo "No changes to commit"
           git push
 
   archive-seeded-intention:
@@ -457,7 +455,7 @@ jobs:
       - generate-response
       - seed-repository
       - agentic-lib
-      - trace-discussion
+      - log-intention-activity
     if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
     permissions:
       contents: write
@@ -466,7 +464,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.6.4'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -485,7 +483,7 @@ jobs:
       packages: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.6.2'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.6.4'
     with:
       feature: ${{ needs.generate-response.outputs.detail }}
     secrets:
@@ -508,7 +506,7 @@ jobs:
   #    packages: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.6.2'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.6.4'
   #  with:
   #    feature: ${{ needs.generate-response.outputs.detail }}
   #  secrets:
@@ -565,7 +563,7 @@ jobs:
   #  permissions:
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.6.2'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.6.4'
   #  with:
   #    issueNumber: ''
   #    selectionLabel: 'ready'
@@ -587,7 +585,7 @@ jobs:
   #    contents: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.6.2'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.6.4'
   #  with:
   #    cache: 'npm'
   #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
