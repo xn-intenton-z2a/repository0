@@ -88,4 +88,25 @@ describe('text-replace command', () => {
     expect(fileContent).toBe('hi hello');
     expect(stdout).toBe('');
   });
+
+  // New tests for global replacement behavior
+  test('literal replacement replaces all occurrences when --all flag is provided', () => {
+    const filePath = path.join(tempDir, 'litall.txt');
+    fs.writeFileSync(filePath, 'foo bar foo', 'utf-8');
+    const output = execSync(
+      `${cli} replace ${filePath} --search foo --replace baz --all`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('baz bar baz');
+  });
+
+  test('regex replacement without flags defaults to global replacement', () => {
+    const filePath = path.join(tempDir, 'regexall.txt');
+    fs.writeFileSync(filePath, 'aba aba', 'utf-8');
+    const output = execSync(
+      `${cli} replace ${filePath} --search a --replace x --regex`,
+      { encoding: 'utf-8' }
+    );
+    expect(output.trim()).toBe('xbx xbx');
+  });
 });
