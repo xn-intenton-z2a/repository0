@@ -27,20 +27,20 @@ Project Overview:
 
 ## Commands Reference
 
-| Command            | Description                                                                      |
-|--------------------|----------------------------------------------------------------------------------|
-| help               | Display help message listing all commands and usage examples                     |
-| mission            | Print the mission statement from `MISSION.md`                                    |
-| version            | Show the current version from `package.json`                                      |
-| echo               | Echo the provided arguments                                                       |
-| features           | List headings of Markdown files in `sandbox/features/`                            |
-| mission-features   | Print the mission statement, then list available features                         |
-| csv-import         | Import a CSV file and output a JSON array                                        |
-| render             | Render an EJS template with optional JSON data to stdout or file                 |
-| replace / text-replace | Perform search-and-replace on a text file (literal or regex)              |
-| convert            | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml) |
-| markdown           | Convert a Markdown file to HTML, optionally writing to an output file             |
-| import-data        | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
+| Command                        | Description                                                                                                                      |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| help                           | Display help message listing all commands and usage examples                                                                     |
+| mission                        | Print the mission statement from `MISSION.md`                                                                                      |
+| version                        | Show the current version from `package.json`                                                                                      |
+| echo                           | Echo the provided arguments                                                                                                       |
+| features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only those feature docs that do not reference the mission statement. |
+| mission-features               | Print the mission statement, then list available features                                                                         |
+| csv-import                     | Import a CSV file and output a JSON array                                                                                         |
+| render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
+| replace / text-replace         | Perform search-and-replace on a text file (literal or regex)                                                                      |
+| convert                        | Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)                                             |
+| markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
+| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options --db, --table, --delimiter, --header, --overwrite |
 
 ## Examples
 
@@ -63,6 +63,14 @@ Project Overview:
 - List features:
   ```bash
   npm run start -- features
+  ```
+- Validate mission references in feature docs:
+  ```bash
+  npm run start -- features --validate-mission
+  ```
+- Mission and features:
+  ```bash
+  npm run start -- mission-features
   ```
 - CSV import with header row and custom delimiter:
   ```bash
@@ -100,10 +108,3 @@ Project Overview:
   ```bash
   npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
   ```
-
-## Related Documents
-
-- [Mission Statement](../../MISSION.md)
-- [Contributing Guide](../../CONTRIBUTING.md)
-- [License](../../LICENSE.md)
-- [Agentic-lib Repository](https://github.com/xn-intenton-z2a/agentic-lib)
