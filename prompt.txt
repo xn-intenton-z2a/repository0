@@ -1,23 +1,18 @@
 
-You are providing the entire new content of source files, test files, documentation files, 
-and other necessary files with all necessary changes applied to resolve a possible build or test 
-problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
-changes or excessive debugging or validation. If the problem is in an area of the code with little
-value you may re-implement it or remove it.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
-and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
-and maintain the integrity of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-You may complete the implementation of a feature and/or bring the code output in line with the README
-or other documentation. Do as much as you can all at once so that the build runs (even with nothing
-to build) and the tests pass and the main at least doesn't output an error.
+Do as much as you can all at once.
 
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-
-Examine the "Build output from command","Test output from command", and "Main execution output from command" 
-to determine if there are any problems with the code to fix such as failing tests or output 
-not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -26,7 +21,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -39,21 +34,22 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content
-  * Test file content
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Formatting file content
-  * Linting file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -109,674 +105,6 @@ CURRENT_FEATURES_END
 
 Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
-SOURCE_FILE_START Filepath: sandbox/source/main.js
-#!/usr/bin/env node
-import minimist from "minimist";
-import fs from "fs/promises";
-import path from "path";
-import { parse } from "csv-parse/sync";
-import ejs from "ejs";
-import dotenv from "dotenv";
-import jsYaml from "js-yaml";
-import MarkdownIt from "markdown-it";
-import Database from "better-sqlite3";
-import Ajv from "ajv";
-
-async function showHelp() {
-  console.log(`Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents (use --validate-mission to list those without mission reference)
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
-  validate           Validate JSON syntax and optionally JSON Schema
-  markdown           Convert a Markdown file to HTML
-  import-data        Import structured data files into a SQLite database
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- features --validate-mission
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --to-yaml --output out.yaml
-  npm run start -- convert file.env --to-json
-  npm run start -- convert config.json --to-env
-  npm run start -- validate data.json
-  npm run start -- validate data.json --schema schema.json
-  npm run start -- validate data.json --schema schema.json --output report.txt
-  npm run start -- markdown file.md --output file.html
-  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite`);
-}
-
-async function showMission() {
-  try {
-    const cwd = process.cwd();
-    const content = await fs.readFile(path.join(cwd, "MISSION.md"), "utf-8");
-    console.log(content);
-  } catch (err) {
-    console.error("Error reading mission:", err.message);
-    process.exit(1);
-  }
-}
-
-async function showVersion() {
-  try {
-    const cwd = process.cwd();
-    const pkg = await fs.readFile(path.join(cwd, "package.json"), "utf-8");
-    const { version } = JSON.parse(pkg);
-    console.log(version);
-  } catch (err) {
-    console.error("Error reading version:", err.message);
-    process.exit(1);
-  }
-}
-
-async function doEcho(args) {
-  console.log(args.join(" "));
-}
-
-async function showFeatures(argv) {
-  const validate = argv && argv["validate-mission"];
-  try {
-    const cwd = process.cwd();
-    const featuresDir = path.join(cwd, "sandbox/features");
-    const files = await fs.readdir(featuresDir);
-    const validHeadings = [];
-    const offendingFiles = [];
-    for (const file of files) {
-      if (path.extname(file).toLowerCase() === ".md") {
-        const filePath = path.join(featuresDir, file);
-        const content = await fs.readFile(filePath, "utf-8");
-        if (validate) {
-          if (
-            content.includes("MISSION.md") ||
-            content.includes("# Mission Statement")
-          ) {
-            offendingFiles.push(file);
-            continue;
-          }
-        }
-        const lines = content.split("\n");
-        let heading = null;
-        for (const line of lines) {
-          const match = line.match(/^#\s+(.*)/);
-          if (match) {
-            heading = match[1];
-            break;
-          }
-        }
-        if (heading) {
-          if (validate) {
-            validHeadings.push(heading);
-          } else {
-            console.log(heading);
-          }
-        }
-      }
-    }
-    if (validate) {
-      if (offendingFiles.length > 0) {
-        console.error(
-          "Error: Found mission references in the following feature docs:"
-        );
-        for (const f of offendingFiles) {
-          console.error(`  ${f}`);
-        }
-        process.exit(1);
-      }
-      for (const h of validHeadings) {
-        console.log(h);
-      }
-      process.exit(0);
-    }
-  } catch (err) {
-    console.error("Error listing features:", err.message);
-    process.exit(1);
-  }
-}
-
-async function doCsvImport(argv) {
-  const inputFile = argv._[1];
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-
-  const delimiter = argv.delimiter || ",";
-  const header = argv.header !== false;
-  const output = argv.output;
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let records;
-  try {
-    records = parse(content, { columns: header, delimiter, skip_empty_lines: true });
-  } catch (err) {
-    console.error("Error parsing CSV:", err.message);
-    process.exit(1);
-  }
-
-  const json = JSON.stringify(records, null, 2);
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, json, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(json);
-  }
-}
-
-async function doRender(argv) {
-  const templateFile = argv._[1];
-  const dataFile = argv._[2];
-  const output = argv.output;
-  if (!templateFile) {
-    console.error("Error: No template file specified");
-    process.exit(1);
-  }
-  let template;
-  try {
-    const templatePath = path.resolve(templateFile);
-    template = await fs.readFile(templatePath, "utf-8");
-  } catch (err) {
-    console.error("Error reading template file:", err.message);
-    process.exit(1);
-  }
-  let data = {};
-  if (dataFile) {
-    try {
-      const dataPath = path.resolve(dataFile);
-      const raw = await fs.readFile(dataPath, "utf-8");
-      data = JSON.parse(raw);
-    } catch (err) {
-      console.error("Error parsing data file:", err.message);
-      process.exit(1);
-    }
-  }
-  let rendered;
-  try {
-    rendered = ejs.render(template, data);
-  } catch (err) {
-    console.error("Error rendering template:", err.message);
-    process.exit(1);
-  }
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, rendered, "utf-8");
-      console.log(`Wrote rendered output to ${output}`);
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(rendered);
-    process.exit(0);
-  }
-}
-
-async function doTextReplace(argv) {
-  const inputFile = argv._[1];
-  const search = argv.search;
-  const replacement = argv.replace;
-  const regexFlag = argv.regex;
-  const allFlag = argv.all;
-  const flagsArg = argv.flags || "";
-  const output = argv.output;
-
-  if (!inputFile || search === undefined || replacement === undefined) {
-    console.error("Missing --search or --replace flag");
-    process.exit(1);
-  }
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let result;
-  if (regexFlag) {
-    let flags = flagsArg;
-    if (!flags) {
-      flags = "g";
-    }
-    let re;
-    try {
-      re = new RegExp(search, flags);
-    } catch (err) {
-      console.error("Invalid regular expression:", err.message);
-      process.exit(1);
-    }
-    result = content.replace(re, replacement);
-  } else {
-    if (allFlag) {
-      // global literal replacement
-      if (typeof content.replaceAll === "function") {
-        result = content.replaceAll(search, replacement);
-      } else {
-        result = content.split(search).join(replacement);
-      }
-    } else {
-      result = content.replace(search, replacement);
-    }
-  }
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, result, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(result);
-  }
-}
-
-async function doConvert(argv) {
-  const inputFile = argv._[1];
-  const toEnv = argv["to-env"];
-  const toYaml = argv["to-yaml"];
-  const toJson = argv["to-json"];
-  const output = argv.output;
-
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-
-  const flagCount = [toEnv, toYaml, toJson].filter(Boolean).length;
-  if (flagCount > 1) {
-    console.error("Error: Specify exactly one of --to-json, --to-env, or --to-yaml");
-    process.exit(1);
-  }
-
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-
-  let data;
-  try {
-    const ext = path.extname(inputFile).toLowerCase();
-    if (ext === ".env") {
-      data = dotenv.parse(content);
-    } else if (ext === ".json") {
-      data = JSON.parse(content);
-    } else if (ext === ".yaml" || ext === ".yml") {
-      data = jsYaml.load(content);
-    } else {
-      console.error(`Unsupported input format: ${ext}`);
-      process.exit(1);
-    }
-  } catch (err) {
-    console.error(`Error parsing input file: ${err.message}`);
-    process.exit(1);
-  }
-
-  let result;
-  try {
-    if (toEnv) {
-      if (typeof data !== "object" || data === null) {
-        throw new Error("Input JSON must be an object for env conversion");
-      }
-      result = Object.entries(data)
-        .map(([key, value]) => `${key}=${value}`)
-        .join("\n");
-    } else if (toYaml) {
-      result = jsYaml.dump(data);
-    } else {
-      result = JSON.stringify(data, null, 2);
-    }
-  } catch (err) {
-    console.error("Error serializing output:", err.message);
-    process.exit(1);
-  }
-
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, result, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(result);
-  }
-}
-
-async function doValidateCommand(argv) {
-  const args = argv._;
-  const fileArg = args[1];
-  const schemaArg = argv.schema;
-  const outFile = argv.output;
-  const usage = "Usage: npm run start -- validate <jsonFile> [--schema <schemaFile>] [--output <file>]";
-
-  if (!fileArg) {
-    if (outFile) {
-      await fs.writeFile(path.resolve(outFile), usage, "utf-8");
-      process.exit(1);
-    }
-    console.error(usage);
-    process.exit(1);
-  }
-
-  let data;
-  try {
-    const content = await fs.readFile(path.resolve(fileArg), "utf-8");
-    data = JSON.parse(content);
-  } catch (err) {
-    const msg = err.name === "SyntaxError"
-      ? `Error parsing ${fileArg}: ${err.message}`
-      : `Error reading ${fileArg}: ${err.message}`;
-    if (outFile) {
-      await fs.writeFile(path.resolve(outFile), msg, "utf-8");
-      process.exit(1);
-    }
-    console.error(msg);
-    process.exit(1);
-  }
-
-  let messages = [];
-  let valid = true;
-  if (schemaArg) {
-    let schema;
-    try {
-      const schemaContent = await fs.readFile(path.resolve(schemaArg), "utf-8");
-      schema = JSON.parse(schemaContent);
-    } catch (err) {
-      const msg = `Error reading schema: ${err.message}`;
-      if (outFile) {
-        await fs.writeFile(path.resolve(outFile), msg, "utf-8");
-        process.exit(1);
-      }
-      console.error(msg);
-      process.exit(1);
-    }
-    const ajv = new Ajv({ strict: false });
-    const validateFn = ajv.compile(schema);
-    valid = validateFn(data);
-    if (!valid && validateFn.errors) {
-      for (const err of validateFn.errors) {
-        const dataPath = err.instancePath || err.dataPath || "";
-        messages.push(`${dataPath}: ${err.message}`);
-      }
-    }
-  }
-
-  if (valid) {
-    messages.push(`Validation passed for ${fileArg}`);
-  }
-
-  if (outFile) {
-    await fs.writeFile(path.resolve(outFile), messages.join("\n"), "utf-8");
-    process.exit(valid ? 0 : 1);
-  } else {
-    if (valid) {
-      console.log(messages[0]);
-      process.exit(0);
-    }
-    for (const msg of messages) {
-      console.error(msg);
-    }
-    process.exit(1);
-  }
-}
-
-async function doImportData(argv) {
-  const inputFile = argv._[1];
-  const dbPath = argv.db;
-  const table = argv.table || 'data';
-  const delimiter = argv.delimiter || ',';
-  const header = argv.header !== false;
-  const overwrite = argv.overwrite || false;
-
-  if (!inputFile) {
-    console.error('Error: No input file specified');
-    process.exit(1);
-  }
-  if (!dbPath) {
-    console.error('Error: --db <database path> is required');
-    process.exit(1);
-  }
-
-  let raw;
-  try {
-    raw = await fs.readFile(path.resolve(inputFile), 'utf-8');
-  } catch (err) {
-    console.error('Error reading input file:', err.message);
-    process.exit(1);
-  }
-
-  let records;
-  const ext = path.extname(inputFile).toLowerCase();
-  try {
-    if (ext === '.csv') {
-      records = parse(raw, { columns: header, delimiter, skip_empty_lines: true });
-    } else if (ext === '.json') {
-      const data = JSON.parse(raw);
-      if (!Array.isArray(data)) {
-        console.error('Error: JSON input must be an array of objects');
-        process.exit(1);
-      }
-      records = data;
-    } else if (ext === '.yaml' || ext === '.yml') {
-      const data = jsYaml.load(raw);
-      if (!Array.isArray(data)) {
-        console.error('Error: YAML input must be an array of objects');
-        process.exit(1);
-      }
-      records = data;
-    } else if (ext === '.env') {
-      const envObj = dotenv.parse(raw);
-      records = [envObj];
-    } else {
-      console.error(`Unsupported input format: ${ext}`);
-      process.exit(1);
-    }
-  } catch (err) {
-    console.error(`Error parsing input file: ${err.message}`);
-    process.exit(1);
-  }
-
-  let db;
-  try {
-    db = new Database(dbPath);
-  } catch (err) {
-    console.error('Error opening database:', err.message);
-    process.exit(1);
-  }
-
-  try {
-    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
-    if (exists) {
-      if (overwrite) {
-        db.prepare(`DROP TABLE \"${table}\"`).run();
-      } else {
-        console.error(`Error: Table '${table}' already exists. Use --overwrite to replace.`);
-        process.exit(1);
-      }
-    }
-  } catch (err) {
-    console.error('Error checking table existence:', err.message);
-    process.exit(1);
-  }
-
-  const keys = Object.keys(records[0] || {});
-  const colsDef = keys.map((k) => `\"${k}\" TEXT`).join(', ');
-  try {
-    db.prepare(`CREATE TABLE \"${table}\" (${colsDef})`).run();
-  } catch (err) {
-    console.error('Error creating table:', err.message);
-    process.exit(1);
-  }
-
-  const placeholders = keys.map(() => '?').join(', ');
-  const insertSQL = `INSERT INTO \"${table}\" (${keys.map((k) => `\"${k}\"`).join(', ')}) VALUES (${placeholders})`;
-  const insertStmt = db.prepare(insertSQL);
-  const insertMany = db.transaction((recs) => {
-    for (const r of recs) {
-      insertStmt.run(...keys.map((k) => r[k]));
-    }
-  });
-  try {
-    insertMany(records);
-  } catch (err) {
-    console.error('Error inserting records:', err.message);
-    process.exit(1);
-  }
-
-  db.close();
-  console.log(`Inserted ${records.length} records into table '${table}' in database ${dbPath}`);
-  process.exit(0);
-}
-
-async function doMarkdown(argv) {
-  const inputFile = argv._[1];
-  const output = argv.output;
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-  const md = new MarkdownIt();
-  let html;
-  try {
-    html = md.render(content);
-  } catch (err) {
-    console.error("Error rendering markdown:", err.message);
-    process.exit(1);
-  }
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, html, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(html);
-  }
-}
-
-async function main() {
-  const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-мission", "all"],
-    string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
-    default: { header: true, delimiter: "," },
-  });
-  const [command, ...rest] = argv._;
-  switch (command) {
-    case "help":
-    case undefined:
-      await showHelp();
-      break;
-    case "mission":
-      await showMission();
-      break;
-    case "version":
-      await showVersion();
-      break;
-    case "echo":
-      await doEcho(rest);
-      break;
-    case "features":
-      await showFeatures(argv);
-      break;
-    case "mission-features":
-      await showMission();
-      console.log("");
-      await showFeatures(argv);
-      break;
-    case "csv-import":
-      await doCsvImport(argv);
-      break;
-    case "render":
-      await doRender(argv);
-      break;
-    case "replace":
-    case "text-replace":
-      await doTextReplace(argv);
-      break;
-    case "convert":
-      await doConvert(argv);
-      break;
-    case "validate":
-      await doValidateCommand(argv);
-      break;
-    case "markdown":
-      await doMarkdown(argv);
-      break;
-    case "import-data":
-      await doImportData(argv);
-      break;
-    default:
-      console.log(`Unknown command: ${command}` + "\n");
-      await showHelp();
-  }
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
-
-SOURCE_FILE_END
-
-
 SOURCE_FILE_START Filepath: src/lib/main.js
 #!/usr/bin/env node
 // src/lib/main.js
@@ -798,893 +126,6 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
-TEST_FILE_START File: sandbox/tests/convert.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import jsYaml from 'js-yaml';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('convert command', () => {
-  const tempDir = path.join(os.tmpdir(), 'convert-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('.env to JSON conversion', () => {
-    const envPath = path.join(tempDir, 'test.env');
-    fs.writeFileSync(envPath, 'KEY1=VALUE1\nKEY2=VALUE2');
-    const output = execSync(`${cli} convert ${envPath}`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual({ KEY1: 'VALUE1', KEY2: 'VALUE2' });
-  });
-
-  test('YAML to JSON conversion', () => {
-    const yamlPath = path.join(tempDir, 'test.yaml');
-    fs.writeFileSync(yamlPath, 'foo: bar\nnum: 10');
-    const output = execSync(`${cli} convert ${yamlPath}`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual({ foo: 'bar', num: 10 });
-  });
-
-  test('JSON to .env conversion with --to-env', () => {
-    const jsonPath = path.join(tempDir, 'test.json');
-    fs.writeFileSync(jsonPath, JSON.stringify({ A: '1', B: '2' }));
-    const output = execSync(`${cli} convert ${jsonPath} --to-env`, { encoding: 'utf-8' });
-    const lines = output.trim().split('\n');
-    expect(lines).toEqual(['A=1', 'B=2']);
-  });
-
-  test('JSON to YAML conversion with --to-yaml', () => {
-    const jsonPath = path.join(tempDir, 'test2.json');
-    fs.writeFileSync(jsonPath, JSON.stringify({ x: 'y', arr: [1, 2] }));
-    const output = execSync(`${cli} convert ${jsonPath} --to-yaml`, { encoding: 'utf-8' });
-    const parsed = jsYaml.load(output);
-    expect(parsed).toEqual({ x: 'y', arr: [1, 2] });
-  });
-
-  test('writes output to file with --output', () => {
-    const envPath = path.join(tempDir, 'test.env');
-    const outPath = path.join(tempDir, 'out.json');
-    fs.writeFileSync(envPath, 'Z=9');
-    execSync(`${cli} convert ${envPath} --output ${outPath}`, { encoding: 'utf-8' });
-    const fileContent = fs.readFileSync(outPath, 'utf-8');
-    const json = JSON.parse(fileContent);
-    expect(json).toEqual({ Z: '9' });
-  });
-
-  test('error on non-existent file', () => {
-    const non = path.join(tempDir, 'nope.env');
-    let err;
-    try {
-      execSync(`${cli} convert ${non}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Error reading input file');
-  });
-
-  test('error on invalid JSON input', () => {
-    const jsonPath = path.join(tempDir, 'bad.json');
-    fs.writeFileSync(jsonPath, '{invalid json');
-    let err;
-    try {
-      execSync(`${cli} convert ${jsonPath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Error parsing input file');
-  });
-
-  // New tests for bidirectional conversions and flag validation
-  test('.env to YAML conversion with --to-yaml', () => {
-    const envPath = path.join(tempDir, 'test2.env');
-    fs.writeFileSync(envPath, 'A=apple\nB=banana');
-    const output = execSync(`${cli} convert ${envPath} --to-yaml`, { encoding: 'utf-8' });
-    const parsed = jsYaml.load(output);
-    expect(parsed).toEqual({ A: 'apple', B: 'banana' });
-  });
-
-  test('YAML to .env conversion with --to-env', () => {
-    const yamlPath = path.join(tempDir, 'test2.yaml');
-    fs.writeFileSync(yamlPath, 'X: 123\nY: 456');
-    const output = execSync(`${cli} convert ${yamlPath} --to-env`, { encoding: 'utf-8' });
-    const lines = output.trim().split('\n');
-    expect(lines.sort()).toEqual(['X=123', 'Y=456'].sort());
-  });
-
-  test('.env to JSON conversion with --to-json', () => {
-    const envPath = path.join(tempDir, 'test3.env');
-    fs.writeFileSync(envPath, 'K1=V1\nK2=V2');
-    const output = execSync(`${cli} convert ${envPath} --to-json`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual({ K1: 'V1', K2: 'V2' });
-  });
-
-  test('error on invalid flag combinations', () => {
-    const envPath = path.join(tempDir, 'test4.env');
-    fs.writeFileSync(envPath, 'A=1\nB=2');
-    let err;
-    try {
-      execSync(`${cli} convert ${envPath} --to-env --to-yaml`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Specify exactly one of');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/csv-import.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('csv-import command', () => {
-  const tempDir = path.join(os.tmpdir(), 'csv-import-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('Header Row Parsing', () => {
-    const csvPath = path.join(tempDir, 'data1.csv');
-    const csvContent = 'a,b\n1,2\n3,4';
-    fs.writeFileSync(csvPath, csvContent);
-    const output = execSync(`${cli} csv-import ${csvPath}`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual([{ a: '1', b: '2' }, { a: '3', b: '4' }]);
-  });
-
-  test('Headerless Mode', () => {
-    const csvPath = path.join(tempDir, 'data2.csv');
-    const csvContent = '1,2\n3,4';
-    fs.writeFileSync(csvPath, csvContent);
-    const output = execSync(`${cli} csv-import ${csvPath} --header false`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual([['1', '2'], ['3', '4']]);
-  });
-
-  test('Custom Delimiter', () => {
-    const csvPath = path.join(tempDir, 'data3.csv');
-    const csvContent = 'a;b;c\nx;y;z';
-    fs.writeFileSync(csvPath, csvContent);
-    const output = execSync(`${cli} csv-import ${csvPath} --delimiter ";"`, { encoding: 'utf-8' });
-    const json = JSON.parse(output);
-    expect(json).toEqual([{ a: 'x', b: 'y', c: 'z' }]);
-  });
-
-  test('Output to File', () => {
-    const csvPath = path.join(tempDir, 'data4.csv');
-    const outPath = path.join(tempDir, 'out.json');
-    const csvContent = 'a,b\n5,6';
-    fs.writeFileSync(csvPath, csvContent);
-    execSync(`${cli} csv-import ${csvPath} --output ${outPath}`, { encoding: 'utf-8' });
-    const fileContent = fs.readFileSync(outPath, 'utf-8');
-    const json = JSON.parse(fileContent);
-    expect(json).toEqual([{ a: '5', b: '6' }]);
-  });
-
-  test('Error Handling for non-existent file', () => {
-    const nonExistPath = path.join(tempDir, 'nope.csv');
-    let error;
-    try {
-      execSync(`${cli} csv-import ${nonExistPath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (err) {
-      error = err;
-    }
-    expect(error).toBeDefined();
-    expect(error.status).toBe(1);
-    expect(error.stderr).toContain('Error reading input file');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/features.test.js
-import { describe, test, expect } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-
-describe('CLI sandbox/source/main.js', () => {
-  test('features command lists headings of feature docs', () => {
-    const output = execSync('node sandbox/source/main.js features', { encoding: 'utf-8' });
-    expect(output).toContain('CLI Command Support');
-  });
-
-  test('features command with --validate-mission lists headings without mission references', () => {
-    const output = execSync('node sandbox/source/main.js features --validate-mission', { encoding: 'utf-8' });
-    expect(output).toContain('CLI Command Support');
-  });
-
-  test('features command with --validate-mission fails on mission references', () => {
-    // Create a temporary feature document that references the mission
-    const dummyPath = path.join(process.cwd(), 'sandbox/features/tmp_mission.md');
-    fs.writeFileSync(dummyPath, '# Dummy Feature\nThis references MISSION.md', 'utf-8');
-    let err;
-    try {
-      execSync('node sandbox/source/main.js features --validate-mission', { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    } finally {
-      // Clean up the dummy file
-      fs.unlinkSync(dummyPath);
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('tmp_mission.md');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/help-fallback.test.js
-import { describe, test, expect } from 'vitest';
-import { execSync } from 'child_process';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('help and fallback behavior', () => {
-  test('help command outputs usage and lists help command', () => {
-    const output = execSync(`${cli} help`, { encoding: 'utf-8' });
-    expect(output).toContain('Usage: npm run start --');
-    expect(output).toContain('help');
-  });
-
-  test('no command provided outputs help usage', () => {
-    const output = execSync('node sandbox/source/main.js', { encoding: 'utf-8' });
-    expect(output).toContain('Usage: npm run start --');
-    expect(output).toContain('help');
-  });
-
-  test('unknown command fallback prints unknown and usage', () => {
-    const output = execSync(`${cli} foobar`, { encoding: 'utf-8' });
-    expect(output).toContain('Unknown command: foobar');
-    expect(output).toContain('Usage: npm run start --');
-    expect(output).toContain('help');
-  });
-});
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/import-data.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import Database from 'better-sqlite3';
-import jsYaml from 'js-yaml';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('import-data command', () => {
-  const tempDir = path.join(os.tmpdir(), 'import-data-tests');
-
-  beforeEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('errors when missing arguments', () => {
-    let err1;
-    try {
-      execSync(`${cli} import-data`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err1 = e;
-    }
-    expect(err1).toBeDefined();
-    expect(err1.status).toBe(1);
-    expect(err1.stderr).toContain('No input file specified');
-
-    const csvPath = path.join(tempDir, 'd.csv');
-    fs.writeFileSync(csvPath, 'a,b\n1,2');
-    let err2;
-    try {
-      execSync(`${cli} import-data ${csvPath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err2 = e;
-    }
-    expect(err2).toBeDefined();
-    expect(err2.status).toBe(1);
-    expect(err2.stderr).toContain('--db <database path> is required');
-  });
-
-  test('errors on unsupported extension', () => {
-    const txtPath = path.join(tempDir, 'file.txt');
-    fs.writeFileSync(txtPath, 'text');
-    let err;
-    try {
-      execSync(`${cli} import-data ${txtPath} --db ${path.join(tempDir, 'db.sqlite')}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Unsupported input format');
-  });
-
-  test('CSV import with default options', () => {
-    const csvPath = path.join(tempDir, 'data.csv');
-    const dbPath = path.join(tempDir, 'data.sqlite');
-    fs.writeFileSync(csvPath, 'x,y\n10,20\n30,40');
-    const out = execSync(`${cli} import-data ${csvPath} --db ${dbPath}`, { encoding: 'utf-8' });
-    expect(out.trim()).toBe(`Inserted 2 records into table 'data' in database ${dbPath}`);
-
-    const db = new Database(dbPath, { readonly: true });
-    const rowCount = db.prepare('SELECT COUNT(*) AS count FROM data').get().count;
-    expect(rowCount).toBe(2);
-    const cols = db.prepare("PRAGMA table_info('data')").all().map((c) => c.name);
-    expect(cols.sort()).toEqual(['x', 'y'].sort());
-    db.close();
-  });
-
-  test('JSON import', () => {
-    const jsonPath = path.join(tempDir, 'data.json');
-    const dbPath = path.join(tempDir, 'j.sqlite');
-    fs.writeFileSync(jsonPath, JSON.stringify([{ a: 1 }, { a: 2 }]));
-    const out = execSync(`${cli} import-data ${jsonPath} --db ${dbPath} --table tbl`, { encoding: 'utf-8' });
-    expect(out.trim()).toBe(`Inserted 2 records into table 'tbl' in database ${dbPath}`);
-
-    const db = new Database(dbPath, { readonly: true });
-    const count = db.prepare('SELECT COUNT(*) AS c FROM tbl').get().c;
-    expect(count).toBe(2);
-    db.close();
-  });
-
-  test('YAML import', () => {
-    const yamlPath = path.join(tempDir, 'data.yaml');
-    const dbPath = path.join(tempDir, 'y.sqlite');
-    fs.writeFileSync(yamlPath, '- foo: bar\n- foo: baz');
-    const out = execSync(`${cli} import-data ${yamlPath} --db ${dbPath}`, { encoding: 'utf-8' });
-    expect(out.trim()).toMatch(/Inserted 2 records into table 'data'/);
-
-    const db = new Database(dbPath, { readonly: true });
-    const rows = db.prepare('SELECT foo FROM data ORDER BY foo').all().map((r) => r.foo);
-    expect(rows).toEqual(['bar', 'baz']);
-    db.close();
-  });
-
-  test('ENV import', () => {
-    const envPath = path.join(tempDir, 'data.env');
-    const dbPath = path.join(tempDir, 'e.sqlite');
-    fs.writeFileSync(envPath, 'K=V');
-    const out = execSync(`${cli} import-data ${envPath} --db ${dbPath}`, { encoding: 'utf-8' });
-    expect(out.trim()).toMatch(/Inserted 1 records into table 'data'/);
-
-    const db = new Database(dbPath, { readonly: true });
-    const row = db.prepare('SELECT K FROM data').get();
-    expect(row.K).toBe('V');
-    db.close();
-  });
-
-  test('overwrite existing table', () => {
-    const csvPath = path.join(tempDir, 'data.csv');
-    const dbPath = path.join(tempDir, 'o.sqlite');
-    fs.writeFileSync(csvPath, 'a,b\n1,2');
-    // First import
-    execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t`, { encoding: 'utf-8' });
-    // Second without overwrite should error
-    let err;
-    try {
-      execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.stderr).toContain('already exists');
-    // With overwrite should succeed
-    const out = execSync(`${cli} import-data ${csvPath} --db ${dbPath} --table t --overwrite`, { encoding: 'utf-8' });
-    expect(out.trim()).toMatch(/Inserted 1 records into table 't'/);
-  });
-
-  test('error on invalid JSON content', () => {
-    const badPath = path.join(tempDir, 'bad.json');
-    fs.writeFileSync(badPath, '{ invalid');
-    let err;
-    try {
-      execSync(`${cli} import-data ${badPath} --db ${path.join(tempDir, 'db.sqlite')}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.stderr).toContain('Error parsing input file');
-  });
-});
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/markdown.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('markdown command', () => {
-  const tempDir = path.join(os.tmpdir(), 'markdown-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('renders markdown to HTML on stdout', () => {
-    const mdPath = path.join(tempDir, 'test.md');
-    const mdContent = `# Heading
-
-This is a [link](http://example.com).
-
-\
-\`\`\`
-code
-\`\`\`\n
-| A | B |
-| - | - |
-| 1 | 2 |`;
-    fs.writeFileSync(mdPath, mdContent, 'utf-8');
-    const output = execSync(`${cli} markdown ${mdPath}`, { encoding: 'utf-8' });
-    expect(output).toContain('<h1>Heading</h1>');
-    expect(output).toContain('<a href="http://example.com">link</a>');
-    expect(output).toContain('<pre><code>code');
-    expect(output).toContain('<table>');
-  });
-
-  test('writes HTML output to file with --output', () => {
-    const mdPath = path.join(tempDir, 'test2.md');
-    const outPath = path.join(tempDir, 'out.html');
-    const mdContent = '# Test\nContent';
-    fs.writeFileSync(mdPath, mdContent, 'utf-8');
-    const stdout = execSync(`${cli} markdown ${mdPath} --output ${outPath}`, { encoding: 'utf-8' });
-    expect(stdout).toBe('');
-    const fileContent = fs.readFileSync(outPath, 'utf-8');
-    expect(fileContent).toContain('<h1>Test</h1>');
-    expect(fileContent).toContain('<p>Content</p>');
-  });
-
-  test('error on non-existent file', () => {
-    const non = path.join(tempDir, 'nope.md');
-    let err;
-    try {
-      execSync(`${cli} markdown ${non}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Error reading input file');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/mission-features.test.js
-import { describe, test, expect } from 'vitest';
-import { execSync } from 'child_process';
-
-describe('CLI sandbox/source/main.js', () => {
-  test('mission-features command outputs mission then features', () => {
-    const output = execSync('node sandbox/source/main.js mission-features', { encoding: 'utf-8' });
-    // Verify mission heading
-    expect(output).toContain('# Mission Statement');
-    // Verify at least one feature heading (e.g., CLI Command Support)
-    expect(output).toMatch(/CLI Command Support/);
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/mission.test.js
-import { describe, test, expect, beforeEach, afterEach } from "vitest";
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
-import os from "os";
-
-// Use absolute path to CLI script so tests work when cwd is not repository root
-const cli = `node ${path.join(process.cwd(), 'sandbox/source/main.js')}`;
-
-describe("mission command", () => {
-  const tempDir = path.join(os.tmpdir(), "mission-tests");
-
-  beforeEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test("success case: prints mission statement", () => {
-    const missionContent = "# Mission Statement\nThis is a test mission.\nDetails here.";
-    const missionPath = path.join(tempDir, "MISSION.md");
-    fs.writeFileSync(missionPath, missionContent);
-    const output = execSync(`${cli} mission`, { encoding: "utf-8", cwd: tempDir });
-    expect(output).toContain("# Mission Statement");
-    expect(output).toContain("This is a test mission.");
-    const expected = fs.readFileSync(missionPath, "utf-8");
-    expect(output).toContain(expected);
-  });
-
-  test("error case: missing MISSION.md errors out", () => {
-    let error;
-    try {
-      execSync(`${cli} mission`, { encoding: "utf-8", cwd: tempDir, stdio: "pipe" });
-    } catch (e) {
-      error = e;
-    }
-    expect(error).toBeDefined();
-    expect(error.status).toBe(1);
-    expect(error.stderr).toContain("Error reading mission:");
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/render.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('render command', () => {
-  const tempDir = path.join(os.tmpdir(), 'render-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('renders static template without data file', () => {
-    const templatePath = path.join(tempDir, 'static.ejs');
-    fs.writeFileSync(templatePath, 'Hello World');
-    const output = execSync(`${cli} render ${templatePath}`, { encoding: 'utf-8' });
-    expect(output.trim()).toBe('Hello World');
-  });
-
-  test('renders template with JSON data file', () => {
-    const templatePath = path.join(tempDir, 'data.ejs');
-    const dataPath = path.join(tempDir, 'data.json');
-    fs.writeFileSync(templatePath, 'Value: <%= foo %>');
-    fs.writeFileSync(dataPath, JSON.stringify({ foo: 'bar' }));
-    const output = execSync(`${cli} render ${templatePath} ${dataPath}`, { encoding: 'utf-8' });
-    expect(output.trim()).toBe('Value: bar');
-  });
-
-  test('writes rendered output to file with --output flag', () => {
-    const templatePath = path.join(tempDir, 'out.ejs');
-    const dataPath = path.join(tempDir, 'out.json');
-    const outPath = path.join(tempDir, 'result.html');
-    fs.writeFileSync(templatePath, 'X: <%= x %>');
-    fs.writeFileSync(dataPath, JSON.stringify({ x: 123 }));
-    const stdout = execSync(
-      `${cli} render ${templatePath} ${dataPath} --output ${outPath}`,
-      { encoding: 'utf-8' }
-    );
-    const fileContent = fs.readFileSync(outPath, 'utf-8');
-    expect(fileContent).toBe('X: 123');
-    expect(stdout.trim()).toBe(`Wrote rendered output to ${outPath}`);
-  });
-
-  test('error when template file does not exist', () => {
-    const fakePath = path.join(tempDir, 'no.ejs');
-    let error;
-    try {
-      execSync(`${cli} render ${fakePath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (err) {
-      error = err;
-    }
-    expect(error).toBeDefined();
-    expect(error.status).toBe(1);
-    expect(error.stderr).toContain('Error reading template file');
-  });
-
-  test('error when data file contains invalid JSON', () => {
-    const templatePath = path.join(tempDir, 'inv.ejs');
-    const dataPath = path.join(tempDir, 'inv.json');
-    fs.writeFileSync(templatePath, 'Test');
-    fs.writeFileSync(dataPath, '{invalid json');
-    let error;
-    try {
-      execSync(`${cli} render ${templatePath} ${dataPath}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (err) {
-      error = err;
-    }
-    expect(error).toBeDefined();
-    expect(error.status).toBe(1);
-    expect(error.stderr).toContain('Error parsing data file');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/text-replace.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('text-replace command', () => {
-  const tempDir = path.join(os.tmpdir(), 'text-replace-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('errors when missing --search or --replace', () => {
-    let err1;
-    try {
-      execSync(`${cli} replace`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (err) {
-      err1 = err;
-    }
-    expect(err1).toBeDefined();
-    expect(err1.status).toBe(1);
-    expect(err1.stderr).toContain('Missing --search or --replace flag');
-
-    let err2;
-    try {
-      execSync(`${cli} replace file.txt --search foo`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (err) {
-      err2 = err;
-    }
-    expect(err2).toBeDefined();
-    expect(err2.status).toBe(1);
-    expect(err2.stderr).toContain('Missing --search or --replace flag');
-  });
-
-  test('literal replacement replaces first occurrence only', () => {
-    const filePath = path.join(tempDir, 'lit.txt');
-    fs.writeFileSync(filePath, 'foo foo foo');
-    const output = execSync(
-      `${cli} replace ${filePath} --search foo --replace bar`,
-      { encoding: 'utf-8' }
-    );
-    expect(output.trim()).toBe('bar foo foo');
-  });
-
-  test('regex replacement with flags replaces all matches', () => {
-    const filePath = path.join(tempDir, 'regex.txt');
-    fs.writeFileSync(filePath, 'aAbB');
-    const output = execSync(
-      `${cli} replace ${filePath} --search a --replace X --regex --flags gi`,
-      { encoding: 'utf-8' }
-    );
-    expect(output.trim()).toBe('XXbB');
-  });
-
-  test('invalid regex reports error', () => {
-    const filePath = path.join(tempDir, 'inv.txt');
-    fs.writeFileSync(filePath, 'text');
-    let err;
-    try {
-      execSync(
-        `${cli} replace ${filePath} --search [ --replace x --regex`,
-        { encoding: 'utf-8', stdio: 'pipe' }
-      );
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Invalid regular expression');
-  });
-
-  test('writes output to file when --output is specified', () => {
-    const filePath = path.join(tempDir, 'out.txt');
-    const outPath = path.join(tempDir, 'result.txt');
-    fs.writeFileSync(filePath, 'hello hello');
-    const stdout = execSync(
-      `${cli} replace ${filePath} --search hello --replace hi --output ${outPath}`,
-      { encoding: 'utf-8' }
-    );
-    const fileContent = fs.readFileSync(outPath, 'utf-8');
-    expect(fileContent).toBe('hi hello');
-    expect(stdout).toBe('');
-  });
-
-  // New tests for global replacement behavior
-  test('literal replacement replaces all occurrences when --all flag is provided', () => {
-    const filePath = path.join(tempDir, 'litall.txt');
-    fs.writeFileSync(filePath, 'foo bar foo', 'utf-8');
-    const output = execSync(
-      `${cli} replace ${filePath} --search foo --replace baz --all`,
-      { encoding: 'utf-8' }
-    );
-    expect(output.trim()).toBe('baz bar baz');
-  });
-
-  test('regex replacement without flags defaults to global replacement', () => {
-    const filePath = path.join(tempDir, 'regexall.txt');
-    fs.writeFileSync(filePath, 'aba aba', 'utf-8');
-    const output = execSync(
-      `${cli} replace ${filePath} --search a --replace x --regex`,
-      { encoding: 'utf-8' }
-    );
-    expect(output.trim()).toBe('xbx xbx');
-  });
-});
-
-TEST_FILE_END
-
-
-TEST_FILE_START File: sandbox/tests/validate.test.js
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-
-const cli = 'node sandbox/source/main.js';
-
-describe('validate command', () => {
-  const tempDir = path.join(os.tmpdir(), 'validate-tests');
-
-  beforeEach(() => {
-    fs.mkdirSync(tempDir, { recursive: true });
-  });
-
-  afterEach(() => {
-    fs.rmSync(tempDir, { recursive: true, force: true });
-  });
-
-  test('syntax validation success', () => {
-    const file = path.join(tempDir, 'valid.json');
-    fs.writeFileSync(file, JSON.stringify({ a: 1 }));
-    const output = execSync(`${cli} validate ${file}`, { encoding: 'utf-8' });
-    expect(output.trim()).toBe(`Validation passed for ${file}`);
-  });
-
-  test('syntax validation failure for invalid JSON', () => {
-    const file = path.join(tempDir, 'bad.json');
-    fs.writeFileSync(file, '{invalid json');
-    let err;
-    try {
-      execSync(`${cli} validate ${file}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain(`Error parsing ${file}:`);
-  });
-
-  test('schema validation success', () => {
-    const dataFile = path.join(tempDir, 'data.json');
-    const schemaFile = path.join(tempDir, 'schema.json');
-    fs.writeFileSync(dataFile, JSON.stringify({ foo: 'bar' }));
-    fs.writeFileSync(
-      schemaFile,
-      JSON.stringify({
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        type: 'object',
-        properties: { foo: { type: 'string' } },
-        required: ['foo'],
-      }),
-    );
-    const output = execSync(`${cli} validate ${dataFile} --schema ${schemaFile}`, { encoding: 'utf-8' });
-    expect(output.trim()).toBe(`Validation passed for ${dataFile}`);
-  });
-
-  test('schema validation failure', () => {
-    const dataFile = path.join(tempDir, 'data2.json');
-    const schemaFile = path.join(tempDir, 'schema2.json');
-    fs.writeFileSync(dataFile, JSON.stringify({ foo: 123 }));
-    fs.writeFileSync(
-      schemaFile,
-      JSON.stringify({
-        $schema: 'http://json-schema.org/draft-07/schema#',
-        type: 'object',
-        properties: { foo: { type: 'string' } },
-        required: ['foo'],
-      }),
-    );
-    let err;
-    try {
-      execSync(`${cli} validate ${dataFile} --schema ${schemaFile}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('must be string');
-  });
-
-  test('missing file argument', () => {
-    let err;
-    try {
-      execSync(`${cli} validate`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    expect(err.status).toBe(1);
-    expect(err.stderr).toContain('Usage: npm run start -- validate');
-  });
-
-  test('writes output to file with --output', () => {
-    const file = path.join(tempDir, 'valid2.json');
-    const out = path.join(tempDir, 'report.txt');
-    fs.writeFileSync(file, JSON.stringify({ a: 2 }));
-    const stdout = execSync(`${cli} validate ${file} --output ${out}`, { encoding: 'utf-8' });
-    expect(stdout).toBe('');
-    const content = fs.readFileSync(out, 'utf-8');
-    expect(content.trim()).toBe(`Validation passed for ${file}`);
-  });
-
-  test('writes errors to file with --output on failure', () => {
-    const file = path.join(tempDir, 'bad2.json');
-    const out = path.join(tempDir, 'report2.txt');
-    fs.writeFileSync(file, '{bad json');
-    let err;
-    try {
-      execSync(`${cli} validate ${file} --output ${out}`, { encoding: 'utf-8', stdio: 'pipe' });
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeDefined();
-    const content = fs.readFileSync(out, 'utf-8');
-    expect(content).toContain(`Error parsing ${file}:`);
-  });
-});
-
-TEST_FILE_END
-
-
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
@@ -1722,296 +163,7 @@ TEST_FILE_END
 
 Documentation files (write new files or update files in sandbox/docs as necessary):
 (Multiple files from both in writable locations and not.)
-DOCUMENTATION_FILE_START File: sandbox/docs/CLI_USAGE.md
-# CLI Sandbox
-
-Project Overview:
-
-> CLI sandbox showcasing agentic-lib workflows and utility commands.
-
-## What’s Inside
-
-- **Entry point:** `sandbox/source/main.js` implements all supported CLI commands.
-- **Tests:** `sandbox/tests/` contains feature-level and unit tests for each command.
-- **Features:** `sandbox/features/` holds Markdown documentation outlining individual features.
-
-## Getting Started
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Run the test suite:
-   ```bash
-   npm test
-   ```
-3. Invoke the CLI:
-   ```bash
-   npm run start -- <command> [options]
-   ```
-
-## Commands Reference
-
-| Command                        | Description                                                                                                                      |
-|--------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| help                           | Display help message listing all commands and usage examples                                                                     |
-| mission                        | Print the mission statement from `MISSION.md`                                                                                     |
-| version                        | Show the current version from `package.json`                                                                                      |
-| echo                           | Echo the provided arguments                                                                                                       |
-| features [--validate-mission]  | List headings of Markdown files in `sandbox/features/`. With `--validate-mission`, list only feature docs without mission references; reports and fails (exit code 1) if any docs reference the mission statement. |
-| mission-features               | Print the mission statement, then list available features                                                                         |
-| csv-import                     | Import a CSV file and output a JSON array                                                                                         |
-| render                         | Render an EJS template with optional JSON data to stdout or file                                                                  |
-| replace / text-replace         | Perform search-and-replace on a text file (literal or regex). Supports `--all` for global literal replacements and default global regex when no `--flags` are provided. |
-| convert                        | Convert between `.env`, JSON, and YAML formats (use `--to-json`, `--to-env`, or `--to-yaml`)                                          |
-| validate `<jsonFile>` [--schema `<schemaFile>`] [--output `<file>`] | Validate JSON file syntax and optionally validate against a JSON Schema (Draft-07) using AJV, writing results to stdout or file |
-| markdown                       | Convert a Markdown file to HTML, optionally writing to an output file                                                             |
-| import-data                    | Import structured data files (.csv, .json, .yaml, .env) into a SQLite database with options `--db`, `--table`, `--delimiter`, `--header`, `--overwrite` |
-
-### validate
-
-Usage:
-```bash
-npm run start -- validate <jsonFile> [--schema <schemaFile>] [--output <file>]
-```
-
-Flags:
-- `--schema <schemaFile>` Validate data against the provided JSON Schema (Draft-07).
-- `--output <file>` Write validation results to the specified file instead of stdout.
-
-Behavior:
-- Syntax-only validation ensures the JSON is well-formed.
-- Schema validation reports each error on its own line as `dataPath: message`.
-- On success, outputs `Validation passed for <jsonFile>`.
-- Exits with code 0 on success, 1 on failure.
-
-## Examples
-
-- Display help:
-  ```bash
-  npm run start -- help
-  ```
-- Show mission:
-  ```bash
-  npm run start -- mission
-  ```
-- Get version:
-  ```bash
-  npm run start -- version
-  ```
-- Echo arguments:
-  ```bash
-  npm run start -- echo Hello World
-  ```
-- List features:
-  ```bash
-  npm run start -- features
-  ```
-- Validate mission references in feature docs:
-  ```bash
-  npm run start -- features --validate-mission
-  ```
-- Mission and features:
-  ```bash
-  npm run start -- mission-features
-  ```
-- CSV import with header row and custom delimiter:
-  ```bash
-  npm run start -- csv-import data.csv --delimiter ";" --header false --output out.json
-  ```
-- Render template with data file:
-  ```bash
-  npm run start -- render template.ejs data.json --output report.html
-  ```
-- Replace text using regex:
-  ```bash
-  npm run start -- replace file.txt --search "foo" --replace "bar" --regex --flags gi
-  ```
-- Replace all occurrences literally:
-  ```bash
-  npm run start -- replace file.txt --search "foo" --replace "bar" --all
-  ```
-- Replace all occurrences using regex by default:
-  ```bash
-  npm run start -- replace file.txt --search "a" --replace "x" --regex
-  ```
-- Convert `.env` to JSON (default):
-  ```bash
-  npm run start -- convert config.env
-  ```
-- Convert JSON to YAML:
-  ```bash
-  npm run start -- convert config.json --to-yaml
-  ```
-- Convert YAML to `.env`:
-  ```bash
-  npm run start -- convert config.yaml --to-env
-  ```
-- Convert Markdown to HTML (stdout):
-  ```bash
-  npm run start -- markdown README.md
-  ```
-- Convert Markdown to HTML and write to file:
-  ```bash
-  npm run start -- markdown README.md --output README.html
-  ```
-- Import data file into SQLite database:
-  ```bash
-  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
-  ```
-
-DOCUMENTATION_FILE_END
-
-
-DOCUMENTATION_FILE_START File: sandbox/docs/README.md
-# CLI Sandbox Tool
-
-[MISSION.md](../../MISSION.md) | [CONTRIBUTING.md](../../CONTRIBUTING.md) | [LICENSE.md](../../LICENSE.md)
-
-## Overview
-
-This repository provides a CLI sandbox tool implemented in `sandbox/source/main.js` for commands such as `help`, `mission`, `version`, `echo`, and more.
-
-## What’s Inside
-
-- **CLI entrypoint:** `sandbox/source/main.js`
-- **Feature documentation:** files under `sandbox/features/`
-- **Tests:** files under `sandbox/tests/` and `tests/unit/`
-- **Additional docs:** `sandbox/docs/CLI_USAGE.md`
-
-## Getting Started
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Run the test suite:
-   ```bash
-   npm test
-   ```
-3. Invoke the CLI:
-   ```bash
-   npm run start -- <command> [options]
-   ```
-
-## Commands
-
-**help**
-
-Display help message.
-
-Example:  
-```bash
-npm run start -- help
-```
-
-**mission**
-
-Print the mission statement.
-
-Example:  
-```bash
-npm run start -- mission
-```
-
-**version**
-
-Print the current version.
-
-Example:  
-```bash
-npm run start -- version
-```
-
-**echo**
-
-Echo the provided arguments.
-
-Example:  
-```bash
-npm run start -- echo Hello World
-```
-
-**features [--validate-mission]**
-
-List feature document headings. With `--validate-mission`, report and fail on any mission references in feature docs (exit code 1).
-
-Example:  
-```bash
-npm run start -- features --validate-mission
-```
-
-**mission-features**
-
-Print mission then list features.
-
-Example:  
-```bash
-npm run start -- mission-features
-```
-
-**csv-import**
-
-Import a CSV file and output a JSON array.
-
-Example:  
-```bash
-npm run start -- csv-import data.csv
-```
-
-**render**
-
-Render an EJS template with optional JSON data.
-
-Example:  
-```bash
-npm run start -- render template.ejs data.json
-```
-
-**replace / text-replace**
-
-Search-and-replace in text files (literal or regex).
-
-Example:  
-```bash
-npm run start -- replace file.txt --search foo --replace bar --all
-```
-
-**convert**
-
-Convert between `.env`, JSON, and YAML formats.
-
-Example:  
-```bash
-npm run start -- convert config.env --to-json
-```
-
-**validate**
-
-Validate JSON syntax and optionally against a schema.
-
-Example:  
-```bash
-npm run start -- validate data.json --schema schema.json
-```
-
-**markdown**
-
-Convert a Markdown file to HTML.
-
-Example:  
-```bash
-npm run start -- markdown file.md --output file.html
-```
-
-**import-data**
-
-Import structured data into a SQLite database.
-
-Example:  
-```bash
-npm run start -- import-data data.csv --db my.db --table users
-```
+DOCUMENTATION_FILE_START File: sandbox/docs
 
 DOCUMENTATION_FILE_END
 
@@ -2297,7 +449,7 @@ DEPENDENCIES_FILE_START
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
-    "start": "node sandbox/source/main.js"
+    "start": "node src/lib/main.js"
   },
   "config": {
     "issueToCodeConversionRate": 0.5
@@ -2465,158 +617,9 @@ export default [
   },
 ];
 
-LINTING_FILE_END        
+LINTING_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-
-added 489 packages, and audited 490 packages in 4s
-
-159 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
-
-Issue details:
-ISSUE_START
-title: No issue number provided
-description:
-No issue description provided ( parsed to )
-comments:
-No issue comments provided
-ISSUE_END
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1918[2mms[22m[39m
-   [33m[2m✓[22m[39m validate command[2m > [22mschema validation success [33m 304[2mms[22m[39m
-   [33m[2m✓[22m[39m validate command[2m > [22mschema validation failure [33m 342[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2682[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2751[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 538[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 717[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1208[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1923[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 468[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1160[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 473[2mms[22m[39m
-Error: Found mission references in the following feature docs:
-  CLI_COMMAND_SUPPORT.md
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 742[2mms[22m[39m
- [31m❯[39m sandbox/tests/features.test.js [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 683[2mms[22m[39m
-   [32m✓[39m CLI sandbox/source/main.js[2m > [22mfeatures command lists headings of feature docs[32m 245[2mms[22m[39m
-[31m   [31m×[31m CLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission lists headings without mission references[39m[32m 223[2mms[22m[39m
-[31m     → Command failed: node sandbox/source/main.js features --validate-mission
-Error: Found mission references in the following feature docs:
-  CLI_COMMAND_SUPPORT.md
-[39m
-   [32m✓[39m CLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission fails on mission references[32m 213[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 237[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 636[2mms[22m[39m
-
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/features.test.js[2m > [22mCLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission lists headings without mission references
-[31m[1mError[22m: Command failed: node sandbox/source/main.js features --validate-mission
-Error: Found mission references in the following feature docs:
-  CLI_COMMAND_SUPPORT.md
-[39m
-[36m [2m❯[22m sandbox/tests/features.test.js:[2m13:28[22m[39m
-    [90m 11| [39m
-    [90m 12| [39m  test('features command with --validate-mission lists headings withou…
-    [90m 13| [39m    const output = execSync('node sandbox/source/main.js features --va…
-    [90m   | [39m                           [31m^[39m
-    [90m 14| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'CLI Command Support'[39m)[33m;[39m
-    [90m 15| [39m  })[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (13)[39m
-[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m57 passed[39m[22m[90m (58)[39m
-[2m   Start at [22m 16:32:47
-[2m   Duration [22m 6.06s[2m (transform 110ms, setup 0ms, collect 301ms, tests 14.42s, environment 3ms, prepare 1.17s)[22m
-
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/features.test.js,title=sandbox/tests/features.test.js > CLI sandbox/source/main.js > features command with --validate-mission lists headings without mission references,line=13,column=28::Error: Command failed: node sandbox/source/main.js features --validate-mission%0AError: Found mission references in the following feature docs:%0A  CLI_COMMAND_SUPPORT.md%0A%0A ❯ sandbox/tests/features.test.js:13:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'Error: Found mission references in the following feature docs:\n  CLI_COMMAND_SUPPORT.md\n' ], pid: 3041, stdout: '', stderr: 'Error: Found mission references in the following feature docs:\n  CLI_COMMAND_SUPPORT.md\n' }%0A
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents (use --validate-mission to list those without mission reference)
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats (use --to-json, --to-env, or --to-yaml)
-  validate           Validate JSON syntax and optionally JSON Schema
-  markdown           Convert a Markdown file to HTML
-  import-data        Import structured data files into a SQLite database
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- features --validate-mission
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --to-yaml --output out.yaml
-  npm run start -- convert file.env --to-json
-  npm run start -- convert config.json --to-env
-  npm run start -- validate data.json
-  npm run start -- validate data.json --schema schema.json
-  npm run start -- validate data.json --schema schema.json --output report.txt
-  npm run start -- markdown file.md --output file.html
-  npm run start -- import-data data.csv --db my.db --table users --delimiter ";" --header false --overwrite
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -2702,23 +705,148 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the files that resolve the possible build or test problem.
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+Issue details:
+ISSUE_START
+title: Documenter: Refresh README to reflect actual CLI commands and usage
+description:
+Title: Documenter: Refresh README to reflect actual CLI commands and usage
+
+Description:
+The current README contains descriptions of features (equation plotting, SVG output, interactive zooming, polar plots) that are not implemented in this repository’s CLI demo. This mismatch confuses users and obscures the project’s core purpose of demonstrating agentic workflows via simple CLI commands.
+
+Goal:
+Revise README.md to accurately reflect the implemented functionality by focusing solely on the CLI demo commands and usage instructions.
+
+Acceptance Criteria:
+1. Remove all sections and narrative related to equation plotting, SVG output, interactive zooming, and polar plots.
+2. Update the README header/introduction to include:
+   - A concise mission-inspired sentence about the CLI demo of agentic workflows.
+   - Links to MISSION.md, CONTRIBUTING.md, LICENSE.md, and the intentïon agentic-lib GitHub repository (https://github.com/xn-intenton-z2a/agentic-lib).
+3. Add a new "Commands" section that:
+   - Lists the four core commands: `--help`, `--mission`, `--version`, and echo (positional arguments).
+   - Provides usage examples such as:
+     - `npm run start -- --help`
+     - `npm run start -- --mission`
+     - `npm run start -- --version`
+     - `npm run start -- echo hello world`
+4. Update the "Getting Started" section to include:
+   - `git clone <repository_url>`
+   - `npm install`
+   - `npm test`
+   - Examples of running the CLI commands as shown above.
+5. Ensure all links (to docs and external repo) are valid and clickable in the rendered GitHub README.
+6. Verify locally by executing each example command and confirming the output matches the documented behavior.
+
+Verification Steps:
+- Check revised README.md for removed outdated content and correct new sections.
+- Run each documented command locally to ensure output is as expected.
+- Validate that links to documentation files and external repositories are functional.
+comments:
+Author:github-actions[bot], Created:2025-05-18T21:42:28Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/cd04daed9537398bc91dcd7a74f26219603239a5
+Author:github-actions[bot], Created:2025-05-18T21:43:10Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-18T21:43:39Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bba3190f29fbac59c8955e54a3668a32c6b03f5
+Author:github-actions[bot], Created:2025-05-18T21:44:40Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100325344
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bba3190f29fbac59c8955e54a3668a32c6b03f5
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── ajv@8.17.1
+├── better-sqlite3@8.7.0
+├── csv-parse@5.6.0
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@10.1.5
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.26.0
+├── js-yaml@4.1.0
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── minimist@1.2.8
+├── npm-check-updates@18.0.1
+├── openai@4.98.0
+├── prettier@3.5.3
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 21:45:55
+[2m   Duration [22m 259ms[2m (transform 43ms, setup 0ms, collect 34ms, tests 8ms, environment 0ms, prepare 146ms)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node src/lib/main.js
+
+Run with: []
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
