@@ -1,23 +1,18 @@
 
-You are providing the entire new content of source files, test files, documentation files, 
-and other necessary files with all necessary changes applied to resolve a possible build or test 
-problem. Focus on high-impact, functional fixes that address core issues rather than superficial 
-changes or excessive debugging or validation. If the problem is in an area of the code with little
-value you may re-implement it or remove it.
+You are providing the entire new content of source files, test files, documentation files, and other necessary
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+functional solutions that address core issues rather than superficial changes or excessive code polishing.
+Implement as much as you can and refer to the projects features and mission statement when expanding the code
+beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.
 
-Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone
-and direction of the contributing guidelines. Prioritize changes that deliver substantial user value
-and maintain the integrity of the codebase's primary purpose.
+Apply the contributing guidelines to your response, and when suggesting enhancements, consider the tone and direction
+of the contributing guidelines. Prioritize changes that deliver user value and maintain the integrity
+of the codebase's primary purpose.
 
-You may complete the implementation of a feature and/or bring the code output in line with the README
-or other documentation. Do as much as you can all at once so that the build runs (even with nothing
-to build) and the tests pass and the main at least doesn't output an error.
+Do as much as you can all at once.
 
+Follow the linting guidelines and the formatting guidelines from the included config.
 
-
-Examine the "Build output from command","Test output from command", and "Main execution output from command" 
-to determine if there are any problems with the code to fix such as failing tests or output 
-not matching the features, README or other documentation.
 
 You must only add, remove, or change the files in the target writable locations. You can update multiple
 files by specifying their paths and contents in the enumerated updatedFile01Filepath updatedFile02Contents response
@@ -26,7 +21,7 @@ be checked against the write permission in the Agent configuration file before b
 add new files as long as they are in the target writable locations. You can also remove files, but only if
 they are in the target writable locations. To delete a file, set the updated file contents to "delete".
 
-The target writable locations for your output are: sandbox/source sandbox/tests sandbox/docs
+The target writable locations for your output are: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 Other file will be supplied in the context but only the paths above should be written to.
 
 Only provide new or updated content for the target source files in sandbox/source.
@@ -39,21 +34,22 @@ Only update the target documentation files in sandbox/docs.
 Follow the attached Formatting file content and Linting file content.
 
 Consider the following when refining your response:
-  * Current feature names and specifications in the repository
-  * Source file content
-  * Test file content
-  * Documentation file content
-  * README file content
-  * MISSION file content
-  * Contributing file content
-  * Dependencies file content
-  * Formatting file content
-  * Linting file content
-  * Dependency install output
-  * Issue details (if any)
-  * Build output
-  * Test output
-  * Main execution output
+* Current feature names and specifications in the repository
+* Source file content
+* Test file content
+* Documentation file content
+* README file content
+* MISSION file content
+* Contributing file content
+* Dependencies file content
+* Formatting file content
+* Linting file content
+* Agent configuration file content
+* Issue details
+* Dependency list
+* Build output
+* Test output
+* Main execution output
 
 Current feature names and specifications (for context, read only):
 CURRENT_FEATURES_START
@@ -119,7 +115,6 @@ import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
 import MarkdownIt from "markdown-it";
-import markdownItGithub from "markdown-it-github";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -301,7 +296,7 @@ async function doRender(argv) {
   }
 }
 
-// New markdown rendering functionality
+// Markdown rendering functionality
 async function doMarkdown(argv) {
   const inputFile = argv._[1];
   const output = argv.output;
@@ -317,7 +312,7 @@ async function doMarkdown(argv) {
     console.error("Error reading input file:", err.message);
     process.exit(1);
   }
-  let md = new MarkdownIt().use(markdownItGithub);
+  const md = new MarkdownIt();
   let html;
   try {
     html = md.render(content);
@@ -1659,185 +1654,9 @@ export default [
   },
 ];
 
-LINTING_FILE_END        
+LINTING_FILE_END
 
-Dependencies install from command: npm install
-DEPENDENCIES_INSTALL_START
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-
-added 448 packages, and audited 449 packages in 5s
-
-150 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-DEPENDENCIES_INSTALL_END    
-
-Issue details:
-ISSUE_START
-title: No issue number provided
-description:
-No issue description provided ( parsed to )
-comments:
-No issue comments provided
-ISSUE_END
-
-Build output from command: npm run build
-BUILD_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 build
-> echo 'Nothing to build'
-
-Nothing to build
-BUILD_OUTPUT_END      
-
-Test output from command: npm test
-TEST_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 test
-> vitest tests/unit/*.test.js sandbox/tests/*.test.js
-
-
-[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
-
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1088[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1262[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 447[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1454[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 471[2mms[22m[39m
- [31m❯[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 686[2mms[22m[39m
-[31m   [31m×[31m markdown command[2m > [22mrenders markdown to HTML on stdout[39m[32m 240[2mms[22m[39m
-[31m     → expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'[39m
-[31m   [31m×[31m markdown command[2m > [22mwrites HTML output to file with --output[39m[32m 227[2mms[22m[39m
-[31m     → expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'[39m
-   [32m✓[39m markdown command[2m > [22merror on non-existent file[32m 218[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 952[2mms[22m[39m
-[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
-[22m[39mRun with: undefined
-
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 225[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 578[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 200[2mms[22m[39m
-
-[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/markdown.test.js[2m > [22mmarkdown command[2m > [22mrenders markdown to HTML on stdout
-[31m[1mAssertionError[22m: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'[39m
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- <h1[7m>Heading</h1>[27m[39m
-[31m+ <h1[7m class="md-github"><a class="md-github__anchor" name="heading" href="#heading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Heading</h1>[27m[39m
-[31m+ <p class="md-github">This is a <a href="http://example.com" class="md-github">link</a>.</p>[39m
-[31m+ <pre class="md-github"><code class="md-github">code[39m
-[31m+ </code></pre>[39m
-[31m+ <table class="md-github">[39m
-[31m+ <thead class="md-github">[39m
-[31m+ <tr class="md-github">[39m
-[31m+ <th class="md-github">A</th>[39m
-[31m+ <th class="md-github">B</th>[39m
-[31m+ </tr>[39m
-[31m+ </thead>[39m
-[31m+ <tbody class="md-github">[39m
-[31m+ <tr class="md-github">[39m
-[31m+ <td class="md-github">1</td>[39m
-[31m+ <td class="md-github">2</td>[39m
-[31m+ </tr>[39m
-[31m+ </tbody>[39m
-[31m+ </table>[39m
-[31m+[39m
-[31m+[39m
-
-[36m [2m❯[22m sandbox/tests/markdown.test.js:[2m35:20[22m[39m
-    [90m 33| [39m    fs[33m.[39m[34mwriteFileSync[39m(mdPath[33m,[39m mdContent[33m,[39m [32m'utf-8'[39m)[33m;[39m
-    [90m 34| [39m    const output = execSync(`${cli} markdown ${mdPath}`, { encoding: '…
-    [90m 35| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<h1>Heading</h1>'[39m)[33m;[39m
-    [90m   | [39m                   [31m^[39m
-    [90m 36| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<a href="http://example.com">link</a>'[39m)[33m;[39m
-    [90m 37| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'<pre><code>code'[39m)[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m sandbox/tests/markdown.test.js[2m > [22mmarkdown command[2m > [22mwrites HTML output to file with --output
-[31m[1mAssertionError[22m: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'[39m
-
-[32m- Expected[39m
-[31m+ Received[39m
-
-[32m- <h1[7m>Test</h1>[27m[39m
-[31m+ <h1[7m class="md-github"><a class="md-github__anchor" name="test" href="#test"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Test</h1>[27m[39m
-[31m+ <p class="md-github">Content</p>[39m
-[31m+[39m
-
-[36m [2m❯[22m sandbox/tests/markdown.test.js:[2m49:25[22m[39m
-    [90m 47| [39m    [34mexpect[39m(stdout)[33m.[39m[34mtoBe[39m([32m''[39m)[33m;[39m
-    [90m 48| [39m    [35mconst[39m fileContent [33m=[39m fs[33m.[39m[34mreadFileSync[39m(outPath[33m,[39m [32m'utf-8'[39m)[33m;[39m
-    [90m 49| [39m    [34mexpect[39m(fileContent)[33m.[39m[34mtoContain[39m([32m'<h1>Test</h1>'[39m)[33m;[39m
-    [90m   | [39m                        [31m^[39m
-    [90m 50| [39m    [34mexpect[39m(fileContent)[33m.[39m[34mtoContain[39m([32m'<p>Content</p>'[39m)[33m;[39m
-    [90m 51| [39m  })[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
-
-
-[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (11)[39m
-[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m33 passed[39m[22m[90m (35)[39m
-[2m   Start at [22m 04:34:51
-[2m   Duration [22m 3.50s[2m (transform 138ms, setup 0ms, collect 306ms, tests 6.93s, environment 3ms, prepare 1.12s)[22m
-
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/markdown.test.js,title=sandbox/tests/markdown.test.js > markdown command > renders markdown to HTML on stdout,line=35,column=20::AssertionError: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Heading</h1>'%0A%0A- Expected%0A+ Received%0A%0A- <h1>Heading</h1>%0A+ <h1 class="md-github"><a class="md-github__anchor" name="heading" href="#heading"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Heading</h1>%0A+ <p class="md-github">This is a <a href="http://example.com" class="md-github">link</a>.</p>%0A+ <pre class="md-github"><code class="md-github">code%0A+ </code></pre>%0A+ <table class="md-github">%0A+ <thead class="md-github">%0A+ <tr class="md-github">%0A+ <th class="md-github">A</th>%0A+ <th class="md-github">B</th>%0A+ </tr>%0A+ </thead>%0A+ <tbody class="md-github">%0A+ <tr class="md-github">%0A+ <td class="md-github">1</td>%0A+ <td class="md-github">2</td>%0A+ </tr>%0A+ </tbody>%0A+ </table>%0A+%0A+%0A%0A ❯ sandbox/tests/markdown.test.js:35:20%0A%0A
-
-::error file=/home/runner/work/repository0/repository0/sandbox/tests/markdown.test.js,title=sandbox/tests/markdown.test.js > markdown command > writes HTML output to file with --output,line=49,column=25::AssertionError: expected '<h1 class="md-github"><a class="md-gi…' to contain '<h1>Test</h1>'%0A%0A- Expected%0A+ Received%0A%0A- <h1>Test</h1>%0A+ <h1 class="md-github"><a class="md-github__anchor" name="test" href="#test"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Test</h1>%0A+ <p class="md-github">Content</p>%0A+%0A%0A ❯ sandbox/tests/markdown.test.js:49:25%0A%0A
-TEST_OUTPUT_END            
-
-Main execution output from command: npm run start
-MAIN_OUTPUT_START
-
-> @xn-intenton-z2a/repository0@2.1.0-0 start
-> node sandbox/source/main.js
-
-Usage: npm run start -- <command> [args]
-
-Commands:
-  help               Display this help message
-  mission            Print the mission statement
-  version            Print the current version
-  echo               Echo the provided arguments
-  features           List available feature documents
-  mission-features   Print the mission statement and list available features
-  csv-import         Import a CSV file and output JSON array
-  render             Render an EJS template with optional JSON data and output file
-  replace            Perform search-and-replace on a text file
-  text-replace       Alias for replace
-  convert            Convert between .env, JSON, and YAML formats
-  markdown           Convert a Markdown file to HTML
-
-Examples:
-  npm run start -- help
-  npm run start -- mission
-  npm run start -- version
-  npm run start -- echo Hello World
-  npm run start -- features
-  npm run start -- mission-features
-  npm run start -- csv-import data.csv
-  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
-  npm run start -- render template.ejs
-  npm run start -- render template.ejs data.json
-  npm run start -- render template.ejs data.json --output out.html
-  npm run start -- replace file.txt --search foo --replace bar
-  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml
-  npm run start -- markdown file.md --output file.html
-MAIN_OUTPUT_END    
-
-Agent configuration file:
+Agent configuration file (for context, read only):
 AGENT_CONFIG_FILE_START
 # Which agentic-lib workflow schedule should be used?
 schedule: schedule-4
@@ -1923,23 +1742,411 @@ intentionBot:
 
 AGENT_CONFIG_FILE_END
 
-Please produce updated versions of the files that resolve the possible build or test problem.
-If there are no changes required, please provide the original content and state that no changes are necessary in the message.
+Issue details:
+ISSUE_START
+title: Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10
+description:
+
+> @xn-intenton-z2a/repository0@2.1.0-0 linting
+> eslint sandbox/tests/ sandbox/source/ src/lib/ sandbox/source/
+
+
+/home/runner/work/repository0/repository0/sandbox/source/main.js
+  282:16  error  Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed  sonarjs/cognitive-complexity
+
+/home/runner/work/repository0/repository0/sandbox/tests/convert.test.js
+   1:63  error  Replace `'vitest'` with `"vitest"`                                                                  prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                    prettier/prettier
+   3:16  error  Replace `'fs'` with `"fs"`                                                                          prettier/prettier
+   4:18  error  Replace `'path'` with `"path"`                                                                      prettier/prettier
+   5:16  error  Replace `'os'` with `"os"`                                                                          prettier/prettier
+   6:20  error  Replace `'js-yaml'` with `"js-yaml"`                                                                prettier/prettier
+   8:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                        prettier/prettier
+  10:10  error  Replace `'convert·command'` with `"convert·command"`                                                prettier/prettier
+  11:42  error  Replace `'convert-tests'` with `"convert-tests"`                                                    prettier/prettier
+  21:8   error  Replace `'.env·to·JSON·conversion'` with `".env·to·JSON·conversion"`                                prettier/prettier
+  22:40  error  Replace `'test.env'` with `"test.env"`                                                              prettier/prettier
+  23:31  error  Replace `'KEY1=VALUE1\nKEY2=VALUE2'` with `"KEY1=VALUE1\nKEY2=VALUE2"`                              prettier/prettier
+  24:70  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  26:34  error  Replace `'VALUE1',·KEY2:·'VALUE2'` with `"VALUE1",·KEY2:·"VALUE2"`                                  prettier/prettier
+  29:8   error  Replace `'YAML·to·JSON·conversion'` with `"YAML·to·JSON·conversion"`                                prettier/prettier
+  30:41  error  Replace `'test.yaml'` with `"test.yaml"`                                                            prettier/prettier
+  31:32  error  Replace `'foo:·bar\nnum:·10'` with `"foo:·bar\nnum:·10"`                                            prettier/prettier
+  32:71  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  34:33  error  Replace `'bar'` with `"bar"`                                                                        prettier/prettier
+  37:8   error  Replace `'JSON·to·.env·conversion·with·--to-env'` with `"JSON·to·.env·conversion·with·--to-env"`    prettier/prettier
+  38:41  error  Replace `'test.json'` with `"test.json"`                                                            prettier/prettier
+  39:52  error  Replace `'1',·B:·'2'` with `"1",·B:·"2"`                                                            prettier/prettier
+  40:80  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  41:39  error  Replace `'\n'` with `"\n"`                                                                          prettier/prettier
+  42:28  error  Replace `'A=1',·'B=2'` with `"A=1",·"B=2"`                                                          prettier/prettier
+  45:8   error  Replace `'JSON·to·YAML·conversion·with·--to-yaml'` with `"JSON·to·YAML·conversion·with·--to-yaml"`  prettier/prettier
+  46:41  error  Replace `'test2.json'` with `"test2.json"`                                                          prettier/prettier
+  47:52  error  Replace `'y'` with `"y"`                                                                            prettier/prettier
+  48:81  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  50:33  error  Replace `'y'` with `"y"`                                                                            prettier/prettier
+  53:8   error  Replace `'writes·output·to·file·with·--output'` with `"writes·output·to·file·with·--output"`        prettier/prettier
+  54:40  error  Replace `'test.env'` with `"test.env"`                                                              prettier/prettier
+  55:40  error  Replace `'out.json'` with `"out.json"`                                                              prettier/prettier
+  56:31  error  Replace `'Z=9'` with `"Z=9"`                                                                        prettier/prettier
+  57:75  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  58:50  error  Replace `'utf-8'` with `"utf-8"`                                                                    prettier/prettier
+  60:31  error  Replace `'9'` with `"9"`                                                                            prettier/prettier
+  63:8   error  Replace `'error·on·non-existent·file'` with `"error·on·non-existent·file"`                          prettier/prettier
+  64:36  error  Replace `'nope.env'` with `"nope.env"`                                                              prettier/prettier
+  67:53  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                      prettier/prettier
+  73:34  error  Replace `'Error·reading·input·file'` with `"Error·reading·input·file"`                              prettier/prettier
+  76:8   error  Replace `'error·on·invalid·JSON·input'` with `"error·on·invalid·JSON·input"`                        prettier/prettier
+  77:41  error  Replace `'bad.json'` with `"bad.json"`                                                              prettier/prettier
+  78:32  error  Replace `'{invalid·json'` with `"{invalid·json"`                                                    prettier/prettier
+  81:58  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                      prettier/prettier
+  87:34  error  Replace `'Error·parsing·input·file'` with `"Error·parsing·input·file"`                              prettier/prettier
+  89:4   error  Insert `⏎`                                                                                          prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/csv-import.test.js
+   1:63  error  Replace `'vitest'` with `"vitest"`                                                                                 prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                                   prettier/prettier
+   3:16  error  Replace `'fs'` with `"fs"`                                                                                         prettier/prettier
+   4:18  error  Replace `'path'` with `"path"`                                                                                     prettier/prettier
+   5:16  error  Replace `'os'` with `"os"`                                                                                         prettier/prettier
+   7:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                                       prettier/prettier
+   9:10  error  Replace `'csv-import·command'` with `"csv-import·command"`                                                         prettier/prettier
+  10:42  error  Replace `'csv-import-tests'` with `"csv-import-tests"`                                                             prettier/prettier
+  20:8   error  Replace `'Header·Row·Parsing'` with `"Header·Row·Parsing"`                                                         prettier/prettier
+  21:40  error  Replace `'data1.csv'` with `"data1.csv"`                                                                           prettier/prettier
+  22:24  error  Replace `'a,b\n1,2\n3,4'` with `"a,b\n1,2\n3,4"`                                                                   prettier/prettier
+  24:73  error  Replace `'utf-8'` with `"utf-8"`                                                                                   prettier/prettier
+  26:27  error  Replace `{·a:·'1',·b:·'2'·},·{·a:·'3',·b:·'4'·}` with `⏎······{·a:·"1",·b:·"2"·},⏎······{·a:·"3",·b:·"4"·},⏎····`  prettier/prettier
+  29:8   error  Replace `'Headerless·Mode'` with `"Headerless·Mode"`                                                               prettier/prettier
+  30:40  error  Replace `'data2.csv'` with `"data2.csv"`                                                                           prettier/prettier
+  31:24  error  Replace `'1,2\n3,4'` with `"1,2\n3,4"`                                                                             prettier/prettier
+  33:88  error  Replace `'utf-8'` with `"utf-8"`                                                                                   prettier/prettier
+  35:27  error  Replace `['1',·'2'],·['3',·'4']` with `⏎······["1",·"2"],⏎······["3",·"4"],⏎····`                                  prettier/prettier
+  38:8   error  Replace `'Custom·Delimiter'` with `"Custom·Delimiter"`                                                             prettier/prettier
+  39:40  error  Replace `'data3.csv'` with `"data3.csv"`                                                                           prettier/prettier
+  40:24  error  Replace `'a;b;c\nx;y;z'` with `"a;b;c\nx;y;z"`                                                                     prettier/prettier
+  42:89  error  Replace `'utf-8'` with `"utf-8"`                                                                                   prettier/prettier
+  44:32  error  Replace `'x',·b:·'y',·c:·'z'` with `"x",·b:·"y",·c:·"z"`                                                           prettier/prettier
+  47:8   error  Replace `'Output·to·File'` with `"Output·to·File"`                                                                 prettier/prettier
+  48:40  error  Replace `'data4.csv'` with `"data4.csv"`                                                                           prettier/prettier
+  49:40  error  Replace `'out.json'` with `"out.json"`                                                                             prettier/prettier
+  50:24  error  Replace `'a,b\n5,6'` with `"a,b\n5,6"`                                                                             prettier/prettier
+  52:78  error  Replace `'utf-8'` with `"utf-8"`                                                                                   prettier/prettier
+  53:50  error  Replace `'utf-8'` with `"utf-8"`                                                                                   prettier/prettier
+  55:32  error  Replace `'5',·b:·'6'` with `"5",·b:·"6"`                                                                           prettier/prettier
+  58:8   error  Replace `'Error·Handling·for·non-existent·file'` with `"Error·Handling·for·non-existent·file"`                     prettier/prettier
+  59:45  error  Replace `'nope.csv'` with `"nope.csv"`                                                                             prettier/prettier
+  62:65  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                                     prettier/prettier
+  68:36  error  Replace `'Error·reading·input·file'` with `"Error·reading·input·file"`                                             prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/features.test.js
+  1:40  error  Replace `'vitest'` with `"vitest"`                                                                                                        prettier/prettier
+  2:26  error  Replace `'child_process'` with `"child_process"`                                                                                          prettier/prettier
+  4:10  error  Replace `'CLI·sandbox/source/main.js'` with `"CLI·sandbox/source/main.js"`                                                                prettier/prettier
+  5:8   error  Replace `'features·command·lists·headings·of·feature·docs'` with `"features·command·lists·headings·of·feature·docs"`                      prettier/prettier
+  6:29  error  Replace `'node·sandbox/source/main.js·features',·{·encoding:·'utf-8'` with `"node·sandbox/source/main.js·features",·{·encoding:·"utf-8"`  prettier/prettier
+  6:29  error  Make sure the "PATH" used to find this command includes only what you intend                                                              sonarjs/no-os-command-from-path
+  7:30  error  Replace `'CLI·Command·Support'` with `"CLI·Command·Support"`                                                                              prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/help-fallback.test.js
+   1:40  error  Replace `'vitest'` with `"vitest"`                                                                                        prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                                          prettier/prettier
+   4:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                                              prettier/prettier
+   6:10  error  Replace `'help·and·fallback·behavior'` with `"help·and·fallback·behavior"`                                                prettier/prettier
+   7:8   error  Replace `'help·command·outputs·usage·and·lists·help·command'` with `"help·command·outputs·usage·and·lists·help·command"`  prettier/prettier
+   8:56  error  Replace `'utf-8'` with `"utf-8"`                                                                                          prettier/prettier
+   9:30  error  Replace `'Usage:·npm·run·start·--'` with `"Usage:·npm·run·start·--"`                                                      prettier/prettier
+  10:30  error  Replace `'help'` with `"help"`                                                                                            prettier/prettier
+  13:8   error  Replace `'no·command·provided·outputs·help·usage'` with `"no·command·provided·outputs·help·usage"`                        prettier/prettier
+  14:29  error  Replace `'node·sandbox/source/main.js',·{·encoding:·'utf-8'` with `"node·sandbox/source/main.js",·{·encoding:·"utf-8"`    prettier/prettier
+  14:29  error  Make sure the "PATH" used to find this command includes only what you intend                                              sonarjs/no-os-command-from-path
+  15:30  error  Replace `'Usage:·npm·run·start·--'` with `"Usage:·npm·run·start·--"`                                                      prettier/prettier
+  16:30  error  Replace `'help'` with `"help"`                                                                                            prettier/prettier
+  19:8   error  Replace `'unknown·command·fallback·prints·unknown·and·usage'` with `"unknown·command·fallback·prints·unknown·and·usage"`  prettier/prettier
+  20:58  error  Replace `'utf-8'` with `"utf-8"`                                                                                          prettier/prettier
+  21:30  error  Replace `'Unknown·command:·foobar'` with `"Unknown·command:·foobar"`                                                      prettier/prettier
+  22:30  error  Replace `'Usage:·npm·run·start·--'` with `"Usage:·npm·run·start·--"`                                                      prettier/prettier
+  23:30  error  Replace `'help'` with `"help"`                                                                                            prettier/prettier
+  25:4   error  Insert `⏎`                                                                                                                prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/markdown.test.js
+   1:63  error  Replace `'vitest'` with `"vitest"`                                                                      prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                        prettier/prettier
+   3:16  error  Replace `'fs'` with `"fs"`                                                                              prettier/prettier
+   4:18  error  Replace `'path'` with `"path"`                                                                          prettier/prettier
+   5:16  error  Replace `'os'` with `"os"`                                                                              prettier/prettier
+   7:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                            prettier/prettier
+   9:10  error  Replace `'markdown·command'` with `"markdown·command"`                                                  prettier/prettier
+  10:42  error  Replace `'markdown-tests'` with `"markdown-tests"`                                                      prettier/prettier
+  20:8   error  Replace `'renders·markdown·to·HTML·on·stdout'` with `"renders·markdown·to·HTML·on·stdout"`              prettier/prettier
+  21:39  error  Replace `'test.md'` with `"test.md"`                                                                    prettier/prettier
+  33:41  error  Replace `'utf-8'` with `"utf-8"`                                                                        prettier/prettier
+  34:70  error  Replace `'utf-8'` with `"utf-8"`                                                                        prettier/prettier
+  35:30  error  Replace `'<h1>Heading</h1>'` with `"<h1>Heading</h1>"`                                                  prettier/prettier
+  37:30  error  Replace `'<pre><code>code'` with `"<pre><code>code"`                                                    prettier/prettier
+  38:30  error  Replace `'<table>'` with `"<table>"`                                                                    prettier/prettier
+  41:8   error  Replace `'writes·HTML·output·to·file·with·--output'` with `"writes·HTML·output·to·file·with·--output"`  prettier/prettier
+  42:39  error  Replace `'test2.md'` with `"test2.md"`                                                                  prettier/prettier
+  43:40  error  Replace `'out.html'` with `"out.html"`                                                                  prettier/prettier
+  44:23  error  Replace `'#·Test\nContent'` with `"#·Test\nContent"`                                                    prettier/prettier
+  45:41  error  Replace `'utf-8'` with `"utf-8"`                                                                        prettier/prettier
+  46:90  error  Replace `'utf-8'` with `"utf-8"`                                                                        prettier/prettier
+  47:25  error  Replace `''` with `""`                                                                                  prettier/prettier
+  48:50  error  Replace `'utf-8'` with `"utf-8"`                                                                        prettier/prettier
+  49:35  error  Replace `'<h1>Test</h1>'` with `"<h1>Test</h1>"`                                                        prettier/prettier
+  50:35  error  Replace `'<p>Content</p>'` with `"<p>Content</p>"`                                                      prettier/prettier
+  53:8   error  Replace `'error·on·non-existent·file'` with `"error·on·non-existent·file"`                              prettier/prettier
+  54:36  error  Replace `'nope.md'` with `"nope.md"`                                                                    prettier/prettier
+  57:54  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                          prettier/prettier
+  63:34  error  Replace `'Error·reading·input·file'` with `"Error·reading·input·file"`                                  prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/mission-features.test.js
+  1:40  error  Replace `'vitest'` with `"vitest"`                                                                                                                        prettier/prettier
+  2:26  error  Replace `'child_process'` with `"child_process"`                                                                                                          prettier/prettier
+  4:10  error  Replace `'CLI·sandbox/source/main.js'` with `"CLI·sandbox/source/main.js"`                                                                                prettier/prettier
+  5:8   error  Replace `'mission-features·command·outputs·mission·then·features'` with `"mission-features·command·outputs·mission·then·features"`                        prettier/prettier
+  6:29  error  Replace `'node·sandbox/source/main.js·mission-features',·{·encoding:·'utf-8'` with `"node·sandbox/source/main.js·mission-features",·{·encoding:·"utf-8"`  prettier/prettier
+  6:29  error  Make sure the "PATH" used to find this command includes only what you intend                                                                              sonarjs/no-os-command-from-path
+  8:30  error  Replace `'#·Mission·Statement'` with `"#·Mission·Statement"`                                                                                              prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/mission.test.js
+  8:46  error  Replace `'sandbox/source/main.js'` with `"sandbox/source/main.js"`  prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/render.test.js
+   1:63  error  Replace `'vitest'` with `"vitest"`                                                                                                                                                                                prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                                                                                                                                  prettier/prettier
+   3:16  error  Replace `'fs'` with `"fs"`                                                                                                                                                                                        prettier/prettier
+   4:18  error  Replace `'path'` with `"path"`                                                                                                                                                                                    prettier/prettier
+   5:16  error  Replace `'os'` with `"os"`                                                                                                                                                                                        prettier/prettier
+   7:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                                                                                                                                      prettier/prettier
+   9:10  error  Replace `'render·command'` with `"render·command"`                                                                                                                                                                prettier/prettier
+  10:42  error  Replace `'render-tests'` with `"render-tests"`                                                                                                                                                                    prettier/prettier
+  20:8   error  Replace `'renders·static·template·without·data·file'` with `"renders·static·template·without·data·file"`                                                                                                          prettier/prettier
+  21:45  error  Replace `'static.ejs'` with `"static.ejs"`                                                                                                                                                                        prettier/prettier
+  22:36  error  Replace `'Hello·World'` with `"Hello·World"`                                                                                                                                                                      prettier/prettier
+  23:74  error  Replace `'utf-8'` with `"utf-8"`                                                                                                                                                                                  prettier/prettier
+  24:32  error  Replace `'Hello·World'` with `"Hello·World"`                                                                                                                                                                      prettier/prettier
+  27:8   error  Replace `'renders·template·with·JSON·data·file'` with `"renders·template·with·JSON·data·file"`                                                                                                                    prettier/prettier
+  28:45  error  Replace `'data.ejs'` with `"data.ejs"`                                                                                                                                                                            prettier/prettier
+  29:41  error  Replace `'data.json'` with `"data.json"`                                                                                                                                                                          prettier/prettier
+  30:36  error  Replace `'Value:·<%=·foo·%>'` with `"Value:·<%=·foo·%>"`                                                                                                                                                          prettier/prettier
+  31:54  error  Replace `'bar'` with `"bar"`                                                                                                                                                                                      prettier/prettier
+  32:86  error  Replace `'utf-8'` with `"utf-8"`                                                                                                                                                                                  prettier/prettier
+  33:32  error  Replace `'Value:·bar'` with `"Value:·bar"`                                                                                                                                                                        prettier/prettier
+  36:8   error  Replace `'writes·rendered·output·to·file·with·--output·flag'` with `"writes·rendered·output·to·file·with·--output·flag"`                                                                                          prettier/prettier
+  37:45  error  Replace `'out.ejs'` with `"out.ejs"`                                                                                                                                                                              prettier/prettier
+  38:41  error  Replace `'out.json'` with `"out.json"`                                                                                                                                                                            prettier/prettier
+  39:40  error  Replace `'result.html'` with `"result.html"`                                                                                                                                                                      prettier/prettier
+  40:36  error  Replace `'X:·<%=·x·%>'` with `"X:·<%=·x·%>"`                                                                                                                                                                      prettier/prettier
+  42:29  error  Replace `⏎······`${cli}·render·${templatePath}·${dataPath}·--output·${outPath}`,⏎······{·encoding:·'utf-8'·}⏎····` with ``${cli}·render·${templatePath}·${dataPath}·--output·${outPath}`,·{·encoding:·"utf-8"·}`  prettier/prettier
+  46:50  error  Replace `'utf-8'` with `"utf-8"`                                                                                                                                                                                  prettier/prettier
+  47:30  error  Replace `'X:·123'` with `"X:·123"`                                                                                                                                                                                prettier/prettier
+  51:8   error  Replace `'error·when·template·file·does·not·exist'` with `"error·when·template·file·does·not·exist"`                                                                                                              prettier/prettier
+  52:41  error  Replace `'no.ejs'` with `"no.ejs"`                                                                                                                                                                                prettier/prettier
+  55:57  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                                                                                                                                    prettier/prettier
+  61:36  error  Replace `'Error·reading·template·file'` with `"Error·reading·template·file"`                                                                                                                                      prettier/prettier
+  64:8   error  Replace `'error·when·data·file·contains·invalid·JSON'` with `"error·when·data·file·contains·invalid·JSON"`                                                                                                        prettier/prettier
+  65:45  error  Replace `'inv.ejs'` with `"inv.ejs"`                                                                                                                                                                              prettier/prettier
+  66:41  error  Replace `'inv.json'` with `"inv.json"`                                                                                                                                                                            prettier/prettier
+  67:36  error  Replace `'Test'` with `"Test"`                                                                                                                                                                                    prettier/prettier
+  68:32  error  Replace `'{invalid·json'` with `"{invalid·json"`                                                                                                                                                                  prettier/prettier
+  71:73  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                                                                                                                                    prettier/prettier
+  77:36  error  Replace `'Error·parsing·data·file'` with `"Error·parsing·data·file"`                                                                                                                                              prettier/prettier
+
+/home/runner/work/repository0/repository0/sandbox/tests/text-replace.test.js
+   1:63  error  Replace `'vitest'` with `"vitest"`                                                                                                                                                                                                            prettier/prettier
+   2:26  error  Replace `'child_process'` with `"child_process"`                                                                                                                                                                                              prettier/prettier
+   3:16  error  Replace `'fs'` with `"fs"`                                                                                                                                                                                                                    prettier/prettier
+   4:18  error  Replace `'path'` with `"path"`                                                                                                                                                                                                                prettier/prettier
+   5:16  error  Replace `'os'` with `"os"`                                                                                                                                                                                                                    prettier/prettier
+   7:13  error  Replace `'node·sandbox/source/main.js'` with `"node·sandbox/source/main.js"`                                                                                                                                                                  prettier/prettier
+   9:10  error  Replace `'text-replace·command'` with `"text-replace·command"`                                                                                                                                                                                prettier/prettier
+  10:42  error  Replace `'text-replace-tests'` with `"text-replace-tests"`                                                                                                                                                                                    prettier/prettier
+  20:8   error  Replace `'errors·when·missing·--search·or·--replace'` with `"errors·when·missing·--search·or·--replace"`                                                                                                                                      prettier/prettier
+  23:46  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                                                                                                                                                                prettier/prettier
+  29:35  error  Replace `'Missing·--search·or·--replace·flag'` with `"Missing·--search·or·--replace·flag"`                                                                                                                                                    prettier/prettier
+  33:68  error  Replace `'utf-8',·stdio:·'pipe'` with `"utf-8",·stdio:·"pipe"`                                                                                                                                                                                prettier/prettier
+  39:35  error  Replace `'Missing·--search·or·--replace·flag'` with `"Missing·--search·or·--replace·flag"`                                                                                                                                                    prettier/prettier
+  42:8   error  Replace `'literal·replacement·replaces·first·occurrence·only'` with `"literal·replacement·replaces·first·occurrence·only"`                                                                                                                    prettier/prettier
+  43:41  error  Replace `'lit.txt'` with `"lit.txt"`                                                                                                                                                                                                          prettier/prettier
+  44:32  error  Replace `'foo·foo·foo'` with `"foo·foo·foo"`                                                                                                                                                                                                  prettier/prettier
+  45:29  error  Replace `⏎······`${cli}·replace·${filePath}·--search·foo·--replace·bar`,⏎······{·encoding:·'utf-8'·}⏎····` with ``${cli}·replace·${filePath}·--search·foo·--replace·bar`,·{·encoding:·"utf-8"·}`                                              prettier/prettier
+  49:32  error  Replace `'bar·foo·foo'` with `"bar·foo·foo"`                                                                                                                                                                                                  prettier/prettier
+  52:8   error  Replace `'regex·replacement·with·flags·replaces·all·matches'` with `"regex·replacement·with·flags·replaces·all·matches"`                                                                                                                      prettier/prettier
+  53:41  error  Replace `'regex.txt'` with `"regex.txt"`                                                                                                                                                                                                      prettier/prettier
+  54:32  error  Replace `'aAbB'` with `"aAbB"`                                                                                                                                                                                                                prettier/prettier
+  55:29  error  Replace `⏎······`${cli}·replace·${filePath}·--search·a·--replace·X·--regex·--flags·gi`,` with ``${cli}·replace·${filePath}·--search·a·--replace·X·--regex·--flags·gi`,·{`                                                                     prettier/prettier
+  57:6   error  Replace `·{·encoding:·'utf-8'·}` with `·encoding:·"utf-8",`                                                                                                                                                                                   prettier/prettier
+  58:5   error  Insert `}`                                                                                                                                                                                                                                    prettier/prettier
+  59:32  error  Replace `'XXbB'` with `"XXbB"`                                                                                                                                                                                                                prettier/prettier
+  62:8   error  Replace `'invalid·regex·reports·error'` with `"invalid·regex·reports·error"`                                                                                                                                                                  prettier/prettier
+  63:41  error  Replace `'inv.txt'` with `"inv.txt"`                                                                                                                                                                                                          prettier/prettier
+  64:32  error  Replace `'text'` with `"text"`                                                                                                                                                                                                                prettier/prettier
+  67:16  error  Replace `⏎········`${cli}·replace·${filePath}·--search·[·--replace·x·--regex`,⏎········{·encoding:·'utf-8',·stdio:·'pipe'·}⏎······` with ``${cli}·replace·${filePath}·--search·[·--replace·x·--regex`,·{·encoding:·"utf-8",·stdio:·"pipe"·}`  prettier/prettier
+  76:34  error  Replace `'Invalid·regular·expression'` with `"Invalid·regular·expression"`                                                                                                                                                                    prettier/prettier
+  79:8   error  Replace `'writes·output·to·file·when·--output·is·specified'` with `"writes·output·to·file·when·--output·is·specified"`                                                                                                                        prettier/prettier
+  80:41  error  Replace `'out.txt'` with `"out.txt"`                                                                                                                                                                                                          prettier/prettier
+  81:40  error  Replace `'result.txt'` with `"result.txt"`                                                                                                                                                                                                    prettier/prettier
+  82:32  error  Replace `'hello·hello'` with `"hello·hello"`                                                                                                                                                                                                  prettier/prettier
+  83:29  error  Replace `⏎······`${cli}·replace·${filePath}·--search·hello·--replace·hi·--output·${outPath}`,` with ``${cli}·replace·${filePath}·--search·hello·--replace·hi·--output·${outPath}`,·{`                                                         prettier/prettier
+  85:6   error  Replace `·{·encoding:·'utf-8'·}` with `·encoding:·"utf-8",`                                                                                                                                                                                   prettier/prettier
+  86:5   error  Insert `}`                                                                                                                                                                                                                                    prettier/prettier
+  87:50  error  Replace `'utf-8'` with `"utf-8"`                                                                                                                                                                                                              prettier/prettier
+  88:30  error  Replace `'hi·hello'` with `"hi·hello"`                                                                                                                                                                                                        prettier/prettier
+  89:25  error  Replace `''` with `""`                                                                                                                                                                                                                        prettier/prettier
+  91:4   error  Insert `⏎`                                                                                                                                                                                                                                    prettier/prettier
+
+✖ 225 problems (225 errors, 0 warnings)
+  221 errors and 0 warnings potentially fixable with the `--fix` option.
+comments:
+Author:github-actions[bot], Created:2025-05-18T04:40:55Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092390434
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b8c684617ce0e2e558d47ad606dcf236aa4eb22
+Author:github-actions[bot], Created:2025-05-18T04:41:13Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092390434
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b8c684617ce0e2e558d47ad606dcf236aa4eb22
+Author:github-actions[bot], Created:2025-05-18T04:42:10Z, Comment: This issue tracks ESLint and Prettier style violations and a cognitive complexity warning, which are low-value, automated refactoring tasks rather than functional bugs or high-impact enhancements. Closing as it does not directly improve the product's core functionality or user value.
+Author:github-actions[bot], Created:2025-05-18T04:42:51Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092390434
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/00c55bd07e9a9628c5af031bbb61b44e443afd1c
+Author:github-actions[bot], Created:2025-05-18T04:43:59Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092390434
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7acc402c153353c224dac8f6d9dd5990ddecd1e5
+ISSUE_END            
+
+Dependencies list from command: npm list
+DEPENDENCIES_LIST_START
+@xn-intenton-z2a/repository0@2.1.0-0 /home/runner/work/repository0/repository0
+├── @microsoft/eslint-formatter-sarif@3.1.0
+├── @vitest/coverage-v8@3.1.3
+├── csv-parse@5.6.0
+├── dotenv@16.5.0
+├── ejs@3.1.10
+├── eslint-config-google@0.14.0
+├── eslint-config-prettier@10.1.5
+├── eslint-plugin-import@2.31.0
+├── eslint-plugin-prettier@5.4.0
+├── eslint-plugin-promise@7.2.1
+├── eslint-plugin-react@7.37.5
+├── eslint-plugin-security@3.0.1
+├── eslint-plugin-sonarjs@3.0.2
+├── eslint@9.26.0
+├── js-yaml@4.1.0
+├── markdown-it-github@0.5.0
+├── markdown-it@14.1.0
+├── minimatch@10.0.1
+├── minimist@1.2.8
+├── npm-check-updates@18.0.1
+├── openai@4.98.0
+├── prettier@3.5.3
+├── vitest@3.1.3
+└── zod@3.24.4
+DEPENDENCIES_LIST_END    
+
+Build output from command: npm run build
+BUILD_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 build
+> echo 'Nothing to build'
+
+Nothing to build
+BUILD_OUTPUT_END      
+
+Test output from command: npm test
+TEST_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 test
+> vitest tests/unit/*.test.js sandbox/tests/*.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
+
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 844[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 975[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1200[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 498[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 359[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 857[2mms[22m[39m
+[90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
+[22m[39mRun with: undefined
+
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 183[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 473[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 156[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m35 passed[39m[22m[90m (35)[39m
+[2m   Start at [22m 04:45:16
+[2m   Duration [22m 2.95s[2m (transform 111ms, setup 0ms, collect 219ms, tests 5.55s, environment 3ms, prepare 1.05s)[22m
+TEST_OUTPUT_END            
+
+Main execution output from command: npm run start
+MAIN_OUTPUT_START
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: npm run start -- <command> [args]
+
+Commands:
+  help               Display this help message
+  mission            Print the mission statement
+  version            Print the current version
+  echo               Echo the provided arguments
+  features           List available feature documents
+  mission-features   Print the mission statement and list available features
+  csv-import         Import a CSV file and output JSON array
+  render             Render an EJS template with optional JSON data and output file
+  replace            Perform search-and-replace on a text file
+  text-replace       Alias for replace
+  convert            Convert between .env, JSON, and YAML formats
+  markdown           Convert a Markdown file to HTML
+
+Examples:
+  npm run start -- help
+  npm run start -- mission
+  npm run start -- version
+  npm run start -- echo Hello World
+  npm run start -- features
+  npm run start -- mission-features
+  npm run start -- csv-import data.csv
+  npm run start -- csv-import data.csv --output out.json --delimiter ";" --header false
+  npm run start -- render template.ejs
+  npm run start -- render template.ejs data.json
+  npm run start -- render template.ejs data.json --output out.html
+  npm run start -- replace file.txt --search foo --replace bar
+  npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
+  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- markdown file.md --output file.html
+MAIN_OUTPUT_END    
+
+Please produce updated versions of the files that resolve the issue.
 Note that the README.md file is provided for context only - any documentation changes should be written to the documentation files.
 The source files, test files, and documentation files can be individual files or directories containing multiple files.
+Never truncate the files, when returning a file, always return the entire file content.
 
-Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/}
+Paths in (updatedFile01Filepath, updatedFile02Filepath, etc...) must begin with one of: sandbox/SOURCES.md;sandbox/library/;sandbox/features/;sandbox/tests/;sandbox/source/;package.json;sandbox/docs/
 
 Answer strictly with a JSON object following this schema:
 {
   "message": "A short sentence explaining the change applied (or why no changes were applied) suitable for a commit message or PR text.",
   "updatedFile01Filepath": "sandbox/source/orderParser.js",
   "updatedFile01Contents": "The entire new content of the source file, with all necessary changes applied, if any.",
-  "updatedFile02Filepath": "sandbox/tests/orderParser.test.js",
+  "updatedFile02Filepath":  "sandbox/tests/orderParser.test.js",
   "updatedFile02Contents": "The entire new content of the test file, with all necessary changes applied, if any.",
-  "updatedFile03Filepath": "sandbox/docs/docs/USAGE.md",
+  "updatedFile03Filepath": "sandbox/docs/USAGE.md",
   "updatedFile03Contents": "The entire new content of the documentation file, with all necessary changes applied, if any.",
-  "updatedFile04Filepath": "sandbox/docs/docs/A_FILE_WE_DONT_WANT.md",
+  "updatedFile04Filepath": "sandbox/docs/A_FILE_WE_DONT_WANT.md",
   "updatedFile04Contents": "delete",
   "updatedFile05Filepath": "unused",
   "updatedFile05Contents": "unused",
