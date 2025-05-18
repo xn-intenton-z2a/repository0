@@ -4,7 +4,8 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 
-const cli = "node sandbox/source/main.js";
+// Use absolute path to CLI script so tests work when cwd is not repository root
+const cli = `node ${path.join(process.cwd(), 'sandbox/source/main.js')}`;
 
 describe("mission command", () => {
   const tempDir = path.join(os.tmpdir(), "mission-tests");
