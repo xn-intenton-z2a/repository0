@@ -6,6 +6,8 @@ import { parse } from "csv-parse/sync";
 import ejs from "ejs";
 import dotenv from "dotenv";
 import jsYaml from "js-yaml";
+import MarkdownIt from "markdown-it";
+import markdownItGithub from "markdown-it-github";
 
 async function showHelp() {
   console.log(`Usage: npm run start -- <command> [args]
@@ -22,6 +24,7 @@ Commands:
   replace            Perform search-and-replace on a text file
   text-replace       Alias for replace
   convert            Convert between .env, JSON, and YAML formats
+  markdown           Convert a Markdown file to HTML
 
 Examples:
   npm run start -- help
@@ -37,7 +40,8 @@ Examples:
   npm run start -- render template.ejs data.json --output out.html
   npm run start -- replace file.txt --search foo --replace bar
   npm run start -- text-replace file.txt --search foo --replace bar --regex --flags "gi" --output out.txt
-  npm run start -- convert file.env --output out.json --to-yaml`);
+  npm run start -- convert file.env --output out.json --to-yaml
+  npm run start -- markdown file.md --output file.html`);
 }
 
 async function showMission() {
@@ -185,7 +189,44 @@ async function doRender(argv) {
   }
 }
 
-// New text replace functionality
+// New markdown rendering functionality
+async function doMarkdown(argv) {
+  const inputFile = argv._[1];
+  const output = argv.output;
+  if (!inputFile) {
+    console.error("Error: No input file specified");
+    process.exit(1);
+  }
+  let content;
+  try {
+    const inputPath = path.resolve(inputFile);
+    content = await fs.readFile(inputPath, "utf-8");
+  } catch (err) {
+    console.error("Error reading input file:", err.message);
+    process.exit(1);
+  }
+  let md = new MarkdownIt().use(markdownItGithub);
+  let html;
+  try {
+    html = md.render(content);
+  } catch (err) {
+    console.error("Error rendering markdown:", err.message);
+    process.exit(1);
+  }
+  if (output) {
+    try {
+      const outputPath = path.resolve(output);
+      await fs.writeFile(outputPath, html, "utf-8");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error writing output file:", err.message);
+      process.exit(1);
+    }
+  } else {
+    console.log(html);
+  }
+}
+
 async function doTextReplace(argv) {
   const inputFile = argv._[1];
   const search = argv.search;
@@ -355,6 +396,9 @@ async function main() {
       break;
     case "convert":
       await doConvert(argv);
+      break;
+    case "markdown":
+      await doMarkdown(argv);
       break;
     default:
       console.log(`Unknown command: ${command}\n`);
