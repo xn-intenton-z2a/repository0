@@ -2474,7 +2474,7 @@ npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schem
 npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
 
-added 489 packages, and audited 490 packages in 8s
+added 489 packages, and audited 490 packages in 4s
 
 159 packages are looking for funding
   run `npm fund` for details
@@ -2509,30 +2509,62 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1811[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2652[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2767[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 521[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 745[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1867[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 488[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1222[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1172[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 663[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 479[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 707[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 206[2mms[22m[39m
+ [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1918[2mms[22m[39m
+   [33m[2m✓[22m[39m validate command[2m > [22mschema validation success [33m 304[2mms[22m[39m
+   [33m[2m✓[22m[39m validate command[2m > [22mschema validation failure [33m 342[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2682[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2751[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 538[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 717[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1208[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1923[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 468[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1160[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 473[2mms[22m[39m
+Error: Found mission references in the following feature docs:
+  CLI_COMMAND_SUPPORT.md
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 742[2mms[22m[39m
+ [31m❯[39m sandbox/tests/features.test.js [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 683[2mms[22m[39m
+   [32m✓[39m CLI sandbox/source/main.js[2m > [22mfeatures command lists headings of feature docs[32m 245[2mms[22m[39m
+[31m   [31m×[31m CLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission lists headings without mission references[39m[32m 223[2mms[22m[39m
+[31m     → Command failed: node sandbox/source/main.js features --validate-mission
+Error: Found mission references in the following feature docs:
+  CLI_COMMAND_SUPPORT.md
+[39m
+   [32m✓[39m CLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission fails on mission references[32m 213[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 585[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 237[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 636[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
-[2m      Tests [22m [1m[32m58 passed[39m[22m[90m (58)[39m
-[2m   Start at [22m 14:56:28
-[2m   Duration [22m 5.97s[2m (transform 119ms, setup 0ms, collect 277ms, tests 14.14s, environment 3ms, prepare 1.17s)[22m
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m sandbox/tests/features.test.js[2m > [22mCLI sandbox/source/main.js[2m > [22mfeatures command with --validate-mission lists headings without mission references
+[31m[1mError[22m: Command failed: node sandbox/source/main.js features --validate-mission
+Error: Found mission references in the following feature docs:
+  CLI_COMMAND_SUPPORT.md
+[39m
+[36m [2m❯[22m sandbox/tests/features.test.js:[2m13:28[22m[39m
+    [90m 11| [39m
+    [90m 12| [39m  test('features command with --validate-mission lists headings withou…
+    [90m 13| [39m    const output = execSync('node sandbox/source/main.js features --va…
+    [90m   | [39m                           [31m^[39m
+    [90m 14| [39m    [34mexpect[39m(output)[33m.[39m[34mtoContain[39m([32m'CLI Command Support'[39m)[33m;[39m
+    [90m 15| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m12 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m57 passed[39m[22m[90m (58)[39m
+[2m   Start at [22m 16:32:47
+[2m   Duration [22m 6.06s[2m (transform 110ms, setup 0ms, collect 301ms, tests 14.42s, environment 3ms, prepare 1.17s)[22m
+
+
+::error file=/home/runner/work/repository0/repository0/sandbox/tests/features.test.js,title=sandbox/tests/features.test.js > CLI sandbox/source/main.js > features command with --validate-mission lists headings without mission references,line=13,column=28::Error: Command failed: node sandbox/source/main.js features --validate-mission%0AError: Found mission references in the following feature docs:%0A  CLI_COMMAND_SUPPORT.md%0A%0A ❯ sandbox/tests/features.test.js:13:28%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { status: 1, signal: null, output: [ null, '', 'Error: Found mission references in the following feature docs:\n  CLI_COMMAND_SUPPORT.md\n' ], pid: 3041, stdout: '', stderr: 'Error: Found mission references in the following feature docs:\n  CLI_COMMAND_SUPPORT.md\n' }%0A
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start

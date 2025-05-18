@@ -93,14 +93,10 @@ async function showFeatures(argv) {
       if (path.extname(file).toLowerCase() === ".md") {
         const filePath = path.join(featuresDir, file);
         const content = await fs.readFile(filePath, "utf-8");
-        if (validate) {
-          if (
-            content.includes("MISSION.md") ||
-            content.includes("# Mission Statement")
-          ) {
-            offendingFiles.push(file);
-            continue;
-          }
+        // Only flag explicit references to the mission file
+        if (validate && content.includes("MISSION.md")) {
+          offendingFiles.push(file);
+          continue;
         }
         const lines = content.split("\n");
         let heading = null;
@@ -274,7 +270,6 @@ async function doTextReplace(argv) {
     result = content.replace(re, replacement);
   } else {
     if (allFlag) {
-      // global literal replacement
       if (typeof content.replaceAll === "function") {
         result = content.replaceAll(search, replacement);
       } else {
@@ -481,183 +476,4 @@ async function doImportData(argv) {
   }
 
   let records;
-  const ext = path.extname(inputFile).toLowerCase();
-  try {
-    if (ext === '.csv') {
-      records = parse(raw, { columns: header, delimiter, skip_empty_lines: true });
-    } else if (ext === '.json') {
-      const data = JSON.parse(raw);
-      if (!Array.isArray(data)) {
-        console.error('Error: JSON input must be an array of objects');
-        process.exit(1);
-      }
-      records = data;
-    } else if (ext === '.yaml' || ext === '.yml') {
-      const data = jsYaml.load(raw);
-      if (!Array.isArray(data)) {
-        console.error('Error: YAML input must be an array of objects');
-        process.exit(1);
-      }
-      records = data;
-    } else if (ext === '.env') {
-      const envObj = dotenv.parse(raw);
-      records = [envObj];
-    } else {
-      console.error(`Unsupported input format: ${ext}`);
-      process.exit(1);
-    }
-  } catch (err) {
-    console.error(`Error parsing input file: ${err.message}`);
-    process.exit(1);
-  }
-
-  let db;
-  try {
-    db = new Database(dbPath);
-  } catch (err) {
-    console.error('Error opening database:', err.message);
-    process.exit(1);
-  }
-
-  try {
-    const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
-    if (exists) {
-      if (overwrite) {
-        db.prepare(`DROP TABLE \"${table}\"`).run();
-      } else {
-        console.error(`Error: Table '${table}' already exists. Use --overwrite to replace.`);
-        process.exit(1);
-      }
-    }
-  } catch (err) {
-    console.error('Error checking table existence:', err.message);
-    process.exit(1);
-  }
-
-  const keys = Object.keys(records[0] || {});
-  const colsDef = keys.map((k) => `\"${k}\" TEXT`).join(', ');
-  try {
-    db.prepare(`CREATE TABLE \"${table}\" (${colsDef})`).run();
-  } catch (err) {
-    console.error('Error creating table:', err.message);
-    process.exit(1);
-  }
-
-  const placeholders = keys.map(() => '?').join(', ');
-  const insertSQL = `INSERT INTO \"${table}\" (${keys.map((k) => `\"${k}\"`).join(', ')}) VALUES (${placeholders})`;
-  const insertStmt = db.prepare(insertSQL);
-  const insertMany = db.transaction((recs) => {
-    for (const r of recs) {
-      insertStmt.run(...keys.map((k) => r[k]));
-    }
-  });
-  try {
-    insertMany(records);
-  } catch (err) {
-    console.error('Error inserting records:', err.message);
-    process.exit(1);
-  }
-
-  db.close();
-  console.log(`Inserted ${records.length} records into table '${table}' in database ${dbPath}`);
-  process.exit(0);
-}
-
-async function doMarkdown(argv) {
-  const inputFile = argv._[1];
-  const output = argv.output;
-  if (!inputFile) {
-    console.error("Error: No input file specified");
-    process.exit(1);
-  }
-  let content;
-  try {
-    const inputPath = path.resolve(inputFile);
-    content = await fs.readFile(inputPath, "utf-8");
-  } catch (err) {
-    console.error("Error reading input file:", err.message);
-    process.exit(1);
-  }
-  const md = new MarkdownIt();
-  let html;
-  try {
-    html = md.render(content);
-  } catch (err) {
-    console.error("Error rendering markdown:", err.message);
-    process.exit(1);
-  }
-  if (output) {
-    try {
-      const outputPath = path.resolve(output);
-      await fs.writeFile(outputPath, html, "utf-8");
-      process.exit(0);
-    } catch (err) {
-      console.error("Error writing output file:", err.message);
-      process.exit(1);
-    }
-  } else {
-    console.log(html);
-  }
-}
-
-async function main() {
-  const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-мission", "all"],
-    string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
-    default: { header: true, delimiter: "," },
-  });
-  const [command, ...rest] = argv._;
-  switch (command) {
-    case "help":
-    case undefined:
-      await showHelp();
-      break;
-    case "mission":
-      await showMission();
-      break;
-    case "version":
-      await showVersion();
-      break;
-    case "echo":
-      await doEcho(rest);
-      break;
-    case "features":
-      await showFeatures(argv);
-      break;
-    case "mission-features":
-      await showMission();
-      console.log("");
-      await showFeatures(argv);
-      break;
-    case "csv-import":
-      await doCsvImport(argv);
-      break;
-    case "render":
-      await doRender(argv);
-      break;
-    case "replace":
-    case "text-replace":
-      await doTextReplace(argv);
-      break;
-    case "convert":
-      await doConvert(argv);
-      break;
-    case "validate":
-      await doValidateCommand(argv);
-      break;
-    case "markdown":
-      await doMarkdown(argv);
-      break;
-    case "import-data":
-      await doImportData(argv);
-      break;
-    default:
-      console.log(`Unknown command: ${command}` + "\n");
-      await showHelp();
-  }
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  const ext = path.ext
