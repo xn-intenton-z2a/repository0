@@ -2,56 +2,59 @@
 
 ## CLI Behavior
 
-Introduce a new top-level command `stats` to report metrics for a single file. Metrics include line count, word count, character count, and byte size. When invoked without metric flags, all metrics are displayed. Users can limit output to specific metrics or write results to a file.
+Introduce a new top-level command stats to report file metrics including line count, word count, character count, and byte size. When invoked without any metric flags, stats prints all metrics as a JSON object to stdout. Users can specify one or more of the following flags to limit output to specific metrics, and may use --output to write results to a file.
 
 Usage:
 
 npm run start -- stats <file> [--lines] [--words] [--chars] [--bytes] [--output <file>]
 
-- `<file>`: Path to the file to analyze (required).
-- `--lines`: Show only the number of lines.
-- `--words`: Show only the number of words.
-- `--chars`: Show only the number of characters.
-- `--bytes`: Show only the byte size of the file.
-- `--output <file>`: Optional path to write the metrics as a JSON object. If omitted, metrics are printed to stdout as JSON.
+- `<file>`: Required path to the file to analyze.
+- `--lines`: Include only the line count.
+- `--words`: Include only the word count.
+- `--chars`: Include only the character count.
+- `--bytes`: Include only the byte size of the file.
+- `--output <file>`: Optional path to write the JSON result; if omitted, print to stdout.
 
 Behavior:
 
-- Read the file as a buffer using Node’s fs/promises.
+- Read the file as a Buffer using fs/promises.
 - Compute metrics:
-  - `lines`: number of newline-separated lines.
-  - `words`: count of whitespace-separated words.
-  - `chars`: string length.
-  - `bytes`: buffer length.
-- Build a JSON object with keys for each requested metric (or all metrics if no flags provided).
-- If `--output` is specified, write the JSON object to the given file path and exit with code 0; otherwise, print JSON to stdout and exit with code 0.
-- On missing file argument or I/O error, print a descriptive error message and exit with code 1.
+  - `lines`: Number of newline-separated lines.
+  - `words`: Number of whitespace-separated words.
+  - `chars`: String length of the file content.
+  - `bytes`: Buffer length.
+- Build a JSON object containing keys for each requested metric (or all metrics when no flags are specified).
+- Serialize the object with two-space indentation.
+- If `--output` is provided, write the JSON to the specified file and exit with code 0; otherwise print to stdout and exit with code 0.
+- On missing file argument or I/O error, print a descriptive error message to stderr and exit with code 1.
 
-## File Modifications
+## Implementation
 
 - **sandbox/source/main.js**
-  - Import `fs/promises` if not already imported.
-  - In the CLI switch, add a case `stats` that calls `await doStatsCommand(argv)`.
+  - Import fs/promises if not already imported.
+  - In the CLI switch statement, add a case "stats" that calls `await doStatsCommand(argv)`.
   - Implement `async function doStatsCommand(argv)`:
     - Validate presence of `argv._[1]`; on missing, print usage and exit code 1.
     - Read the file into a Buffer.
-    - Compute metrics as described.
-    - Construct an object with only the keys for which flags are provided, or all keys if none provided.
-    - Serialize the object as JSON with two-space indentation.
-    - If `argv.output` is provided, write JSON to the file; otherwise, print to stdout.
-    - Handle errors with descriptive messages and exit code 1.
+    - Compute each metric as described above.
+    - Determine which metrics to include based on flags.
+    - Format the output as a JSON string with two-space indentation.
+    - Write to file if `argv.output` is provided; otherwise print to stdout.
+    - Handle errors (missing file, read errors) by printing an error message and exiting with code 1.
 
-## Tests
+## Testing
 
-- **sandbox/tests/stats.test.js**
-  - Create temporary files with known content and assert:
-    - Running `stats` without flags returns JSON with all metrics.
-    - Running with each individual flag returns JSON with only that metric.
-    - `--output` writes the JSON to a file and prints nothing to stdout.
-    - Missing file argument exits with code 1 and prints usage.
-    - I/O error on nonexistent file exits with code 1 and prints an error.
+Create `sandbox/tests/stats.test.js` with Vitest to cover:
+
+- Running stats without flags returns JSON with all four metrics.
+- Running with each individual flag returns JSON with only that metric.
+- Using multiple flags returns JSON with all specified metrics.
+- `--output` writes the JSON file and prints nothing to stdout.
+- Missing file argument exits with code 1 and prints usage to stderr.
+- I/O error on nonexistent file exits with code 1 and prints an error message.
 
 ## Documentation
 
-- **README.md** and **sandbox/docs/CLI_USAGE.md**
-  - Add a `stats` entry under Commands Reference with usage, flags, examples, and a note on JSON output.
+- Update **README.md** and **sandbox/docs/CLI_USAGE.md**:
+  - Add a new `stats` entry under Commands Reference with usage, flags, and examples.
+  - Document default behavior and use of metric flags and `--output`.
