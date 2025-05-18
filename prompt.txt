@@ -681,6 +681,35 @@ describe('CLI sandbox/source/main.js', () => {
 TEST_FILE_END
 
 
+TEST_FILE_START File: sandbox/tests/help-fallback.test.js
+import { describe, test, expect } from 'vitest';
+import { execSync } from 'child_process';
+
+const cli = 'node sandbox/source/main.js';
+
+describe('help and fallback behavior', () => {
+  test('help command outputs usage and lists help command', () => {
+    const output = execSync(`${cli} help`, { encoding: 'utf-8' });
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+
+  test('no command provided outputs help usage', () => {
+    const output = execSync('node sandbox/source/main.js', { encoding: 'utf-8' });
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+
+  test('unknown command fallback prints unknown and usage', () => {
+    const output = execSync(`${cli} foobar`, { encoding: 'utf-8' });
+    expect(output).toContain('Unknown command: foobar');
+    expect(output).toContain('Usage: npm run start --');
+    expect(output).toContain('help');
+  });
+});
+TEST_FILE_END
+
+
 TEST_FILE_START File: sandbox/tests/mission-features.test.js
 import { describe, test, expect } from 'vitest';
 import { execSync } from 'child_process';
@@ -1544,51 +1573,64 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: [Test maintenance] Add coverage for help and unknown command fallback in CLI
+title: Add feature-level tests for mission CLI command
 description:
-Context:
-The sandbox CLI (`sandbox/source/main.js`) supports a `help` command, falls back to displaying usage when no command is provided, and reports unknown commands before showing usage. These behaviors are critical to the core CLI experience but currently lack direct test coverage.
+Feature: mission CLI command tests
 
-Goal:
-Enhance the test suite to cover the following acceptance criteria for high-impact core functionality:
+We need to add a feature-level test suite for the existing `mission` CLI command to ensure it behaves correctly in both normal and error scenarios.
 
 Acceptance Criteria:
-1. Help Command:
-   - Invoke: `node sandbox/source/main.js help`
-   - Expect: Exit code 0, stdout includes a line starting with `Usage: npm run start --`, and lists at least one known command (e.g., `help`).
-2. No Command Provided:
-   - Invoke: `node sandbox/source/main.js` (no args)
-   - Expect: Exit code 0, stdout matches the help output (same `Usage:` header and command list).
-3. Unknown Command Fallback:
-   - Invoke: `node sandbox/source/main.js foobar`
-   - Expect: Exit code 0, stdout contains `Unknown command: foobar` followed by the `Usage:` header and command list.
 
-How to Apply:
-- Update `sandbox/tests/features.test.js` or create a new test file (e.g., `sandbox/tests/help-fallback.test.js`).
-- Use Node's `execSync` in Vitest to capture exit code and stdout.
-- Add new `test` blocks under the existing `describe('CLI sandbox/source/main.js')` suite to assert each scenario.
-- Confirm all tests pass and coverage includes the new code paths.
+1. Create a new test file at `sandbox/tests/mission.test.js`.
+
+2. Success Case:
+   - In a directory that contains a valid `MISSION.md` file, execute:
+     ```js
+     execSync('node sandbox/source/main.js mission', { encoding: 'utf-8' })
+     ```
+   - Assert that:
+     - The process exits with code `0`.
+     - `stdout` contains the top-level heading `# Mission Statement`.
+     - The first few lines of `stdout` match the contents of `MISSION.md` (use `fs.readFileSync` to verify).
+
+3. Error Case:
+   - In a temporary directory without `MISSION.md`, execute the same command with `cwd` pointed at that directory.
+   - Assert that:
+     - The process exits with code `1`.
+     - `stderr` contains the text `Error reading mission:`.
+
+4. Ensure that:
+   - Tests are written with Vitest and use `child_process.execSync`.
+   - The new test file is discovered by the existing Vitest configuration without updates to `package.json`.
+   - No files outside of `sandbox/tests/` are modified.
 
 Verification:
-- Run `npm test` and ensure no regressions.
-- Confirm coverage reports include the help and fallback branches in `sandbox/source/main.js`.
+- Running `npm test` should pass all existing tests plus the new `mission.test.js`.
+
+Notes:
+- Focus on clear, reliable assertions and proper cleanup of temporary directories.
 comments:
-Author:github-actions[bot], Created:2025-05-18T03:54:06Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
+Author:github-actions[bot], Created:2025-05-18T04:02:35Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092092434
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fe9022a9be7c9cf121a7918e84262f9467e4adee
-Author:github-actions[bot], Created:2025-05-18T03:54:48Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T03:55:12Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/18894c901ff6882a75be30ec829a27d17e7ac491
+Author:github-actions[bot], Created:2025-05-18T04:03:06Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092092434
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/4e6a818d436461f6538c53ae8bb2801dcfa5eff0
-Author:github-actions[bot], Created:2025-05-18T03:56:15Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092066051
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/18894c901ff6882a75be30ec829a27d17e7ac491
+Author:github-actions[bot], Created:2025-05-18T04:04:14Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092092434
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2aa7e64695178c4c2b4ccbec754d6a656ea4cb85
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/93d31c8d36b8172860da8e5b3f3312771567b220
+Author:github-actions[bot], Created:2025-05-18T04:04:18Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15092130140
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/93d31c8d36b8172860da8e5b3f3312771567b220
+Author:github-actions[bot], Created:2025-05-18T04:05:00Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1638,23 +1680,24 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 718[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 783[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 327[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 987[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 132[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 675[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 835[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 302[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 974[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 145[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 399[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 615[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 107[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 605[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 104[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
-[2m      Tests [22m [1m[32m27 passed[39m[22m[90m (27)[39m
-[2m   Start at [22m 03:57:26
-[2m   Duration [22m 1.94s[2m (transform 131ms, setup 0ms, collect 231ms, tests 3.34s, environment 2ms, prepare 759ms)[22m
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m30 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 04:05:36
+[2m   Duration [22m 2.09s[2m (transform 126ms, setup 0ms, collect 202ms, tests 3.75s, environment 2ms, prepare 789ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
