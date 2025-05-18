@@ -87,10 +87,21 @@ async function showFeatures(argv) {
     const cwd = process.cwd();
     const featuresDir = path.join(cwd, "sandbox/features");
     const files = await fs.readdir(featuresDir);
+    const validHeadings = [];
+    const offendingFiles = [];
     for (const file of files) {
       if (path.extname(file).toLowerCase() === ".md") {
         const filePath = path.join(featuresDir, file);
         const content = await fs.readFile(filePath, "utf-8");
+        if (validate) {
+          if (
+            content.includes("MISSION.md") ||
+            content.includes("# Mission Statement")
+          ) {
+            offendingFiles.push(file);
+            continue;
+          }
+        }
         const lines = content.split("\n");
         let heading = null;
         for (const line of lines) {
@@ -100,16 +111,29 @@ async function showFeatures(argv) {
             break;
           }
         }
-        if (!heading) {
-          continue;
-        }
-        if (validate) {
-          if (content.includes("MISSION.md") || content.includes("# Mission Statement")) {
-            continue;
+        if (heading) {
+          if (validate) {
+            validHeadings.push(heading);
+          } else {
+            console.log(heading);
           }
         }
-        console.log(heading);
       }
+    }
+    if (validate) {
+      if (offendingFiles.length > 0) {
+        console.error(
+          "Error: Found mission references in the following feature docs:"
+        );
+        for (const f of offendingFiles) {
+          console.error(`  ${f}`);
+        }
+        process.exit(1);
+      }
+      for (const h of validHeadings) {
+        console.log(h);
+      }
+      process.exit(0);
     }
   } catch (err) {
     console.error("Error listing features:", err.message);
@@ -499,7 +523,7 @@ async function doImportData(argv) {
     const exists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table);
     if (exists) {
       if (overwrite) {
-        db.prepare(`DROP TABLE "${table}"`).run();
+        db.prepare(`DROP TABLE \"${table}\"`).run();
       } else {
         console.error(`Error: Table '${table}' already exists. Use --overwrite to replace.`);
         process.exit(1);
@@ -511,16 +535,16 @@ async function doImportData(argv) {
   }
 
   const keys = Object.keys(records[0] || {});
-  const colsDef = keys.map((k) => `"${k}" TEXT`).join(', ');
+  const colsDef = keys.map((k) => `\"${k}\" TEXT`).join(', ');
   try {
-    db.prepare(`CREATE TABLE "${table}" (${colsDef})`).run();
+    db.prepare(`CREATE TABLE \"${table}\" (${colsDef})`).run();
   } catch (err) {
     console.error('Error creating table:', err.message);
     process.exit(1);
   }
 
   const placeholders = keys.map(() => '?').join(', ');
-  const insertSQL = `INSERT INTO "${table}" (${keys.map((k) => `"${k}"`).join(', ')}) VALUES (${placeholders})`;
+  const insertSQL = `INSERT INTO \"${table}\" (${keys.map((k) => `\"${k}\"`).join(', ')}) VALUES (${placeholders})`;
   const insertStmt = db.prepare(insertSQL);
   const insertMany = db.transaction((recs) => {
     for (const r of recs) {
@@ -578,7 +602,7 @@ async function doMarkdown(argv) {
 
 async function main() {
   const argv = minimist(process.argv.slice(2), {
-    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-mission", "all"],
+    boolean: ["header", "regex", "to-env", "to-yaml", "to-json", "overwrite", "validate-мission", "all"],
     string: ["output", "delimiter", "flags", "search", "replace", "db", "table", "schema"],
     default: { header: true, delimiter: "," },
   });

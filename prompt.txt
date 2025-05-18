@@ -1815,6 +1815,158 @@ Behavior:
 DOCUMENTATION_FILE_END
 
 
+DOCUMENTATION_FILE_START File: sandbox/docs/README.md
+# CLI Sandbox Tool
+
+[MISSION.md](../../MISSION.md) | [CONTRIBUTING.md](../../CONTRIBUTING.md) | [LICENSE.md](../../LICENSE.md)
+
+## Overview
+
+This repository provides a CLI sandbox tool implemented in `sandbox/source/main.js` for commands such as `help`, `mission`, `version`, `echo`, and more.
+
+## What’s Inside
+
+- **CLI entrypoint:** `sandbox/source/main.js`
+- **Feature documentation:** files under `sandbox/features/`
+- **Tests:** files under `sandbox/tests/` and `tests/unit/`
+- **Additional docs:** `sandbox/docs/CLI_USAGE.md`
+
+## Getting Started
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Run the test suite:
+   ```bash
+   npm test
+   ```
+3. Invoke the CLI:
+   ```bash
+   npm run start -- <command> [options]
+   ```
+
+## Commands
+
+**help**
+
+Display help message.
+
+Example:  
+```bash
+npm run start -- help
+```
+
+**mission**
+
+Print the mission statement.
+
+Example:  
+```bash
+npm run start -- mission
+```
+
+**version**
+
+Print the current version.
+
+Example:  
+```bash
+npm run start -- version
+```
+
+**echo**
+
+Echo the provided arguments.
+
+Example:  
+```bash
+npm run start -- echo Hello World
+```
+
+**features**
+
+List feature document headings.
+
+Example:  
+```bash
+npm run start -- features
+```
+
+**mission-features**
+
+Print mission then list features.
+
+Example:  
+```bash
+npm run start -- mission-features
+```
+
+**csv-import**
+
+Import a CSV file and output a JSON array.
+
+Example:  
+```bash
+npm run start -- csv-import data.csv
+```
+
+**render**
+
+Render an EJS template with optional JSON data.
+
+Example:  
+```bash
+npm run start -- render template.ejs data.json
+```
+
+**replace / text-replace**
+
+Search-and-replace in text files (literal or regex).
+
+Example:  
+```bash
+npm run start -- replace file.txt --search foo --replace bar --all
+```
+
+**convert**
+
+Convert between `.env`, JSON, and YAML formats.
+
+Example:  
+```bash
+npm run start -- convert config.env --to-json
+```
+
+**validate**
+
+Validate JSON syntax and optionally against a schema.
+
+Example:  
+```bash
+npm run start -- validate data.json --schema schema.json
+```
+
+**markdown**
+
+Convert a Markdown file to HTML.
+
+Example:  
+```bash
+npm run start -- markdown file.md --output file.html
+```
+
+**import-data**
+
+Import structured data into a SQLite database.
+
+Example:  
+```bash
+npm run start -- import-data data.csv --db my.db --table users
+```
+DOCUMENTATION_FILE_END
+
+
 
 README file (for context, read only): README.md
 README_FILE_START
@@ -2354,61 +2506,55 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: [Documenter] Refresh README to reflect current CLI features and usage
+title: Implement mission reference validation in features command
 description:
-Title: Refresh README.md to reflect current CLI features and usage
+We need to enhance the existing `features` CLI command’s `--validate-mission` flag so that it not only filters out feature docs that reference the mission, but also fails with a non-zero exit code and reports any offending files. This will ensure that no feature documentation inadvertently refers to `MISSION.md` or the mission statement heading.
 
-Description:
-The current `README.md` is outdated—it focuses on the Equation Plotter demo and narrative history, which no longer represent this repository’s primary functionality. We need to update the file to accurately describe and document the sandbox CLI tool implemented in `sandbox/source/main.js`.
+Scope of changes (all under `sandbox/`):
 
-Acceptance Criteria (testable):
-1. README.md includes at the top (immediately under the main title): links to `MISSION.md`, `CONTRIBUTING.md`, and `LICENSE.md`.
-2. Overview section clearly states: “This repository provides a CLI sandbox tool implemented in `sandbox/source/main.js` for commands such as help, mission, version, echo, and more.”
-3. “What’s Inside” section lists the following items (with links or paths):
-   - CLI entrypoint: `sandbox/source/main.js`
-   - Feature documentation: files under `sandbox/features/`
-   - Tests: files under `sandbox/tests/` and `tests/unit/`
-   - Additional docs: `sandbox/docs/CLI_USAGE.md`
-4. “Getting Started” section provides exactly three numbered steps:
-   a. `npm install` (to install dependencies)
-   b. `npm test` (to run the full test suite)
-   c. `npm run start -- <command> [options]` (to invoke the CLI)
-5. “Commands” section enumerates each supported command with a one-line description and a one-line example:
-   - help
-   - mission
-   - version
-   - echo
-   - features
-   - mission-features
-   - csv-import
-   - render
-   - replace / text-replace
-   - convert
-   - validate
-   - markdown
-   - import-data
-6. All references to the plotting library demo, narrative history, and outdated agentic-lib workflows are removed.
-7. The file renders correctly as Markdown (no broken links or formatting errors).
-8. The “Commands Reference” table (if present) matches the list above and links to `sandbox/docs/CLI_USAGE.md` for full details.
+1. **Source (`sandbox/source/main.js`):**
+   - In `showFeatures()`, when `argv['validate-mission']` is true, scan each Markdown file in `sandbox/features/` for occurrences of `"MISSION.md"` or `"# Mission Statement"`.
+   - If any file contains a mission reference, collect its filename, print an error summary listing all offending files, and call `process.exit(1)` after listing them.
+   - If no references are found, exit normally (code 0) after printing the allowed headings.
 
-Once updated, verify by inspecting `README.md` in the PR and ensuring that running `npm run start` and `npm test` still succeed without errors.
+2. **Tests (`sandbox/tests/features.test.js`):**
+   - Extend the existing tests to cover the new failure behavior:
+     - Add a test that temporarily creates a dummy feature file (e.g., `tmp_with_mission.md`) in `sandbox/features/` containing a reference to `MISSION.md`, then runs `node sandbox/source/main.js features --validate-mission` and asserts that:
+       - It throws an error (exit code 1).
+       - The stderr contains the dummy filename.
+     - Clean up the dummy file after the test.
+   - Ensure the original tests still pass when no mission references exist.
+
+3. **Documentation:**
+   - Update the `features` entry in both `sandbox/docs/CLI_USAGE.md` and `README.md` to clarify that:
+     - `--validate-mission` will now report and fail on any mission references in feature docs.
+     - An exit code of `1` indicates one or more mission references were found.
+
+4. **Dependencies:**
+   - No new dependencies required.
+
+**How to verify:**
+- Run `npm test` and ensure all tests (including the new one) pass.
+- Manually run `npm run start -- features --validate-mission` in a clean repo to confirm exit code `0`.
+- Create a feature file with a mission reference and rerun `features --validate-mission` to confirm exit code `1` and that offending filename appears in stderr.
+
+This change provides a guardrail for documentation quality, preventing accidental coupling of individual feature specs to the mission statement.
 comments:
-Author:github-actions[bot], Created:2025-05-18T09:43:36Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
+Author:github-actions[bot], Created:2025-05-18T10:49:13Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15095147855
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/8bf8d34a664371bb48134045bcaff4e9a165fe15
-Author:github-actions[bot], Created:2025-05-18T09:44:42Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-18T09:45:08Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9cbee3999a92bf665cc979db6d0623dca93e4865
+Author:github-actions[bot], Created:2025-05-18T10:49:46Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15095147855
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/e99e003646f36cf2c04d40e7db0a007510153a9a
-Author:github-actions[bot], Created:2025-05-18T09:46:16Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15094642174
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9cbee3999a92bf665cc979db6d0623dca93e4865
+Author:github-actions[bot], Created:2025-05-18T10:50:55Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15095147855
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0873d7c8ea5e96bf254d98e07b7bbc397b30009f
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/9cbee3999a92bf665cc979db6d0623dca93e4865
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -2460,30 +2606,31 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1744[2mms[22m[39m
- [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2584[2mms[22m[39m
- [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2792[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 480[2mms[22m[39m
-   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 749[2mms[22m[39m
- [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1806[2mms[22m[39m
-   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 454[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1204[2mms[22m[39m
- [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1124[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 482[2mms[22m[39m
- [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 691[2mms[22m[39m
- [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 620[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32m✓[39m sandbox/tests/validate.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1648[2mms[22m[39m
+ [32m✓[39m sandbox/tests/convert.test.js [2m([22m[2m11 tests[22m[2m)[22m[33m 2624[2mms[22m[39m
+ [32m✓[39m sandbox/tests/import-data.test.js [2m([22m[2m8 tests[22m[2m)[22m[33m 2756[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22merrors when missing arguments [33m 549[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22mYAML import [33m 303[2mms[22m[39m
+   [33m[2m✓[22m[39m import-data command[2m > [22moverwrite existing table [33m 746[2mms[22m[39m
+ [32m✓[39m sandbox/tests/text-replace.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 1722[2mms[22m[39m
+   [33m[2m✓[22m[39m text-replace command[2m > [22merrors when missing --search or --replace [33m 444[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1161[2mms[22m[39m
+ [32m✓[39m sandbox/tests/csv-import.test.js [2m([22m[2m5 tests[22m[2m)[22m[33m 1144[2mms[22m[39m
+ [32m✓[39m sandbox/tests/markdown.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 727[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 479[2mms[22m[39m
+ [32m✓[39m sandbox/tests/help-fallback.test.js [2m([22m[2m3 tests[22m[2m)[22m[33m 623[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 416[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission-features.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 227[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 434[2mms[22m[39m
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
 [2m      Tests [22m [1m[32m57 passed[39m[22m[90m (57)[39m
-[2m   Start at [22m 09:47:27
-[2m   Duration [22m 5.82s[2m (transform 139ms, setup 0ms, collect 325ms, tests 13.72s, environment 4ms, prepare 1.23s)[22m
+[2m   Start at [22m 10:52:07
+[2m   Duration [22m 5.80s[2m (transform 131ms, setup 0ms, collect 306ms, tests 13.53s, environment 3ms, prepare 1.18s)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
