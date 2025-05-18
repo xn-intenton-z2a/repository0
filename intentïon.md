@@ -12,3 +12,5 @@
 
 2025-05-18T08:15:10.290Z - Maintained feature LOG_SCALE.
 
+2025-05-18T08:40:34.255Z - Reviewed in-progress issue 2078.
+
