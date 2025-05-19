@@ -1447,3 +1447,31 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-19T18:51:39.868Z
+
+fixApplied: true
+
+Add inline examples and concise descriptions to CLI documentation in sandboxdocsCLI_COMMANDS.md
+
+Git Diff:
+
+```diff --git a/sandbox/docs/CLI_COMMANDS.md b/sandbox/docs/CLI_COMMANDS.md
+index 784ce9e0..36324f09 100644
+Binary files a/sandbox/docs/CLI_COMMANDS.md and b/sandbox/docs/CLI_COMMANDS.md differ```
+
+mainOutput:```
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node src/lib/main.js
+
+Run with: []```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2140 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15328,"completion_tokens":2359,"total_tokens":17687,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
