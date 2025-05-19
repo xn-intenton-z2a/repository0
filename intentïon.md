@@ -1475,3 +1475,14 @@ LLM API Usage:
 
 ---
 
+## Feature to Issue at 2025-05-19T18:55:23.467Z
+
+Generated feature development issue with title Unify CLI: Delegate src/lib/main.js to sandbox CLI implementation and update documentation.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13789,"completion_tokens":2829,"total_tokens":16618,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
