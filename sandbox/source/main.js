@@ -48,6 +48,9 @@ export async function main(argv) {
   if (args.yaml2json !== undefined) {
     return convertYamlToJson(args.yaml2json, args.output);
   }
+  if (args._.length > 0 && args._[0] === "plot") {
+    return plotCommand(args);
+  }
   if (args._.length > 0 && args._[0] === "echo") {
     return echoMessage(args._);
   }
@@ -81,7 +84,7 @@ function handleEnv(envArg) {
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [plot <quadratic|sine>] [echo <message>]`
   );
   console.log("");
   console.log("Commands:");
@@ -95,6 +98,7 @@ function printHelp() {
   console.log("  --output <file>             Write JSON output to the specified file");
   console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
   console.log("  -e, --env                   Print all loaded environment variables as JSON");
+  console.log("  plot <quadratic|sine>       Generate sample points for the specified function");
   console.log("  echo <message>              Echo message");
 }
 
@@ -241,6 +245,31 @@ async function convertYamlToJson(yamlPath, outputPath) {
     console.error(err.message);
     process.exit(1);
   }
+}
+
+/**
+ * Plot command for quadratic and sine sample data.
+ * @param {object} args - Parsed CLI arguments including positional args in args._
+ */
+function plotCommand(args) {
+  const funcName = args._[1];
+  if (!funcName) {
+    console.error("Missing function name");
+    process.exit(1);
+  }
+  let points;
+  if (funcName === "quadratic") {
+    const xs = [-2, -1, 0, 1, 2];
+    points = xs.map((x) => ({ x, y: x * x }));
+  } else if (funcName === "sine") {
+    const xs = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
+    points = xs.map((x) => ({ x, y: Math.sin(x) }));
+  } else {
+    console.error(`Unknown function: ${funcName}`);
+    process.exit(1);
+  }
+  console.log(JSON.stringify(points, null, 2));
+  process.exit(0);
 }
 
 /**

@@ -70,4 +70,37 @@ describe("CLI entrypoint", () => {
       expect(result.stdout.trim()).toBe(rootPkg.version);
     });
   });
+
+  describe("plot command", () => {
+    test("plot quadratic outputs correct points", () => {
+      const result = spawnSync("node", ["sandbox/source/main.js", "plot", "quadratic"], { encoding: "utf-8" });
+      expect(result.status).toBe(0);
+      const parsed = JSON.parse(result.stdout);
+      expect(parsed).toEqual([
+        { x: -2, y: 4 },
+        { x: -1, y: 1 },
+        { x: 0, y: 0 },
+        { x: 1, y: 1 },
+        { x: 2, y: 4 }
+      ]);
+    });
+
+    test("plot sine outputs correct points", () => {
+      const result = spawnSync("node", ["sandbox/source/main.js", "plot", "sine"], { encoding: "utf-8" });
+      expect(result.status).toBe(0);
+      const parsed = JSON.parse(result.stdout);
+      const expectedXs = [-Math.PI, -Math.PI / 2, 0, Math.PI / 2, Math.PI];
+      expect(parsed).toHaveLength(5);
+      parsed.forEach((point, idx) => {
+        expect(point.x).toBeCloseTo(expectedXs[idx]);
+        expect(point.y).toBeCloseTo(Math.sin(expectedXs[idx]));
+      });
+    });
+
+    test("plot unknown outputs error and exit 1", () => {
+      const result = spawnSync("node", ["sandbox/source/main.js", "plot", "foo"], { encoding: "utf-8" });
+      expect(result.status).toBe(1);
+      expect(result.stderr.trim()).toBe("Unknown function: foo");
+    });
+  });
 });
