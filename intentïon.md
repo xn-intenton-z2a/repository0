@@ -947,3 +947,15 @@ LLM API Usage:
 
 ---
 
+## Maintain Feature at 2025-05-19T11:57:38.376Z
+
+Maintained feature YAML_TO_JSON.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13494,"completion_tokens":1533,"total_tokens":15027,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
