@@ -8,6 +8,8 @@ describe("--features CLI option", () => {
   let logSpy;
   let errorSpy;
   let exitSpy;
+  let fsReadSpy;
+  let originalReadFile;
 
   beforeEach(async () => {
     // ensure features dir exists and is empty
@@ -16,35 +18,51 @@ describe("--features CLI option", () => {
     for (const file of existing) {
       await fs.unlink(path.join(featuresDir, file));
     }
+    // Spy on console and process.exit
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    // Spy on fs.readFile to return mission text for MISSION.md
+    originalReadFile = fs.readFile;
+    fsReadSpy = vi.spyOn(fs, "readFile").mockImplementation(async (filePath, encoding) => {
+      if (filePath.endsWith("MISSION.md")) {
+        return "Dummy mission statement";
+      }
+      return originalReadFile(filePath, encoding);
+    });
   });
 
   afterEach(() => {
     logSpy.mockRestore();
     errorSpy.mockRestore();
     exitSpy.mockRestore();
+    fsReadSpy.mockRestore();
   });
 
   test("lists features from markdown files", async () => {
     await fs.writeFile(path.join(featuresDir, "feat1.md"), "# First Feature\nDetails");
     await fs.writeFile(path.join(featuresDir, "feat2.md"), "# Second Feature\nMore details");
     await main(["--features"]);
-    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(["First Feature", "Second Feature"], null, 2));
+    const calls = logSpy.mock.calls.map((args) => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    expect(calls[1]).toBe(JSON.stringify(["First Feature", "Second Feature"], null, 2));
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
   test("alias -f works the same", async () => {
     await fs.writeFile(path.join(featuresDir, "feat.md"), "# Only Feature");
     await main(["-f"]);
-    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(["Only Feature"], null, 2));
+    const calls = logSpy.mock.calls.map((args) => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    expect(calls[1]).toBe(JSON.stringify(["Only Feature"], null, 2));
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
   test("empty directory yields empty array", async () => {
     await main(["--features"]);
-    expect(logSpy).toHaveBeenCalledWith(JSON.stringify([], null, 2));
+    const calls = logSpy.mock.calls.map((args) => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    expect(calls[1]).toBe(JSON.stringify([], null, 2));
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
