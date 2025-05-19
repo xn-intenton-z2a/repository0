@@ -959,3 +959,15 @@ LLM API Usage:
 
 ---
 
+## Feature to Issue at 2025-05-19T11:58:24.406Z
+
+Generated feature development issue with title Support multi-document YAML conversion in --yaml2json.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15474,"completion_tokens":1785,"total_tokens":17259,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
