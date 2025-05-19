@@ -8,12 +8,12 @@ paths:
     path: 'MISSION.md'
   librarySourcesFilepath:
     path: 'SOURCES.md'
-    permissions: [ 'write' ]
-    limit: 8
+    permissions: []
+    limit: 0
   libraryDocumentsPath:
     path: 'library/'
-    permissions: [ 'write' ]
-    limit: 8
+    permissions: []
+    limit: 0
   featuresPath:
     path: 'features/'
     permissions: [ 'write' ]
@@ -26,12 +26,12 @@ paths:
     path: 'tests/unit/'
     permissions: [ 'write' ]
   otherTestsPaths:
-    paths: [ '' ]
+    paths: []
   targetSourcePath:
     path: 'src/lib/'
     permissions: [ 'write' ]
   otherSourcePaths:
-    paths: [ '' ]
+    paths: []
   dependenciesFilepath:
     path: 'package.json'
     permissions: [ 'write' ]
@@ -46,6 +46,7 @@ paths:
     path: 'eslint.config.js'
   readmeFilepath:
     path: 'README.md'
+    permissions: [ 'write' ]
 
 # Execution commands
 buildScript: 'npm run build'
