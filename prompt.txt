@@ -120,8 +120,8 @@ import yaml from "js-yaml";
  */
 export async function main(argv) {
   const args = minimist(argv, {
-    boolean: ["help", "mission", "version", "render"],
-    alias: { h: "help", m: "mission" },
+    boolean: ["help", "mission", "version", "render", "features"],
+    alias: { h: "help", m: "mission", f: "features" },
   });
 
   // Help command
@@ -129,12 +129,13 @@ export async function main(argv) {
     console.log(
       `Usage: ${path.basename(
         process.argv[1]
-      )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+      )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
     );
     console.log(`\nCommands:`);
     console.log(`  --help                      Display usage instructions`);
     console.log(`  -m, --mission               Print mission statement`);
     console.log(`  --version                   Print version`);
+    console.log(`  -f, --features              List available features`);
     console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
     console.log(`  echo <message>              Echo message`);
     return;
@@ -153,6 +154,29 @@ export async function main(argv) {
       await fs.readFile(path.resolve("package.json"), "utf-8")
     );
     console.log(pkg.version);
+    return;
+  }
+
+  // List features
+  if (args.features) {
+    try {
+      const dirPath = path.resolve("sandbox/features");
+      const files = await fs.readdir(dirPath);
+      const mdFiles = files.filter((f) => f.endsWith(".md"));
+      const titles = [];
+      for (const file of mdFiles) {
+        const content = await fs.readFile(path.join(dirPath, file), "utf-8");
+        const match = content.match(/^#\s+(.*)$/m);
+        if (match) {
+          titles.push(match[1]);
+        }
+      }
+      console.log(JSON.stringify(titles, null, 2));
+      process.exit(0);
+    } catch (e) {
+      console.error(`Error: ${e.message}`);
+      process.exit(1);
+    }
     return;
   }
 
@@ -189,7 +213,7 @@ export async function main(argv) {
   console.log(
     `Usage: ${path.basename(
       process.argv[1]
-    )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+    )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
   );
 }
 
@@ -222,6 +246,70 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/features.test.js
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import fs from "fs/promises";
+import path from "path";
+import { main } from "../source/main.js";
+
+describe("--features CLI option", () => {
+  const featuresDir = path.resolve("sandbox/features");
+  let logSpy;
+  let errorSpy;
+  let exitSpy;
+
+  beforeEach(async () => {
+    // ensure features dir exists and is empty
+    await fs.mkdir(featuresDir, { recursive: true });
+    const existing = await fs.readdir(featuresDir);
+    for (const file of existing) {
+      await fs.unlink(path.join(featuresDir, file));
+    }
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  test("lists features from markdown files", async () => {
+    await fs.writeFile(path.join(featuresDir, "feat1.md"), "# First Feature\nDetails");
+    await fs.writeFile(path.join(featuresDir, "feat2.md"), "# Second Feature\nMore details");
+    await main(["--features"]);
+    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(["First Feature", "Second Feature"], null, 2));
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("alias -f works the same", async () => {
+    await fs.writeFile(path.join(featuresDir, "feat.md"), "# Only Feature");
+    await main(["-f"]);
+    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(["Only Feature"], null, 2));
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("empty directory yields empty array", async () => {
+    await main(["--features"]);
+    expect(logSpy).toHaveBeenCalledWith(JSON.stringify([], null, 2));
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("error handling on fs error", async () => {
+    // mock readdir to throw
+    vi.spyOn(fs, "readdir").mockRejectedValue(new Error("oops"));
+    await main(["--features"]);
+    expect(errorSpy).toHaveBeenCalledWith("Error: oops");
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    fs.readdir.mockRestore();
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: sandbox/tests/mission.test.js
 import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
 import fs from "fs/promises";
@@ -332,7 +420,7 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/README.md
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **echo**, and **render** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, and **render** functionality.
 
 ## Links
 
@@ -351,6 +439,9 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 - `--version`  
   : Reads and prints the version from `package.json`.
+
+- `-f, --features`  
+  : Lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of their level-1 headings.
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -373,6 +464,12 @@ npm run start -- -m
 # Display current version
 npm run start -- --version
 
+# List features
+npm run start -- --features
+
+# List features using alias
+npm run start -- -f
+
 # Echo a message
 npm run start -- echo hello world
 
@@ -383,7 +480,16 @@ npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixt
 npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml
 ```
 
-### Expected Output
+### Expected Output for Features
+
+```json
+[
+  "CLI Tool Enhancements",
+  "Schema Validation"
+]
+```
+
+### Expected Output for Render
 
 ```bash
 Hello Alice! You have 3 items.
@@ -951,96 +1057,53 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add --features CLI option to list available features
+title: [Test Maintenance] Improve test coverage for help, version, and echo CLI commands
 description:
-## Summary
+Context:
+The CLI entrypoint (sandbox/source/main.js) currently supports the --help, --version, and echo commands, but there are no tests validating these core behaviors. Missing coverage reduces confidence and may allow regressions.
 
-Introduce a new CLI flag `--features` (alias `-f`) in `sandbox/source/main.js` that lists all available feature documentation files in `sandbox/features/`. This command reads each `.md` file, extracts the first markdown level-1 heading (`# Title`), and outputs a pretty-printed JSON array of feature titles.
+Desired Change:
+Add a new test file `sandbox/tests/cli.test.js` covering all CLI entrypoint paths below.
 
-## Acceptance Criteria
+Acceptance Criteria (Testable):
+1. --help and -h alias
+   - When invoking `await main(["--help"])` or `await main(["-h"])`, `console.log` is called with the full usage string that includes available commands (help, mission, version, features, render, echo).
+2. --version
+   a. Mocked FS:
+      - Mock `fs.readFile` to return `'{"version":"1.2.3"}'` and verify `main(["--version"])` logs `1.2.3` exactly.
+   b. Real FS:
+      - Write a temporary `package.json` with a known version (e.g., `{"version":"9.9.9"}`), call `main(["--version"])` without mocking, and assert `console.log` outputs `9.9.9`.
+3. echo command
+   - When invoking `await main(["echo","hello","world"])`, `console.log` is called once with the string `"hello world"`.
+4. Default/fallback behavior
+   - For an unknown subcommand (e.g., `await main(["foobar"])`), verify `console.log` outputs the help/usage string.
+5. End-to-end (E2E) child-process tests
+   - Use a process runner (e.g., `execa` or Node’s `child_process.spawnSync`) to execute `node sandbox/source/main.js --help` and assert stdout contains the help header.
+   - Similarly, spawn `node sandbox/source/main.js --version` against the real repository `package.json` and assert stdout equals the version string.
 
-1. **List Features**: Running:
-   ```bash
-   npm run start -- --features
-   ```
-   logs to `stdout` a JSON array containing the titles from each file in `sandbox/features/`, for example:
-   ```json
-   [
-     "CLI Tool Enhancements",
-     "Schema Validation"
-   ]
-   ```
-2. **Alias Support**: Running:
-   ```bash
-   npm run start -- -f
-   ```
-   produces the same output and exit code as `--features`.
-3. **Empty Directory**: If `sandbox/features/` contains no `.md` files, `npm run start -- --features` logs `[]` and exits with code `0`.
-4. **Error Handling**: On filesystem access errors (e.g., directory missing), the command logs an error message to `stderr` and exits with a non-zero code.
-5. **Non-Interference**: All existing commands (`--help`, `--mission`, `--version`, `--render`, `echo`) remain functional and unaffected by the new flag.
+Test Harness:
+- The new test file should import the CLI entrypoint with `import { main } from "../source/main.js"`.
+- Use Vitest’s `vi.spyOn(console, 'log')` and `vi.spyOn(fs, 'readFile')` for mocking and assertions.
+- Ensure all new tests are discovered by `npm test` as part of `sandbox/tests/*.test.js`.
 
-## Implementation Notes
-
-- **Flag Registration**: Add `features` to the `minimist` boolean options with alias `f`.
-- **Directory Reading**: Use `fs/promises` to read and filter `.md` files in `sandbox/features/`.
-- **Title Extraction**: Read each file, apply `/^#\s+(.*)$/m` to capture the first heading, and collect titles.
-- **Output**: `console.log(JSON.stringify(titlesArray, null, 2)); process.exit(0);`
-- **Exit Code**: Ensure successful runs exit with `0`; failures exit non-zero.
-
-## Tests to Add
-
-Create `sandbox/tests/features.test.js` with tests for:
-- Standard behavior listing titles from existing `.md` files.
-- Alias `-f` behavior.
-- Fixture-based test pointing to an empty temp directory, expecting `[]`.
-- Simulated error (e.g., invalid directory path) verifying non-zero exit and error message.
+No other files should be modified besides adding `sandbox/tests/cli.test.js`. Tests must adhere to existing Vitest conventions.
 comments:
-Author:github-actions[bot], Created:2025-05-18T23:48:52Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
+Author:github-actions[bot], Created:2025-05-19T01:01:45Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101972817
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
-Author:github-actions[bot], Created:2025-05-18T23:49:21Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f3cab6ea5e0d863f806efac7509482f963436b38
+Author:github-actions[bot], Created:2025-05-19T01:02:25Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T01:02:52Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101972817
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
-Author:github-actions[bot], Created:2025-05-18T23:50:29Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/045a82e1ac0ce2ff300232b1522320b8fe289fec
+Author:github-actions[bot], Created:2025-05-19T01:03:57Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101972817
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
-Author:github-actions[bot], Created:2025-05-18T23:58:02Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101324287
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/dd39604a11d14c69a49b5e98a84adc6378656990
-Author:github-actions[bot], Created:2025-05-18T23:58:44Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-19T00:41:42Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
-Author:github-actions[bot], Created:2025-05-19T00:41:54Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101782869
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
-Author:github-actions[bot], Created:2025-05-19T00:42:11Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
-Author:github-actions[bot], Created:2025-05-19T00:43:09Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101789423
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
-Author:github-actions[bot], Created:2025-05-19T00:43:10Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/045a82e1ac0ce2ff300232b1522320b8fe289fec
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1092,18 +1155,19 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m   Start at [22m 00:44:35
-[2m   Duration [22m 504ms[2m (transform 66ms, setup 0ms, collect 162ms, tests 30ms, environment 1ms, prepare 327ms)[22m
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 01:05:08
+[2m   Duration [22m 566ms[2m (transform 82ms, setup 0ms, collect 250ms, tests 66ms, environment 1ms, prepare 396ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
