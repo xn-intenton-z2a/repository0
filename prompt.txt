@@ -166,7 +166,6 @@ export async function main(argv) {
  * @param {boolean|string} envArg - The argument passed to --env.
  */
 function handleEnv(envArg) {
-  // Print all loaded env vars when no name is provided
   if (envArg === true || envArg === "") {
     console.log(JSON.stringify(loadedEnv, null, 2));
     process.exit(0);
@@ -220,7 +219,7 @@ async function printVersion() {
 }
 
 /**
- * List available features by reading markdown files.
+ * List available features by reading markdown files and extracting YAML frontmatter.
  */
 async function listFeatures() {
   const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
@@ -233,7 +232,25 @@ async function listFeatures() {
     const featuresList = [];
 
     for (const file of mdFiles) {
-      const content = await fs.readFile(path.join(dirPath, file), "utf-8");
+      const raw = await fs.readFile(path.join(dirPath, file), "utf-8");
+      let mission = [];
+      let content = raw;
+      // Parse YAML frontmatter if present
+      if (content.startsWith("---")) {
+        const fmMatch = content.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---[\r\n]+/);
+        if (fmMatch) {
+          try {
+            const fmData = yaml.load(fmMatch[1]);
+            if (fmData && Array.isArray(fmData.mission)) {
+              mission = fmData.mission;
+            }
+          } catch (e) {
+            // ignore YAML parse errors
+          }
+          content = content.slice(fmMatch[0].length);
+        }
+      }
+
       // Extract title
       // eslint-disable-next-line sonarjs/slow-regex
       const titleMatch = content.match(/^#\s+(.*)$/m);
@@ -251,7 +268,7 @@ async function listFeatures() {
         }
         description = descLines.join(" ");
       }
-      featuresList.push({ title, description });
+      featuresList.push({ title, description, mission });
     }
 
     console.log(JSON.stringify(featuresList, null, 2));
@@ -296,7 +313,6 @@ function echoMessage(args) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main(process.argv.slice(2));
 }
-
 SOURCE_FILE_END
 
 
@@ -505,8 +521,8 @@ describe("--features CLI option", () => {
     expect(calls[0]).toBe("Dummy mission statement");
     const expected = JSON.stringify(
       [
-        { title: "First Feature", description: "Details" },
-        { title: "Second Feature", description: "More details" }
+        { title: "First Feature", description: "Details", mission: [] },
+        { title: "Second Feature", description: "More details", mission: [] }
       ],
       null,
       2
@@ -522,7 +538,32 @@ describe("--features CLI option", () => {
     expect(calls[0]).toBe("Dummy mission statement");
     const expected = JSON.stringify(
       [
-        { title: "Only Feature", description: "" }
+        { title: "Only Feature", description: "", mission: [] }
+      ],
+      null,
+      2
+    );
+    expect(calls[1]).toBe(expected);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("parses YAML frontmatter mission tags", async () => {
+    await fs.writeFile(
+      path.join(featuresDir, "fancy.md"),
+      `---
+mission:
+  - cli
+  - user-experience
+---
+# Fancy Feature
+Implements fancy CLI formatting`
+    );
+    await main(["--features"]);
+    const calls = logSpy.mock.calls.map((args) => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    const expected = JSON.stringify(
+      [
+        { title: "Fancy Feature", description: "Implements fancy CLI formatting", mission: ["cli", "user-experience"] }
       ],
       null,
       2
@@ -548,7 +589,6 @@ describe("--features CLI option", () => {
     fs.readdir.mockRestore();
   });
 });
-
 TEST_FILE_END
 
 
@@ -683,7 +723,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
   : Reads and prints the version from `package.json`.
 
 - `-f, --features`  
-  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of objects containing `title` and `description` for each feature.
+  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/`. Each feature file can include an optional YAML frontmatter block specifying a `mission` field (an array of strings) to align the feature with the project mission. The CLI outputs a JSON array of objects containing `title`, `description`, and `mission` for each feature (defaulting to `[]` if omitted).
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -696,6 +736,20 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 - `-e, --env`  
   : Prints all loaded environment variables as a JSON object. Exits with code 0.
+
+## Frontmatter Syntax
+
+Feature files may include YAML frontmatter at the top of the file to specify mission tags:
+
+```markdown
+---
+mission:
+  - tag1
+  - tag2
+---
+# Feature Title
+Feature description...
+```
 
 ## Usage Examples
 
@@ -717,6 +771,18 @@ npm run start -- --features
 
 # List features using alias
 npm run start -- -f
+
+# List features including mission tags
+npm run start -- --features
+
+Dummy mission statement
+[
+  {
+    "title": "Fancy Feature",
+    "description": "Implements fancy CLI formatting",
+    "mission": ["cli", "user-experience"]
+  }
+]
 
 # Render an EJS template with JSON data
 npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json
@@ -1278,68 +1344,60 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add mission alignment support to --features listing
+title: [Documenter] Refresh root README to accurately describe current CLI functionality
 description:
-**Goal**
-Extend the `--features` command so that each feature markdown file can specify one or more mission alignment tags via YAML frontmatter. The JSON output printed by the CLI should now include a new `mission` property (an array of strings) describing how the feature fits the project mission. This will help users and workflows understand the purpose of each feature relative to the repository’s mission.
+We need to refresh the root README.md to match the actual CLI provided by sandbox/source/main.js. 
 
-**Changes to Implement**
+Acceptance Criteria:
 
-1. Update `sandbox/source/main.js` in `listFeatures()`:
-   - Detect and strip an optional YAML frontmatter block delimited by `---` at the very top of each markdown file.
-   - Use the existing `js-yaml` dependency to parse the frontmatter and extract a `mission` field (array of strings).
-   - If no frontmatter or no `mission` field is present, default `mission` to an empty array.
-   - Include `mission` in each feature object alongside `title` and `description`.
+1. Commands Section:
+   - List every supported command exactly as shown by `npm run start -- --help`: 
+     * `--help` (alias `-h`)
+     * `--mission` (alias `-m`)
+     * `--version`
+     * `--features` (alias `-f`)
+     * `--render <templatePath> <dataPath>`
+     * `echo <message>...`
+     * `--env [VAR_NAME]` (alias `-e`)
+   - Ensure formatting and descriptions match the CLI help output character for character.
 
-2. Update `sandbox/tests/features.test.js`:
-   - Add a test case where a feature file contains YAML frontmatter, e.g.:
-     ```markdown
-     ---
-     mission:
-       - cli
-       - user-experience
-     ---
-     # Fancy Feature
-     Implements fancy CLI formatting
-     ```
-     and assert that the output JSON element includes `mission: ["cli","user-experience"]`.
-   - Add a test case for files without frontmatter to confirm `mission` is `[]` (backward compatibility).
+2. Usage Examples:
+   - Include a valid `npm run start -- <command>` snippet for each command.
+   - Confirm each snippet runs successfully in a local environment and outputs the expected result.
 
-3. Update `sandbox/docs/README.md` under the **-f, --features** section:
-   - Document the new frontmatter syntax:
-     ```markdown
-     ---
-     mission:
-       - tag1
-       - tag2
-     ---
-     # Feature Title
-     Feature description...
-     ```
-   - Show example CLI output including the new `mission` field.
+3. Remove Outdated Content:
+   - Prune or remove all references to equation plotting and historical agentic workflow narrative that are not directly helpful for CLI users.
 
-4. No dependency changes are required; `js-yaml` is already installed.
+4. Documentation Links:
+   - Confirm links to CONTRIBUTING.md, LICENSE.md, and MISSION.md are present and that clicking each link navigates to the correct file in the repository.
 
-**Verification**
+5. Validation:
+   - Run `npm run start -- --help` and verify the Commands section in README.md matches the live help output exactly.
+   - Execute each example snippet and assert no errors occur and output matches the description.
+   - Manually check each documentation link to ensure it resolves.
 
-- Run `npm test sandbox/tests/features.test.js` and confirm all tests (old and new) pass.
-- Execute `node sandbox/source/main.js --features` against a sample `sandbox/features/*.md` directory containing both frontmatter and plain files and verify the printed JSON includes the `mission` arrays as expected.
 comments:
-Author:github-actions[bot], Created:2025-05-19T05:49:38Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
+Author:github-actions[bot], Created:2025-05-19T05:58:21Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105417520
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
-Author:github-actions[bot], Created:2025-05-19T05:50:09Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bcbd3f7fc68cb8ff13c6fd89fb722017e3d6889a
+Author:github-actions[bot], Created:2025-05-19T05:58:57Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T06:24:27Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105819159
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
-Author:github-actions[bot], Created:2025-05-19T05:51:07Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fd93c8b34605da93ac81ca82d4e9600680ed64a1
+Author:github-actions[bot], Created:2025-05-19T06:24:47Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105819159
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fd93c8b34605da93ac81ca82d4e9600680ed64a1
+Author:github-actions[bot], Created:2025-05-19T06:25:40Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105819159
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fd93c8b34605da93ac81ca82d4e9600680ed64a1
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1391,21 +1449,21 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 41[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 270[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 536[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 269[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 504[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
-[2m   Start at [22m 05:52:18
-[2m   Duration [22m 1.04s[2m (transform 82ms, setup 0ms, collect 337ms, tests 878ms, environment 2ms, prepare 625ms)[22m
+[2m      Tests [22m [1m[32m23 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 06:27:05
+[2m   Duration [22m 985ms[2m (transform 98ms, setup 0ms, collect 353ms, tests 827ms, environment 2ms, prepare 616ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
