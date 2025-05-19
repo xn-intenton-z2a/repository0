@@ -58,7 +58,6 @@ export async function main(argv) {
  * @param {boolean|string} envArg - The argument passed to --env.
  */
 function handleEnv(envArg) {
-  // Print all loaded env vars when no name is provided
   if (envArg === true || envArg === "") {
     console.log(JSON.stringify(loadedEnv, null, 2));
     process.exit(0);
@@ -112,7 +111,7 @@ async function printVersion() {
 }
 
 /**
- * List available features by reading markdown files.
+ * List available features by reading markdown files and extracting YAML frontmatter.
  */
 async function listFeatures() {
   const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
@@ -125,7 +124,25 @@ async function listFeatures() {
     const featuresList = [];
 
     for (const file of mdFiles) {
-      const content = await fs.readFile(path.join(dirPath, file), "utf-8");
+      const raw = await fs.readFile(path.join(dirPath, file), "utf-8");
+      let mission = [];
+      let content = raw;
+      // Parse YAML frontmatter if present
+      if (content.startsWith("---")) {
+        const fmMatch = content.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---[\r\n]+/);
+        if (fmMatch) {
+          try {
+            const fmData = yaml.load(fmMatch[1]);
+            if (fmData && Array.isArray(fmData.mission)) {
+              mission = fmData.mission;
+            }
+          } catch (e) {
+            // ignore YAML parse errors
+          }
+          content = content.slice(fmMatch[0].length);
+        }
+      }
+
       // Extract title
       // eslint-disable-next-line sonarjs/slow-regex
       const titleMatch = content.match(/^#\s+(.*)$/m);
@@ -143,7 +160,7 @@ async function listFeatures() {
         }
         description = descLines.join(" ");
       }
-      featuresList.push({ title, description });
+      featuresList.push({ title, description, mission });
     }
 
     console.log(JSON.stringify(featuresList, null, 2));
