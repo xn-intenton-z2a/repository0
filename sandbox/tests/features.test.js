@@ -47,8 +47,8 @@ describe("--features CLI option", () => {
     expect(calls[0]).toBe("Dummy mission statement");
     const expected = JSON.stringify(
       [
-        { title: "First Feature", description: "Details" },
-        { title: "Second Feature", description: "More details" }
+        { title: "First Feature", description: "Details", mission: [] },
+        { title: "Second Feature", description: "More details", mission: [] }
       ],
       null,
       2
@@ -64,7 +64,32 @@ describe("--features CLI option", () => {
     expect(calls[0]).toBe("Dummy mission statement");
     const expected = JSON.stringify(
       [
-        { title: "Only Feature", description: "" }
+        { title: "Only Feature", description: "", mission: [] }
+      ],
+      null,
+      2
+    );
+    expect(calls[1]).toBe(expected);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("parses YAML frontmatter mission tags", async () => {
+    await fs.writeFile(
+      path.join(featuresDir, "fancy.md"),
+      `---
+mission:
+  - cli
+  - user-experience
+---
+# Fancy Feature
+Implements fancy CLI formatting`
+    );
+    await main(["--features"]);
+    const calls = logSpy.mock.calls.map((args) => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    const expected = JSON.stringify(
+      [
+        { title: "Fancy Feature", description: "Implements fancy CLI formatting", mission: ["cli", "user-experience"] }
       ],
       null,
       2

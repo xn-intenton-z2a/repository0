@@ -21,7 +21,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
   : Reads and prints the version from `package.json`.
 
 - `-f, --features`  
-  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of objects containing `title` and `description` for each feature.
+  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/`. Each feature file can include an optional YAML frontmatter block specifying a `mission` field (an array of strings) to align the feature with the project mission. The CLI outputs a JSON array of objects containing `title`, `description`, and `mission` for each feature (defaulting to `[]` if omitted).
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -34,6 +34,20 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 - `-e, --env`  
   : Prints all loaded environment variables as a JSON object. Exits with code 0.
+
+## Frontmatter Syntax
+
+Feature files may include YAML frontmatter at the top of the file to specify mission tags:
+
+```markdown
+---
+mission:
+  - tag1
+  - tag2
+---
+# Feature Title
+Feature description...
+```
 
 ## Usage Examples
 
@@ -55,6 +69,18 @@ npm run start -- --features
 
 # List features using alias
 npm run start -- -f
+
+# List features including mission tags
+npm run start -- --features
+
+Dummy mission statement
+[
+  {
+    "title": "Fancy Feature",
+    "description": "Implements fancy CLI formatting",
+    "mission": ["cli", "user-experience"]
+  }
+]
 
 # Render an EJS template with JSON data
 npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json

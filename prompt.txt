@@ -662,7 +662,7 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/README.md
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, **render**, and **env** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **render**, **echo**, and **env** functionality.
 
 ## Links
 
@@ -688,7 +688,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
 
-- `echo` _<message>..._  
+- `echo <message>...`  
   : Prints any additional arguments passed after the `echo` command.
 
 - `-e, --env <VAR_NAME>`  
@@ -714,8 +714,18 @@ npm run start -- --version
 
 # List features
 npm run start -- --features
+
 # List features using alias
 npm run start -- -f
+
+# Render an EJS template with JSON data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.json
+
+# Render an EJS template with YAML data
+npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml
+
+# Echo a message
+npm run start -- echo Hello World
 
 # Print value of API_KEY
 npm run start -- --env API_KEY
@@ -1010,7 +1020,7 @@ DEPENDENCIES_FILE_START
     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
     "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
     "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node sandbox/source/main.js"
   },
   "config": {
     "issueToCodeConversionRate": 0.5
@@ -1268,96 +1278,68 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Documenter: Refresh README and fix start script to match CLI implementation
+title: Add mission alignment support to --features listing
 description:
-Title: Refresh README and Fix Start Script to Match CLI Implementation
+**Goal**
+Extend the `--features` command so that each feature markdown file can specify one or more mission alignment tags via YAML frontmatter. The JSON output printed by the CLI should now include a new `mission` property (an array of strings) describing how the feature fits the project mission. This will help users and workflows understand the purpose of each feature relative to the repository’s mission.
 
-Problem:
-The top-level README currently describes an outdated equation plotter demo, narrative diaries, and workflows that no longer align with the actual CLI functionality in `sandbox/source/main.js`. Additionally, the `start` script in `package.json` points to `src/lib/main.js`, which only logs raw arguments and does not provide the core commands.
+**Changes to Implement**
 
-Proposed Changes:
-1. Update `package.json`:
-   - Change `scripts.start` from `node src/lib/main.js` to `node sandbox/source/main.js`.
-2. Refresh `README.md`:
-   - Remove all content related to equation plotting, diaries, and agentic-lib narrative.
-   - Add a concise description of the project as a demo CLI with commands: **help**, **mission**, **version**, **features**, **render**, and **echo**.
-   - Create a **Usage** section showing examples of `npm run start -- <command>` for each command.
-   - Include links to **MISSION.md**, **CONTRIBUTING.md**, **LICENSE.md**, and the Intentïon `agentic-lib` repository (`https://github.com/xn-intenton-z2a/agentic-lib`).
-   - Ensure examples match actual output of `npm run start -- --help`.
+1. Update `sandbox/source/main.js` in `listFeatures()`:
+   - Detect and strip an optional YAML frontmatter block delimited by `---` at the very top of each markdown file.
+   - Use the existing `js-yaml` dependency to parse the frontmatter and extract a `mission` field (array of strings).
+   - If no frontmatter or no `mission` field is present, default `mission` to an empty array.
+   - Include `mission` in each feature object alongside `title` and `description`.
 
-Acceptance Criteria (all must pass):
-- [ ] `package.json` `scripts.start` is exactly `node sandbox/source/main.js`.
-- [ ] `npm run start -- --help` prints the help text as shown in the updated README.
-- [ ] `npm run start -- --version` outputs the version from `package.json`.
-- [ ] `npm run start -- --mission` outputs the full content of `MISSION.md`.
-- [ ] `npm run start -- --features` outputs the mission statement followed by a JSON list of features.
-- [ ] `npm run start -- --render <template> <data>` correctly renders EJS templates with JSON or YAML data.
-- [ ] `npm run start -- echo <message>` prints the provided message to stdout.
-- [ ] All existing tests (`npm test`) pass without any modifications.
-- [ ] The updated `README.md` includes the required links and accurately reflects the CLI behavior.
+2. Update `sandbox/tests/features.test.js`:
+   - Add a test case where a feature file contains YAML frontmatter, e.g.:
+     ```markdown
+     ---
+     mission:
+       - cli
+       - user-experience
+     ---
+     # Fancy Feature
+     Implements fancy CLI formatting
+     ```
+     and assert that the output JSON element includes `mission: ["cli","user-experience"]`.
+   - Add a test case for files without frontmatter to confirm `mission` is `[]` (backward compatibility).
+
+3. Update `sandbox/docs/README.md` under the **-f, --features** section:
+   - Document the new frontmatter syntax:
+     ```markdown
+     ---
+     mission:
+       - tag1
+       - tag2
+     ---
+     # Feature Title
+     Feature description...
+     ```
+   - Show example CLI output including the new `mission` field.
+
+4. No dependency changes are required; `js-yaml` is already installed.
+
+**Verification**
+
+- Run `npm test sandbox/tests/features.test.js` and confirm all tests (old and new) pass.
+- Execute `node sandbox/source/main.js --features` against a sample `sandbox/features/*.md` directory containing both frontmatter and plain files and verify the printed JSON includes the `mission` arrays as expected.
 comments:
-Author:github-actions[bot], Created:2025-05-19T03:55:05Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
+Author:github-actions[bot], Created:2025-05-19T05:49:38Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/65f116ee47aa4b511b63296a46e4bea5bb243ca6
-Author:github-actions[bot], Created:2025-05-19T03:55:47Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-19T03:56:10Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
+Author:github-actions[bot], Created:2025-05-19T05:50:09Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2d4052d2915a8ae3ea45fb3c5479d8860cfa7c7a
-Author:github-actions[bot], Created:2025-05-19T03:57:13Z, Comment: Workflow name: flow-maintenance-activity-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
+Author:github-actions[bot], Created:2025-05-19T05:51:07Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15105309426
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2d4052d2915a8ae3ea45fb3c5479d8860cfa7c7a
-Author:github-actions[bot], Created:2025-05-19T04:00:24Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103980934
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
-Author:github-actions[bot], Created:2025-05-19T04:03:02Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104008625
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
-Author:github-actions[bot], Created:2025-05-19T04:04:22Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104022746
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/70dbec173b81dcaa1d68a7714cfa52cf77334973
-Author:github-actions[bot], Created:2025-05-19T04:54:42Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104618430
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
-Author:github-actions[bot], Created:2025-05-19T04:57:56Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104657323
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fbbf4e28f7b98dd5ff61a84085d381d859e39d85
-Author:github-actions[bot], Created:2025-05-19T04:59:17Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104653878
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3aba11e9df1b3783e18d9b2ff093124f9b261164
-Author:github-actions[bot], Created:2025-05-19T04:59:18Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104665297
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3aba11e9df1b3783e18d9b2ff093124f9b261164
-Author:github-actions[bot], Created:2025-05-19T04:59:55Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-19T05:23:17Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104965674
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d06bb9b00639a21788b44a3731b0d777f93cbe4
-Author:github-actions[bot], Created:2025-05-19T05:24:22Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104965674
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d06bb9b00639a21788b44a3731b0d777f93cbe4
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c49f9d03c20183ffe2567a17ff9747976bd24e45
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1409,30 +1391,40 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 341[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 577[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 270[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 536[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
 [2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
-[2m   Start at [22m 05:25:32
-[2m   Duration [22m 1.17s[2m (transform 85ms, setup 0ms, collect 364ms, tests 982ms, environment 2ms, prepare 704ms)[22m
+[2m   Start at [22m 05:52:18
+[2m   Duration [22m 1.04s[2m (transform 82ms, setup 0ms, collect 337ms, tests 878ms, environment 2ms, prepare 625ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
 MAIN_OUTPUT_START
 
 > @xn-intenton-z2a/repository0@2.1.0-0 start
-> node src/lib/main.js
+> node sandbox/source/main.js
 
-Run with: []
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+
+Commands:
+  --help                      Display usage instructions
+  -m, --mission               Print mission statement
+  --version                   Print version
+  -f, --features              List available features
+  --render <template> <data>  Render EJS template with data (JSON or YAML)
+  -e, --env <VAR_NAME>        Print a specific environment variable
+  -e, --env                   Print all loaded environment variables as JSON
+  echo <message>              Echo message
 MAIN_OUTPUT_END    
 
 Please produce updated versions of the files that resolve the issue.
