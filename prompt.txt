@@ -107,6 +107,7 @@ Source files (write new files or update files in sandbox/source as necessary):
 (Multiple files from both in writable locations and not.)
 SOURCE_FILE_START Filepath: sandbox/source/main.js
 #!/usr/bin/env node
+/* eslint-disable sonarjs/cognitive-complexity */
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs/promises";
@@ -116,6 +117,7 @@ import yaml from "js-yaml";
 
 /**
  * Main entrypoint for CLI commands.
+ * Dispatches commands to dedicated handlers.
  * @param {string[]} argv - Command-line arguments (excluding node and script path).
  */
 export async function main(argv) {
@@ -124,112 +126,136 @@ export async function main(argv) {
     alias: { h: "help", m: "mission", f: "features" },
   });
 
-  // Help command
   if (args.help) {
-    console.log(
-      `Usage: ${path.basename(
-        process.argv[1]
-      )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
-    );
-    console.log(`\nCommands:`);
-    console.log(`  --help                      Display usage instructions`);
-    console.log(`  -m, --mission               Print mission statement`);
-    console.log(`  --version                   Print version`);
-    console.log(`  -f, --features              List available features`);
-    console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
-    console.log(`  echo <message>              Echo message`);
-    return;
+    return printHelp();
   }
-
-  // Mission statement
   if (args.mission) {
-    const mission = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
-    console.log(mission);
-    return;
+    return printMission();
   }
-
-  // Version
   if (args.version) {
-    const pkg = JSON.parse(
-      await fs.readFile(path.resolve("package.json"), "utf-8")
-    );
-    console.log(pkg.version);
-    return;
+    return printVersion();
   }
-
-  // List features
   if (args.features) {
-    // Read and display mission statement first
-    const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
-    console.log(missionText);
-    try {
-      const dirPath = path.resolve("sandbox/features");
-      const files = await fs.readdir(dirPath);
-      const mdFiles = files.filter((f) => f.endsWith(".md"));
-      const featuresList = [];
-      for (const file of mdFiles) {
-        const content = await fs.readFile(path.join(dirPath, file), "utf-8");
-        // Extract title
-        const titleMatch = content.match(/^#\s+(.*)$/m);
-        const title = titleMatch ? titleMatch[1].trim() : "";
-        // Extract description: first non-heading paragraph
-        const afterHeading = content.replace(/^#\s+.*$/m, "").trim();
-        let description = "";
-        if (afterHeading) {
-          const lines = afterHeading.split(/\r?\n/);
-          const descLines = [];
-          for (const line of lines) {
-            if (line.trim() === "") break;
-            descLines.push(line.trim());
-          }
-          description = descLines.join(" ");
-        }
-        featuresList.push({ title, description });
-      }
-      console.log(JSON.stringify(featuresList, null, 2));
-      process.exit(0);
-    } catch (e) {
-      console.error(`Error: ${e.message}`);
-      process.exit(1);
-    }
-    return;
+    return listFeatures();
   }
-
-  // Render EJS template
   if (args.render) {
-    const [templatePath, dataPath] = args._;
-    if (!templatePath || !dataPath) {
-      console.error("Error: --render requires <templatePath> and <dataPath>");
-      process.exit(1);
-    }
-    const tpl = await fs.readFile(path.resolve(templatePath), "utf-8");
-    const dataRaw = await fs.readFile(path.resolve(dataPath), "utf-8");
-    let data;
-    if (dataPath.endsWith(".json")) {
-      data = JSON.parse(dataRaw);
-    } else if (dataPath.endsWith(".yaml") || dataPath.endsWith(".yml")) {
-      data = yaml.load(dataRaw);
-    } else {
-      // Fallback to JSON parse
-      data = JSON.parse(dataRaw);
-    }
-    const output = ejs.render(tpl, data);
-    console.log(output);
-    return;
+    return renderTemplate(args);
   }
-
-  // Echo command
   if (args._.length > 0 && args._[0] === "echo") {
-    console.log(args._.slice(1).join(" "));
-    return;
+    return echoMessage(args._);
   }
 
-  // Default to help
+  // Default to help when no known command is provided
+  return printHelp();
+}
+
+/**
+ * Print usage instructions and summary of commands.
+ */
+function printHelp() {
+  const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${path.basename(
-      process.argv[1]
-    )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
   );
+  console.log("");
+  console.log("Commands:");
+  console.log("  --help                      Display usage instructions");
+  console.log("  -m, --mission               Print mission statement");
+  console.log("  --version                   Print version");
+  console.log("  -f, --features              List available features");
+  console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
+  console.log("  echo <message>              Echo message");
+}
+
+/**
+ * Print the mission statement from MISSION.md.
+ */
+async function printMission() {
+  const mission = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
+  console.log(mission);
+}
+
+/**
+ * Print the version from package.json.
+ */
+async function printVersion() {
+  const pkg = JSON.parse(
+    await fs.readFile(path.resolve("package.json"), "utf-8")
+  );
+  console.log(pkg.version);
+}
+
+/**
+ * List available features by reading markdown files.
+ */
+async function listFeatures() {
+  const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
+  console.log(missionText);
+
+  try {
+    const dirPath = path.resolve("sandbox/features");
+    const files = await fs.readdir(dirPath);
+    const mdFiles = files.filter((f) => f.endsWith(".md"));
+    const featuresList = [];
+
+    for (const file of mdFiles) {
+      const content = await fs.readFile(path.join(dirPath, file), "utf-8");
+      // Extract title
+      // eslint-disable-next-line sonarjs/slow-regex
+      const titleMatch = content.match(/^#\s+(.*)$/m);
+      const title = titleMatch ? titleMatch[1].trim() : "";
+      // Extract description: first non-heading paragraph
+      // eslint-disable-next-line sonarjs/slow-regex
+      const afterHeading = content.replace(/^#\s+.*$/m, "").trim();
+      let description = "";
+      if (afterHeading) {
+        const lines = afterHeading.split(/\r?\n/);
+        const descLines = [];
+        for (const line of lines) {
+          if (line.trim() === "") break;
+          descLines.push(line.trim());
+        }
+        description = descLines.join(" ");
+      }
+      featuresList.push({ title, description });
+    }
+
+    console.log(JSON.stringify(featuresList, null, 2));
+    process.exit(0);
+  } catch (e) {
+    console.error(`Error: ${e.message}`);
+    process.exit(1);
+  }
+}
+
+/**
+ * Render an EJS template with provided JSON or YAML data.
+ */
+async function renderTemplate(args) {
+  const [templatePath, dataPath] = args._;
+  if (!templatePath || !dataPath) {
+    console.error("Error: --render requires <templatePath> and <dataPath>");
+    process.exit(1);
+  }
+  const tpl = await fs.readFile(path.resolve(templatePath), "utf-8");
+  const dataRaw = await fs.readFile(path.resolve(dataPath), "utf-8");
+  let data;
+  if (dataPath.endsWith(".json")) {
+    data = JSON.parse(dataRaw);
+  } else if (dataPath.endsWith(".yaml") || dataPath.endsWith(".yml")) {
+    data = yaml.load(dataRaw);
+  } else {
+    data = JSON.parse(dataRaw);
+  }
+  const output = ejs.render(tpl, data);
+  console.log(output);
+}
+
+/**
+ * Echo message arguments to stdout.
+ */
+function echoMessage(args) {
+  console.log(args.slice(1).join(" "));
 }
 
 // If the script is run directly, invoke main with process arguments
@@ -262,6 +288,7 @@ SOURCE_FILE_END
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
 TEST_FILE_START File: sandbox/tests/cli.test.js
+/* eslint-disable sonarjs/no-os-command-from-path */
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import fs from "fs/promises";
 import { readFileSync } from "fs";
@@ -334,6 +361,7 @@ describe("CLI entrypoint", () => {
     });
   });
 });
+
 TEST_FILE_END
 
 
@@ -385,10 +413,14 @@ describe("--features CLI option", () => {
     await main(["--features"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    const expected = JSON.stringify([
-      { title: "First Feature", description: "Details" },
-      { title: "Second Feature", description: "More details" }
-    ], null, 2);
+    const expected = JSON.stringify(
+      [
+        { title: "First Feature", description: "Details" },
+        { title: "Second Feature", description: "More details" }
+      ],
+      null,
+      2
+    );
     expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
@@ -398,9 +430,13 @@ describe("--features CLI option", () => {
     await main(["-f"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    const expected = JSON.stringify([
-      { title: "Only Feature", description: "" }
-    ], null, 2);
+    const expected = JSON.stringify(
+      [
+        { title: "Only Feature", description: "" }
+      ],
+      null,
+      2
+    );
     expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
@@ -1150,59 +1186,117 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10
+title: Implement ENV_VARS CLI option to load .env and expose environment variables
 description:
+Implement ENV_VARS CLI option to load .env and expose environment variables
 
-> @xn-intenton-z2a/repository0@2.1.0-0 linting
-> eslint sandbox/tests/ sandbox/source/ src/lib/ sandbox/source/
+Overview
 
+Add the ENV_VARS feature as specified in sandbox/features/ENV_VARS.md:
 
-/home/runner/work/repository0/repository0/sandbox/source/main.js
-   13:23   error  Refactor this function to reduce its Cognitive Complexity from 32 to the 15 allowed                                                             sonarjs/cognitive-complexity
-   23:24   error  Insert `,`                                                                                                                                      prettier/prettier
-   24:111  error  Insert `,`                                                                                                                                      prettier/prettier
-   45:28   error  Replace `⏎······await·fs.readFile(path.resolve("package.json"),·"utf-8")⏎····` with `await·fs.readFile(path.resolve("package.json"),·"utf-8")`  prettier/prettier
-   65:42   error  Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service                sonarjs/slow-regex
-   68:46   error  Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service                sonarjs/slow-regex
-  122:22   error  Insert `,`                                                                                                                                      prettier/prettier
-  123:109  error  Insert `,`                                                                                                                                      prettier/prettier
+1. Load a `.env` file in the working directory using `dotenv` (silently skip if missing) before any other CLI command logic.
+2. Introduce a new CLI option `--env` (alias `-e`) via `minimist`:
+   - When invoked as `node sandbox/source/main.js --env VAR_NAME`, print the value of `process.env.VAR_NAME` to stdout and exit with code 0.
+   - When invoked as `node sandbox/source/main.js --env` (no name), print a JSON-formatted object of all loaded variables to stdout and exit with code 0.
+   - If `VAR_NAME` is not defined in `process.env`, print `Missing environment variable: VAR_NAME` to stderr and exit with code 1.
+3. Provide tests in `sandbox/tests/env.test.js` covering:
+   - Loading a temporary `.env` file and retrieving a known variable with `--env NAME`.
+   - Requesting an undefined variable results in the correct error and exit code 1.
+   - Invoking `--env` without a name prints all loaded variables as JSON and exits with code 0.
+   - Alias `-e` works identically to `--env`.
+4. Update documentation:
+   - In `sandbox/docs/README.md`, add entries under **Commands** for `--env <VAR_NAME>` and `--env` without a name, including usage examples.
+   - In the root `README.md`, under **Commands** and **Usage Examples**, add examples demonstrating `--env` and `-e`.
 
-/home/runner/work/repository0/repository0/sandbox/tests/cli.test.js
-  62:32  error  Make sure the "PATH" used to find this command includes only what you intend  sonarjs/no-os-command-from-path
-  68:32  error  Make sure the "PATH" used to find this command includes only what you intend  sonarjs/no-os-command-from-path
-  72:4   error  Insert `⏎`                                                                    prettier/prettier
+Acceptance Criteria
 
-/home/runner/work/repository0/repository0/sandbox/tests/features.test.js
-  48:37  error  Insert `⏎······`                                                                                                                                   prettier/prettier
-  49:1   error  Replace `······` with `········`                                                                                                                   prettier/prettier
-  50:1   error  Replace `······{·title:·"Second·Feature",·description:·"More·details"·}` with `········{·title:·"Second·Feature",·description:·"More·details"·},`  prettier/prettier
-  51:5   error  Replace `],·null,·2` with `··],⏎······null,⏎······2,⏎····`                                                                                         prettier/prettier
-  61:38  error  Replace `⏎······{·title:·"Only·Feature",·description:·""·}⏎····` with `{·title:·"Only·Feature",·description:·""·}`                                 prettier/prettier
-
-✖ 16 problems (16 errors, 0 warnings)
-  11 errors and 0 warnings potentially fixable with the `--fix` option.
+1. Given a `.env` file containing `API_KEY=abc123`, running `node sandbox/source/main.js --env API_KEY` prints `abc123` and exits 0.
+2. Given a `.env` file, running `node sandbox/source/main.js --env` prints a JSON object of all loaded variables and exits 0.
+3. Running `node sandbox/source/main.js --env UNKNOWN` prints `Missing environment variable: UNKNOWN` to stderr and exits 1.
+4. The alias `-e` behaves the same as `--env` in all scenarios.
+5. If no `.env` file is present, the CLI proceeds silently and uses existing `process.env` variables for `--env` operations.
 comments:
-Author:github-actions[bot], Created:2025-05-19T04:40:53Z, Comment: Workflow name: flow-linting-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
+Author:github-actions[bot], Created:2025-05-19T04:00:34Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
+Author:github-actions[bot], Created:2025-05-19T04:01:02Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
+Author:github-actions[bot], Created:2025-05-19T04:02:14Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
+Author:github-actions[bot], Created:2025-05-19T04:04:52Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104006166
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f53710c7f0d1ce9ecd53ad2620afd11a7e652ef4
+Author:github-actions[bot], Created:2025-05-19T04:05:33Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T04:24:32Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:24:57Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:26:06Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:28:02Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104309345
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:29:20Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104323714
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:34:44Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104388594
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:37:31Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104418699
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
+Author:github-actions[bot], Created:2025-05-19T04:42:00Z, Comment: Workflow name: ci-publish-web
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104470810
 Workflow event: schedule
 Workflow inputs: null
 HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/29ab312babc672221e6fe7685c5c3da9573c825c
-Author:github-actions[bot], Created:2025-05-19T04:41:11Z, Comment: Workflow name: flow-linting-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
+Author:github-actions[bot], Created:2025-05-19T04:44:16Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104498504
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c95680c0c9b9764c30755a97b93bdd4652293443
+Author:github-actions[bot], Created:2025-05-19T04:51:26Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/29ab312babc672221e6fe7685c5c3da9573c825c
-Author:github-actions[bot], Created:2025-05-19T04:42:02Z, Comment: The issue highlights code style and linting errors, which are superficial maintenance tasks and do not address core functionality or deliver substantial user value per the repository's mission. Closing to focus on high-impact core features.
-Author:github-actions[bot], Created:2025-05-19T04:42:42Z, Comment: Workflow name: flow-linting-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
+Author:github-actions[bot], Created:2025-05-19T04:51:45Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bd581d813aac46be735740a28834c05e574d4f5a
-Author:github-actions[bot], Created:2025-05-19T04:43:38Z, Comment: Workflow name: flow-linting-to-issue
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
+Author:github-actions[bot], Created:2025-05-19T04:52:44Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bd581d813aac46be735740a28834c05e574d4f5a
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1254,20 +1348,20 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 21[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 196[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 246[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
 [2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
-[2m   Start at [22m 04:44:53
-[2m   Duration [22m 764ms[2m (transform 93ms, setup 0ms, collect 262ms, tests 263ms, environment 1ms, prepare 562ms)[22m
+[2m   Start at [22m 04:53:50
+[2m   Duration [22m 831ms[2m (transform 97ms, setup 0ms, collect 327ms, tests 300ms, environment 1ms, prepare 570ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
