@@ -787,3 +787,55 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T17:58:56.802Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2138 with title:
+
+Implement `plot-server` HTTP API for SVG plotting
+
+And description:
+
+Background:
+The PLOT_SERVER feature should provide an HTTP server that allows clients to request SVG plots on-the-fly for quadratic, sine, and expression-based functions without manual file handling.
+
+Goals:
+1. Extend sandbox/source/main.js to support a new `plot-server` command:
+   - Parse `--port` (default 3000) and `--host` (default 'localhost') flags via minimist.
+   - Use Node.js `http` module to create a server bound to host:port.
+   - Handle `GET /plot` requests by parsing URL query parameters:
+     • `type` = 'quadratic' | 'sine' | 'expression'
+     • For quadratic: `a`, `b`, `c` (numbers)
+     • For sine: `frequency`, `amplitude` (numbers)
+     • For expression: `expr` (string), `domain` (comma-separated start,end), `samples` (number)
+     • Optional: `width`, `height` (numbers)
+   - Delegate to existing `generateQuadraticSVG` and `generateSineSVG`, and add a new helper `generateExpressionSVG` (importing `mathjs`).
+   - Respond with `Content-Type: image/svg+xml` and the SVG string on valid requests (200). Return 400 for missing/invalid parameters or unsupported routes.
+
+2. Add `mathjs` dependency in `package.json` to sandbox safe parsing of expressions.
+
+3. Create integration tests in `sandbox/tests/plot-server.test.js`:
+   - Start and stop the server on a random available port.
+   - Verify 200 responses with `Content-Type: image/svg+xml` and SVG body for each type (quadratic, sine, expression).
+   - Verify 400 responses for invalid or missing parameters.
+
+4. Update `README.md`:
+   - Document the new `plot-server` CLI command under CLI Commands.
+   - Provide usage examples:
+     ```bash
+     npm run start -- plot-server --port 4000
+     curl "http://localhost:4000/plot?type=quadratic&a=1&b=0&c=0"
+     curl "http://localhost:4000/plot?type=sine&frequency=2&amplitude=0.5"
+     curl "http://localhost:4000/plot?type=expression&expr=x%5E2&domain=-5,5&samples=50"
+     ```
+
+Verification:
+- Run `npm test` to ensure existing tests and new plot-server tests pass.
+- Manually start server (`npm run start -- plot-server`) and exercise endpoints with `curl` to confirm SVG output.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12011,"completion_tokens":1579,"total_tokens":13590,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
