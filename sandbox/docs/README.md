@@ -11,13 +11,13 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features [<tag>...]] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
 
 Commands:
   --help                      Display usage instructions
   -m, --mission               Print mission statement
   --version                   Print version
-  -f, --features              List available features
+  -f, --features [<tag>...]   List available features, optionally filtered by mission tags
   --render <template> <data>  Render EJS template with data (JSON or YAML)
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
@@ -52,4 +52,7 @@ npm run start -- --env VAR_NAME
 
 npm run start -- --env
 # Prints all loaded environment variables as JSON
+
+npm run start -- --features cli
+# Only show features tagged with 'cli'
 ```
