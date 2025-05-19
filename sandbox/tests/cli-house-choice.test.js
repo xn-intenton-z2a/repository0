@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { chooseHouse, main } from '../source/main.js';
+import fs from 'fs';
 
 describe('chooseHouse', () => {
   const houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
@@ -53,5 +54,39 @@ describe('house-choice command', () => {
     const second = logMock.mock.calls[0][0];
     expect(first).toBe(second);
     expect(houses).toContain(first);
+  });
+});
+
+describe('plot-quadratic command', () => {
+  beforeEach(() => {
+    if (fs.existsSync('quadratic.svg')) fs.unlinkSync('quadratic.svg');
+  });
+
+  afterEach(() => {
+    if (fs.existsSync('quadratic.svg')) fs.unlinkSync('quadratic.svg');
+  });
+
+  test('creates SVG file for quadratic plot', async () => {
+    await main(['plot-quadratic', '--a', '2', '--b', '3', '--c', '1', '--output', 'quadratic.svg']);
+    expect(fs.existsSync('quadratic.svg')).toBe(true);
+    const content = fs.readFileSync('quadratic.svg', 'utf-8');
+    expect(content.trim().startsWith('<svg')).toBe(true);
+  });
+});
+
+describe('plot-sine command', () => {
+  beforeEach(() => {
+    if (fs.existsSync('sine.svg')) fs.unlinkSync('sine.svg');
+  });
+
+  afterEach(() => {
+    if (fs.existsSync('sine.svg')) fs.unlinkSync('sine.svg');
+  });
+
+  test('creates SVG file for sine plot', async () => {
+    await main(['plot-sine', '--frequency', '2', '--amplitude', '0.5', '--output', 'sine.svg']);
+    expect(fs.existsSync('sine.svg')).toBe(true);
+    const content = fs.readFileSync('sine.svg', 'utf-8');
+    expect(content.trim().startsWith('<svg')).toBe(true);
   });
 });
