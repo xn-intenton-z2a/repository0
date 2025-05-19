@@ -166,15 +166,27 @@ export async function main(argv) {
       const dirPath = path.resolve("sandbox/features");
       const files = await fs.readdir(dirPath);
       const mdFiles = files.filter((f) => f.endsWith(".md"));
-      const titles = [];
+      const featuresList = [];
       for (const file of mdFiles) {
         const content = await fs.readFile(path.join(dirPath, file), "utf-8");
-        const match = content.match(/^#\s+(.*)$/m);
-        if (match) {
-          titles.push(match[1]);
+        // Extract title
+        const titleMatch = content.match(/^#\s+(.*)$/m);
+        const title = titleMatch ? titleMatch[1].trim() : "";
+        // Extract description: first non-heading paragraph
+        const afterHeading = content.replace(/^#\s+.*$/m, "").trim();
+        let description = "";
+        if (afterHeading) {
+          const lines = afterHeading.split(/\r?\n/);
+          const descLines = [];
+          for (const line of lines) {
+            if (line.trim() === "") break;
+            descLines.push(line.trim());
+          }
+          description = descLines.join(" ");
         }
+        featuresList.push({ title, description });
       }
-      console.log(JSON.stringify(titles, null, 2));
+      console.log(JSON.stringify(featuresList, null, 2));
       process.exit(0);
     } catch (e) {
       console.error(`Error: ${e.message}`);
@@ -373,7 +385,11 @@ describe("--features CLI option", () => {
     await main(["--features"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    expect(calls[1]).toBe(JSON.stringify(["First Feature", "Second Feature"], null, 2));
+    const expected = JSON.stringify([
+      { title: "First Feature", description: "Details" },
+      { title: "Second Feature", description: "More details" }
+    ], null, 2);
+    expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
@@ -382,7 +398,10 @@ describe("--features CLI option", () => {
     await main(["-f"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    expect(calls[1]).toBe(JSON.stringify(["Only Feature"], null, 2));
+    const expected = JSON.stringify([
+      { title: "Only Feature", description: "" }
+    ], null, 2);
+    expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
@@ -538,7 +557,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
   : Reads and prints the version from `package.json`.
 
 - `-f, --features`  
-  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of their level-1 headings.
+  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of objects containing `title` and `description` for each feature.
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -579,30 +598,16 @@ Then, the list of features:
 
 ```json
 [
-  "CLI Tool Enhancements",
-  "Schema Validation"
+  {
+    "title": "CLI Tool Enhancements",
+    "description": "Brief description of CLI enhancements."
+  },
+  {
+    "title": "Schema Validation",
+    "description": "Short description of schema validation feature."
+  }
 ]
 ```
-
-## Getting Started
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository_url>
-   cd repository0
-   ```
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Run tests**:
-   ```bash
-   npm test
-   ```
-4. **Run the CLI**:
-   ```bash
-   npm run start -- --help
-   ```
 DOCUMENTATION_FILE_END
 
 
@@ -1145,73 +1150,59 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Enhance --features CLI command to include feature descriptions with mission context
+title: Resolve issues in output from running: npm run linting-fix "." -- --max-warnings=10
 description:
-Currently, the `--features` (and `-f`) command only prints the mission statement followed by a JSON array of top-level headings from each Markdown file in `sandbox/features/`. To give users more meaningful context about each feature without requiring them to open the files, we should extract the first paragraph of each feature document as a short description and output a JSON array of objects with `title` and `description` properties. 
 
-Scope of work:
+> @xn-intenton-z2a/repository0@2.1.0-0 linting
+> eslint sandbox/tests/ sandbox/source/ src/lib/ sandbox/source/
 
-1. **Modify `sandbox/source/main.js`**
-   - In the `if (args.features)` branch, after reading each `.md` file:
-     - Parse the file content.
-     - Extract the first heading (`# Heading`) as `title`.
-     - Extract the first non-heading paragraph (i.e., the text until the first blank line) as `description`.
-     - Collect an array of objects: `{ title, description }`.
-   - Replace the existing `console.log(JSON.stringify(titles, null, 2))` with `console.log(JSON.stringify(featureArray, null, 2))`.
 
-2. **Update tests in `sandbox/tests/features.test.js`**
-   - Adjust the expectations to reflect an array of objects, not just strings.
-   - For example, when writing two feature files:
-     ```js
-     await fs.writeFile(path.join(featuresDir, 'feat1.md'), `# First Feature\nThis is the first feature.\nDetails here.`);
-     await fs.writeFile(path.join(featuresDir, 'feat2.md'), `# Second Feature\nSecond feature description.\nMore details.`);
-     ```
-   - Expect `console.log` to be called with a JSON array like:
-     ```json
-     [
-       { "title": "First Feature", "description": "This is the first feature." },
-       { "title": "Second Feature", "description": "Second feature description." }
-     ]
-     ```
-   - Ensure negative cases (empty directory yields `[]`, file read errors still cause exit code 1).
+/home/runner/work/repository0/repository0/sandbox/source/main.js
+   13:23   error  Refactor this function to reduce its Cognitive Complexity from 32 to the 15 allowed                                                             sonarjs/cognitive-complexity
+   23:24   error  Insert `,`                                                                                                                                      prettier/prettier
+   24:111  error  Insert `,`                                                                                                                                      prettier/prettier
+   45:28   error  Replace `⏎······await·fs.readFile(path.resolve("package.json"),·"utf-8")⏎····` with `await·fs.readFile(path.resolve("package.json"),·"utf-8")`  prettier/prettier
+   65:42   error  Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service                sonarjs/slow-regex
+   68:46   error  Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service                sonarjs/slow-regex
+  122:22   error  Insert `,`                                                                                                                                      prettier/prettier
+  123:109  error  Insert `,`                                                                                                                                      prettier/prettier
 
-3. **Update documentation**
-   - In `sandbox/docs/README.md` under the Commands section, revise the description for `-f, --features`:
-     - Document that the CLI will now output a JSON array of `{ title, description }` objects.
-     - Provide an example output.
+/home/runner/work/repository0/repository0/sandbox/tests/cli.test.js
+  62:32  error  Make sure the "PATH" used to find this command includes only what you intend  sonarjs/no-os-command-from-path
+  68:32  error  Make sure the "PATH" used to find this command includes only what you intend  sonarjs/no-os-command-from-path
+  72:4   error  Insert `⏎`                                                                    prettier/prettier
 
-4. **Dependency changes**
-   - No new dependencies required—use built-in string methods and RegExp.
-   - No changes to `package.json` are necessary.
+/home/runner/work/repository0/repository0/sandbox/tests/features.test.js
+  48:37  error  Insert `⏎······`                                                                                                                                   prettier/prettier
+  49:1   error  Replace `······` with `········`                                                                                                                   prettier/prettier
+  50:1   error  Replace `······{·title:·"Second·Feature",·description:·"More·details"·}` with `········{·title:·"Second·Feature",·description:·"More·details"·},`  prettier/prettier
+  51:5   error  Replace `],·null,·2` with `··],⏎······null,⏎······2,⏎····`                                                                                         prettier/prettier
+  61:38  error  Replace `⏎······{·title:·"Only·Feature",·description:·""·}⏎····` with `{·title:·"Only·Feature",·description:·""·}`                                 prettier/prettier
 
-**Verification**
-
-- Run `npm test` and ensure all Vitest tests pass, including updated feature list tests.
-- Manually execute:
-  ```bash
-  node sandbox/source/main.js --features
-  ```
-  and inspect that the output is a pretty‐printed JSON array of objects with both title and description.
-
-**Impact**
-
-This change delivers higher value by giving users immediate context about each feature directly from the command line, avoiding guesswork or manual file inspection. It also strengthens the link between our CLI tool and the project mission by surfacing the intent behind each enhancement in a structured format.
+✖ 16 problems (16 errors, 0 warnings)
+  11 errors and 0 warnings potentially fixable with the `--fix` option.
 comments:
-Author:github-actions[bot], Created:2025-05-19T02:52:53Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103185751
+Author:github-actions[bot], Created:2025-05-19T04:40:53Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7188c6ac118f4a3cc36776546f12bd09f59e97ce
-Author:github-actions[bot], Created:2025-05-19T02:53:25Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103185751
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/29ab312babc672221e6fe7685c5c3da9573c825c
+Author:github-actions[bot], Created:2025-05-19T04:41:11Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7188c6ac118f4a3cc36776546f12bd09f59e97ce
-Author:github-actions[bot], Created:2025-05-19T02:54:27Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103185751
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/29ab312babc672221e6fe7685c5c3da9573c825c
+Author:github-actions[bot], Created:2025-05-19T04:42:02Z, Comment: The issue highlights code style and linting errors, which are superficial maintenance tasks and do not address core functionality or deliver substantial user value per the repository's mission. Closing to focus on high-impact core features.
+Author:github-actions[bot], Created:2025-05-19T04:42:42Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/7188c6ac118f4a3cc36776546f12bd09f59e97ce
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bd581d813aac46be735740a28834c05e574d4f5a
+Author:github-actions[bot], Created:2025-05-19T04:43:38Z, Comment: Workflow name: flow-linting-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104437593
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/bd581d813aac46be735740a28834c05e574d4f5a
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1263,20 +1254,20 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
  [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 196[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
  [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
 [2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
-[2m   Start at [22m 02:55:44
-[2m   Duration [22m 743ms[2m (transform 79ms, setup 0ms, collect 242ms, tests 284ms, environment 1ms, prepare 509ms)[22m
+[2m   Start at [22m 04:44:53
+[2m   Duration [22m 764ms[2m (transform 93ms, setup 0ms, collect 262ms, tests 263ms, environment 1ms, prepare 562ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
