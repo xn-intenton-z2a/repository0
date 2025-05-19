@@ -245,12 +245,19 @@ async function main(inputArgs) {
           res.end(`Error: ${err.message}`);
         }
       });
-      server.listen(port, host, () => {
-        console.log(`Server running at http://${host}:${port}`);
+      // Await server listening
+      await new Promise((resolve, reject) => {
+        server.listen(port, host, () => {
+          const actualPort = server.address().port;
+          console.log(`Server running at http://${host}:${actualPort}`);
+          resolve();
+        });
+        server.on("error", reject);
       });
       if (inputArgs !== undefined) {
         return server;
       } else {
+        // Keep server running indefinitely
         await new Promise(() => {});
       }
       break;
@@ -317,8 +324,7 @@ async function printVersion() {
  * @param {string[]} args
  */
 function printEcho(args) {
-  console.log(args.join(" "));
-}
+  console.log(args.join(" "));}
 
 // If run directly, execute main
 if (path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
