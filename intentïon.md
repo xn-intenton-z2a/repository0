@@ -839,3 +839,60 @@ LLM API Usage:
 ```
 ---
 
+## Feature to enhanced Issue at 2025-05-19T18:00:07.290Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2138 with enhanced description:
+
+Title: Implement `plot-server` HTTP API for SVG plotting
+
+Background:
+The `plot-server` feature will provide an HTTP server in `sandbox/source/main.js` enabling clients to request SVG plots on-the-fly for quadratic, sine, and expression-based functions without manual file handling.
+
+Goals:
+1. Extend `sandbox/source/main.js` to support a new `plot-server` command:
+   - Parse `--port` (default 3000) and `--host` (default 'localhost') flags using minimist.
+   - Use Node.js `http` module to create a server bound to the specified host and port.
+   - Handle `GET /plot` requests by parsing URL query parameters:
+     • `type`: 'quadratic' | 'sine' | 'expression'
+     • For quadratic: `a`, `b`, `c` (numbers)
+     • For sine: `frequency`, `amplitude` (numbers)
+     • For expression: `expr` (string), `domain` (<start>,<end>), `samples` (number)
+     • Optional: `width`, `height` (numbers)
+   - Delegate to existing `generateQuadraticSVG` and `generateSineSVG`, and implement a new helper `generateExpressionSVG` using mathjs.
+   - Respond with `Content-Type: image/svg+xml` and the SVG string on valid requests (HTTP 200). Return 400 for missing/invalid parameters or unsupported routes.
+
+2. Add the `mathjs` dependency to `package.json` for safe expression parsing.
+
+3. Create integration tests in `sandbox/tests/plot-server.test.js`:
+   - Start and stop the server on a random available port.
+   - Assert that requests for each plot type return HTTP 200, `Content-Type: image/svg+xml`, and a body starting with `<svg`.
+   - Assert that requests missing required parameters or with invalid `type` return HTTP 400 with an error message.
+
+4. Update `README.md`:
+   - Document the new `plot-server` CLI command under "CLI Commands".
+   - Provide usage examples:
+     ```bash
+     npm run start -- plot-server --port 4000
+     curl "http://localhost:4000/plot?type=quadratic&a=1&b=0&c=0"
+     curl "http://localhost:4000/plot?type=sine&frequency=2&amplitude=0.5"
+     curl "http://localhost:4000/plot?type=expression&expr=x%5E2&domain=-5,5&samples=50"
+     ```
+
+Acceptance Criteria:
+- [ ] Running `npm run start -- plot-server --port <port> --host <host>` starts an HTTP server bound to the correct host and port.
+- [ ] `GET /plot?type=quadratic&a=2&b=3&c=1` returns 200 OK, `Content-Type: image/svg+xml`, and an SVG containing a `<polyline>` or `<path>` for the quadratic plot.
+- [ ] `GET /plot?type=sine&frequency=2&amplitude=0.5` returns 200 OK, `Content-Type: image/svg+xml`, and an SVG containing the sine wave.
+- [ ] `GET /plot?type=expression&expr=x%5E2&domain=-5,5&samples=50` returns 200 OK, `Content-Type: image/svg+xml`, and an SVG plot of the expression computed via mathjs.
+- [ ] Requests missing required parameters or with an unsupported `type` return 400 Bad Request with a clear error message.
+- [ ] `package.json` includes `mathjs` as a dependency.
+- [ ] Integration tests in `sandbox/tests/plot-server.test.js` cover all valid and invalid request scenarios and pass under `npm test`.
+- [ ] `README.md` updated with documentation and examples for the `plot-server` command.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12603,"completion_tokens":1559,"total_tokens":14162,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
