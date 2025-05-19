@@ -21,7 +21,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
   : Reads and prints the version from `package.json`.
 
 - `-f, --features`  
-  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of their level-1 headings.
+  : Prints the mission statement from `MISSION.md` then lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of objects containing `title` and `description` for each feature.
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -62,27 +62,13 @@ Then, the list of features:
 
 ```json
 [
-  "CLI Tool Enhancements",
-  "Schema Validation"
+  {
+    "title": "CLI Tool Enhancements",
+    "description": "Brief description of CLI enhancements."
+  },
+  {
+    "title": "Schema Validation",
+    "description": "Short description of schema validation feature."
+  }
 ]
 ```
-
-## Getting Started
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository_url>
-   cd repository0
-   ```
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Run tests**:
-   ```bash
-   npm test
-   ```
-4. **Run the CLI**:
-   ```bash
-   npm run start -- --help
-   ```

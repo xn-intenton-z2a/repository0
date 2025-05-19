@@ -58,15 +58,27 @@ export async function main(argv) {
       const dirPath = path.resolve("sandbox/features");
       const files = await fs.readdir(dirPath);
       const mdFiles = files.filter((f) => f.endsWith(".md"));
-      const titles = [];
+      const featuresList = [];
       for (const file of mdFiles) {
         const content = await fs.readFile(path.join(dirPath, file), "utf-8");
-        const match = content.match(/^#\s+(.*)$/m);
-        if (match) {
-          titles.push(match[1]);
+        // Extract title
+        const titleMatch = content.match(/^#\s+(.*)$/m);
+        const title = titleMatch ? titleMatch[1].trim() : "";
+        // Extract description: first non-heading paragraph
+        const afterHeading = content.replace(/^#\s+.*$/m, "").trim();
+        let description = "";
+        if (afterHeading) {
+          const lines = afterHeading.split(/\r?\n/);
+          const descLines = [];
+          for (const line of lines) {
+            if (line.trim() === "") break;
+            descLines.push(line.trim());
+          }
+          description = descLines.join(" ");
         }
+        featuresList.push({ title, description });
       }
-      console.log(JSON.stringify(titles, null, 2));
+      console.log(JSON.stringify(featuresList, null, 2));
       process.exit(0);
     } catch (e) {
       console.error(`Error: ${e.message}`);
