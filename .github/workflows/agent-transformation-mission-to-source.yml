@@ -70,7 +70,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -109,7 +109,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-maintain-sources.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -156,14 +156,16 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: 'Maintain sources of library content.'
+          gitDiff: ${{ needs.maintain-sources.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-sources.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+
+            const activity = `Updated library sources with the following git diff:\n\n\`\`\`${gitDiff}\`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

@@ -84,7 +84,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -130,7 +130,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.2'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: ${{ inputs.selectionLabel || 'ready' }}
@@ -414,7 +414,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -472,11 +472,22 @@ jobs:
           issueTitle: "${{ needs.apply-issue-resolution.outputs.issueTitle }}"
           fixApplied: "${{ needs.apply-issue-resolution.outputs.fixApplied }}"
           message: "${{ needs.apply-issue-resolution.outputs.message }}"
+          gitDiff: "${{ needs.apply-issue-resolution.outputs.gitDiff }}"
+          mainOutput: "${{ needs.apply-issue-resolution.outputs.mainOutput }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-issue-resolution.outputs.usage }}
         with:
           script: |
-            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n[for issue #${process.env.issueNumber} ${process.env.issueTitle}]`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueTitle = process.env.issueTitle;
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const gitDiff = process.env.gitDiff;
+            const mainOutput = process.env.mainOutput;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`${gitDiff}\`\`\`\n\nmainOutput:\`\`\`${mainOutput}\`\`\`\n\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -661,7 +672,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.2'
     with:
       branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'

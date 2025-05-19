@@ -41,7 +41,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -78,19 +78,19 @@ jobs:
           script: |
             const fs = require('fs');
             const { owner, repo } = context.repo;
-            
+
             const uuid = process.env.uuid;
             const intentionFilepath = process.env.intentionFilepath;
-            
+
             let branchUrl = ''; // branch URL
             let branchName = '';
             try {
               core.info(`Looking for lines likely to be branches in intentïon.md at ${intentionFilepath}`);
-        
+
               if (fs.existsSync(intentionFilepath)) {
                 const intentionFileContent = fs.readFileSync(intentionFilepath, 'utf8');
                 const lines = intentionFileContent.split('\n');
-        
+
                 // Filter to lines matching ^*https://.*/ some branch path fragments /*$ and extract the last matching line.
                 //const branchUrlPattern = /^\s*https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/(tree|blob|edit|new|upload|commits)\/[^\s]+|https:\/\/github\.com\/[^\/\s]+\/[^\/\s]+\/compare\/[^.\/]+\.{3}[^\/\s]+/;                  
                 const branchUrlPattern = /^.*https:\/\/.*\/tree\/.*$/
@@ -99,7 +99,7 @@ jobs:
                   core.warning(`No matching GitHub branch URL found in intentïon.md`);
                 } else {
                   const lastUrlLine = branchUrlLines[branchUrlLines.length - 1];
-        
+
                   // Extract URL by ignoring anything before the first https:// and up to the first non-url character.
                   const urlMatch = lastUrlLine.match(/https:\/\/[^ ]+/);
                   if (urlMatch) {
@@ -115,7 +115,7 @@ jobs:
             } catch (error) {
               core.warning(`Error reading intentïon.md: ${error.message}`);
             }
-  
+
             if(!branchUrl) {
               // Create a branch URL where the branch will be of the form intention-<date>-<uuid>
               const isoDateParts = new Date().toISOString().split(':');
@@ -134,7 +134,7 @@ jobs:
                 core.warning(`Branch name not found in URL: ${branchUrl}`);
               }
             }
-            
+
             core.info(`branchName: ${branchName}`);
             core.setOutput('branchName', branchName);
             core.info(`branchUrl: ${branchUrl}`);
@@ -171,7 +171,7 @@ jobs:
           git status -v
           git add -v --all
           git diff
-          git commit -m 'Log archive to branch ${{ needs.intention.intention.branchUrl }}'
+          git commit -m 'Log archive to branch ${{ needs.intention.outputs.branchUrl }}'
           git push -v
           git status -v
 
@@ -205,10 +205,10 @@ jobs:
             echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchName }}'
           fi
 
-      #- name: Push the current state of main to ${{ needs.agentic-lib.intention.branchUrl }}
+      #- name: Push the current state of main to ${{ needs.intention.outputs.branchUrl }}
       #  id: push-to-branch
       #  run: |
       #    git config --local user.email '${{ env.gitUserEmail }}'
       #    git config --local user.name '${{ env.gitUserName }}'
-      #    git push -v origin HEAD:${{ needs.agentic-lib.intention.branchUrl }}
+      #    git push -v origin HEAD:${{ needs.intention.outputs.branchUrl }}
       #    git status -v

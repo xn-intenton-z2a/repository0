@@ -55,7 +55,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -68,7 +68,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-maintenance-issue.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-maintenance-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -93,10 +93,23 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  create-issue:
+    needs:
+      - generate-maintenance-issue
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.2'
+    with:
+      issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
+      issueLabels: 'maintenance, automated'
+
   log-intention-activity:
     needs:
       - agentic-lib
       - generate-maintenance-issue
+      - create-issue
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -117,15 +130,24 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
+          issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
           issueTitle: "${{ needs.generate-maintenance-issue.outputs.issueTitle }}"
+          issueBody: "${{ needs.generate-maintenance-issue.outputs.issueDescription }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.generate-maintenance-issue.outputs.usage }}
         with:
           script: |
-            const activity = `Created issue ${process.env.issueTitle}`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueTitle = process.env.issueTitle;
+            const issueBody = process.env.issueBody;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
+            const activity = `Created issue ${issueUrl} with title ${issueTitle} and body:\n\n ${issueBody}.`;
+  
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
 
@@ -149,14 +171,3 @@ jobs:
           git commit -m "Activity logged by agent-transformation-maintenance-activity-to-issue.yml" || echo "No changes to commit"
           git push
 
-  create-issue:
-    needs:
-      - generate-maintenance-issue
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.0'
-    with:
-      issueTitle: ${{ needs.generate-maintenance-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-maintenance-issue.outputs.issueDescription }}
-      issueLabels: 'maintenance, automated'

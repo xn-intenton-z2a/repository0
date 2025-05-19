@@ -75,7 +75,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -114,7 +114,7 @@ jobs:
   #    contents: write
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@6.7.0'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-sources.yml@6.7.2'
   #  with:
   #    promptFilepath: '.github/agents/agent-maintain-sources.md'
   #    agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -148,7 +148,7 @@ jobs:
   #    contents: write
   #    issues: write
   #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.7.0'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-library.yml@6.7.2'
   #  with:
   #    promptFilepath: '.github/agents/agent-maintain-library.md'
   #    agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -175,7 +175,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -222,14 +222,18 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Maintained feature ${{ needs.maintain-features.outputs.featureName }}."
+          featureName: "${{ needs.maintain-features.outputs.featureName }}"
+          gitDiff: ${{ needs.maintain-features.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-features.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const featureName = process.env.featureName;
+            const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+            
+            const activity = `Maintained feature ${featureName}.\n\nGit diff:\n\n\`\`\`${gitDiff}\n\`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -263,7 +267,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -289,9 +293,22 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  create-issue:
+    needs:
+      - generate-feature-development-issue
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.2'
+    with:
+      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+      issueLabels: 'feature, automated'
+
   log-intention-activity:
     needs:
       - agentic-lib
+      - create-issue
       - generate-feature-development-issue
     runs-on: ubuntu-latest
     env:
@@ -313,12 +330,19 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Generated feature development issue with title ${{ needs.generate-feature-development-issue.outputs.issueTitle }}."
+          issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+          issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.generate-feature-development-issue.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueBody = process.env.issueBody;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const activity = `Generated feature development issue ${issueUrl} with title:\n\n${issueTitle}`;
+            
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -345,18 +369,6 @@ jobs:
           git commit -m "Activity logged by agent-flow-feature-maintenance.yml, generate issue" || echo "No changes to commit"
           git push
 
-  create-issue:
-    needs:
-      - generate-feature-development-issue
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.0'
-    with:
-      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
-
   select-issue-to-enhance:
     needs:
       - create-issue
@@ -364,7 +376,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.2'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'automated'
@@ -382,7 +394,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -432,11 +444,17 @@ jobs:
         uses: actions/github-script@v7
         env:
           issueNumber: ${{ needs.select-issue-to-enhance.outputs.issueNumber }}
+          issueBody: ${{ needs.enhance-issue.outputs.enhancedDescription }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.enhance-issue.outputs.usage }}
         with:
           script: |
-            const activity = `Updated feature development issue #${process.env.issueNumber}`;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueBody = process.env.issueBody;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const activity = `Updated feature development issue ${issueUrl} with enhanced description:\n\n${issueBody}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 

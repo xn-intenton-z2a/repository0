@@ -62,7 +62,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.2'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -558,7 +558,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.7.2'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -613,12 +613,19 @@ jobs:
         env:
           fixApplied: ${{ needs.apply-fix.outputs.fixApplied }}
           message: ${{ needs.apply-fix.outputs.message }}
+          gitDiff: ${{ needs.apply-fix.outputs.gitDiff }}
+          mainOutput: ${{ needs.apply-fix.outputs.mainOutput }}
           allValidationStepsSuccessful: ${{ needs.apply-fix.outputs.allValidationStepsSuccessful }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-fix.outputs.usage }}
         with:
           script: |
-            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n[allValidationStepsSuccessful: ${process.env.allValidationStepsSuccessful}]`;
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const gitDiff = process.env.gitDiff;
+            const mainOutput = process.env.mainOutput;
+            const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
+            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`${gitDiff}\`\`\`\n\nmainOutput:\`\`\`${mainOutput}\`\`\`\n\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -820,7 +827,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.2'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -849,7 +856,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.7.0'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.7.2'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
