@@ -1,6 +1,6 @@
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides commands to showcase **help**, **mission**, **version**, **features**, **render**, **echo**, **env**, and **yaml2json** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides commands to showcase **help**, **mission**, **version**, **features**, **render**, **echo**, **env**, **yaml2json**, and **plot** functionality.
 
 ## Links
 
@@ -11,7 +11,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [plot <quadratic|sine>] [echo <message>]
 
 Commands:
   --help                      Display usage instructions
@@ -24,6 +24,7 @@ Commands:
   --output <file>             Write JSON output to the specified file
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
+  plot <quadratic|sine>       Generate sample points for the specified function
   echo <message>              Echo message
 
 ## Usage Examples
@@ -55,4 +56,13 @@ npm run start -- --yaml2json path/to/data.yaml --output output.json
 
 npm run start -- echo Hello World
 # Prints "Hello World"
+
+npm run start -- plot quadratic
+# Prints JSON of sample points for x^2
+
+npm run start -- plot sine
+# Prints JSON of sample points for sine function
+
+npm run start -- plot foo
+# Prints error for unknown function
 ```

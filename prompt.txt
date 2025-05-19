@@ -128,8 +128,8 @@ const loadedEnv = dotenvResult.parsed || {};
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render", "features"],
-    alias: { h: "help", m: "mission", f: "features", e: "env" },
-    string: ["env"],
+    alias: { h: "help", m: "mission", f: "features", e: "env", y: "yaml2json", o: "output" },
+    string: ["env", "yaml2json", "output"]
   });
 
   // Handle environment variables option
@@ -152,6 +152,9 @@ export async function main(argv) {
   }
   if (args.render) {
     return renderTemplate(args);
+  }
+  if (args.yaml2json !== undefined) {
+    return convertYamlToJson(args.yaml2json, args.output);
   }
   if (args._.length > 0 && args._[0] === "echo") {
     return echoMessage(args._);
@@ -186,7 +189,7 @@ function handleEnv(envArg) {
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
@@ -195,6 +198,9 @@ function printHelp() {
   console.log("  --version                   Print version");
   console.log("  -f, --features [<tag>...]   List available features, optionally filtered by mission tags");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
+  console.log("  --yaml2json <yamlPath>      Convert YAML file to JSON printed to stdout");
+  console.log("  -y <yamlPath>               Alias for --yaml2json");
+  console.log("  --output <file>             Write JSON output to the specified file");
   console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
   console.log("  -e, --env                   Print all loaded environment variables as JSON");
   console.log("  echo <message>              Echo message");
@@ -310,6 +316,39 @@ async function renderTemplate(args) {
   }
   const output = ejs.render(tpl, data);
   console.log(output);
+}
+
+/**
+ * Convert a YAML file to JSON, writing to stdout or an output file.
+ * @param {string} yamlPath - Path to the input YAML file.
+ * @param {string} outputPath - Optional path to write the JSON output.
+ */
+async function convertYamlToJson(yamlPath, outputPath) {
+  try {
+    const raw = await fs.readFile(path.resolve(yamlPath), "utf-8");
+    let data;
+    try {
+      data = yaml.load(raw);
+    } catch (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
+    const json = JSON.stringify(data, null, 2);
+    if (outputPath) {
+      try {
+        await fs.writeFile(path.resolve(outputPath), json, "utf-8");
+      } catch (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+    } else {
+      console.log(json);
+    }
+    process.exit(0);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 }
 
 /**
@@ -701,6 +740,81 @@ describe("--render CLI option", () => {
 TEST_FILE_END
 
 
+TEST_FILE_START File: sandbox/tests/yaml-json.test.js
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import fs from "fs/promises";
+import path from "path";
+import os from "os";
+import { main } from "../source/main.js";
+
+describe("--yaml2json CLI option", () => {
+  let logSpy;
+  let errorSpy;
+  let exitSpy;
+  let tmpDir;
+
+  beforeEach(async () => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "yaml2json-"));
+  });
+
+  afterEach(async () => {
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+    exitSpy.mockRestore();
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  test("converts YAML to JSON on stdout", async () => {
+    const yamlPath = path.join(tmpDir, "data.yaml");
+    await fs.writeFile(yamlPath, "foo: bar\nbaz:\n  - 1\n  - 2");
+    await main(["--yaml2json", yamlPath]);
+    const expected = JSON.stringify({ foo: "bar", baz: [1, 2] }, null, 2);
+    expect(logSpy).toHaveBeenCalledWith(expected);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("writes JSON to output file when --output provided", async () => {
+    const yamlPath = path.join(tmpDir, "in.yaml");
+    const outPath = path.join(tmpDir, "out.json");
+    await fs.writeFile(yamlPath, "alpha: beta");
+    await main(["--yaml2json", yamlPath, "--output", outPath]);
+    const content = await fs.readFile(outPath, "utf-8");
+    expect(content).toBe(JSON.stringify({ alpha: "beta" }, null, 2));
+    expect(logSpy).not.toHaveBeenCalled();
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
+  test("error on missing input file", async () => {
+    const yamlPath = path.join(tmpDir, "nofile.yaml");
+    await main(["--yaml2json", yamlPath]);
+    expect(errorSpy).toHaveBeenCalled();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  test("error on invalid YAML", async () => {
+    const yamlPath = path.join(tmpDir, "bad.yaml");
+    await fs.writeFile(yamlPath, "foo: [unclosed");
+    await main(["--yaml2json", yamlPath]);
+    expect(errorSpy).toHaveBeenCalled();
+    expect(exitSpy).toHaveBeenCalledWith(1);
+  });
+
+  test("alias -y works same as --yaml2json", async () => {
+    const yamlPath = path.join(tmpDir, "alias.yaml");
+    await fs.writeFile(yamlPath, "x: y");
+    await main(["-y", yamlPath]);
+    const expected = JSON.stringify({ x: "y" }, null, 2);
+    expect(logSpy).toHaveBeenCalledWith(expected);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: tests/unit/main.test.js
 import { describe, test, expect } from "vitest";
 import * as mainModule from "@src/lib/main.js";
@@ -741,7 +855,7 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/README.md
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides commands to showcase **help**, **mission**, **version**, **features**, **render**, **echo**, and **env** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides commands to showcase **help**, **mission**, **version**, **features**, **render**, **echo**, **env**, and **yaml2json** functionality.
 
 ## Links
 
@@ -752,7 +866,7 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features [<tag>...]] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]
 
 Commands:
   --help                      Display usage instructions
@@ -760,6 +874,9 @@ Commands:
   --version                   Print version
   -f, --features [<tag>...]   List available features, optionally filtered by mission tags
   --render <template> <data>  Render EJS template with data (JSON or YAML)
+  --yaml2json <yamlPath>      Convert YAML file to JSON printed to stdout
+  -y <yamlPath>               Alias for --yaml2json
+  --output <file>             Write JSON output to the specified file
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
   echo <message>              Echo message
@@ -782,20 +899,17 @@ npm run start -- --features
 npm run start -- --render path/to/template.ejs path/to/data.json
 # Renders EJS template with JSON data and prints the result
 
-npm run start -- --render path/to/template.ejs path/to/data.yaml
-# Renders EJS template with YAML data and prints the result
-
-npm run start -- echo Hello World
-# Prints "Hello World"
-
 npm run start -- --env VAR_NAME
 # Prints the value of VAR_NAME loaded from .env
 
-npm run start -- --env
-# Prints all loaded environment variables as JSON
+npm run start -- --yaml2json path/to/data.yaml
+# Converts YAML to JSON and prints to stdout
 
-npm run start -- --features cli
-# Only show features tagged with 'cli'
+npm run start -- --yaml2json path/to/data.yaml --output output.json
+# Converts YAML to JSON and writes to output.json
+
+npm run start -- echo Hello World
+# Prints "Hello World"
 ```
 DOCUMENTATION_FILE_END
 
@@ -1339,68 +1453,79 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Implement YAML to JSON conversion command (--yaml2json)
+title: Implement 'plot' Command for Quadratic and Sine Functions
 description:
-Implement YAML to JSON conversion command (--yaml2json)
+## Overview
 
-We need to implement the YAML→JSON conversion feature described in `sandbox/features/YAML_TO_JSON.md` to provide core CLI functionality for converting YAML files to JSON. This issue includes wiring the command into the CLI, adding acceptance tests, and updating documentation.
+Add a new `plot` subcommand to the CLI that generates sample data for quadratic and sine functions. This feature aligns with the root README’s demonstration of plotting capabilities and provides a concrete example of agentic workflows delivering real functionality.
 
-Acceptance Criteria:
-1. CLI recognizes `--yaml2json <yamlPath>` (alias `-y`) and optional `--output <outputPath>` (alias `-o`).
-2. Running `node sandbox/source/main.js --yaml2json <yamlPath>`:
-   - Reads the file at `<yamlPath>` using `fs.promises.readFile`.
-   - Parses its content via `js-yaml`.
-   - Serializes the object to JSON with two-space indentation.
-   - Prints the JSON string to stdout.
-   - Exits with status code 0.
-3. Running with `--output <outputPath>`:
-   - Writes the JSON string to the specified file.
-   - Prints nothing to stdout.
-   - Exits with status code 0.
-4. On missing or unreadable input file:
-   - Logs the file system error message to stderr.
-   - Exits with status code 1.
-5. On invalid YAML content:
-   - Logs the parse error message to stderr.
-   - Exits with status code 1.
-6. Tests are implemented in `sandbox/tests/yaml-json.test.js` covering:
-   - Conversion to stdout.
-   - File output.
-   - Error handling scenarios.
-7. Documentation in `sandbox/docs/README.md` is updated under Commands:
-   ```
-   --yaml2json <yamlPath> Convert YAML file to JSON printed to stdout
-   -y <yamlPath> Alias for --yaml2json
-   --output <file> Write JSON output to the specified file
-   ```
+## Changes
 
-Implementation Scope:
-- Modify `minimist` setup in `sandbox/source/main.js` to include `yaml2json` and `output` options with appropriate aliases.
-- Add `convertYamlToJson(yamlPath, outputPath)` handler following the spec.
-- Ensure `npm test` passes and manual smoke testing with `--yaml2json` works as specified.
+1. **CLI Handler** (sandbox/source/main.js)
+   - In the `main()` dispatch, detect when the first positional argument is `plot`.
+   - Delegate to a new helper `plotCommand(args)`.
+   - Support two function names: `quadratic` and `sine`. Any other name should print an error and exit with code `1`.
+   - For `quadratic`, generate five sample points: at x = -2, -1, 0, 1, 2, with y = x².
+   - For `sine`, generate five sample points: at x = -π, -π/2, 0, π/2, π, with y = Math.sin(x).
+   - Print the output as pretty-printed JSON and exit with code `0`.
 
+2. **Help Text** (sandbox/source/main.js & sandBox/docs/README.md & README.md)
+   - Update usage synopsis and commands list in the CLI help, sandbox/docs/README.md, and root README.md to include:
+     ```
+     plot <quadratic|sine>   Generate sample points for the specified function
+     ```
+
+3. **Tests** (sandbox/tests/cli.test.js)
+   - Add a new `describe("plot command", ...)` block.
+   - Test that `node sandbox/source/main.js plot quadratic` prints valid JSON array of five `{ x, y }` objects matching x².
+   - Test that `node sandbox/source/main.js plot sine` prints valid JSON array of five `{ x, y }` objects matching Math.sin(x).
+   - Test that `node sandbox/source/main.js plot unknown` prints an error message (`Unknown function: unknown`) and exits with status `1`.
+
+4. **Documentation** (sandbox/docs/README.md & README.md)
+   - Under "Commands" add the new `plot` entry.
+   - Include a usage example:
+     ```bash
+     npm run start -- plot quadratic
+     # Prints JSON of sample points for x^2
+     ```
+
+## Verification
+
+1. **Unit & E2E Tests**
+   - Run `npm test` and ensure all existing tests pass plus the new `plot` tests.
+2. **Manual CLI**
+   - `npm run start -- plot quadratic` should output:
+     ```json
+     [
+       { "x": -2, "y": 4 },
+       { "x": -1, "y": 1 },
+       { "x": 0,  "y": 0 },
+       { "x": 1,  "y": 1 },
+       { "x": 2,  "y": 4 }
+     ]
+     ```
+   - `npm run start -- plot sine` should output five points with correct sine values.
+   - `npm run start -- plot foo` should print `Unknown function: foo` to stderr and exit code `1`.
+
+---
+
+This change delivers a tangible, high-impact feature that fulfills the README promise, showcases the CLI’s extensibility, and deepens our core functionality demonstration without introducing unnecessary abstraction.
 comments:
-Author:github-actions[bot], Created:2025-05-19T09:00:45Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15108723590
+Author:github-actions[bot], Created:2025-05-19T09:49:59Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109777267
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b11dc87ead2362b66e93927c31fa7f36445c9e55
-Author:github-actions[bot], Created:2025-05-19T09:01:43Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-19T09:23:41Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5d97bfbe9f7d62dc84bcd2b06c8deea3c231ad5d
+Author:github-actions[bot], Created:2025-05-19T09:50:33Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109777267
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
-Author:github-actions[bot], Created:2025-05-19T09:24:05Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5d97bfbe9f7d62dc84bcd2b06c8deea3c231ad5d
+Author:github-actions[bot], Created:2025-05-19T09:51:45Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109777267
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
-Author:github-actions[bot], Created:2025-05-19T09:25:10Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/5d97bfbe9f7d62dc84bcd2b06c8deea3c231ad5d
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1452,21 +1577,22 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 50[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 248[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
- [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 520[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m sandbox/tests/yaml-json.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 261[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 461[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
-[2m   Start at [22m 09:26:25
-[2m   Duration [22m 1.04s[2m (transform 97ms, setup 0ms, collect 343ms, tests 855ms, environment 2ms, prepare 614ms)[22m
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m29 passed[39m[22m[90m (29)[39m
+[2m   Start at [22m 09:52:53
+[2m   Duration [22m 1.14s[2m (transform 115ms, setup 0ms, collect 435ms, tests 812ms, environment 2ms, prepare 721ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -1475,7 +1601,7 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/repository0@2.1.0-0 start
 > node sandbox/source/main.js
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]
 
 Commands:
   --help                      Display usage instructions
@@ -1483,6 +1609,9 @@ Commands:
   --version                   Print version
   -f, --features [<tag>...]   List available features, optionally filtered by mission tags
   --render <template> <data>  Render EJS template with data (JSON or YAML)
+  --yaml2json <yamlPath>      Convert YAML file to JSON printed to stdout
+  -y <yamlPath>               Alias for --yaml2json
+  --output <file>             Write JSON output to the specified file
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
   echo <message>              Echo message
