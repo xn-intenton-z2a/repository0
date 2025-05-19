@@ -1,4 +1,4 @@
-import { describe, test, expect, vi } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { chooseHouse, main } from '../source/main.js';
 
 describe('chooseHouse', () => {
