@@ -1503,3 +1503,53 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-19T18:59:51.568Z
+
+fixApplied: true
+
+Delegate npm start script to sandbox CLI and document plot-expression command
+
+Git Diff:
+
+```diff --git a/package.json b/package.json
+index a86126d0..a6debb03 100644
+--- a/package.json
++++ b/package.json
+@@ -18,7 +18,7 @@
+     "update-to-greatest": "npx ncu --upgrade --enginesNode --target greatest --verbose --install always --reject 'alpha'",
+     "test": "vitest tests/unit/*.test.js sandbox/tests/*.test.js",
+     "test:unit": "vitest --coverage tests/unit/*.test.js sandbox/tests/*.test.js",
+-    "start": "node src/lib/main.js"
++    "start": "node sandbox/source/main.js"
+   },
+   "config": {
+     "issueToCodeConversionRate": 0.5
+diff --git a/sandbox/docs/CLI_COMMANDS.md b/sandbox/docs/CLI_COMMANDS.md
+index 36324f09..4506abea 100644
+Binary files a/sandbox/docs/CLI_COMMANDS.md and b/sandbox/docs/CLI_COMMANDS.md differ```
+
+mainOutput:```
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: main.js <command> [arguments]
+Commands:
+  help             Show this help message
+  mission          Print the mission statement
+  version          Print the version from package.json
+  echo             Echo the provided arguments
+  house-choice     Randomly choose a house or list all houses
+  plot-quadratic   Generate a quadratic plot as SVG
+  plot-sine        Generate a sine wave plot as SVG
+  plot-server      Start HTTP server to serve SVG plots```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2142 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":15100,"completion_tokens":5489,"total_tokens":20589,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3648,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
