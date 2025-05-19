@@ -121,15 +121,19 @@ import yaml from "js-yaml";
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render"],
-    alias: { h: "help" },
+    alias: { h: "help", m: "mission" },
   });
 
   // Help command
   if (args.help) {
-    console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+    console.log(
+      `Usage: ${path.basename(
+        process.argv[1]
+      )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+    );
     console.log(`\nCommands:`);
     console.log(`  --help                      Display usage instructions`);
-    console.log(`  --mission                   Print mission statement`);
+    console.log(`  -m, --mission               Print mission statement`);
     console.log(`  --version                   Print version`);
     console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
     console.log(`  echo <message>              Echo message`);
@@ -145,7 +149,9 @@ export async function main(argv) {
 
   // Version
   if (args.version) {
-    const pkg = JSON.parse(await fs.readFile(path.resolve("package.json"), "utf-8"));
+    const pkg = JSON.parse(
+      await fs.readFile(path.resolve("package.json"), "utf-8")
+    );
     console.log(pkg.version);
     return;
   }
@@ -180,7 +186,11 @@ export async function main(argv) {
   }
 
   // Default to help
-  console.log(`Usage: ${path.basename(process.argv[1])} [--help] [--mission] [--version] [--render <template> <data>] [echo <message>...]`);
+  console.log(
+    `Usage: ${path.basename(
+      process.argv[1]
+    )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+  );
 }
 
 // If the script is run directly, invoke main with process arguments
@@ -212,6 +222,42 @@ SOURCE_FILE_END
 
 Test files (write new files or update files in sandbox/tests as necessary):
 (Multiple files from both in writable locations and not.)
+TEST_FILE_START File: sandbox/tests/mission.test.js
+import { describe, test, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
+import fs from "fs/promises";
+import path from "path";
+import { main } from "../source/main.js";
+
+describe("Mission command (--mission and -m)", () => {
+  let logSpy;
+  let missionContent;
+
+  beforeAll(async () => {
+    missionContent = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
+  });
+
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+  });
+
+  test("prints mission with --mission", async () => {
+    await main(["--mission"]);
+    expect(logSpy).toHaveBeenCalledWith(missionContent);
+  });
+
+  test("prints mission with -m alias", async () => {
+    await main(["-m"]);
+    expect(logSpy).toHaveBeenCalledWith(missionContent);
+  });
+});
+
+TEST_FILE_END
+
+
 TEST_FILE_START File: sandbox/tests/render.test.js
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import path from "path";
@@ -300,8 +346,8 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 - `--help`  
   : Displays usage instructions and a summary of available commands.
 
-- `--mission`  
-  : Reads and prints the mission statement from `MISSION.md`.
+- `-m, --mission`  
+  : Reads and prints the mission statement from `MISSION.md` (alias -m).
 
 - `--version`  
   : Reads and prints the version from `package.json`.
@@ -320,6 +366,9 @@ npm run start -- --help
 
 # Display mission statement
 npm run start -- --mission
+
+# Display mission statement using alias
+npm run start -- -m
 
 # Display current version
 npm run start -- --version
@@ -902,42 +951,96 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Add alias support and tests for --mission CLI option
+title: Add --features CLI option to list available features
 description:
-Currently the CLI supports --mission to output the repository’s mission statement, but there are no tests or documentation for this command and no shorthand alias. To strengthen reliability and usability, we should:
+## Summary
 
-1. Update sandbox/source/main.js
-   • Extend the minimist configuration to add alias `-m` for `--mission` (e.g. `{ alias: { h: "help", m: "mission" } }`).
-   • Ensure existing behavior for `--mission` remains unchanged.
+Introduce a new CLI flag `--features` (alias `-f`) in `sandbox/source/main.js` that lists all available feature documentation files in `sandbox/features/`. This command reads each `.md` file, extracts the first markdown level-1 heading (`# Title`), and outputs a pretty-printed JSON array of feature titles.
 
-2. Add unit tests in sandbox/tests/mission.test.js
-   • Import `main` from `../source/main.js`, spy on `console.log`.  
-   • Read the real MISSION.md file via fs.promises.readFile in the test, then invoke `await main(["--mission"])` and `await main(["-m"])`.  
-   • Assert that `console.log` is called with the exact mission content in both cases.
+## Acceptance Criteria
 
-3. Update sandbox/docs/README.md (documentation for the sandbox CLI)
-   • In the Commands section, add `-m, --mission  : Print mission statement (alias -m)` under the mission entry.  
-   • Add usage examples demonstrating both `--mission` and `-m` invocations.
+1. **List Features**: Running:
+   ```bash
+   npm run start -- --features
+   ```
+   logs to `stdout` a JSON array containing the titles from each file in `sandbox/features/`, for example:
+   ```json
+   [
+     "CLI Tool Enhancements",
+     "Schema Validation"
+   ]
+   ```
+2. **Alias Support**: Running:
+   ```bash
+   npm run start -- -f
+   ```
+   produces the same output and exit code as `--features`.
+3. **Empty Directory**: If `sandbox/features/` contains no `.md` files, `npm run start -- --features` logs `[]` and exits with code `0`.
+4. **Error Handling**: On filesystem access errors (e.g., directory missing), the command logs an error message to `stderr` and exits with a non-zero code.
+5. **Non-Interference**: All existing commands (`--help`, `--mission`, `--version`, `--render`, `echo`) remain functional and unaffected by the new flag.
 
-Verification:
-- Run `npm test` and ensure all existing tests (including new mission tests) pass.  
-- Manually run `node sandbox/source/main.js --mission` and `node sandbox/source/main.js -m` to confirm the output matches MISSION.md content.
+## Implementation Notes
+
+- **Flag Registration**: Add `features` to the `minimist` boolean options with alias `f`.
+- **Directory Reading**: Use `fs/promises` to read and filter `.md` files in `sandbox/features/`.
+- **Title Extraction**: Read each file, apply `/^#\s+(.*)$/m` to capture the first heading, and collect titles.
+- **Output**: `console.log(JSON.stringify(titlesArray, null, 2)); process.exit(0);`
+- **Exit Code**: Ensure successful runs exit with `0`; failures exit non-zero.
+
+## Tests to Add
+
+Create `sandbox/tests/features.test.js` with tests for:
+- Standard behavior listing titles from existing `.md` files.
+- Alias `-f` behavior.
+- Fixture-based test pointing to an empty temp directory, expecting `[]`.
+- Simulated error (e.g., invalid directory path) verifying non-zero exit and error message.
 comments:
-Author:github-actions[bot], Created:2025-05-18T22:48:24Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
+Author:github-actions[bot], Created:2025-05-18T23:48:52Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
-Author:github-actions[bot], Created:2025-05-18T22:48:51Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
+Author:github-actions[bot], Created:2025-05-18T23:49:21Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
-Author:github-actions[bot], Created:2025-05-18T22:49:59Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15100814984
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
+Author:github-actions[bot], Created:2025-05-18T23:50:29Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101263360
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/86e258f33b657cf076bc2c3c63a07ea6521f2c45
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f957ca106240e95872299b267ba90bca1fbd1d27
+Author:github-actions[bot], Created:2025-05-18T23:58:02Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101324287
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/dd39604a11d14c69a49b5e98a84adc6378656990
+Author:github-actions[bot], Created:2025-05-18T23:58:44Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T00:41:42Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
+Author:github-actions[bot], Created:2025-05-19T00:41:54Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101782869
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
+Author:github-actions[bot], Created:2025-05-19T00:42:11Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
+Author:github-actions[bot], Created:2025-05-19T00:43:09Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101789423
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
+Author:github-actions[bot], Created:2025-05-19T00:43:10Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15101764636
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/0b2438cf9eff24e398c7c5905f60259358db187e
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -992,14 +1095,15 @@ TEST_OUTPUT_START
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
- [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
  [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
-[2m      Tests [22m [1m[32m5 passed[39m[22m[90m (5)[39m
-[2m   Start at [22m 22:51:20
-[2m   Duration [22m 316ms[2m (transform 63ms, setup 0ms, collect 109ms, tests 22ms, environment 1ms, prepare 254ms)[22m
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 00:44:35
+[2m   Duration [22m 504ms[2m (transform 66ms, setup 0ms, collect 162ms, tests 30ms, environment 1ms, prepare 327ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
