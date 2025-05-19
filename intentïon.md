@@ -718,3 +718,55 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-19T17:40:41.135Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2133 with action enhance and updated description:
+
+## Summary
+
+Implement the `mission` CLI command in the primary library entrypoint (`src/lib/main.js`) so that users can invoke it in the same way as other core commands (`help`, `version`, `echo`). This will unify the CLI interface and ensure the mission statement can be printed from the packaged library.
+
+## Acceptance Criteria
+
+1. CLI Behavior:
+   - Running `node src/lib/main.js mission` prints the trimmed contents of `MISSION.md` to stdout and exits with code 0.
+   - Invoking the programmatic API via `main(['mission'])` resolves successfully without throwing and logs the mission text.
+
+2. Unit Test:
+   - Add a test in `tests/unit/main.test.js` that spies on `console.log` (or similar) to verify `main(['mission'])` outputs the mission statement.
+   - The test must pass on Node 20+ and not rely on sandbox files.
+
+3. Integration Test:
+   - Create `sandbox/tests/mission.test.js` that spawns the CLI (`node src/lib/main.js mission`) and asserts stdout includes the trimmed `MISSION.md` content.
+   - Clean up any side effects; the test suite must pass without manual setup.
+
+4. Documentation:
+   - Under the **CLI Commands** section in `README.md`, add a bullet for `mission` with the description: “Print the repository mission statement (reads from MISSION.md)”.
+   - Provide a usage example:
+     ```bash
+     npm run start -- mission
+     ```
+
+5. Error Handling:
+   - If `MISSION.md` cannot be read, the CLI logs an error message to stderr and exits with a non-zero code.
+
+## Tasks
+
+- [ ] Extend `src/lib/main.js` to use `minimist` for command parsing and handle `mission` by calling a new `printMission()` helper.
+- [ ] Implement `printMission()` in `src/lib/main.js` to read and log `MISSION.md` using ESM-compatible file operations.
+- [ ] Update `tests/unit/main.test.js` with the new unit test case.
+- [ ] Create `sandbox/tests/mission.test.js` for integration testing.
+- [ ] Update `README.md` as specified.
+
+## Verification
+
+- Run `npm test` and confirm all existing and new tests pass.
+- Run `npm run start -- mission` and verify the mission statement prints correctly.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12362,"completion_tokens":1332,"total_tokens":13694,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
