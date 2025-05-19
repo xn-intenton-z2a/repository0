@@ -313,3 +313,54 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T16:59:54.707Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2134 with title:
+
+Add `plot-expression` CLI command to visualize arbitrary mathematical expressions
+
+And description:
+
+This issue implements the EXPRESSION_PLOTTER feature by extending the CLI to support a new `plot-expression` command. It focuses on high-impact, core functionality and uses mathjs for safe parsing and evaluation. Changes should be confined to:
+
+- **src/lib/main.js**:  
+  • Add a new dependency on `mathjs`.  
+  • Parse the `plot-expression` command and its flags (`--expr`, `--domain`, `--samples`, `--width`, `--height`, `--output`) using `minimist`.  
+  • Implement `generateExpressionSVG(expr, domainStart, domainEnd, samples, width, height)`:
+    - Compile the expression with `mathjs`.
+    - Sample `x` over `[domainStart, domainEnd]` at `samples` points.
+    - Compute `y` values and build an SVG string (with axes and a `<polyline>` or `<path>`).  
+  • Write the SVG to the specified output path using `fs/promises`.
+
+- **package.json**:  
+  • Add `mathjs` to the dependencies list.
+
+- **tests/unit/main.test.js**:  
+  • Add unit tests for `generateExpressionSVG` to verify that for simple expressions (e.g., `x`, `x^2`) the returned SVG string includes a `<polyline>` or `<path>`.  
+  • Add an integration-style test that invokes `main(["plot-expression","--expr","x^2","--domain","-5,5","--samples","10","--width","100","--height","50","--output","test.svg"])` and asserts that the file `test.svg` is created and begins with an `<svg` header.
+
+- **README.md**:  
+  • Document the new `plot-expression` command under the CLI section with usage examples:
+    ```bash
+    npm run start -- plot-expression \
+      --expr "x^2 + sin(x)" \
+      --domain "-10,10" \
+      --samples 200 \
+      --width 800 --height 600 \
+      --output expr.svg
+    ```
+
+How to verify:
+1. Run `npm install` to pick up `mathjs`.
+2. Execute `npm test` – all new and existing unit tests should pass.
+3. Run the example command above and confirm that `expr.svg` is generated and displays an SVG.
+
+This will add core plotting capabilities and allow users to visualize arbitrary expressions in SVG format.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8411,"completion_tokens":2265,"total_tokens":10676,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
