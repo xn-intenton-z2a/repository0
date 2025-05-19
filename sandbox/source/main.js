@@ -20,8 +20,8 @@ const loadedEnv = dotenvResult.parsed || {};
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render", "features"],
-    alias: { h: "help", m: "mission", f: "features", e: "env" },
-    string: ["env"],
+    alias: { h: "help", m: "mission", f: "features", e: "env", y: "yaml2json", o: "output" },
+    string: ["env", "yaml2json", "output"]
   });
 
   // Handle environment variables option
@@ -44,6 +44,9 @@ export async function main(argv) {
   }
   if (args.render) {
     return renderTemplate(args);
+  }
+  if (args.yaml2json !== undefined) {
+    return convertYamlToJson(args.yaml2json, args.output);
   }
   if (args._.length > 0 && args._[0] === "echo") {
     return echoMessage(args._);
@@ -78,7 +81,7 @@ function handleEnv(envArg) {
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [--yaml2json <yamlPath>] [--output <file>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
@@ -87,6 +90,9 @@ function printHelp() {
   console.log("  --version                   Print version");
   console.log("  -f, --features [<tag>...]   List available features, optionally filtered by mission tags");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
+  console.log("  --yaml2json <yamlPath>      Convert YAML file to JSON printed to stdout");
+  console.log("  -y <yamlPath>               Alias for --yaml2json");
+  console.log("  --output <file>             Write JSON output to the specified file");
   console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
   console.log("  -e, --env                   Print all loaded environment variables as JSON");
   console.log("  echo <message>              Echo message");
@@ -202,6 +208,39 @@ async function renderTemplate(args) {
   }
   const output = ejs.render(tpl, data);
   console.log(output);
+}
+
+/**
+ * Convert a YAML file to JSON, writing to stdout or an output file.
+ * @param {string} yamlPath - Path to the input YAML file.
+ * @param {string} outputPath - Optional path to write the JSON output.
+ */
+async function convertYamlToJson(yamlPath, outputPath) {
+  try {
+    const raw = await fs.readFile(path.resolve(yamlPath), "utf-8");
+    let data;
+    try {
+      data = yaml.load(raw);
+    } catch (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
+    const json = JSON.stringify(data, null, 2);
+    if (outputPath) {
+      try {
+        await fs.writeFile(path.resolve(outputPath), json, "utf-8");
+      } catch (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+    } else {
+      console.log(json);
+    }
+    process.exit(0);
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
 }
 
 /**

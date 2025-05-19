@@ -148,7 +148,7 @@ export async function main(argv) {
     return printVersion();
   }
   if (args.features) {
-    return listFeatures();
+    return listFeatures(args);
   }
   if (args.render) {
     return renderTemplate(args);
@@ -186,14 +186,14 @@ function handleEnv(envArg) {
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
   console.log("  --help                      Display usage instructions");
   console.log("  -m, --mission               Print mission statement");
   console.log("  --version                   Print version");
-  console.log("  -f, --features              List available features");
+  console.log("  -f, --features [<tag>...]   List available features, optionally filtered by mission tags");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
   console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
   console.log("  -e, --env                   Print all loaded environment variables as JSON");
@@ -219,9 +219,11 @@ async function printVersion() {
 }
 
 /**
- * List available features by reading markdown files and extracting YAML frontmatter.
+ * List available features by reading markdown files and extracting YAML frontmatter,
+ * optionally filtering by provided mission tags.
+ * @param {object} args - Parsed CLI arguments including positional tags in args._
  */
-async function listFeatures() {
+async function listFeatures(args) {
   const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
   console.log(missionText);
 
@@ -271,7 +273,15 @@ async function listFeatures() {
       featuresList.push({ title, description, mission });
     }
 
-    console.log(JSON.stringify(featuresList, null, 2));
+    const filterTags = Array.isArray(args._) ? args._ : [];
+    let outputList = featuresList;
+    if (filterTags.length > 0) {
+      outputList = featuresList.filter((f) =>
+        Array.isArray(f.mission) && f.mission.some((tag) => filterTags.includes(tag))
+      );
+    }
+
+    console.log(JSON.stringify(outputList, null, 2));
     process.exit(0);
   } catch (e) {
     console.error(`Error: ${e.message}`);
@@ -313,6 +323,7 @@ function echoMessage(args) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main(process.argv.slice(2));
 }
+
 SOURCE_FILE_END
 
 
@@ -572,6 +583,33 @@ Implements fancy CLI formatting`
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
+  test("filters features by mission tag", async () => {
+    await fs.writeFile(
+      path.join(featuresDir, 'alpha.md'),
+      `---
+mission: ['cli','user-experience']
+---
+# Alpha
+First feature`
+    );
+    await fs.writeFile(
+      path.join(featuresDir, 'beta.md'),
+      `---
+mission: ['render']
+---
+# Beta
+Second feature`
+    );
+    await main(["--features", "cli"]);
+    const calls = logSpy.mock.calls.map(args => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    const result = JSON.parse(calls[1]);
+    expect(result).toEqual([
+      { title: 'Alpha', description: 'First feature', mission: ['cli','user-experience'] }
+    ]);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
   test("empty directory yields empty array", async () => {
     await main(["--features"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
@@ -589,6 +627,7 @@ Implements fancy CLI formatting`
     fs.readdir.mockRestore();
   });
 });
+
 TEST_FILE_END
 
 
@@ -713,13 +752,13 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 ## Commands
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features [<tag>...]] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
 
 Commands:
   --help                      Display usage instructions
   -m, --mission               Print mission statement
   --version                   Print version
-  -f, --features              List available features
+  -f, --features [<tag>...]   List available features, optionally filtered by mission tags
   --render <template> <data>  Render EJS template with data (JSON or YAML)
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
@@ -754,6 +793,9 @@ npm run start -- --env VAR_NAME
 
 npm run start -- --env
 # Prints all loaded environment variables as JSON
+
+npm run start -- --features cli
+# Only show features tagged with 'cli'
 ```
 DOCUMENTATION_FILE_END
 
@@ -1297,80 +1339,68 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Support filtering CLI features list by mission tags
+title: Implement YAML to JSON conversion command (--yaml2json)
 description:
-## Summary
+Implement YAML to JSON conversion command (--yaml2json)
 
-Enhance the existing `--features` command to support optional mission tag filters. When users invoke `node main.js --features <tag1> <tag2>`, the CLI should list only those features whose YAML frontmatter `mission` array includes at least one of the specified tags. Existing behavior (no filters) must remain unchanged.
+We need to implement the YAML→JSON conversion feature described in `sandbox/features/YAML_TO_JSON.md` to provide core CLI functionality for converting YAML files to JSON. This issue includes wiring the command into the CLI, adding acceptance tests, and updating documentation.
 
-## Changes to Make
+Acceptance Criteria:
+1. CLI recognizes `--yaml2json <yamlPath>` (alias `-y`) and optional `--output <outputPath>` (alias `-o`).
+2. Running `node sandbox/source/main.js --yaml2json <yamlPath>`:
+   - Reads the file at `<yamlPath>` using `fs.promises.readFile`.
+   - Parses its content via `js-yaml`.
+   - Serializes the object to JSON with two-space indentation.
+   - Prints the JSON string to stdout.
+   - Exits with status code 0.
+3. Running with `--output <outputPath>`:
+   - Writes the JSON string to the specified file.
+   - Prints nothing to stdout.
+   - Exits with status code 0.
+4. On missing or unreadable input file:
+   - Logs the file system error message to stderr.
+   - Exits with status code 1.
+5. On invalid YAML content:
+   - Logs the parse error message to stderr.
+   - Exits with status code 1.
+6. Tests are implemented in `sandbox/tests/yaml-json.test.js` covering:
+   - Conversion to stdout.
+   - File output.
+   - Error handling scenarios.
+7. Documentation in `sandbox/docs/README.md` is updated under Commands:
+   ```
+   --yaml2json <yamlPath> Convert YAML file to JSON printed to stdout
+   -y <yamlPath> Alias for --yaml2json
+   --output <file> Write JSON output to the specified file
+   ```
 
-1. **Modify `sandbox/source/main.js`:**
-   - Change the signature of `listFeatures` to accept the parsed `args` object.
-   - In `main()`, call `listFeatures(args)` instead of `listFeatures()`.
-   - Inside `listFeatures(args)`, extract `filterTags = args._` (remaining positional arguments when `--features` is used).
-   - After building `featuresList`, if `filterTags.length > 0`, filter `featuresList` to only include items where `feature.mission` intersects `filterTags`.
-   - Preserve existing console output: always print the mission statement, then the (filtered) feature list as JSON, then `process.exit(0)`.
+Implementation Scope:
+- Modify `minimist` setup in `sandbox/source/main.js` to include `yaml2json` and `output` options with appropriate aliases.
+- Add `convertYamlToJson(yamlPath, outputPath)` handler following the spec.
+- Ensure `npm test` passes and manual smoke testing with `--yaml2json` works as specified.
 
-2. **Update Tests in `sandbox/tests/features.test.js`:**
-   - Add a new test case for filtering, e.g.:
-     ```js
-     test('filters features by mission tag', async () => {
-       await fs.writeFile(path.join(featuresDir, 'alpha.md'), `---
-     mission: ['cli','user-experience']
-     ---
-     # Alpha
-     First feature`);
-       await fs.writeFile(path.join(featuresDir, 'beta.md'), `---
-     mission: ['render']
-     ---
-     # Beta
-     Second feature`);
-       await main(['--features', 'cli']);
-       const calls = logSpy.mock.calls.map(args => args[0]);
-       expect(JSON.parse(calls[1])).toEqual([
-         { title: 'Alpha', description: 'First feature', mission: ['cli','user-experience'] }
-       ]);
-       expect(exitSpy).toHaveBeenCalledWith(0);
-     });
-     ```
-   - Ensure the new test passes and does not conflict with existing cases.
-
-3. **Update Documentation in `sandbox/docs/README.md`:**
-   - Under **Commands**, update the `--features` entry to:
-     ```text
-     --features [<tag>...]  List available features, optionally filtered by mission tags
-     ```
-   - Add a **Usage Example** showcasing tag filtering:
-     ```bash
-     npm run start -- --features cli    # Only show features tagged with 'cli'
-     ```
-
-## Verification Steps
-
-1. Run `npm test` and ensure all existing tests plus the new filtering test pass.
-2. Invoke the CLI manually:
-   - `node sandbox/source/main.js --features` should list all features.
-   - `node sandbox/source/main.js --features cli user-experience` should list only features with those mission tags.
-3. Review `sandbox/docs/README.md` to confirm the new usage example is clear.
-
-> **Note:** Only modify source files under `sandbox/source/`, test files under `sandbox/tests/`, documentation under `sandbox/docs/README.md`, and update `package.json` if necessary for dependencies. No new files should be created or existing files removed.
 comments:
-Author:github-actions[bot], Created:2025-05-19T06:54:31Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15106271787
+Author:github-actions[bot], Created:2025-05-19T09:00:45Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15108723590
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2005c0dc9c6c567a9183046717b10ec3363e54b8
-Author:github-actions[bot], Created:2025-05-19T06:55:04Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15106271787
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b11dc87ead2362b66e93927c31fa7f36445c9e55
+Author:github-actions[bot], Created:2025-05-19T09:01:43Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T09:23:41Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2005c0dc9c6c567a9183046717b10ec3363e54b8
-Author:github-actions[bot], Created:2025-05-19T06:56:06Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15106271787
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
+Author:github-actions[bot], Created:2025-05-19T09:24:05Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2005c0dc9c6c567a9183046717b10ec3363e54b8
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
+Author:github-actions[bot], Created:2025-05-19T09:25:10Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15109238358
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/73611fdfdbd1f2e9a87e75810ea29a8ab106935a
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1422,21 +1452,21 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 21[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 253[2mms[22m[39m
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
- [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 475[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 248[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 520[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 2[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
-[2m      Tests [22m [1m[32m23 passed[39m[22m[90m (23)[39m
-[2m   Start at [22m 06:57:18
-[2m   Duration [22m 1.02s[2m (transform 91ms, setup 0ms, collect 309ms, tests 784ms, environment 2ms, prepare 641ms)[22m
+[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 09:26:25
+[2m   Duration [22m 1.04s[2m (transform 97ms, setup 0ms, collect 343ms, tests 855ms, environment 2ms, prepare 614ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
@@ -1445,13 +1475,13 @@ MAIN_OUTPUT_START
 > @xn-intenton-z2a/repository0@2.1.0-0 start
 > node sandbox/source/main.js
 
-Usage: main.js [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
+Usage: main.js [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]
 
 Commands:
   --help                      Display usage instructions
   -m, --mission               Print mission statement
   --version                   Print version
-  -f, --features              List available features
+  -f, --features [<tag>...]   List available features, optionally filtered by mission tags
   --render <template> <data>  Render EJS template with data (JSON or YAML)
   -e, --env <VAR_NAME>        Print a specific environment variable
   -e, --env                   Print all loaded environment variables as JSON
