@@ -611,11 +611,11 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          fixApplied: ${{ needs.apply-issue-resolution.outputs.fixApplied }}
-          message: ${{ needs.apply-issue-resolution.outputs.message }}
-          allValidationStepsSuccessful: ${{ needs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
+          fixApplied: ${{ needs.apply-fix.outputs.fixApplied }}
+          message: ${{ needs.apply-fix.outputs.message }}
+          allValidationStepsSuccessful: ${{ needs.apply-fix.outputs.allValidationStepsSuccessful }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.apply-issue-resolution.outputs.usage }}
+          usage: ${{ needs.apply-fix.outputs.usage }}
         with:
           script: |
             const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\n[allValidationStepsSuccessful: ${process.env.allValidationStepsSuccessful}]`;
@@ -633,7 +633,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
+            const activityLogContent = `## Fixed Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
