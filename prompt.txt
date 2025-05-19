@@ -114,6 +114,11 @@ import fs from "fs/promises";
 import minimist from "minimist";
 import ejs from "ejs";
 import yaml from "js-yaml";
+import dotenv from "dotenv";
+
+// Load .env file silently
+const dotenvResult = dotenv.config({ path: path.resolve(".env") });
+const loadedEnv = dotenvResult.parsed || {};
 
 /**
  * Main entrypoint for CLI commands.
@@ -123,8 +128,15 @@ import yaml from "js-yaml";
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render", "features"],
-    alias: { h: "help", m: "mission", f: "features" },
+    alias: { h: "help", m: "mission", f: "features", e: "env" },
+    string: ["env"],
   });
+
+  // Handle environment variables option
+  if (args.env !== undefined) {
+    handleEnv(args.env);
+    return;
+  }
 
   if (args.help) {
     return printHelp();
@@ -150,12 +162,32 @@ export async function main(argv) {
 }
 
 /**
+ * Handle --env and -e option.
+ * @param {boolean|string} envArg - The argument passed to --env.
+ */
+function handleEnv(envArg) {
+  // Print all loaded env vars when no name is provided
+  if (envArg === true || envArg === "") {
+    console.log(JSON.stringify(loadedEnv, null, 2));
+    process.exit(0);
+  }
+  const varName = envArg;
+  const value = loadedEnv[varName];
+  if (value === undefined) {
+    console.error(`Missing environment variable: ${varName}`);
+    process.exit(1);
+  }
+  console.log(value);
+  process.exit(0);
+}
+
+/**
  * Print usage instructions and summary of commands.
  */
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
@@ -164,6 +196,8 @@ function printHelp() {
   console.log("  --version                   Print version");
   console.log("  -f, --features              List available features");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
+  console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
+  console.log("  -e, --env                   Print all loaded environment variables as JSON");
   console.log("  echo <message>              Echo message");
 }
 
@@ -359,6 +393,62 @@ describe("CLI entrypoint", () => {
       const result = spawnSync("node", ["sandbox/source/main.js", "--version"], { encoding: "utf-8" });
       expect(result.stdout.trim()).toBe(rootPkg.version);
     });
+  });
+});
+
+TEST_FILE_END
+
+
+TEST_FILE_START File: sandbox/tests/env.test.js
+import { describe, test, expect, afterEach } from "vitest";
+import path from "path";
+import { spawnSync } from "child_process";
+import fs from "fs";
+
+const envPath = path.resolve(".env");
+
+describe("--env CLI option", () => {
+  afterEach(() => {
+    if (fs.existsSync(envPath)) {
+      fs.unlinkSync(envPath);
+    }
+  });
+
+  test("prints value of known variable and exits 0", () => {
+    fs.writeFileSync(envPath, "API_KEY=abc123");
+    const result = spawnSync("node", ["sandbox/source/main.js", "--env", "API_KEY"], {
+      encoding: "utf-8",
+    });
+    expect(result.stdout.trim()).toBe("abc123");
+    expect(result.status).toBe(0);
+  });
+
+  test("alias -e works the same", () => {
+    fs.writeFileSync(envPath, "KEY=val");
+    const result = spawnSync("node", ["sandbox/source/main.js", "-e", "KEY"], {
+      encoding: "utf-8",
+    });
+    expect(result.stdout.trim()).toBe("val");
+    expect(result.status).toBe(0);
+  });
+
+  test("prints all loaded variables as JSON and exits 0", () => {
+    fs.writeFileSync(envPath, "ONE=1\nTWO=2");
+    const result = spawnSync("node", ["sandbox/source/main.js", "--env"], {
+      encoding: "utf-8",
+    });
+    const expected = JSON.stringify({ ONE: "1", TWO: "2" }, null, 2);
+    expect(result.stdout.trim()).toBe(expected);
+    expect(result.status).toBe(0);
+  });
+
+  test("missing variable prints error to stderr and exits 1", () => {
+    fs.writeFileSync(envPath, "A=1");
+    const result = spawnSync("node", ["sandbox/source/main.js", "--env", "B"], {
+      encoding: "utf-8",
+    });
+    expect(result.stderr.trim()).toBe("Missing environment variable: B");
+    expect(result.status).toBe(1);
   });
 });
 
@@ -572,7 +662,7 @@ Documentation files (write new files or update files in sandbox/docs as necessar
 DOCUMENTATION_FILE_START File: sandbox/docs/README.md
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, and **render** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, **render**, and **env** functionality.
 
 ## Links
 
@@ -601,6 +691,12 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 - `echo` _<message>..._  
   : Prints any additional arguments passed after the `echo` command.
 
+- `-e, --env <VAR_NAME>`  
+  : Prints the value of the specified environment variable loaded from `.env`. Exits with code 0 if defined, or prints an error and exits with code 1 if undefined.
+
+- `-e, --env`  
+  : Prints all loaded environment variables as a JSON object. Exits with code 0.
+
 ## Usage Examples
 
 ```bash
@@ -620,29 +716,15 @@ npm run start -- --version
 npm run start -- --features
 # List features using alias
 npm run start -- -f
-```
 
-### Expected Output for Features
+# Print value of API_KEY
+npm run start -- --env API_KEY
 
-First, the mission statement:
+# Alias -e works the same
+npm run start -- -e API_KEY
 
-```
-<Contents of MISSION.md>
-```
-
-Then, the list of features:
-
-```json
-[
-  {
-    "title": "CLI Tool Enhancements",
-    "description": "Brief description of CLI enhancements."
-  },
-  {
-    "title": "Schema Validation",
-    "description": "Short description of schema validation feature."
-  }
-]
+# Print all loaded environment variables
+npm run start -- --env
 ```
 DOCUMENTATION_FILE_END
 
@@ -1186,117 +1268,96 @@ AGENT_CONFIG_FILE_END
 
 Issue details:
 ISSUE_START
-title: Implement ENV_VARS CLI option to load .env and expose environment variables
+title: Documenter: Refresh README and fix start script to match CLI implementation
 description:
-Implement ENV_VARS CLI option to load .env and expose environment variables
+Title: Refresh README and Fix Start Script to Match CLI Implementation
 
-Overview
+Problem:
+The top-level README currently describes an outdated equation plotter demo, narrative diaries, and workflows that no longer align with the actual CLI functionality in `sandbox/source/main.js`. Additionally, the `start` script in `package.json` points to `src/lib/main.js`, which only logs raw arguments and does not provide the core commands.
 
-Add the ENV_VARS feature as specified in sandbox/features/ENV_VARS.md:
+Proposed Changes:
+1. Update `package.json`:
+   - Change `scripts.start` from `node src/lib/main.js` to `node sandbox/source/main.js`.
+2. Refresh `README.md`:
+   - Remove all content related to equation plotting, diaries, and agentic-lib narrative.
+   - Add a concise description of the project as a demo CLI with commands: **help**, **mission**, **version**, **features**, **render**, and **echo**.
+   - Create a **Usage** section showing examples of `npm run start -- <command>` for each command.
+   - Include links to **MISSION.md**, **CONTRIBUTING.md**, **LICENSE.md**, and the Intentïon `agentic-lib` repository (`https://github.com/xn-intenton-z2a/agentic-lib`).
+   - Ensure examples match actual output of `npm run start -- --help`.
 
-1. Load a `.env` file in the working directory using `dotenv` (silently skip if missing) before any other CLI command logic.
-2. Introduce a new CLI option `--env` (alias `-e`) via `minimist`:
-   - When invoked as `node sandbox/source/main.js --env VAR_NAME`, print the value of `process.env.VAR_NAME` to stdout and exit with code 0.
-   - When invoked as `node sandbox/source/main.js --env` (no name), print a JSON-formatted object of all loaded variables to stdout and exit with code 0.
-   - If `VAR_NAME` is not defined in `process.env`, print `Missing environment variable: VAR_NAME` to stderr and exit with code 1.
-3. Provide tests in `sandbox/tests/env.test.js` covering:
-   - Loading a temporary `.env` file and retrieving a known variable with `--env NAME`.
-   - Requesting an undefined variable results in the correct error and exit code 1.
-   - Invoking `--env` without a name prints all loaded variables as JSON and exits with code 0.
-   - Alias `-e` works identically to `--env`.
-4. Update documentation:
-   - In `sandbox/docs/README.md`, add entries under **Commands** for `--env <VAR_NAME>` and `--env` without a name, including usage examples.
-   - In the root `README.md`, under **Commands** and **Usage Examples**, add examples demonstrating `--env` and `-e`.
-
-Acceptance Criteria
-
-1. Given a `.env` file containing `API_KEY=abc123`, running `node sandbox/source/main.js --env API_KEY` prints `abc123` and exits 0.
-2. Given a `.env` file, running `node sandbox/source/main.js --env` prints a JSON object of all loaded variables and exits 0.
-3. Running `node sandbox/source/main.js --env UNKNOWN` prints `Missing environment variable: UNKNOWN` to stderr and exits 1.
-4. The alias `-e` behaves the same as `--env` in all scenarios.
-5. If no `.env` file is present, the CLI proceeds silently and uses existing `process.env` variables for `--env` operations.
+Acceptance Criteria (all must pass):
+- [ ] `package.json` `scripts.start` is exactly `node sandbox/source/main.js`.
+- [ ] `npm run start -- --help` prints the help text as shown in the updated README.
+- [ ] `npm run start -- --version` outputs the version from `package.json`.
+- [ ] `npm run start -- --mission` outputs the full content of `MISSION.md`.
+- [ ] `npm run start -- --features` outputs the mission statement followed by a JSON list of features.
+- [ ] `npm run start -- --render <template> <data>` correctly renders EJS templates with JSON or YAML data.
+- [ ] `npm run start -- echo <message>` prints the provided message to stdout.
+- [ ] All existing tests (`npm test`) pass without any modifications.
+- [ ] The updated `README.md` includes the required links and accurately reflects the CLI behavior.
 comments:
-Author:github-actions[bot], Created:2025-05-19T04:00:34Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
+Author:github-actions[bot], Created:2025-05-19T03:55:05Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
 Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/65f116ee47aa4b511b63296a46e4bea5bb243ca6
+Author:github-actions[bot], Created:2025-05-19T03:55:47Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T03:56:10Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2d4052d2915a8ae3ea45fb3c5479d8860cfa7c7a
+Author:github-actions[bot], Created:2025-05-19T03:57:13Z, Comment: Workflow name: flow-maintenance-activity-to-issue
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103901533
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2d4052d2915a8ae3ea45fb3c5479d8860cfa7c7a
+Author:github-actions[bot], Created:2025-05-19T04:00:24Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103980934
+Workflow event: workflow_run
 Workflow inputs: null
 HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
-Author:github-actions[bot], Created:2025-05-19T04:01:02Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
-Workflow event: schedule
+Author:github-actions[bot], Created:2025-05-19T04:03:02Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104008625
+Workflow event: workflow_run
 Workflow inputs: null
 HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
-Author:github-actions[bot], Created:2025-05-19T04:02:14Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15103949044
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/b1e8855917e046422443deb7e471f782239716bf
-Author:github-actions[bot], Created:2025-05-19T04:04:52Z, Comment: Workflow name: flow-feature-maintenance
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104006166
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/f53710c7f0d1ce9ecd53ad2620afd11a7e652ef4
-Author:github-actions[bot], Created:2025-05-19T04:05:33Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
-Author:github-actions[bot], Created:2025-05-19T04:24:32Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:24:57Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:26:06Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104252710
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:28:02Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104309345
+Author:github-actions[bot], Created:2025-05-19T04:04:22Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104022746
 Workflow event: workflow_run
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:29:20Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104323714
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/70dbec173b81dcaa1d68a7714cfa52cf77334973
+Author:github-actions[bot], Created:2025-05-19T04:54:42Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104618430
 Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:34:44Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104388594
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:37:31Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104418699
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/2df08af280d068a0d730a19a7bf03411b10f3a6d
-Author:github-actions[bot], Created:2025-05-19T04:42:00Z, Comment: Workflow name: ci-publish-web
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104470810
-Workflow event: schedule
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/29ab312babc672221e6fe7685c5c3da9573c825c
-Author:github-actions[bot], Created:2025-05-19T04:44:16Z, Comment: Workflow name: flow-publish-stats
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104498504
-Workflow event: workflow_run
-Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/c95680c0c9b9764c30755a97b93bdd4652293443
-Author:github-actions[bot], Created:2025-05-19T04:51:26Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
-Workflow event: schedule
 Workflow inputs: null
 HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
-Author:github-actions[bot], Created:2025-05-19T04:51:45Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
+Author:github-actions[bot], Created:2025-05-19T04:57:56Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104657323
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/fbbf4e28f7b98dd5ff61a84085d381d859e39d85
+Author:github-actions[bot], Created:2025-05-19T04:59:17Z, Comment: Workflow name: flow-feature-maintenance
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104653878
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
-Author:github-actions[bot], Created:2025-05-19T04:52:44Z, Comment: Workflow name: flow-feature-development
-Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104567519
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3aba11e9df1b3783e18d9b2ff093124f9b261164
+Author:github-actions[bot], Created:2025-05-19T04:59:18Z, Comment: Workflow name: flow-publish-stats
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104665297
+Workflow event: workflow_run
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3aba11e9df1b3783e18d9b2ff093124f9b261164
+Author:github-actions[bot], Created:2025-05-19T04:59:55Z, Comment: This issue has been reviewed and marked as 'ready'. The description has been updated with testable acceptance criteria, and relevant library documents ([], 0 in total) have been added as comments.
+Author:github-actions[bot], Created:2025-05-19T05:23:17Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104965674
 Workflow event: schedule
 Workflow inputs: null
-HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/6373fa2732e3693008ff1b86de57e1015619f2cd
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d06bb9b00639a21788b44a3731b0d777f93cbe4
+Author:github-actions[bot], Created:2025-05-19T05:24:22Z, Comment: Workflow name: flow-feature-development
+Workflow run URL: https://github.com/xn-intenton-z2a/repository0/actions/runs/15104965674
+Workflow event: schedule
+Workflow inputs: null
+HEAD of main URL: https://github.com/xn-intenton-z2a/repository0/commit/3d06bb9b00639a21788b44a3731b0d777f93cbe4
 ISSUE_END            
 
 Dependencies list from command: npm list
@@ -1348,20 +1409,21 @@ TEST_OUTPUT_START
 
 [1m[46m RUN [49m[22m [36mv3.1.3 [39m[90m/home/runner/work/repository0/repository0[39m
 
- [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
- [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 22[2mms[22m[39m
- [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 246[2mms[22m[39m
- [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m sandbox/tests/features.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m sandbox/tests/cli.test.js [2m([22m[2m7 tests[22m[2m)[22m[33m 341[2mms[22m[39m
+ [32m✓[39m sandbox/tests/render.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m sandbox/tests/env.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 577[2mms[22m[39m
+ [32m✓[39m sandbox/tests/mission.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
 [90mstdout[2m | tests/unit/main.test.js[2m > [22m[2mMain Output[2m > [22m[2mshould terminate without error
 [22m[39mRun with: undefined
 
  [32m✓[39m tests/unit/main.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m tests/unit/module-index.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
-[2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
-[2m   Start at [22m 04:53:50
-[2m   Duration [22m 831ms[2m (transform 97ms, setup 0ms, collect 327ms, tests 300ms, environment 1ms, prepare 570ms)[22m
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 05:25:32
+[2m   Duration [22m 1.17s[2m (transform 85ms, setup 0ms, collect 364ms, tests 982ms, environment 2ms, prepare 704ms)[22m
 TEST_OUTPUT_END            
 
 Main execution output from command: npm run start
