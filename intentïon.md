@@ -1587,3 +1587,176 @@ LLM API Usage:
 
 2025-05-19T20:59:42Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-19T15-08Z
 
+## Issue to Code at 2025-05-19T21:49:28.955Z
+
+fixApplied: true
+
+Add plot-expression CLI command with validation export generateExpressionSVG and corresponding tests
+
+Git Diff:
+
+```
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 7801661f..044adcfe 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -198,6 +198,66 @@ async function main(inputArgs) {
+       }
+       break;
+     }
++    case "plot-expression": {
++      const expr = argv.expr;
++      const domainStr = argv.domain;
++      const samples = argv.samples !== undefined ? Number(argv.samples) : undefined;
++      const width = argv.width !== undefined ? Number(argv.width) : 500;
++      const height = argv.height !== undefined ? Number(argv.height) : 500;
++      const output = argv.output;
++
++      if (!expr) {
++        console.error("Missing required parameter: expr");
++        process.exit(1);
++      }
++      if (!domainStr) {
++        console.error("Missing required parameter: domain");
++        process.exit(1);
++      }
++      const parts = domainStr.split(",");
++      if (parts.length !== 2) {
++        console.error("Invalid domain parameter");
++        process.exit(1);
++      }
++      const xMin = Number(parts[0]);
++      const xMax = Number(parts[1]);
++      if (isNaN(xMin) || isNaN(xMax) || xMin >= xMax) {
++        console.error("Invalid domain parameter");
++        process.exit(1);
++      }
++      if (samples === undefined || isNaN(samples) || samples <= 0 || !Number.isInteger(samples)) {
++        console.error("Invalid samples parameter");
++        process.exit(1);
++      }
++      if (isNaN(width) || width <= 0 || !Number.isInteger(width)) {
++        console.error("Invalid width parameter");
++        process.exit(1);
++      }
++      if (isNaN(height) || height <= 0 || !Number.isInteger(height)) {
++        console.error("Invalid height parameter");
++        process.exit(1);
++      }
++      if (!output) {
++        console.error("Missing required parameter: output");
++        process.exit(1);
++      }
++
++      let svg;
++      try {
++        svg = generateExpressionSVG(expr, xMin, xMax, samples, width, height);
++      } catch (err) {
++        console.error(err.message);
++        process.exit(1);
++      }
++      try {
++        await writeFile(output, svg, "utf-8");
++        console.log(`Plot written to ${output}`);
++      } catch (err) {
++        console.error(`Error writing file: ${err.message}`);
++        process.exit(1);
++      }
++      break;
++    }
+     case "plot-server": {
+       const port = argv.port !== undefined ? Number(argv.port) : 3000;
+       const host = argv.host || "localhost";
+@@ -213,27 +273,27 @@ async function main(inputArgs) {
+           const type = params.get("type");
+           if (!type) throw new Error("Missing required parameter: type");
+           let svg;
+-          const width = params.has("width") ? Number(params.get("width")) : 500;
+-          const height = params.has("height") ? Number(params.get("height")) : 500;
++          const widthParam = params.has("width") ? Number(params.get("width")) : 500;
++          const heightParam = params.has("height") ? Number(params.get("height")) : 500;
+           if (type === "quadratic") {
+             const a = params.has("a") ? Number(params.get("a")) : undefined;
+             const b = params.has("b") ? Number(params.get("b")) : undefined;
+             const c = params.has("c") ? Number(params.get("c")) : undefined;
+             if (a === undefined || b === undefined || c === undefined) throw new Error("Missing quadratic parameters a, b, c");
+-            svg = generateQuadraticSVG(a, b, c, width, height);
++            svg = generateQuadraticSVG(a, b, c, widthParam, heightParam);
+           } else if (type === "sine") {
+             const frequency = params.has("frequency") ? Number(params.get("frequency")) : undefined;
+             const amplitude = params.has("amplitude") ? Number(params.get("amplitude")) : undefined;
+             if (frequency === undefined || amplitude === undefined) throw new Error("Missing sine parameters frequency, amplitude");
+-            svg = generateSineSVG(frequency, amplitude, width, height);
++            svg = generateSineSVG(frequency, amplitude, widthParam, heightParam);
+           } else if (type === "expression") {
+-            const expr = params.get("expr");
++            const exprParam = params.get("expr");
+             const domain = params.get("domain");
+-            const samples = params.has("samples") ? Number(params.get("samples")) : undefined;
+-            if (!expr || !domain || samples === undefined) throw new Error("Missing expression parameters expr, domain, samples");
+-            const [xMin, xMax] = domain.split(",").map(Number);
+-            if (isNaN(xMin) || isNaN(xMax)) throw new Error("Invalid domain parameter");
+-            svg = generateExpressionSVG(expr, xMin, xMax, samples, width, height);
++            const samplesParam = params.has("samples") ? Number(params.get("samples")) : undefined;
++            if (!exprParam || !domain || samplesParam === undefined) throw new Error("Missing expression parameters expr, domain, samples");
++            const [xminPar, xmaxPar] = domain.split(",").map(Number);
++            if (isNaN(xminPar) || isNaN(xmaxPar)) throw new Error("Invalid domain parameter");
++            svg = generateExpressionSVG(exprParam,xminPar,xmaxPar,samplesParam,widthParam,heightParam);
+           } else {
+             throw new Error(`Unsupported type: ${type}`);
+           }
+@@ -283,6 +343,7 @@ function printHelp() {
+   console.log(`  house-choice     Randomly choose a house or list all houses`);
+   console.log(`  plot-quadratic   Generate a quadratic plot as SVG`);
+   console.log(`  plot-sine        Generate a sine wave plot as SVG`);
++  console.log(`  plot-expression  Generate an expression plot as SVG`);
+   console.log(`  plot-server      Start HTTP server to serve SVG plots`);
+ }
+ 
+@@ -324,7 +385,8 @@ async function printVersion() {
+  * @param {string[]} args
+  */
+ function printEcho(args) {
+-  console.log(args.join(" "));}
++  console.log(args.join(" "));
++}
+ 
+ // If run directly, execute main
+ if (path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+@@ -334,4 +396,4 @@ if (path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+   });
+ }
+ 
+-export { main, chooseHouse };
+\ No newline at end of file
++export { main, chooseHouse, generateExpressionSVG };
+\ No newline at end of file
+
+```
+mainOutput:```
+
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node sandbox/source/main.js
+
+Usage: main.js <command> [arguments]
+Commands:
+  help             Show this help message
+  mission          Print the mission statement
+  version          Print the version from package.json
+  echo             Echo the provided arguments
+  house-choice     Randomly choose a house or list all houses
+  plot-quadratic   Generate a quadratic plot as SVG
+  plot-sine        Generate a sine wave plot as SVG
+  plot-expression  Generate an expression plot as SVG
+  plot-server      Start HTTP server to serve SVG plots
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2134 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":18630,"completion_tokens":8391,"total_tokens":27021,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
