@@ -424,3 +424,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-19T17:23:16.981Z
+
+Generated feature development issue with title Implement 'plot-quadratic' and 'plot-sine' CLI commands for equation plotting.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9607,"completion_tokens":3775,"total_tokens":13382,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2944,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
