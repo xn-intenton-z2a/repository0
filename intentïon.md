@@ -366,3 +366,61 @@ LLM API Usage:
 
 2025-05-19T17:01:03Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-19T15-08Z
 
+## Feature to enhanced Issue at 2025-05-19T17:01:29.587Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2134 with enhanced description:
+
+Issue: Add `plot-expression` CLI command to visualize arbitrary mathematical expressions
+
+Extend the CLI entrypoint (`src/lib/main.js`) with a new `plot-expression` command that uses `mathjs` to parse and evaluate user-defined expressions and outputs an SVG.  
+
+Acceptance Criteria:
+1. CLI Behavior:
+   - Running `node src/lib/main.js plot-expression --expr "x^2 + sin(x)" --domain "-5,5" --samples 100 --width 800 --height 600 --output out.svg` should:
+     * Create `out.svg` in the working directory.
+     * The file begins with `<svg` and contains a `<polyline>` or `<path>` element representing the plotted points.
+   - Invalid expressions (e.g., malformed syntax) should print a clear error message and exit with a non-zero status.
+   - Domain flag (`--domain`) must accept two comma-separated numbers; if `start >= end` or non-numeric values are provided, the CLI should error.
+   - Flags `--samples`, `--width`, and `--height` must be positive integers; invalid or missing values produce a usage error.
+
+2. Implementation:
+   - Add `mathjs` to `package.json` dependencies.
+   - In `src/lib/main.js`, parse `plot-expression` and its flags via `minimist`.
+   - Implement `generateExpressionSVG(expr, domainStart, domainEnd, samples, width, height)`:
+     * Safely parse and compile `expr` using `mathjs`.
+     * Sample `x` values evenly over the domain and compute corresponding `y` values.
+     * Generate an SVG string including axes and a `<polyline>` or `<path>` element connecting the points.
+     * Return the complete SVG markup.
+   - Write the SVG string to the file specified by `--output` using `fs/promises`.
+
+3. Testing:
+   - Unit Tests (e.g., `tests/unit/generateExpressionSVG.test.js`):
+     * For simple expressions (`x`, `x^2`), `generateExpressionSVG` returns a string containing `<svg` and at least one `<polyline>` or `<path>`.
+     * Ensure error handling for invalid expressions and flag values.
+   - Integration Test (e.g., `sandbox/tests/plot-expression.test.js`):
+     * Invoke `main(["plot-expression","--expr","x^2","--domain","-5,5","--samples","10","--width","100","--height","50","--output","test.svg"])`.
+     * Assert that `test.svg` exists and starts with `<svg`.
+
+4. Documentation:
+   - Update `README.md` to include the `plot-expression` command under the CLI section with usage examples:
+     ```bash
+     npm run start -- plot-expression \
+       --expr "x^2 + sin(x)" \
+       --domain "-10,10" \
+       --samples 200 \
+       --width 800 --height 600 \
+       --output expr.svg
+     ```
+
+How to Verify:
+- Run `npm install` to install new dependency (`mathjs`).
+- Execute `npm test`; all unit and integration tests should pass.
+- Run the example command and open the generated SVG to confirm the plotted curve.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8971,"completion_tokens":3077,"total_tokens":12048,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2304,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
