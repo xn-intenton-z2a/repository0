@@ -40,7 +40,7 @@ export async function main(argv) {
     return printVersion();
   }
   if (args.features) {
-    return listFeatures();
+    return listFeatures(args);
   }
   if (args.render) {
     return renderTemplate(args);
@@ -78,14 +78,14 @@ function handleEnv(envArg) {
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features <tag>...] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
   console.log("  --help                      Display usage instructions");
   console.log("  -m, --mission               Print mission statement");
   console.log("  --version                   Print version");
-  console.log("  -f, --features              List available features");
+  console.log("  -f, --features [<tag>...]   List available features, optionally filtered by mission tags");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
   console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
   console.log("  -e, --env                   Print all loaded environment variables as JSON");
@@ -111,9 +111,11 @@ async function printVersion() {
 }
 
 /**
- * List available features by reading markdown files and extracting YAML frontmatter.
+ * List available features by reading markdown files and extracting YAML frontmatter,
+ * optionally filtering by provided mission tags.
+ * @param {object} args - Parsed CLI arguments including positional tags in args._
  */
-async function listFeatures() {
+async function listFeatures(args) {
   const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
   console.log(missionText);
 
@@ -163,7 +165,15 @@ async function listFeatures() {
       featuresList.push({ title, description, mission });
     }
 
-    console.log(JSON.stringify(featuresList, null, 2));
+    const filterTags = Array.isArray(args._) ? args._ : [];
+    let outputList = featuresList;
+    if (filterTags.length > 0) {
+      outputList = featuresList.filter((f) =>
+        Array.isArray(f.mission) && f.mission.some((tag) => filterTags.includes(tag))
+      );
+    }
+
+    console.log(JSON.stringify(outputList, null, 2));
     process.exit(0);
   } catch (e) {
     console.error(`Error: ${e.message}`);

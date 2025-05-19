@@ -98,6 +98,33 @@ Implements fancy CLI formatting`
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
+  test("filters features by mission tag", async () => {
+    await fs.writeFile(
+      path.join(featuresDir, 'alpha.md'),
+      `---
+mission: ['cli','user-experience']
+---
+# Alpha
+First feature`
+    );
+    await fs.writeFile(
+      path.join(featuresDir, 'beta.md'),
+      `---
+mission: ['render']
+---
+# Beta
+Second feature`
+    );
+    await main(["--features", "cli"]);
+    const calls = logSpy.mock.calls.map(args => args[0]);
+    expect(calls[0]).toBe("Dummy mission statement");
+    const result = JSON.parse(calls[1]);
+    expect(result).toEqual([
+      { title: 'Alpha', description: 'First feature', mission: ['cli','user-experience'] }
+    ]);
+    expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+
   test("empty directory yields empty array", async () => {
     await main(["--features"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
