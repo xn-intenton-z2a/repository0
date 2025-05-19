@@ -51,6 +51,9 @@ export async function main(argv) {
 
   // List features
   if (args.features) {
+    // Read and display mission statement first
+    const missionText = await fs.readFile(path.resolve("MISSION.md"), "utf-8");
+    console.log(missionText);
     try {
       const dirPath = path.resolve("sandbox/features");
       const files = await fs.readdir(dirPath);
