@@ -45,7 +45,11 @@ describe("--features CLI option", () => {
     await main(["--features"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    expect(calls[1]).toBe(JSON.stringify(["First Feature", "Second Feature"], null, 2));
+    const expected = JSON.stringify([
+      { title: "First Feature", description: "Details" },
+      { title: "Second Feature", description: "More details" }
+    ], null, 2);
+    expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
@@ -54,7 +58,10 @@ describe("--features CLI option", () => {
     await main(["-f"]);
     const calls = logSpy.mock.calls.map((args) => args[0]);
     expect(calls[0]).toBe("Dummy mission statement");
-    expect(calls[1]).toBe(JSON.stringify(["Only Feature"], null, 2));
+    const expected = JSON.stringify([
+      { title: "Only Feature", description: "" }
+    ], null, 2);
+    expect(calls[1]).toBe(expected);
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 
