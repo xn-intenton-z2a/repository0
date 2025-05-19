@@ -333,3 +333,26 @@ jobs:
               }
               page++;
             }
+
+  feature-maintenance-flow:
+    needs:
+      - agentic-lib
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      packages: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.4'
+    with:
+      feature: ${{ inputs.mission || '' }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+# TODO Inline code to issue and merge pr.

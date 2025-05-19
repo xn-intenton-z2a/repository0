@@ -21,9 +21,9 @@ on:
   #      required: true
   #
   schedule:
-    #- cron: '19 4 */7 * *' # schedule-1
-    #- cron: '19 */6 * * *' # schedule-2
-    #- cron: '19 */3 * * *' # schedule-3
+    #- cron: '19 3 */28 * *' # schedule-1
+    #- cron: '19 3 */7 * *' # schedule-2
+    #- cron: '19 3 * * *' # schedule-3
     - cron: '19 3 * * *' # schedule-4
 
 env:
@@ -80,7 +80,7 @@ jobs:
               core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
 
-  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
+  # If the document is "", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
   maintain-library:
     needs:
       - agentic-lib

@@ -14,10 +14,10 @@ on:
   workflow_dispatch:
     inputs:
       mission:
-        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
+        description: 'Text to drive the source creation (if "", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
   #workflow_run:
   #  workflows:
   #    - seed-repository
@@ -31,19 +31,19 @@ on:
   workflow_call:
     inputs:
       mission:
-        description: 'Text to drive the source creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
+        description: 'Text to drive the source creation (if "", the repository will be assessed and an action chosen). e.g. "Find out about using agents and LLMs."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    #- cron: '14 4 */7 * *' # schedule-1
-    #- cron: '14 */6 * * *' # schedule-2
-    #- cron: '14 */2 * * *' # schedule-3
+    #- cron: '14 2 */28 * *' # schedule-1
+    #- cron: '14 2 */7 * *' # schedule-2
+    #- cron: '14 2 * * *' # schedule-3
     - cron: '14 2 * * *' # schedule-4
 
 env:
@@ -100,7 +100,7 @@ jobs:
               core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
 
-  # If the feature is "house choice", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
   maintain-sources:
     needs:
       - agentic-lib

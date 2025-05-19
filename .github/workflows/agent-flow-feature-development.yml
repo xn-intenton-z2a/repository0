@@ -14,22 +14,22 @@ on:
   workflow_dispatch:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
+        default: ''
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
   workflow_call:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -37,9 +37,9 @@ on:
         required: true
   schedule:
     #- cron: '14 6 */28 * *' # schedule-1
-    #- cron: '14 */4 * * *' # schedule-2
+    #- cron: '14 6 */7 * *' # schedule-2
     #- cron: '14,44 * * * *' # schedule-3
-    - cron: '14,44 * * * *' # schedule-4
+    - cron: '14 6 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -104,7 +104,7 @@ jobs:
               core.info(`One of the targetFilepaths "${targetFilepath1}", "${targetFilepath2}", "${targetFilepath3}", or "${targetFilepath4}" is in the list of writeable filepaths.`);
             }
 
-  # If the feature is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new feature.
   #maintain-features:
   #  needs:
   #    - agentic-lib

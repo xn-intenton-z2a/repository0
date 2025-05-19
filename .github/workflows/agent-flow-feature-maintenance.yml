@@ -14,15 +14,15 @@ on:
   workflow_dispatch:
     inputs:
       #mission:
-      #  description: 'Text to drive the mission creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+      #  description: 'Text to drive the mission creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
       #  required: false
       #  type: string
-      #  default: 'house choice'
+      #  default: ''
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
   #workflow_run:
   #  workflows:
   #    - seed-repository
@@ -31,15 +31,15 @@ on:
   workflow_call:
     inputs:
       #mission:
-      #  description: 'Text to drive the mission creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+      #  description: 'Text to drive the mission creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
       #  required: false
       #  type: string
-      #  default: 'house choice'
+      #  default: ''
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -47,9 +47,9 @@ on:
         required: true
   schedule:
     #- cron: '54 6 */28 * *' # schedule-1
-    #- cron: '54 */4 * * *' # schedule-2
-    #- cron: '24,54 * * * *' # schedule-3
-    - cron: '54 * * * *' # schedule-4
+    #- cron: '54 6 */7 * *' # schedule-2
+    #- cron: '54 6 * * *' # schedule-3
+    - cron: '54 6 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -105,7 +105,7 @@ jobs:
               core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
 
-  # If the feature is "house choice", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", the repository will be assessed an action chosen, otherwise the supplied text will be used to generate a new feature.
   #maintain-sources:
   #  needs:
   #    - agentic-lib
@@ -137,7 +137,7 @@ jobs:
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # If the document is "house choice", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
+  # If the document is "", the repository will be assessed and an action chosen otherwise the supplied text will be used to generate a new document.
   #maintain-library:
   #  needs:
   #    - agentic-lib
@@ -164,7 +164,7 @@ jobs:
   #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
   #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # If the feature is "house choice", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-features:
     needs:
       - agentic-lib

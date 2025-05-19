@@ -377,6 +377,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      packages: write
       checks: write
       issues: write
       id-token: write
@@ -480,27 +481,29 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  feature-maintenance-flow:
-    needs:
-      - process-discussion-post
-      - generate-response
-      - seed-repository
-      - agentic-lib
-    if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
-      issues: write
-      packages: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.4'
-    with:
-      feature: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+  # TODO - Feature development flow in-line.
+
+  #feature-maintenance-flow:
+  #  needs:
+  #    - process-discussion-post
+  #    - generate-response
+  #    - seed-repository
+  #    - agentic-lib
+  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
+  #  permissions:
+  #    contents: write
+  #    pull-requests: write
+  #    checks: write
+  #    issues: write
+  #    packages: write
+  #    id-token: write
+  #    pages: write
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.4'
+  #  with:
+  #    feature: ${{ needs.generate-response.outputs.detail }}
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
 
   # Currently too large to include
   #feature-development-flow:
@@ -530,7 +533,6 @@ jobs:
       - process-discussion-post
       - generate-response
       - agentic-lib
-      - feature-maintenance-flow
     if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'mission-complete' || needs.generate-response.outputs.action == 'stop') }}
     runs-on: ubuntu-latest
     steps:

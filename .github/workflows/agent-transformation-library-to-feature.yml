@@ -11,10 +11,10 @@ on:
   workflow_dispatch:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
   #workflow_run:
   #  workflows:
   #    - agent-source-to-library
@@ -28,20 +28,20 @@ on:
   workflow_call:
     inputs:
       feature:
-        description: 'Text to drive the feature creation (if "house choice", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
+        description: 'Text to drive the feature creation (if "", the repository will be assessed and an action chosen). e.g. "Support output to PDF."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    #- cron: '24 4 */7 * *' # schedule-1
-    #- cron: '24 4 * * *' # schedule-2
-    #- cron: '24 */2 * * *' # schedule-3
-    - cron: '24 7 * * *' # schedule-4
+    #- cron: '24 4 */28 * *' # schedule-1
+    #- cron: '24 4 */7 * *' # schedule-2
+    #- cron: '24 4 * * *' # schedule-3
+    - cron: '24 4 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -97,7 +97,7 @@ jobs:
               core.info(`targetFilepath "${targetFilepath}" is in the list of writeable filepaths.`);
             }
 
-  # If the feature is "house choice", then the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
+  # If the feature is "", then the repository will be assessed an action chosen otherwise the supplied text will be used to generate a new feature.
   maintain-features:
     needs:
       - agentic-lib

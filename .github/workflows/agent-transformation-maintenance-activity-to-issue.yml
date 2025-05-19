@@ -11,10 +11,10 @@ on:
   workflow_dispatch:
     inputs:
       prompt:
-        description: 'Text to drive the issue creation (if "house choice", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
+        description: 'Text to drive the issue creation (if "", a currently random prompt will be selected). e.g. "Make an improvement to tests."'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
   #workflow_run:
   #  workflows:
   #    - seed-repository
@@ -26,9 +26,9 @@ on:
   #    CHATGPT_API_SECRET_KEY:
   #      required: true
   schedule:
-    #- cron: '54 4 */7 * *' # schedule-1
-    #- cron: '54 4 * * *' # schedule-2
-    #- cron: '54 */2 * * *' # schedule-3
+    #- cron: '54 4 */28 * *' # schedule-1
+    #- cron: '54 4 */7 * *' # schedule-2
+    #- cron: '54 4 * * *' # schedule-3
     - cron: '54 4 * * *' # schedule-4
 
 env:
@@ -72,7 +72,7 @@ jobs:
     with:
       promptFilepath: '.github/agents/agent-maintenance-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      promptHint: ${{ inputs.prompt || 'house choice' }}
+      promptHint: ${{ inputs.prompt || '' }}
       maintenanceIssuesWipLimit: '${{ needs.agentic-lib.outputs.maintenanceIssuesWipLimit }}'
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}

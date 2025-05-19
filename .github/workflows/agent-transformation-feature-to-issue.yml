@@ -11,10 +11,10 @@ on:
   workflow_dispatch:
     inputs:
       featureName:
-        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+        description: 'name of the feature to create an issue for (if "", a currently random feature will be selected). e.g. "WEBSITE"'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
   #workflow_run:
   #  workflows:
   #    - agent-library-to-feature
@@ -28,20 +28,20 @@ on:
   workflow_call:
     inputs:
       featureName:
-        description: 'name of the feature to create an issue for (if "house choice", a currently random feature will be selected). e.g. "WEBSITE"'
+        description: 'name of the feature to create an issue for (if "", a currently random feature will be selected). e.g. "WEBSITE"'
         required: false
         type: string
-        default: 'house choice'
+        default: ''
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    #- cron: '29 4 */7 * *' # schedule-1
-    #- cron: '29 4 * * *' # schedule-2
-    #- cron: '29 */6 * * *' # schedule-3
-    - cron: '29 1 * * *' # schedule-4
+    #- cron: '29 4 */28 * *' # schedule-1
+    #- cron: '29 4 */7 * *' # schedule-2
+    #- cron: '29 4 * * *' # schedule-3
+    - cron: '29 4 * * *' # schedule-4
 
 env:
   gitUserEmail: 'action@github.com'
@@ -75,7 +75,7 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  # If the prompt is "house choice", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
+  # If the prompt is "", a random feature will be selected from the feature library otherwise the supplied feature name will be used.
   select-feature:
     needs:
       - agentic-lib
@@ -99,14 +99,14 @@ jobs:
         id: select
         uses: actions/github-script@v7
         env:
-          featureName: ${{ inputs.featureName || 'house choice' }}
+          featureName: ${{ inputs.featureName || '' }}
           featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
         with:
           script: |
             const fs = require('fs');
             const path = require('path');
             let featureName = process.env.featureName;
-            if (featureName === 'house choice') {
+            if (featureName === '') {
               const promptsDir = process.env.featuresPath;
               // Get all items in the directory
               const items = fs.readdirSync(promptsDir);
