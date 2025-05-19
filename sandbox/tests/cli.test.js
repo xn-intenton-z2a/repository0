@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-os-command-from-path */
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import fs from "fs/promises";
 import { readFileSync } from "fs";
