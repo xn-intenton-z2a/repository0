@@ -6,6 +6,11 @@ import fs from "fs/promises";
 import minimist from "minimist";
 import ejs from "ejs";
 import yaml from "js-yaml";
+import dotenv from "dotenv";
+
+// Load .env file silently
+const dotenvResult = dotenv.config({ path: path.resolve(".env") });
+const loadedEnv = dotenvResult.parsed || {};
 
 /**
  * Main entrypoint for CLI commands.
@@ -15,8 +20,15 @@ import yaml from "js-yaml";
 export async function main(argv) {
   const args = minimist(argv, {
     boolean: ["help", "mission", "version", "render", "features"],
-    alias: { h: "help", m: "mission", f: "features" },
+    alias: { h: "help", m: "mission", f: "features", e: "env" },
+    string: ["env"],
   });
+
+  // Handle environment variables option
+  if (args.env !== undefined) {
+    handleEnv(args.env);
+    return;
+  }
 
   if (args.help) {
     return printHelp();
@@ -42,12 +54,32 @@ export async function main(argv) {
 }
 
 /**
+ * Handle --env and -e option.
+ * @param {boolean|string} envArg - The argument passed to --env.
+ */
+function handleEnv(envArg) {
+  // Print all loaded env vars when no name is provided
+  if (envArg === true || envArg === "") {
+    console.log(JSON.stringify(loadedEnv, null, 2));
+    process.exit(0);
+  }
+  const varName = envArg;
+  const value = loadedEnv[varName];
+  if (value === undefined) {
+    console.error(`Missing environment variable: ${varName}`);
+    process.exit(1);
+  }
+  console.log(value);
+  process.exit(0);
+}
+
+/**
  * Print usage instructions and summary of commands.
  */
 function printHelp() {
   const cmd = path.basename(process.argv[1]);
   console.log(
-    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
+    `Usage: ${cmd} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [--env <VAR_NAME>] [echo <message>...]`
   );
   console.log("");
   console.log("Commands:");
@@ -56,6 +88,8 @@ function printHelp() {
   console.log("  --version                   Print version");
   console.log("  -f, --features              List available features");
   console.log("  --render <template> <data>  Render EJS template with data (JSON or YAML)");
+  console.log("  -e, --env <VAR_NAME>        Print a specific environment variable");
+  console.log("  -e, --env                   Print all loaded environment variables as JSON");
   console.log("  echo <message>              Echo message");
 }
 

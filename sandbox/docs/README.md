@@ -1,6 +1,6 @@
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, and **render** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, **render**, and **env** functionality.
 
 ## Links
 
@@ -29,6 +29,12 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 - `echo` _<message>..._  
   : Prints any additional arguments passed after the `echo` command.
 
+- `-e, --env <VAR_NAME>`  
+  : Prints the value of the specified environment variable loaded from `.env`. Exits with code 0 if defined, or prints an error and exits with code 1 if undefined.
+
+- `-e, --env`  
+  : Prints all loaded environment variables as a JSON object. Exits with code 0.
+
 ## Usage Examples
 
 ```bash
@@ -48,27 +54,13 @@ npm run start -- --version
 npm run start -- --features
 # List features using alias
 npm run start -- -f
-```
 
-### Expected Output for Features
+# Print value of API_KEY
+npm run start -- --env API_KEY
 
-First, the mission statement:
+# Alias -e works the same
+npm run start -- -e API_KEY
 
-```
-<Contents of MISSION.md>
-```
-
-Then, the list of features:
-
-```json
-[
-  {
-    "title": "CLI Tool Enhancements",
-    "description": "Brief description of CLI enhancements."
-  },
-  {
-    "title": "Schema Validation",
-    "description": "Short description of schema validation feature."
-  }
-]
+# Print all loaded environment variables
+npm run start -- --env
 ```
