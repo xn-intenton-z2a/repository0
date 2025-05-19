@@ -7,36 +7,36 @@ paths:
   missionFilepath:
     path: 'MISSION.md'
   librarySourcesFilepath:
-    path: 'sandbox/SOURCES.md'
-    permissions: [ 'write' ]
-    limit: 16
-  libraryDocumentsPath:
-    path: 'sandbox/library/'
-    permissions: [ 'write' ]
-    limit: 64
-  featuresPath:
-    path: 'sandbox/features/'
+    path: 'SOURCES.md'
     permissions: [ 'write' ]
     limit: 8
+  libraryDocumentsPath:
+    path: 'library/'
+    permissions: [ 'write' ]
+    limit: 8
+  featuresPath:
+    path: 'features/'
+    permissions: [ 'write' ]
+    limit: 2
 
   # Filepaths for engineer workflows
   contributingFilepath:
     path: 'CONTRIBUTING.md'
   targetTestsPath:
-    path: 'sandbox/tests/'
+    path: 'tests/unit/'
     permissions: [ 'write' ]
   otherTestsPaths:
-    paths: [ 'tests/unit/' ]
+    paths: [ '' ]
   targetSourcePath:
-    path: 'sandbox/source/'
+    path: 'src/lib/'
     permissions: [ 'write' ]
   otherSourcePaths:
-    paths: [ 'src/lib/' ]
+    paths: [ '' ]
   dependenciesFilepath:
     path: 'package.json'
     permissions: [ 'write' ]
   documentationPath:
-    path: 'sandbox/docs/'
+    path: 'docs/'
     permissions: [ 'write' ]
 
   # Filepaths for maintainer workflows
@@ -53,8 +53,8 @@ testScript: 'npm test'
 mainScript: 'npm run start'
 
 # How many issues should be available to be picked up?
-featureDevelopmentIssuesWipLimit: 3
-maintenanceIssuesWipLimit: 3
+featureDevelopmentIssuesWipLimit: 2
+maintenanceIssuesWipLimit: 1
 
 # How many attempts should be made to work on an issue?
 attemptsPerBranch: 2
@@ -64,17 +64,17 @@ attemptsPerIssue: 1
 docRoot: 'public'
 
 # Sandbox configuration
-sandbox:
-  sandboxReset: 'true'
-  sandboxPath: 'sandbox'
+#sandbox:
+#  sandboxReset: 'true'
+#  sandboxPath: 'sandbox'
 
 # Repository seeding
-#seeding:
-#  repositoryReseed: 'true'
-#  sourcePath: 'seeds/zero-main.js'
-#  testsPath: 'seeds/zero-tests.js'
-#  dependenciesFilepath: 'seeds/zero-package.json'
-#  readmeFilepath: 'seeds/zero-README.md'
+seeding:
+  repositoryReseed: 'true'
+  sourcePath: 'seeds/zero-main.js'
+  testsPath: 'seeds/zero-tests.js'
+  dependenciesFilepath: 'seeds/zero-package.json'
+  readmeFilepath: 'seeds/zero-README.md'
 
 # The intention is associated with the bot's discussion thread.
 intentionBot:

@@ -1,4 +1,4 @@
-# Mission Statement
+# repository0
 
 `repository0` is a repository template that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its
 primary purpose is to demonstrate these automated CI/CD workflows and provide a basis for further development.
