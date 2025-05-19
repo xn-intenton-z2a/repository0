@@ -487,7 +487,7 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`${gitDiff}\`\`\`\n\nmainOutput:\`\`\`${mainOutput}\`\`\`\n\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\n\`\`\`\nmainOutput:\`\`\`\n${mainOutput}\n\n\`\`\`\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -502,7 +502,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n\n---\n\n`;
+            const activityLogContent = `## Issue to Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 

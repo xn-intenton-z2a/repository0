@@ -443,7 +443,7 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            let activityLogContent = `## Discussions activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\`\`\`\n\n---\n\n`;
+            let activityLogContent = `## Discussions activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
             if (action == 'seed-repository') {
               activityLogContent = `# Activity Log\n\n${activityLogContent}`;
             }
