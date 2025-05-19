@@ -1,6 +1,6 @@
 # CLI Demo of Agentic Workflows
 
-A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **echo**, and **render** functionality.
+A simple CLI demonstration of agentic workflows integrated with GitHub Actions. This tool provides basic commands to showcase **help**, **mission**, **version**, **features**, **echo**, and **render** functionality.
 
 ## Links
 
@@ -19,6 +19,9 @@ A simple CLI demonstration of agentic workflows integrated with GitHub Actions. 
 
 - `--version`  
   : Reads and prints the version from `package.json`.
+
+- `-f, --features`  
+  : Lists available features by reading markdown files in `sandbox/features/` and printing a JSON array of their level-1 headings.
 
 - `--render <templatePath> <dataPath>`  
   : Renders the specified EJS template with data provided in a JSON or YAML file and prints the result to stdout.
@@ -41,6 +44,12 @@ npm run start -- -m
 # Display current version
 npm run start -- --version
 
+# List features
+npm run start -- --features
+
+# List features using alias
+npm run start -- -f
+
 # Echo a message
 npm run start -- echo hello world
 
@@ -51,7 +60,16 @@ npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixt
 npm run start -- --render sandbox/tests/fixtures/template.ejs sandbox/tests/fixtures/data.yaml
 ```
 
-### Expected Output
+### Expected Output for Features
+
+```json
+[
+  "CLI Tool Enhancements",
+  "Schema Validation"
+]
+```
+
+### Expected Output for Render
 
 ```bash
 Hello Alice! You have 3 items.

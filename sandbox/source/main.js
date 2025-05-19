@@ -12,8 +12,8 @@ import yaml from "js-yaml";
  */
 export async function main(argv) {
   const args = minimist(argv, {
-    boolean: ["help", "mission", "version", "render"],
-    alias: { h: "help", m: "mission" },
+    boolean: ["help", "mission", "version", "render", "features"],
+    alias: { h: "help", m: "mission", f: "features" },
   });
 
   // Help command
@@ -21,12 +21,13 @@ export async function main(argv) {
     console.log(
       `Usage: ${path.basename(
         process.argv[1]
-      )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+      )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
     );
     console.log(`\nCommands:`);
     console.log(`  --help                      Display usage instructions`);
     console.log(`  -m, --mission               Print mission statement`);
     console.log(`  --version                   Print version`);
+    console.log(`  -f, --features              List available features`);
     console.log(`  --render <template> <data>  Render EJS template with data (JSON or YAML)`);
     console.log(`  echo <message>              Echo message`);
     return;
@@ -45,6 +46,29 @@ export async function main(argv) {
       await fs.readFile(path.resolve("package.json"), "utf-8")
     );
     console.log(pkg.version);
+    return;
+  }
+
+  // List features
+  if (args.features) {
+    try {
+      const dirPath = path.resolve("sandbox/features");
+      const files = await fs.readdir(dirPath);
+      const mdFiles = files.filter((f) => f.endsWith(".md"));
+      const titles = [];
+      for (const file of mdFiles) {
+        const content = await fs.readFile(path.join(dirPath, file), "utf-8");
+        const match = content.match(/^#\s+(.*)$/m);
+        if (match) {
+          titles.push(match[1]);
+        }
+      }
+      console.log(JSON.stringify(titles, null, 2));
+      process.exit(0);
+    } catch (e) {
+      console.error(`Error: ${e.message}`);
+      process.exit(1);
+    }
     return;
   }
 
@@ -81,7 +105,7 @@ export async function main(argv) {
   console.log(
     `Usage: ${path.basename(
       process.argv[1]
-    )} [--help] [-m|--mission] [--version] [--render <template> <data>] [echo <message>...]`
+    )} [--help] [-m|--mission] [--version] [-f|--features] [--render <template> <data>] [echo <message>...]`
   );
 }
 
