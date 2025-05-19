@@ -435,3 +435,271 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-19T17:28:30.480Z
+
+fixApplied: true
+
+Add plot-quadratic and plot-sine commands with SVG generation tests and documentation
+
+Git Diff:
+
+```diff --git a/sandbox/docs/CLI_COMMANDS.md b/sandbox/docs/CLI_COMMANDS.md
+index 428a4d25..cd256bc3 100644
+--- a/sandbox/docs/CLI_COMMANDS.md
++++ b/sandbox/docs/CLI_COMMANDS.md
+@@ -17,6 +17,21 @@ The CLI supports the following commands:
+ - **house-choice**  
+   Randomly select or list predefined houses.
+ 
++- **plot-quadratic**  
++  Plot a quadratic equation y = ax² + bx + c over the domain [-10, 10] and output it as an SVG file.
++  Flags:
++  - `--a <number>` Coefficient a (default: 1)
++  - `--b <number>` Coefficient b (default: 0)
++  - `--c <number>` Coefficient c (default: 0)
++  - `--output <path>` Output file path (default: plot.svg)
++
++- **plot-sine**  
++  Plot a sine wave y = amplitude * sin(frequency * x) over the domain [-10, 10] and output it as an SVG file.
++  Flags:
++  - `--frequency <number>` Frequency (default: 1)
++  - `--amplitude <number>` Amplitude (default: 1)
++  - `--output <path>` Output file path (default: plot.svg)
++
+ ## Usage
+ 
+ ```bash
+@@ -32,4 +47,12 @@ npm run start -- house-choice --list
+ 
+ npm run start -- house-choice --seed 123
+ # Outputs a deterministic house based on the seed value.
++```
++
++```bash
++npm run start -- plot-quadratic --a 2 --b 3 --c 1 --output quadratic.svg
++# Generates quadratic.svg with a plot of y = 2x² + 3x + 1
++
++npm run start -- plot-sine --frequency 2 --amplitude 0.5 --output sine.svg
++# Generates sine.svg with a sine wave of frequency 2 and amplitude 0.5
+ ```
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index 072a2d3b..a549bcda 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env node
+ import minimist from 'minimist';
+-import { readFile } from 'fs/promises';
++import { readFile, writeFile } from 'fs/promises';
+ import { fileURLToPath } from 'url';
+ import path from 'path';
+ 
+@@ -29,6 +29,71 @@ function chooseHouse(houses, seed) {
+   return houses[index];
+ }
+ 
++/**
++ * Generate SVG markup for a quadratic curve y = a*x^2 + b*x + c
++ * over the domain [-10, 10].
++ */
++function generateQuadraticSVG(a, b, c, width, height) {
++  const xMin = -10;
++  const xMax = 10;
++  const N = 100;
++  const points = [];
++  for (let i = 0; i < N; i++) {
++    const x = xMin + (i * (xMax - xMin)) / (N - 1);
++    const y = a * x * x + b * x + c;
++    points.push({ x, y });
++  }
++  const yValues = points.map((p) => p.y);
++  const yMin = Math.min(...yValues);
++  const yMax = Math.max(...yValues);
++  const svgPoints = points
++    .map((p) => {
++      const xPixel = ((p.x - xMin) / (xMax - xMin)) * width;
++      const yPixel = height - ((p.y - yMin) / (yMax - yMin)) * height;
++      return `${xPixel},${yPixel}`;
++    })
++    .join(' ');
++  const y0Pixel = height - ((0 - yMin) / (yMax - yMin)) * height;
++  const x0Pixel = ((0 - xMin) / (xMax - xMin)) * width;
++  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
++  <line x1="0" y1="${y0Pixel}" x2="${width}" y2="${y0Pixel}" stroke="grey"/>
++  <line x1="${x0Pixel}" y1="0" x2="${x0Pixel}" y2="${height}" stroke="grey"/>
++  <polyline fill="none" stroke="black" points="${svgPoints}"/>
++</svg>`;
++}
++
++/**
++ * Generate SVG markup for a sine wave y = amplitude * sin(frequency * x)
++ * over the domain [-10, 10].
++ */
++function generateSineSVG(frequency, amplitude, width, height) {
++  const xMin = -10;
++  const xMax = 10;
++  const N = 100;
++  const points = [];
++  for (let i = 0; i < N; i++) {
++    const x = xMin + (i * (xMax - xMin)) / (N - 1);
++    const y = amplitude * Math.sin(frequency * x);
++    points.push({ x, y });
++  }
++  const yMin = -amplitude;
++  const yMax = amplitude;
++  const svgPoints = points
++    .map((p) => {
++      const xPixel = ((p.x - xMin) / (xMax - xMin)) * width;
++      const yPixel = height - ((p.y - yMin) / (yMax - yMin)) * height;
++      return `${xPixel},${yPixel}`;
++    })
++    .join(' ');
++  const y0Pixel = height - ((0 - yMin) / (yMax - yMin)) * height;
++  const x0Pixel = ((0 - xMin) / (xMax - xMin)) * width;
++  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
++  <line x1="0" y1="${y0Pixel}" x2="${width}" y2="${y0Pixel}" stroke="grey"/>
++  <line x1="${x0Pixel}" y1="0" x2="${x0Pixel}" y2="${height}" stroke="grey"/>
++  <polyline fill="none" stroke="black" points="${svgPoints}"/>
++</svg>`;
++}
++
+ /**
+  * Main entrypoint for CLI commands.
+  * Accepts an optional array of args for testing.
+@@ -56,12 +121,7 @@ async function main(inputArgs) {
+       printEcho(args);
+       break;
+     case 'house-choice': {
+-      const houses = [
+-        'Gryffindor',
+-        'Hufflepuff',
+-        'Ravenclaw',
+-        'Slytherin',
+-      ];
++      const houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
+       if (argv.list) {
+         console.log(houses.join('\n'));
+       } else {
+@@ -71,6 +131,35 @@ async function main(inputArgs) {
+       }
+       break;
+     }
++    case 'plot-quadratic': {
++      const a = argv.a !== undefined ? Number(argv.a) : 1;
++      const b = argv.b !== undefined ? Number(argv.b) : 0;
++      const c = argv.c !== undefined ? Number(argv.c) : 0;
++      const output = argv.output || 'plot.svg';
++      const svg = generateQuadraticSVG(a, b, c, 500, 500);
++      try {
++        await writeFile(output, svg, 'utf-8');
++        console.log(`Plot written to ${output}`);
++      } catch (err) {
++        console.error(`Error writing file: ${err.message}`);
++        process.exit(1);
++      }
++      break;
++    }
++    case 'plot-sine': {
++      const frequency = argv.frequency !== undefined ? Number(argv.frequency) : 1;
++      const amplitude = argv.amplitude !== undefined ? Number(argv.amplitude) : 1;
++      const output = argv.output || 'plot.svg';
++      const svg = generateSineSVG(frequency, amplitude, 500, 500);
++      try {
++        await writeFile(output, svg, 'utf-8');
++        console.log(`Plot written to ${output}`);
++      } catch (err) {
++        console.error(`Error writing file: ${err.message}`);
++        process.exit(1);
++      }
++      break;
++    }
+     default:
+       console.log(`Unknown command: ${command}`);
+       printHelp();
+@@ -85,11 +174,13 @@ function printHelp() {
+   const scriptName = path.basename(process.argv[1]);
+   console.log(`Usage: ${scriptName} <command> [arguments]`);
+   console.log(`Commands:`);
+-  console.log(`  help         Show this help message`);
+-  console.log(`  mission      Print the mission statement`);
+-  console.log(`  version      Print the version from package.json`);
+-  console.log(`  echo         Echo the provided arguments`);
+-  console.log(`  house-choice Randomly choose a house or list all houses`);
++  console.log(`  help             Show this help message`);
++  console.log(`  mission          Print the mission statement`);
++  console.log(`  version          Print the version from package.json`);
++  console.log(`  echo             Echo the provided arguments`);
++  console.log(`  house-choice     Randomly choose a house or list all houses`);
++  console.log(`  plot-quadratic   Generate a quadratic plot as SVG`);
++  console.log(`  plot-sine        Generate a sine wave plot as SVG`);
+ }
+ 
+ /**
+diff --git a/sandbox/tests/cli-house-choice.test.js b/sandbox/tests/cli-house-choice.test.js
+index 1b84a66c..23e2bf81 100644
+--- a/sandbox/tests/cli-house-choice.test.js
++++ b/sandbox/tests/cli-house-choice.test.js
+@@ -1,5 +1,6 @@
+ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+ import { chooseHouse, main } from '../source/main.js';
++import fs from 'fs';
+ 
+ describe('chooseHouse', () => {
+   const houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
+@@ -55,3 +56,37 @@ describe('house-choice command', () => {
+     expect(houses).toContain(first);
+   });
+ });
++
++describe('plot-quadratic command', () => {
++  beforeEach(() => {
++    if (fs.existsSync('quadratic.svg')) fs.unlinkSync('quadratic.svg');
++  });
++
++  afterEach(() => {
++    if (fs.existsSync('quadratic.svg')) fs.unlinkSync('quadratic.svg');
++  });
++
++  test('creates SVG file for quadratic plot', async () => {
++    await main(['plot-quadratic', '--a', '2', '--b', '3', '--c', '1', '--output', 'quadratic.svg']);
++    expect(fs.existsSync('quadratic.svg')).toBe(true);
++    const content = fs.readFileSync('quadratic.svg', 'utf-8');
++    expect(content.trim().startsWith('<svg')).toBe(true);
++  });
++});
++
++describe('plot-sine command', () => {
++  beforeEach(() => {
++    if (fs.existsSync('sine.svg')) fs.unlinkSync('sine.svg');
++  });
++
++  afterEach(() => {
++    if (fs.existsSync('sine.svg')) fs.unlinkSync('sine.svg');
++  });
++
++  test('creates SVG file for sine plot', async () => {
++    await main(['plot-sine', '--frequency', '2', '--amplitude', '0.5', '--output', 'sine.svg']);
++    expect(fs.existsSync('sine.svg')).toBe(true);
++    const content = fs.readFileSync('sine.svg', 'utf-8');
++    expect(content.trim().startsWith('<svg')).toBe(true);
++  });
++});
+\ No newline at end of file```
+
+mainOutput:```
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node src/lib/main.js
+
+Run with: []```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2136 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11704,"completion_tokens":9341,"total_tokens":21045,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5184,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
