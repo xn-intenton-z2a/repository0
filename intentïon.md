@@ -285,3 +285,14 @@ LLM API Usage:
 
 2025-05-19T16:51:53Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-19T15-08Z
 
+## Feature to Issue at 2025-05-19T16:51:58.634Z
+
+Generated feature development issue with title Implement and document 'mission' CLI command in the library entrypoint.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7851,"completion_tokens":1967,"total_tokens":9818,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
