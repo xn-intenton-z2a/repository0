@@ -1420,3 +1420,30 @@ LLM API Usage:
 ```
 ---
 
+## Enhanced Issue at 2025-05-19T18:48:21.001Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/repository0/issues/2140 with enhanced description:
+
+Refresh README.md to accurately document the current CLI plotting features and usage.
+
+Acceptance Criteria:
+1. The top-level README.md has a concise **Commands** section listing exactly the following commands: `help`, `mission`, `version`, `echo`, `house-choice`, `plot-quadratic`, `plot-sine`, and `plot-server`.
+2. Each listed command includes a one-sentence description and a complete inline example showing how to invoke it via `npm run start -- <command> [flags]`.
+   - Example for house-choice: `npm run start -- house-choice --seed 42`
+   - Example for plot-quadratic: `npm run start -- plot-quadratic --a 1 --b 2 --c 1 --output quad.svg`
+   - Example for plot-server: `npm run start -- plot-server --port 4000 --host localhost`
+3. Deprecated references to `src/lib/main.js` and agentic-lib narrative are removed.
+4. A link is provided to `sandbox/docs/CLI_COMMANDS.md` for deeper flag-level documentation.
+5. Verified by running: 
+   - `npm install` completes without errors.
+   - `npm run start -- plot-quadratic --a 2 --b 3 --c 1 --output test.svg` produces `test.svg` starting with `<svg`.
+   - `npm run start -- plot-server --port 0 --host 127.0.0.1` starts the server and responds with valid SVG on `/plot?type=sine&frequency=1&amplitude=1`.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14453,"completion_tokens":771,"total_tokens":15224,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
