@@ -898,3 +898,510 @@ LLM API Usage:
 
 2025-05-19T18:00:46Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-19T15-08Z
 
+## Issue to Code at 2025-05-19T18:29:49.298Z
+
+fixApplied: true
+
+Add plot-server HTTP API expression plotting with mathjs tests and docs
+
+Git Diff:
+
+```diff --git a/package-lock.json b/package-lock.json
+index 29f8f70e..6935ef2d 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -15,6 +15,7 @@
+         "dotenv": "^16.5.0",
+         "ejs": "^3.1.10",
+         "js-yaml": "^4.1.0",
++        "mathjs": "^11.11.0",
+         "minimatch": "^10.0.1",
+         "minimist": "^1.2.8",
+         "openai": "^4.96.2",
+@@ -92,6 +93,15 @@
+         "node": ">=6.0.0"
+       }
+     },
++    "node_modules/@babel/runtime": {
++      "version": "7.27.1",
++      "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.27.1.tgz",
++      "integrity": "sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=6.9.0"
++      }
++    },
+     "node_modules/@babel/types": {
+       "version": "7.27.1",
+       "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.27.1.tgz",
+@@ -2283,6 +2293,19 @@
+         "node": ">= 0.8"
+       }
+     },
++    "node_modules/complex.js": {
++      "version": "2.4.2",
++      "resolved": "https://registry.npmjs.org/complex.js/-/complex.js-2.4.2.tgz",
++      "integrity": "sha512-qtx7HRhPGSCBtGiST4/WGHuW+zeaND/6Ld+db6PbrulIB1i2Ev/2UPiqcmpQNPSyfBKraC0EOvOKCB5dGZKt3g==",
++      "license": "MIT",
++      "engines": {
++        "node": "*"
++      },
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/rawify"
++      }
++    },
+     "node_modules/concat-map": {
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+@@ -2382,6 +2405,12 @@
+         }
+       }
+     },
++    "node_modules/decimal.js": {
++      "version": "10.5.0",
++      "resolved": "https://registry.npmjs.org/decimal.js/-/decimal.js-10.5.0.tgz",
++      "integrity": "sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==",
++      "license": "MIT"
++    },
+     "node_modules/decompress-response": {
+       "version": "6.0.0",
+       "resolved": "https://registry.npmjs.org/decompress-response/-/decompress-response-6.0.0.tgz",
+@@ -2771,6 +2800,12 @@
+         "@esbuild/win32-x64": "0.25.4"
+       }
+     },
++    "node_modules/escape-latex": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/escape-latex/-/escape-latex-1.2.0.tgz",
++      "integrity": "sha512-nV5aVWW1K0wEiUIEdZ4erkGGH8mDxGyxSeqPzRNtWP7ataw+/olFObw7hujFWlVjNsaDFw5VZ5NzVSIqRgfTiw==",
++      "license": "MIT"
++    },
+     "node_modules/escape-string-regexp": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz",
+@@ -3559,6 +3594,19 @@
+         "node": ">= 12.20"
+       }
+     },
++    "node_modules/fraction.js": {
++      "version": "4.3.4",
++      "resolved": "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.4.tgz",
++      "integrity": "sha512-pwiTgt0Q7t+GHZA4yaLjObx4vXmmdcS0iSJ19o8d/goUGgItX9UZWKWNnLHehxviD8wU2IWRsnR8cD5+yOJP2Q==",
++      "license": "MIT",
++      "engines": {
++        "node": "*"
++      },
++      "funding": {
++        "type": "patreon",
++        "url": "https://github.com/sponsors/rawify"
++      }
++    },
+     "node_modules/fs-constants": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/fs-constants/-/fs-constants-1.0.0.tgz",
+@@ -4493,6 +4541,12 @@
+         "node": "*"
+       }
+     },
++    "node_modules/javascript-natural-sort": {
++      "version": "0.7.1",
++      "resolved": "https://registry.npmjs.org/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz",
++      "integrity": "sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==",
++      "license": "MIT"
++    },
+     "node_modules/js-tokens": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+@@ -4758,6 +4812,29 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/mathjs": {
++      "version": "11.12.0",
++      "resolved": "https://registry.npmjs.org/mathjs/-/mathjs-11.12.0.tgz",
++      "integrity": "sha512-UGhVw8rS1AyedyI55DGz9q1qZ0p98kyKPyc9vherBkoueLntPfKtPBh14x+V4cdUWK0NZV2TBwqRFlvadscSuw==",
++      "license": "Apache-2.0",
++      "dependencies": {
++        "@babel/runtime": "^7.23.2",
++        "complex.js": "^2.1.1",
++        "decimal.js": "^10.4.3",
++        "escape-latex": "^1.2.0",
++        "fraction.js": "4.3.4",
++        "javascript-natural-sort": "^0.7.1",
++        "seedrandom": "^3.0.5",
++        "tiny-emitter": "^2.1.0",
++        "typed-function": "^4.1.1"
++      },
++      "bin": {
++        "mathjs": "bin/cli.js"
++      },
++      "engines": {
++        "node": ">= 14"
++      }
++    },
+     "node_modules/mdurl": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/mdurl/-/mdurl-2.0.0.tgz",
+@@ -5816,6 +5893,12 @@
+         "node": "^14.0.0 || >=16.0.0"
+       }
+     },
++    "node_modules/seedrandom": {
++      "version": "3.0.5",
++      "resolved": "https://registry.npmjs.org/seedrandom/-/seedrandom-3.0.5.tgz",
++      "integrity": "sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==",
++      "license": "MIT"
++    },
+     "node_modules/semver": {
+       "version": "6.3.1",
+       "resolved": "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz",
+@@ -6300,6 +6383,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/tiny-emitter": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/tiny-emitter/-/tiny-emitter-2.1.0.tgz",
++      "integrity": "sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==",
++      "license": "MIT"
++    },
+     "node_modules/tinybench": {
+       "version": "2.9.0",
+       "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz",
+@@ -6496,6 +6585,15 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/typed-function": {
++      "version": "4.2.1",
++      "resolved": "https://registry.npmjs.org/typed-function/-/typed-function-4.2.1.tgz",
++      "integrity": "sha512-EGjWssW7Tsk4DGfE+5yluuljS1OGYWiI1J6e8puZz9nTMM51Oug8CD5Zo4gWMsOhq5BI+1bF+rWTm4Vbj3ivRA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 18"
++      }
++    },
+     "node_modules/typescript": {
+       "version": "5.8.3",
+       "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.8.3.tgz",
+diff --git a/package.json b/package.json
+index 44f42bd6..a86126d0 100644
+--- a/package.json
++++ b/package.json
+@@ -32,6 +32,7 @@
+     "js-yaml": "^4.1.0",
+     "minimatch": "^10.0.1",
+     "minimist": "^1.2.8",
++    "mathjs": "^11.11.0",
+     "openai": "^4.96.2",
+     "zod": "^3.24.4",
+     "csv-parse": "^5.4.8",
+diff --git a/sandbox/docs/CLI_COMMANDS.md b/sandbox/docs/CLI_COMMANDS.md
+index cd256bc3..784ce9e0 100644
+--- a/sandbox/docs/CLI_COMMANDS.md
++++ b/sandbox/docs/CLI_COMMANDS.md
+@@ -32,6 +32,12 @@ The CLI supports the following commands:
+   - `--amplitude <number>` Amplitude (default: 1)
+   - `--output <path>` Output file path (default: plot.svg)
+ 
++- **plot-server**  
++  Start an HTTP server to serve SVG plots for quadratic, sine, or arbitrary expressions.
++  Flags:
++  - `--port <number>` TCP port to listen on (default: 3000)
++  - `--host <string>` Hostname to bind (default: 'localhost')
++
+ ## Usage
+ 
+ ```bash
+@@ -55,4 +61,13 @@ npm run start -- plot-quadratic --a 2 --b 3 --c 1 --output quadratic.svg
+ 
+ npm run start -- plot-sine --frequency 2 --amplitude 0.5 --output sine.svg
+ # Generates sine.svg with a sine wave of frequency 2 and amplitude 0.5
++```
++
++```bash
++npm run start -- plot-server --port 4000 --host localhost
++# Starts server at http://localhost:4000
++
++curl "http://localhost:4000/plot?type=quadratic&a=1&b=0&c=0"
++curl "http://localhost:4000/plot?type=sine&frequency=2&amplitude=0.5"
++curl "http://localhost:4000/plot?type=expression&expr=x%5E2&domain=-5,5&samples=50"
+ ```
+\ No newline at end of file
+diff --git a/sandbox/source/main.js b/sandbox/source/main.js
+index a549bcda..163ee486 100644
+--- a/sandbox/source/main.js
++++ b/sandbox/source/main.js
+@@ -1,8 +1,11 @@
+ #!/usr/bin/env node
+-import minimist from 'minimist';
+-import { readFile, writeFile } from 'fs/promises';
+-import { fileURLToPath } from 'url';
+-import path from 'path';
++import minimist from "minimist";
++import http from "http";
++import { URL } from "url";
++import { readFile, writeFile } from "fs/promises";
++import { fileURLToPath } from "url";
++import path from "path";
++import { evaluate } from "mathjs";
+ 
+ /**
+  * Choose a random house, optionally using a seed for deterministic output.
+@@ -12,7 +15,7 @@ import path from 'path';
+  */
+ function chooseHouse(houses, seed) {
+   if (!Array.isArray(houses) || houses.length === 0) {
+-    throw new Error('Houses must be a non-empty array');
++    throw new Error("Houses must be a non-empty array");
+   }
+   let random = Math.random;
+   if (seed !== undefined) {
+@@ -52,7 +55,7 @@ function generateQuadraticSVG(a, b, c, width, height) {
+       const yPixel = height - ((p.y - yMin) / (yMax - yMin)) * height;
+       return `${xPixel},${yPixel}`;
+     })
+-    .join(' ');
++    .join(" ");
+   const y0Pixel = height - ((0 - yMin) / (yMax - yMin)) * height;
+   const x0Pixel = ((0 - xMin) / (xMax - xMin)) * width;
+   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+@@ -84,7 +87,42 @@ function generateSineSVG(frequency, amplitude, width, height) {
+       const yPixel = height - ((p.y - yMin) / (yMax - yMin)) * height;
+       return `${xPixel},${yPixel}`;
+     })
+-    .join(' ');
++    .join(" ");
++  const y0Pixel = height - ((0 - yMin) / (yMax - yMin)) * height;
++  const x0Pixel = ((0 - xMin) / (xMax - xMin)) * width;
++  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
++  <line x1="0" y1="${y0Pixel}" x2="${width}" y2="${y0Pixel}" stroke="grey"/>
++  <line x1="${x0Pixel}" y1="0" x2="${x0Pixel}" y2="${height}" stroke="grey"/>
++  <polyline fill="none" stroke="black" points="${svgPoints}"/>
++</svg>`;
++}
++
++/**
++ * Generate SVG markup for an arbitrary expression y = f(x)
++ * over a specified domain.
++ */
++function generateExpressionSVG(expr, xMin, xMax, samples, width, height) {
++  const points = [];
++  for (let i = 0; i < samples; i++) {
++    const x = xMin + (i * (xMax - xMin)) / (samples - 1);
++    let y;
++    try {
++      y = evaluate(expr, { x });
++    } catch (err) {
++      throw new Error(`Invalid expression: ${err.message}`);
++    }
++    points.push({ x, y });
++  }
++  const yValues = points.map((p) => p.y);
++  const yMin = Math.min(...yValues);
++  const yMax = Math.max(...yValues);
++  const svgPoints = points
++    .map((p) => {
++      const xPixel = ((p.x - xMin) / (xMax - xMin)) * width;
++      const yPixel = height - ((p.y - yMin) / (yMax - yMin)) * height;
++      return `${xPixel},${yPixel}`;
++    })
++    .join(" ");
+   const y0Pixel = height - ((0 - yMin) / (yMax - yMin)) * height;
+   const x0Pixel = ((0 - xMin) / (xMax - xMin)) * width;
+   return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+@@ -102,28 +140,28 @@ function generateSineSVG(frequency, amplitude, width, height) {
+ async function main(inputArgs) {
+   const argv = minimist(
+     inputArgs !== undefined ? inputArgs : process.argv.slice(2),
+-    { boolean: ['list'], alias: { l: 'list' } }
++    { boolean: ["list"], alias: { l: "list" } }
+   );
+   const [command, ...args] = argv._;
+ 
+   switch (command) {
+-    case 'help':
++    case "help":
+     case undefined:
+       printHelp();
+       break;
+-    case 'mission':
++    case "mission":
+       await printMission();
+       break;
+-    case 'version':
++    case "version":
+       await printVersion();
+       break;
+-    case 'echo':
++    case "echo":
+       printEcho(args);
+       break;
+-    case 'house-choice': {
+-      const houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
++    case "house-choice": {
++      const houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"];
+       if (argv.list) {
+-        console.log(houses.join('\n'));
++        console.log(houses.join("\n"));
+       } else {
+         const seed = argv.seed !== undefined ? Number(argv.seed) : undefined;
+         const chosen = chooseHouse(houses, seed);
+@@ -131,14 +169,14 @@ async function main(inputArgs) {
+       }
+       break;
+     }
+-    case 'plot-quadratic': {
++    case "plot-quadratic": {
+       const a = argv.a !== undefined ? Number(argv.a) : 1;
+       const b = argv.b !== undefined ? Number(argv.b) : 0;
+       const c = argv.c !== undefined ? Number(argv.c) : 0;
+-      const output = argv.output || 'plot.svg';
++      const output = argv.output || "plot.svg";
+       const svg = generateQuadraticSVG(a, b, c, 500, 500);
+       try {
+-        await writeFile(output, svg, 'utf-8');
++        await writeFile(output, svg, "utf-8");
+         console.log(`Plot written to ${output}`);
+       } catch (err) {
+         console.error(`Error writing file: ${err.message}`);
+@@ -146,13 +184,13 @@ async function main(inputArgs) {
+       }
+       break;
+     }
+-    case 'plot-sine': {
++    case "plot-sine": {
+       const frequency = argv.frequency !== undefined ? Number(argv.frequency) : 1;
+       const amplitude = argv.amplitude !== undefined ? Number(argv.amplitude) : 1;
+-      const output = argv.output || 'plot.svg';
++      const output = argv.output || "plot.svg";
+       const svg = generateSineSVG(frequency, amplitude, 500, 500);
+       try {
+-        await writeFile(output, svg, 'utf-8');
++        await writeFile(output, svg, "utf-8");
+         console.log(`Plot written to ${output}`);
+       } catch (err) {
+         console.error(`Error writing file: ${err.message}`);
+@@ -160,6 +198,63 @@ async function main(inputArgs) {
+       }
+       break;
+     }
++    case "plot-server": {
++      const port = argv.port !== undefined ? Number(argv.port) : 3000;
++      const host = argv.host || "localhost";
++      const server = http.createServer(async (req, res) => {
++        try {
++          const reqUrl = new URL(req.url, `http://${host}:${port}`);
++          if (req.method !== "GET" || reqUrl.pathname !== "/plot") {
++            res.statusCode = 404;
++            res.end("Not Found");
++            return;
++          }
++          const params = reqUrl.searchParams;
++          const type = params.get("type");
++          if (!type) throw new Error("Missing required parameter: type");
++          let svg;
++          const width = params.has("width") ? Number(params.get("width")) : 500;
++          const height = params.has("height") ? Number(params.get("height")) : 500;
++          if (type === "quadratic") {
++            const a = params.has("a") ? Number(params.get("a")) : undefined;
++            const b = params.has("b") ? Number(params.get("b")) : undefined;
++            const c = params.has("c") ? Number(params.get("c")) : undefined;
++            if (a === undefined || b === undefined || c === undefined) throw new Error("Missing quadratic parameters a, b, c");
++            svg = generateQuadraticSVG(a, b, c, width, height);
++          } else if (type === "sine") {
++            const frequency = params.has("frequency") ? Number(params.get("frequency")) : undefined;
++            const amplitude = params.has("amplitude") ? Number(params.get("amplitude")) : undefined;
++            if (frequency === undefined || amplitude === undefined) throw new Error("Missing sine parameters frequency, amplitude");
++            svg = generateSineSVG(frequency, amplitude, width, height);
++          } else if (type === "expression") {
++            const expr = params.get("expr");
++            const domain = params.get("domain");
++            const samples = params.has("samples") ? Number(params.get("samples")) : undefined;
++            if (!expr || !domain || samples === undefined) throw new Error("Missing expression parameters expr, domain, samples");
++            const [xMin, xMax] = domain.split(",").map(Number);
++            if (isNaN(xMin) || isNaN(xMax)) throw new Error("Invalid domain parameter");
++            svg = generateExpressionSVG(expr, xMin, xMax, samples, width, height);
++          } else {
++            throw new Error(`Unsupported type: ${type}`);
++          }
++          res.statusCode = 200;
++          res.setHeader("Content-Type", "image/svg+xml");
++          res.end(svg);
++        } catch (err) {
++          res.statusCode = 400;
++          res.end(`Error: ${err.message}`);
++        }
++      });
++      server.listen(port, host, () => {
++        console.log(`Server running at http://${host}:${port}`);
++      });
++      if (inputArgs !== undefined) {
++        return server;
++      } else {
++        await new Promise(() => {});
++      }
++      break;
++    }
+     default:
+       console.log(`Unknown command: ${command}`);
+       printHelp();
+@@ -181,6 +276,7 @@ function printHelp() {
+   console.log(`  house-choice     Randomly choose a house or list all houses`);
+   console.log(`  plot-quadratic   Generate a quadratic plot as SVG`);
+   console.log(`  plot-sine        Generate a sine wave plot as SVG`);
++  console.log(`  plot-server      Start HTTP server to serve SVG plots`);
+ }
+ 
+ /**
+@@ -189,9 +285,9 @@ function printHelp() {
+ async function printMission() {
+   const __filename = fileURLToPath(import.meta.url);
+   const __dirname = path.dirname(__filename);
+-  const missionPath = path.resolve(__dirname, '../../MISSION.md');
++  const missionPath = path.resolve(__dirname, "../../MISSION.md");
+   try {
+-    const content = await readFile(missionPath, 'utf-8');
++    const content = await readFile(missionPath, "utf-8");
+     console.log(content.trim());
+   } catch (err) {
+     console.error(`Error reading mission: ${err.message}`);
+@@ -205,9 +301,9 @@ async function printMission() {
+ async function printVersion() {
+   const __filename = fileURLToPath(import.meta.url);
+   const __dirname = path.dirname(__filename);
+-  const pkgPath = path.resolve(__dirname, '../../package.json');
++  const pkgPath = path.resolve(__dirname, "../../package.json");
+   try {
+-    const content = await readFile(pkgPath, 'utf-8');
++    const content = await readFile(pkgPath, "utf-8");
+     const pkg = JSON.parse(content);
+     console.log(pkg.version);
+   } catch (err) {
+@@ -221,7 +317,7 @@ async function printVersion() {
+  * @param {string[]} args
+  */
+ function printEcho(args) {
+-  console.log(args.join(' '));
++  console.log(args.join(" "));
+ }
+ 
+ // If run directly, execute main```
+
+mainOutput:```
+> @xn-intenton-z2a/repository0@2.1.0-0 start
+> node src/lib/main.js
+
+Run with: []```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2138 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13850,"completion_tokens":10994,"total_tokens":24844,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4672,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
+
