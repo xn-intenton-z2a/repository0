@@ -3,7 +3,7 @@
   "version": "2.1.0-0",
   "description": "CLI demo of agentic workflows: help, mission, version, and argument echo.",
   "type": "module",
-  "main": "sandbox/source/main.js",
+  "main": "src/lib/main.js",
   "imports": {
     "@src/*": "./src/*"
   },
