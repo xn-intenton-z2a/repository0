@@ -32,6 +32,12 @@ The CLI supports the following commands:
   - `--amplitude <number>` Amplitude (default: 1)
   - `--output <path>` Output file path (default: plot.svg)
 
+- **plot-server**  
+  Start an HTTP server to serve SVG plots for quadratic, sine, or arbitrary expressions.
+  Flags:
+  - `--port <number>` TCP port to listen on (default: 3000)
+  - `--host <string>` Hostname to bind (default: 'localhost')
+
 ## Usage
 
 ```bash
@@ -55,4 +61,13 @@ npm run start -- plot-quadratic --a 2 --b 3 --c 1 --output quadratic.svg
 
 npm run start -- plot-sine --frequency 2 --amplitude 0.5 --output sine.svg
 # Generates sine.svg with a sine wave of frequency 2 and amplitude 0.5
+```
+
+```bash
+npm run start -- plot-server --port 4000 --host localhost
+# Starts server at http://localhost:4000
+
+curl "http://localhost:4000/plot?type=quadratic&a=1&b=0&c=0"
+curl "http://localhost:4000/plot?type=sine&frequency=2&amplitude=0.5"
+curl "http://localhost:4000/plot?type=expression&expr=x%5E2&domain=-5,5&samples=50"
 ```
