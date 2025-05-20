@@ -4,15 +4,15 @@ Add an HTTP API to serve ASCII faces alongside the existing CLI.
 
 ## CLI Usage
 
-Start the HTTP server (default port 3000):
+Start the HTTP server with optional custom configuration (default port 3000):
+```bash
+npm run start -- --serve --config custom.json --port 3000
+```
+
+Or without custom config (defaults only):
 ```bash
 npm run serve
-```
-Or with explicit flags:
-```bash
 npm run start -- --serve
-npm run start -- --serve --port 4000
-# or
 npm run serve -- --port 5000
 ```
 
@@ -39,6 +39,8 @@ Responses are served with header `Content-Type: text/plain; charset=utf-8` and i
 
 *When `emotion` is missing or unrecognized, the neutral face is returned.
 
+Custom configuration applies equally in server mode, merging your config file with defaults.
+
 Invalid Paths:
 Any other path returns HTTP 404 with plain text "Not Found".
 
@@ -60,15 +62,12 @@ curl "http://localhost:3000/face?emotion=angry"
 
   >:(
 
-# Custom port
-curl "http://localhost:4000?emotion=surprised"
+# With custom config and custom emotion
+# (server must be started with --config custom.json)
+curl "http://localhost:3000?emotion=confused"
 
-  O_O
+  o_O
 
 # Invalid path
 curl -i http://localhost:3000/unknown
-HTTP/1.1 404 Not Found
-Content-Type: text/plain; charset=utf-8
-
-Not Found
 ```

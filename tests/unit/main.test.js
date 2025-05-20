@@ -1,4 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import { main } from "@src/lib/main.js";
 
 describe("Main Module Import", () => {
@@ -104,5 +107,104 @@ describe("HTTP Interface", () => {
     expect(res.headers.get("content-type")).toMatch(/text\/plain/);
     const text = await res.text();
     expect(text).toEqual("Not Found");
+  });
+});
+
+// Custom Config Tests
+
+describe("CLI: Custom Config", () => {
+  const tmpDir = os.tmpdir();
+  const jsonPath = path.join(tmpDir, "custom-test.json");
+  const yamlPath = path.join(tmpDir, "custom-test.yaml");
+  const badSchemaPath = path.join(tmpDir, "bad-schema.json");
+
+  beforeAll(() => {
+    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
+    fs.writeFileSync(
+      yamlPath,
+      `confused: |\n  o_O\n`
+    );
+    fs.writeFileSync(badSchemaPath, JSON.stringify({ confused: 123 }));
+  });
+
+  afterAll(() => {
+    [jsonPath, yamlPath, badSchemaPath].forEach((p) => fs.unlinkSync(p));
+  });
+
+  beforeEach(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("uses custom JSON mapping and falls back to defaults", () => {
+    main(["--config", jsonPath, "confused"]);
+    expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
+  });
+
+  test("uses custom YAML mapping and falls back to defaults", () => {
+    main(["--config", yamlPath, "confused"]);
+    expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
+  });
+
+  test("fallback to default when emotion not in custom", () => {
+    main(["--config", jsonPath, "happy"]);
+    expect(console.log).toHaveBeenCalledWith(`\n  ^_^\n`);
+  });
+
+  test("exits with error for missing config file", () => {
+    vi.spyOn(process, "exit").mockImplementation((code) => {
+      throw new Error(`exit ${code}`);
+    });
+    expect(() => main(["--config", "no-such.json"])).toThrow("exit 1");
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
+  });
+
+  test("exits with error for invalid schema in config", () => {
+    vi.spyOn(process, "exit").mockImplementation((code) => {
+      throw new Error(`exit ${code}`);
+    });
+    expect(() => main(["--config", badSchemaPath, "confused"]))
+      .toThrow("exit 1");
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
+  });
+});
+
+describe("HTTP Interface: Custom Config", () => {
+  const tmpDir = os.tmpdir();
+  const jsonPath = path.join(tmpDir, "custom-http.json");
+  beforeAll(async () => {
+    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
+  });
+  afterAll(() => {
+    fs.unlinkSync(jsonPath);
+  });
+
+  let server;
+  let baseUrl;
+
+  beforeAll(async () => {
+    server = main(["--serve", "--config", jsonPath, "--port", "0"]);
+    await new Promise((resolve) => server.on("listening", resolve));
+    const addr = server.address();
+    const port = typeof addr === "object" ? addr.port : addr;
+    baseUrl = `http://127.0.0.1:${port}`;
+  });
+  afterAll(() => {
+    server.close();
+  });
+
+  test("GET /?emotion=confused returns custom mapping", async () => {
+    const res = await fetch(`${baseUrl}/?emotion=confused`);
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toEqual("\n  o_O\n");
+  });
+
+  test("server fails to start with invalid config path", () => {
+    expect(() => main(["--serve", "--config", "no.json"]))
+      .toThrow();
   });
 });
