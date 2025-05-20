@@ -1083,3 +1083,58 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T04:44:02.656Z
+
+fixApplied: true
+
+Fix Prettier formatting issues in main.js and main.test.js
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index b38a3aa4..a4525c6e 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -27,9 +27,7 @@ export function main(args = []) {
+       const base = `http://${req.headers.host}`;
+       const reqUrl = new URL(req.url, base);
+       const emotionParam = reqUrl.searchParams.get("emotion");
+-      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
+-        ? faces[emotionParam]
+-        : faces.neutral;
++      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam) ? faces[emotionParam] : faces.neutral;
+       if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
+         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+         res.end(face);
+@@ -51,9 +49,7 @@ export function main(args = []) {
+     emotion = args[0];
+   }
+ 
+-  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
+-    ? faces[emotion]
+-    : faces.neutral;
++  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion) ? faces[emotion] : faces.neutral;
+   console.log(faceToRender);
+ }
+ 
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2157 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11676,"completion_tokens":5019,"total_tokens":16695,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3072,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
