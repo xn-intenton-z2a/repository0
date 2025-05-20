@@ -90,3 +90,41 @@ confused: |
 npm run start -- --config custom.json confused
 npm run start -- --config custom.yaml happy
 ```
+
+## Diagnostics Mode
+
+You can inspect runtime metadata by using the `--diagnostics` flag. This outputs a JSON object and exits immediately.
+
+### JSON Schema
+
+- version: string — Application version from `package.json`
+- defaultEmotions: string[] — List of built-in emotion keywords
+- loadedConfigPath: string|null — The path passed to `--config`, or `null` if none provided
+- customEmotionsCount: number — Number of custom emotions loaded from config
+- serveMode: boolean — `true` if `--serve` flag is present
+- listMode: boolean — `true` if `--list-emotions` or `--list` flag is present
+
+### Example Invocation
+
+```bash
+npm run start -- --diagnostics
+```
+
+### Sample Output
+
+```json
+{
+  "version": "1.2.0-0",
+  "defaultEmotions": [
+    "happy",
+    "sad",
+    "surprised",
+    "angry",
+    "neutral"
+  ],
+  "loadedConfigPath": null,
+  "customEmotionsCount": 0,
+  "serveMode": false,
+  "listMode": false
+}
+```

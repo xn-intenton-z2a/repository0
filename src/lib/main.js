@@ -8,6 +8,7 @@ import yaml from "js-yaml";
 import { z } from "zod";
 
 export function main(args = []) {
+  // Default ASCII faces
   const defaultFaces = {
     happy: `\n  ^_^\n`,
     sad: `\n  T_T\n`,
@@ -16,16 +17,20 @@ export function main(args = []) {
     neutral: `\n  -_-\n`,
   };
 
-  // Load custom config if provided
+  // Prepare config loading variables
   let customFaces = {};
+  let loadedConfigPath = null;
   const configIndex = args.indexOf("--config");
   let filteredArgs = args;
+
+  // Load custom config if provided
   if (configIndex !== -1) {
     if (args.length <= configIndex + 1) {
       console.error("No path specified for --config");
       process.exit(1);
     }
     const configPath = args[configIndex + 1];
+    loadedConfigPath = configPath;
     try {
       const content = fs.readFileSync(configPath, "utf8");
       let parsed;
@@ -39,11 +44,9 @@ export function main(args = []) {
         const validated = schema.parse(parsed);
         customFaces = {};
         for (const [key, val] of Object.entries(validated)) {
-          // Normalize YAML values: indent lines and wrap with leading/trailing newline
+          // Normalize YAML values: indent lines and wrap with newlines
           const lines = val.split("\n");
-          const indentedLines = lines.map((line) =>
-            line.length > 0 ? `  ${line}` : line
-          );
+          const indentedLines = lines.map(line => line.length > 0 ? `  ${line}` : line);
           let normalized = `\n${indentedLines.join("\n")}`;
           if (!normalized.endsWith("\n")) {
             normalized += "\n";
@@ -56,13 +59,34 @@ export function main(args = []) {
       process.exit(1);
     }
     // Remove config args for downstream parsing
-    filteredArgs = args.filter(
-      (_, idx) => idx !== configIndex && idx !== configIndex + 1
-    );
+    filteredArgs = args.filter((_, idx) => idx !== configIndex && idx !== configIndex + 1);
   }
 
   // Merge defaults with custom (custom overrides)
   const faces = { ...defaultFaces, ...customFaces };
+
+  // Diagnostics mode: output runtime metadata as JSON and exit
+  if (args.includes("--diagnostics")) {
+    // Load version from package.json
+    let version = null;
+    try {
+      const pkgPath = fileURLToPath(new URL("../../package.json", import.meta.url));
+      const pkgContent = fs.readFileSync(pkgPath, "utf8");
+      version = JSON.parse(pkgContent).version;
+    } catch {
+      version = null;
+    }
+    const diagnostics = {
+      version,
+      defaultEmotions: Object.keys(defaultFaces),
+      loadedConfigPath,
+      customEmotionsCount: Object.keys(customFaces).length,
+      serveMode: args.includes("--serve"),
+      listMode: args.includes("--list-emotions") || args.includes("--list"),
+    };
+    console.log(JSON.stringify(diagnostics, null, 2));
+    process.exit(0);
+  }
 
   // Determine serve mode and list mode
   const serveMode = filteredArgs.includes("--serve");
@@ -76,6 +100,7 @@ export function main(args = []) {
     return;
   }
 
+  // HTTP server mode
   if (serveMode) {
     let port = 3000;
     const portIndex = filteredArgs.indexOf("--port");
@@ -112,7 +137,7 @@ export function main(args = []) {
     return server;
   }
 
-  // CLI mode
+  // CLI render mode
   let emotion;
   const emotionFlagIndex = filteredArgs.indexOf("--emotion");
   if (emotionFlagIndex !== -1 && filteredArgs.length > emotionFlagIndex + 1) {

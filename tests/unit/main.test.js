@@ -161,19 +161,14 @@ describe("CLI: Custom Config", () => {
   });
 
   test("exits with error for missing config file", () => {
-    vi.spyOn(process, "exit").mockImplementation((code) => {
-      throw new Error(`exit ${code}`);
-    });
+    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
     expect(() => main(["--config", "no-such.json"])).toThrow("exit 1");
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
   });
 
   test("exits with error for invalid schema in config", () => {
-    vi.spyOn(process, "exit").mockImplementation((code) => {
-      throw new Error(`exit ${code}`);
-    });
-    expect(() => main(["--config", badSchemaPath, "confused"]))
-      .toThrow("exit 1");
+    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
+    expect(() => main(["--config", badSchemaPath, "confused"])).toThrow("exit 1");
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
   });
 });
@@ -276,5 +271,60 @@ describe("HTTP Interface: Custom Config", () => {
       "neutral",
       "confused",
     ]);
+  });
+});
+
+// Diagnostics Mode Tests
+
+describe("Diagnostics", () => {
+  const tmpDir = os.tmpdir();
+  const jsonPath = path.join(tmpDir, "diag-config.json");
+  const defaultFaces = {
+    happy: `\n  ^_^\n`,
+    sad: `\n  T_T\n`,
+    surprised: `\n  O_O\n`,
+    angry: `\n  >:(\n`,
+    neutral: `\n  -_-\n`,
+  };
+
+  beforeAll(() => {
+    fs.writeFileSync(jsonPath, JSON.stringify({ foo: "\n  f_0\n" }));
+  });
+
+  afterAll(() => {
+    fs.unlinkSync(jsonPath);
+  });
+
+  beforeEach(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit:${code}`); });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("outputs default diagnostics and exits", () => {
+    expect(() => main(["--diagnostics"]))
+      .toThrow("exit:0");
+    expect(console.log).toHaveBeenCalledTimes(1);
+    const logged = console.log.mock.calls[0][0];
+    const obj = JSON.parse(logged);
+    expect(obj).toHaveProperty("version");
+    expect(obj.defaultEmotions).toEqual(Object.keys(defaultFaces));
+    expect(obj.loadedConfigPath).toBe(null);
+    expect(obj.customEmotionsCount).toBe(0);
+    expect(obj.serveMode).toBe(false);
+    expect(obj.listMode).toBe(false);
+  });
+
+  test("outputs diagnostics with custom config and exits", () => {
+    expect(() => main(["--config", jsonPath, "--diagnostics"]))
+      .toThrow("exit:0");
+    expect(console.log).toHaveBeenCalledTimes(1);
+    const logged = console.log.mock.calls[0][0];
+    const obj = JSON.parse(logged);
+    expect(obj.loadedConfigPath).toBe(jsonPath);
+    expect(obj.customEmotionsCount).toBe(1);
   });
 });
