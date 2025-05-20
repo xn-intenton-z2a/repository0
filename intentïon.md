@@ -2390,3 +2390,271 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T07:49:10.893Z
+
+fixApplied: true
+
+Implement --diagnostics mode with JSON output updated tests and documentation
+
+Git Diff:
+
+```
+diff --git a/docs/ASCII_FACE_RENDER.md b/docs/ASCII_FACE_RENDER.md
+index a9d120cf..4d1bad81 100644
+--- a/docs/ASCII_FACE_RENDER.md
++++ b/docs/ASCII_FACE_RENDER.md
+@@ -89,4 +89,42 @@ confused: |
+ ```bash
+ npm run start -- --config custom.json confused
+ npm run start -- --config custom.yaml happy
+-```
+\ No newline at end of file
++```
++
++## Diagnostics Mode
++
++You can inspect runtime metadata by using the `--diagnostics` flag. This outputs a JSON object and exits immediately.
++
++### JSON Schema
++
++- version: string — Application version from `package.json`
++- defaultEmotions: string[] — List of built-in emotion keywords
++- loadedConfigPath: string|null — The path passed to `--config`, or `null` if none provided
++- customEmotionsCount: number — Number of custom emotions loaded from config
++- serveMode: boolean — `true` if `--serve` flag is present
++- listMode: boolean — `true` if `--list-emotions` or `--list` flag is present
++
++### Example Invocation
++
++```bash
++npm run start -- --diagnostics
++```
++
++### Sample Output
++
++```json
++{
++  "version": "1.2.0-0",
++  "defaultEmotions": [
++    "happy",
++    "sad",
++    "surprised",
++    "angry",
++    "neutral"
++  ],
++  "loadedConfigPath": null,
++  "customEmotionsCount": 0,
++  "serveMode": false,
++  "listMode": false
++}
++```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 0547c8f6..55977d15 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -8,6 +8,7 @@ import yaml from "js-yaml";
+ import { z } from "zod";
+ 
+ export function main(args = []) {
++  // Default ASCII faces
+   const defaultFaces = {
+     happy: `\n  ^_^\n`,
+     sad: `\n  T_T\n`,
+@@ -16,16 +17,20 @@ export function main(args = []) {
+     neutral: `\n  -_-\n`,
+   };
+ 
+-  // Load custom config if provided
++  // Prepare config loading variables
+   let customFaces = {};
++  let loadedConfigPath = null;
+   const configIndex = args.indexOf("--config");
+   let filteredArgs = args;
++
++  // Load custom config if provided
+   if (configIndex !== -1) {
+     if (args.length <= configIndex + 1) {
+       console.error("No path specified for --config");
+       process.exit(1);
+     }
+     const configPath = args[configIndex + 1];
++    loadedConfigPath = configPath;
+     try {
+       const content = fs.readFileSync(configPath, "utf8");
+       let parsed;
+@@ -39,11 +44,9 @@ export function main(args = []) {
+         const validated = schema.parse(parsed);
+         customFaces = {};
+         for (const [key, val] of Object.entries(validated)) {
+-          // Normalize YAML values: indent lines and wrap with leading/trailing newline
++          // Normalize YAML values: indent lines and wrap with newlines
+           const lines = val.split("\n");
+-          const indentedLines = lines.map((line) =>
+-            line.length > 0 ? `  ${line}` : line
+-          );
++          const indentedLines = lines.map(line => line.length > 0 ? `  ${line}` : line);
+           let normalized = `\n${indentedLines.join("\n")}`;
+           if (!normalized.endsWith("\n")) {
+             normalized += "\n";
+@@ -56,14 +59,35 @@ export function main(args = []) {
+       process.exit(1);
+     }
+     // Remove config args for downstream parsing
+-    filteredArgs = args.filter(
+-      (_, idx) => idx !== configIndex && idx !== configIndex + 1
+-    );
++    filteredArgs = args.filter((_, idx) => idx !== configIndex && idx !== configIndex + 1);
+   }
+ 
+   // Merge defaults with custom (custom overrides)
+   const faces = { ...defaultFaces, ...customFaces };
+ 
++  // Diagnostics mode: output runtime metadata as JSON and exit
++  if (args.includes("--diagnostics")) {
++    // Load version from package.json
++    let version = null;
++    try {
++      const pkgPath = fileURLToPath(new URL("../../package.json", import.meta.url));
++      const pkgContent = fs.readFileSync(pkgPath, "utf8");
++      version = JSON.parse(pkgContent).version;
++    } catch {
++      version = null;
++    }
++    const diagnostics = {
++      version,
++      defaultEmotions: Object.keys(defaultFaces),
++      loadedConfigPath,
++      customEmotionsCount: Object.keys(customFaces).length,
++      serveMode: args.includes("--serve"),
++      listMode: args.includes("--list-emotions") || args.includes("--list"),
++    };
++    console.log(JSON.stringify(diagnostics, null, 2));
++    process.exit(0);
++  }
++
+   // Determine serve mode and list mode
+   const serveMode = filteredArgs.includes("--serve");
+   const listMode =
+@@ -76,6 +100,7 @@ export function main(args = []) {
+     return;
+   }
+ 
++  // HTTP server mode
+   if (serveMode) {
+     let port = 3000;
+     const portIndex = filteredArgs.indexOf("--port");
+@@ -112,7 +137,7 @@ export function main(args = []) {
+     return server;
+   }
+ 
+-  // CLI mode
++  // CLI render mode
+   let emotion;
+   const emotionFlagIndex = filteredArgs.indexOf("--emotion");
+   if (emotionFlagIndex !== -1 && filteredArgs.length > emotionFlagIndex + 1) {
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6eac655f..7d15c76b 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -161,19 +161,14 @@ describe("CLI: Custom Config", () => {
+   });
+ 
+   test("exits with error for missing config file", () => {
+-    vi.spyOn(process, "exit").mockImplementation((code) => {
+-      throw new Error(`exit ${code}`);
+-    });
++    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
+     expect(() => main(["--config", "no-such.json"])).toThrow("exit 1");
+     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
+   });
+ 
+   test("exits with error for invalid schema in config", () => {
+-    vi.spyOn(process, "exit").mockImplementation((code) => {
+-      throw new Error(`exit ${code}`);
+-    });
+-    expect(() => main(["--config", badSchemaPath, "confused"]))
+-      .toThrow("exit 1");
++    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
++    expect(() => main(["--config", badSchemaPath, "confused"])).toThrow("exit 1");
+     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
+   });
+ });
+@@ -278,3 +273,58 @@ describe("HTTP Interface: Custom Config", () => {
+     ]);
+   });
+ });
++
++// Diagnostics Mode Tests
++
++describe("Diagnostics", () => {
++  const tmpDir = os.tmpdir();
++  const jsonPath = path.join(tmpDir, "diag-config.json");
++  const defaultFaces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++
++  beforeAll(() => {
++    fs.writeFileSync(jsonPath, JSON.stringify({ foo: "\n  f_0\n" }));
++  });
++
++  afterAll(() => {
++    fs.unlinkSync(jsonPath);
++  });
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++    vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit:${code}`); });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("outputs default diagnostics and exits", () => {
++    expect(() => main(["--diagnostics"]))
++      .toThrow("exit:0");
++    expect(console.log).toHaveBeenCalledTimes(1);
++    const logged = console.log.mock.calls[0][0];
++    const obj = JSON.parse(logged);
++    expect(obj).toHaveProperty("version");
++    expect(obj.defaultEmotions).toEqual(Object.keys(defaultFaces));
++    expect(obj.loadedConfigPath).toBe(null);
++    expect(obj.customEmotionsCount).toBe(0);
++    expect(obj.serveMode).toBe(false);
++    expect(obj.listMode).toBe(false);
++  });
++
++  test("outputs diagnostics with custom config and exits", () => {
++    expect(() => main(["--config", jsonPath, "--diagnostics"]))
++      .toThrow("exit:0");
++    expect(console.log).toHaveBeenCalledTimes(1);
++    const logged = console.log.mock.calls[0][0];
++    const obj = JSON.parse(logged);
++    expect(obj.loadedConfigPath).toBe(jsonPath);
++    expect(obj.customEmotionsCount).toBe(1);
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2165 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14365,"completion_tokens":9179,"total_tokens":23544,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3264,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
