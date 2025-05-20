@@ -1269,3 +1269,65 @@ LLM API Usage:
 
 2025-05-20T04:59:26Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-20T01-30Z
 
+## Issue to Ready Issue at 2025-05-20T05:46:43.216Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2160 with action enhance and updated description:
+
+Implement a new `--config <path>` flag to allow users to supply a JSON or YAML file defining custom emotion-to-ASCII mappings for both CLI and HTTP modes. The feature must satisfy the following testable acceptance criteria:
+
+Acceptance Criteria:
+1. CLI: Valid JSON config
+   - Given a file `custom.json` containing:
+     ```json
+     { "confused": "\n  o_O\n" }
+     ```
+     running `node src/lib/main.js --config custom.json confused` must:
+     - Output the custom `confused` face via `console.log`.
+     - Fallback to default faces for other emotions.
+2. CLI: Valid YAML config
+   - Given a file `custom.yaml` containing:
+     ```yaml
+     confused: |
+       o_O
+     ```
+     running `node src/lib/main.js --config custom.yaml confused` must:
+     - Output the custom `confused` face.
+     - Fallback to default faces for other emotions.
+3. CLI: Missing or invalid path
+   - Running with a non-existent `--config` path should exit with a non-zero status code and print an error to stderr mentioning the file path or `ENOENT`.
+4. CLI: Invalid schema
+   - Given a config file with a non-string value (e.g. an object or number), the process should exit non-zero and log a Zod validation error to stderr.
+5. HTTP: Valid JSON config
+   - Starting the server with `node src/lib/main.js --serve --config custom.json --port 0`, then requesting `GET /?emotion=confused` must return:
+     - HTTP 200
+     - `Content-Type: text/plain; charset=utf-8`
+     - The custom `confused` face in the response body.
+6. HTTP: Invalid config in server mode
+   - Starting the server with an invalid config path or schema should fail to start (exit non-zero) and log a clear error to stderr.
+7. HTTP: Fallback and invalid paths
+   - `GET /?emotion=unknown` must return the neutral face.
+   - `GET /invalid` must return HTTP 404 with body `Not Found`.
+
+Documentation Updates:
+- Update `README.md`, `docs/ASCII_FACE_RENDER.md`, and `docs/HTTP_FACE_SERVICE.md` to document the new `--config <path>` flag in both CLI and HTTP sections, showing:
+  - JSON and YAML config file formats and schema.
+  - Example commands and curl requests.
+
+Dependencies:
+- Use `js-yaml` to parse YAML.
+- Use `zod` to validate that the parsed config is a record of string keys to string values (multi-line frames).
+
+Testing:
+- Extend `tests/unit/main.test.js` with tests for JSON config, YAML config, missing file, invalid schema, and HTTP behavior as described above.
+
+Verification:
+- `npm test` passes all new tests.
+- Manual CLI and HTTP tests confirm the feature works as specified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9069,"completion_tokens":2490,"total_tokens":11559,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1792,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
