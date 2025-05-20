@@ -465,3 +465,40 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T02:39:54.966Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2153 with title:
+
+Implement HTTP Face Service (--serve) to Serve ASCII Faces Over HTTP
+
+And description:
+
+We need to extend the CLI application to expose the existing ASCII-face renderer as an HTTP service when invoked with a `--serve` flag. This pull request will:
+
+1. Modify `src/lib/main.js` to:
+   - Detect `--serve` and optional `--port <number>` arguments (default port: 3000).
+   - When `--serve` is present, launch an HTTP server (using Node’s built-in `http` module) instead of printing to console.
+   - In the request handler, parse GET requests to `/` and `/face` endpoints, read the `emotion` query parameter, and respond with the corresponding ASCII face as plain text (Content-Type: `text/plain`). Unknown or missing emotions should return the neutral face.
+   - Preserve the existing console-based behavior when `--serve` is not used.
+
+2. Update `tests/unit/main.test.js` to add an **HTTP Interface** test suite:
+   - In `beforeAll`, start the server on an ephemeral port (by passing `0` for the port or using `--port 0`), and capture the actual listening port.
+   - Use global `fetch` or `node:undici` to send HTTP GET requests to `/` and `/face` with various `emotion` query parameters (happy, sad, surprised, angry, and fallback).
+   - Assert that each response’s text matches the expected ASCII art.
+   - In `afterAll`, properly close the server.
+
+3. Update `README.md` to document the new HTTP API:
+   - Describe the `--serve` and `--port` flags under CLI usage.
+   - Provide `curl` examples for both `/` and `/face` endpoints, demonstrating happy, sad, and default faces.
+
+4. Ensure `package.json` includes a `serve` script (it already does) and adjust any descriptions if necessary.
+
+Once these changes are in place, running `npm test` should pass all existing and new tests, and `npm run serve` should launch a server on port 3000 by default (or a specified port). Users can then fetch ASCII faces via HTTP to integrate the CLI into web workflows or other services.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7187,"completion_tokens":1210,"total_tokens":8397,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
