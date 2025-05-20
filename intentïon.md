@@ -108,3 +108,58 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-20T01:32:16.992Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+**Summary**
+
+Implement the ASCII_FACE_RENDER feature so that users can pass an emotion keyword either as a positional argument or via the `--emotion` flag and see a corresponding multi-line ASCII art face in the console. Supported emotions are **happy**, **sad**, **surprised**, and **angry**. Any unknown or missing emotion should fall back to a neutral face.
+
+**Acceptance Criteria**
+
+1. **Argument Parsing**
+   - When invoked from the CLI without arguments (`npm run start`), the app defaults to a neutral face.
+   - When invoked with a positional emotion (`npm run start -- happy`), the app selects the `happy` ASCII face.
+   - When invoked with the `--emotion` flag (`npm run start -- --emotion sad`), the app selects the `sad` ASCII face.
+   - Unrecognized emotions (e.g., `npm run start -- confused`) display the neutral face.
+
+2. **ASCII Art Mapping**
+   - Define a `faces` mapping in `src/lib/main.js`:
+     ```js
+     const faces = {
+       happy: `\n  ^_^\n`,
+       sad: `\n  T_T\n`,
+       surprised: `\n  O_O\n`,
+       angry: `\n  >:(\n`,
+       neutral: `\n  -_-\n`
+     };
+     ```
+   - The selected face must be printed exactly (including leading and trailing newlines) via `console.log`.
+
+3. **Test Coverage**
+   - Extend `tests/unit/main.test.js` to assert that for each supported emotion (both positional and flag):
+     - `main(["happy"])`, `main(["--emotion","surprised"])`, etc., each invoke `console.log` with the correct face string.
+   - Tests for fallback behavior:
+     - `main([])` and `main(["confused"])` each invoke `console.log` with the neutral face string.
+   - Ensure no residual placeholder output remains (remove `console.log("Run with: ...")`).
+
+4. **README Updates**
+   - Add a **Usage** section:
+     - Show positional usage: `npm run start -- happy`
+     - Show flag usage: `npm run start -- --emotion surprised`
+     - List supported emotions and preview each ASCII face.
+
+5. **Manual Verification**
+   - Running `npm test` passes all new and existing tests.
+   - Running `npm run start -- <emotion>` prints the correct ASCII face to the console for each scenario.
+
+This work delivers the core ASCII_FACE_RENDER CLI functionality and verifies it with automated tests.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6832,"completion_tokens":970,"total_tokens":7802,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
