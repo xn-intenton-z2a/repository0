@@ -1700,3 +1700,272 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T06:51:27.596Z
+
+fixApplied: true
+
+Add --list-emotions CLI flag and emotions HTTP endpoint for listing emotions
+
+Git Diff:
+
+```
+diff --git a/docs/ASCII_FACE_RENDER.md b/docs/ASCII_FACE_RENDER.md
+index a9d514b8..a9d120cf 100644
+--- a/docs/ASCII_FACE_RENDER.md
++++ b/docs/ASCII_FACE_RENDER.md
+@@ -40,6 +40,24 @@ $ npm run start
+   -_-
+ ```
+ 
++## List Emotions
++
++You can list all supported emotion keywords as a JSON array using the `--list-emotions` (or shorthand `--list`) flag in CLI mode. Custom configurations are merged before listing.
++
++### Example
++
++Default emotions:
++```bash
++$ npm run start -- --list-emotions
++["happy","sad","surprised","angry","neutral"]
++```
++
++With custom configuration:
++```bash
++$ npm run start -- --config custom.json --list-emotions
++["happy","sad","surprised","angry","neutral","confused"]
++```
++
+ ## Custom Configuration
+ 
+ You can provide a custom JSON or YAML configuration file defining your own emotion-to-ASCII mappings using the `--config <path>` flag. Custom definitions override defaults, and defaults fill in any missing emotions.
+@@ -71,4 +89,4 @@ confused: |
+ ```bash
+ npm run start -- --config custom.json confused
+ npm run start -- --config custom.yaml happy
+-```
++```
+\ No newline at end of file
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index 9398b3b9..9bfb53b8 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -20,6 +20,7 @@ npm run serve -- --port 5000
+ 
+ - **GET /**
+ - **GET /face**
++- **GET /emotions**: Returns a JSON array of supported emotion names.
+ 
+ Both endpoints accept an optional query parameter `emotion`:
+ ```
+@@ -27,7 +28,18 @@ GET /?emotion=happy
+ GET /face?emotion=sad
+ ```
+ 
+-Responses are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
++### `/emotions` Endpoint
++
++Returns a JSON array of supported emotion keywords:
++```
++curl -i http://localhost:3000/emotions
++HTTP/1.1 200 OK
++Content-Type: application/json; charset=utf-8
++
++["happy","sad","surprised","angry","neutral"]
++```
++
++Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+ 
+ | Emotion   | Response Body  |
+ | --------- | -------------- |
+@@ -68,6 +80,11 @@ curl "http://localhost:3000?emotion=confused"
+ 
+   o_O
+ 
++# List emotions
++curl -i "http://localhost:3000/emotions"
++
++  ["happy","sad","surprised","angry","neutral"]
++
+ # Invalid path
+ curl -i http://localhost:3000/unknown
+ ```
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 264f3305..0547c8f6 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -64,8 +64,18 @@ export function main(args = []) {
+   // Merge defaults with custom (custom overrides)
+   const faces = { ...defaultFaces, ...customFaces };
+ 
+-  // Determine serve mode and port
++  // Determine serve mode and list mode
+   const serveMode = filteredArgs.includes("--serve");
++  const listMode =
++    filteredArgs.includes("--list-emotions") ||
++    filteredArgs.includes("--list");
++
++  // CLI: list emotions
++  if (listMode && !serveMode) {
++    console.log(JSON.stringify(Object.keys(faces)));
++    return;
++  }
++
+   if (serveMode) {
+     let port = 3000;
+     const portIndex = filteredArgs.indexOf("--port");
+@@ -78,14 +88,19 @@ export function main(args = []) {
+     const server = http.createServer((req, res) => {
+       const base = `http://${req.headers.host}`;
+       const reqUrl = new URL(req.url, base);
++      const pathName = reqUrl.pathname;
++      if (pathName === "/emotions") {
++        res.writeHead(200, {
++          "Content-Type": "application/json; charset=utf-8",
++        });
++        res.end(JSON.stringify(Object.keys(faces)));
++        return;
++      }
+       const emotionParam = reqUrl.searchParams.get("emotion");
+-      const face = Object.prototype.hasOwnProperty.call(
+-        faces,
+-        emotionParam
+-      )
++      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
+         ? faces[emotionParam]
+         : faces.neutral;
+-      if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
++      if (pathName === "/" || pathName === "/face") {
+         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+         res.end(face);
+       } else {
+@@ -109,10 +124,7 @@ export function main(args = []) {
+     emotion = filteredArgs[0];
+   }
+ 
+-  const faceToRender = Object.prototype.hasOwnProperty.call(
+-    faces,
+-    emotion
+-  )
++  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
+     ? faces[emotion]
+     : faces.neutral;
+   console.log(faceToRender);
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 7c5c3c28..6eac655f 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -108,9 +108,15 @@ describe("HTTP Interface", () => {
+     const text = await res.text();
+     expect(text).toEqual("Not Found");
+   });
+-});
+ 
+-// Custom Config Tests
++  test("GET /emotions returns default emotions list", async () => {
++    const res = await fetch(`${baseUrl}/emotions`);
++    expect(res.status).toBe(200);
++    expect(res.headers.get("content-type")).toMatch(/application\/json/);
++    const json = await res.json();
++    expect(json).toEqual(Object.keys(faces));
++  });
++});
+ 
+ describe("CLI: Custom Config", () => {
+   const tmpDir = os.tmpdir();
+@@ -172,6 +178,55 @@ describe("CLI: Custom Config", () => {
+   });
+ });
+ 
++describe("CLI: List Emotions", () => {
++  const tmpDir = os.tmpdir();
++  const jsonPath = path.join(tmpDir, "list-custom.json");
++
++  beforeAll(() => {
++    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
++  });
++
++  afterAll(() => {
++    fs.unlinkSync(jsonPath);
++  });
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("lists default emotions with --list-emotions", () => {
++    main(["--list-emotions"]);
++    expect(console.log).toHaveBeenCalledWith(
++      JSON.stringify(["happy", "sad", "surprised", "angry", "neutral"])
++    );
++  });
++
++  test("lists default emotions with --list alias", () => {
++    main(["--list"]);
++    expect(console.log).toHaveBeenCalledWith(
++      JSON.stringify(["happy", "sad", "surprised", "angry", "neutral"])
++    );
++  });
++
++  test("lists merged emotions with custom config", () => {
++    main(["--config", jsonPath, "--list-emotions"]);
++    expect(console.log).toHaveBeenCalledWith(
++      JSON.stringify([
++        "happy",
++        "sad",
++        "surprised",
++        "angry",
++        "neutral",
++        "confused",
++      ])
++    );
++  });
++});
++
+ describe("HTTP Interface: Custom Config", () => {
+   const tmpDir = os.tmpdir();
+   const jsonPath = path.join(tmpDir, "custom-http.json");
+@@ -207,4 +262,19 @@ describe("HTTP Interface: Custom Config", () => {
+     expect(() => main(["--serve", "--config", "no.json"]))
+       .toThrow();
+   });
++
++  test("GET /emotions returns merged emotions list", async () => {
++    const res = await fetch(`${baseUrl}/emotions`);
++    expect(res.status).toBe(200);
++    expect(res.headers.get("content-type")).toMatch(/application\/json/);
++    const json = await res.json();
++    expect(json).toEqual([
++      "happy",
++      "sad",
++      "surprised",
++      "angry",
++      "neutral",
++      "confused",
++    ]);
++  });
+ });
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2162 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13187,"completion_tokens":11954,"total_tokens":25141,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6592,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
