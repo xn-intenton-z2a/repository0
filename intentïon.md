@@ -1689,3 +1689,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T06:45:39.686Z
+
+Generated feature development issue with title Add --list-emotions flag and /emotions HTTP endpoint for listing supported emotions.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10090,"completion_tokens":1819,"total_tokens":11909,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
