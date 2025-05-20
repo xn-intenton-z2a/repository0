@@ -1228,3 +1228,42 @@ LLM API Usage:
 ```
 ---
 
+## Maintenance Activity to Issue at 2025-05-20T04:59:19.601Z
+
+Created issue https://github.com/xn-intenton-z2a/repository0/issues/2160 with title [Refactor] Implement --config flag for custom emotion mappings and body:
+
+ Current implementation in src/lib/main.js uses a hard-coded mapping of emotions to ASCII faces. To provide real value and flexibility to users, introduce a --config <path> option that loads a JSON or YAML file defining custom emotion-to-ASCII mappings (using js-yaml for YAML), validates the schema with Zod, and merges user definitions on top of the defaults. 
+
+Changes required:
+
+1. Source (src/lib/main.js):
+   - After initializing the default `faces` object, detect a `--config` flag and read the following argument as the file path.
+   - Use `fs.readFileSync` and `JSON.parse` or `js-yaml` based on file extension.
+   - Define a Zod schema to validate that the parsed object is a record of string keys to string values (multi-line frames).
+   - Merge validated custom faces into the default mapping (custom overrides defaults, defaults fill missing).
+   - Apply this merged mapping in both CLI and HTTP serve modes.
+
+2. Tests (tests/unit/main.test.js):
+   - Add unit tests mocking console.log to verify CLI mode with a temporary JSON config file and a YAML config file (e.g. custom "confused" face plus default fallback).
+   - Add tests that invalid or missing config path triggers process exit with clear error.
+   - Extend HTTP Interface tests by starting the server with `--serve --config <path>` and asserting GET /?emotion=custom and other endpoints return the custom face.
+
+3. Documentation (README.md, docs/ASCII_FACE_RENDER.md, docs/HTTP_FACE_SERVICE.md):
+   - Document the new `--config <path>` flag under CLI and HTTP sections.
+   - Provide minimal examples showing a JSON and YAML config file, the schema (keys as strings, values as multi-line strings), and example curl commands.
+
+4. Dependencies (package.json):
+   - Ensure `js-yaml` and `zod` are listed under `dependencies` (already present). No new dependencies required.
+
+Verification:
+- Run `npm test` and confirm new tests pass with >95% coverage for custom config flows.
+- Manually try `node src/lib/main.js --config ./custom.json happy` and verify custom mapping is honored.
+- Use `npm run serve -- --config ./custom.yaml` and test via curl that the HTTP API returns the custom ASCII art..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8664,"completion_tokens":1765,"total_tokens":10429,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
