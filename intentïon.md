@@ -163,3 +163,165 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T01:34:31.313Z
+
+fixApplied: true
+
+Implement ASCII_FACE_RENDER CLI feature with argument parsing tests and documentation
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..3be15252 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,8 +3,27 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++export function main(args = []) {
++  const faces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++
++  let emotion;
++  const emotionFlagIndex = args.indexOf("--emotion");
++  if (emotionFlagIndex !== -1 && args.length > emotionFlagIndex + 1) {
++    emotion = args[emotionFlagIndex + 1];
++  } else if (args.length > 0 && !args[0].startsWith("-")) {
++    emotion = args[0];
++  }
++
++  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
++    ? faces[emotion]
++    : faces.neutral;
++  console.log(faceToRender);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..1ea39b4b 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,4 +1,4 @@
+-import { describe, test, expect } from "vitest";
++import { describe, test, expect, vi } from "vitest";
+ import * as mainModule from "@src/lib/main.js";
+ import { main } from "@src/lib/main.js";
+ 
+@@ -8,9 +8,44 @@ describe("Main Module Import", () => {
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("ASCII Face Renderer", () => {
++  const faces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test.each([
++    [["happy"], faces.happy],
++    [["--emotion", "happy"], faces.happy],
++    [["sad"], faces.sad],
++    [["--emotion", "sad"], faces.sad],
++    [["surprised"], faces.surprised],
++    [["--emotion", "surprised"], faces.surprised],
++    [["angry"], faces.angry],
++    [["--emotion", "angry"], faces.angry],
++  ])("logs correct face for args %p", (input, expected) => {
++    main(input);
++    expect(console.log).toHaveBeenCalledWith(expected);
++  });
++
++  test.each([
++    [[], faces.neutral],
++    [["confused"], faces.neutral],
++    [["--emotion", "confused"], faces.neutral],
++    [["-x"], faces.neutral],
++  ])("fallbacks to neutral for args %p", (input, expected) => {
++    main(input);
++    expect(console.log).toHaveBeenCalledWith(expected);
+   });
+ });\n\n// New [docs/ASCII_FACE_RENDER.md]:\n# ASCII Face Renderer
+
+Users can display multi-line ASCII art faces corresponding to emotions via the CLI.
+
+## Usage
+
+Positional argument:
+
+```bash
+npm run start -- happy
+```
+
+Flag usage:
+
+```bash
+npm run start -- --emotion sad
+```
+
+## Supported Emotions
+
+| Emotion   | ASCII Art |
+| --------- | --------- |
+| happy     | ^_^       |
+| sad       | T_T       |
+| surprised | O_O       |
+| angry     | >:(       |
+| neutral*  | -_-       |
+
+*neutral is default for unknown or missing emotion
+
+## Examples
+
+```bash
+$ npm run start -- surprised
+
+  O_O
+
+$ npm run start
+
+  -_-
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2149 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9044,"completion_tokens":5806,"total_tokens":14850,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4544,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
