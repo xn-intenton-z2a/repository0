@@ -619,3 +619,214 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T02:43:45.380Z
+
+fixApplied: true
+
+Implement HTTP Face Service adding server mode in main HTTP interface tests and documentation
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3be15252..b38a3aa4 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,7 +1,8 @@
+ #!/usr/bin/env node
+ // src/lib/main.js
+ 
+-import { fileURLToPath } from "url";
++import http from "http";
++import { fileURLToPath, URL } from "url";
+ 
+ export function main(args = []) {
+   const faces = {
+@@ -12,6 +13,36 @@ export function main(args = []) {
+     neutral: `\n  -_-\n`,
+   };
+ 
++  const serveMode = args.includes("--serve");
++  if (serveMode) {
++    let port = 3000;
++    const portIndex = args.indexOf("--port");
++    if (portIndex !== -1 && args.length > portIndex + 1) {
++      const p = Number(args[portIndex + 1]);
++      if (!isNaN(p) && p > 0) {
++        port = p;
++      }
++    }
++    const server = http.createServer((req, res) => {
++      const base = `http://${req.headers.host}`;
++      const reqUrl = new URL(req.url, base);
++      const emotionParam = reqUrl.searchParams.get("emotion");
++      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
++        ? faces[emotionParam]
++        : faces.neutral;
++      if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
++        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
++        res.end(face);
++      } else {
++        res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
++        res.end("Not Found");
++      }
++    });
++    server.listen(port);
++    return server;
++  }
++
++  // CLI mode
+   let emotion;
+   const emotionFlagIndex = args.indexOf("--emotion");
+   if (emotionFlagIndex !== -1 && args.length > emotionFlagIndex + 1) {
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index f603c9fb..0013b3cd 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,10 +1,9 @@
+-import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
+ import { main } from "@src/lib/main.js";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++    expect(main).not.toBeNull();
+   });
+ });
+ 
+@@ -49,3 +48,50 @@ describe("ASCII Face Renderer", () => {
+     expect(console.log).toHaveBeenCalledWith(expected);
+   });
+ });
++
++describe("HTTP Interface", () => {
++  const faces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++  let server;
++  let baseUrl;
++
++  beforeAll(async () => {
++    // Start server on ephemeral port
++    server = main(["--serve", "--port", "0"]);
++    await new Promise((resolve) => server.on("listening", resolve));
++    const address = server.address();
++    const port = typeof address === "object" ? address.port : address;
++    baseUrl = `http://127.0.0.1:${port}`;
++  });
++
++  afterAll(() => {
++    server.close();
++  });
++
++  const endpoints = ["/", "/face"];
++  const testCases = [
++    ["happy", faces.happy],
++    ["sad", faces.sad],
++    ["surprised", faces.surprised],
++    ["angry", faces.angry],
++    [undefined, faces.neutral],
++    ["confused", faces.neutral],
++  ];
++
++  for (const endpoint of endpoints) {
++    test.each(testCases)(
++      `GET ${endpoint} with emotion=%s returns expected face`,
++      async (emotion, expected) => {
++        const query = emotion ? `?emotion=${emotion}` : "";
++        const res = await fetch(`${baseUrl}${endpoint}${query}`);
++        const text = await res.text();
++        expect(text).toEqual(expected);
++      }
++    );
++  }
++});\n\n// New [docs/HTTP_FACE_SERVICE.md]:\n# HTTP Face Service
+
+Add an HTTP API to serve ASCII faces alongside the existing CLI.
+
+## CLI Usage
+
+Start the HTTP server (default port 3000):
+```bash
+npm run serve
+```
+Or with explicit flags:
+```bash
+npm run start -- --serve
+npm run start -- --serve --port 4000
+# or
+npm run serve -- --port 5000
+```
+
+## HTTP Endpoints
+
+- **GET /**
+- **GET /face**
+
+Both endpoints accept an optional query parameter `emotion`:
+```
+GET /?emotion=happy
+GET /face?emotion=sad
+```
+
+Responses are served with header `Content-Type: text/plain` and include the ASCII art face:
+
+| Emotion   | Response Body  |
+| --------- | -------------- |
+| happy     |  ^_^           |
+| sad       |  T_T           |
+| surprised |  O_O           |
+| angry     |  >:(           |
+| neutral*  |  -_-           |
+
+*When `emotion` is missing or unrecognized, the neutral face is returned.
+
+## Examples
+
+```bash
+# Default neutral face
+curl "http://localhost:3000"
+
+  -_-
+
+# Specified emotion
+curl "http://localhost:3000?emotion=happy"
+
+  ^_^
+
+# Using /face path
+curl "http://localhost:3000/face?emotion=angry"
+
+  >:(
+
+# Custom port
+curl "http://localhost:4000?emotion=surprised"
+
+  O_O
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2152 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10202,"completion_tokens":4893,"total_tokens":15095,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2688,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
