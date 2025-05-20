@@ -376,3 +376,81 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-20T02:38:56.796Z
+
+Maintained feature HTTP_FACE_SERVICE.
+
+Feature spec:
+
+# HTTP Face Service
+
+## Overview
+Add HTTP API to serve ASCII faces over HTTP alongside the existing CLI behavior.
+
+## CLI Interface
+Support --serve and --port flags to start an HTTP server that returns faces based on emotion queries. If --port is omitted, default to 3000.
+
+## HTTP Interface
+Clients can request GET /?emotion=<emotion> or GET /face?emotion=<emotion> to receive the ASCII face as plain text. Missing or unknown emotion parameters return the neutral face.
+
+## Source Modifications
+- Update src/lib/main.js to detect the --serve flag and optional --port <number> argument.
+- When --serve is present, launch a built-in HTTP server using Node’s http module.
+- In the request handler, parse URL query for emotion, select the corresponding face from the existing mapping, and respond with header Content-Type: text/plain followed by the ASCII art.
+- Preserve existing console output behavior when --serve is not used.
+
+## Tests
+- Extend tests/unit/main.test.js with a new suite "HTTP Interface".
+- In beforeAll, start the HTTP server on an ephemeral port and capture its address.
+- Use global fetch to send HTTP GET requests to endpoints / and /face with various emotion query parameters.
+- Assert that the response text matches the expected ASCII faces for happy, sad, surprised, angry, and neutral fallback.
+- In afterAll, close the server to clean up.
+
+## Documentation
+- Update README.md to document the new --serve and --port options under CLI usage.
+- Provide curl examples showing how to request faces over HTTP, for example:
+  curl "http://localhost:3000?emotion=happy"
+  -> Displays ^_^
+
+
+Git diff:
+
+```diff
+\n\n// New [features/HTTP_FACE_SERVICE.md]:\n# HTTP Face Service
+
+## Overview
+Add HTTP API to serve ASCII faces over HTTP alongside the existing CLI behavior.
+
+## CLI Interface
+Support --serve and --port flags to start an HTTP server that returns faces based on emotion queries. If --port is omitted, default to 3000.
+
+## HTTP Interface
+Clients can request GET /?emotion=<emotion> or GET /face?emotion=<emotion> to receive the ASCII face as plain text. Missing or unknown emotion parameters return the neutral face.
+
+## Source Modifications
+- Update src/lib/main.js to detect the --serve flag and optional --port <number> argument.
+- When --serve is present, launch a built-in HTTP server using Node’s http module.
+- In the request handler, parse URL query for emotion, select the corresponding face from the existing mapping, and respond with header Content-Type: text/plain followed by the ASCII art.
+- Preserve existing console output behavior when --serve is not used.
+
+## Tests
+- Extend tests/unit/main.test.js with a new suite "HTTP Interface".
+- In beforeAll, start the HTTP server on an ephemeral port and capture its address.
+- Use global fetch to send HTTP GET requests to endpoints / and /face with various emotion query parameters.
+- Assert that the response text matches the expected ASCII faces for happy, sad, surprised, angry, and neutral fallback.
+- In afterAll, close the server to clean up.
+
+## Documentation
+- Update README.md to document the new --serve and --port options under CLI usage.
+- Provide curl examples showing how to request faces over HTTP, for example:
+  curl "http://localhost:3000?emotion=happy"
+  -> Displays ^_^
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6796,"completion_tokens":2837,"total_tokens":9633,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2432,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
