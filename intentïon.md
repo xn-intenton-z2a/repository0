@@ -1969,3 +1969,52 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T06:53:42.499Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2162 with action enhance and updated description:
+
+**Objective**
+Enhance the CLI and HTTP interfaces to allow users and programs to discover the set of supported emotion keywords at runtime by introducing a new CLI flag and HTTP endpoint.
+
+**Acceptance Criteria**
+
+1. CLI: Listing Emotions
+   - When the user runs `main(["--list-emotions"])` without `--serve` and without `--config`:
+     - The program prints a JSON array of the default emotion keys: `["happy","sad","surprised","angry","neutral"]`.
+     - The process exits with status code 0 and does not render any ASCII face or start an HTTP server.
+   - When the user runs `main(["--config", "<path>", "--list-emotions"])`:
+     - Given a valid custom config file mapping (e.g. `{ "confused": "\n  o_O\n" }`), the program prints a JSON array of the merged keys (e.g. `["happy","sad","surprised","angry","neutral","confused"]`).
+     - The process exits with status code 0.
+   - On missing or invalid config path:
+     - The program logs an error to stderr containing `Error loading config file` and exits with non-zero code.
+
+2. HTTP: `/emotions` Endpoint
+   - When the server is started via `main(["--serve","--port","<port>"])` without `--config`:
+     - A `GET /emotions` request returns HTTP 200, `Content-Type: application/json; charset=utf-8`, and a JSON array of the default emotion keys.
+   - When the server is started with `--config <path>`:
+     - A `GET /emotions` request returns HTTP 200 with the merged emotion keys (including custom mappings).
+   - Other endpoints (`/` and `/face`) and behavior remain unchanged.
+
+3. Tests
+   - Add CLI tests in `tests/unit/main.test.js` for:
+     - Default listing (`--list-emotions`).
+     - Custom config listing (`--config <path> --list-emotions`).
+     - Error on missing/invalid config.
+   - Add HTTP tests under the "HTTP Interface" suite for `GET /emotions` in both default and custom config scenarios.
+
+4. Documentation
+   - README.md:
+     - Document the `--list-emotions` flag with example usage and sample output.
+     - Document the new `/emotions` HTTP endpoint with example `curl` invocation.
+   - docs/ASCII_FACE_RENDER.md:
+     - Add a section for `--list-emotions`, description, and example.
+   - docs/HTTP_FACE_SERVICE.md:
+     - Document the `/emotions` endpoint, response format, and example usage.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11173,"completion_tokens":1227,"total_tokens":12400,"prompt_tokens_details":{"cached_tokens":8960,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
