@@ -27,9 +27,7 @@ export function main(args = []) {
       const base = `http://${req.headers.host}`;
       const reqUrl = new URL(req.url, base);
       const emotionParam = reqUrl.searchParams.get("emotion");
-      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
-        ? faces[emotionParam]
-        : faces.neutral;
+      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam) ? faces[emotionParam] : faces.neutral;
       if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end(face);
@@ -51,9 +49,7 @@ export function main(args = []) {
     emotion = args[0];
   }
 
-  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
-    ? faces[emotion]
-    : faces.neutral;
+  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion) ? faces[emotion] : faces.neutral;
   console.log(faceToRender);
 }
 
