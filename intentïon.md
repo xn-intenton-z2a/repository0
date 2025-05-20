@@ -2273,3 +2273,56 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T07:44:42.740Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2159 with action close and updated description:
+
+## Objective
+Enhance the ASCII Face Renderer to allow users to supply a custom JSON or YAML configuration file defining their own emotion-to-ASCII mappings. Custom entries should override defaults, while defaults fill any missing emotions.
+
+---
+
+### 1. Update src/lib/main.js
+1. After argument parsing, detect a `--config <path>` flag.
+2. Read the file synchronously using `fs.readFileSync(path, 'utf8')`.
+3. If the file extension ends in `.yaml` or `.yml`, parse with `js-yaml`; otherwise use `JSON.parse`.
+4. Define a Zod schema (e.g. `z.record(z.string(), z.string())`) to validate that the parsed object maps string keys to string values.
+5. On validation failure or file errors, print a clear `console.error` message and `process.exit(1)`.
+6. Merge the validated custom mapping into the default `faces` object.
+7. Ensure both CLI and HTTP (`--serve`) modes use this merged mapping when selecting a face.
+
+### 2. Extend tests in tests/unit/main.test.js
+#### CLI mode
+- Create temporary JSON and YAML config files (e.g. using `fs.writeFileSync` and Node’s `os.tmpdir()`).
+- Test that:
+  - `main(["--config", jsonPath, "confused"])` logs the custom face for `confused` and uses default faces for other emotions.
+  - Invalid path or malformed schema triggers `console.error` and `process.exit(1)`.
+
+#### HTTP mode
+- Start server with `main(["--serve","--port","0","--config",yamlPath])`.
+- Confirm `GET /?emotion=confused` and `GET /face?emotion=confused` return the custom face.
+- Verify fallback for unknown emotions remains the default neutral face.
+
+### 3. Documentation updates
+- **README.md**: Add `--config <path>` under CLI usage; include JSON/YAML examples and schema notes.
+- **docs/ASCII_FACE_RENDER.md**: Document the new flag, supported formats, merge behavior, and usage examples (both CLI and HTTP).
+
+### 4. Dependencies review
+- Ensure `js-yaml` and `zod` are listed in `package.json` (already present).
+
+---
+
+**Verification:**
+1. Run `npm test` and confirm new test cases pass.
+2. In CLI: `npm run start -- --config ./custom.json happy` renders custom or default face appropriately.
+3. In HTTP: `npm run serve -- --port 4000 --config ./custom.yml` returns correct custom faces via `curl`.
+
+No new files should be created or deleted; only modify existing source, test, README, docs, and `package.json` if necessary.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11593,"completion_tokens":1772,"total_tokens":13365,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
