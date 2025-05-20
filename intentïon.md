@@ -879,3 +879,96 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T03:35:36.673Z
+
+fixApplied: true
+
+Add HTTP interface status and header assertions invalid path test update HTTP service documentation
+
+Git Diff:
+
+```
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index 8dd0f36b..4159b474 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -27,7 +27,7 @@ GET /?emotion=happy
+ GET /face?emotion=sad
+ ```
+ 
+-Responses are served with header `Content-Type: text/plain` and include the ASCII art face:
++Responses are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+ 
+ | Emotion   | Response Body  |
+ | --------- | -------------- |
+@@ -39,6 +39,9 @@ Responses are served with header `Content-Type: text/plain` and include the ASCI
+ 
+ *When `emotion` is missing or unrecognized, the neutral face is returned.
+ 
++Invalid Paths:
++Any other path returns HTTP 404 with plain text "Not Found".
++
+ ## Examples
+ 
+ ```bash
+@@ -61,4 +64,11 @@ curl "http://localhost:3000/face?emotion=angry"
+ curl "http://localhost:4000?emotion=surprised"
+ 
+   O_O
+-```
+\ No newline at end of file
++
++# Invalid path
++curl -i http://localhost:3000/unknown
++HTTP/1.1 404 Not Found
++Content-Type: text/plain; charset=utf-8
++
++Not Found
++```
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 0013b3cd..b64b8c8a 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -88,10 +88,21 @@ describe("HTTP Interface", () => {
+       `GET ${endpoint} with emotion=%s returns expected face`,
+       async (emotion, expected) => {
+         const query = emotion ? `?emotion=${emotion}` : "";
+-        const res = await fetch(`${baseUrl}${endpoint}${query}`);
++        const url = `${baseUrl}${endpoint}${query}`;
++        const res = await fetch(url);
++        expect(res.status).toBe(200);
++        expect(res.headers.get("content-type")).toMatch(/text\/plain/);
+         const text = await res.text();
+         expect(text).toEqual(expected);
+       }
+     );
+   }
++
++  test("GET invalid path returns 404", async () => {
++    const res = await fetch(`${baseUrl}/invalid`);
++    expect(res.status).toBe(404);
++    expect(res.headers.get("content-type")).toMatch(/text\/plain/);
++    const text = await res.text();
++    expect(text).toEqual("Not Found");
++  });
+ });
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2153 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11491,"completion_tokens":4920,"total_tokens":16411,"prompt_tokens_details":{"cached_tokens":2048,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
