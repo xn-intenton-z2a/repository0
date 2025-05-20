@@ -39,3 +39,36 @@ $ npm run start
 
   -_-
 ```
+
+## Custom Configuration
+
+You can provide a custom JSON or YAML configuration file defining your own emotion-to-ASCII mappings using the `--config <path>` flag. Custom definitions override defaults, and defaults fill in any missing emotions.
+
+### Supported Formats
+
+- JSON files (`.json`): Parsed with `JSON.parse`
+- YAML files (any other extension): Parsed with `js-yaml`
+
+Values must be strings representing the ASCII frame (including newline characters as needed).
+
+### Example JSON
+
+```json
+{
+  "confused": "\n  o_O\n"
+}
+```
+
+### Example YAML
+
+```yaml
+confused: |
+  o_O
+```
+
+### Usage with Config
+
+```bash
+npm run start -- --config custom.json confused
+npm run start -- --config custom.yaml happy
+```
