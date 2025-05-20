@@ -2326,3 +2326,67 @@ LLM API Usage:
 ```
 ---
 
+## Enhanced Issue at 2025-05-20T07:45:15.787Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/repository0/issues/2165 with enhanced description:
+
+**Context**
+
+The CLI/HTTP application in `src/lib/main.js` must support a new `--diagnostics` flag that outputs runtime metadata as JSON and exits immediately. This will enable users and integrators to inspect diagnostic information (version, configuration path, emotions list, etc.) for troubleshooting and automation.
+
+**Acceptance Criteria**
+
+1. **Diagnostics Mode Activation**
+   - Invoking the application with `--diagnostics` anywhere in the args causes:
+     - A single `console.log` of a JSON object to `stdout` with exactly the following keys:
+       - `version`: string (matches the `version` field in `package.json`)
+       - `defaultEmotions`: array of strings (the keys of the built-in `defaultFaces` object)
+       - `loadedConfigPath`: string or `null` (the value passed to `--config`, or `null` if none)
+       - `customEmotionsCount`: number (count of keys in merged custom faces)
+       - `serveMode`: boolean (whether `--serve` was present)
+       - `listMode`: boolean (whether `--list-emotions` or `--list` was present)
+     - The process exits immediately with exit code `0` and no further output or side effects.
+
+2. **Configuration Integration**
+   - When `--config <path>` and `--diagnostics` are both provided:
+     - `loadedConfigPath` in the output JSON equals the provided `<path>`.
+     - `customEmotionsCount` equals the number of valid custom mappings loaded from the file.
+
+3. **Exit Behavior**
+   - No face rendering, listing, or HTTP server launch occurs when `--diagnostics` is present.
+
+4. **Unit Tests**
+   - Add a new suite `"Diagnostics"` in `tests/unit/main.test.js` that:
+     - Spies on `console.log` and `process.exit`.
+     - Calls `main(["--diagnostics"])` and asserts the JSON output matches expected defaults and exit code behavior.
+     - Calls `main(["--config", jsonPath, "--diagnostics"])` and asserts JSON reflects custom config values.
+
+5. **CLI Invocation Test**
+   - Running `npm run start -- --diagnostics` in a shell prints valid formatted JSON to `stdout` and returns exit code `0`.
+
+6. **Documentation Updates**
+   - **README.md**: Add a `--diagnostics` section under "CLI Usage" with description and example:
+     ```bash
+     npm run start -- --diagnostics
+     ```
+   - **docs/ASCII_FACE_RENDER.md**: Document the diagnostics mode, list the JSON schema (fields and types), and include a sample formatted output.
+
+**Verification**
+
+- `npm test` passes all existing and new diagnostics tests.
+- `npm run start -- --diagnostics` outputs correctly formatted JSON and exits cleanly.
+
+**Implementation Notes**
+
+- Detect `--diagnostics` early in `main(args)` before any existing logic for serve, list, or rendering.
+- Reuse existing config-loading logic to populate `loadedConfigPath` and count of custom faces.
+- Read the `version` dynamically from `package.json`.
+- Return immediately after logging diagnostics.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11702,"completion_tokens":1729,"total_tokens":13431,"prompt_tokens_details":{"cached_tokens":9856,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
