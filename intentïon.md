@@ -502,3 +502,76 @@ LLM API Usage:
 ```
 ---
 
+## Maintained Feature at 2025-05-20T02:39:56.365Z
+
+Maintained feature ASCII_FACE_RENDER.
+
+Git diff:
+
+```
+diff --git a/features/ASCII_FACE_RENDER.md b/features/ASCII_FACE_RENDER.md
+index 33402c88..97f58ac0 100644
+--- a/features/ASCII_FACE_RENDER.md
++++ b/features/ASCII_FACE_RENDER.md
+@@ -1,24 +1,38 @@
+ # ASCII Face Renderer
+ 
+ ## Overview
+-Implement ASCII art facial expressions to depict emotions in the CLI app. Users pass an emotion keyword and see a corresponding ASCII face in the console output.
++Enhance the CLI app to support a diagnostics mode that provides JSON metadata about available emotions and defaults in addition to existing ASCII face rendering.
+ 
+ ## CLI Interface
+-The app accepts an emotion argument either as a positional parameter or via a --emotion flag. Supported emotions are happy, sad, surprised, and angry. If no emotion or an unknown emotion is provided, display a neutral face.
++
++- Positional emotion argument or --emotion flag remains supported for rendering faces.
++- Add a new --diagnostics flag. When this flag is present, the app outputs a JSON object describing the mapping of supported emotions and the default fallback without rendering an ASCII face.
++- If both --diagnostics and emotion flags are provided, diagnostics mode takes precedence.
+ 
+ ## Source Modifications
+-Update src/lib/main.js to:
+-- Parse the emotion argument from process.argv or named flag.
+-- Define a mapping from emotion keywords to ASCII art faces.
+-- Print the selected ASCII face to the console.
++
++- In src/lib/main.js, detect the presence of the --diagnostics flag in args.
++- Build a diagnosticsData object containing:
++  * emotions: an array of supported emotion keys (happy, sad, surprised, angry, neutral)
++  * defaultEmotion: the key used when an unknown or missing emotion is provided (neutral)
++- If --diagnostics is present, output diagnosticsData as a formatted JSON string via console.log and exit main without rendering a face.
++- Preserve the existing logic for rendering ASCII faces when --diagnostics is not used.
+ 
+ ## Tests
+-Extend tests/unit/main.test.js to:
+-- Call main with each supported emotion and verify the console output contains the correct ASCII art.
+-- Call main without arguments and with an unsupported emotion and verify the fallback neutral face is printed.
++
++- Extend tests/unit/main.test.js to include a new suite "Diagnostics Mode".
++- Mock console.log to capture output.
++- Call main with ["--diagnostics"] and verify that console.log is called once with a JSON string that, when parsed, has the expected emotions array and defaultEmotion value.
++- Ensure no ASCII face is rendered in diagnostics mode.
+ 
+ ## Documentation
+-Update README.md to include:
+-- Description of the --emotion option and positional usage.
+-- List of supported emotions and their ASCII art representations.
+-- Examples of running the CLI with different emotions.
++
++- Update README.md and docs/ASCII_FACE_RENDER.md to document the --diagnostics option under CLI usage.
++- Provide an example:
++  npm run start -- --diagnostics
++
++- Show sample output
++  {
++    "emotions": ["happy","sad","surprised","angry","neutral"],
++    "defaultEmotion": "neutral"
++  }
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7155,"completion_tokens":1341,"total_tokens":8496,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
