@@ -2210,3 +2210,66 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-20T07:02:36.668Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2164 with enhanced description:
+
+Title: Implement --diagnostics Mode for ASCII Face Renderer CLI
+
+Objective:
+Add a new `--diagnostics` mode to the ASCII Face Renderer CLI to output runtime metadata as pretty-printed JSON. This mode should run before any other logic (rendering, listing, serving) and exit cleanly.
+
+Acceptance Criteria:
+1. **Basic Diagnostics**
+   - Invocation: `main(['--diagnostics'])`
+   - Output: A single `console.log` call with a JSON string containing exactly these keys:
+     - `version`: non-empty string matching `package.json` version
+     - `defaultEmotions`: array of strings equal to the keys of `defaultFaces` (e.g., `["happy","sad","surprised","angry","neutral"]`)
+     - `customEmotionsCount`: 0
+     - `loadedConfigPath`: `null`
+     - `serveMode`: `false`
+     - `listMode`: `false`
+   - Process exit: Calls `process.exit(0)` immediately after logging.
+
+2. **Diagnostics with Custom Config**
+   - Invocation: `main(['--config', '<path>', '--diagnostics'])`
+   - Behavior:
+     - `loadedConfigPath` equals the provided `<path>` string (not resolved to absolute)
+     - `customEmotionsCount` equals the number of keys in the parsed config
+     - Other fields unchanged (`serveMode` and `listMode` remain `false` when not provided)
+
+3. **Flag Reflection**
+   - Invocation examples:
+     - `main(['--serve','--diagnostics'])`
+     - `main(['--list-emotions','--diagnostics'])`
+     - `main(['--list','--diagnostics'])`
+     - `main(['--serve','--list','--diagnostics'])`
+   - Behavior: `serveMode` and `listMode` booleans in the output JSON reflect presence of `--serve` and `--list-emotions`/`--list`.
+
+4. **Isolation**
+   - No server is started, no list or face-render logic is invoked when `--diagnostics` is present (aside from loading config metadata).
+
+5. **Tests**
+   - New test suite `describe('Diagnostics Mode', ...)` in `tests/unit/main.test.js`:
+     - Mock `console.log` and `process.exit`.
+     - Parse `console.log.mock.calls[0][0]` with `JSON.parse` and assert all fields and types.
+     - Cover basic, custom config, and flag reflection cases.
+
+6. **Documentation**
+   - README.md under **CLI Usage**:
+     - Add entry for `--diagnostics` with example invocation and sample JSON.
+   - `docs/ASCII_FACE_RENDER.md`:
+     - Add **Diagnostics Mode** section describing the flag, JSON schema, and sample output.
+
+Verification:
+- All new and existing tests pass (`npm test`).
+- Manual test: `npm run start -- --diagnostics` prints pretty JSON and exits code 0.
+- Ensure other CLI and HTTP functionality remain unaffected when `--diagnostics` is not used.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11758,"completion_tokens":1567,"total_tokens":13325,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
