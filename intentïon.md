@@ -2138,3 +2138,75 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-20T07:01:29.712Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2164 with title:
+
+Implement --diagnostics Mode for ASCII Face Renderer CLI
+
+And description:
+
+Objective:
+Add a new diagnostics mode to the ASCII Face Renderer CLI so users can inspect runtime metadata (version, default/custom emotions, configuration path, and active flags) as JSON. This will aid troubleshooting and integration.
+
+Scope of Work:
+1. Source Code (src/lib/main.js):
+   - At the very start of `main(args)`, detect a `--diagnostics` flag.
+   - Load `version` dynamically from `package.json`.
+   - Build `defaultEmotions` as an array of keys from the existing `defaultFaces` object.
+   - If `--config <path>` is present, resolve and report `loadedConfigPath` (absolute or relative as passed) and count keys in the parsed custom faces to set `customEmotionsCount`; otherwise set `loadedConfigPath` to `null` and `customEmotionsCount` to `0`.
+   - Determine booleans `serveMode` and `listMode` by checking for `--serve` and `--list-emotions`/`--list` in the arguments.
+   - Construct a diagnostics object:
+     ```js
+     {
+       version,
+       defaultEmotions,
+       customEmotionsCount,
+       loadedConfigPath,
+       serveMode,
+       listMode
+     }
+     ```
+   - Print `JSON.stringify(diagnostics, null, 2)` to `console.log`, then immediately exit with code `0` (e.g., `process.exit(0)`).
+   - Ensure this block runs before any server start, listing, or face-render logic.
+
+2. Tests (tests/unit/main.test.js):
+   - Create a new test suite `describe('Diagnostics Mode', ...)`.
+   - Mock `console.log` and `process.exit` appropriately.
+   - Add tests:
+     a. `main(['--diagnostics'])` produces a JSON string containing all required keys with default values (`customEmotionsCount: 0`, `loadedConfigPath: null`, `serveMode: false`, `listMode: false`).
+     b. With a temporary JSON config file containing N custom mappings, `main(['--config', jsonPath, '--diagnostics'])` reports `loadedConfigPath` equal to the provided path and `customEmotionsCount === N`.
+     c. Flags `--serve` and `--list-emotions` present alongside `--diagnostics` should toggle `serveMode`/`listMode` in the diagnostics output accordingly.
+   - Parse the output of `console.log.mock.calls[0][0]` via `JSON.parse` and assert each property.
+
+3. Documentation:
+   a. README.md:
+      - Under **CLI Usage**, add a new entry for `--diagnostics` with example invocation:
+        ```bash
+        npm run start -- --diagnostics
+        ```
+      - Show sample JSON output.
+   b. docs/ASCII_FACE_RENDER.md:
+      - Add a **Diagnostics Mode** section describing the flag, its behavior, JSON schema, and a sample output.
+      - Document each field (`version`, `defaultEmotions`, etc.) with explanations.
+
+Verification:
+- Run `npm test` to validate new unit tests pass.
+- Manually invoke `npm run start -- --diagnostics` and confirm human-readable, pretty-printed JSON appears and process exits with code 0.
+- Confirm existing functionality (rendering faces, server, listing, config) is unaffected when `--diagnostics` is not used.
+
+Files to Change:
+- src/lib/main.js
+- tests/unit/main.test.js
+- README.md
+- docs/ASCII_FACE_RENDER.md
+
+No other files should be modified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10958,"completion_tokens":2047,"total_tokens":13005,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
