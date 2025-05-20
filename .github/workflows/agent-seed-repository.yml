@@ -430,17 +430,19 @@ jobs:
         uses: actions/github-script@v7
         env:
           featureName: "${{ needs.maintain-features.outputs.featureName }}"
+          featureSpec: "${{ needs.maintain-features.outputs.featureSpec }}"
           gitDiff: ${{ needs.maintain-features.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.maintain-features.outputs.usage }}
         with:
           script: |
             const featureName = process.env.featureName;
+            const featureSpec = process.env.featureSpec;
             const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Maintained feature ${featureName}.\n\nGit diff:\n\n\`\`\`\n${gitDiff}\n\`\`\``;
+            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
