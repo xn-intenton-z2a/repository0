@@ -575,3 +575,47 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-20T02:40:55.137Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2153 with enhanced description:
+
+We need to extend the CLI application to expose the existing ASCII-face renderer as an HTTP service when invoked with a `--serve` flag.
+
+Acceptance Criteria:
+1. CLI Behavior:
+   - When invoked without `--serve`, the application prints the ASCII face to the console exactly as before.
+   - When invoked with `--serve` and no `--port`, the application starts an HTTP server listening on port 3000.
+   - When invoked with `--serve` and `--port <number>`, the HTTP server listens on the specified port.
+2. HTTP API Endpoints:
+   - GET `/`
+     • Accepts optional `emotion` query parameter (e.g., `/` or `/?emotion=happy`).
+     • Returns HTTP 200 with Content-Type `text/plain` and the correct ASCII face for supported emotions (happy, sad, surprised, angry).
+     • Returns the neutral face for unknown or missing `emotion` values.
+   - GET `/face`
+     • Behaves identically to GET `/`, mapping `?emotion=` to the same ASCII-face responses.
+3. Error Handling:
+   - Invalid paths (anything other than `/` or `/face`) return HTTP 404.
+   - Malformed queries still return HTTP 200 with the neutral face.
+4. Tests:
+   - Add a new “HTTP Interface” test suite in `tests/unit/main.test.js`.
+     • In `beforeAll`, start the server on an ephemeral port by passing `--port 0`, then capture the bound port.
+     • Use `fetch` or `node:undici` to send GET requests to `/` and `/face` with each of the supported and unsupported emotions.
+     • Assert each response’s status is 200, Content-Type is `text/plain`, and body matches the expected ASCII art.
+     • Test that invalid paths return 404.
+     • In `afterAll`, properly close the HTTP server to free the port.
+5. Documentation:
+   - Update `README.md` under the CLI usage section to include:
+     • `--serve` and `--port` flag descriptions.
+     • Example `curl` commands illustrating requests to both `/` and `/face` endpoints (for happy, sad, and default cases).
+6. Scripts:
+   - Ensure `package.json` has a `serve` script (`node src/lib/main.js --serve`) and include an example of overriding the port.
+
+Once implemented, running `npm test` must pass all existing and new tests, and `npm run serve` must start the HTTP service listening correctly on the default or specified port.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7703,"completion_tokens":924,"total_tokens":8627,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
