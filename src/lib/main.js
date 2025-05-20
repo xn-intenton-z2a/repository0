@@ -64,8 +64,18 @@ export function main(args = []) {
   // Merge defaults with custom (custom overrides)
   const faces = { ...defaultFaces, ...customFaces };
 
-  // Determine serve mode and port
+  // Determine serve mode and list mode
   const serveMode = filteredArgs.includes("--serve");
+  const listMode =
+    filteredArgs.includes("--list-emotions") ||
+    filteredArgs.includes("--list");
+
+  // CLI: list emotions
+  if (listMode && !serveMode) {
+    console.log(JSON.stringify(Object.keys(faces)));
+    return;
+  }
+
   if (serveMode) {
     let port = 3000;
     const portIndex = filteredArgs.indexOf("--port");
@@ -78,14 +88,19 @@ export function main(args = []) {
     const server = http.createServer((req, res) => {
       const base = `http://${req.headers.host}`;
       const reqUrl = new URL(req.url, base);
+      const pathName = reqUrl.pathname;
+      if (pathName === "/emotions") {
+        res.writeHead(200, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
+        res.end(JSON.stringify(Object.keys(faces)));
+        return;
+      }
       const emotionParam = reqUrl.searchParams.get("emotion");
-      const face = Object.prototype.hasOwnProperty.call(
-        faces,
-        emotionParam
-      )
+      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
         ? faces[emotionParam]
         : faces.neutral;
-      if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
+      if (pathName === "/" || pathName === "/face") {
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end(face);
       } else {
@@ -109,10 +124,7 @@ export function main(args = []) {
     emotion = filteredArgs[0];
   }
 
-  const faceToRender = Object.prototype.hasOwnProperty.call(
-    faces,
-    emotion
-  )
+  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
     ? faces[emotion]
     : faces.neutral;
   console.log(faceToRender);
