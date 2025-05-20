@@ -1331,3 +1331,346 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-20T05:51:23.776Z
+
+fixApplied: true
+
+Implement --config flag for loading custom emotion mappings in CLI and HTTP modes with schema validation and error handling update tests and documentation accordingly
+
+Git Diff:
+
+```
+diff --git a/docs/ASCII_FACE_RENDER.md b/docs/ASCII_FACE_RENDER.md
+index d1a09c6e..a9d514b8 100644
+--- a/docs/ASCII_FACE_RENDER.md
++++ b/docs/ASCII_FACE_RENDER.md
+@@ -39,3 +39,36 @@ $ npm run start
+ 
+   -_-
+ ```
++
++## Custom Configuration
++
++You can provide a custom JSON or YAML configuration file defining your own emotion-to-ASCII mappings using the `--config <path>` flag. Custom definitions override defaults, and defaults fill in any missing emotions.
++
++### Supported Formats
++
++- JSON files (`.json`): Parsed with `JSON.parse`
++- YAML files (any other extension): Parsed with `js-yaml`
++
++Values must be strings representing the ASCII frame (including newline characters as needed).
++
++### Example JSON
++
++```json
++{
++  "confused": "\n  o_O\n"
++}
++```
++
++### Example YAML
++
++```yaml
++confused: |
++  o_O
++```
++
++### Usage with Config
++
++```bash
++npm run start -- --config custom.json confused
++npm run start -- --config custom.yaml happy
++```
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index 4159b474..9398b3b9 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -4,15 +4,15 @@ Add an HTTP API to serve ASCII faces alongside the existing CLI.
+ 
+ ## CLI Usage
+ 
+-Start the HTTP server (default port 3000):
++Start the HTTP server with optional custom configuration (default port 3000):
+ ```bash
+-npm run serve
++npm run start -- --serve --config custom.json --port 3000
+ ```
+-Or with explicit flags:
++
++Or without custom config (defaults only):
+ ```bash
++npm run serve
+ npm run start -- --serve
+-npm run start -- --serve --port 4000
+-# or
+ npm run serve -- --port 5000
+ ```
+ 
+@@ -39,6 +39,8 @@ Responses are served with header `Content-Type: text/plain; charset=utf-8` and i
+ 
+ *When `emotion` is missing or unrecognized, the neutral face is returned.
+ 
++Custom configuration applies equally in server mode, merging your config file with defaults.
++
+ Invalid Paths:
+ Any other path returns HTTP 404 with plain text "Not Found".
+ 
+@@ -60,15 +62,12 @@ curl "http://localhost:3000/face?emotion=angry"
+ 
+   >:(
+ 
+-# Custom port
+-curl "http://localhost:4000?emotion=surprised"
++# With custom config and custom emotion
++# (server must be started with --config custom.json)
++curl "http://localhost:3000?emotion=confused"
+ 
+-  O_O
++  o_O
+ 
+ # Invalid path
+ curl -i http://localhost:3000/unknown
+-HTTP/1.1 404 Not Found
+-Content-Type: text/plain; charset=utf-8
+-
+-Not Found
+-```
++```
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index a4525c6e..cf41ee92 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,9 +3,12 @@
+ 
+ import http from "http";
+ import { fileURLToPath, URL } from "url";
++import fs from "fs";
++import yaml from "js-yaml";
++import { z } from "zod";
+ 
+ export function main(args = []) {
+-  const faces = {
++  const defaultFaces = {
+     happy: `\n  ^_^\n`,
+     sad: `\n  T_T\n`,
+     surprised: `\n  O_O\n`,
+@@ -13,12 +16,45 @@ export function main(args = []) {
+     neutral: `\n  -_-\n`,
+   };
+ 
+-  const serveMode = args.includes("--serve");
++  // Load custom config if provided
++  let customFaces = {};
++  const configIndex = args.indexOf("--config");
++  let filteredArgs = args;
++  if (configIndex !== -1) {
++    if (args.length <= configIndex + 1) {
++      console.error("No path specified for --config");
++      process.exit(1);
++    }
++    const configPath = args[configIndex + 1];
++    try {
++      const content = fs.readFileSync(configPath, "utf8");
++      let parsed;
++      if (configPath.toLowerCase().endsWith(".json")) {
++        parsed = JSON.parse(content);
++      } else {
++        parsed = yaml.load(content);
++      }
++      const schema = z.record(z.string());
++      const validated = schema.parse(parsed);
++      customFaces = validated;
++    } catch (err) {
++      console.error(`Error loading config file: ${err.message}`);
++      process.exit(1);
++    }
++    // Remove config args for downstream parsing
++    filteredArgs = args.filter((_, idx) => idx !== configIndex && idx !== configIndex + 1);
++  }
++
++  // Merge defaults with custom (custom overrides)
++  const faces = { ...defaultFaces, ...customFaces };
++
++  // Determine serve mode and port
++  const serveMode = filteredArgs.includes("--serve");
+   if (serveMode) {
+     let port = 3000;
+-    const portIndex = args.indexOf("--port");
+-    if (portIndex !== -1 && args.length > portIndex + 1) {
+-      const p = Number(args[portIndex + 1]);
++    const portIndex = filteredArgs.indexOf("--port");
++    if (portIndex !== -1 && filteredArgs.length > portIndex + 1) {
++      const p = Number(filteredArgs[portIndex + 1]);
+       if (!isNaN(p) && p > 0) {
+         port = p;
+       }
+@@ -27,7 +63,9 @@ export function main(args = []) {
+       const base = `http://${req.headers.host}`;
+       const reqUrl = new URL(req.url, base);
+       const emotionParam = reqUrl.searchParams.get("emotion");
+-      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam) ? faces[emotionParam] : faces.neutral;
++      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
++        ? faces[emotionParam]
++        : faces.neutral;
+       if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
+         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+         res.end(face);
+@@ -42,14 +80,16 @@ export function main(args = []) {
+ 
+   // CLI mode
+   let emotion;
+-  const emotionFlagIndex = args.indexOf("--emotion");
+-  if (emotionFlagIndex !== -1 && args.length > emotionFlagIndex + 1) {
+-    emotion = args[emotionFlagIndex + 1];
+-  } else if (args.length > 0 && !args[0].startsWith("-")) {
+-    emotion = args[0];
++  const emotionFlagIndex = filteredArgs.indexOf("--emotion");
++  if (emotionFlagIndex !== -1 && filteredArgs.length > emotionFlagIndex + 1) {
++    emotion = filteredArgs[emotionFlagIndex + 1];
++  } else if (filteredArgs.length > 0 && !filteredArgs[0].startsWith("-")) {
++    emotion = filteredArgs[0];
+   }
+ 
+-  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion) ? faces[emotion] : faces.neutral;
++  const faceToRender = Object.prototype.hasOwnProperty.call(faces, emotion)
++    ? faces[emotion]
++    : faces.neutral;
+   console.log(faceToRender);
+ }
+ 
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index b64b8c8a..7c5c3c28 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,4 +1,7 @@
+ import { describe, test, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from "vitest";
++import fs from "fs";
++import os from "os";
++import path from "path";
+ import { main } from "@src/lib/main.js";
+ 
+ describe("Main Module Import", () => {
+@@ -106,3 +109,102 @@ describe("HTTP Interface", () => {
+     expect(text).toEqual("Not Found");
+   });
+ });
++
++// Custom Config Tests
++
++describe("CLI: Custom Config", () => {
++  const tmpDir = os.tmpdir();
++  const jsonPath = path.join(tmpDir, "custom-test.json");
++  const yamlPath = path.join(tmpDir, "custom-test.yaml");
++  const badSchemaPath = path.join(tmpDir, "bad-schema.json");
++
++  beforeAll(() => {
++    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
++    fs.writeFileSync(
++      yamlPath,
++      `confused: |\n  o_O\n`
++    );
++    fs.writeFileSync(badSchemaPath, JSON.stringify({ confused: 123 }));
++  });
++
++  afterAll(() => {
++    [jsonPath, yamlPath, badSchemaPath].forEach((p) => fs.unlinkSync(p));
++  });
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++    vi.spyOn(console, "error").mockImplementation(() => {});
++  });
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("uses custom JSON mapping and falls back to defaults", () => {
++    main(["--config", jsonPath, "confused"]);
++    expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
++  });
++
++  test("uses custom YAML mapping and falls back to defaults", () => {
++    main(["--config", yamlPath, "confused"]);
++    expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
++  });
++
++  test("fallback to default when emotion not in custom", () => {
++    main(["--config", jsonPath, "happy"]);
++    expect(console.log).toHaveBeenCalledWith(`\n  ^_^\n`);
++  });
++
++  test("exits with error for missing config file", () => {
++    vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit ${code}`);
++    });
++    expect(() => main(["--config", "no-such.json"])).toThrow("exit 1");
++    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
++  });
++
++  test("exits with error for invalid schema in config", () => {
++    vi.spyOn(process, "exit").mockImplementation((code) => {
++      throw new Error(`exit ${code}`);
++    });
++    expect(() => main(["--config", badSchemaPath, "confused"]))
++      .toThrow("exit 1");
++    expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
++  });
++});
++
++describe("HTTP Interface: Custom Config", () => {
++  const tmpDir = os.tmpdir();
++  const jsonPath = path.join(tmpDir, "custom-http.json");
++  beforeAll(async () => {
++    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
++  });
++  afterAll(() => {
++    fs.unlinkSync(jsonPath);
++  });
++
++  let server;
++  let baseUrl;
++
++  beforeAll(async () => {
++    server = main(["--serve", "--config", jsonPath, "--port", "0"]);
++    await new Promise((resolve) => server.on("listening", resolve));
++    const addr = server.address();
++    const port = typeof addr === "object" ? addr.port : addr;
++    baseUrl = `http://127.0.0.1:${port}`;
++  });
++  afterAll(() => {
++    server.close();
++  });
++
++  test("GET /?emotion=confused returns custom mapping", async () => {
++    const res = await fetch(`${baseUrl}/?emotion=confused`);
++    expect(res.status).toBe(200);
++    const text = await res.text();
++    expect(text).toEqual("\n  o_O\n");
++  });
++
++  test("server fails to start with invalid config path", () => {
++    expect(() => main(["--serve", "--config", "no.json"]))
++      .toThrow();
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2160 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11610,"completion_tokens":7913,"total_tokens":19523,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3712,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
