@@ -88,10 +88,21 @@ describe("HTTP Interface", () => {
       `GET ${endpoint} with emotion=%s returns expected face`,
       async (emotion, expected) => {
         const query = emotion ? `?emotion=${emotion}` : "";
-        const res = await fetch(`${baseUrl}${endpoint}${query}`);
+        const url = `${baseUrl}${endpoint}${query}`;
+        const res = await fetch(url);
+        expect(res.status).toBe(200);
+        expect(res.headers.get("content-type")).toMatch(/text\/plain/);
         const text = await res.text();
         expect(text).toEqual(expected);
       }
     );
   }
+
+  test("GET invalid path returns 404", async () => {
+    const res = await fetch(`${baseUrl}/invalid`);
+    expect(res.status).toBe(404);
+    expect(res.headers.get("content-type")).toMatch(/text\/plain/);
+    const text = await res.text();
+    expect(text).toEqual("Not Found");
+  });
 });

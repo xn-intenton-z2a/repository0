@@ -27,7 +27,7 @@ GET /?emotion=happy
 GET /face?emotion=sad
 ```
 
-Responses are served with header `Content-Type: text/plain` and include the ASCII art face:
+Responses are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
 
 | Emotion   | Response Body  |
 | --------- | -------------- |
@@ -38,6 +38,9 @@ Responses are served with header `Content-Type: text/plain` and include the ASCI
 | neutral*  |  -_-           |
 
 *When `emotion` is missing or unrecognized, the neutral face is returned.
+
+Invalid Paths:
+Any other path returns HTTP 404 with plain text "Not Found".
 
 ## Examples
 
@@ -61,4 +64,11 @@ curl "http://localhost:3000/face?emotion=angry"
 curl "http://localhost:4000?emotion=surprised"
 
   O_O
+
+# Invalid path
+curl -i http://localhost:3000/unknown
+HTTP/1.1 404 Not Found
+Content-Type: text/plain; charset=utf-8
+
+Not Found
 ```
