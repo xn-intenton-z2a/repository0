@@ -20,6 +20,7 @@ npm run serve -- --port 5000
 
 - **GET /**
 - **GET /face**
+- **GET /emotions**: Returns a JSON array of supported emotion names.
 
 Both endpoints accept an optional query parameter `emotion`:
 ```
@@ -27,7 +28,18 @@ GET /?emotion=happy
 GET /face?emotion=sad
 ```
 
-Responses are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+### `/emotions` Endpoint
+
+Returns a JSON array of supported emotion keywords:
+```
+curl -i http://localhost:3000/emotions
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+["happy","sad","surprised","angry","neutral"]
+```
+
+Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
 
 | Emotion   | Response Body  |
 | --------- | -------------- |
@@ -67,6 +79,11 @@ curl "http://localhost:3000/face?emotion=angry"
 curl "http://localhost:3000?emotion=confused"
 
   o_O
+
+# List emotions
+curl -i "http://localhost:3000/emotions"
+
+  ["happy","sad","surprised","angry","neutral"]
 
 # Invalid path
 curl -i http://localhost:3000/unknown

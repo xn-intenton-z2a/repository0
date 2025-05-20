@@ -108,9 +108,15 @@ describe("HTTP Interface", () => {
     const text = await res.text();
     expect(text).toEqual("Not Found");
   });
-});
 
-// Custom Config Tests
+  test("GET /emotions returns default emotions list", async () => {
+    const res = await fetch(`${baseUrl}/emotions`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toMatch(/application\/json/);
+    const json = await res.json();
+    expect(json).toEqual(Object.keys(faces));
+  });
+});
 
 describe("CLI: Custom Config", () => {
   const tmpDir = os.tmpdir();
@@ -172,6 +178,55 @@ describe("CLI: Custom Config", () => {
   });
 });
 
+describe("CLI: List Emotions", () => {
+  const tmpDir = os.tmpdir();
+  const jsonPath = path.join(tmpDir, "list-custom.json");
+
+  beforeAll(() => {
+    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
+  });
+
+  afterAll(() => {
+    fs.unlinkSync(jsonPath);
+  });
+
+  beforeEach(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("lists default emotions with --list-emotions", () => {
+    main(["--list-emotions"]);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(["happy", "sad", "surprised", "angry", "neutral"])
+    );
+  });
+
+  test("lists default emotions with --list alias", () => {
+    main(["--list"]);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(["happy", "sad", "surprised", "angry", "neutral"])
+    );
+  });
+
+  test("lists merged emotions with custom config", () => {
+    main(["--config", jsonPath, "--list-emotions"]);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify([
+        "happy",
+        "sad",
+        "surprised",
+        "angry",
+        "neutral",
+        "confused",
+      ])
+    );
+  });
+});
+
 describe("HTTP Interface: Custom Config", () => {
   const tmpDir = os.tmpdir();
   const jsonPath = path.join(tmpDir, "custom-http.json");
@@ -206,5 +261,20 @@ describe("HTTP Interface: Custom Config", () => {
   test("server fails to start with invalid config path", () => {
     expect(() => main(["--serve", "--config", "no.json"]))
       .toThrow();
+  });
+
+  test("GET /emotions returns merged emotions list", async () => {
+    const res = await fetch(`${baseUrl}/emotions`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toMatch(/application\/json/);
+    const json = await res.json();
+    expect(json).toEqual([
+      "happy",
+      "sad",
+      "surprised",
+      "angry",
+      "neutral",
+      "confused",
+    ]);
   });
 });
