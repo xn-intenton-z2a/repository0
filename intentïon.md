@@ -830,3 +830,52 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-20T03:32:53.734Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2152 with action close and updated description:
+
+Overview:
+Add an HTTP API alongside the existing CLI so users can retrieve ASCII faces over HTTP. This will complete the HTTP Face Service feature outlined in features/HTTP_FACE_SERVICE.md.
+
+What to change:
+
+1. src/lib/main.js
+   - Parse new flags:
+     • --serve : enable HTTP server mode
+     • --port <number> : optional server port (default 3000)
+   - When --serve is present, spin up an HTTP server (Node’s built-in http module) that handles GET requests:  
+     • GET /?emotion=<emotion>  
+     • GET /face?emotion=<emotion>  
+     Respond with header `Content-Type: text/plain` and the corresponding ASCII art (happy, sad, surprised, angry, or fallback neutral).
+   - Bypass console.log output in server mode, but preserve existing CLI behavior when --serve is absent.
+   - Have main() return the server instance so tests can start/stop it programmatically.
+
+2. tests/unit/main.test.js
+   - Add a new suite `describe('HTTP Interface', ...)`:
+     • In beforeAll: call the updated main([ '--serve', '--port', port ]) to start the server on an ephemeral port (e.g. 0).
+     • Use global fetch to send requests to both `/` and `/face` endpoints with each supported emotion and one unknown emotion.
+     • Assert that the response text matches the expected ASCII faces (import the `faces` map).
+     • In afterAll: call `server.close()` to shut down the HTTP server.
+
+3. README.md
+   - Document the new CLI flags (`--serve`, `--port`) under Usage.
+   - Describe HTTP endpoints (`GET /?emotion=happy`, `GET /face?emotion=sad`) and note text/plain responses.
+   - Provide curl examples with default and custom ports.  
+
+4. Optional documentation file:
+   - Create or update `docs/HTTP_FACE_SERVICE.md` to mirror the CLI and HTTP interface spec, including example requests and responses.
+
+Verification steps:
+
+- Run `npm test` to confirm existing and new HTTP interface tests pass.
+- Launch server locally (`npm run serve -- --port 3000`) and verify with `curl "http://localhost:3000?emotion=happy"` returns the ^_^ ASCII art.
+
+No other files should be modified. Once implemented, the HTTP Face Service will deliver substantial new user value by exposing our ASCII faces over HTTP.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9144,"completion_tokens":1067,"total_tokens":10211,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
