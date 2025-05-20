@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // src/lib/main.js
 
-import { fileURLToPath } from "url";
+import http from "http";
+import { fileURLToPath, URL } from "url";
 
 export function main(args = []) {
   const faces = {
@@ -12,6 +13,36 @@ export function main(args = []) {
     neutral: `\n  -_-\n`,
   };
 
+  const serveMode = args.includes("--serve");
+  if (serveMode) {
+    let port = 3000;
+    const portIndex = args.indexOf("--port");
+    if (portIndex !== -1 && args.length > portIndex + 1) {
+      const p = Number(args[portIndex + 1]);
+      if (!isNaN(p) && p > 0) {
+        port = p;
+      }
+    }
+    const server = http.createServer((req, res) => {
+      const base = `http://${req.headers.host}`;
+      const reqUrl = new URL(req.url, base);
+      const emotionParam = reqUrl.searchParams.get("emotion");
+      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
+        ? faces[emotionParam]
+        : faces.neutral;
+      if (reqUrl.pathname === "/" || reqUrl.pathname === "/face") {
+        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end(face);
+      } else {
+        res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end("Not Found");
+      }
+    });
+    server.listen(port);
+    return server;
+  }
+
+  // CLI mode
   let emotion;
   const emotionFlagIndex = args.indexOf("--emotion");
   if (emotionFlagIndex !== -1 && args.length > emotionFlagIndex + 1) {
