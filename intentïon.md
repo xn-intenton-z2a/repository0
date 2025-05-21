@@ -4634,3 +4634,167 @@ LLM API Usage:
 ```
 ---
 
+## Updated Readme at 2025-05-21T08:56:10.013Z
+
+Updated README: Update README and HTTP docs to include random mode and metrics endpoint
+
+```
+diff --git a/README.md b/README.md
+index 67b047c2..fd6eaf34 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # ASCII Face CLI and HTTP Service
+ 
+-A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, and a diagnostics mode for runtime metadata.
++A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, random face selection, Prometheus-compatible metrics, and a diagnostics mode for runtime metadata.
+ 
+ ## Mission
+ 
+@@ -11,7 +11,9 @@ Creates a CLI app and HTTP service that depicts emotion using facial expressions
+ - CLI rendering of predefined emotions: **happy**, **sad**, **surprised**, **angry**, **neutral**
+ - Custom configuration via JSON or YAML to define additional emotion mappings
+ - List available emotions in CLI mode
++- Random face selection in CLI and HTTP modes
+ - HTTP server mode to serve faces over HTTP
++- Prometheus-compatible metrics exposed at `/metrics` in HTTP server mode
+ - Diagnostics mode outputs runtime metadata as JSON and exits
+ - Merges custom and default emotions across all modes
+ 
+@@ -40,6 +42,12 @@ npm run start -- --list-emotions
+ npm run start -- --list
+ ```
+ 
++Select a random face:
++
++```bash
++npm run start -- --random
++```
++
+ Use a custom configuration file:
+ 
+ ```bash
+@@ -64,6 +72,9 @@ $ npm run start -- --config custom.json surprised
+ $ npm run start -- --list
+ ["happy","sad","surprised","angry","neutral","confused"]
+ 
++$ npm run start -- --random
++  >:(
++
+ $ npm run start -- --diagnostics
+ {
+   "version": "1.2.0-0",
+@@ -94,8 +105,29 @@ npm run start -- --serve --config custom.json --port 4000
+ 
+ ### HTTP Endpoints
+ 
+-- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
+-- **GET /emotions**: returns a JSON array of supported emotion keywords
++- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
++- **GET /emotions**: returns a JSON array of supported emotion keywords (`Content-Type: application/json; charset=utf-8`)
++- **GET /random**: returns a random ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
++- **GET /metrics**: returns Prometheus-compatible metrics including `faces_served_total` and `http_requests_total{endpoint,emotion}` (`Content-Type: text/plain; charset=utf-8`)
++
++### Example Metrics Output
++
++```bash
++curl -i http://localhost:3000/metrics
++HTTP/1.1 200 OK
++Content-Type: text/plain; charset=utf-8
++
++# HELP faces_served_total Total number of faces served
++# TYPE faces_served_total counter
++faces_served_total 3
++# HELP http_requests_total Total HTTP requests
++# TYPE http_requests_total counter
++http_requests_total{endpoint="/",emotion="neutral"} 1
++http_requests_total{endpoint="/face",emotion="happy"} 1
++http_requests_total{endpoint="/random",emotion="surprised"} 1
++http_requests_total{endpoint="/emotions",emotion=""} 1
++http_requests_total{endpoint="/invalid",emotion="neutral"} 1
++```
+ 
+ ## Contributing
+ 
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index c9d34fc3..f7b1cac3 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -20,11 +20,10 @@ npm run start -- --serve --config custom.json --port 4000
+ 
+ ## HTTP Endpoints
+ 
+-- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
+-- **GET /emotions**: returns a JSON array of supported emotion keywords
+-- **GET /random**: returns an ASCII art face chosen at random from default and custom emotions with header `Content-Type: text/plain; charset=utf-8`
+-
+-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned—except `/random`, which always selects randomly.
++- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
++- **GET /emotions**: returns a JSON array of supported emotion keywords (`Content-Type: application/json; charset=utf-8`)
++- **GET /random**: returns a random ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
++- **GET /metrics**: returns Prometheus-compatible metrics in text format (`Content-Type: text/plain; charset=utf-8`)
+ 
+ ### `/emotions` Endpoint
+ 
+@@ -50,7 +49,7 @@ Content-Type: text/plain; charset=utf-8
+   ^_^
+ ```
+ 
+-### Face Endpoints
++### `/` and `/face` Endpoints
+ 
+ Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+ 
+@@ -64,29 +63,12 @@ Responses for `/` and `/face` are served with header `Content-Type: text/plain;
+ 
+ *When `emotion` is missing or unrecognized, the neutral face is returned.
+ 
+-## Custom Configuration
+-
+-Custom JSON or YAML configuration files can be provided using the `--config <path>` flag when starting the server. Custom definitions override defaults, and defaults fill in any missing emotions.
+-
+-## Invalid Paths
+-
+-Any request to an unsupported path returns HTTP 404 with plain text "Not Found".
+-
+-## Metrics Endpoint
++### Metrics Endpoint
+ 
+ The `/metrics` endpoint exposes Prometheus-compatible metrics for monitoring usage statistics in the Prometheus exposition format.
+ 
+-### **GET /metrics**
+-
+-Returns HTTP 200 with `Content-Type: text/plain; charset=utf-8` and a body containing metrics such as:
+-
+-- **faces_served_total**: Counter of total face responses served
+-- **http_requests_total{endpoint,emotion}**: Counter of HTTP requests labeled by endpoint path and emotion served (using `""` for non-face endpoints or `"neutral"` for unknown emotions)
+-
+-### Example Metrics Output
+-
+ ```bash
+-$ curl -i http://localhost:3000/metrics
++curl -i http://localhost:3000/metrics
+ HTTP/1.1 200 OK
+ Content-Type: text/plain; charset=utf-8
+ 
+@@ -101,3 +83,11 @@ http_requests_total{endpoint="/random",emotion="surprised"} 1
+ http_requests_total{endpoint="/emotions",emotion=""} 1
+ http_requests_total{endpoint="/invalid",emotion="neutral"} 1
+ ```
++
++## Custom Configuration
++
++Custom JSON or YAML configuration files can be provided using the `--config <path>` flag when starting the server. Custom definitions override defaults, and defaults fill in any missing emotions.
++
++## Invalid Paths
++
++Any request to an unsupported path returns HTTP 404 with plain text "Not Found".
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12116,"completion_tokens":6452,"total_tokens":18568,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4352,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
