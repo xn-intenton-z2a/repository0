@@ -482,7 +482,6 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features
-    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
@@ -515,6 +514,8 @@ jobs:
 
   create-issue:
     needs:
+      - agentic-lib
+      - maintain-features
       - generate-feature-development-issue
     permissions:
       issues: write
@@ -528,8 +529,9 @@ jobs:
   log-intention-activity:
     needs:
       - agentic-lib
-      - create-issue
+      - maintain-features
       - generate-feature-development-issue
+      - create-issue
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -593,9 +595,10 @@ jobs:
 
   enhance-issue:
     needs:
-      - create-issue
       - agentic-lib
-    if: ${{ !cancelled() }}
+      - maintain-features
+      - generate-feature-development-issue
+      - create-issue
     permissions:
       contents: read
       issues: write
@@ -689,6 +692,8 @@ jobs:
   npm-test-before-issue-resolution:
     needs:
       - agentic-lib
+      - maintain-features
+      - generate-feature-development-issue
       - create-issue
       - enhance-issue
     name: 'npm test with coverage'
@@ -739,8 +744,12 @@ jobs:
 
   label-issue-before-attempt:
     needs:
+      - agentic-lib
+      - maintain-features
+      - generate-feature-development-issue
       - create-issue
       - enhance-issue
+      - npm-test-before-issue-resolution
     permissions:
       contents: write
       issues: write
@@ -779,9 +788,12 @@ jobs:
   apply-issue-resolution:
     needs:
       - agentic-lib
+      - maintain-features
+      - generate-feature-development-issue
       - create-issue
       - enhance-issue
       - npm-test-before-issue-resolution
+      - label-issue-before-attempt
     permissions:
       contents: write
       issues: write
@@ -976,14 +988,7 @@ jobs:
       - npm-test-after-issue-resolution
       - npm-build-after-issue-resolution
       - npm-run-after-issue-resolution
-    if: >
-      ${{ !cancelled() &&
-         (
-           needs.npm-test-after-issue-resolution.result != 'success' ||
-           needs.npm-build-after-issue-resolution.result != 'success' ||
-           needs.npm-run-after-issue-resolution.result != 'success'
-         )
-      }}
+    if: ${{ needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: set-needs-fix
@@ -1031,7 +1036,6 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
-    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
