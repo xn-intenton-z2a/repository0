@@ -88,6 +88,15 @@ export function main(args = []) {
     process.exit(0);
   }
 
+  // Random mode: output a random emotion face and return
+  if (filteredArgs.includes("--random")) {
+    const emotionKeys = Object.keys(faces);
+    const randomIndex = Math.floor(Math.random() * emotionKeys.length);
+    const randomEmotion = emotionKeys[randomIndex];
+    console.log(faces[randomEmotion]);
+    return;
+  }
+
   // Determine serve mode and list mode
   const serveMode = filteredArgs.includes("--serve");
   const listMode =
@@ -119,6 +128,15 @@ export function main(args = []) {
           "Content-Type": "application/json; charset=utf-8",
         });
         res.end(JSON.stringify(Object.keys(faces)));
+        return;
+      }
+      if (pathName === "/random") {
+        const emotionKeys = Object.keys(faces);
+        const randomIndex = Math.floor(Math.random() * emotionKeys.length);
+        const randomEmotion = emotionKeys[randomIndex];
+        const face = faces[randomEmotion];
+        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+        res.end(face);
         return;
       }
       const emotionParam = reqUrl.searchParams.get("emotion");

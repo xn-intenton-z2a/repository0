@@ -116,6 +116,14 @@ describe("HTTP Interface", () => {
     const json = await res.json();
     expect(json).toEqual(Object.keys(faces));
   });
+
+  test("GET /random returns a valid face", async () => {
+    const res = await fetch(`${baseUrl}/random`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toMatch(/text\/plain/);
+    const text = await res.text();
+    expect(Object.values(faces)).toContain(text);
+  });
 });
 
 describe("CLI: Custom Config", () => {
@@ -168,7 +176,8 @@ describe("CLI: Custom Config", () => {
 
   test("exits with error for invalid schema in config", () => {
     vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
-    expect(() => main(["--config", badSchemaPath, "confused"])).toThrow("exit 1");
+    expect(() => main(["--config", badSchemaPath, "confused"]))
+      .toThrow("exit 1");
     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
   });
 });
@@ -326,5 +335,44 @@ describe("Diagnostics", () => {
     const obj = JSON.parse(logged);
     expect(obj.loadedConfigPath).toBe(jsonPath);
     expect(obj.customEmotionsCount).toBe(1);
+  });
+});
+
+// Random Mode Tests
+
+describe("Random Mode", () => {
+  const defaultFaces = {
+    happy: `\n  ^_^\n`,
+    sad: `\n  T_T\n`,
+    surprised: `\n  O_O\n`,
+    angry: `\n  >:(\n`,
+    neutral: `\n  -_-\n`,
+  };
+
+  beforeEach(() => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("CLI random selects first default face", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    main(["--random"]);
+    expect(console.log).toHaveBeenCalledWith(defaultFaces.happy);
+  });
+
+  test("CLI random with custom config selects custom face", () => {
+    const tmpDir = os.tmpdir();
+    const jsonPath = path.join(tmpDir, "random-custom.json");
+    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
+    try {
+      vi.spyOn(Math, "random").mockReturnValue(0.99);
+      main(["--config", jsonPath, "--random"]);
+      expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
+    } finally {
+      fs.unlinkSync(jsonPath);
+    }
   });
 });
