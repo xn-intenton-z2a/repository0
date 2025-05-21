@@ -23,7 +23,7 @@
   </header>
   <section>
     <h1 class="md-github"><a class="md-github__anchor" name="ascii-face-cli-and-http-service" href="#ascii-face-cli-and-http-service"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ASCII Face CLI and HTTP Service</h1>
-<p class="md-github">A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, and a diagnostics mode for runtime metadata.</p>
+<p class="md-github">A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, random face selection, Prometheus-compatible metrics, and a diagnostics mode for runtime metadata.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="mission" href="#mission"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mission</h2>
 <p class="md-github">Creates a CLI app and HTTP service that depicts emotion using facial expressions in ASCII art. See <a href="MISSION.md" class="md-github">MISSION.md</a> for full mission details.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="features" href="#features"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Features</h2>
@@ -31,7 +31,9 @@
 <li class="md-github">CLI rendering of predefined emotions: <strong class="md-github">happy</strong>, <strong class="md-github">sad</strong>, <strong class="md-github">surprised</strong>, <strong class="md-github">angry</strong>, <strong class="md-github">neutral</strong></li>
 <li class="md-github">Custom configuration via JSON or YAML to define additional emotion mappings</li>
 <li class="md-github">List available emotions in CLI mode</li>
+<li class="md-github">Random face selection in CLI and HTTP modes</li>
 <li class="md-github">HTTP server mode to serve faces over HTTP</li>
+<li class="md-github">Prometheus-compatible metrics exposed at <code class="md-github">/metrics</code> in HTTP server mode</li>
 <li class="md-github">Diagnostics mode outputs runtime metadata as JSON and exits</li>
 <li class="md-github">Merges custom and default emotions across all modes</li>
 </ul>
@@ -50,6 +52,9 @@ npm run start -- happy
 <pre class="md-github"><code class="md-github language-bash">npm run start -- --list-emotions
 npm run start -- --list
 </code></pre>
+<p class="md-github">Select a random face:</p>
+<pre class="md-github"><code class="md-github language-bash">npm run start -- --random
+</code></pre>
 <p class="md-github">Use a custom configuration file:</p>
 <pre class="md-github"><code class="md-github language-bash">npm run start -- --config custom.json confused
 </code></pre>
@@ -65,6 +70,9 @@ $ npm run start -- --config custom.json surprised
 
 $ npm run start -- --list
 [&quot;happy&quot;,&quot;sad&quot;,&quot;surprised&quot;,&quot;angry&quot;,&quot;neutral&quot;,&quot;confused&quot;]
+
+$ npm run start -- --random
+  &gt;:(
 
 $ npm run start -- --diagnostics
 {
@@ -88,9 +96,27 @@ npm run start -- --serve --config custom.json --port 4000
 </code></pre>
 <h3 class="md-github"><a class="md-github__anchor" name="http-endpoints" href="#http-endpoints"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>HTTP Endpoints</h3>
 <ul class="md-github">
-<li class="md-github"><strong class="md-github">GET /</strong> or <strong class="md-github">GET /face?emotion=<emotion></strong>: returns the ASCII art face as plain text</li>
-<li class="md-github"><strong class="md-github">GET /emotions</strong>: returns a JSON array of supported emotion keywords</li>
+<li class="md-github"><strong class="md-github">GET /</strong> or <strong class="md-github">GET /face?emotion=<emotion></strong>: returns the ASCII art face as plain text (<code class="md-github">Content-Type: text/plain; charset=utf-8</code>)</li>
+<li class="md-github"><strong class="md-github">GET /emotions</strong>: returns a JSON array of supported emotion keywords (<code class="md-github">Content-Type: application/json; charset=utf-8</code>)</li>
+<li class="md-github"><strong class="md-github">GET /random</strong>: returns a random ASCII art face as plain text (<code class="md-github">Content-Type: text/plain; charset=utf-8</code>)</li>
+<li class="md-github"><strong class="md-github">GET /metrics</strong>: returns Prometheus-compatible metrics including <code class="md-github">faces_served_total</code> and <code class="md-github">http_requests_total{endpoint,emotion}</code> (<code class="md-github">Content-Type: text/plain; charset=utf-8</code>)</li>
 </ul>
+<h3 class="md-github"><a class="md-github__anchor" name="example-metrics-output" href="#example-metrics-output"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example Metrics Output</h3>
+<pre class="md-github"><code class="md-github language-bash">curl -i http://localhost:3000/metrics
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+# HELP faces_served_total Total number of faces served
+# TYPE faces_served_total counter
+faces_served_total 3
+# HELP http_requests_total Total HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{endpoint=&quot;/&quot;,emotion=&quot;neutral&quot;} 1
+http_requests_total{endpoint=&quot;/face&quot;,emotion=&quot;happy&quot;} 1
+http_requests_total{endpoint=&quot;/random&quot;,emotion=&quot;surprised&quot;} 1
+http_requests_total{endpoint=&quot;/emotions&quot;,emotion=&quot;&quot;} 1
+http_requests_total{endpoint=&quot;/invalid&quot;,emotion=&quot;neutral&quot;} 1
+</code></pre>
 <h2 class="md-github"><a class="md-github__anchor" name="contributing" href="#contributing"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributing</h2>
 <p class="md-github">Contributions are welcome! See <a href="CONTRIBUTING.md" class="md-github">CONTRIBUTING.md</a> and the <a href="https://github.com/xn-intenton-z2a/agentic-lib" class="md-github">Agentic-Lib repository</a> for guidelines.</p>
 <h2 class="md-github"><a class="md-github__anchor" name="license" href="#license"><svg class="md-github__octicon md-github__octicon-link" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
@@ -98,7 +124,7 @@ npm run start -- --serve --config custom.json --port 4000
 
   </section>
   <footer>
-    <p>Generated on 2025-05-21T08:42:09.072Z</p>
+    <p>Generated on 2025-05-21T12:49:31.009Z</p>
   </footer>
 </body>
 </html>
