@@ -22,34 +22,38 @@ npm run start -- --serve --config custom.json --port 4000
 
 - **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
 - **GET /emotions**: returns a JSON array of supported emotion keywords
+- **GET /html** or **GET /html?emotion=<emotion>**: returns an HTML page embedding the ASCII art face inside a `<pre>` element; responds with `Content-Type: text/html; charset=utf-8`; if `emotion` is missing or unrecognized, the neutral face is used
 
-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
+All endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
 
-### `/emotions` Endpoint
+### `/html` Endpoint
 
-Returns a JSON array of supported emotion keywords:
+The `/html` endpoint serves a minimal HTML page that wraps the ASCII art face inside a `<pre>` block, making it viewable in a web browser.
+
+Example:
 
 ```bash
-curl -i http://localhost:3000/emotions
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-["happy","sad","surprised","angry","neutral"]
+curl -i "http://localhost:3000/html?emotion=happy"
 ```
 
-### Face Endpoints
+Response headers:
 
-Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+```
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+```
 
-| Emotion   | Response Body |
-| --------- | ------------- |
-| happy     |  ^_^          |
-| sad       |  T_T          |
-| surprised |  O_O          |
-| angry     |  >:(          |
-| neutral*  |  -_-          |
+Response body:
 
-*When `emotion` is missing or unrecognized, the neutral face is returned.
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>ASCII Face</title></head>
+<body><pre>
+  ^_^
+</pre></body>
+</html>
+```
 
 ## Custom Configuration
 

@@ -274,6 +274,50 @@ describe("HTTP Interface: Custom Config", () => {
   });
 });
 
+// HTML Interface tests
+
+describe("HTML Interface", () => {
+  const faces = {
+    happy: `\n  ^_^\n`,
+    sad: `\n  T_T\n`,
+    surprised: `\n  O_O\n`,
+    angry: `\n  >:(\n`,
+    neutral: `\n  -_-\n`,
+  };
+  let server;
+  let baseUrl;
+
+  beforeAll(async () => {
+    server = main(["--serve", "--port", "0"]);
+    await new Promise((resolve) => server.on("listening", resolve));
+    const addr = server.address();
+    const port = typeof addr === "object" ? addr.port : addr;
+    baseUrl = `http://127.0.0.1:${port}`;
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  test.each([
+    ["happy", faces.happy],
+    [undefined, faces.neutral],
+    ["unknown", faces.neutral],
+  ])(
+    "GET /html?emotion=%s returns HTML with expected face",
+    async (emotion, expected) => {
+      const query = emotion ? `?emotion=${emotion}` : "";
+      const url = `${baseUrl}/html${query}`;
+      const res = await fetch(url);
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toMatch(/text\/html/);
+      const text = await res.text();
+      const expectedPre = `<pre>${expected}</pre>`;
+      expect(text).toContain(expectedPre);
+    }
+  );
+});
+
 // Diagnostics Mode Tests
 
 describe("Diagnostics", () => {

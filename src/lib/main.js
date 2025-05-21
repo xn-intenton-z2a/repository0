@@ -5,6 +5,7 @@ import http from "http";
 import { fileURLToPath, URL } from "url";
 import fs from "fs";
 import yaml from "js-yaml";
+import ejs from "ejs";
 import { z } from "zod";
 
 export function main(args = []) {
@@ -46,7 +47,9 @@ export function main(args = []) {
         for (const [key, val] of Object.entries(validated)) {
           // Normalize YAML values: indent lines and wrap with newlines
           const lines = val.split("\n");
-          const indentedLines = lines.map(line => line.length > 0 ? `  ${line}` : line);
+          const indentedLines = lines.map((line) =>
+            line.length > 0 ? `  ${line}` : line
+          );
           let normalized = `\n${indentedLines.join("\n")}`;
           if (!normalized.endsWith("\n")) {
             normalized += "\n";
@@ -59,7 +62,9 @@ export function main(args = []) {
       process.exit(1);
     }
     // Remove config args for downstream parsing
-    filteredArgs = args.filter((_, idx) => idx !== configIndex && idx !== configIndex + 1);
+    filteredArgs = args.filter(
+      (_, idx) => idx !== configIndex && idx !== configIndex + 1
+    );
   }
 
   // Merge defaults with custom (custom overrides)
@@ -91,8 +96,7 @@ export function main(args = []) {
   // Determine serve mode and list mode
   const serveMode = filteredArgs.includes("--serve");
   const listMode =
-    filteredArgs.includes("--list-emotions") ||
-    filteredArgs.includes("--list");
+    filteredArgs.includes("--list-emotions") || filteredArgs.includes("--list");
 
   // CLI: list emotions
   if (listMode && !serveMode) {
@@ -125,13 +129,24 @@ export function main(args = []) {
       const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
         ? faces[emotionParam]
         : faces.neutral;
+      if (pathName === "/html") {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        const template = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>ASCII Face</title></head>
+<body><pre><%= face %></pre></body>
+</html>`;
+        const html = ejs.render(template, { face });
+        res.end(html);
+        return;
+      }
       if (pathName === "/" || pathName === "/face") {
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end(face);
-      } else {
-        res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
-        res.end("Not Found");
+        return;
       }
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Not Found");
     });
     server.listen(port);
     return server;
