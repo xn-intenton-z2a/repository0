@@ -160,3 +160,313 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-21T19:41:02.467Z
+
+fixApplied: true
+
+Implement DISPLAY_EMOTION CLI command with ASCII art update tests and usage docs
+
+Git Diff:
+
+```
+diff --git a/package-lock.json b/package-lock.json
+index 28c529ae..663d4a08 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -14,15 +14,14 @@
+         "js-yaml": "^4.1.0",
+         "minimatch": "^9.0.5",
+         "openai": "^4.96.2",
+-        "prom-client": "^15.0.0",
+-        "zod": "^3.24.4"
++        "zod": "^3.24.3"
+       },
+       "devDependencies": {
+         "@microsoft/eslint-formatter-sarif": "^3.1.0",
+-        "@vitest/coverage-v8": "^3.1.4",
++        "@vitest/coverage-v8": "^3.1.2",
+         "eslint": "^9.24.0",
+         "eslint-config-google": "^0.14.0",
+-        "eslint-config-prettier": "^10.1.5",
++        "eslint-config-prettier": "^10.1.2",
+         "eslint-plugin-import": "^2.31.0",
+         "eslint-plugin-prettier": "^5.2.6",
+         "eslint-plugin-promise": "^7.2.1",
+@@ -33,7 +32,7 @@
+         "markdown-it-github": "^0.5.0",
+         "npm-check-updates": "^17.1.18",
+         "prettier": "^3.5.3",
+-        "vitest": "^3.1.4"
++        "vitest": "^3.1.2"
+       },
+       "engines": {
+         "node": ">=20.0.0"
+@@ -1178,15 +1177,6 @@
+         "node": ">= 8"
+       }
+     },
+-    "node_modules/@opentelemetry/api": {
+-      "version": "1.9.0",
+-      "resolved": "https://registry.npmjs.org/@opentelemetry/api/-/api-1.9.0.tgz",
+-      "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==",
+-      "license": "Apache-2.0",
+-      "engines": {
+-        "node": ">=8.0.0"
+-      }
+-    },
+     "node_modules/@pkgr/core": {
+       "version": "0.2.4",
+       "resolved": "https://registry.npmjs.org/@pkgr/core/-/core-0.2.4.tgz",
+@@ -1987,12 +1977,6 @@
+       "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==",
+       "license": "MIT"
+     },
+-    "node_modules/bintrees": {
+-      "version": "1.0.2",
+-      "resolved": "https://registry.npmjs.org/bintrees/-/bintrees-1.0.2.tgz",
+-      "integrity": "sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==",
+-      "license": "MIT"
+-    },
+     "node_modules/brace-expansion": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.0.1.tgz",
+@@ -5034,19 +5018,6 @@
+         "node": ">=6.0.0"
+       }
+     },
+-    "node_modules/prom-client": {
+-      "version": "15.1.3",
+-      "resolved": "https://registry.npmjs.org/prom-client/-/prom-client-15.1.3.tgz",
+-      "integrity": "sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==",
+-      "license": "Apache-2.0",
+-      "dependencies": {
+-        "@opentelemetry/api": "^1.4.0",
+-        "tdigest": "^0.1.1"
+-      },
+-      "engines": {
+-        "node": "^16 || ^18 || >=20"
+-      }
+-    },
+     "node_modules/prop-types": {
+       "version": "15.8.1",
+       "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+@@ -5757,15 +5728,6 @@
+         "url": "https://opencollective.com/synckit"
+       }
+     },
+-    "node_modules/tdigest": {
+-      "version": "0.1.2",
+-      "resolved": "https://registry.npmjs.org/tdigest/-/tdigest-0.1.2.tgz",
+-      "integrity": "sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "bintrees": "1.0.2"
+-      }
+-    },
+     "node_modules/test-exclude": {
+       "version": "7.0.1",
+       "resolved": "https://registry.npmjs.org/test-exclude/-/test-exclude-7.0.1.tgz",
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..411ff2ea 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,11 +3,46 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++const emotions = {
++  happy: ":-)",
++  sad: ":-(",
++  angry: ">:-(",
++  surprised: ":-O",
++};
++
++function printUsage() {
++  console.log("Usage: --emotion <name>");
++  console.log(
++    `Supported emotions: ${Object.keys(emotions).join(", ")}`
++  );
++}
++
++export function main(args = []) {
++  const i = args.indexOf("--emotion");
++  if (i === -1) {
++    printUsage();
++    return 0;
++  }
++  const emotion = args[i + 1];
++  if (!emotion) {
++    console.error("No emotion specified.");
++    printUsage();
++    return 1;
++  }
++  const key = emotion.toLowerCase();
++  if (emotions[key]) {
++    console.log(emotions[key]);
++    return 0;
++  }
++  console.error(`Unsupported emotion: ${emotion}`);
++  console.error(
++    `Supported emotions: ${Object.keys(emotions).join(", ")}`
++  );
++  return 1;
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  const code = main(args);
++  process.exit(code);
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..b88f4488 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,58 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++describe("DISPLAY_EMOTION CLI", () => {
++  let logSpy;
++  let errorSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("should display happy ASCII art and return 0", () => {
++    const code = main(["--emotion", "happy"]);
++    expect(logSpy).toHaveBeenCalledWith(":-)");
++    expect(errorSpy).not.toHaveBeenCalled();
++    expect(code).toBe(0);
++  });
++
++  test("should display sad ASCII art and return 0", () => {
++    const code = main(["--emotion", "sad"]);
++    expect(logSpy).toHaveBeenCalledWith(":-(");
++    expect(errorSpy).not.toHaveBeenCalled();
++    expect(code).toBe(0);
++  });
++
++  test("should error for unsupported emotion and return 1", () => {
++    const code = main(["--emotion", "foo"]);
++    expect(errorSpy).toHaveBeenCalledWith("Unsupported emotion: foo");
++    expect(errorSpy).toHaveBeenCalledWith(
++      "Supported emotions: happy, sad, angry, surprised"
++    );
++    expect(code).toBe(1);
++  });
++
++  test("should show usage when no flag and return 0", () => {
++    const code = main([]);
++    expect(logSpy).toHaveBeenCalledWith("Usage: --emotion <name>");
++    expect(logSpy).toHaveBeenCalledWith(
++      "Supported emotions: happy, sad, angry, surprised"
++    );
++    expect(code).toBe(0);
+   });
+-});
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++  test("should error when no emotion provided and return 1", () => {
++    const code = main(["--emotion"]);
++    expect(errorSpy).toHaveBeenCalledWith("No emotion specified.");
++    expect(logSpy).toHaveBeenCalledWith("Usage: --emotion <name>");
++    expect(logSpy).toHaveBeenCalledWith(
++      "Supported emotions: happy, sad, angry, surprised"
++    );
++    expect(code).toBe(1);
+   });
+ });\n\n// New [docs/USAGE.md]:\n# CLI Usage
+
+The `repository0` CLI supports displaying emotions as ASCII art.
+
+## Usage
+
+```bash
+npm run start -- --emotion <name>
+```
+
+### Examples
+
+Display a happy face:
+
+```bash
+npm run start -- --emotion happy
+```
+
+Output:
+
+```
+:-)
+```
+
+Unsupported emotion:
+
+```bash
+npm run start -- --emotion foo
+```
+
+Output:
+
+```
+Unsupported emotion: foo
+Supported emotions: happy, sad, angry, surprised
+```
+
+No flag:
+
+```bash
+npm run start
+```
+
+Output:
+
+```
+Usage: --emotion <name>
+Supported emotions: happy, sad, angry, surprised
+```
+
+## Supported Emotions
+
+- happy
+- sad
+- angry
+- surprised
+
+For more details, see [features/DISPLAY_EMOTION.md](../features/DISPLAY_EMOTION.md).
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Usage: --emotion <name>
+Supported emotions: happy, sad, angry, surprised
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2179 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":8552,"completion_tokens":4518,"total_tokens":13070,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3072,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
