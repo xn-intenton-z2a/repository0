@@ -41,7 +41,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -204,11 +204,3 @@ jobs:
           else
             echo 'Will not push to main looking target: ${{ needs.intention.outputs.branchName }}'
           fi
-
-      #- name: Push the current state of main to ${{ needs.intention.outputs.branchUrl }}
-      #  id: push-to-branch
-      #  run: |
-      #    git config --local user.email '${{ env.gitUserEmail }}'
-      #    git config --local user.name '${{ env.gitUserName }}'
-      #    git push -v origin HEAD:${{ needs.intention.outputs.branchUrl }}
-      #    git status -v

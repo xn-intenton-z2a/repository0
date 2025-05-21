@@ -67,7 +67,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -106,7 +106,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.8.0'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -120,6 +120,7 @@ jobs:
       missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
       contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
       dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
       writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
       model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
@@ -188,61 +189,3 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-transformation-library-to-feature.yml" || echo "No changes to commit"
           git push
-
-  #feature-to-issue:
-  #  needs:
-  #    - maintain-features
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-feature-to-issue.yml@6.7.12'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #ready-issue:
-  #  needs:
-  #    - feature-to-issue
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-ready-issue.yml@6.7.12'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #issue-to-code:
-  #  needs:
-  #    - ready-issue
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.7.12'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #review-issue:
-  #  needs:
-  #    - issue-to-code
-  #  permissions:
-  #    contents: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-merged-issue-to-closed-issue.yml@6.7.12'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

@@ -72,7 +72,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -229,7 +229,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.8.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -366,7 +366,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.8.0'
     with:
       mission: ${{ needs.generate-response.outputs.detail }}
       feature: ''
@@ -386,7 +386,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.7.12'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.8.0'
     with:
       mission: ''
       feature: ${{ needs.generate-response.outputs.detail }}
@@ -468,71 +468,6 @@ jobs:
           git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
           git push
 
-  #archive-seeded-intention:
-  #  needs:
-  #    - generate-response
-  #    - seed-repository
-  #    - agentic-lib
-  #    - log-intention-activity
-  #  if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.7.12'
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  # TODO - Feature development flow in-line.
-
-  #feature-maintenance-flow:
-  #  needs:
-  #    - process-discussion-post
-  #    - generate-response
-  #    - seed-repository
-  #    - agentic-lib
-  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    packages: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.12'
-  #  with:
-  #    feature: ${{ needs.generate-response.outputs.detail }}
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  # Currently too large to include
-  #feature-development-flow:
-  #  needs:
-  #    - process-discussion-post
-  #    - generate-response
-  #    - seed-repository
-  #    - agentic-lib
-  #  if: ${{ !cancelled() && (needs.generate-response.outputs.action == 'seed-repository' || needs.generate-response.outputs.action == 'create-feature') }}
-  #  permissions:
-  #    contents: write
-  #    pull-requests: write
-  #    checks: write
-  #    issues: write
-  #    packages: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-development.yml@6.7.12'
-  #  with:
-  #    feature: ${{ needs.generate-response.outputs.detail }}
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
   declare-status-and-halt:
     needs:
       - process-discussion-post
@@ -572,55 +507,3 @@ jobs:
           git push
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  #select-next-issue:
-  #  needs:
-  #    - process-discussion-post
-  #    - generate-response
-  #    - seed-repository
-  #    - agentic-lib
-  #    - feature-development-flow
-  #    - feature-maintenance-flow
-  #    - declare-status-and-halt
-  #  if: ${{ !cancelled() }}
-  #  permissions:
-  #    issues: write
-  #    id-token: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.7.12'
-  #  with:
-  #    issueNumber: ''
-  #    selectionLabel: 'ready'
-  #    filterLabel: 'in-progress'
-  #  secrets:
-  #    CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  #stats:
-  #  needs:
-  #    - process-discussion-post
-  #    - generate-response
-  #    - seed-repository
-  #    - agentic-lib
-  #    - feature-development-flow
-  #    - feature-maintenance-flow
-  #    - declare-status-and-halt
-  #    - select-next-issue
-  #  if: ${{ !cancelled() }}
-  #  permissions:
-  #    contents: write
-  #    id-token: write
-  #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-stats-to-aws.yml@6.7.12'
-  #  with:
-  #    cache: 'npm'
-  #    npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
-  #    lastActivityName: "${{ github.workflow }}"
-  #    lastActivityBranchName: "${{ github.ref_name }}"
-  #    nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
-  #    public: ${{ needs.agentic-lib.outputs.docRoot }}
-  #    s3BucketUrl: "${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}"
-  #    s3WebsiteBucketUrl: "${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}"
-  #    iamActionsRoleArn: "${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}"
-  #    iamStatsBucketWriterRoleArn: "${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}"
-  #    iamPublicWebsiteStatsBucketWriterRoleArn: "${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}"
-  #  secrets:
-  #    PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
