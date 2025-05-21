@@ -100,7 +100,7 @@ You can run the demo and tests locally:
 4. **Run the Demo:**  
    Execute the main script with:  
    `npm run start`  
-   This will display the plots for the quadratic and sine functions.
+   This will display the output of the program.
 
 ### Tuning the agentic coding system
 
@@ -113,24 +113,6 @@ The following files are also taken into consideration but may also be changed (e
 - `package.json`
 - `src/lib/main.js`
 - `tests/unit/main.test.js`
-
-## Diary of an agentic coding system - Day 1
-(An narrative exploration from ChatGPT of the repository's evolution based on the commit log, when the repository was asked to create an Equation Plotter Library.)
-
-In the early hours, `repository0` burst into existence with a bold declaration: an Equation Plotter Library that transformed simple mathematical functions into vivid SVG art. The very first strokes on the canvas showcased the elegance of quadratic curves and the rhythmic flow of sine waves—a promise of what was to come.
-
-Almost immediately, the code’s story took a literary turn. A series of impassioned revisions reimagined the header comment block—evolving it into a refreshed, README-style narrative. Each update sought to capture the essence of the project, meticulously detailing features like interactive zooming, custom styling, and the export of elegant SVG files. This poetic reinvention underscored a deep commitment to clarity and vision.
-
-Then came a daring expansion. A new chapter was written when polar plot functionality emerged—a feature that redefined boundaries by converting polar coordinates into stunning Cartesian displays. The SVG output itself grew, expanding in height to make room for this new visual symphony. The addition of the polar plot was a moment of triumph, heralding a leap into unexplored dimensions.
-
-Yet, the journey was not linear. As the repository matured, the narrative shifted once more. The demo run, once content with console outputs, was transformed to generate a tangible SVG file—a clear, striking emblem of the project’s potential. Alongside these innovations, there was a continuous cycle of refining code formatting and documentation, ensuring that every line of code echoed the clarity of its ambition.
-
-In a final act to secure its legacy, `repository0` embraced stability by adding a package-lock file. This strategic move locked in dependencies and promised reproducible builds, cementing the project’s foundation for the future.
-
-This has been story of [`repository0-plot-code-lib`](https://github.com/xn-intenton-z2a/repository0-plot-code-lib).
-
-**Summary:**  
-`repository0`’s evolution is marked by distinct arcs of initiative. It began with the core plotting of quadratic and sine functions, then shifted into a series of documentation and formatting enhancements. The dramatic introduction of polar plotting expanded its visual vocabulary, while changes in demo output transformed user interaction. Throughout, iterative revisions—sometimes even undoing earlier stylistic choices—revealed a dynamic, evolving vision striving for clarity and excellence.
 
 ## Final Notes
 `repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
