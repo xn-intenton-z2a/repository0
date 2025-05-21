@@ -3319,3 +3319,35 @@ LLM API Usage:
 
 2025-05-21T04:58:56Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-20T01-30Z
 
+## Maintenance Activity to Issue at 2025-05-21T05:11:47.247Z
+
+Created issue https://github.com/xn-intenton-z2a/repository0/issues/2172 with title [Pruner] Remove unused runtime dependencies from package.json and body:
+
+ The current package.json includes several runtime dependencies that are not used anywhere in src/lib/main.js or the test suite. Removing them will reduce the install footprint and eliminate unneeded code. 
+
+WHAT TO CHANGE:
+- Open `package.json`.
+- In the top-level `dependencies` object, remove the entries for:
+  - `openai`
+  - `dotenv`
+  - `minimatch`
+- Ensure the remaining `dependencies` still include only modules referenced in the code (e.g., `http`, `js-yaml`, `zod`, `ejs` etc.).
+
+HOW TO VERIFY:
+1. After saving package.json, run `npm install`.
+2. Run the full test suite with `npm test`. All tests (unit, HTTP interface, CLI, diagnostics) should pass without requiring the removed packages.
+3. Smoke-test core flows:
+   - CLI rendering (`npm run start -- happy`)
+   - List mode (`npm run start -- --list-emotions`)
+   - HTTP serve (`npm run serve`) and hitting `/`, `/emotions` endpoints
+   - Diagnostics mode (`npm run start -- --diagnostics`)
+
+No code or documentation outside of the dependencies file needs modification..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11051,"completion_tokens":2161,"total_tokens":13212,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1856,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
