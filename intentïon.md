@@ -1653,3 +1653,62 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T23:15:03.473Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2182 with title:
+
+PLOT_EQUATION: Implement core console plotting logic with math expression parsing
+
+And description:
+
+Overview
+--------
+This issue completes the core console mode of the PLOT_EQUATION feature by integrating a safe math expression parser, sampling logic, normalization, and ASCII grid rendering. After implementation, invoking `node src/lib/main.js --plot "<equation>"` should produce a 20-row ASCII plot of the function over the default range [-10, 10].
+
+Requirements
+------------
+1. Add a dependency:
+   - package.json: install and save `mathjs` (e.g. "^11.5.0") to parse and evaluate user expressions safely.
+
+2. Extend CLI in src/lib/main.js:
+   - Argument parsing:
+     • Detect `--plot <equation>` flag and error if `<equation>` is missing.
+     • Enforce mutual exclusivity: `--plot` cannot be used with `--emotion` or `--serve` (the HTTP server mode). Conflicting flags must write an error to stderr and return code 1.
+   - Sampling & evaluation:
+     • Sample 80 evenly-spaced x values in [-10, 10].
+     • Use `mathjs` to evaluate the equation for each x; collect y values.
+     • Compute minY and maxY from the sample set.
+   - Normalization & grid generation:
+     • Normalize y values to a fixed grid of 20 rows (row 0 = maxY, row 19 = minY).
+     • Determine which grid cell each sample falls into (nearest row).
+     • Draw ASCII axes at x=0 (vertical) and y=0 (horizontal) using `|` and `-`, with `+` at the origin.
+     • Mark each data point with `*` (higher precedence than axes). All other cells are spaces.
+   - Output:
+     • Print the resulting grid line by line to stdout.
+     • Return exit code 0 on success; on parse or evaluation errors write a clear message to stderr, show usage, and return code 1.
+
+3. Update tests in tests/unit/main.test.js:
+   - Add unit tests for console plotting:
+     • Valid equation (`x^2`): calling `main(["--plot", "x^2"])` returns 0 and writes a grid containing a `*` at the center row for x=0.
+     • Missing equation: `main(["--plot"])` returns 1 and writes an error and usage to stderr.
+     • Conflicting flags: `main(["--plot", "x^2", "--emotion", "happy"])` returns 1 and writes a conflict error.
+   - Ensure existing DISPLAY_EMOTION tests still pass when no `--plot` flag is provided.
+
+4. Update README.md:
+   - Add a new section "Plotting Equations" under Usage:
+     • Show examples for console mode: `npm run start -- --plot "x^2 - 2*x + 1"`
+     • Briefly describe default range, grid size, and sample output snippet.
+
+Verification
+------------
+- Run `npm install` and verify `mathjs` appears in dependencies.
+- Execute `npm test` and confirm all tests (existing and new) pass.
+- Manually run `npm run start -- --plot "sin(x)"` to inspect a sine wave ASCII graph in the terminal.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7316,"completion_tokens":2181,"total_tokens":9497,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
