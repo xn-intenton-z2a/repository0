@@ -88,7 +88,7 @@ jobs:
   seed-repository:
     needs:
       - agentic-lib
-    if: ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && env.feature == ''
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -237,7 +237,7 @@ jobs:
   delete-branches:
     needs:
       - agentic-lib
-    if: ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' )  && env.feature == ''
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' )  && inputs.feature == '' }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'
@@ -311,7 +311,7 @@ jobs:
   cleanup-issues:
     needs:
       - agentic-lib
-    if: ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && env.feature == ''
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Redact old GitHub issues and delete their comments
