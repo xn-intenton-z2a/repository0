@@ -1,138 +1,118 @@
-# ASCII Face CLI and HTTP Service
+# `repository0`
 
-A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, random face selection, Prometheus-compatible metrics, and a diagnostics mode for runtime metadata.
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
-## Mission
+## Overview
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
-Creates a CLI app and HTTP service that depicts emotion using facial expressions in ASCII art. See [MISSION.md](MISSION.md) for full mission details.
+## What’s Inside
 
-## Features
+- **GitHub Workflows:**  
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
-- CLI rendering of predefined emotions: **happy**, **sad**, **surprised**, **angry**, **neutral**
-- Custom configuration via JSON or YAML to define additional emotion mappings
-- List available emotions in CLI mode
-- Random face selection in CLI and HTTP modes
-- HTTP server mode to serve faces over HTTP
-- Prometheus-compatible metrics exposed at `/metrics` in HTTP server mode
-- Diagnostics mode outputs runtime metadata as JSON and exits
-- Merges custom and default emotions across all modes
+- **Source Code:**  
+  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
 
-## Installation
+- **Dependencies:**  
+  `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
-```bash
-git clone <repository_url>
-cd repository0
-npm install
+- **Tests:**  
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
+
+- **Docs**  
+  This `README.md` can be modified by the workflow.
+
+## Getting Started
+
+This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+  Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+
+## intentïon `agentic-lib`
+
+The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+
+*Warning:* Executing these workflows may incur charges on your OpenAI account and consume GitHub Actions minutes.
+
+*Warning:* Experimental. This coding system is still in development and may not suit production use.
+
+## Should you use the `agentic-lib` Coding System?
+
+* Do you have access to an OpenAI account with necessary API keys?
+* Are you willing to incur charges for consumed resources?
+* Are you curious about self-evolving code?
+* Would you like to see how such a system can be built?
+* Do you appreciate integrated OpenAI and GitHub API calls in a JavaScript environment?
+
+### Initiating the workflow
+
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
+If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
+The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
+
+#### Development Workflows:
 ```
+On timer / Manual: Create Issue (new issue opened) 
+-> Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
-## CLI Usage
+On timer: Issue Worker (code changed, issue updated) 
+-> Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
-Render an emotion:
+On timer: Automerge (code merged)
+-> Review Issue (issue reviewed and closed)
 
-```bash
-npm run start -- --emotion happy
-# or shorthand form
-npm run start -- happy
+On timer: Review Issue (issue reviewed and closed)
 ```
+(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
 
-List available emotions:
+#### Running the workflows:
 
-```bash
-npm run start -- --list-emotions
-npm run start -- --list
-```
+The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
 
-Select a random face:
+### Running the Demo
 
-```bash
-npm run start -- --random
-```
+Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
 
-Use a custom configuration file:
+You can run the demo and tests locally:
 
-```bash
-npm run start -- --config custom.json confused
-```
+1. **Clone the Repository:**  
+   Run in your terminal:  
+   `git clone <repository_url>`
 
-Diagnostics mode (outputs JSON and exits):
+2. **Install Dependencies:**  
+   Change into the project directory and run:  
+   `npm install`
 
-```bash
-npm run start -- --diagnostics
-```
+3. **Run Tests:**  
+   To verify that everything is working, run:  
+   `npm test`
 
-### CLI Examples
+4. **Run the Demo:**  
+   Execute the main script with:  
+   `npm run start`  
+   This will display the output of the program.
 
-```bash
-$ npm run start -- happy
-  ^_^
+### Tuning the agentic coding system
 
-$ npm run start -- --config custom.json surprised
-  O_O
+The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `eslint.config.js` - Code style rules and additional plugins can be added here.
 
-$ npm run start -- --list
-["happy","sad","surprised","angry","neutral","confused"]
+The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+- `README.md`
+- `package.json`
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
 
-$ npm run start -- --random
-  >:(
-
-$ npm run start -- --diagnostics
-{
-  "version": "1.2.0-0",
-  "defaultEmotions": ["happy","sad","surprised","angry","neutral"],
-  "loadedConfigPath": null,
-  "customEmotionsCount": 0,
-  "serveMode": false,
-  "listMode": false
-}
-```
-
-## HTTP Server Mode
-
-Start the HTTP server (default port 3000):
-
-```bash
-npm run serve
-```
-
-Specify a custom port or configuration:
-
-```bash
-npm run serve -- --port 5000
-npm run serve -- --config custom.json --port 4000
-# or via start script:
-npm run start -- --serve --config custom.json --port 4000
-```
-
-### HTTP Endpoints
-
-- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
-- **GET /emotions**: returns a JSON array of supported emotion keywords (`Content-Type: application/json; charset=utf-8`)
-- **GET /random**: returns a random ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
-- **GET /metrics**: returns Prometheus-compatible metrics including `faces_served_total` and `http_requests_total{endpoint,emotion}` (`Content-Type: text/plain; charset=utf-8`)
-
-### Example Metrics Output
-
-```bash
-curl -i http://localhost:3000/metrics
-HTTP/1.1 200 OK
-Content-Type: text/plain; charset=utf-8
-
-# HELP faces_served_total Total number of faces served
-# TYPE faces_served_total counter
-faces_served_total 3
-# HELP http_requests_total Total HTTP requests
-# TYPE http_requests_total counter
-http_requests_total{endpoint="/",emotion="neutral"} 1
-http_requests_total{endpoint="/face",emotion="happy"} 1
-http_requests_total{endpoint="/random",emotion="surprised"} 1
-http_requests_total{endpoint="/emotions",emotion=""} 1
-http_requests_total{endpoint="/invalid",emotion="neutral"} 1
-```
-
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) and the [Agentic-Lib repository](https://github.com/xn-intenton-z2a/agentic-lib) for guidelines.
-
-## License
-
-This project is licensed under the Apache-2.0 License. See [LICENSE.md](LICENSE.md) for details.
+## Final Notes
+`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
