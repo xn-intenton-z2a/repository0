@@ -72,31 +72,32 @@ Custom JSON or YAML configuration files can be provided using the `--config <pat
 
 Any request to an unsupported path returns HTTP 404 with plain text "Not Found".
 
-## Examples
+## Metrics Endpoint
+
+The `/metrics` endpoint exposes Prometheus-compatible metrics for monitoring usage statistics in the Prometheus exposition format.
+
+### **GET /metrics**
+
+Returns HTTP 200 with `Content-Type: text/plain; charset=utf-8` and a body containing metrics such as:
+
+- **faces_served_total**: Counter of total face responses served
+- **http_requests_total{endpoint,emotion}**: Counter of HTTP requests labeled by endpoint path and emotion served (using `""` for non-face endpoints or `"neutral"` for unknown emotions)
+
+### Example Metrics Output
 
 ```bash
-# Default neutral face
-curl "http://localhost:3000"
-  -_-
+$ curl -i http://localhost:3000/metrics
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
 
-# Specified emotion
-curl "http://localhost:3000?emotion=happy"
-  ^_^
-
-# Using /face path
-curl "http://localhost:3000/face?emotion=angry"
-  >:(
-
-# Random face
-curl "http://localhost:3000/random"
-  T_T
-
-# With custom config and custom emotion
-# (server must be started with --config custom.json)
-curl "http://localhost:3000?emotion=confused"
-  o_O
-
-# List emotions
-curl -i "http://localhost:3000/emotions"
-  ["happy","sad","surprised","angry","neutral","confused"]
+# HELP faces_served_total Total number of faces served
+# TYPE faces_served_total counter
+faces_served_total 3
+# HELP http_requests_total Total HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{endpoint="/",emotion="neutral"} 1
+http_requests_total{endpoint="/face",emotion="happy"} 1
+http_requests_total{endpoint="/random",emotion="surprised"} 1
+http_requests_total{endpoint="/emotions",emotion=""} 1
+http_requests_total{endpoint="/invalid",emotion="neutral"} 1
 ```
