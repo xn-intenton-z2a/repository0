@@ -3662,3 +3662,256 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-21T06:52:43.074Z
+
+fixApplied: true
+
+Add HTML endpoint to HTTP service update tests and documentation
+
+Git Diff:
+
+```
+diff --git a/README.md b/README.md
+index 67b047c2..218a768c 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # ASCII Face CLI and HTTP Service
+ 
+-A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, and a diagnostics mode for runtime metadata.
++A simple CLI application and HTTP server that renders ASCII art faces representing emotions. Supports custom configurations, listing available emotions, a diagnostics mode for runtime metadata, and a browsable HTML endpoint.
+ 
+ ## Mission
+ 
+@@ -12,8 +12,8 @@ Creates a CLI app and HTTP service that depicts emotion using facial expressions
+ - Custom configuration via JSON or YAML to define additional emotion mappings
+ - List available emotions in CLI mode
+ - HTTP server mode to serve faces over HTTP
++- `/html` endpoint to view faces in a browser
+ - Diagnostics mode outputs runtime metadata as JSON and exits
+-- Merges custom and default emotions across all modes
+ 
+ ## Installation
+ 
+@@ -96,6 +96,13 @@ npm run start -- --serve --config custom.json --port 4000
+ 
+ - **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
+ - **GET /emotions**: returns a JSON array of supported emotion keywords
++- **GET /html** or **GET /html?emotion=<emotion>**: returns an HTML page embedding the ASCII art face inside a `<pre>` block; Content-Type `text/html; charset=utf-8`; falls back to neutral
++
++#### HTML Endpoint Example
++
++```bash
++curl -i "http://localhost:3000/html?emotion=happy"
++```
+ 
+ ## Contributing
+ 
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index 52cafcb5..563c33da 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -22,34 +22,38 @@ npm run start -- --serve --config custom.json --port 4000
+ 
+ - **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
+ - **GET /emotions**: returns a JSON array of supported emotion keywords
++- **GET /html** or **GET /html?emotion=<emotion>**: returns an HTML page embedding the ASCII art face inside a `<pre>` element; responds with `Content-Type: text/html; charset=utf-8`; if `emotion` is missing or unrecognized, the neutral face is used
+ 
+-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
++All endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
+ 
+-### `/emotions` Endpoint
++### `/html` Endpoint
+ 
+-Returns a JSON array of supported emotion keywords:
++The `/html` endpoint serves a minimal HTML page that wraps the ASCII art face inside a `<pre>` block, making it viewable in a web browser.
+ 
+-```bash
+-curl -i http://localhost:3000/emotions
+-HTTP/1.1 200 OK
+-Content-Type: application/json; charset=utf-8
++Example:
+ 
+-["happy","sad","surprised","angry","neutral"]
++```bash
++curl -i "http://localhost:3000/html?emotion=happy"
+ ```
+ 
+-### Face Endpoints
++Response headers:
+ 
+-Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
++```
++HTTP/1.1 200 OK
++Content-Type: text/html; charset=utf-8
++```
+ 
+-| Emotion   | Response Body |
+-| --------- | ------------- |
+-| happy     |  ^_^          |
+-| sad       |  T_T          |
+-| surprised |  O_O          |
+-| angry     |  >:(          |
+-| neutral*  |  -_-          |
++Response body:
+ 
+-*When `emotion` is missing or unrecognized, the neutral face is returned.
++```html
++<!DOCTYPE html>
++<html lang="en">
++<head><meta charset="UTF-8"><title>ASCII Face</title></head>
++<body><pre>
++  ^_^
++</pre></body>
++</html>
++```
+ 
+ ## Custom Configuration
+ 
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 55977d15..b822e626 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -5,6 +5,7 @@ import http from "http";
+ import { fileURLToPath, URL } from "url";
+ import fs from "fs";
+ import yaml from "js-yaml";
++import ejs from "ejs";
+ import { z } from "zod";
+ 
+ export function main(args = []) {
+@@ -46,7 +47,9 @@ export function main(args = []) {
+         for (const [key, val] of Object.entries(validated)) {
+           // Normalize YAML values: indent lines and wrap with newlines
+           const lines = val.split("\n");
+-          const indentedLines = lines.map(line => line.length > 0 ? `  ${line}` : line);
++          const indentedLines = lines.map((line) =>
++            line.length > 0 ? `  ${line}` : line
++          );
+           let normalized = `\n${indentedLines.join("\n")}`;
+           if (!normalized.endsWith("\n")) {
+             normalized += "\n";
+@@ -59,7 +62,9 @@ export function main(args = []) {
+       process.exit(1);
+     }
+     // Remove config args for downstream parsing
+-    filteredArgs = args.filter((_, idx) => idx !== configIndex && idx !== configIndex + 1);
++    filteredArgs = args.filter(
++      (_, idx) => idx !== configIndex && idx !== configIndex + 1
++    );
+   }
+ 
+   // Merge defaults with custom (custom overrides)
+@@ -91,8 +96,7 @@ export function main(args = []) {
+   // Determine serve mode and list mode
+   const serveMode = filteredArgs.includes("--serve");
+   const listMode =
+-    filteredArgs.includes("--list-emotions") ||
+-    filteredArgs.includes("--list");
++    filteredArgs.includes("--list-emotions") || filteredArgs.includes("--list");
+ 
+   // CLI: list emotions
+   if (listMode && !serveMode) {
+@@ -125,13 +129,24 @@ export function main(args = []) {
+       const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
+         ? faces[emotionParam]
+         : faces.neutral;
++      if (pathName === "/html") {
++        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
++        const template = `<!DOCTYPE html>
++<html lang="en">
++<head><meta charset="UTF-8"><title>ASCII Face</title></head>
++<body><pre><%= face %></pre></body>
++</html>`;
++        const html = ejs.render(template, { face });
++        res.end(html);
++        return;
++      }
+       if (pathName === "/" || pathName === "/face") {
+         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+         res.end(face);
+-      } else {
+-        res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+-        res.end("Not Found");
++        return;
+       }
++      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
++      res.end("Not Found");
+     });
+     server.listen(port);
+     return server;
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 7d15c76b..0779edf3 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -274,6 +274,50 @@ describe("HTTP Interface: Custom Config", () => {
+   });
+ });
+ 
++// HTML Interface tests
++
++describe("HTML Interface", () => {
++  const faces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++  let server;
++  let baseUrl;
++
++  beforeAll(async () => {
++    server = main(["--serve", "--port", "0"]);
++    await new Promise((resolve) => server.on("listening", resolve));
++    const addr = server.address();
++    const port = typeof addr === "object" ? addr.port : addr;
++    baseUrl = `http://127.0.0.1:${port}`;
++  });
++
++  afterAll(() => {
++    server.close();
++  });
++
++  test.each([
++    ["happy", faces.happy],
++    [undefined, faces.neutral],
++    ["unknown", faces.neutral],
++  ])(
++    "GET /html?emotion=%s returns HTML with expected face",
++    async (emotion, expected) => {
++      const query = emotion ? `?emotion=${emotion}` : "";
++      const url = `${baseUrl}/html${query}`;
++      const res = await fetch(url);
++      expect(res.status).toBe(200);
++      expect(res.headers.get("content-type")).toMatch(/text\/html/);
++      const text = await res.text();
++      const expectedPre = `<pre>${expected}</pre>`;
++      expect(text).toContain(expectedPre);
++    }
++  );
++});
++
+ // Diagnostics Mode Tests
+ 
+ describe("Diagnostics", () => {
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2171 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14164,"completion_tokens":17621,"total_tokens":31785,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":10624,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
