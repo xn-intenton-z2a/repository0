@@ -3447,3 +3447,218 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-21T06:51:08.139Z
+
+fixApplied: true
+
+Add Random Emotion mode for CLI and HTTP with tests and documentation
+
+Git Diff:
+
+```
+diff --git a/docs/ASCII_FACE_RENDER.md b/docs/ASCII_FACE_RENDER.md
+index 4d1bad81..bcdb3f09 100644
+--- a/docs/ASCII_FACE_RENDER.md
++++ b/docs/ASCII_FACE_RENDER.md
+@@ -128,3 +128,19 @@ npm run start -- --diagnostics
+   "listMode": false
+ }
+ ```
++
++## Random Mode
++
++Use the `--random` flag to output a random ASCII face from the merged set of default and custom emotions.
++
++### Example
++
++```bash
++npm run start -- --random
++```
++
++You can also combine it with a custom configuration:
++
++```bash
++npm run start -- --config custom.json --random
++```
+\ No newline at end of file
+diff --git a/docs/HTTP_FACE_SERVICE.md b/docs/HTTP_FACE_SERVICE.md
+index 52cafcb5..747f6798 100644
+--- a/docs/HTTP_FACE_SERVICE.md
++++ b/docs/HTTP_FACE_SERVICE.md
+@@ -22,8 +22,9 @@ npm run start -- --serve --config custom.json --port 4000
+ 
+ - **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
+ - **GET /emotions**: returns a JSON array of supported emotion keywords
++- **GET /random**: returns an ASCII art face chosen at random from default and custom emotions with header `Content-Type: text/plain; charset=utf-8`
+ 
+-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
++Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned—except `/random`, which always selects randomly.
+ 
+ ### `/emotions` Endpoint
+ 
+@@ -37,6 +38,18 @@ Content-Type: application/json; charset=utf-8
+ ["happy","sad","surprised","angry","neutral"]
+ ```
+ 
++### `/random` Endpoint
++
++Returns a random ASCII face with header `Content-Type: text/plain; charset=utf-8`:
++
++```bash
++curl -i http://localhost:3000/random
++HTTP/1.1 200 OK
++Content-Type: text/plain; charset=utf-8
++
++  ^_^
++```
++
+ ### Face Endpoints
+ 
+ Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
+@@ -74,6 +87,10 @@ curl "http://localhost:3000?emotion=happy"
+ curl "http://localhost:3000/face?emotion=angry"
+   >:(
+ 
++# Random face
++curl "http://localhost:3000/random"
++  T_T
++
+ # With custom config and custom emotion
+ # (server must be started with --config custom.json)
+ curl "http://localhost:3000?emotion=confused"
+@@ -81,5 +98,5 @@ curl "http://localhost:3000?emotion=confused"
+ 
+ # List emotions
+ curl -i "http://localhost:3000/emotions"
+-  ["happy","sad","surprised","angry","neutral"]
++  ["happy","sad","surprised","angry","neutral","confused"]
+ ```
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 55977d15..83ec3143 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -88,6 +88,15 @@ export function main(args = []) {
+     process.exit(0);
+   }
+ 
++  // Random mode: output a random emotion face and return
++  if (filteredArgs.includes("--random")) {
++    const emotionKeys = Object.keys(faces);
++    const randomIndex = Math.floor(Math.random() * emotionKeys.length);
++    const randomEmotion = emotionKeys[randomIndex];
++    console.log(faces[randomEmotion]);
++    return;
++  }
++
+   // Determine serve mode and list mode
+   const serveMode = filteredArgs.includes("--serve");
+   const listMode =
+@@ -121,6 +130,15 @@ export function main(args = []) {
+         res.end(JSON.stringify(Object.keys(faces)));
+         return;
+       }
++      if (pathName === "/random") {
++        const emotionKeys = Object.keys(faces);
++        const randomIndex = Math.floor(Math.random() * emotionKeys.length);
++        const randomEmotion = emotionKeys[randomIndex];
++        const face = faces[randomEmotion];
++        res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
++        res.end(face);
++        return;
++      }
+       const emotionParam = reqUrl.searchParams.get("emotion");
+       const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
+         ? faces[emotionParam]
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 7d15c76b..fbab445c 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -116,6 +116,14 @@ describe("HTTP Interface", () => {
+     const json = await res.json();
+     expect(json).toEqual(Object.keys(faces));
+   });
++
++  test("GET /random returns a valid face", async () => {
++    const res = await fetch(`${baseUrl}/random`);
++    expect(res.status).toBe(200);
++    expect(res.headers.get("content-type")).toMatch(/text\/plain/);
++    const text = await res.text();
++    expect(Object.values(faces)).toContain(text);
++  });
+ });
+ 
+ describe("CLI: Custom Config", () => {
+@@ -168,7 +176,8 @@ describe("CLI: Custom Config", () => {
+ 
+   test("exits with error for invalid schema in config", () => {
+     vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit ${code}`); });
+-    expect(() => main(["--config", badSchemaPath, "confused"])).toThrow("exit 1");
++    expect(() => main(["--config", badSchemaPath, "confused"]))
++      .toThrow("exit 1");
+     expect(console.error).toHaveBeenCalledWith(expect.stringContaining("Error loading config file"));
+   });
+ });
+@@ -328,3 +337,42 @@ describe("Diagnostics", () => {
+     expect(obj.customEmotionsCount).toBe(1);
+   });
+ });
++
++// Random Mode Tests
++
++describe("Random Mode", () => {
++  const defaultFaces = {
++    happy: `\n  ^_^\n`,
++    sad: `\n  T_T\n`,
++    surprised: `\n  O_O\n`,
++    angry: `\n  >:(\n`,
++    neutral: `\n  -_-\n`,
++  };
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("CLI random selects first default face", () => {
++    vi.spyOn(Math, "random").mockReturnValue(0);
++    main(["--random"]);
++    expect(console.log).toHaveBeenCalledWith(defaultFaces.happy);
++  });
++
++  test("CLI random with custom config selects custom face", () => {
++    const tmpDir = os.tmpdir();
++    const jsonPath = path.join(tmpDir, "random-custom.json");
++    fs.writeFileSync(jsonPath, JSON.stringify({ confused: "\n  o_O\n" }));
++    try {
++      vi.spyOn(Math, "random").mockReturnValue(0.99);
++      main(["--config", jsonPath, "--random"]);
++      expect(console.log).toHaveBeenCalledWith("\n  o_O\n");
++    } finally {
++      fs.unlinkSync(jsonPath);
++    }
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+
+  -_-
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2173 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14042,"completion_tokens":13212,"total_tokens":27254,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5824,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
