@@ -3240,3 +3240,50 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T04:48:29.788Z
+
+Created issue https://github.com/xn-intenton-z2a/repository0/issues/2171 with title Add HTML endpoint to HTTP Face Service and body:
+
+ ## Summary
+Implement a browsable HTML endpoint under `/html` in the HTTP Face Service so users can view ASCII faces directly in their browser. The existing plain-text endpoints (`/`, `/face`, `/emotions`) should remain unchanged.
+
+## Tasks
+
+1. **Source (`src/lib/main.js`)**
+   - Import EJS (`import ejs from 'ejs';`).
+   - In the HTTP server block, add handlers for `/html` and `/html?emotion=<emotion>`:
+     - Resolve the `emotion` parameter (fallback to `neutral`).
+     - Render a minimal HTML page using an inline EJS template with `<pre><%= face %></pre>` containing the selected ASCII face.
+     - Set response header `Content-Type: text/html; charset=utf-8`.
+   - Ensure `/html` and `/html?emotion=` paths are routed before the 404 fallback.
+
+2. **Tests (`tests/unit/main.test.js`)**
+   - Add a new `describe('HTML Interface', ...)` suite.
+   - Start the server on an ephemeral port in `beforeAll` and close it in `afterAll`.
+   - Write tests for:
+     - GET `/html?emotion=happy` returns `200`, `Content-Type: text/html`, and body contains `<pre>^_^</pre>` (with surrounding whitespace preserved).
+     - GET `/html` with no emotion returns the neutral face in `<pre>`.
+     - GET `/html?emotion=unknown` falls back to neutral face.
+
+3. **Documentation**
+   - **docs/HTTP_FACE_SERVICE.md**: Add a section describing the new `/html` endpoint, its query parameter behavior, example `curl` usage, and sample HTML response snippet.
+   - **README.md**: Under **HTTP Server Mode**, document the `/html` endpoint (with an example curl command) and mention the `text/html` response.
+
+## Verification
+- Run `npm test` to confirm all unit tests (including new HTML interface tests) pass.
+- Start the server (`npm run serve`) and manually verify:
+  - `curl -i "http://localhost:3000/html?emotion=happy"` returns valid HTML.
+  - `curl -i "http://localhost:3000/html"` falls back to the neutral face.
+
+**Notes:**
+- Do not modify any files outside of `src/lib/main.js`, `tests/unit/main.test.js`, `docs/HTTP_FACE_SERVICE.md`, `README.md`, or `package.json` (no new files, removals, or unrelated changes).
+- EJS is already a dependency in `package.json`.
+- Keep existing endpoints intact and ensure minimal overhead..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10989,"completion_tokens":1387,"total_tokens":12376,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
