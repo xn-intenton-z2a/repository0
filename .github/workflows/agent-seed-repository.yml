@@ -64,7 +64,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.7.13'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -81,7 +81,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.7.13'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -374,7 +374,7 @@ jobs:
   #    packages: write
   #    id-token: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.11'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-feature-maintenance.yml@6.7.13'
   #  with:
   #    feature: ${{ inputs.mission || '' }}
   #  secrets:
@@ -393,7 +393,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.7.13'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -420,6 +420,7 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -482,11 +483,12 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.7.13'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -517,10 +519,11 @@ jobs:
       - agentic-lib
       - maintain-features
       - generate-feature-development-issue
+    if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.7.13'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -532,6 +535,7 @@ jobs:
       - maintain-features
       - generate-feature-development-issue
       - create-issue
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -599,11 +603,12 @@ jobs:
       - maintain-features
       - generate-feature-development-issue
       - create-issue
+    if: ${{ !cancelled() }}
     permissions:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.7.13'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -631,6 +636,7 @@ jobs:
     needs:
       - agentic-lib
       - enhance-issue
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -696,6 +702,7 @@ jobs:
       - generate-feature-development-issue
       - create-issue
       - enhance-issue
+    if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -735,7 +742,7 @@ jobs:
   #    id-token: write
   #    packages: write
   #    pages: write
-  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.7.11'
+  #  uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.7.13'
   #  with:
   #    issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
   #  secrets:
@@ -750,6 +757,7 @@ jobs:
       - create-issue
       - enhance-issue
       - npm-test-before-issue-resolution
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
@@ -794,11 +802,12 @@ jobs:
       - enhance-issue
       - npm-test-before-issue-resolution
       - label-issue-before-attempt
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.7.13'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -832,6 +841,7 @@ jobs:
       - agentic-lib
       - create-issue
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -901,6 +911,7 @@ jobs:
   npm-test-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -929,6 +940,7 @@ jobs:
   npm-build-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -957,6 +969,7 @@ jobs:
   npm-run-after-issue-resolution:
     needs:
       - apply-issue-resolution
+    if: ${{ !cancelled() }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -988,7 +1001,7 @@ jobs:
       - npm-test-after-issue-resolution
       - npm-build-after-issue-resolution
       - npm-run-after-issue-resolution
-    if: ${{ needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' }}
+    if: ${{ !cancelled() && ( needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: set-needs-fix
@@ -1018,7 +1031,7 @@ jobs:
       - create-issue
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
-    if: ${{ needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' }}
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
       packages: write
@@ -1026,7 +1039,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.7.13'
     with:
       branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
       baseBranch: 'main'
@@ -1036,6 +1049,7 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
+    if: ${{ !cancelled() }}
     permissions:
       contents: write
       pull-requests: write
@@ -1043,7 +1057,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.7.11'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.7.13'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
