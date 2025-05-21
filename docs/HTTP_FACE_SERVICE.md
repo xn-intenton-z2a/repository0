@@ -22,8 +22,9 @@ npm run start -- --serve --config custom.json --port 4000
 
 - **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
 - **GET /emotions**: returns a JSON array of supported emotion keywords
+- **GET /random**: returns an ASCII art face chosen at random from default and custom emotions with header `Content-Type: text/plain; charset=utf-8`
 
-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned.
+Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned—except `/random`, which always selects randomly.
 
 ### `/emotions` Endpoint
 
@@ -35,6 +36,18 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 ["happy","sad","surprised","angry","neutral"]
+```
+
+### `/random` Endpoint
+
+Returns a random ASCII face with header `Content-Type: text/plain; charset=utf-8`:
+
+```bash
+curl -i http://localhost:3000/random
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+  ^_^
 ```
 
 ### Face Endpoints
@@ -74,6 +87,10 @@ curl "http://localhost:3000?emotion=happy"
 curl "http://localhost:3000/face?emotion=angry"
   >:(
 
+# Random face
+curl "http://localhost:3000/random"
+  T_T
+
 # With custom config and custom emotion
 # (server must be started with --config custom.json)
 curl "http://localhost:3000?emotion=confused"
@@ -81,5 +98,5 @@ curl "http://localhost:3000?emotion=confused"
 
 # List emotions
 curl -i "http://localhost:3000/emotions"
-  ["happy","sad","surprised","angry","neutral"]
+  ["happy","sad","surprised","angry","neutral","confused"]
 ```

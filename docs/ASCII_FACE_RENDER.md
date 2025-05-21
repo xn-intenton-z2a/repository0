@@ -128,3 +128,19 @@ npm run start -- --diagnostics
   "listMode": false
 }
 ```
+
+## Random Mode
+
+Use the `--random` flag to output a random ASCII face from the merged set of default and custom emotions.
+
+### Example
+
+```bash
+npm run start -- --random
+```
+
+You can also combine it with a custom configuration:
+
+```bash
+npm run start -- --config custom.json --random
+```
