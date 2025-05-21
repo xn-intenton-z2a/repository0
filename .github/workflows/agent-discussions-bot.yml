@@ -160,7 +160,7 @@ jobs:
                     const lines = intentionFileContent.split('\n');
 
                     // Filter to lines matching ^*https://.*/discussions/*$ and extract the last matching line.
-                    const discussionsUrlLines = lines.filter(line => line.match(/^\s*https:\/\/.*\/discussions\/.*$/));
+                    const discussionsUrlLines = lines.filter(line => line.match(/https:\/\/.*\/discussions\//));
                     if (discussionsUrlLines.length === 0) {
                       core.setFailed(`No matching GitHub Discussions URL found in intentïon.md at ${intentionFilepath}`);
                       return;
