@@ -1712,3 +1712,64 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-21T23:15:48.226Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview
+--------
+This issue completes the core console mode of the PLOT_EQUATION feature by integrating a safe math expression parser, sampling logic, normalization, and ASCII grid rendering. Invoking `node src/lib/main.js --plot "<equation>"` should produce a 20-row ASCII plot of the function over the default range [-10, 10].
+
+Acceptance Criteria
+-------------------
+1. Dependency Installation:
+   - `mathjs` is added to `package.json` and appears in `npm ls` output.
+2. CLI Behavior:
+   a. Correct invocation:
+      - Given `main(["--plot", "x^2"])`, returns exit code 0.
+      - Writes a 20-row ASCII grid to stdout with `*` marking each of 80 samples and axes drawn.
+      - At x=0, y=0, a `+` is at the intersection of vertical and horizontal axes.
+   b. Missing equation parameter:
+      - Given `main(["--plot"])`, returns exit code 1.
+      - Writes error message `"No equation specified."` followed by usage instructions to stderr.
+   c. Mutual exclusion errors:
+      - Given `main(["--plot", "x^2", "--emotion", "happy"])` or `main(["--plot", "x^2", "--serve"])`, returns exit code 1.
+      - Writes a clear conflict error to stderr and usage instructions.
+   d. Invalid expression handling:
+      - Given `main(["--plot", "foo(x)"])` where parsing fails, returns exit code 1.
+      - Writes a parse error message and usage instructions to stderr.
+3. Sampling & Normalization:
+   - Samples 80 evenly spaced x values in [-10, 10].
+   - Evaluates y values using mathjs.
+   - Calculates minY and maxY correctly.
+   - Normalizes y values to 20 rows and assigns each sample to the nearest row index.
+4. Grid & Axes Rendering:
+   - Grid is 20 rows by 80 columns of characters.
+   - Vertical axis drawn using `|` at column corresponding to x=0 (if in range).
+   - Horizontal axis drawn using `-` at row corresponding to y=0 (if in range).
+   - Origin cell uses `+`.
+   - Data points `*` override axes characters.
+   - All other cells are spaces.
+5. Testing:
+   - Unit tests in `tests/unit/main.test.js` cover console plotting scenarios (valid, missing, conflict, invalid).
+   - Existing DISPLAY_EMOTION tests remain passing without modification.
+6. Documentation:
+   - README.md includes a "Plotting Equations" section with examples:
+     - `npm run start -- --plot "x^2 - 2*x + 1"`
+     - Description of default range (-10 to 10) and grid size (20 rows).
+     - Example snippet of ASCII output.
+
+Verification Steps
+------------------
+- Run `npm install` and verify `mathjs` in `npm ls`.
+- Run `npm test` and confirm all tests pass, including new plotting tests.
+- Manually run `npm run start -- --plot "sin(x)"` to confirm a sine wave ASCII plot appears in terminal.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7924,"completion_tokens":1159,"total_tokens":9083,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
