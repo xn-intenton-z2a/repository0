@@ -4088,3 +4088,57 @@ LLM API Usage:
 ```
 ---
 
+## Enhanced Issue at 2025-05-21T07:45:40.952Z
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/repository0/issues/2176 with enhanced description:
+
+Integrate Prometheus metrics support into the HTTP Face Service by using the `prom-client` library to expose runtime counters at a new `/metrics` endpoint.
+
+Implementation Tasks:
+1. **Add Dependency**
+   - Update `package.json` to include `prom-client` at version `^15.0.0` under dependencies.
+2. **Metrics Initialization** in `src/lib/main.js`
+   - Import `prom-client` and create a global Registry.
+   - Define two `Counter` metrics:
+     - `faces_served_total` (no labels)
+     - `http_requests_total` (labels: `endpoint`, `emotion`)
+3. **Increment Counters** in each HTTP handler:
+   - **Face-serving endpoints** (`/`, `/face`, `/random`):
+     - Increment `faces_served_total` by 1.
+     - Increment `http_requests_total` with labels `{ endpoint: pathName, emotion: actualEmotion }`.
+   - **Other endpoints** (`/emotions` and any invalid path):
+     - Increment only `http_requests_total` with appropriate `{ endpoint, emotion }` (use `neutral` or empty for non-face endpoints).
+4. **New Route** for `/metrics`:
+   - Before all other routing logic, detect `pathName === '/metrics'`.
+   - Respond with HTTP 200 and header `Content-Type: text/plain; charset=utf-8`.
+   - Return the text from `await registry.metrics()` and exit early.
+5. **Automated Tests** in `tests/unit/main.test.js`
+   - Add a new suite **"Metrics Interface"** under the HTTP Interface block:
+     1. Start the server on an ephemeral port.
+     2. Send one request each to: `/`, `/face?emotion=happy`, `/random`, `/emotions`, and `/invalid`.
+     3. Send `GET /metrics` and assert:
+        - Status code `200`.
+        - `Content-Type` header is `text/plain; charset=utf-8`.
+        - Response body contains a Prometheus exposition output including:
+          - A line starting with `faces_served_total ` equal to `3` (one per face-serving endpoint).
+          - Lines matching `http_requests_total{endpoint="/",emotion="neutral"} 1`,
+            `http_requests_total{endpoint="/face",emotion="happy"} 1`,
+            `http_requests_total{endpoint="/random",emotion="<some>"} 1`,
+            `http_requests_total{endpoint="/emotions",emotion=""} 1`, and
+            `http_requests_total{endpoint="/invalid",emotion="neutral"} 1`.
+6. **Documentation Updates**
+   - **docs/HTTP_FACE_SERVICE.md**: Add a **Metrics Endpoint** section describing `GET /metrics`, its Prometheus output format, and sample output.
+   - **README.md**: Under **HTTP Server Mode**, document `/metrics` with example `curl` invocation and sample response.
+
+**Acceptance Criteria:**
+- All new tests in the **Metrics Interface** suite pass.
+- Manual verification: after installing dependencies and `npm run serve`, curling `/metrics` returns valid Prometheus-formatted metrics reflecting counts from preceding requests.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12309,"completion_tokens":3452,"total_tokens":15761,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2688,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
