@@ -3351,3 +3351,35 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-21T05:41:44.504Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2172 with action close and updated description:
+
+The current package.json includes several runtime dependencies that are not used anywhere in src/lib/main.js or the test suite. Removing them will reduce the install footprint and eliminate unneeded code. 
+
+WHAT TO CHANGE:
+- Open `package.json`.
+- In the top-level `dependencies` object, remove the entries for:
+  - `openai`
+  - `dotenv`
+  - `minimatch`
+- Ensure the remaining `dependencies` still include only modules referenced in the code (e.g., `http`, `js-yaml`, `zod`, `ejs` etc.).
+
+HOW TO VERIFY:
+1. After saving package.json, run `npm install`.
+2. Run the full test suite with `npm test`. All tests (unit, HTTP interface, CLI, diagnostics) should pass without requiring the removed packages.
+3. Smoke-test core flows:
+   - CLI rendering (`npm run start -- happy`)
+   - List mode (`npm run start -- --list-emotions`)
+   - HTTP serve (`npm run serve`) and hitting `/`, `/emotions` endpoints
+   - Diagnostics mode (`npm run start -- --diagnostics`)
+
+No code or documentation outside of the dependencies file needs modification.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11311,"completion_tokens":1617,"total_tokens":12928,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
