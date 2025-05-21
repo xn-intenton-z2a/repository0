@@ -1,58 +1,55 @@
 # PLOT_EQUATION
 
 # Overview
-Add support for plotting mathematical equations as ASCII art from the CLI and hosting an HTTP endpoint to serve plots dynamically. Users can invoke the CLI with a --plot flag to render an equation on the console or with --serve (and optional --port) to start a local HTTP server that returns ASCII plots in a web response.
+Integrate equation plotting into the main CLI with two modes: console rendering and HTTP serving. Users invoke a --plot flag to render an ASCII chart in the terminal, or a --serve flag to run a local HTTP server that accepts equation queries and returns ASCII plots in an HTML response. This expands the CLI beyond emotion display to include interactive data visualization.
 
 # Usage
 
-- Plot an equation on the console:
-  node src/lib/main.js --plot "x^2 + 2*x - 5"
-  This samples x from -10 to 10, evaluates y, and renders an ASCII chart on stdout.
+- Plot an equation in the terminal using the CLI:
+  node src/lib/main.js --plot x^2+2*x-5
 
-- Start HTTP plot server on default port 3000:
+- Start the HTTP plot server on the default port:
   node src/lib/main.js --serve
 
-- Start HTTP plot server on custom port:
+- Specify a custom port when starting the server:
   node src/lib/main.js --serve --port 4000
 
-- Query the server via HTTP GET:
-  curl "http://localhost:3000/plot?equation=sin(x)*x"
-  Returns an HTML response with a <pre> block containing the ASCII plot.
+- Query the running server for a plot:
+  curl http://localhost:3000/plot?equation=sin(x)*x
+  The response is HTML containing a pre tag with the ASCII plot.
 
 # Implementation
 
-- Extend src/lib/main.js argument parsing to recognize:
-  - --plot <equation>
-  - --serve (starts HTTP server)
-  - --port <number> (optional, defaults to 3000)
+1. Extend argument parsing in src/lib/main.js to recognize flags:
+   --plot <equation>  renders a console ASCII chart
+   --serve            starts an HTTP server
+   --port <number>    optional port parameter defaulting to 3000
 
-- For --plot:
-  1. Parse the equation string using a simple expression evaluator.
-  2. Sample x values (default range -10 to 10, fixed step).
-  3. Compute y for each x and normalize to ASCII rows.
-  4. Render axes and plot points in a monospaced grid.
+2. For console plotting:
+   a. Parse the equation string with a safe evaluator.
+   b. Sample x values over a default range of -10 to 10 with a fixed step.
+   c. Compute corresponding y values and normalize them to ASCII grid rows.
+   d. Draw X and Y axes and plot points with ASCII characters on stdout.
 
-- For --serve:
-  1. Use Node's built-in http module to create a server.
-  2. On GET /plot, read the query parameter 'equation'.
-  3. Generate ASCII plot as in --plot and wrap in HTML with a <pre> tag.
-  4. Respond with content-type text/html and status 200.
-  5. For invalid or missing equation, respond with 400 and usage instructions.
+3. For HTTP serving:
+   a. Use Node http module to create a server listening on the specified port.
+   b. Handle GET /plot requests, read the query parameter eqation.
+   c. On valid equation, generate the ASCII plot as above and wrap it in an HTML document with a pre block.
+   d. Respond with content-type text/html and status 200. For missing or invalid parameter respond with status 400 and instructions.
 
-- Ensure existing --emotion behavior remains unchanged when --plot or --serve flags are absent.
+4. Ensure the original --emotion functionality remains unchanged when plot or serve flags are not present.
 
 # Testing
 
-- Add or update unit tests in tests/unit/main.test.js:
-  - Verify main(["--plot","x+1"]) prints an ASCII chart and returns 0.
-  - Test missing equation after --plot yields error message and return code 1.
-  - Test unsupported flags do not interfere with plot behavior.
+- Add unit tests in tests/unit/main.test.js to:
+  Verify that main returns 0 and logs an ASCII chart when invoked with --plot and a valid equation.
+  Assert that missing or invalid equations after --plot produce an error message and return code 1.
 
-- Add HTTP server tests by mocking HTTP requests:
-  - Start server via main(["--serve","--port","5000"]) in a spawned process.
-  - Issue HTTP GET /plot?equation=x*2 and assert the response contains expected ASCII content.
+- Add HTTP server tests by spawning main with --serve and --port 5000, sending HTTP GET requests and asserting the response status and ASCII content.
+
+- Confirm that existing emotion tests continue to pass and are unaffected by the new flags.
 
 # Documentation
 
-- Update docs/USAGE.md to include CLI examples for --plot and --serve.
-- Enhance README.md with a section on equation plotting and server usage.
+- Update docs/USAGE.md to include examples for --plot and --serve modes under the CLI Usage section.
+- Enhance README.md to describe the plotting feature, demonstrate example commands and link to USAGE and MISSION files.
