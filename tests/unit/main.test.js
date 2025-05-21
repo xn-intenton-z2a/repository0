@@ -56,3 +56,66 @@ describe("DISPLAY_EMOTION CLI", () => {
     expect(code).toBe(1);
   });
 });
+
+describe("PLOT_EQUATION CLI", () => {
+  let logSpy;
+  let errorSpy;
+
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("should error for missing equation parameter and return 1", () => {
+    const code = main(["--plot"]);
+    expect(errorSpy).toHaveBeenCalledWith("No equation specified.");
+    expect(errorSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
+    expect(code).toBe(1);
+  });
+
+  test("should error for invalid expression and return 1", () => {
+    const code = main(["--plot", "foo(x)"]);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/^Invalid equation:/));
+    expect(errorSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
+    expect(code).toBe(1);
+  });
+
+  test("should error on conflicting flags and return 1", () => {
+    let code = main(["--plot", "x^2", "--emotion", "happy"]);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "Conflicting options: --plot cannot be used with --emotion or --serve."
+    );
+    expect(errorSpy).toHaveBeenCalledWith("Usage:");
+    expect(errorSpy).toHaveBeenCalledWith("  --emotion <name>");
+    expect(errorSpy).toHaveBeenCalledWith("  --plot <equation>");
+    expect(code).toBe(1);
+
+    errorSpy.mockClear();
+    code = main(["--plot", "x^2", "--serve"]);
+    expect(errorSpy).toHaveBeenCalledWith(
+      "Conflicting options: --plot cannot be used with --emotion or --serve."
+    );
+    expect(code).toBe(1);
+  });
+
+  test("should plot constant zero and return 0", () => {
+    const code = main(["--plot", "0"]);
+    expect(code).toBe(0);
+    // grid printed: 20 rows
+    expect(logSpy).toHaveBeenCalledTimes(20);
+    // each row length 80 and all stars
+    for (const call of logSpy.mock.calls) {
+      const line = call[0];
+      expect(typeof line).toBe("string");
+      expect(line).toHaveLength(80);
+    }
+    // middle row should be full of stars
+    const mid = Math.floor(20 / 2);
+    const midLine = logSpy.mock.calls[mid][0];
+    expect(midLine).toMatch(/^\*{80}$/);
+  });
+});

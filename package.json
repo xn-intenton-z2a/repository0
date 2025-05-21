@@ -33,7 +33,8 @@
     "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
     "minimatch": "^9.0.5",
-    "zod": "^3.24.3"
+    "zod": "^3.24.3",
+    "mathjs": "^11.10.0"
   },
   "devDependencies": {
     "eslint": "^9.24.0",
