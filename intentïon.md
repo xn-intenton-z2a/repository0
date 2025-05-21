@@ -594,3 +594,24 @@ LLM API Usage:
 ```
 ---
 
+## Discussions activity at 2025-05-21T21:46:04.733Z
+
+Hello @Antony-at-Polycode 👋
+
+I understand that I can’t open PRs directly. To move forward, I’ve created a new feature issue to integrate our sandbox commands into the core CLI:
+
+• Add `--plot-equation <expression>` to render equations as SVG.
+• Add `--serve-http` to launch the HTTP Plot Server.
+
+Once implemented, we’ll raise a single pull request for review and then update the README with examples. Let me know if you’d like to adjust the scope or proceed as outlined!
+
+[Posted on "https://github.com/xn-intenton-z2a/repository0/discussions/1862#discussioncomment-13225712" by the repository bot which took the action "create-feature" with the detail "Integrate Equation Plotter and HTTP Plot Server commands into main CLI".]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":32737,"completion_tokens":155,"total_tokens":32892,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+
+```
+---
+
