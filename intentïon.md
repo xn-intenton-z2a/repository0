@@ -685,3 +685,232 @@ LLM API Usage:
 
 2025-05-21T23:04:06Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-21T19-37Z
 
+## Maintain Feature at 2025-05-21T23:04:07.376Z
+
+Maintained feature PLOT_EQUATION.
+
+Feature spec:
+
+# PLOT_EQUATION
+
+# Overview
+This feature adds two new modes to the CLI: console equation plotting and an HTTP plot server. It extends the existing emotion display without altering its behavior when plotting flags are absent.
+
+# Usage
+
+## Console Mode
+Run the CLI with an equation to render an ASCII graph on stdout:
+
+node src/lib/main.js --plot "<equation>"
+
+Example:
+
+node src/lib/main.js --plot "x^2 - 2*x + 1"
+
+The CLI samples x values over a default range, computes y values, and prints an ASCII grid with axes and data points.
+
+## Server Mode
+Start an HTTP server that serves plots on GET requests:
+
+node src/lib/main.js --serve [--port <number>]
+
+- --port: Optional. Default is 3000.
+
+Example:
+
+node src/lib/main.js --serve --port 4000
+
+Request a plot via:
+
+curl "http://localhost:4000/plot?equation=sin(x)*x"
+
+The server responds with an HTML page containing the ASCII plot inside a <pre> block.
+
+# Implementation
+
+1. Argument Parsing
+   - Extend main to handle --plot, --serve, and --port flags alongside --emotion.
+   - Enforce that --plot cannot be combined with --serve and vice versa.
+
+2. Console Plotting Mode
+   - Sample N points (default 80) across a configurable range (default -10 to 10).
+   - Compute y values for each x, determine min and max, normalize to a fixed grid height (default 20 rows).
+   - Draw X and Y axes at zero, marking data points with `*`.
+   - Output the grid to stdout and return exit code 0 on success.
+   - On missing or invalid equation, log an error to stderr, print usage, and return exit code 1.
+
+3. HTTP Server Mode
+   - Use Node's built-in http module to create a server on the specified port.
+   - Handle GET /plot requests:
+     - Extract and validate the `equation` query parameter.
+     - Generate the ASCII plot using the console logic.
+     - Wrap the ASCII grid in a simple HTML document with a <pre> block.
+     - Respond with status 200 and Content-Type text/html.
+     - On missing or invalid equation, respond with status 400 and a plain text error.
+   - Do not exit the process; log server start and error messages to console.
+
+4. Backward Compatibility
+   - When neither --plot nor --serve flags are provided, preserve the existing --emotion behavior.
+
+# Testing
+
+- Unit Tests (tests/unit/main.test.js)
+  - Verify console plotting success: main(["--plot", equation]) returns 0 and logs the ASCII grid.
+  - Verify error on missing equation: main(["--plot"]) returns 1 with appropriate stderr message.
+  - Verify server invocation stub: main(["--serve", "--port", "3000"]) starts the HTTP server without errors (use mocks).
+  - Confirm all DISPLAY_EMOTION tests pass unchanged.
+
+- End-to-End HTTP Tests (tests/e2e/cli.test.js)
+  - Spawn the CLI in server mode, send GET /plot?equation=<expr>, assert status, headers, and HTML body.
+
+# Documentation
+
+- Update README.md with examples for --plot and --serve modes and link to this feature spec.
+- Extend docs/USAGE.md to include sections for console plotting and HTTP server usage with sample output.
+- Document the exported main function’s new behavior in README.md under API reference.
+
+Git diff:
+
+```diff
+diff --git a/features/PLOT_EQUATION.md b/features/PLOT_EQUATION.md
+index b7ee9d47..6d23fd74 100644
+--- a/features/PLOT_EQUATION.md
++++ b/features/PLOT_EQUATION.md
+@@ -1,16 +1,12 @@
+ # PLOT_EQUATION
+ 
+ # Overview
+-Integrate equation plotting into the main CLI, offering two modes:
+-
+-- **Console Rendering**: Generate ASCII plots directly in the terminal for quick visualization.
+-- **HTTP Plot Server**: Start a lightweight HTTP server that returns ASCII plots wrapped in simple HTML responses for remote or browser-based access.
++This feature adds two new modes to the CLI: console equation plotting and an HTTP plot server. It extends the existing emotion display without altering its behavior when plotting flags are absent.
+ 
+ # Usage
+ 
+ ## Console Mode
+-
+-Run the CLI with an equation string to render an ASCII plot on stdout:
++Run the CLI with an equation to render an ASCII graph on stdout:
+ 
+ node src/lib/main.js --plot "<equation>"
+ 
+@@ -18,72 +14,64 @@ Example:
+ 
+ node src/lib/main.js --plot "x^2 - 2*x + 1"
+ 
+-The CLI samples x values across a fixed range, computes y values, and prints an ASCII grid with axes and data points.
++The CLI samples x values over a default range, computes y values, and prints an ASCII grid with axes and data points.
+ 
+ ## Server Mode
+-
+-Start the HTTP server to serve plots via GET requests:
++Start an HTTP server that serves plots on GET requests:
+ 
+ node src/lib/main.js --serve [--port <number>]
+ 
+-- **--port**: Optional. Default is 3000.
++- --port: Optional. Default is 3000.
+ 
+ Example:
+ 
+ node src/lib/main.js --serve --port 4000
+ 
+-Request a plot:
++Request a plot via:
+ 
+ curl "http://localhost:4000/plot?equation=sin(x)*x"
+ 
+-# Implementation
++The server responds with an HTML page containing the ASCII plot inside a <pre> block.
+ 
+-1. **Argument Parsing**
+-   - Add support for flags: --plot <equation>, --serve, --port <number> alongside existing --emotion.
+-   - Validate combinations: --plot only for console mode, --serve optionally with --port for server mode.
++# Implementation
+ 
+-2. **Equation Parsing and Safety**
+-   - Use a safe expression parser (e.g., a lightweight math library or manual parser) to avoid eval risks.
+-   - Support arithmetic operators, standard functions (sin, cos, tan, exp, log).
++1. Argument Parsing
++   - Extend main to handle --plot, --serve, and --port flags alongside --emotion.
++   - Enforce that --plot cannot be combined with --serve and vice versa.
+ 
+-3. **Console Plotting Mode**
+-   - Sample N points (default 80) over a configurable range (default -10 to 10).
+-   - Compute y values, determine min and max, normalize to an ASCII grid of fixed height (e.g., 20 rows).
+-   - Draw X and Y axes at zero coordinates, mark data points with `*`.
++2. Console Plotting Mode
++   - Sample N points (default 80) across a configurable range (default -10 to 10).
++   - Compute y values for each x, determine min and max, normalize to a fixed grid height (default 20 rows).
++   - Draw X and Y axes at zero, marking data points with `*`.
+    - Output the grid to stdout and return exit code 0 on success.
++   - On missing or invalid equation, log an error to stderr, print usage, and return exit code 1.
+ 
+-4. **HTTP Server Mode**
+-   - Use Node's built-in `http` module to create a server on the given port.
+-   - Handle GET requests to `/plot`:
+-     - Extract `equation` query parameter, validate presence and parse.
+-     - On valid input, generate the ASCII plot using the same logic as console mode.
+-     - Wrap the ASCII plot inside an HTML document with a `<pre>` block.
+-     - Respond with status 200 and `Content-Type: text/html`.
+-     - On missing or invalid parameter, respond with status 400 and a plain text error message.
+-
+-5. **Error Handling and Exit Codes**
+-   - Console mode: exit code 0 on success; 1 on missing or invalid equation.
+-   - Server mode: do not exit; log errors to console and serve HTTP error codes.
++3. HTTP Server Mode
++   - Use Node's built-in http module to create a server on the specified port.
++   - Handle GET /plot requests:
++     - Extract and validate the `equation` query parameter.
++     - Generate the ASCII plot using the console logic.
++     - Wrap the ASCII grid in a simple HTML document with a <pre> block.
++     - Respond with status 200 and Content-Type text/html.
++     - On missing or invalid equation, respond with status 400 and a plain text error.
++   - Do not exit the process; log server start and error messages to console.
+ 
+-6. **Backward Compatibility**
+-   - Ensure the existing --emotion feature remains unchanged when neither --plot nor --serve flags are used.
++4. Backward Compatibility
++   - When neither --plot nor --serve flags are provided, preserve the existing --emotion behavior.
+ 
+ # Testing
+ 
+-- **Unit Tests** in `tests/unit/main.test.js`:
+-  - Verify console plotting: calling `main(["--plot", equation])` returns exit code 0 and logs the ASCII grid.
+-  - Verify error on missing equation: calling `main(["--plot"])` returns exit code 1 and logs an error.
+-  - Verify server setup stub: calling `main(["--serve", "--port", "3000"])` starts the server without error (mock or stub HTTP server).
+-
+-- **End-to-End HTTP Tests** in `tests/e2e/cli.test.js`:
+-  - Spawn the CLI with `--serve` and default/custom port.
+-  - Send HTTP GET requests to `/plot?equation=<expr>` and assert status codes, headers, and response bodies.
++- Unit Tests (tests/unit/main.test.js)
++  - Verify console plotting success: main(["--plot", equation]) returns 0 and logs the ASCII grid.
++  - Verify error on missing equation: main(["--plot"]) returns 1 with appropriate stderr message.
++  - Verify server invocation stub: main(["--serve", "--port", "3000"]) starts the HTTP server without errors (use mocks).
++  - Confirm all DISPLAY_EMOTION tests pass unchanged.
+ 
+-- **Regression**:
+-  - Confirm existing DISPLAY_EMOTION tests still pass when neither --plot nor --serve flags are used.
++- End-to-End HTTP Tests (tests/e2e/cli.test.js)
++  - Spawn the CLI in server mode, send GET /plot?equation=<expr>, assert status, headers, and HTML body.
+ 
+ # Documentation
+ 
+-- Update `README.md` to include examples for --plot and --serve modes, linking to this feature spec.
+-- Update `docs/USAGE.md` with usage sections for both modes and sample outputs.
+-- Document the exported API surface in `src/lib/main.js` if applicable.
+\ No newline at end of file
++- Update README.md with examples for --plot and --serve modes and link to this feature spec.
++- Extend docs/USAGE.md to include sections for console plotting and HTTP server usage with sample output.
++- Document the exported main function’s new behavior in README.md under API reference.
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7269,"completion_tokens":2311,"total_tokens":9580,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
