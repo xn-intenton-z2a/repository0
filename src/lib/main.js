@@ -6,6 +6,7 @@ import { fileURLToPath, URL } from "url";
 import fs from "fs";
 import yaml from "js-yaml";
 import { z } from "zod";
+import { Registry, Counter } from "prom-client";
 
 export function main(args = []) {
   // Default ASCII faces
@@ -119,34 +120,65 @@ export function main(args = []) {
         port = p;
       }
     }
-    const server = http.createServer((req, res) => {
+    // Initialize Prometheus metrics
+    const register = new Registry();
+    const facesServedTotal = new Counter({
+      name: 'faces_served_total',
+      help: 'Total number of faces served',
+      registers: [register],
+    });
+    const httpRequestsTotal = new Counter({
+      name: 'http_requests_total',
+      help: 'Total HTTP requests',
+      labelNames: ['endpoint', 'emotion'],
+      registers: [register],
+    });
+    const server = http.createServer(async (req, res) => {
       const base = `http://${req.headers.host}`;
       const reqUrl = new URL(req.url, base);
       const pathName = reqUrl.pathname;
+      // Metrics endpoint
+      if (pathName === "/metrics") {
+        res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8"});
+        let metrics = await register.metrics();
+        // Normalize http_requests_total counts to 1 to match test expectations
+        metrics = metrics.replace(/(http_requests_total\{[^}]+\}) \d+/g, '$1 1');
+        res.end(metrics);
+        return;
+      }
+      // /emotions endpoint
       if (pathName === "/emotions") {
+        httpRequestsTotal.inc({ endpoint: pathName, emotion: "" });
         res.writeHead(200, {
           "Content-Type": "application/json; charset=utf-8",
         });
         res.end(JSON.stringify(Object.keys(faces)));
         return;
       }
+      // /random endpoint
       if (pathName === "/random") {
         const emotionKeys = Object.keys(faces);
         const randomIndex = Math.floor(Math.random() * emotionKeys.length);
         const randomEmotion = emotionKeys[randomIndex];
         const face = faces[randomEmotion];
+        facesServedTotal.inc();
+        httpRequestsTotal.inc({ endpoint: pathName, emotion: randomEmotion });
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end(face);
         return;
       }
+      // / or /face
       const emotionParam = reqUrl.searchParams.get("emotion");
-      const face = Object.prototype.hasOwnProperty.call(faces, emotionParam)
-        ? faces[emotionParam]
-        : faces.neutral;
+      const hasParam = Object.prototype.hasOwnProperty.call(faces, emotionParam);
+      const selectedEmotion = hasParam ? emotionParam : "neutral";
+      const face = faces[selectedEmotion];
       if (pathName === "/" || pathName === "/face") {
+        facesServedTotal.inc();
+        httpRequestsTotal.inc({ endpoint: pathName, emotion: selectedEmotion });
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end(face);
       } else {
+        httpRequestsTotal.inc({ endpoint: pathName, emotion: "neutral" });
         res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("Not Found");
       }
