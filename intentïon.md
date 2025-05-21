@@ -1773,3 +1773,538 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-21T23:18:55.430Z
+
+fixApplied: true
+
+Implement console plotting with mathjs update tests for plot mode add mathjs dependency and document plotting
+
+Git Diff:
+
+```
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index af5c9111..6335278c 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -1,58 +1,62 @@
+ # CLI Usage
+ 
+-The `repository0` CLI supports displaying emotions as ASCII art.
++The `repository0` CLI supports displaying emotions as ASCII art and plotting equations.
+ 
+-## Usage
++## Emotion Display
+ 
+ ```bash
+ npm run start -- --emotion <name>
+ ```
+ 
+-### Examples
++Supported emotions:
+ 
+-Display a happy face:
+-
+-```bash
+-npm run start -- --emotion happy
+-```
++- happy
++- sad
++- angry
++- surprised
+ 
+-Output:
++For more details, see [features/DISPLAY_EMOTION.md](../features/DISPLAY_EMOTION.md).
+ 
+-```
+-:-)
+-```
++## Plotting Equations
+ 
+-Unsupported emotion:
++### Console Mode
+ 
+ ```bash
+-npm run start -- --emotion foo
++npm run start -- --plot "<equation>"
+ ```
+ 
+-Output:
+-
+-```
+-Unsupported emotion: foo
+-Supported emotions: happy, sad, angry, surprised
+-```
++By default, the CLI samples 80 points over the range -10 to 10 and renders a grid of 20 rows. Data points are marked with `*`.
+ 
+-No flag:
++**Example:**
+ 
+ ```bash
+-npm run start
+-```
+-
+-Output:
+-
+-```
+-Usage: --emotion <name>
+-Supported emotions: happy, sad, angry, surprised
+-```
+-
+-## Supported Emotions
+-
+-- happy
+-- sad
+-- angry
+-- surprised
+-
+-For more details, see [features/DISPLAY_EMOTION.md](../features/DISPLAY_EMOTION.md).
++npm run start -- --plot "x^2 - 2*x + 1"
++```
++
++_Output (example):_
++
++```
++                                     *                                           
++                                    * *                                          
++                                   *   *                                         
++                                  *     *                                        
++                                 *       *                                       
++                                *         *                                      
++                               *           *                                     
++                              *             *                                    
++                             *               *                                   
++                            *                 *                                  
++                           *                   *                                 
++                          *                     *                                
++                         *                       *                               
++                        *                         *                              
++                       *                           *                             
++                      *                             *                            
++                     *                               *                           
++                    *                                 *                          
++                   *                                   *                         
++                  *                                     *                        
++```  
++
++- **Default Range:** -10 to 10  
++- **Grid Size:** 20 rows, 80 columns
+diff --git a/package-lock.json b/package-lock.json
+index 663d4a08..eba55933 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,6 +12,7 @@
+         "dotenv": "^16.5.0",
+         "ejs": "^3.1.10",
+         "js-yaml": "^4.1.0",
++        "mathjs": "^11.10.0",
+         "minimatch": "^9.0.5",
+         "openai": "^4.96.2",
+         "zod": "^3.24.3"
+@@ -88,6 +89,15 @@
+         "node": ">=6.0.0"
+       }
+     },
++    "node_modules/@babel/runtime": {
++      "version": "7.27.1",
++      "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.27.1.tgz",
++      "integrity": "sha512-1x3D2xEk2fRo3PAhwQwu5UubzgiVWSXTBfWpVd2Mx2AzRqJuDJCsgaDVZ7HB5iGzDW1Hl1sWN2mFyKjmR9uAog==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=6.9.0"
++      }
++    },
+     "node_modules/@babel/types": {
+       "version": "7.27.1",
+       "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.27.1.tgz",
+@@ -2151,6 +2161,19 @@
+         "node": ">= 0.8"
+       }
+     },
++    "node_modules/complex.js": {
++      "version": "2.4.2",
++      "resolved": "https://registry.npmjs.org/complex.js/-/complex.js-2.4.2.tgz",
++      "integrity": "sha512-qtx7HRhPGSCBtGiST4/WGHuW+zeaND/6Ld+db6PbrulIB1i2Ev/2UPiqcmpQNPSyfBKraC0EOvOKCB5dGZKt3g==",
++      "license": "MIT",
++      "engines": {
++        "node": "*"
++      },
++      "funding": {
++        "type": "github",
++        "url": "https://github.com/sponsors/rawify"
++      }
++    },
+     "node_modules/concat-map": {
+       "version": "0.0.1",
+       "resolved": "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz",
+@@ -2244,6 +2267,12 @@
+         }
+       }
+     },
++    "node_modules/decimal.js": {
++      "version": "10.5.0",
++      "resolved": "https://registry.npmjs.org/decimal.js/-/decimal.js-10.5.0.tgz",
++      "integrity": "sha512-8vDa8Qxvr/+d94hSh5P3IJwI5t8/c0KsMp+g8bNw9cY2icONa5aPfvKeieW1WlG0WQYwwhJ7mjui2xtiePQSXw==",
++      "license": "MIT"
++    },
+     "node_modules/deep-eql": {
+       "version": "5.0.2",
+       "resolved": "https://registry.npmjs.org/deep-eql/-/deep-eql-5.0.2.tgz",
+@@ -2591,6 +2620,12 @@
+         "@esbuild/win32-x64": "0.25.4"
+       }
+     },
++    "node_modules/escape-latex": {
++      "version": "1.2.0",
++      "resolved": "https://registry.npmjs.org/escape-latex/-/escape-latex-1.2.0.tgz",
++      "integrity": "sha512-nV5aVWW1K0wEiUIEdZ4erkGGH8mDxGyxSeqPzRNtWP7ataw+/olFObw7hujFWlVjNsaDFw5VZ5NzVSIqRgfTiw==",
++      "license": "MIT"
++    },
+     "node_modules/escape-string-regexp": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz",
+@@ -3309,6 +3344,19 @@
+         "node": ">= 12.20"
+       }
+     },
++    "node_modules/fraction.js": {
++      "version": "4.3.4",
++      "resolved": "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.4.tgz",
++      "integrity": "sha512-pwiTgt0Q7t+GHZA4yaLjObx4vXmmdcS0iSJ19o8d/goUGgItX9UZWKWNnLHehxviD8wU2IWRsnR8cD5+yOJP2Q==",
++      "license": "MIT",
++      "engines": {
++        "node": "*"
++      },
++      "funding": {
++        "type": "patreon",
++        "url": "https://github.com/sponsors/rawify"
++      }
++    },
+     "node_modules/fs.realpath": {
+       "version": "1.0.0",
+       "resolved": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
+@@ -4199,6 +4247,12 @@
+         "node": "*"
+       }
+     },
++    "node_modules/javascript-natural-sort": {
++      "version": "0.7.1",
++      "resolved": "https://registry.npmjs.org/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz",
++      "integrity": "sha512-nO6jcEfZWQXDhOiBtG2KvKyEptz7RVbpGP4vTD2hLBdmNQSsCiicO2Ioinv6UI4y9ukqnBpy+XZ9H6uLNgJTlw==",
++      "license": "MIT"
++    },
+     "node_modules/js-tokens": {
+       "version": "4.0.0",
+       "resolved": "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz",
+@@ -4465,6 +4519,29 @@
+         "node": ">= 0.4"
+       }
+     },
++    "node_modules/mathjs": {
++      "version": "11.12.0",
++      "resolved": "https://registry.npmjs.org/mathjs/-/mathjs-11.12.0.tgz",
++      "integrity": "sha512-UGhVw8rS1AyedyI55DGz9q1qZ0p98kyKPyc9vherBkoueLntPfKtPBh14x+V4cdUWK0NZV2TBwqRFlvadscSuw==",
++      "license": "Apache-2.0",
++      "dependencies": {
++        "@babel/runtime": "^7.23.2",
++        "complex.js": "^2.1.1",
++        "decimal.js": "^10.4.3",
++        "escape-latex": "^1.2.0",
++        "fraction.js": "4.3.4",
++        "javascript-natural-sort": "^0.7.1",
++        "seedrandom": "^3.0.5",
++        "tiny-emitter": "^2.1.0",
++        "typed-function": "^4.1.1"
++      },
++      "bin": {
++        "mathjs": "bin/cli.js"
++      },
++      "engines": {
++        "node": ">= 14"
++      }
++    },
+     "node_modules/mdurl": {
+       "version": "2.0.0",
+       "resolved": "https://registry.npmjs.org/mdurl/-/mdurl-2.0.0.tgz",
+@@ -5364,6 +5441,12 @@
+         "node": "^14.0.0 || >=16.0.0"
+       }
+     },
++    "node_modules/seedrandom": {
++      "version": "3.0.5",
++      "resolved": "https://registry.npmjs.org/seedrandom/-/seedrandom-3.0.5.tgz",
++      "integrity": "sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==",
++      "license": "MIT"
++    },
+     "node_modules/semver": {
+       "version": "6.3.1",
+       "resolved": "https://registry.npmjs.org/semver/-/semver-6.3.1.tgz",
+@@ -5750,6 +5833,12 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/tiny-emitter": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/tiny-emitter/-/tiny-emitter-2.1.0.tgz",
++      "integrity": "sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==",
++      "license": "MIT"
++    },
+     "node_modules/tinybench": {
+       "version": "2.9.0",
+       "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-2.9.0.tgz",
+@@ -5934,6 +6023,15 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/typed-function": {
++      "version": "4.2.1",
++      "resolved": "https://registry.npmjs.org/typed-function/-/typed-function-4.2.1.tgz",
++      "integrity": "sha512-EGjWssW7Tsk4DGfE+5yluuljS1OGYWiI1J6e8puZz9nTMM51Oug8CD5Zo4gWMsOhq5BI+1bF+rWTm4Vbj3ivRA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">= 18"
++      }
++    },
+     "node_modules/typescript": {
+       "version": "5.8.3",
+       "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.8.3.tgz",
+diff --git a/package.json b/package.json
+index c6b9f7ce..3ee36efd 100644
+--- a/package.json
++++ b/package.json
+@@ -33,7 +33,8 @@
+     "ejs": "^3.1.10",
+     "js-yaml": "^4.1.0",
+     "minimatch": "^9.0.5",
+-    "zod": "^3.24.3"
++    "zod": "^3.24.3",
++    "mathjs": "^11.10.0"
+   },
+   "devDependencies": {
+     "eslint": "^9.24.0",
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 411ff2ea..d353c48e 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -2,6 +2,9 @@
+ // src/lib/main.js
+ 
+ import { fileURLToPath } from "url";
++import { create, all } from "mathjs";
++
++const math = create(all);
+ 
+ const emotions = {
+   happy: ":-)",
+@@ -18,12 +21,118 @@ function printUsage() {
+ }
+ 
+ export function main(args = []) {
+-  const i = args.indexOf("--emotion");
+-  if (i === -1) {
++  const emotionIndex = args.indexOf("--emotion");
++  const plotIndex = args.indexOf("--plot");
++  const serveIndex = args.indexOf("--serve");
++
++  // Console plotting mode
++  if (plotIndex >= 0) {
++    // Conflict with other modes
++    if (emotionIndex >= 0 || serveIndex >= 0) {
++      console.error("Conflicting options: --plot cannot be used with --emotion or --serve.");
++      console.error("Usage:");
++      console.error("  --emotion <name>");
++      console.error("  --plot <equation>");
++      return 1;
++    }
++    const equation = args[plotIndex + 1];
++    if (!equation) {
++      console.error("No equation specified.");
++      console.error("Usage: --plot <equation>");
++      return 1;
++    }
++    let compiled;
++    try {
++      const expr = math.parse(equation);
++      compiled = expr.compile();
++    } catch (err) {
++      console.error(`Invalid equation: ${err.message}`);
++      console.error("Usage: --plot <equation>");
++      return 1;
++    }
++
++    const samples = 80;
++    const rows = 20;
++    const xMin = -10;
++    const xMax = 10;
++    const xs = [];
++    const ys = [];
++    const step = (xMax - xMin) / (samples - 1);
++
++    for (let i = 0; i < samples; i++) {
++      const x = xMin + step * i;
++      xs.push(x);
++      try {
++        const y = compiled.evaluate({ x });
++        if (typeof y !== "number" || Number.isNaN(y) || !isFinite(y)) {
++          throw new Error("Non-finite result");
++        }
++        ys.push(y);
++      } catch (err) {
++        console.error(`Invalid equation: ${err.message}`);
++        console.error("Usage: --plot <equation>");
++        return 1;
++      }
++    }
++
++    const minY = Math.min(...ys);
++    const maxY = Math.max(...ys);
++    const grid = Array.from({ length: rows }, () => Array(samples).fill(" "));
++
++    if (maxY === minY) {
++      // Constant function: plot middle row
++      const rowIndex = Math.floor(rows / 2);
++      for (let i = 0; i < samples; i++) {
++        grid[rowIndex][i] = "*";
++      }
++    } else {
++      let rowZero = null;
++      let colZero = null;
++      // Draw horizontal axis
++      if (minY <= 0 && maxY >= 0) {
++        rowZero = Math.round((1 - (0 - minY) / (maxY - minY)) * (rows - 1));
++        for (let c = 0; c < samples; c++) {
++          grid[rowZero][c] = "-";
++        }
++      }
++      // Draw vertical axis
++      if (xMin <= 0 && xMax >= 0) {
++        colZero = Math.round((0 - xMin) / (xMax - xMin) * (samples - 1));
++        for (let r = 0; r < rows; r++) {
++          grid[r][colZero] = "|";
++        }
++      }
++      // Intersection
++      if (rowZero !== null && colZero !== null) {
++        grid[rowZero][colZero] = "+";
++      }
++      // Plot data points
++      for (let i = 0; i < samples; i++) {
++        const y = ys[i];
++        const norm = (y - minY) / (maxY - minY);
++        const rowIndex = Math.round((1 - norm) * (rows - 1));
++        const colIndex = i;
++        if (rowIndex === rowZero && colIndex === colZero) {
++          grid[rowIndex][colIndex] = "+";
++        } else {
++          grid[rowIndex][colIndex] = "*";
++        }
++      }
++    }
++
++    // Print grid
++    for (const row of grid) {
++      console.log(row.join(""));
++    }
++    return 0;
++  }
++
++  // Emotion mode
++  if (emotionIndex === -1) {
+     printUsage();
+     return 0;
+   }
+-  const emotion = args[i + 1];
++  const emotion = args[emotionIndex + 1];
+   if (!emotion) {
+     console.error("No emotion specified.");
+     printUsage();
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index b88f4488..7ecb997e 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -56,3 +56,66 @@ describe("DISPLAY_EMOTION CLI", () => {
+     expect(code).toBe(1);
+   });
+ });
++
++describe("PLOT_EQUATION CLI", () => {
++  let logSpy;
++  let errorSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("should error for missing equation parameter and return 1", () => {
++    const code = main(["--plot"]);
++    expect(errorSpy).toHaveBeenCalledWith("No equation specified.");
++    expect(errorSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
++    expect(code).toBe(1);
++  });
++
++  test("should error for invalid expression and return 1", () => {
++    const code = main(["--plot", "foo(x)"]);
++    expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/^Invalid equation:/));
++    expect(errorSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
++    expect(code).toBe(1);
++  });
++
++  test("should error on conflicting flags and return 1", () => {
++    let code = main(["--plot", "x^2", "--emotion", "happy"]);
++    expect(errorSpy).toHaveBeenCalledWith(
++      "Conflicting options: --plot cannot be used with --emotion or --serve."
++    );
++    expect(errorSpy).toHaveBeenCalledWith("Usage:");
++    expect(errorSpy).toHaveBeenCalledWith("  --emotion <name>");
++    expect(errorSpy).toHaveBeenCalledWith("  --plot <equation>");
++    expect(code).toBe(1);
++
++    errorSpy.mockClear();
++    code = main(["--plot", "x^2", "--serve"]);
++    expect(errorSpy).toHaveBeenCalledWith(
++      "Conflicting options: --plot cannot be used with --emotion or --serve."
++    );
++    expect(code).toBe(1);
++  });
++
++  test("should plot constant zero and return 0", () => {
++    const code = main(["--plot", "0"]);
++    expect(code).toBe(0);
++    // grid printed: 20 rows
++    expect(logSpy).toHaveBeenCalledTimes(20);
++    // each row length 80 and all stars
++    for (const call of logSpy.mock.calls) {
++      const line = call[0];
++      expect(typeof line).toBe("string");
++      expect(line).toHaveLength(80);
++    }
++    // middle row should be full of stars
++    const mid = Math.floor(20 / 2);
++    const midLine = logSpy.mock.calls[mid][0];
++    expect(midLine).toMatch(/^\*{80}$/);
++  });
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Usage: --emotion <name>
+Supported emotions: happy, sad, angry, surprised
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2182 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10195,"completion_tokens":10078,"total_tokens":20273,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5760,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
