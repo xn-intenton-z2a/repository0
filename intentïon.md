@@ -914,3 +914,78 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-21T23:05:17.212Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2181 with title:
+
+Implement PLOT_EQUATION: add console plotting (--plot) and HTTP server (--serve) modes
+
+And description:
+
+Overview:
+Extend the CLI to support the `PLOT_EQUATION` feature by adding two new modes:
+
+1. **Console Plotting Mode** (`--plot <equation>`)
+2. **HTTP Plot Server Mode** (`--serve [--port <number>]`)
+
+These must coexist with the existing `--emotion` behavior and be mutually exclusive.
+
+Tasks:
+
+1. **src/lib/main.js**
+   - Parse `--plot`, `--serve`, and optional `--port <number>` flags alongside `--emotion`. Enforce that only one mode is active per invocation.
+   - **Console Mode** (`--plot "<equation>"`):
+     - Sample 80 points on the default range `[-10,10]`.
+     - Evaluate `y` for each `x` via `new Function('x', 'return ' + equation)`.
+     - Determine min/max `y`, normalize to a 20-row grid, draw axes at `x=0` and `y=0`, mark data points with `*`, and print the ASCII grid to stdout.
+     - On missing or invalid equation: print an error to stderr, show usage, exit code `1`.
+     - On success: exit code `0`.
+   - **Server Mode** (`--serve [--port 3000]`):
+     - Create an HTTP server (Node built-in) listening on the specified port (default `3000`).
+     - Handle `GET /plot?equation=<expr>`:
+       - Validate `equation`; on success, generate the same ASCII grid and wrap in a minimal HTML page inside a `<pre>` block; respond `200` with `Content-Type: text/html`.
+       - On missing or invalid equation: respond `400` with a plain-text error message.
+     - Do not call `process.exit()`.
+     - Log a startup message like `Server listening on port <port>`.
+   - Preserve existing `--emotion` logic when neither `--plot` nor `--serve` is provided.
+
+2. **tests/unit/main.test.js**
+   - Add unit tests for console plotting:
+     - Invocation `main(["--plot","x"])` returns `0`, calls `console.log` at least once, and does not call `console.error`.
+     - Invocation `main(["--plot"])` returns `1`, calls `console.error` with a message about missing equation.
+     - Invocation `main(["--plot","invalid@@"])` returns `1`, calls `console.error` about invalid expression.
+   - Add unit tests for server startup:
+     - Invocation `main(["--serve","--port","4000"])` returns `0` and calls `console.log` with `Server listening on port 4000`.
+     - Invocation `main(["--serve"])` defaults to port `3000` and logs accordingly.
+   - Ensure existing emotion tests remain unchanged and still pass.
+
+3. **docs/USAGE.md** and **README.md**
+   - Update CLI usage section to include examples for `--plot` and `--serve`, showing sample console output and an HTML snippet example for server mode.
+   - Link to the PLOT_EQUATION feature spec in `features/PLOT_EQUATION.md`.
+
+4. **package.json**
+   - No new dependencies are required; no changes unless absolutely necessary.
+
+Verification:
+- Run `npm test` to ensure all unit tests (emotion + plotting + server) pass.
+- Manually start console mode:
+  ```bash
+  npm run start -- --plot "x^2 - 2*x + 1"
+  ```
+  ➔ should print a centered parabola in ASCII.
+- Manually start HTTP server and request a plot:
+  ```bash
+  npm run serve -- --port 4000
+  curl "http://localhost:4000/plot?equation=sin(x)*x"
+  ```
+  ➔ should return an HTML page with `<pre>`-wrapped ASCII plot.
+
+No manual steps beyond running the CLI and tests are required. Once merged, the PLOT_EQUATION feature will be fully functional.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7246,"completion_tokens":2830,"total_tokens":10076,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1856,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
