@@ -20,11 +20,10 @@ npm run start -- --serve --config custom.json --port 4000
 
 ## HTTP Endpoints
 
-- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text
-- **GET /emotions**: returns a JSON array of supported emotion keywords
-- **GET /random**: returns an ASCII art face chosen at random from default and custom emotions with header `Content-Type: text/plain; charset=utf-8`
-
-Both endpoints honor the optional `emotion` query parameter. If missing or unrecognized, the **neutral** face is returned—except `/random`, which always selects randomly.
+- **GET /** or **GET /face?emotion=<emotion>**: returns the ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
+- **GET /emotions**: returns a JSON array of supported emotion keywords (`Content-Type: application/json; charset=utf-8`)
+- **GET /random**: returns a random ASCII art face as plain text (`Content-Type: text/plain; charset=utf-8`)
+- **GET /metrics**: returns Prometheus-compatible metrics in text format (`Content-Type: text/plain; charset=utf-8`)
 
 ### `/emotions` Endpoint
 
@@ -50,7 +49,7 @@ Content-Type: text/plain; charset=utf-8
   ^_^
 ```
 
-### Face Endpoints
+### `/` and `/face` Endpoints
 
 Responses for `/` and `/face` are served with header `Content-Type: text/plain; charset=utf-8` and include the ASCII art face:
 
@@ -64,29 +63,12 @@ Responses for `/` and `/face` are served with header `Content-Type: text/plain; 
 
 *When `emotion` is missing or unrecognized, the neutral face is returned.
 
-## Custom Configuration
-
-Custom JSON or YAML configuration files can be provided using the `--config <path>` flag when starting the server. Custom definitions override defaults, and defaults fill in any missing emotions.
-
-## Invalid Paths
-
-Any request to an unsupported path returns HTTP 404 with plain text "Not Found".
-
-## Metrics Endpoint
+### Metrics Endpoint
 
 The `/metrics` endpoint exposes Prometheus-compatible metrics for monitoring usage statistics in the Prometheus exposition format.
 
-### **GET /metrics**
-
-Returns HTTP 200 with `Content-Type: text/plain; charset=utf-8` and a body containing metrics such as:
-
-- **faces_served_total**: Counter of total face responses served
-- **http_requests_total{endpoint,emotion}**: Counter of HTTP requests labeled by endpoint path and emotion served (using `""` for non-face endpoints or `"neutral"` for unknown emotions)
-
-### Example Metrics Output
-
 ```bash
-$ curl -i http://localhost:3000/metrics
+curl -i http://localhost:3000/metrics
 HTTP/1.1 200 OK
 Content-Type: text/plain; charset=utf-8
 
@@ -101,3 +83,11 @@ http_requests_total{endpoint="/random",emotion="surprised"} 1
 http_requests_total{endpoint="/emotions",emotion=""} 1
 http_requests_total{endpoint="/invalid",emotion="neutral"} 1
 ```
+
+## Custom Configuration
+
+Custom JSON or YAML configuration files can be provided using the `--config <path>` flag when starting the server. Custom definitions override defaults, and defaults fill in any missing emotions.
+
+## Invalid Paths
+
+Any request to an unsupported path returns HTTP 404 with plain text "Not Found".
