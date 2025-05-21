@@ -109,3 +109,54 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-21T19:39:26.678Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement DISPLAY_EMOTION CLI Command
+
+Description:
+This issue completes the end-to-end implementation of the DISPLAY_EMOTION feature by updating the CLI, tests, and documentation so that users can specify an emotion and see the corresponding ASCII art.
+
+Scope:
+1. **src/lib/main.js**
+   - Parse `--emotion <name>` from the `args` array.
+   - Maintain a mapping of supported emotions (`happy`, `sad`, `angry`, `surprised`) to their ASCII art strings.
+   - If a supported emotion is provided:
+     - Print the ASCII art to `console.log`.
+     - Exit with code `0`.
+   - If an unsupported emotion is provided:
+     - Print an error message listing supported emotions to `console.error`.
+     - Exit with code `1`.
+   - If no flag is provided:
+     - Print a usage summary listing the `--emotion` flag and supported emotions.
+     - Exit with code `0`.
+
+2. **tests/unit/main.test.js**
+   - Add unit tests using Vitest spies/mocks (`vi.spyOn`, `vi.fn()`) to verify:
+     - **Supported emotion**: `main(["--emotion","happy"])` calls `console.log` with the correct ASCII art and does not call `process.exit(1)`.
+     - **Unsupported emotion**: `main(["--emotion","foo"])` calls `console.error` with the expected list of supported emotions and calls `process.exit(1)`.
+     - **No flag**: `main([])` or `main()` prints the usage summary and exits with code `0`.
+
+3. **README.md**
+   - Add a **Usage** section demonstrating:
+     - `npm run start -- --emotion happy` => shows the happy ASCII art.
+     - `npm run start -- --emotion foo` => shows the error message and exits with code `1`.
+     - `npm run start` => shows the usage summary and exits normally.
+   - List supported emotions and link to `features/DISPLAY_EMOTION.md`.
+
+Testable Acceptance Criteria:
+- All existing and new tests in `tests/unit/main.test.js` pass (`npm test`).
+- `npm run start -- --emotion happy` prints the ASCII art for “happy” and exits with code `0`.
+- `npm run start -- --emotion foo` logs an error with supported emotions and exits with code `1`.
+- `npm run start` (no flags) prints the usage summary and exits with code `0`.
+
+After merging, users will have a complete CLI flow to display emotions as ASCII art, fulfilling the mission of repository0.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6211,"completion_tokens":891,"total_tokens":7102,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
