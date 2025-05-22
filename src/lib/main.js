@@ -4,6 +4,7 @@
 import { fileURLToPath } from "url";
 import http from "http";
 import { readFile } from "fs/promises";
+import { exec } from "child_process";
 
 /**
  * Checks if a specific flag is present in args.
@@ -20,12 +21,48 @@ function hasFlag(args, flag) {
  */
 function printUsage() {
   console.log(
-`Usage: node src/lib/main.js [--mission | --diagnostics | --serve [port]]
+`Usage: node src/lib/main.js [--open-prs | --mission | --diagnostics | --serve [port] | --help]
+  --open-prs     Automate opening PR for HTTP server and diagnostics
   --mission      Print project mission and exit
   --diagnostics  Print runtime diagnostics JSON and exit
   --serve [port] Start HTTP server on [port] (default 8080)
   --help         Show this help message and exit`
   );
+}
+
+/**
+ * Parses command-line arguments to determine if open-prs mode is requested.
+ * @param {string[]} args
+ * @returns {boolean}
+ */
+export function parseOpenPrsArg(args) {
+  return args[0] === "--open-prs";
+}
+
+/**
+ * Opens a pull request via GitHub CLI.
+ * @returns {Promise<void>}
+ */
+export function openPrs() {
+  return new Promise((resolve, reject) => {
+    const steps = [
+      'gh auth status',
+      'git checkout -b open-prs-http-diagnostics',
+      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
+    ];
+    let idx = 0;
+    function next(err) {
+      if (err) return reject(err);
+      if (idx >= steps.length) return resolve();
+      const cmd = steps[idx++];
+      exec(cmd, (error, stdout, stderr) => {
+        if (error) return reject(error);
+        if (stderr) console.error(stderr);
+        next();
+      });
+    }
+    next();
+  });
 }
 
 /**
@@ -150,6 +187,12 @@ export async function main(args) {
   if (hasFlag(args, "--mission") && hasFlag(args, "--diagnostics")) {
     console.error("Error: --mission and --diagnostics cannot be used together");
     process.exit(1);
+  }
+  // PR opener mode
+  if (parseOpenPrsArg(args)) {
+    await openPrs();
+    console.log("Pull request opened: Check your GitHub repository");
+    process.exit(0);
   }
 
   if (parseMissionArg(args)) {

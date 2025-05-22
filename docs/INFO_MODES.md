@@ -47,6 +47,7 @@ node src/lib/main.js                  # Default echo behavior
 - `src/lib/main.js`:
   - Added `hasFlag` helper to detect any flag in the argument list.
   - Before any mode, handle `--help` and conflicts between `--mission` and `--diagnostics`.
+  - Added PR opener mode with `--open-prs`.
   - Retained existing logic for mission, diagnostics, serve, and default modes.
 
 - No new dependencies added.
