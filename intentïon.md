@@ -1375,3 +1375,153 @@ LLM API Usage:
 ```
 ---
 
+## Maintain Feature at 2025-05-22T06:58:55.235Z
+
+Maintained feature INFO_MODES.
+
+Feature spec:
+
+# INFO_MODES
+
+## Overview
+
+Unify the existing “Diagnostics Mode” and “Mission Mode” into a single information feature set. This enables the CLI to print either the project mission or runtime diagnostics while preserving the existing HTTP server and default behaviors.
+
+## Behavior
+
+- When invoked with `--mission`:
+  • Reads and prints the full content of `MISSION.md`.
+  • Exits with code 0.
+
+- When invoked with `--diagnostics`:
+  • Collects runtime information (Node.js version, process uptime, memory usage: `rss`, `heapTotal`, `heapUsed`, platform, and arch).
+  • Prints a JSON object with these fields.
+  • Exits with code 0.
+
+- When invoked with `--serve [port]`: unchanged HTTP_SERVER behavior.
+- Default (no flags): prints received arguments.
+
+## CLI Usage
+
+- `node src/lib/main.js --mission`  → Print project mission from MISSION.md and exit.
+- `node src/lib/main.js --diagnostics`  → Print runtime diagnostics JSON and exit.
+- `node src/lib/main.js --serve [port]`  → Start HTTP server responding with “Hello World!”.
+- `node src/lib/main.js`  → Default echo behavior.
+
+## Tests
+
+- Unit tests for:
+  • `parseMissionArg([])` → `false`; `parseMissionArg(["--mission"])` → `true`.
+  • `readMission()` returns a string containing `# repository0`.
+  • `parseDiagnosticsArg([])` → `false`; `parseDiagnosticsArg(["--diagnostics"])` → `true`.
+  • `collectDiagnostics()` returns correct types for all fields.
+
+- Integration tests for `main(["--mission"])` and `main(["--diagnostics"])`:
+  • Spy on `console.log` and stub `process.exit` to capture output and exit code.
+  • Verify mission output contains the repository title.
+  • Verify diagnostics output can be parsed as JSON and contains required properties.
+
+## Implementation Details
+
+- In `src/lib/main.js`, detect `--mission` and `--diagnostics` first in `main(args)`. For each:
+  • Call existing helpers (`readMission`, `collectDiagnostics`).
+  • Print output via `console.log`.
+  • Call `process.exit(0)`.
+
+- Preserve `--serve` logic (`parseServeArgs` and `startServer`), and default echo logic.
+
+- No changes to dependencies; reuse existing implementations of `readMission` and `collectDiagnostics`.
+
+
+Git diff:
+
+```diff
+diff --git a/features/DIAGNOSTICS_MODE.md b/features/DIAGNOSTICS_MODE.md
+deleted file mode 100644
+index c0adff4c..00000000
+--- a/features/DIAGNOSTICS_MODE.md
++++ /dev/null
+@@ -1,24 +0,0 @@
+-# DIAGNOSTICS_MODE
+-
+-## Overview
+-Add a new diagnostics mode to the CLI that prints runtime and environment information when invoked with the --diagnostics flag
+-
+-## Behavior
+-- When run with --diagnostics the tool prints node version, process uptime, memory usage metrics (rss, heapTotal, heapUsed), platform, and CPU architecture
+-- After printing diagnostics the process exits with code zero
+-- All other modes retain existing behavior
+-
+-## CLI Usage
+-- Default mode: node src/lib/main.js
+-- Diagnostics mode: node src/lib/main.js --diagnostics
+-
+-## Tests
+-- Unit tests for parsing the --diagnostics flag and default parsing
+-- Unit test for collectDiagnostics to verify returned object contains version, uptime, memory stats, platform, and arch with correct types
+-- Integration test running main in diagnostics mode and capturing console output to ensure all expected fields appear
+-
+-## Implementation Details
+-- Extend main entry to detect --diagnostics flag via a new parseDiagnosticsArg or extending parseServeArgs
+-- Implement collectDiagnostics function using process.version, process.uptime, process.memoryUsage, process.platform, process.arch
+-- In diagnostics mode call collectDiagnostics, format output as plain text or JSON to console, then exit
+-- No new dependencies required
+\ No newline at end of file\n\n// New [features/INFO_MODES.md]:\n# INFO_MODES
+
+## Overview
+
+Unify the existing “Diagnostics Mode” and “Mission Mode” into a single information feature set. This enables the CLI to print either the project mission or runtime diagnostics while preserving the existing HTTP server and default behaviors.
+
+## Behavior
+
+- When invoked with `--mission`:
+  • Reads and prints the full content of `MISSION.md`.
+  • Exits with code 0.
+
+- When invoked with `--diagnostics`:
+  • Collects runtime information (Node.js version, process uptime, memory usage: `rss`, `heapTotal`, `heapUsed`, platform, and arch).
+  • Prints a JSON object with these fields.
+  • Exits with code 0.
+
+- When invoked with `--serve [port]`: unchanged HTTP_SERVER behavior.
+- Default (no flags): prints received arguments.
+
+## CLI Usage
+
+- `node src/lib/main.js --mission`  → Print project mission from MISSION.md and exit.
+- `node src/lib/main.js --diagnostics`  → Print runtime diagnostics JSON and exit.
+- `node src/lib/main.js --serve [port]`  → Start HTTP server responding with “Hello World!”.
+- `node src/lib/main.js`  → Default echo behavior.
+
+## Tests
+
+- Unit tests for:
+  • `parseMissionArg([])` → `false`; `parseMissionArg(["--mission"])` → `true`.
+  • `readMission()` returns a string containing `# repository0`.
+  • `parseDiagnosticsArg([])` → `false`; `parseDiagnosticsArg(["--diagnostics"])` → `true`.
+  • `collectDiagnostics()` returns correct types for all fields.
+
+- Integration tests for `main(["--mission"])` and `main(["--diagnostics"])`:
+  • Spy on `console.log` and stub `process.exit` to capture output and exit code.
+  • Verify mission output contains the repository title.
+  • Verify diagnostics output can be parsed as JSON and contains required properties.
+
+## Implementation Details
+
+- In `src/lib/main.js`, detect `--mission` and `--diagnostics` first in `main(args)`. For each:
+  • Call existing helpers (`readMission`, `collectDiagnostics`).
+  • Print output via `console.log`.
+  • Call `process.exit(0)`.
+
+- Preserve `--serve` logic (`parseServeArgs` and `startServer`), and default echo logic.
+
+- No changes to dependencies; reuse existing implementations of `readMission` and `collectDiagnostics`.
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":23445,"completion_tokens":2096,"total_tokens":25541,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
