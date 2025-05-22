@@ -1103,3 +1103,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T06:25:40.639Z
+
+Generated feature development issue with title Implement MISSION_MODE feature: --mission flag to print mission statement.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":20469,"completion_tokens":2392,"total_tokens":22861,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
