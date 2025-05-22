@@ -3850,3 +3850,42 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T11:44:42.953Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2209 with title:
+
+Document PR opener mode in README CLI Usage
+
+And description:
+
+Overview:
+The PR opener feature (`--open-prs` / `npm run open-prs`) is fully implemented and documented in `docs/PR_OPENER.md`, but the main `README.md` CLI Usage section does not yet mention this mode. We need to add a dedicated **PR opener mode** subsection under **CLI Usage** and include it in the **Links to Detailed Docs**.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. README.md
+   - Under **CLI Usage**, after existing modes, add a new subsection **PR opener mode**:
+     ```bash
+     ### PR opener mode
+     ```bash
+     npm run open-prs      # or node src/lib/main.js --open-prs
+     ```
+     - Automates creation of separate pull requests for issues #2188 and #2193.
+     ```
+   - Under **Links to Detailed Docs**, add:
+     - [PR Opener](docs/PR_OPENER.md)
+
+Verification:
+1. Open `README.md` and confirm the **PR opener mode** section appears with correct commands and description.
+2. Run `npm run open-prs` and `node src/lib/main.js --open-prs` locally (with a stubbed or real GH CLI environment) to verify usage example aligns with documented commands.
+3. Ensure no other parts of `README.md` are modified.
+
+No other source, test, or dependency files should be changed.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":51431,"completion_tokens":1693,"total_tokens":53124,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
