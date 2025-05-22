@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import http from "http";
 import { readFile } from "fs/promises";
-import { exec } from "child_process";
+import { createRequire } from "module";
 
 /**
  * Checks if a specific flag is present in args.
@@ -44,6 +44,7 @@ export function parseOpenPrsArg(args) {
  * @returns {Promise<void>}
  */
 export function openPrs() {
+  const requireCP = createRequire(import.meta.url);
   return new Promise((resolve, reject) => {
     const steps = [
       'gh auth status',
@@ -55,7 +56,7 @@ export function openPrs() {
       if (err) return reject(err);
       if (idx >= steps.length) return resolve();
       const cmd = steps[idx++];
-      exec(cmd, (error, stdout, stderr) => {
+      requireCP('child_process').exec(cmd, (error, stdout, stderr) => {
         if (error) return reject(error);
         if (stderr) console.error(stderr);
         next();
