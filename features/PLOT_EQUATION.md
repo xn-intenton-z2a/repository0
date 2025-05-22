@@ -1,64 +1,82 @@
+# PLOT_EQUATION
+
 # Overview
-This feature integrates the equation plotting capabilities directly into the main CLI alongside the existing emotion display. It supports both a console plotting mode and an HTTP server mode, ensuring mutual exclusivity of the modes and preserving backward compatibility with the emotion feature.
+This feature integrates equation plotting into the main CLI, offering three modes: console plotting, HTTP server plotting, and a new end-to-end HTTP client test mode. It ensures mutual exclusivity of modes and preserves backward compatibility with the existing emotion display.
 
 # Usage
 
 ## Console Mode
-Run the CLI with the plot flag followed by an equation expression
-node src/lib/main.js --plot x^2 - 2*x + 1
 
-The CLI will sample x values over the range -10 to 10 by default, compute y values, normalize them to a 20-row grid, draw axes, and mark data points with an asterisk.
+Run the CLI with the plot flag followed by an equation expression:
 
-## Server Mode
-Launch an HTTP server to serve plots over HTTP
+node src/lib/main.js --plot "<equation>"
+
+Example:
+
+node src/lib/main.js --plot "x^2 - 2*x + 1"
+
+## HTTP Server Mode
+
+Launch an HTTP server on a specified port (default 3000):
+
+node src/lib/main.js --serve [--port <number>]
+
+Example:
+
 node src/lib/main.js --serve --port 4000
 
-Then request a plot via HTTP GET
+Then request a plot via:
+
 curl http://localhost:4000/plot?equation=sin(x)*x
 
-The server responds with an HTML page containing the ASCII plot inside a preformatted block.
+## E2E HTTP Client Test Mode
+
+Run a full server lifecycle test by specifying an equation. The CLI starts a server on an ephemeral port, issues an HTTP request to `/plot`, prints response details, and shuts down.
+
+node src/lib/main.js --test-http "<equation>"
+
+Example:
+
+node src/lib/main.js --test-http "x^2 - 2*x + 1"
 
 # Implementation
 
-1. Argument Parsing
-   - Extend main function to detect --plot and --serve flags in addition to --emotion.
-   - Enforce that --plot and --serve cannot be used together or with --emotion.
-   - Report a clear error if conflicting flags are provided and exit with code 1.
+1. **Argument Parsing**
+   - Detect `--plot`, `--serve`, and `--test-http` flags alongside `--emotion`.
+   - Enforce that only one of `--plot`, `--serve`, or `--test-http` may be used per invocation. On conflict, print an error and exit with code 1.
 
-2. Console Plotting Mode
-   - On --plot with a valid equation parameter sample 80 x points in the range -10 to 10.
-   - Evaluate the equation for each x and collect y values.
-   - Determine y min and max, normalize values to a fixed grid of 20 rows.
-   - Render X and Y axes at zero and plot data points with an asterisk.
-   - Print the ASCII grid to stdout and return exit code 0 on success.
-   - On missing or invalid equation parameter write an error to stderr, show usage, and return exit code 1.
+2. **Console Plotting Mode (`--plot`)**
+   - Sample 80 points across the range [-10, 10], evaluate the equation, normalize to a 20-row grid, draw axes (`|`, `-`, `+`), mark data points with `*`, and print the ASCII grid. Exit code 0 on success, 1 on error or missing equation.
 
-3. HTTP Server Mode
-   - On --serve start an HTTP server on the specified port defaulting to 3000.
-   - Handle GET requests to /plot by reading the equation query parameter.
-   - Validate the equation, generate the ASCII plot using console logic, wrap it in a minimal HTML document with a pre block.
-   - Respond with status 200 and content type text/html on success.
-   - On missing or invalid equation respond with status 400 and a plain text error message.
-   - Do not exit the process; log server start and any runtime errors to console.error.
+3. **HTTP Server Mode (`--serve`)**
+   - Start an HTTP server on the specified port. Handle `GET /plot?equation=<expr>`, validate input, generate ASCII plot, wrap in HTML `<pre>`, and respond with status 200 or 400 on error. Do not exit process. Return code 0 after server start or 1 on invalid port.
 
-4. Backward Compatibility
-   - If neither --plot nor --serve flags are provided, preserve the existing --emotion behavior without change.
+4. **End-to-End HTTP Client Test Mode (`--test-http`)**
+   - Start an HTTP server on port 0 (ephemeral) using the same handler as `--serve`.
+   - Once the server is listening, determine the actual bound port.
+   - Use Node’s built-in HTTP client to perform a `GET /plot?equation=<expr>` request.
+   - Print the response status code and the first 200 characters of the HTML or error body to stdout.
+   - Shut down the server cleanly and exit with code 0 on a successful request (status 200) or 1 on error or non-200 status.
+
+5. **Emotion Mode (`--emotion`)**
+   - Preserve existing behavior when neither `--plot`, `--serve`, nor `--test-http` flags are provided.
 
 # Testing
 
-- Unit Tests in tests/unit/main.test.js
-  - Verify console plotting success: calling main with ['--plot', 'x^2'] returns 0 and writes grid to stdout.
-  - Verify error when --plot is provided without an equation returns 1 and writes usage and error to stderr.
-  - Verify mutual exclusion: main with ['--plot', 'x^2', '--serve'] returns 1 with clear stderr message.
-  - Stub HTTP server start: calling main with ['--serve', '--port', '3000'] sets up server without throwing.
-  - Confirm existing emotion tests continue to pass.
+- **Unit Tests** (`tests/unit/main.test.js`)
+  - Verify console plotting: success and error cases.
+  - Verify server startup: default and custom port, invalid port.
+  - Verify end-to-end test mode:
+    - Invocation `main(["--test-http","x+1"])` mocks server and HTTP client, asserts status 200 case prints details and returns 0.
+    - Simulate non-200 or network error, assert return code 1 and error output.
+  - Confirm mutual exclusivity rejects combined flags.
+  - Ensure emotion tests remain unchanged and passing.
 
-- End-to-End HTTP Tests in tests/e2e/cli.test.js
-  - Spawn the CLI in server mode, send GET requests, assert HTTP status and HTML body contains the ASCII grid.
-  - Test missing equation query yields a 400 status and error text.
+- **End-to-End HTTP Tests** (`tests/e2e/cli.test.js`)
+  - Spawn the CLI in `--serve` mode, send real HTTP requests, assert status codes and HTML `<pre>` content.
+  - Spawn the CLI with `--test-http`, assert printed status and body snippet.
 
 # Documentation
 
-- Update README.md to include examples and descriptions for --plot and --serve modes.
-- Extend docs/USAGE.md with console plotting and HTTP server sections, showing sample commands and output.
-- Document changes in the API reference for the exported main function, noting new modes and flags.
+- Update `README.md` and `docs/USAGE.md` with a new ``--test-http`` section under Usage, examples and expected output.
+- Link to `features/PLOT_EQUATION.md` for full specification.
