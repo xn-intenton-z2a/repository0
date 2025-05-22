@@ -5860,3 +5860,28 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T14:49:34.803Z
+
+fixApplied: false
+
+Add CI step in pr_opener workflow for consolidated PR opening
+
+Git Diff:
+
+```
+
+```
+mainOutput:
+```
+
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2218 with title: ""]
+
+LLM API Usage:
+
+```json
+
+```
+---
+
