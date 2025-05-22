@@ -2044,3 +2044,56 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T09:41:21.812Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2199 with action close and updated description:
+
+Overview
+--------
+Currently our CLI supports two separate info modes—`--mission` and `--diagnostics`—but does not guard against the user supplying both flags at once or offering any help/usage guidance. To improve the user experience and make INFO_MODES rock-solid, we should detect mutually exclusive flags, print a brief usage message when they conflict or when `--help` is requested, and exit with a nonzero code on error.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. src/lib/main.js
+   - Add a helper `hasFlag(args: string[], flag: string): boolean` or inline logic to detect if an argument list contains a given flag anywhere.
+   - At the top of `main(args)`, before any mode processing:
+     • If `args` includes both `--mission` and `--diagnostics`, print to `console.error("Error: --mission and --diagnostics cannot be used together")`, then `process.exit(1)`.
+     • If `args` includes `--help`, print a usage block:
+       ```text
+       Usage: node src/lib/main.js [--mission | --diagnostics | --serve [port]]
+         --mission      Print project mission and exit
+         --diagnostics  Print runtime diagnostics JSON and exit
+         --serve [port] Start HTTP server on [port] (default 8080)
+       ```
+       and then `process.exit(0)`.
+   - Ensure existing behaviors remain unchanged when flags are not in conflict.
+
+2. tests/unit/main.test.js
+   - Add unit tests for conflict detection:
+     • `main(["--mission","--diagnostics"])` should print the error message to `console.error` and call `process.exit(1)`.
+     • `main(["--help"])` should print the usage block to `console.log` (or `console.error`) and exit with `0`.
+   - Stub `console.error`, `console.log`, and `process.exit` (like existing tests) to capture calls without terminating the test runner.
+
+3. README.md
+   - Under **CLI Usage**, add a note that `--mission` and `--diagnostics` are mutually exclusive, and that `--help` will display usage information.
+   - Show a small example:
+     ```bash
+     node src/lib/main.js --help
+     # Usage: ...
+     ```
+
+Verification
+------------
+1. Run `npm test` → all existing tests plus the new conflict and help tests should pass.
+2. Run:
+   - `node src/lib/main.js --mission --diagnostics` → should exit with code 1 and print the conflict error.
+   - `node src/lib/main.js --help` → should display usage and exit 0.
+3. Confirm that individual `--mission`, `--diagnostics`, and `--serve` invocations still work as before.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10051,"completion_tokens":1910,"total_tokens":11961,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
