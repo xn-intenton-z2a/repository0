@@ -2387,3 +2387,321 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T09:50:59.591Z
+
+fixApplied: true
+
+Implement PR opener feature with --open-prs flag exec commands tests and docs
+
+Git Diff:
+
+```
+diff --git a/docs/INFO_MODES.md b/docs/INFO_MODES.md
+index 52413e82..4dbb9dab 100644
+--- a/docs/INFO_MODES.md
++++ b/docs/INFO_MODES.md
+@@ -47,6 +47,7 @@ node src/lib/main.js                  # Default echo behavior
+ - `src/lib/main.js`:
+   - Added `hasFlag` helper to detect any flag in the argument list.
+   - Before any mode, handle `--help` and conflicts between `--mission` and `--diagnostics`.
++  - Added PR opener mode with `--open-prs`.
+   - Retained existing logic for mission, diagnostics, serve, and default modes.
+ 
+ - No new dependencies added.
+diff --git a/package.json b/package.json
+index f6d52c92..a4854455 100644
+--- a/package.json
++++ b/package.json
+@@ -20,6 +20,7 @@
+     "diagnostics": "node src/lib/main.js --diagnostics",
+     "mission": "node src/lib/main.js --mission",
+     "serve": "node src/lib/main.js --serve",
++    "open-prs": "node src/lib/main.js --open-prs",
+     "build-intermediate": "node src/lib/main.js --build-intermediate",
+     "build-enhanced": "node src/lib/main.js --build-enhanced",
+     "refresh": "node src/lib/main.js --refresh",
+@@ -73,4 +74,4 @@
+       "sonarjs/cognitive-complexity": "off"
+     }
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index fa370614..66afd5bc 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -4,6 +4,7 @@
+ import { fileURLToPath } from "url";
+ import http from "http";
+ import { readFile } from "fs/promises";
++import { exec } from "child_process";
+ 
+ /**
+  * Checks if a specific flag is present in args.
+@@ -20,7 +21,8 @@ function hasFlag(args, flag) {
+  */
+ function printUsage() {
+   console.log(
+-`Usage: node src/lib/main.js [--mission | --diagnostics | --serve [port]]
++`Usage: node src/lib/main.js [--open-prs | --mission | --diagnostics | --serve [port] | --help]
++  --open-prs     Automate opening PR for HTTP server and diagnostics
+   --mission      Print project mission and exit
+   --diagnostics  Print runtime diagnostics JSON and exit
+   --serve [port] Start HTTP server on [port] (default 8080)
+@@ -28,6 +30,41 @@ function printUsage() {
+   );
+ }
+ 
++/**
++ * Parses command-line arguments to determine if open-prs mode is requested.
++ * @param {string[]} args
++ * @returns {boolean}
++ */
++export function parseOpenPrsArg(args) {
++  return args[0] === "--open-prs";
++}
++
++/**
++ * Opens a pull request via GitHub CLI.
++ * @returns {Promise<void>}
++ */
++export function openPrs() {
++  return new Promise((resolve, reject) => {
++    const steps = [
++      'gh auth status',
++      'git checkout -b open-prs-http-diagnostics',
++      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
++    ];
++    let idx = 0;
++    function next(err) {
++      if (err) return reject(err);
++      if (idx >= steps.length) return resolve();
++      const cmd = steps[idx++];
++      exec(cmd, (error, stdout, stderr) => {
++        if (error) return reject(error);
++        if (stderr) console.error(stderr);
++        next();
++      });
++    }
++    next();
++  });
++}
++
+ /**
+  * Parses command-line arguments to determine if mission mode is requested.
+  * @param {string[]} args
+@@ -151,6 +188,12 @@ export async function main(args) {
+     console.error("Error: --mission and --diagnostics cannot be used together");
+     process.exit(1);
+   }
++  // PR opener mode
++  if (parseOpenPrsArg(args)) {
++    await openPrs();
++    console.log("Pull request opened: Check your GitHub repository");
++    process.exit(0);
++  }
+ 
+   if (parseMissionArg(args)) {
+     const mission = await readMission();
+@@ -175,4 +218,4 @@ export async function main(args) {
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+-}
++}
+\ No newline at end of file
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index f77f7301..104e4cf0 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,6 +1,8 @@
+ import { describe, test, expect, vi } from "vitest";
+ import http from "http";
+ import {
++  parseOpenPrsArg,
++  openPrs,
+   parseMissionArg,
+   readMission,
+   parseDiagnosticsArg,
+@@ -26,6 +28,36 @@ async function getResponse(port) {
+   });
+ }
+ 
++describe("parseOpenPrsArg", () => {
++  test("no flags", () => {
++    expect(parseOpenPrsArg([])).toBe(false);
++  });
++
++  test("--open-prs flag only", () => {
++    expect(parseOpenPrsArg(["--open-prs"]))
++      .toBe(true);
++  });
++});
++
++describe("openPrs", () => {
++  test("executes commands in order and resolves", async () => {
++    const execCalls = [];
++    vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => {
++      execCalls.push(cmd);
++      cb(null, 'stdout', '');
++    });
++    await expect(openPrs()).resolves.toBeUndefined();
++    expect(execCalls).toEqual([
++      'gh auth status',
++      'git checkout -b open-prs-http-diagnostics',
++      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
++    ]);
++    require('child_process').exec.mockRestore();
++  });
++});
++
++// Existing tests below...
++
+ describe("parseMissionArg", () => {
+   test("no flags", () => {
+     expect(parseMissionArg([])).toBe(false);
+@@ -126,6 +158,24 @@ describe("main conflict and help", () => {
+   });
+ });
+ 
++describe("main open-prs mode", () => {
++  test("calls openPrs and exits", async () => {
++    const execMock = vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => cb(null, '', ''));
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
++    try {
++      await main(["--open-prs"]);
++    } catch (err) {
++      expect(err.message).toBe("Exit:0");
++    }
++    expect(execMock).toHaveBeenCalled();
++    expect(logSpy).toHaveBeenCalledWith("Pull request opened: Check your GitHub repository");
++    execMock.mockRestore();
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
++
+ describe("main mission mode", () => {
+   test("prints mission and exits", async () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+@@ -181,4 +231,4 @@ describe("main default mode", () => {
+     expect(log[0]).toBe(`Run with: ${JSON.stringify(args)}`);
+     console.log = origLog;
+   });
+-});
++});
+\ No newline at end of file\n\n// New [docs/PR_OPENER.md]:\n# PR_OPENER
+
+## Overview
+
+Add a new pull request opener mode to the CLI that automates the creation of a consolidated pull request for the HTTP server and diagnostics features.
+
+## Behavior
+
+- When run with `--open-prs`, the CLI will:
+  - Verify that the GitHub CLI (`gh`) is installed and authenticated.
+  - Create a new branch named `open-prs-http-diagnostics`.
+  - Run:
+    ```
+    gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"
+    ```
+    to open a pull request linking the two issues.
+  - Print success or error messages and exit with code zero on success or a nonzero code on failure.
+
+## CLI Usage
+
+- `npm run open-prs`
+- `node src/lib/main.js --open-prs`
+
+## Tests
+
+- Unit test for `parseOpenPrsArg` to detect the `--open-prs` flag.
+- Unit test for `openPrs` that mocks `child_process.exec` and verifies the correct `gh` commands are executed.
+- Integration test that stubs `exec`, calls `main` with `["--open-prs"]`, and asserts `exec` was called and `process.exit(0)` is invoked.
+
+## Implementation Details
+
+- Use Node.js built-in `child_process.exec` from the `child_process` module.
+- Export `parseOpenPrsArg(args: string[]): boolean` and `openPrs(): Promise<void>` from `src/lib/main.js`.
+- In `main(args)`, check `parseOpenPrsArg` first, then `await openPrs()`, then call `process.exit(0)`.
+- Add a script `open-prs` to `package.json` pointing to `node src/lib/main.js --open-prs`.
+
+*No new dependencies required.*\n\n// New [docs/README.md]:\n# `repository0`
+
+The repository is intended as a template that includes:
+* A Template Base: A starting point for new projects.
+* A Running Experiment: An example implementation that demonstrates one way to use the template.
+* Workflows from `agentic-lib` which reference reusable workflows.
+
+## Overview
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+
+## CLI Usage
+
+### Default mode
+```bash
+npm run start      # or node src/lib/main.js
+```
+Prints the received arguments. Example: `Run with: ["foo","bar"]`.
+
+### Server mode
+```bash
+npm run serve      # or node src/lib/main.js --serve
+npm run serve -- 3000  # or node src/lib/main.js --serve 3000
+```
+Starts an HTTP server on port 8080 (default) or `3000` when specified.
+Responds to `GET /` with status 200 and body `Hello World!`.
+
+### Diagnostics mode
+```bash
+npm run diagnostics  # or node src/lib/main.js --diagnostics
+```
+Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
+Exits with code 0.
+
+### Mission mode
+```bash
+npm run mission      # or node src/lib/main.js --mission
+```
+Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
+Exits with code 0.
+
+### PR opener mode
+```bash
+npm run open-prs     # or node src/lib/main.js --open-prs
+```
+Automates creation of a pull request to merge issues #2188 and #2193.
+
+### Help
+```bash
+npm run start -- --help  # or node src/lib/main.js --help
+```
+Displays usage information and exits with code 0.
+
+## Links to Detailed Docs
+
+- [HTTP Server](docs/HTTP_SERVER.md)
+- [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
+- [Mission Mode](docs/MISSION_MODE.md)
+- [Info Modes](docs/INFO_MODES.md)
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2201 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":37971,"completion_tokens":6762,"total_tokens":44733,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
