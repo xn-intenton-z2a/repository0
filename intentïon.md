@@ -792,3 +792,212 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T04:49:11.513Z
+
+fixApplied: true
+
+Add diagnostics mode with --diagnostics flag and runtime diagnostics output
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index e3da083a..af92e100 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -4,6 +4,40 @@
+ import { fileURLToPath } from "url";
+ import http from "http";
+ 
++/**
++ * Parses command-line arguments to determine if diagnostics mode is requested.
++ * @param {string[]} args
++ * @returns {boolean}
++ */
++export function parseDiagnosticsArg(args) {
++  return args[0] === "--diagnostics";
++}
++
++/**
++ * Collects runtime diagnostics information.
++ * @returns {{
++ *   version: string;
++ *   uptime: number;
++ *   memoryUsage: { rss: number; heapTotal: number; heapUsed: number };
++ *   platform: string;
++ *   arch: string;
++ * }}
++ */
++export function collectDiagnostics() {
++  const memory = process.memoryUsage();
++  return {
++    version: process.version,
++    uptime: process.uptime(),
++    memoryUsage: {
++      rss: memory.rss,
++      heapTotal: memory.heapTotal,
++      heapUsed: memory.heapUsed
++    },
++    platform: process.platform,
++    arch: process.arch
++  };
++}
++
+ /**
+  * Parses command-line arguments to determine server mode and port.
+  * @param {string[]} args
+@@ -61,6 +95,12 @@ export async function startServer(portArg) {
+  * @param {string[]} args
+  */
+ export async function main(args) {
++  if (parseDiagnosticsArg(args)) {
++    const diag = collectDiagnostics();
++    console.log(JSON.stringify(diag, null, 2));
++    process.exit(0);
++  }
++
+   const { serve, port } = parseServeArgs(args);
+   if (serve) {
+     await startServer(port);
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index b1d65900..07821744 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,6 +1,12 @@
+-import { describe, test, expect } from "vitest";
++import { describe, test, expect, vi } from "vitest";
+ import http from "http";
+-import { parseServeArgs, startServer, main } from "@src/lib/main.js";
++import {
++  parseDiagnosticsArg,
++  collectDiagnostics,
++  parseServeArgs,
++  startServer,
++  main
++} from "@src/lib/main.js";
+ 
+ async function getResponse(port) {
+   return new Promise((resolve, reject) => {
+@@ -18,6 +24,30 @@ async function getResponse(port) {
+   });
+ }
+ 
++describe("parseDiagnosticsArg", () => {
++  test("no flags", () => {
++    expect(parseDiagnosticsArg([])).toBe(false);
++  });
++
++  test("--diagnostics flag only", () => {
++    expect(parseDiagnosticsArg(["--diagnostics"]))
++      .toBe(true);
++  });
++});
++
++describe("collectDiagnostics", () => {
++  test("returns correct structure and types", () => {
++    const diag = collectDiagnostics();
++    expect(typeof diag.version).toBe("string");
++    expect(typeof diag.uptime).toBe("number");
++    expect(typeof diag.platform).toBe("string");
++    expect(typeof diag.arch).toBe("string");
++    expect(typeof diag.memoryUsage.rss).toBe("number");
++    expect(typeof diag.memoryUsage.heapTotal).toBe("number");
++    expect(typeof diag.memoryUsage.heapUsed).toBe("number");
++  });
++});
++
+ describe("parseServeArgs", () => {
+   test("no flags", () => {
+     expect(parseServeArgs([])).toEqual({ serve: false, port: 8080 });
+@@ -46,7 +76,32 @@ describe("startServer and HTTP GET /", () => {
+   });
+ });
+ 
+-describe("main", () => {
++describe("main diagnostics mode", () => {
++  test("prints diagnostics and exits", async () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
++
++    try {
++      await main(["--diagnostics"]);
++    } catch (err) {
++      expect(err.message).toBe("Exit:0");
++    }
++
++    expect(logSpy).toHaveBeenCalled();
++    const logged = logSpy.mock.calls[0][0];
++    const parsed = JSON.parse(logged);
++    expect(parsed).toHaveProperty("version");
++    expect(parsed).toHaveProperty("uptime");
++    expect(parsed).toHaveProperty("memoryUsage");
++    expect(parsed).toHaveProperty("platform");
++    expect(parsed).toHaveProperty("arch");
++
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
++
++describe("main default mode", () => {
+   test("default behavior logs arguments", async () => {
+     const args = ["foo", "bar"];
+     const origLog = console.log;\n\n// New [docs/DIAGNOSTICS_MODE.md]:\n# Diagnostics Mode
+
+## Overview
+
+Introduce a diagnostics mode to the CLI that prints runtime and environment information when invoked with the `--diagnostics` flag and exits.
+
+## CLI Usage
+
+- `npm run diagnostics`  
+- `node src/lib/main.js --diagnostics`
+
+## Output
+
+Prints a JSON object with:
+
+- `version`: Node.js version (string)  
+- `uptime`: Process uptime in seconds (number)  
+- `memoryUsage`: Object with `rss`, `heapTotal`, `heapUsed` (numbers)  
+- `platform`: Operating system platform (string)  
+- `arch`: CPU architecture (string)  
+
+## Exit Code
+
+Exits with code 0 after printing diagnostics.
+
+## Sample Output
+
+```json
+{
+  "version": "v20.5.0",
+  "uptime": 0.123,
+  "memoryUsage": {
+    "rss": 21514176,
+    "heapTotal": 5242880,
+    "heapUsed": 3034896
+  },
+  "platform": "linux",
+  "arch": "x64"
+}
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2193 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":19641,"completion_tokens":6429,"total_tokens":26070,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3968,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
