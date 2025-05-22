@@ -21,35 +21,35 @@ Prints the received arguments. Example: `Run with: ["foo","bar"]`.
 npm run serve      # or node src/lib/main.js --serve
 npm run serve -- 3000  # or node src/lib/main.js --serve 3000
 ```
-Starts an HTTP server on port 8080 (default) or `3000` when specified.
+Starts an HTTP server on port 8080 (default) or `3000` when specified.  
 Responds to `GET /` with status 200 and body `Hello World!`.
 
 ### Diagnostics mode
 ```bash
 npm run diagnostics  # or node src/lib/main.js --diagnostics
 ``` 
-Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
+Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.  
 Exits with code 0.
 
 ### Mission mode
 ```bash
 npm run mission      # or node src/lib/main.js --mission
 ``` 
-Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
+Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.  
 Exits with code 0.
 
 ### PR opener mode
 ```bash
 npm run open-prs     # or node src/lib/main.js --open-prs
 ``` 
-Automates creation of separate pull requests for issues #2188 and #2193.
+Automates creation of separate pull requests for issues #2188 and #2193.  
 On error, logs `PR opener error: <message>` and exits with code 1.
 
 ### Consolidated PR mode
 ```bash
 npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
 ``` 
-Opens a single consolidated pull request resolving issues #2188 and #2193.
+Opens a single consolidated pull request resolving issues #2188 and #2193.  
 On error, logs `Consolidated PR error: <message>` and exits with code 1.
 
 ### Help
