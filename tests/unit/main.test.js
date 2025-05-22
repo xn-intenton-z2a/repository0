@@ -96,6 +96,36 @@ describe("startServer and HTTP GET /", () => {
   });
 });
 
+describe("main conflict and help", () => {
+  test("conflicting flags exit 1", async () => {
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+    try {
+      await main(["--mission", "--diagnostics"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:1");
+    }
+    expect(errSpy).toHaveBeenCalledWith("Error: --mission and --diagnostics cannot be used together");
+    errSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+
+  test("help flag prints usage and exits 0", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+    try {
+      await main(["--help"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:0");
+    }
+    expect(logSpy).toHaveBeenCalled();
+    const helpMsg = logSpy.mock.calls[0][0];
+    expect(helpMsg).toContain("Usage: node src/lib/main.js");
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+});
+
 describe("main mission mode", () => {
   test("prints mission and exits", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});

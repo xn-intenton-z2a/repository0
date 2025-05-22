@@ -6,6 +6,29 @@ import http from "http";
 import { readFile } from "fs/promises";
 
 /**
+ * Checks if a specific flag is present in args.
+ * @param {string[]} args
+ * @param {string} flag
+ * @returns {boolean}
+ */
+function hasFlag(args, flag) {
+  return args.includes(flag);
+}
+
+/**
+ * Prints usage information.
+ */
+function printUsage() {
+  console.log(
+`Usage: node src/lib/main.js [--mission | --diagnostics | --serve [port]]
+  --mission      Print project mission and exit
+  --diagnostics  Print runtime diagnostics JSON and exit
+  --serve [port] Start HTTP server on [port] (default 8080)
+  --help         Show this help message and exit`
+  );
+}
+
+/**
  * Parses command-line arguments to determine if mission mode is requested.
  * @param {string[]} args
  * @returns {boolean}
@@ -118,6 +141,17 @@ export async function startServer(portArg) {
  * @param {string[]} args
  */
 export async function main(args) {
+  // Help flag
+  if (hasFlag(args, "--help")) {
+    printUsage();
+    process.exit(0);
+  }
+  // Conflict: mission and diagnostics
+  if (hasFlag(args, "--mission") && hasFlag(args, "--diagnostics")) {
+    console.error("Error: --mission and --diagnostics cannot be used together");
+    process.exit(1);
+  }
+
   if (parseMissionArg(args)) {
     const mission = await readMission();
     console.log(mission);
