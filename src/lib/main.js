@@ -45,8 +45,7 @@ export async function startServer(portArg) {
 
     server.listen(portArg, () => {
       const address = server.address();
-      const actualPort =
-        typeof address === "object" && address ? address.port : address;
+      const actualPort = typeof address === "object" && address ? address.port : address;
       console.log(`Server listening on port ${actualPort}`);
       resolve(server);
     });
