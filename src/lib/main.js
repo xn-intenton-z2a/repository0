@@ -218,12 +218,22 @@ export async function main(args) {
   }
   // Consolidated PR opener mode
   if (parseConsolidatedPrArg(args)) {
-    await openConsolidatedPr();
+    try {
+      await openConsolidatedPr();
+    } catch (err) {
+      console.error('Consolidated PR error:', err.message);
+      process.exit(1);
+    }
     process.exit(0);
   }
   // Separate PR opener mode
   if (parseOpenPrsArg(args)) {
-    await openPrs();
+    try {
+      await openPrs();
+    } catch (err) {
+      console.error('PR opener error:', err.message);
+      process.exit(1);
+    }
     process.exit(0);
   }
 

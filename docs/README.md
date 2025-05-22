@@ -43,12 +43,14 @@ Exits with code 0.
 npm run open-prs     # or node src/lib/main.js --open-prs
 ``` 
 Automates creation of separate pull requests for issues #2188 and #2193.
+On error, logs `PR opener error: <message>` and exits with code 1.
 
 ### Consolidated PR mode
 ```bash
 npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
 ``` 
 Opens a single consolidated pull request resolving issues #2188 and #2193.
+On error, logs `Consolidated PR error: <message>` and exits with code 1.
 
 ### Help
 ```bash

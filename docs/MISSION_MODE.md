@@ -17,10 +17,6 @@ Prints the full content of `MISSION.md`, which contains the project mission stat
 
 Exits with code 0 after printing.
 
-## Sample Output
+## Error Handling
 
-```md
-# repository0
-
-Deliver the traditional first program to write in a new language, the "Hello World!" message.
-```
+On any error reading the mission file, logs the error and exits with code 1.

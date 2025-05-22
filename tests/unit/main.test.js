@@ -123,13 +123,19 @@ describe("parseDiagnosticsArg", () => {
 describe("collectDiagnostics", () => {
   test("returns correct structure and types", () => {
     const diag = collectDiagnostics();
+    expect(diag).toHaveProperty("version");
     expect(typeof diag.version).toBe("string");
+    expect(diag).toHaveProperty("uptime");
     expect(typeof diag.uptime).toBe("number");
-    expect(typeof diag.platform).toBe("string");
-    expect(typeof diag.arch).toBe("string");
+    expect(diag).toHaveProperty("memoryUsage");
+    expect(typeof diag.memoryUsage).toBe("object");
     expect(typeof diag.memoryUsage.rss).toBe("number");
     expect(typeof diag.memoryUsage.heapTotal).toBe("number");
     expect(typeof diag.memoryUsage.heapUsed).toBe("number");
+    expect(diag).toHaveProperty("platform");
+    expect(typeof diag.platform).toBe("string");
+    expect(diag).toHaveProperty("arch");
+    expect(typeof diag.arch).toBe("string");
   });
 });
 
