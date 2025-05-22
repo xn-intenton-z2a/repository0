@@ -6321,3 +6321,173 @@ LLM API Usage:
 
 2025-05-22T15:43:34Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-22T15:45:02.866Z
+
+Maintained feature PR_OPENER.
+
+Feature spec:
+
+# PR_OPENER
+
+## Overview
+Unify both separate and consolidated pull-request opener capabilities into a single CLI feature. Users can either open individual pull requests per feature issue or a single consolidated pull request that merges the HTTP server (--serve) and diagnostics (--diagnostics) features.
+
+## Behavior
+
+- Separate PR mode (--open-prs):
+  • Verify GitHub CLI authentication with gh auth status
+  • For each issue in [2188, 2193]:
+    - Create branch pr-<issue> via git checkout -b pr-<issue>
+    - Open a pull request with gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
+    - On success, log Opened PR for issue #<issue>; on error log the error and exit with a nonzero code
+  • Exit with code 0 if all separate PRs succeed
+
+- Consolidated PR mode (--open-prs-consolidated):
+  • Verify GitHub CLI authentication with gh auth status
+  • Create branch open-prs-http-diagnostics via git checkout -b open-prs-http-diagnostics
+  • Open a single pull request with gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"
+  • On success, log Opened consolidated PR for HTTP server and diagnostics; on error log the error and exit with a nonzero code
+  • Exit with code 0 on success
+
+- All other CLI modes (--mission, --diagnostics, --serve, --help, default) remain unchanged
+
+## CLI Usage
+
+```bash
+npm run open-prs               # or node src/lib/main.js --open-prs
+npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+```
+
+## Tests
+
+- Unit tests for parseOpenPrsArg and parseConsolidatedPrArg flag detection
+- Unit tests for openPrs and openConsolidatedPr mocking child_process.exec to verify command sequence and logging
+- Integration tests for main(["--open-prs"]) and main(["--open-prs-consolidated"]) by stubbing exec and process.exit to capture logs and exit codes
+
+## Implementation Details
+
+- In src/lib/main.js:
+  • Export parseOpenPrsArg(args: string[]): boolean and parseConsolidatedPrArg(args: string[]): boolean
+  • Export openPrs(): Promise<void> and openConsolidatedPr(): Promise<void> implementing commands via child_process.exec
+  • In main(args), detect consolidated flag first, then separate flag, then process other modes
+- No new dependencies required; rely on Node’s built-in modules and GitHub CLI
+
+Git diff:
+
+```diff
+diff --git a/features/CONSOLIDATED_PR_MODE_DOC.md b/features/CONSOLIDATED_PR_MODE_DOC.md
+deleted file mode 100644
+index a5fdb3ec..00000000
+--- a/features/CONSOLIDATED_PR_MODE_DOC.md
++++ /dev/null
+@@ -1,21 +0,0 @@
+-# CONSOLIDATED_PR_MODE_DOC
+-
+-## Overview
+-Add the consolidated pull request mode to the main README CLI Usage section so users can discover and use the --open-prs-consolidated command.
+-
+-## Changes in README.md
+-- Under **CLI Usage**, immediately after the **PR opener mode** subsection, insert a **Consolidated PR mode** subsection:
+-  ```bash
+-  ### Consolidated PR mode
+-  ```bash
+-  npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+-  ```
+-  Opens a single consolidated pull request resolving issues #2188 and #2193.
+-
+-- Verify that the **Links to Detailed Docs** section still lists:
+-  - [PR Opener](docs/PR_OPENER.md)
+-  without altering other links.
+-
+-## Verification
+-1. Open README.md and confirm the **Consolidated PR mode** section appears with the correct heading, code snippet, and description.
+-2. Run `npm run open-prs-consolidated` or `node src/lib/main.js --open-prs-consolidated` locally (with stubbed or real GH CLI) to ensure the usage example matches the documented command.
+diff --git a/features/PR_OPENER.md b/features/PR_OPENER.md
+index 8c84b88e..10d1ceb7 100644
+--- a/features/PR_OPENER.md
++++ b/features/PR_OPENER.md
+@@ -1,50 +1,44 @@
+ # PR_OPENER
+ 
+ ## Overview
+-
+-Unify both separate and consolidated pull-request opener capabilities into a single CLI feature. Users can either open individual pull requests per feature issue or a single consolidated pull request that merges the HTTP server and diagnostics features.
++Unify both separate and consolidated pull-request opener capabilities into a single CLI feature. Users can either open individual pull requests per feature issue or a single consolidated pull request that merges the HTTP server (--serve) and diagnostics (--diagnostics) features.
+ 
+ ## Behavior
+ 
+-- Separate PR mode (`--open-prs`):
+-  • Verify GitHub CLI authentication (run `gh auth status`).
++- Separate PR mode (--open-prs):
++  • Verify GitHub CLI authentication with gh auth status
+   • For each issue in [2188, 2193]:
+-    - Create branch `pr-<issue>` via `git checkout -b pr-<issue>`.
+-    - Open a pull request with `gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"`.
+-    - On success, log `Opened PR for issue #<issue>`; on error, log the error to console.error and exit with a nonzero code.
+-  • Exit with code 0 if all separate PRs succeed.
++    - Create branch pr-<issue> via git checkout -b pr-<issue>
++    - Open a pull request with gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
++    - On success, log Opened PR for issue #<issue>; on error log the error and exit with a nonzero code
++  • Exit with code 0 if all separate PRs succeed
+ 
+-- Consolidated PR mode (`--open-prs-consolidated`):
+-  • Verify GitHub CLI authentication (run `gh auth status`).
+-  • Create branch `open-prs-http-diagnostics` via `git checkout -b open-prs-http-diagnostics`.
+-  • Open a single pull request with `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
+-  • On success, log `Opened consolidated PR for HTTP server and diagnostics`; on error, log the error to console.error and exit with a nonzero code.
+-  • Exit with code 0 on success.
++- Consolidated PR mode (--open-prs-consolidated):
++  • Verify GitHub CLI authentication with gh auth status
++  • Create branch open-prs-http-diagnostics via git checkout -b open-prs-http-diagnostics
++  • Open a single pull request with gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"
++  • On success, log Opened consolidated PR for HTTP server and diagnostics; on error log the error and exit with a nonzero code
++  • Exit with code 0 on success
+ 
+-- All other CLI modes (`--mission`, `--diagnostics`, `--serve`, `--help`, default) remain unchanged.
++- All other CLI modes (--mission, --diagnostics, --serve, --help, default) remain unchanged
+ 
+ ## CLI Usage
+ 
+ ```bash
+-# Separate mode: one PR per issue
+-npm run open-prs      # or node src/lib/main.js --open-prs
+-
+-# Consolidated mode: single PR for both issues
++npm run open-prs               # or node src/lib/main.js --open-prs
+ npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+ ```
+ 
+ ## Tests
+ 
+-- Unit tests for `parseOpenPrsArg`: no flags → false; [`"--open-prs"`] → true.
+-- Unit tests for `parseConsolidatedPrArg`: no flags → false; [`"--open-prs-consolidated"`] → true.
+-- Unit tests for `openPrs`: mock `child_process.exec`, verify sequence for issues 2188 and 2193, and logging.
+-- Unit tests for `openConsolidatedPr`: mock `child_process.exec`, verify auth, branch creation, PR creation steps and success log.
+-- Integration tests for `main(["--open-prs"])` and `main(["--open-prs-consolidated"])`: stub `exec` and `process.exit`, assert correct logs and exit codes.
++- Unit tests for parseOpenPrsArg and parseConsolidatedPrArg flag detection
++- Unit tests for openPrs and openConsolidatedPr mocking child_process.exec to verify command sequence and logging
++- Integration tests for main(["--open-prs"]) and main(["--open-prs-consolidated"]) by stubbing exec and process.exit to capture logs and exit codes
+ 
+ ## Implementation Details
+ 
+-- In `src/lib/main.js`:
+-  • Export `parseOpenPrsArg(args: string[]): boolean` and `parseConsolidatedPrArg(args: string[]): boolean`.
+-  • Export `openPrs(): Promise<void>` and `openConsolidatedPr(): Promise<void>` implementing the commands via `child_process.exec`.
+-  • In `main(args)`, detect consolidated flag first, then separate flag, then delegate to other modes.
+-- No new dependencies required; rely on Node’s built-in modules and GitHub CLI.
+\ No newline at end of file
++- In src/lib/main.js:
++  • Export parseOpenPrsArg(args: string[]): boolean and parseConsolidatedPrArg(args: string[]): boolean
++  • Export openPrs(): Promise<void> and openConsolidatedPr(): Promise<void> implementing commands via child_process.exec
++  • In main(args), detect consolidated flag first, then separate flag, then process other modes
++- No new dependencies required; rely on Node’s built-in modules and GitHub CLI
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":83932,"completion_tokens":1791,"total_tokens":85723,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1152,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
