@@ -6921,3 +6921,42 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T16:50:39.036Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+During both separate (`--open-prs`) and consolidated (`--open-prs-consolidated`) PR opener modes, any failure in a GitHub CLI command should be caught and reported clearly. The CLI must exit with code 1 on error and provide a user-friendly message on stderr.
+
+Proposed Changes:
+1. In `src/lib/main.js`, wrap calls to `openPrs()` and `openConsolidatedPr()` in `try/catch` blocks:  
+   - On success, print the existing success message and exit with code 0.  
+   - On failure, call `console.error('PR opener error:', err.message)` or `console.error('Consolidated PR error:', err.message)` and `process.exit(1)`.
+2. Update `tests/unit/main.test.js` to include unit tests for error scenarios:  
+   - Mock `child_process.exec` to simulate an error in `openPrs()` and assert `console.error` with `PR opener error:` and exit code 1.  
+   - Mock an error in `openConsolidatedPr()` and assert `console.error` with `Consolidated PR error:` and exit code 1.  
+3. In `README.md`, under **PR opener mode** and **Consolidated PR mode**, append a note that on error the CLI logs details and exits with a non-zero code.
+
+Testable Acceptance Criteria:
+- When `node src/lib/main.js --open-prs` succeeds, logs:
+  - `Opened PR for issue #2188` and `Opened PR for issue #2193` to stdout
+  - Exits with code 0
+- When `node src/lib/main.js --open-prs` encounters a CLI error (mocked), logs to stderr:  
+  `PR opener error: <stubbed message>`  
+  Exits with code 1
+- When `node src/lib/main.js --open-prs-consolidated` succeeds, logs:
+  - `Opened consolidated PR for HTTP server and diagnostics` to stdout
+  - Exits with code 0
+- When `node src/lib/main.js --open-prs-consolidated` encounters a CLI error (mocked), logs to stderr:  
+  `Consolidated PR error: <stubbed message>`  
+  Exits with code 1
+- New unit tests for both error and success scenarios in `tests/unit/main.test.js` pass
+- `README.md` contains an explicit note under each PR opener mode about error handling and non-zero exit codes
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":14152,"completion_tokens":1233,"total_tokens":15385,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
