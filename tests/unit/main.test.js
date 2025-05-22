@@ -1,6 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 import http from "http";
 import {
+  parseOpenPrsArg,
+  openPrs,
   parseMissionArg,
   readMission,
   parseDiagnosticsArg,
@@ -25,6 +27,36 @@ async function getResponse(port) {
     req.on("error", reject);
   });
 }
+
+describe("parseOpenPrsArg", () => {
+  test("no flags", () => {
+    expect(parseOpenPrsArg([])).toBe(false);
+  });
+
+  test("--open-prs flag only", () => {
+    expect(parseOpenPrsArg(["--open-prs"]))
+      .toBe(true);
+  });
+});
+
+describe("openPrs", () => {
+  test("executes commands in order and resolves", async () => {
+    const execCalls = [];
+    vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => {
+      execCalls.push(cmd);
+      cb(null, 'stdout', '');
+    });
+    await expect(openPrs()).resolves.toBeUndefined();
+    expect(execCalls).toEqual([
+      'gh auth status',
+      'git checkout -b open-prs-http-diagnostics',
+      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
+    ]);
+    require('child_process').exec.mockRestore();
+  });
+});
+
+// Existing tests below...
 
 describe("parseMissionArg", () => {
   test("no flags", () => {
@@ -121,6 +153,24 @@ describe("main conflict and help", () => {
     expect(logSpy).toHaveBeenCalled();
     const helpMsg = logSpy.mock.calls[0][0];
     expect(helpMsg).toContain("Usage: node src/lib/main.js");
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+});
+
+describe("main open-prs mode", () => {
+  test("calls openPrs and exits", async () => {
+    const execMock = vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => cb(null, '', ''));
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+    try {
+      await main(["--open-prs"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:0");
+    }
+    expect(execMock).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith("Pull request opened: Check your GitHub repository");
+    execMock.mockRestore();
     logSpy.mockRestore();
     exitSpy.mockRestore();
   });
