@@ -6878,3 +6878,46 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T16:49:40.633Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2224 with title:
+
+Enhance PR opener modes with robust error handling and exit codes
+
+And description:
+
+Overview:
+Currently, if any GitHub CLI command fails during separate (`--open-prs`) or consolidated (`--open-prs-consolidated`) PR opener modes, the promise rejects and the tool crashes with an unhandled exception and nonzero exit, without a clear, user-friendly error message. We need to catch errors in each opener mode, print meaningful error details to stderr, and exit cleanly with code 1.
+
+Changes required (single LLM invocation to update these files):
+
+1. src/lib/main.js
+   - Wrap the `openConsolidatedPr()` invocation in `main()` inside a `try { ... } catch (err) { console.error('Consolidated PR error:', err.message); process.exit(1); }` block. On success, maintain the existing `process.exit(0)`.
+   - Similarly, wrap the `openPrs()` invocation in its own `try/catch`, logging `console.error('PR opener error:', err.message)` and exiting with code 1 on failure.
+   - Remove the unguarded `process.exit(0)` calls inside those mode branches and move them inside the `try` blocks after successful resolution.
+
+2. tests/unit/main.test.js
+   - Add unit tests for error scenarios in both modes:
+     • Mock `child_process.exec` to call back with a non-null `error` when stepping through `openConsolidatedPr`, then call `main(['--open-prs-consolidated'])` and assert that:
+       - `console.error` was called with a message containing `Consolidated PR error:` and the stubbed error message.
+       - `process.exit(1)` was invoked.
+     • Repeat for `--open-prs` mode: simulate an early `exec` error and assert `console.error('PR opener error:', ...)` and `process.exit(1)`.
+   - Update existing tests to restore spies appropriately.
+
+3. README.md
+   - Under **PR opener mode** and **Consolidated PR mode**, append a note indicating that on any error, the CLI will log the error details and exit with a nonzero code.
+
+Verification steps:
+1. Run `npm test` → all existing and new error-handling tests should pass.
+2. Simulate command failures by stubbing `exec` to yield an error, then:
+   - `node src/lib/main.js --open-prs` → should log `PR opener error: <message>` to stderr and exit code 1.
+   - `node src/lib/main.js --open-prs-consolidated` → should log `Consolidated PR error: <message>` and exit code 1.
+3. Confirm that on success, both modes still print their success messages and exit with code 0 without regression in other modes.  
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":89971,"completion_tokens":3771,"total_tokens":93742,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
