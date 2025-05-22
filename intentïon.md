@@ -6092,3 +6092,75 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T15:08:11.347Z
+
+fixApplied: true
+
+Document Consolidated PR mode in README CLI Usage
+
+Git Diff:
+
+```
+diff --git a/README.md b/README.md
+index 14e58bda..d198403a 100644
+--- a/README.md
++++ b/README.md
+@@ -27,23 +27,29 @@ Responds to `GET /` with status 200 and body `Hello World!`.
+ ### Diagnostics mode
+ ```bash
+ npm run diagnostics  # or node src/lib/main.js --diagnostics
+-```
++``` 
+ Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
+ Exits with code 0.
+ 
+ ### Mission mode
+ ```bash
+ npm run mission      # or node src/lib/main.js --mission
+-```
++``` 
+ Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
+ Exits with code 0.
+ 
+ ### PR opener mode
+ ```bash
+ npm run open-prs     # or node src/lib/main.js --open-prs
+-```
++``` 
+ Automates creation of separate pull requests for issues #2188 and #2193.
+ 
++### Consolidated PR mode
++```bash
++npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
++``` 
++Opens a single consolidated pull request resolving issues #2188 and #2193.
++
+ ### Help
+ ```bash
+ npm run start -- --help  # or node src/lib/main.js --help
+@@ -56,4 +62,4 @@ Displays usage information and exits with code 0.
+ - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
+ - [Mission Mode](docs/MISSION_MODE.md)
+ - [Info Modes](docs/INFO_MODES.md)
+-- [PR Opener](docs/PR_OPENER.md)
+\ No newline at end of file
++- [PR Opener](docs/PR_OPENER.md)
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2219 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":84358,"completion_tokens":853,"total_tokens":85211,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
