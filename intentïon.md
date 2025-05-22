@@ -9204,3 +9204,41 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T20:17:31.767Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+Integrate the existing `--open-prs-consolidated` CLI command into the repository’s CI workflows to automate the creation of a consolidated pull request merging the HTTP Server feature (#2188) and Diagnostics Mode feature (#2193). This streamlines final review and release tagging.
+
+Acceptance Criteria:
+1. A new job `open_consolidated_pr` is defined in `.github/workflows/pr_opener.yml` (or equivalent) with triggers:
+   - `workflow_dispatch` for manual runs
+   - `schedule` (e.g., daily) matching existing schedule patterns
+2. The `open_consolidated_pr` job:
+   a. Runs on `ubuntu-latest` and declares `needs: [build]` dependency
+   b. Steps include:
+      - `actions/checkout@v3`
+      - `actions/setup-node@v3` with `node-version: '20'`
+      - `npm install`
+      - `npm run open-prs-consolidated`
+3. CI logs during the job must include the sequence:
+   - `gh auth status` verification
+   - Branch creation: `checkout -b open-prs-http-diagnostics`
+   - PR creation command: `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+   - Log message: `Opened consolidated PR for HTTP server and diagnostics`
+4. The job exits with code 0 on success.
+5. After the job runs, a Pull Request appears on GitHub with:
+   - Branch: `open-prs-http-diagnostics`
+   - Title: `Merge HTTP server and diagnostics features`
+   - Body containing bullet list: `- resolves #2188`, `- resolves #2193`
+
+No source code, tests, or dependency files should be modified; this task focuses exclusively on CI workflow orchestration.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11592,"completion_tokens":1284,"total_tokens":12876,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
