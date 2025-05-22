@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import http from "http";
 import { readFile } from "fs/promises";
-import { exec } from "child_process";
+import { createRequire } from "module";
 
 /**
  * Checks if a specific flag is present in args.
@@ -44,6 +44,8 @@ export function parseOpenPrsArg(args) {
  * @returns {Promise<void>}
  */
 export async function openPrs() {
+  const require = createRequire(import.meta.url);
+  const { exec } = require('child_process');
   const issues = [2188, 2193];
   for (const issue of issues) {
     await new Promise((resolve, reject) => {
