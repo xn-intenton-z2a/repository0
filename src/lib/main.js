@@ -4,7 +4,7 @@
 import { fileURLToPath } from "url";
 import http from "http";
 import { readFile } from "fs/promises";
-import { createRequire } from "module";
+import { exec } from "child_process";
 
 /**
  * Checks if a specific flag is present in args.
@@ -40,30 +40,30 @@ export function parseOpenPrsArg(args) {
 }
 
 /**
- * Opens a pull request via GitHub CLI.
+ * Opens separate pull requests via GitHub CLI for each issue.
  * @returns {Promise<void>}
  */
-export function openPrs() {
-  const requireCP = createRequire(import.meta.url);
-  return new Promise((resolve, reject) => {
-    const steps = [
-      'gh auth status',
-      'git checkout -b open-prs-http-diagnostics',
-      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
-    ];
-    let idx = 0;
-    function next(err) {
-      if (err) return reject(err);
-      if (idx >= steps.length) return resolve();
-      const cmd = steps[idx++];
-      requireCP('child_process').exec(cmd, (error, stdout, stderr) => {
+export async function openPrs() {
+  const issues = [2188, 2193];
+  for (const issue of issues) {
+    await new Promise((resolve, reject) => {
+      exec('gh auth status', (error, stdout, stderr) => {
         if (error) return reject(error);
         if (stderr) console.error(stderr);
-        next();
+        exec(`git checkout -b pr-${issue}`, (error2, stdout2, stderr2) => {
+          if (error2) return reject(error2);
+          if (stderr2) console.error(stderr2);
+          const cmd = `gh pr create --title "Implement feature for issue #${issue}" --body "Resolves issue #${issue}"`;
+          exec(cmd, (error3, stdout3, stderr3) => {
+            if (error3) return reject(error3);
+            if (stderr3) console.error(stderr3);
+            console.log(`Opened PR for issue #${issue}`);
+            resolve();
+          });
+        });
       });
-    }
-    next();
-  });
+    });
+  }
 }
 
 /**
@@ -192,7 +192,6 @@ export async function main(args) {
   // PR opener mode
   if (parseOpenPrsArg(args)) {
     await openPrs();
-    console.log("Pull request opened: Check your GitHub repository");
     process.exit(0);
   }
 
