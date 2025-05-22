@@ -9771,3 +9771,63 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T21:15:54.757Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2235 with title:
+
+Add CI job to automate consolidated PR opening for HTTP server and diagnostics
+
+And description:
+
+Overview:
+We need to integrate the existing `--open-prs-consolidated` CLI command into our CI workflows so that a single pull request merging the HTTP server (issue #2188) and Diagnostics Mode (issue #2193) branches is created automatically. This streamlines final review and release tagging.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. .github/workflows/pr_opener.yml (or equivalent workflow file):
+   - Add a new job `open_consolidated_pr` that runs after the existing build and test jobs:
+     ```yaml
+     name: PR Opener
+     on:
+       workflow_dispatch:
+       schedule:
+         - cron: '0 0 * * *'  # adjust schedule as needed
+     jobs:
+       build:
+         # existing build and test jobs
+       open_consolidated_pr:
+         runs-on: ubuntu-latest
+         needs: [build]
+         steps:
+           - uses: actions/checkout@v3
+           - name: Set up Node.js
+             uses: actions/setup-node@v3
+             with:
+               node-version: '20'
+           - name: Install dependencies
+             run: npm install
+           - name: Open consolidated PR for HTTP server and diagnostics
+             run: npm run open-prs-consolidated
+     ```
+   - Ensure this job has permission to run GitHub CLI commands (`gh auth status`, `git checkout`, `gh pr create`).
+
+Verification Steps:
+1. Commit and push the workflow changes to a feature branch.
+2. Manually trigger the `open_consolidated_pr` job or wait for its schedule.
+3. In the job logs, confirm it runs:
+   - `gh auth status`
+   - `git checkout -b open-prs-http-diagnostics`
+   - `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+   - Logs `Opened consolidated PR for HTTP server and diagnostics` to stdout.
+4. Exit code of the job should be 0 on success.
+5. On GitHub, verify the pull request exists with correct branch, title, and body resolving #2188 and #2193.
+
+No application code, test, or dependency files need modification; this issue focuses solely on CI workflow orchestration.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":118664,"completion_tokens":548,"total_tokens":119212,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
