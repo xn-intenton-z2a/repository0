@@ -4638,3 +4638,51 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T13:24:42.792Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement CONSOLIDATED_PR_OPENER: --open-prs-consolidated mode
+
+Overview:
+Add a consolidated pull request opener mode to the CLI so users can run `node src/lib/main.js --open-prs-consolidated` (or `npm run open-prs-consolidated`) to create a single branch and open one PR that resolves issues #2188 and #2193.
+
+Acceptance Criteria:
+
+1. parseConsolidatedPrArg
+   • `parseConsolidatedPrArg([])` returns `false`.
+   • `parseConsolidatedPrArg(["--open-prs-consolidated"])` returns `true`.
+
+2. openConsolidatedPr
+   • Executes `gh auth status`, `git checkout -b open-prs-http-diagnostics`, and `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"` in sequence via `child_process.exec`.
+   • On success logs exactly `Opened consolidated PR for HTTP server and diagnostics`.
+   • On any error prints the stderr output and rejects the promise.
+
+3. Integration in main()
+   • Recognize `--open-prs-consolidated` before other modes.
+   • Calls `openConsolidatedPr()` and then invokes `process.exit(0)`.
+   • Existing modes (`--serve`, `--mission`, `--diagnostics`, `--open-prs`, `--help`, default) must remain unchanged.
+
+4. package.json
+   • Contains a script: `"open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated"`.
+
+5. README.md
+   • Under **CLI Usage** adds a section **Consolidated PR mode**:
+     ```bash
+     npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+     ```
+   • Under **Links to Detailed Docs**, ensures `[PR Opener](docs/PR_OPENER.md)` is present.
+
+Verification Steps:
+
+- Run `npm test` and confirm all existing and new tests pass.
+- Run `npm run open-prs-consolidated` (with `gh` CLI stubbed) and confirm branch creation, PR command execution, success log, and exit code `0`.
+- Confirm no regressions in other CLI modes.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12600,"completion_tokens":1398,"total_tokens":13998,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
