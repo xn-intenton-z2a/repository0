@@ -73,3 +73,41 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T01:02:47.889Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2188 with title:
+
+Implement HTTP_SERVER feature: --serve flag and minimal Hello World HTTP server
+
+And description:
+
+Overview:\nAdd a new server mode to our CLI so users can run `node src/lib/main.js --serve [port]`, start an HTTP server on the given port (default 8080), and respond to GET / with “Hello World!”.\n\nChanges required (single LLM invocation will complete these file updates):\n\n1. src/lib/main.js\n   - Export `parseServeArgs(args: string[])` that returns `{serve: boolean, port: number}` (port defaults to 8080).\n   - Export `startServer(port: number): Promise<http.Server>` that:  
+     • Creates an HTTP server (Node’s built-in `http` module).  
+     • Logs “Server listening on port <port>” when listening.  
+     • Responds to GET requests on `/` with 200 status and body `Hello World!`.  
+     • Ignores other paths or returns 404.  
+     • Handles SIGINT to shut down gracefully (calls `server.close()`).  
+   - In the CLI entry (when `main` is invoked via `process.argv`), call `parseServeArgs`, if `serve` is true, `await startServer(port)`, otherwise retain current behavior (`console.log`).\n\n2. tests/unit/main.test.js\n   - Add unit tests for `parseServeArgs`:  
+     • No flags → `{serve:false}`  
+     • `--serve` → `{serve:true, port:8080}`  
+     • `--serve 3000` → `{serve:true, port:3000}`  
+   - Add an integration-style test that:  
+     • Calls `startServer(0)` (port 0 chooses an available port).  
+     • Waits until the server is listening and retrieves the actual port.  
+     • Performs an HTTP GET to `/` using Node’s `http.get`.  
+     • Asserts status 200 and body `Hello World!`.  
+     • Calls `server.close()` and completes the test without hanging.\n\n3. README.md\n   - Update CLI Usage section:  
+     • Describe default mode vs. server mode.  
+     • Show commands:  
+       - `npm run start` (default).  
+       - `npm run serve` (port 8080).  
+       - `node src/lib/main.js --serve 3000` (custom port).  
+   - Document the HTTP API (GET `/` → `Hello World!`) and graceful shutdown behavior.\n\nVerification:\n1. Run `npm test` → all unit and integration tests should pass.\n2. Run `npm run serve` or `node src/lib/main.js --serve 4000` and open `http://localhost:<port>/` in a browser or curl → should see `Hello World!`.\n3. Press Ctrl+C → server should shut down cleanly without hanging.\n\nNo new dependencies should be added; use Node’s built-in `http` module. This implements the HTTP_SERVER feature per `features/HTTP_SERVER.md`.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":5968,"completion_tokens":1946,"total_tokens":7914,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
