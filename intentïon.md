@@ -478,3 +478,43 @@ LLM API Usage:
 ```
 ---
 
+## Maintained Feature at 2025-05-22T04:35:22.837Z
+
+Maintained feature DIAGNOSTICS_MODE.
+
+Git diff:
+
+```
+\n\n// New [features/DIAGNOSTICS_MODE.md]:\n# DIAGNOSTICS_MODE
+
+## Overview
+Add a new diagnostics mode to the CLI that prints runtime and environment information when invoked with the --diagnostics flag
+
+## Behavior
+- When run with --diagnostics the tool prints node version, process uptime, memory usage metrics (rss, heapTotal, heapUsed), platform, and CPU architecture
+- After printing diagnostics the process exits with code zero
+- All other modes retain existing behavior
+
+## CLI Usage
+- Default mode: node src/lib/main.js
+- Diagnostics mode: node src/lib/main.js --diagnostics
+
+## Tests
+- Unit tests for parsing the --diagnostics flag and default parsing
+- Unit test for collectDiagnostics to verify returned object contains version, uptime, memory stats, platform, and arch with correct types
+- Integration test running main in diagnostics mode and capturing console output to ensure all expected fields appear
+
+## Implementation Details
+- Extend main entry to detect --diagnostics flag via a new parseDiagnosticsArg or extending parseServeArgs
+- Implement collectDiagnostics function using process.version, process.uptime, process.memoryUsage, process.platform, process.arch
+- In diagnostics mode call collectDiagnostics, format output as plain text or JSON to console, then exit
+- No new dependencies required
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12352,"completion_tokens":2090,"total_tokens":14442,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1792,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
