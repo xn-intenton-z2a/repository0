@@ -133,3 +133,66 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T00:40:21.182Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement EMOTIVE_FACE CLI Support for Emotion-Specific ASCII Art
+
+Description:
+Extend the CLI to support an `--emotion` (or `-e`) option that renders an ASCII face corresponding to the requested emotion. If no emotion option is provided or an invalid value is passed, the CLI defaults to `neutral`.
+
+Acceptance Criteria:
+1. When the user runs:
+   ```bash
+   npm run start -- --emotion happy
+   ```
+   the CLI outputs exactly:
+   ```
+   (^_^)
+   ```
+2. When the user runs:
+   ```bash
+   npm run start -- -e sad
+   ```
+   the CLI outputs exactly:
+   ```
+   (T_T)
+   ```
+3. When the user runs without emotion flags:
+   ```bash
+   npm run start
+   ```
+   the CLI outputs exactly:
+   ```
+   (-_-)
+   ```
+4. When the user passes an unsupported emotion:
+   ```bash
+   npm run start -- --emotion excited
+   ```
+   the CLI outputs exactly:
+   ```bash
+   Error: Unsupported emotion 'excited'. Supported emotions are: happy, sad, angry, neutral.
+   ```
+   and exits with a non-zero status code.
+5. Unit tests in `tests/unit/main.test.js`:
+   - Spy on `console.log` and verify logs for `happy`, `sad`, `angry`, and default (no args).
+   - Verify shorthand flag `-e` behaves identically to `--emotion`.
+   - Verify unsupported emotion yields an error log and throws or exits with an error.
+6. Update `README.md`:
+   - Document the `--emotion`/`-e` option in the Usage section.
+   - Include example commands with expected outputs for each supported emotion and for default behavior.
+
+Scope (modify only these files):
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
+- `README.md`
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6166,"completion_tokens":680,"total_tokens":6846,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":192,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
