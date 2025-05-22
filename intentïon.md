@@ -682,3 +682,99 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T04:44:20.554Z
+
+fixApplied: true
+
+Fix formatting issues and refactor tests to comply with linting and nesting rules
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 5ca2da96..e3da083a 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -45,8 +45,7 @@ export async function startServer(portArg) {
+ 
+     server.listen(portArg, () => {
+       const address = server.address();
+-      const actualPort =
+-        typeof address === "object" && address ? address.port : address;
++      const actualPort = typeof address === "object" && address ? address.port : address;
+       console.log(`Server listening on port ${actualPort}`);
+       resolve(server);
+     });
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 0058f146..b1d65900 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -2,13 +2,30 @@ import { describe, test, expect } from "vitest";
+ import http from "http";
+ import { parseServeArgs, startServer, main } from "@src/lib/main.js";
+ 
++async function getResponse(port) {
++  return new Promise((resolve, reject) => {
++    const req = http.get(`http://127.0.0.1:${port}/`);
++    req.on("response", (res) => {
++      let data = "";
++      res.on("data", (chunk) => {
++        data += chunk;
++      });
++      res.on("end", () => {
++        resolve({ statusCode: res.statusCode, body: data });
++      });
++    });
++    req.on("error", reject);
++  });
++}
++
+ describe("parseServeArgs", () => {
+   test("no flags", () => {
+     expect(parseServeArgs([])).toEqual({ serve: false, port: 8080 });
+   });
+ 
+   test("--serve flag only", () => {
+-    expect(parseServeArgs(["--serve"])).toEqual({ serve: true, port: 8080 });
++    expect(parseServeArgs(["--serve"]))
++      .toEqual({ serve: true, port: 8080 });
+   });
+ 
+   test("--serve with port", () => {
+@@ -21,15 +38,8 @@ describe("startServer and HTTP GET /", () => {
+   test("responds with Hello World!", async () => {
+     const server = await startServer(0);
+     const address = server.address();
+-    const port =
+-      typeof address === "object" && address ? address.port : address;
+-    const response = await new Promise((resolve, reject) => {
+-      http.get(`http://127.0.0.1:${port}/`, (res) => {
+-        let data = "";
+-        res.on("data", (chunk) => (data += chunk));
+-        res.on("end", () => resolve({ statusCode: res.statusCode, body: data }));
+-      }).on("error", reject);
+-    });
++    const port = typeof address === "object" && address ? address.port : address;
++    const response = await getResponse(port);
+     expect(response.statusCode).toBe(200);
+     expect(response.body).toBe("Hello World!");
+     server.close();
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2192 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":17584,"completion_tokens":5575,"total_tokens":23159,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4160,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
