@@ -111,3 +111,56 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T01:03:23.881Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+Implement a new server mode in the CLI so that users can run:
+  node src/lib/main.js --serve [port]
+and start a minimal HTTP server that responds to GET / with “Hello World!”. The default port is 8080.
+
+Acceptance Criteria:
+1. parseServeArgs(args: string[]):
+   • No flags ➔ { serve: false, port: 8080 }
+   • ["--serve"] ➔ { serve: true, port: 8080 }
+   • ["--serve", "3000"] ➔ { serve: true, port: 3000 }
+2. startServer(port: number) ➔ Promise<http.Server>:
+   • Starts an HTTP server listening on the given port.
+   • Logs "Server listening on port <port>" once listening.
+   • On HTTP GET to path `/`, responds with status 200 and body `Hello World!`.
+   • On any other path, responds with status 404.
+   • Handles SIGINT by calling server.close() and resolves the promise when closed, without hanging.
+3. CLI integration in src/lib/main.js:
+   • When invoked via command line (process.argv), call parseServeArgs to determine mode.
+   • If serve is true, await startServer(port) and exit only after server.close().
+   • If serve is false, retain existing behavior of logging the received arguments.
+4. Tests in tests/unit/main.test.js:
+   • Unit tests for parseServeArgs covering the three cases above.
+   • Integration-style test for startServer:
+     - Call startServer(0) to pick an available port.
+     - Await server listening event and retrieve actual listening port.
+     - Perform an HTTP GET to `/` using http.get().
+     - Assert response status is 200 and body is `Hello World!`.
+     - Call server.close() and verify the test completes without hanging.
+5. README.md updates:
+   • Update CLI Usage section to document default vs. server mode:
+     - npm run start (default)
+     - npm run serve (uses port 8080)
+     - node src/lib/main.js --serve 3000 (custom port)
+   • Document HTTP API: GET `/` ➔ `Hello World!` and note graceful shutdown via Ctrl+C.
+
+Verification Steps:
+- Run `npm test` and confirm all new and existing tests pass.
+- Run `npm run serve` or `node src/lib/main.js --serve 4000`, then curl http://localhost:<port>/; expect `Hello World!`.
+- Press Ctrl+C in server mode and verify process exits cleanly.
+
+No new dependencies should be added; use only Node’s built-in http module.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":6432,"completion_tokens":1022,"total_tokens":7454,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
