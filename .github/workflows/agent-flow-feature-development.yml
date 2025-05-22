@@ -36,10 +36,10 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    #- cron: '14 6 */28 * *' # schedule-1
+    - cron: '14 6 */28 * *' # schedule-1
     #- cron: '14 6 */7 * *' # schedule-2
     #- cron: '14,44 * * * *' # schedule-3
-    - cron: '14 6 * * *' # schedule-4
+    #- cron: '14 6 * * *' # schedule-4
 
 env:
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}

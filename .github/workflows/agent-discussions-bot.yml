@@ -40,10 +40,10 @@ on:
       CHATGPT_API_SECRET_KEY:
         required: true
   schedule:
-    #- cron: '4 8 */28 * *' # schedule-1
+    - cron: '4 8 */28 * *' # schedule-1
     #- cron: '4 8,16 * * *' # schedule-2
     #- cron: '4 */4 * * *' # schedule-3
-    - cron: '4,34 * * * *' # schedule-4
+    #- cron: '4,34 * * * *' # schedule-4
 
 env:
   defaultDiscussionBody: 'Summarise the activity since the last update in terms of how we are tracking against the mission and recommends next steps in fewer than 100 words.'
