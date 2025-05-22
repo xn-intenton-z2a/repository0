@@ -2099,3 +2099,109 @@ LLM API Usage:
 
 2025-05-22T09:44:48Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-22T09:46:24.671Z
+
+Maintained feature PR_OPENER.
+
+Feature spec:
+
+# PR_OPENER
+
+## Overview
+Add a new pull request opener mode to the CLI that automates the creation of a consolidated pull request for the HTTP server and diagnostics features.
+
+## Behavior
+- When run with --open-prs, the CLI will:
+  - Verify that the GitHub CLI (gh) is installed and authenticated.
+  - Create a new branch named open-prs-http-diagnostics.
+  - Run gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188
+- resolves #2193" to open a pull request linking the two issues.
+  - Print success or error messages and exit with code zero on success or a nonzero code on failure.
+
+## CLI Usage
+- npm run open-prs
+- node src/lib/main.js --open-prs
+
+## Tests
+- Unit test for parseOpenPrsArg to detect the --open-prs flag.
+- Unit test for openPrs that mocks child_process.exec and verifies the correct gh commands are executed.
+- Integration test that stubs exec, calls main with ["--open-prs"], and asserts exec was called and process.exit(0) is invoked.
+
+## Implementation Details
+- Use Node.js built-in child_process.exec from the child_process module.
+- Export parseOpenPrsArg(args: string[]): boolean and openPrs(): Promise<void> from src/lib/main.js.
+- In main(args), check parseOpenPrsArg first, then await openPrs(), then call process.exit(0).
+- Add a script open-prs to package.json pointing to node src/lib/main.js --open-prs.
+- No new dependencies required.
+
+Git diff:
+
+```diff
+diff --git a/features/HTTP_SERVER.md b/features/HTTP_SERVER.md
+deleted file mode 100644
+index bea6cfbc..00000000
+--- a/features/HTTP_SERVER.md
++++ /dev/null
+@@ -1,26 +0,0 @@
+-# HTTP_SERVER
+-
+-## Overview
+-Extend the existing CLI tool to launch a minimal HTTP server that responds with the classic Hello World! message. This feature enables users to run the script in server mode by passing the --serve flag, optionally specifying a port.
+-
+-## Behavior
+-- Default mode (no flags): retains current behavior of printing received arguments.
+-- Server mode (--serve): starts an HTTP server that listens on the provided port or defaults to 8080.
+-- When the server receives an HTTP GET request to path /, it responds with status 200 and the text Hello World!.
+-- The server prints a log message indicating the listening port and shuts down gracefully on SIGINT or when .close is called.
+-
+-## CLI Usage
+-- Run in default mode: node src/lib/main.js
+-- Start server on default port: node src/lib/main.js --serve
+-- Start server on custom port: node src/lib/main.js --serve 3000
+-
+-## Tests
+-- Unit tests for parsing the --serve flag and resolving the port value.
+-- E2E test simulating an HTTP GET to / and verifying the Hello World! response.
+-- Ensure the server starts and shuts down without hanging.
+-
+-## Implementation Details
+-- Use Node.js built-in http module; avoid adding new dependencies.
+-- Detect flags in process.argv to decide mode.
+-- Expose startServer and parseServeArgs functions from src/lib/main.js for testability.
+-- Clean up listeners and close server after test runs.\n\n// New [features/PR_OPENER.md]:\n# PR_OPENER
+
+## Overview
+Add a new pull request opener mode to the CLI that automates the creation of a consolidated pull request for the HTTP server and diagnostics features.
+
+## Behavior
+- When run with --open-prs, the CLI will:
+  - Verify that the GitHub CLI (gh) is installed and authenticated.
+  - Create a new branch named open-prs-http-diagnostics.
+  - Run gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188
+- resolves #2193" to open a pull request linking the two issues.
+  - Print success or error messages and exit with code zero on success or a nonzero code on failure.
+
+## CLI Usage
+- npm run open-prs
+- node src/lib/main.js --open-prs
+
+## Tests
+- Unit test for parseOpenPrsArg to detect the --open-prs flag.
+- Unit test for openPrs that mocks child_process.exec and verifies the correct gh commands are executed.
+- Integration test that stubs exec, calls main with ["--open-prs"], and asserts exec was called and process.exit(0) is invoked.
+
+## Implementation Details
+- Use Node.js built-in child_process.exec from the child_process module.
+- Export parseOpenPrsArg(args: string[]): boolean and openPrs(): Promise<void> from src/lib/main.js.
+- In main(args), check parseOpenPrsArg first, then await openPrs(), then call process.exit(0).
+- Add a script open-prs to package.json pointing to node src/lib/main.js --open-prs.
+- No new dependencies required.
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":31638,"completion_tokens":3277,"total_tokens":34915,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2880,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
