@@ -21,6 +21,7 @@
     "mission": "node src/lib/main.js --mission",
     "serve": "node src/lib/main.js --serve",
     "open-prs": "node src/lib/main.js --open-prs",
+    "open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated",
     "build-intermediate": "node src/lib/main.js --build-intermediate",
     "build-enhanced": "node src/lib/main.js --build-enhanced",
     "refresh": "node src/lib/main.js --refresh",

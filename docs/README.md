@@ -42,7 +42,13 @@ Exits with code 0.
 ```bash
 npm run open-prs     # or node src/lib/main.js --open-prs
 ```
-Automates creation of a pull request to merge issues #2188 and #2193.
+Automates creation of separate pull requests for issues #2188 and #2193.
+
+### Consolidated PR mode
+```bash
+npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+```
+Opens a single consolidated pull request resolving issues #2188 and #2193.
 
 ### Help
 ```bash
@@ -56,3 +62,4 @@ Displays usage information and exits with code 0.
 - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
 - [Mission Mode](docs/MISSION_MODE.md)
 - [Info Modes](docs/INFO_MODES.md)
+- [PR Opener](docs/PR_OPENER.md)

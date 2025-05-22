@@ -21,12 +21,13 @@ function hasFlag(args, flag) {
  */
 function printUsage() {
   console.log(
-`Usage: node src/lib/main.js [--open-prs | --mission | --diagnostics | --serve [port] | --help]
-  --open-prs     Automate opening PR for HTTP server and diagnostics
-  --mission      Print project mission and exit
-  --diagnostics  Print runtime diagnostics JSON and exit
-  --serve [port] Start HTTP server on [port] (default 8080)
-  --help         Show this help message and exit`
+`Usage: node src/lib/main.js [--open-prs | --open-prs-consolidated | --mission | --diagnostics | --serve [port] | --help]
+  --open-prs               Automate opening separate PRs for issues #2188 and #2193
+  --open-prs-consolidated  Automate opening a consolidated PR for HTTP server and diagnostics
+  --mission                Print project mission and exit
+  --diagnostics            Print runtime diagnostics JSON and exit
+  --serve [port]           Start HTTP server on [port] (default 8080)
+  --help                   Show this help message and exit`
   );
 }
 
@@ -37,6 +38,15 @@ function printUsage() {
  */
 export function parseOpenPrsArg(args) {
   return args[0] === "--open-prs";
+}
+
+/**
+ * Parses command-line arguments to determine if consolidated PR mode is requested.
+ * @param {string[]} args
+ * @returns {boolean}
+ */
+export function parseConsolidatedPrArg(args) {
+  return args[0] === "--open-prs-consolidated";
 }
 
 /**
@@ -66,6 +76,21 @@ export async function openPrs() {
       });
     });
   }
+}
+
+/**
+ * Opens a single consolidated pull request via GitHub CLI.
+ * @returns {Promise<void>}
+ */
+export async function openConsolidatedPr() {
+  const require = createRequire(import.meta.url);
+  const { exec } = require('child_process');
+  await new Promise((res, rej) => exec('gh auth status', err => err ? rej(err) : res()));
+  await new Promise((res, rej) => exec('git checkout -b open-prs-http-diagnostics', err => err ? rej(err) : res()));
+  await new Promise((res, rej) => exec(
+    'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"',
+    (err, stdout, stderr) => err ? rej(err) : (stderr ? console.error(stderr) : console.log('Opened consolidated PR for HTTP server and diagnostics'), res())
+  ));
 }
 
 /**
@@ -191,7 +216,12 @@ export async function main(args) {
     console.error("Error: --mission and --diagnostics cannot be used together");
     process.exit(1);
   }
-  // PR opener mode
+  // Consolidated PR opener mode
+  if (parseConsolidatedPrArg(args)) {
+    await openConsolidatedPr();
+    process.exit(0);
+  }
+  // Separate PR opener mode
   if (parseOpenPrsArg(args)) {
     await openPrs();
     process.exit(0);
