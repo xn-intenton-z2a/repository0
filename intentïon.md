@@ -3464,3 +3464,143 @@ LLM API Usage:
 
 2025-05-22T11:13:59Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-22T11:15:12.620Z
+
+Maintained feature PR_OPENER.
+
+Feature spec:
+
+# PR_OPENER
+
+## Overview
+
+Enable the CLI to automatically create separate GitHub pull requests for the HTTP server and diagnostics features in one command. When the user invokes the tool with the `--open-prs` flag, it will open individual PRs for each target issue.
+
+## Behavior
+
+- When run with `--open-prs`:
+  • Verify that the GitHub CLI (`gh`) is installed and authenticated by running `gh auth status`.
+  • For each issue in the list `[2188, 2193]`:
+    - Create a branch named `pr-<issue>` using `git checkout -b pr-<issue>`.
+    - Open a pull request by running:
+      ```bash
+      gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
+      ```
+    - On success, log `Opened PR for issue #<issue>`.
+    - On error, log the error to `console.error` and exit immediately with a nonzero code.
+  • If all PRs are created successfully, exit with code 0.
+
+## CLI Usage
+
+- `npm run open-prs`
+- `node src/lib/main.js --open-prs`
+
+## Tests
+
+- Unit tests for `parseOpenPrsArg`:
+  • `[]` returns `false`.
+  • `["--open-prs"]` returns `true`.
+- Unit tests for `openPrs`:
+  • Mock `child_process.exec` to capture commands.
+  • Verify `exec` is called in order: `gh auth status`, `git checkout -b pr-2188`, `gh pr create ... #2188`, then `gh auth status`, `git checkout -b pr-2193`, `gh pr create ... #2193`.
+  • Verify `console.log` is called with `Opened PR for issue #2188` and `Opened PR for issue #2193`.
+- Integration-style test for `main(["--open-prs"])`:
+  • Stub `exec` and `process.exit` (to throw) and call `main(["--open-prs"])`.
+  • Catch the exit error and assert `process.exit` was called with `0`.
+  • Assert `console.log` was called for each issue.
+
+## Implementation Details
+
+- In `src/lib/main.js`:
+  • Export `parseOpenPrsArg(args: string[]): boolean`.
+  • Export `openPrs(): Promise<void>` using Node’s built-in `child_process.exec`.
+  • In `main(args)`, detect `--open-prs` first, then `await openPrs()`, then call `process.exit(0)`.
+- No new dependencies are required; reuse built-in modules.
+
+Git diff:
+
+```diff
+diff --git a/features/PR_OPENER.md b/features/PR_OPENER.md
+index ced71e3d..39d52c76 100644
+--- a/features/PR_OPENER.md
++++ b/features/PR_OPENER.md
+@@ -2,41 +2,45 @@
+ 
+ ## Overview
+ 
+-Enable the CLI to automatically create separate GitHub pull requests for the HTTP server and diagnostics features in one command. When the user invokes the tool with the --open-prs flag, it will open individual PRs for each target issue.
++Enable the CLI to automatically create separate GitHub pull requests for the HTTP server and diagnostics features in one command. When the user invokes the tool with the `--open-prs` flag, it will open individual PRs for each target issue.
+ 
+ ## Behavior
+ 
+-- When run with --open-prs:
+-  • Verify that the GitHub CLI (gh) is installed and authenticated by running gh auth status.
+-  • For each issue in the list [2188, 2193]:
+-    - Create a branch named pr-<issue> using git checkout -b pr-<issue>.
+-    - Open a pull request by running gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>".
+-    - On success, log Opened PR for issue #<issue>. On error, log the error to console.error and exit with a nonzero code.
++- When run with `--open-prs`:
++  • Verify that the GitHub CLI (`gh`) is installed and authenticated by running `gh auth status`.
++  • For each issue in the list `[2188, 2193]`:
++    - Create a branch named `pr-<issue>` using `git checkout -b pr-<issue>`.
++    - Open a pull request by running:
++      ```bash
++      gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
++      ```
++    - On success, log `Opened PR for issue #<issue>`.
++    - On error, log the error to `console.error` and exit immediately with a nonzero code.
+   • If all PRs are created successfully, exit with code 0.
+ 
+ ## CLI Usage
+ 
+-- npm run open-prs
+-- node src/lib/main.js --open-prs
++- `npm run open-prs`
++- `node src/lib/main.js --open-prs`
+ 
+ ## Tests
+ 
+-- Unit tests for parseOpenPrsArg:
+-  • Given [] returns false.
+-  • Given ["--open-prs"] returns true.
+-- Unit tests for openPrs:
+-  • Mock child_process.exec to capture commands.
+-  • Verify exec is called in order: gh auth status, git checkout -b pr-2188, gh pr create for issue 2188, then repeat for issue 2193.
+-  • Verify console.log is called for each Opened PR for issue.
+-- Integration-style test for main:
+-  • Stub exec and process.exit (to throw) and call main(["--open-prs"]).
+-  • Catch the exit error and assert process.exit was called with 0.
+-  • Assert console.log was called with messages for each issue.
++- Unit tests for `parseOpenPrsArg`:
++  • `[]` returns `false`.
++  • `["--open-prs"]` returns `true`.
++- Unit tests for `openPrs`:
++  • Mock `child_process.exec` to capture commands.
++  • Verify `exec` is called in order: `gh auth status`, `git checkout -b pr-2188`, `gh pr create ... #2188`, then `gh auth status`, `git checkout -b pr-2193`, `gh pr create ... #2193`.
++  • Verify `console.log` is called with `Opened PR for issue #2188` and `Opened PR for issue #2193`.
++- Integration-style test for `main(["--open-prs"])`:
++  • Stub `exec` and `process.exit` (to throw) and call `main(["--open-prs"])`.
++  • Catch the exit error and assert `process.exit` was called with `0`.
++  • Assert `console.log` was called for each issue.
+ 
+ ## Implementation Details
+ 
+-- In src/lib/main.js:
+-  • Export parseOpenPrsArg(args: string[]): boolean.
+-  • Export openPrs(): Promise<void> using Node’s child_process.exec.
+-  • In main(args), detect --open-prs first, await openPrs(), then call process.exit(0).
++- In `src/lib/main.js`:
++  • Export `parseOpenPrsArg(args: string[]): boolean`.
++  • Export `openPrs(): Promise<void>` using Node’s built-in `child_process.exec`.
++  • In `main(args)`, detect `--open-prs` first, then `await openPrs()`, then call `process.exit(0)`.
+ - No new dependencies are required; reuse built-in modules.
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":48371,"completion_tokens":1300,"total_tokens":49671,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
