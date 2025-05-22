@@ -6182,3 +6182,65 @@ LLM API Usage:
 
 2025-05-22T15:14:10Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-22T15:15:38.548Z
+
+Maintained feature CONSOLIDATED_PR_MODE_DOC.
+
+Feature spec:
+
+# CONSOLIDATED_PR_MODE_DOC
+
+## Overview
+Add the consolidated pull request mode to the main README CLI Usage section so users can discover and use the --open-prs-consolidated command.
+
+## Changes in README.md
+- Under **CLI Usage**, immediately after the **PR opener mode** subsection, insert a **Consolidated PR mode** subsection:
+  ```bash
+  ### Consolidated PR mode
+  ```bash
+  npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+  ```
+  Opens a single consolidated pull request resolving issues #2188 and #2193.
+
+- Verify that the **Links to Detailed Docs** section still lists:
+  - [PR Opener](docs/PR_OPENER.md)
+  without altering other links.
+
+## Verification
+1. Open README.md and confirm the **Consolidated PR mode** section appears with the correct heading, code snippet, and description.
+2. Run `npm run open-prs-consolidated` or `node src/lib/main.js --open-prs-consolidated` locally (with stubbed or real GH CLI) to ensure the usage example matches the documented command.
+
+
+Git diff:
+
+```diff
+\n\n// New [features/CONSOLIDATED_PR_MODE_DOC.md]:\n# CONSOLIDATED_PR_MODE_DOC
+
+## Overview
+Add the consolidated pull request mode to the main README CLI Usage section so users can discover and use the --open-prs-consolidated command.
+
+## Changes in README.md
+- Under **CLI Usage**, immediately after the **PR opener mode** subsection, insert a **Consolidated PR mode** subsection:
+  ```bash
+  ### Consolidated PR mode
+  ```bash
+  npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+  ```
+  Opens a single consolidated pull request resolving issues #2188 and #2193.
+
+- Verify that the **Links to Detailed Docs** section still lists:
+  - [PR Opener](docs/PR_OPENER.md)
+  without altering other links.
+
+## Verification
+1. Open README.md and confirm the **Consolidated PR mode** section appears with the correct heading, code snippet, and description.
+2. Run `npm run open-prs-consolidated` or `node src/lib/main.js --open-prs-consolidated` locally (with stubbed or real GH CLI) to ensure the usage example matches the documented command.
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":82338,"completion_tokens":1774,"total_tokens":84112,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
