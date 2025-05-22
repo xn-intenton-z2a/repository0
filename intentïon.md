@@ -1700,3 +1700,14 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T09:26:04.530Z
+
+Generated feature development issue with title Enhance INFO_MODES: handle conflicting --mission and --diagnostics flags and add usage message.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":27389,"completion_tokens":4968,"total_tokens":32357,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4288,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
