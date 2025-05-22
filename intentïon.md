@@ -4699,3 +4699,303 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T13:27:59.713Z
+
+fixApplied: true
+
+Implement consolidated PR opener mode with --open-prs-consolidated
+
+Git Diff:
+
+```
+diff --git a/docs/PR_OPENER.md b/docs/PR_OPENER.md
+index 998b30a1..dcc1e09b 100644
+--- a/docs/PR_OPENER.md
++++ b/docs/PR_OPENER.md
+@@ -2,35 +2,41 @@
+ 
+ ## Overview
+ 
+-Extend the existing PR opener mode to open separate pull requests for the HTTP server and diagnostics issues in a single command invocation. This enhancement automates creating individual branches and PRs for issues 2188 and 2193.
++Enhance the existing PR opener feature to support two distinct modes: separate pull requests per issue and a single consolidated pull request that merges the HTTP server and diagnostics features.
+ 
+ ## Behavior
+ 
+-- When run with `--open-prs`, the CLI will:
+-  - Verify that GitHub CLI (`gh`) is installed and authenticated.
+-  - For each issue in the list `[2188, 2193]`:
+-    - Create a branch named `pr-<issue>`.
+-    - Run:
+-      ```bash
+-      gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
+-      ```
+-    - Print a success message such as `Opened PR for issue #<issue>`.
+-  - After processing all issues, exit with code zero if all commands succeeded; if any command fails, print the error and exit with a nonzero code.
++- Separate PR mode (`--open-prs`):
++  • Verify GitHub CLI authentication with `gh auth status`
++  • For each issue in [2188, 2193], create a branch `pr-<issue>` and run `gh pr create` with title Implement feature for issue #<issue> and body Resolves issue #<issue>
++  • On success, log Opened PR for issue #<issue>; on error log the error and exit with nonzero code
++- Consolidated PR mode (`--open-prs-consolidated`):
++  • Verify GitHub CLI authentication with `gh auth status`
++  • Create a branch `open-prs-http-diagnostics`
++  • Run `gh pr create` with title Merge HTTP server and diagnostics features and body listing resolves #2188 and #2193
++  • On success, log Opened consolidated PR for HTTP server and diagnostics; on error log the error and exit with nonzero code
++- All other modes (`--mission`, `--diagnostics`, `--serve`, `--help`, default) remain unchanged
+ 
+ ## CLI Usage
+ 
+-- `npm run open-prs`
+-- `node src/lib/main.js --open-prs`
++- `npm run open-prs` or `node src/lib/main.js --open-prs`
++- `npm run open-prs-consolidated` or `node src/lib/main.js --open-prs-consolidated`
+ 
+ ## Tests
+ 
+-- Unit test for `parseOpenPrsArg` to detect the `--open-prs` flag.
+-- Unit test for `openPrs` that mocks `child_process.exec` and verifies the sequence of commands for issues 2188 and 2193.
+-- Integration-style test for `main(["--open-prs"])` that stubs `exec` and `process.exit`, asserting exit code 0 and logs for each issue.
++- Unit tests for parseOpenPrsArg:
++  • `parseOpenPrsArg([])` returns false
++  • `parseOpenPrsArg(["--open-prs"])` returns true
++- Unit tests for parseConsolidatedPrArg:
++  • `parseConsolidatedPrArg([])` returns false
++  • `parseConsolidatedPrArg(["--open-prs-consolidated"])` returns true
++- Unit tests for openPrs mocking exec to verify the sequence of commands for issues 2188 and 2193
++- Unit tests for openConsolidatedPr mocking exec to verify commands for consolidated branch creation and PR creation
++- Integration tests for main with ["--open-prs"] and ["--open-prs-consolidated"] stubbing exec and process.exit, asserting correct logs and exit codes
+ 
+ ## Implementation Details
+ 
+-- Import `exec` from Node.js built-in `child_process` module.
+-- `openPrs` iterates over the array `[2188, 2193]`, performing authentication, branch creation, and PR creation for each issue.
+-- In `main(args)`, check `parseOpenPrsArg` before other modes and call `openPrs()` on match.
+-- No new dependencies required.
++- In `src/lib/main.js`, export `parseConsolidatedPrArg(args: string[]): boolean` and implement `openConsolidatedPr(): Promise<void>` to run auth, branch creation, and PR creation commands in sequence
++- In `main(args)`, detect consolidated flag first, then separate flag, invoking `openConsolidatedPr()` or `openPrs()` accordingly and then exit
++- Preserve existing code for information modes (`--mission`, `--diagnostics`), server mode (`--serve`), help (`--help`), and default echo behavior
++- No new dependencies required; use Node built-in `child_process.exec` and GitHub CLI
+\ No newline at end of file
+diff --git a/docs/README.md b/docs/README.md
+index fa0e64e8..9f517b9c 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -42,7 +42,13 @@ Exits with code 0.
+ ```bash
+ npm run open-prs     # or node src/lib/main.js --open-prs
+ ```
+-Automates creation of a pull request to merge issues #2188 and #2193.
++Automates creation of separate pull requests for issues #2188 and #2193.
++
++### Consolidated PR mode
++```bash
++npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
++```
++Opens a single consolidated pull request resolving issues #2188 and #2193.
+ 
+ ### Help
+ ```bash
+@@ -56,3 +62,4 @@ Displays usage information and exits with code 0.
+ - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
+ - [Mission Mode](docs/MISSION_MODE.md)
+ - [Info Modes](docs/INFO_MODES.md)
++- [PR Opener](docs/PR_OPENER.md)
+\ No newline at end of file
+diff --git a/package.json b/package.json
+index a4854455..13ebe689 100644
+--- a/package.json
++++ b/package.json
+@@ -21,6 +21,7 @@
+     "mission": "node src/lib/main.js --mission",
+     "serve": "node src/lib/main.js --serve",
+     "open-prs": "node src/lib/main.js --open-prs",
++    "open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated",
+     "build-intermediate": "node src/lib/main.js --build-intermediate",
+     "build-enhanced": "node src/lib/main.js --build-enhanced",
+     "refresh": "node src/lib/main.js --refresh",
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 2b2888e7..590a2e5d 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -21,12 +21,13 @@ function hasFlag(args, flag) {
+  */
+ function printUsage() {
+   console.log(
+-`Usage: node src/lib/main.js [--open-prs | --mission | --diagnostics | --serve [port] | --help]
+-  --open-prs     Automate opening PR for HTTP server and diagnostics
+-  --mission      Print project mission and exit
+-  --diagnostics  Print runtime diagnostics JSON and exit
+-  --serve [port] Start HTTP server on [port] (default 8080)
+-  --help         Show this help message and exit`
++`Usage: node src/lib/main.js [--open-prs | --open-prs-consolidated | --mission | --diagnostics | --serve [port] | --help]
++  --open-prs               Automate opening separate PRs for issues #2188 and #2193
++  --open-prs-consolidated  Automate opening a consolidated PR for HTTP server and diagnostics
++  --mission                Print project mission and exit
++  --diagnostics            Print runtime diagnostics JSON and exit
++  --serve [port]           Start HTTP server on [port] (default 8080)
++  --help                   Show this help message and exit`
+   );
+ }
+ 
+@@ -39,6 +40,15 @@ export function parseOpenPrsArg(args) {
+   return args[0] === "--open-prs";
+ }
+ 
++/**
++ * Parses command-line arguments to determine if consolidated PR mode is requested.
++ * @param {string[]} args
++ * @returns {boolean}
++ */
++export function parseConsolidatedPrArg(args) {
++  return args[0] === "--open-prs-consolidated";
++}
++
+ /**
+  * Opens separate pull requests via GitHub CLI for each issue.
+  * @returns {Promise<void>}
+@@ -68,6 +78,21 @@ export async function openPrs() {
+   }
+ }
+ 
++/**
++ * Opens a single consolidated pull request via GitHub CLI.
++ * @returns {Promise<void>}
++ */
++export async function openConsolidatedPr() {
++  const require = createRequire(import.meta.url);
++  const { exec } = require('child_process');
++  await new Promise((res, rej) => exec('gh auth status', err => err ? rej(err) : res()));
++  await new Promise((res, rej) => exec('git checkout -b open-prs-http-diagnostics', err => err ? rej(err) : res()));
++  await new Promise((res, rej) => exec(
++    'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"',
++    (err, stdout, stderr) => err ? rej(err) : (stderr ? console.error(stderr) : console.log('Opened consolidated PR for HTTP server and diagnostics'), res())
++  ));
++}
++
+ /**
+  * Parses command-line arguments to determine if mission mode is requested.
+  * @param {string[]} args
+@@ -191,7 +216,12 @@ export async function main(args) {
+     console.error("Error: --mission and --diagnostics cannot be used together");
+     process.exit(1);
+   }
+-  // PR opener mode
++  // Consolidated PR opener mode
++  if (parseConsolidatedPrArg(args)) {
++    await openConsolidatedPr();
++    process.exit(0);
++  }
++  // Separate PR opener mode
+   if (parseOpenPrsArg(args)) {
+     await openPrs();
+     process.exit(0);
+@@ -220,4 +250,4 @@ export async function main(args) {
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+-}
+\ No newline at end of file
++}
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6836ebb1..99ec3930 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -3,6 +3,8 @@ import http from "http";
+ import {
+   parseOpenPrsArg,
+   openPrs,
++  parseConsolidatedPrArg,
++  openConsolidatedPr,
+   parseMissionArg,
+   readMission,
+   parseDiagnosticsArg,
+@@ -59,7 +61,35 @@ describe("openPrs", () => {
+   });
+ });
+ 
+-// Existing tests below...
++describe("parseConsolidatedPrArg", () => {
++  test("no flags", () => {
++    expect(parseConsolidatedPrArg([])).toBe(false);
++  });
++  test("--open-prs-consolidated flag only", () => {
++    expect(parseConsolidatedPrArg(["--open-prs-consolidated"]))
++      .toBe(true);
++  });
++});
++
++describe("openConsolidatedPr", () => {
++  test("executes commands in sequence and logs success", async () => {
++    const execSeq = [];
++    vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => {
++      execSeq.push(cmd);
++      cb(null, '', '');
++    });
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    await expect(openConsolidatedPr()).resolves.toBeUndefined();
++    expect(execSeq).toEqual([
++      'gh auth status',
++      'git checkout -b open-prs-http-diagnostics',
++      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
++    ]);
++    expect(logSpy).toHaveBeenCalledWith('Opened consolidated PR for HTTP server and diagnostics');
++    require('child_process').exec.mockRestore();
++    logSpy.mockRestore();
++  });
++});
+ 
+ describe("parseMissionArg", () => {
+   test("no flags", () => {
+@@ -131,6 +161,24 @@ describe("startServer and HTTP GET /", () => {
+   });
+ });
+ 
++describe("main consolidated mode", () => {
++  test("calls openConsolidatedPr and exits", async () => {
++    const execMock = vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => cb(null, '', ''));
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
++    try {
++      await main(["--open-prs-consolidated"]);
++    } catch (err) {
++      expect(err.message).toBe("Exit:0");
++    }
++    expect(execMock).toHaveBeenCalled();
++    expect(logSpy).toHaveBeenCalledWith('Opened consolidated PR for HTTP server and diagnostics');
++    execMock.mockRestore();
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
++
+ describe("main conflict and help", () => {
+   test("conflicting flags exit 1", async () => {
+     const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+@@ -213,8 +261,7 @@ describe("main diagnostics mode", () => {
+     }
+ 
+     expect(logSpy).toHaveBeenCalled();
+-    const logged = logSpy.mock.calls[0][0];
+-    const parsed = JSON.parse(logged);
++    const parsed = JSON.parse(logSpy.mock.calls[0][0]);
+     expect(parsed).toHaveProperty("version");
+     expect(parsed).toHaveProperty("uptime");
+     expect(parsed).toHaveProperty("memoryUsage");
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2213 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":66904,"completion_tokens":7572,"total_tokens":74476,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
