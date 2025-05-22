@@ -608,3 +608,77 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T04:43:35.996Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2193 with action enhance and updated description:
+
+## Overview
+Introduce a new diagnostics mode to the CLI. When the user runs `node src/lib/main.js --diagnostics` (or `npm run diagnostics`), the tool should collect and print runtime and environment information and then exit with code zero. All existing modes (`default` echo and `--serve`) must remain unchanged.
+
+## Testable Acceptance Criteria
+
+1. parseDiagnosticsArg:
+   - Given no arguments: `parseDiagnosticsArg([])` returns `false`.
+   - Given `['--diagnostics']`: `parseDiagnosticsArg(['--diagnostics'])` returns `true`.
+2. collectDiagnostics:
+   - Returns an object with the following structure and types:
+     ```js
+     {
+       version: string,
+       uptime: number,
+       memoryUsage: { rss: number; heapTotal: number; heapUsed: number },
+       platform: string,
+       arch: string
+     }
+     ```
+3. main (integration):
+   - When called with `['--diagnostics']`:
+     - Does not start the HTTP server.
+     - Calls `console.log()` at least once with a JSON string or formatted output containing keys `version`, `uptime`, `memoryUsage`, `platform`, and `arch`.
+     - Calls `process.exit(0)` after printing diagnostics.
+4. No regressions:
+   - `npm run start` (`node src/lib/main.js`) prints `Run with: []` (or corresponding arguments) and does not exit early.
+   - `npm run serve` (`node src/lib/main.js --serve`) starts the HTTP server and responds on `/` with `Hello World!` as before.
+
+## Implementation Steps
+
+1. **src/lib/main.js**
+   - Export `parseDiagnosticsArg(args: string[]): boolean`.
+   - Export `collectDiagnostics(): { version: string; uptime: number; memoryUsage: { rss: number; heapTotal: number; heapUsed: number }; platform: string; arch: string }`.
+   - In `main(args)`, check diagnostics mode first:
+     ```js
+     if (parseDiagnosticsArg(args)) {
+       const diag = collectDiagnostics();
+       console.log(JSON.stringify(diag, null, 2));
+       process.exit(0);
+     }
+     ```
+   - Preserve existing logic for `--serve` and default behavior.
+
+2. **tests/unit/main.test.js**
+   - Add tests for `parseDiagnosticsArg` and `collectDiagnostics` as above.
+   - Add an integration test for `main(['--diagnostics'])` that stubs `console.log` and `process.exit`.
+
+3. **README.md**
+   - Under CLI Usage, add:
+     ```md
+     - `npm run diagnostics` or `node src/lib/main.js --diagnostics` → prints runtime diagnostics (node version, uptime, memory usage, platform, arch) and exits with code 0.
+     ```
+   - Optionally include a sample JSON output snippet.
+
+4. **package.json**
+   - Verify the existing `diagnostics` script points to `node src/lib/main.js --diagnostics`.
+
+## Verification
+
+- Run `npm test` → all tests, including new diagnostics tests, pass.
+- Run `npm run diagnostics` → outputs diagnostics JSON and exits with code 0.
+- Confirm `npm run start` and `npm run serve` behave as before.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":7840,"completion_tokens":1244,"total_tokens":9084,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
