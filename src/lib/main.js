@@ -3,6 +3,28 @@
 
 import { fileURLToPath } from "url";
 import http from "http";
+import { readFile } from "fs/promises";
+
+/**
+ * Parses command-line arguments to determine if mission mode is requested.
+ * @param {string[]} args
+ * @returns {boolean}
+ */
+export function parseMissionArg(args) {
+  return args[0] === "--mission";
+}
+
+/**
+ * Reads the project mission from MISSION.md.
+ * @returns {Promise<string>}
+ */
+export async function readMission() {
+  const data = await readFile(
+    new URL("../../MISSION.md", import.meta.url),
+    "utf8"
+  );
+  return data;
+}
 
 /**
  * Parses command-line arguments to determine if diagnostics mode is requested.
@@ -79,7 +101,8 @@ export async function startServer(portArg) {
 
     server.listen(portArg, () => {
       const address = server.address();
-      const actualPort = typeof address === "object" && address ? address.port : address;
+      const actualPort =
+        typeof address === "object" && address ? address.port : address;
       console.log(`Server listening on port ${actualPort}`);
       resolve(server);
     });
@@ -95,6 +118,12 @@ export async function startServer(portArg) {
  * @param {string[]} args
  */
 export async function main(args) {
+  if (parseMissionArg(args)) {
+    const mission = await readMission();
+    console.log(mission);
+    process.exit(0);
+  }
+
   if (parseDiagnosticsArg(args)) {
     const diag = collectDiagnostics();
     console.log(JSON.stringify(diag, null, 2));

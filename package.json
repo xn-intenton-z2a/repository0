@@ -18,6 +18,7 @@
     "test:e2e": "vitest tests/e2e/cli.test.js",
     "start": "node src/lib/main.js",
     "diagnostics": "node src/lib/main.js --diagnostics",
+    "mission": "node src/lib/main.js --mission",
     "serve": "node src/lib/main.js --serve",
     "build-intermediate": "node src/lib/main.js --build-intermediate",
     "build-enhanced": "node src/lib/main.js --build-enhanced",

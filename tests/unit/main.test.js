@@ -1,6 +1,8 @@
 import { describe, test, expect, vi } from "vitest";
 import http from "http";
 import {
+  parseMissionArg,
+  readMission,
   parseDiagnosticsArg,
   collectDiagnostics,
   parseServeArgs,
@@ -23,6 +25,24 @@ async function getResponse(port) {
     req.on("error", reject);
   });
 }
+
+describe("parseMissionArg", () => {
+  test("no flags", () => {
+    expect(parseMissionArg([])).toBe(false);
+  });
+
+  test("--mission flag only", () => {
+    expect(parseMissionArg(["--mission"]))
+      .toBe(true);
+  });
+});
+
+describe("readMission", () => {
+  test("returns mission content including title", async () => {
+    const content = await readMission();
+    expect(content).toContain("# repository0");
+  });
+});
 
 describe("parseDiagnosticsArg", () => {
   test("no flags", () => {
@@ -73,6 +93,26 @@ describe("startServer and HTTP GET /", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toBe("Hello World!");
     server.close();
+  });
+});
+
+describe("main mission mode", () => {
+  test("prints mission and exits", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+
+    try {
+      await main(["--mission"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:0");
+    }
+
+    expect(logSpy).toHaveBeenCalled();
+    const output = logSpy.mock.calls[0][0];
+    expect(output).toContain("# repository0");
+
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
   });
 });
 
