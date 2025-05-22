@@ -7726,3 +7726,242 @@ LLM API Usage:
 
 2025-05-22T17:42:58Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-22T17:44:24.237Z
+
+Maintained feature PR_OPENER.
+
+Feature spec:
+
+# PR_OPENER
+
+## Overview
+Extend and refine the pull request opener feature to automate creation of both individual and consolidated pull requests for the HTTP server and diagnostics features. The CLI will handle separate PRs for each issue or a single PR that merges both features, with clear usage guidance and error handling.
+
+## Behavior
+### Separate PR mode (`--open-prs`)
+- Verify GitHub CLI authentication via `gh auth status`.
+- For each issue in [2188, 2193]:
+  • Create branch `pr-<issue>` using `git checkout -b pr-<issue>`.
+  • Run `gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"`.
+  • On success, log `Opened PR for issue #<issue>`.
+- Exit with code 0 if all succeed; on any error log `PR opener error: <message>` and exit code 1.
+
+### Consolidated PR mode (`--open-prs-consolidated`)
+- Verify GitHub CLI authentication via `gh auth status`.
+- Create branch `open-prs-http-diagnostics` using `git checkout -b open-prs-http-diagnostics`.
+- Run `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
+- On success, log `Opened consolidated PR for HTTP server and diagnostics`.
+- Exit with code 0 on success; on error log `Consolidated PR error: <message>` and exit code 1.
+
+### Common CLI Details
+- Mutually exclusive checks for `--open-prs`, `--open-prs-consolidated`, `--mission`, `--diagnostics`, `--serve`, `--help`.
+- Provide `--help` usage output and enforce correct flag precedence.
+
+## CLI Usage
+```bash
+node src/lib/main.js --open-prs               # opens separate PRs for issues 2188 and 2193
+node src/lib/main.js --open-prs-consolidated  # opens a consolidated PR for both issues
+``` 
+
+## Tests
+- Unit tests for `parseOpenPrsArg` and `parseConsolidatedPrArg` flag detection.
+- Unit tests for `openPrs` and `openConsolidatedPr` mocking `child_process.exec`:
+  • Verify command sequence and success logs.
+  • Simulate errors and assert error logs and exit code 1.
+- Integration tests for `main(["--open-prs"])` and `main(["--open-prs-consolidated"])`: stub `exec` and `process.exit`, capture logs and exit codes.
+
+## Implementation Details
+- In `src/lib/main.js`, export `parseOpenPrsArg`, `parseConsolidatedPrArg`, `openPrs`, `openConsolidatedPr` using Node’s built-in `child_process.exec`.
+- Wrap invocations in `try/catch` within `main(args)` to handle errors and exit codes.
+- Update `package.json` scripts: add `open-prs` and `open-prs-consolidated` entries.
+
+
+Git diff:
+
+```diff
+diff --git a/features/CONSOLIDATED_PR_OPENER.md b/features/CONSOLIDATED_PR_OPENER.md
+deleted file mode 100644
+index 5a573c8f..00000000
+--- a/features/CONSOLIDATED_PR_OPENER.md
++++ /dev/null
+@@ -1,44 +0,0 @@
+-# CONSOLIDATED_PR_OPENER
+-
+-## Overview
+-Add a consolidated pull request opener mode to the CLI. When invoked with `--open-prs-consolidated`, the tool will create a single branch and open one PR that resolves issues #2188 and #2193.
+-
+-## Behavior
+-
+-- When run with `--open-prs-consolidated`:
+-  - Verify GitHub CLI authentication by running `gh auth status`
+-  - Create branch `open-prs-http-diagnostics`
+-  - Run `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+-  - On success, print `Opened consolidated PR for HTTP server and diagnostics` and exit with code 0
+-  - On failure, print the error to `console.error` and exit with a nonzero code
+-- All other modes (`--open-prs`, `--mission`, `--diagnostics`, `--serve`, `--help`, default) remain unchanged
+-
+-## CLI Usage
+-
+-```bash
+-npm run open-prs-consolidated      # or node src/lib/main.js --open-prs-consolidated
+-```
+-
+-## Tests
+-
+-- Unit test for `parseConsolidatedPrArg(args)`:
+-  - `[]` → false
+-  - `['--open-prs-consolidated']` → true
+-- Unit test for `openConsolidatedPr()` mocking `child_process.exec` to verify:
+-  1. `gh auth status`
+-  2. `git checkout -b open-prs-http-diagnostics`
+-  3. `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+-  4. Log `Opened consolidated PR for HTTP server and diagnostics`
+-- Integration test for `main(['--open-prs-consolidated'])`:
+-  - Stub `exec` and `process.exit` to capture calls
+-  - Assert `console.log` was called with the success message
+-  - Assert `process.exit(0)` was invoked
+-
+-## Implementation Details
+-
+-- In `src/lib/main.js`:
+-  - Export `parseConsolidatedPrArg(args: string[]): boolean`
+-  - Export `openConsolidatedPr(): Promise<void>` using `child_process.exec`
+-  - In `main(args)`, detect `--open-prs-consolidated` first, await `openConsolidatedPr()`, then `process.exit(0)`
+-- Add script `open-prs-consolidated` in `package.json`: `node src/lib/main.js --open-prs-consolidated`
+-- No new dependencies required
+\ No newline at end of file
+diff --git a/features/CONSOLIDATED_PR_OPEN_PR.md b/features/CONSOLIDATED_PR_OPEN_PR.md
+deleted file mode 100644
+index e5e75313..00000000
+--- a/features/CONSOLIDATED_PR_OPEN_PR.md
++++ /dev/null
+@@ -1,47 +0,0 @@
+-# CONSOLIDATED_PR_OPEN_PR
+-
+-## Overview
+-
+-Add a new consolidated pull request opener command that merges HTTP server and diagnostics features into a single branch and PR. This enables users to run one command and have both feature branches combined and a PR opened for review.
+-
+-## Behavior
+-
+-- When invoked with `--open-prs-consolidated`:
+-  • Verify GitHub CLI authentication by running `gh auth status`.
+-  • Create a branch named `open-prs-http-diagnostics`.
+-  • Run `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
+-  • Log `Opened consolidated PR for HTTP server and diagnostics` on success.
+-  • Exit with code 0 on success and with code 1 on any error, printing error details.
+-- Other CLI modes (`--open-prs`, `--mission`, `--diagnostics`, `--serve`, `--help`, default) remain unchanged.
+-
+-## CLI Usage
+-
+-```bash
+-node src/lib/main.js --open-prs-consolidated
+-```
+-
+-## Tests
+-
+-- Unit test for `parseConsolidatedPrArg`:
+-  • `[]` returns false.
+-  • `["--open-prs-consolidated"]` returns true.
+-- Unit test for `openConsolidatedPr`:
+-  • Mock `child_process.exec` to verify commands: `gh auth status`, `git checkout -b open-prs-http-diagnostics`, `gh pr create ...`.
+-  • Verify log message on success.
+-- Integration test for `main(["--open-prs-consolidated"])`:
+-  • Stub exec and `process.exit` to throw error capture.
+-  • Assert correct log and exit code 0.
+-
+-## Implementation Details
+-
+-- In `src/lib/main.js`:
+-  • Export `parseConsolidatedPrArg(args: string[]): boolean`.
+-  • Export `openConsolidatedPr(): Promise<void>` using `child_process.exec` to run the required commands in sequence.
+-  • In `main(args)`, detect the consolidated flag first and call `openConsolidatedPr()`, then `process.exit(0)`.
+-- In `package.json`, add script:
+-
+-```json
+-"open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated"
+-```
+-
+-- No new dependencies required.
+\ No newline at end of file
+diff --git a/features/PR_OPENER.md b/features/PR_OPENER.md
+index 97b11a8c..41a7fb71 100644
+--- a/features/PR_OPENER.md
++++ b/features/PR_OPENER.md
+@@ -1,45 +1,42 @@
+ # PR_OPENER
+ 
+ ## Overview
+-Extend and refine the existing PR opener modes to provide robust, user-friendly handling for both separate and consolidated pull-request creation. This feature ensures clear usage, error handling, and exit codes while preserving other CLI modes.
++Extend and refine the pull request opener feature to automate creation of both individual and consolidated pull requests for the HTTP server and diagnostics features. The CLI will handle separate PRs for each issue or a single PR that merges both features, with clear usage guidance and error handling.
+ 
+ ## Behavior
+-
+ ### Separate PR mode (`--open-prs`)
+-- Verify GitHub CLI authentication with `gh auth status`.
++- Verify GitHub CLI authentication via `gh auth status`.
+ - For each issue in [2188, 2193]:
+-  - Create a branch `pr-<issue>` via `git checkout -b pr-<issue>`.
+-  - Open a pull request with `gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"`.
+-  - On success, log `Opened PR for issue #<issue>`.
+-- Exit with code 0 if all PRs succeed; on any error, log `PR opener error: <message>` to stderr and exit with code 1.
++  • Create branch `pr-<issue>` using `git checkout -b pr-<issue>`.
++  • Run `gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"`.
++  • On success, log `Opened PR for issue #<issue>`.
++- Exit with code 0 if all succeed; on any error log `PR opener error: <message>` and exit code 1.
+ 
+ ### Consolidated PR mode (`--open-prs-consolidated`)
+-- Verify GitHub CLI authentication with `gh auth status`.
+-- Create branch `open-prs-http-diagnostics` via `git checkout -b open-prs-http-diagnostics`.
+-- Open a single pull request with `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
++- Verify GitHub CLI authentication via `gh auth status`.
++- Create branch `open-prs-http-diagnostics` using `git checkout -b open-prs-http-diagnostics`.
++- Run `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
+ - On success, log `Opened consolidated PR for HTTP server and diagnostics`.
+-- Exit with code 0 on success; on error, log `Consolidated PR error: <message>` to stderr and exit with code 1.
++- Exit with code 0 on success; on error log `Consolidated PR error: <message>` and exit code 1.
+ 
+ ### Common CLI Details
+-- Handle `--help`, `--mission`, `--diagnostics`, `--serve` and default echo modes unchanged.
+-- Enforce mutually exclusive checks and usage help before any opener modes.
++- Mutually exclusive checks for `--open-prs`, `--open-prs-consolidated`, `--mission`, `--diagnostics`, `--serve`, `--help`.
++- Provide `--help` usage output and enforce correct flag precedence.
+ 
+ ## CLI Usage
+-
+ ```bash
+-node src/lib/main.js --open-prs               # opens separate PRs for issues 2188, 2193
+-node src/lib/main.js --open-prs-consolidated  # opens consolidated PR for both issues
+-```
++node src/lib/main.js --open-prs               # opens separate PRs for issues 2188 and 2193
++node src/lib/main.js --open-prs-consolidated  # opens a consolidated PR for both issues
++``` 
+ 
+ ## Tests
+-- Unit tests for `parseOpenPrsArg` and `parseConsolidatedPrArg` flags.
++- Unit tests for `parseOpenPrsArg` and `parseConsolidatedPrArg` flag detection.
+ - Unit tests for `openPrs` and `openConsolidatedPr` mocking `child_process.exec`:
+-  - Verify command sequence and success logs.
+-  - Simulate CLI errors and assert error logs and exit code 1.
+-- Integration tests for `main(["--open-prs"])` and `main(["--open-prs-consolidated"])`:
+-  - Stub `exec` and `process.exit`, capture logs and exit codes for both success and error scenarios.
++  • Verify command sequence and success logs.
++  • Simulate errors and assert error logs and exit code 1.
++- Integration tests for `main(["--open-prs"])` and `main(["--open-prs-consolidated"])`: stub `exec` and `process.exit`, capture logs and exit codes.
+ 
+ ## Implementation Details
+-- In `src/lib/main.js`, wrap opener calls in `try/catch` for clear errors and exit codes.
+-- Export and implement `parseOpenPrsArg`, `parseConsolidatedPrArg`, `openPrs`, `openConsolidatedPr` using `child_process.exec`.
+-- Update `package.json` scripts: add `open-prs` and `open-prs-consolidated`.
++- In `src/lib/main.js`, export `parseOpenPrsArg`, `parseConsolidatedPrArg`, `openPrs`, `openConsolidatedPr` using Node’s built-in `child_process.exec`.
++- Wrap invocations in `try/catch` within `main(args)` to handle errors and exit codes.
++- Update `package.json` scripts: add `open-prs` and `open-prs-consolidated` entries.
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":98636,"completion_tokens":1450,"total_tokens":100086,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
