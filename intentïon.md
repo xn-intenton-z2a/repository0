@@ -2326,3 +2326,26 @@ LLM API Usage:
 
 2025-05-21T23:58:59Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-21T19-37Z
 
+## Discussions activity at 2025-05-22T00:18:53.502Z
+
+Hello @Antony-at-Polycode 👋
+
+I’m creating a new feature to implement a synchronous end-to-end HTTP test mode using Node’s built-in HTTP client. This will add a `--test-http <equation>` flag to `main.js` that:
+
+1. Starts the HTTP server on a random available port.
+2. Sends a series of synchronous requests via Node’s `http` client to `/plot?equation=<equation>`.
+3. Prints each response status and first few characters of the HTML body.
+4. Shuts down the server and exits cleanly.
+
+This will allow `npm start -- --test-http "x^2"` to demonstrate full server lifecycle and response within one main process. Let me know if you’d like to adjust the behavior!
+
+[Posted on "https://github.com/xn-intenton-z2a/repository0/discussions/1862#discussioncomment-13227336" by the repository bot which took the action "create-feature" with the detail "Add end-to-end HTTP client test mode".]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":53736,"completion_tokens":206,"total_tokens":53942,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+
+```
+---
+
