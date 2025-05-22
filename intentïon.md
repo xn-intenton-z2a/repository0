@@ -2338,3 +2338,52 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T09:48:14.970Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement PR_OPENER feature: --open-prs to automate opening a consolidated PR for HTTP server and diagnostics
+
+Overview:
+Add a new pull-request opener mode to the CLI so that users can run `node src/lib/main.js --open-prs` (or `npm run open-prs`) to automatically create a GitHub pull request that merges the HTTP server (#2188) and diagnostics (#2193) features into a single branch.
+
+Testable Acceptance Criteria:
+
+1. parseOpenPrsArg:
+   - Given `[]`, returns `false`.
+   - Given `['--open-prs']`, returns `true`.
+
+2. openPrs:
+   - Invokes `exec('gh auth status')` to verify GitHub CLI authentication.
+   - Invokes `exec('git checkout -b open-prs-http-diagnostics')` to create a new branch.
+   - Invokes `exec('gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"')` to open the PR.
+   - On success, calls `console.log` with a message that starts with `Pull request opened:` and includes the PR URL.
+   - On any command failure, rethrows to cause a nonzero exit code.
+
+3. main(args):
+   - Detects `--open-prs` via `parseOpenPrsArg` before other modes.
+   - When true, calls `await openPrs()` and then `process.exit(0)`.
+   - Does not alter existing behaviors for `--serve`, `--diagnostics`, `--mission`, default, or `--help` modes.
+
+4. package.json:
+   - Includes an npm script `"open-prs": "node src/lib/main.js --open-prs"` under "scripts".
+   - No new dependencies are added.
+
+5. Tests in `tests/unit/main.test.js`:
+   - Unit tests for `parseOpenPrsArg` and `openPrs` using mocks/spies for `child_process.exec`.
+   - Integration-style test for `main(['--open-prs'])` that stubs `exec` and `process.exit`, asserting exit code `0` and correct log output.
+
+6. Documentation in README.md:
+   - Under **CLI Usage**, a new subsection **PR opener mode** specifying:
+     ```bash
+     npm run open-prs      # or node src/lib/main.js --open-prs
+     ```
+     with a brief description: "Automates creation of a pull request to merge issues #2188 and #2193."
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9655,"completion_tokens":1641,"total_tokens":11296,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
