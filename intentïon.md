@@ -10192,3 +10192,51 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T22:17:03.513Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+
+Integrate the existing `--open-prs-consolidated` CLI command into our GitHub Actions workflows by adding a new CI job `open_consolidated_pr` that automatically opens a consolidated pull request merging the HTTP server (#2188) and Diagnostics Mode (#2193) feature branches.
+
+Acceptance Criteria:
+
+1. Workflow Configuration:
+   • A new job named `open_consolidated_pr` is defined in `.github/workflows/pr_opener.yml`.
+   • The job triggers on both `workflow_dispatch` and daily schedule (`cron: '0 0 * * *'`).
+   • The job declares dependencies on the existing `build` (and `test` if present) jobs using `needs`.
+   • Steps within the job:
+     1. Checkout the repository using `actions/checkout@v3`.
+     2. Set up Node.js v20 using `actions/setup-node@v3`.
+     3. Install dependencies via `npm install`.
+     4. Execute `npm run open-prs-consolidated`.
+   • Workflow permissions allow GitHub CLI operations (e.g., `gh auth status`, `git checkout`, `gh pr create`).
+
+2. Execution Behavior:
+   • In the Actions log, confirm the sequence of commands:
+     - `gh auth status`
+     - `git checkout -b open-prs-http-diagnostics`
+     - `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+     - A log entry: `Opened consolidated PR for HTTP server and diagnostics`.
+   • The job exits with status code 0 on success.
+
+3. Pull Request Verification:
+   • A GitHub pull request is created with branch name `open-prs-http-diagnostics`.
+   • PR title exactly `Merge HTTP server and diagnostics features`.
+   • PR body lists `- resolves #2188` and `- resolves #2193` on separate lines.
+
+Validation Steps:
+
+1. Commit and push the updated workflow to a feature branch.
+2. Manually dispatch the workflow or wait for its scheduled run.
+3. Review the Actions run to ensure all acceptance criteria pass.
+4. Confirm the consolidated PR appears with the correct details.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11823,"completion_tokens":2083,"total_tokens":13906,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
