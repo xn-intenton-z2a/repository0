@@ -1,6 +1,12 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 import http from "http";
-import { parseServeArgs, startServer, main } from "@src/lib/main.js";
+import {
+  parseDiagnosticsArg,
+  collectDiagnostics,
+  parseServeArgs,
+  startServer,
+  main
+} from "@src/lib/main.js";
 
 async function getResponse(port) {
   return new Promise((resolve, reject) => {
@@ -17,6 +23,30 @@ async function getResponse(port) {
     req.on("error", reject);
   });
 }
+
+describe("parseDiagnosticsArg", () => {
+  test("no flags", () => {
+    expect(parseDiagnosticsArg([])).toBe(false);
+  });
+
+  test("--diagnostics flag only", () => {
+    expect(parseDiagnosticsArg(["--diagnostics"]))
+      .toBe(true);
+  });
+});
+
+describe("collectDiagnostics", () => {
+  test("returns correct structure and types", () => {
+    const diag = collectDiagnostics();
+    expect(typeof diag.version).toBe("string");
+    expect(typeof diag.uptime).toBe("number");
+    expect(typeof diag.platform).toBe("string");
+    expect(typeof diag.arch).toBe("string");
+    expect(typeof diag.memoryUsage.rss).toBe("number");
+    expect(typeof diag.memoryUsage.heapTotal).toBe("number");
+    expect(typeof diag.memoryUsage.heapUsed).toBe("number");
+  });
+});
 
 describe("parseServeArgs", () => {
   test("no flags", () => {
@@ -46,7 +76,32 @@ describe("startServer and HTTP GET /", () => {
   });
 });
 
-describe("main", () => {
+describe("main diagnostics mode", () => {
+  test("prints diagnostics and exits", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+
+    try {
+      await main(["--diagnostics"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:0");
+    }
+
+    expect(logSpy).toHaveBeenCalled();
+    const logged = logSpy.mock.calls[0][0];
+    const parsed = JSON.parse(logged);
+    expect(parsed).toHaveProperty("version");
+    expect(parsed).toHaveProperty("uptime");
+    expect(parsed).toHaveProperty("memoryUsage");
+    expect(parsed).toHaveProperty("platform");
+    expect(parsed).toHaveProperty("arch");
+
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
+  });
+});
+
+describe("main default mode", () => {
   test("default behavior logs arguments", async () => {
     const args = ["foo", "bar"];
     const origLog = console.log;
