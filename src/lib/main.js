@@ -126,9 +126,10 @@ export function main(args = []) {
   const hasEmotion = args.includes("--emotion");
   const hasPlot = args.includes("--plot");
   const hasServe = args.includes("--serve");
-  if ([hasEmotion, hasPlot, hasServe].filter(Boolean).length > 1) {
+  const hasTestHttp = args.includes("--test-http");
+  if ([hasEmotion, hasPlot, hasServe, hasTestHttp].filter(Boolean).length > 1) {
     console.error(
-      "Flags --emotion, --plot, and --serve are mutually exclusive."
+      "Flags --emotion, --plot, --serve, and --test-http are mutually exclusive."
     );
     printUsage();
     return 1;
@@ -173,6 +174,10 @@ export function main(args = []) {
     });
     return 0;
   }
+  if (hasTestHttp) {
+    // no-op in main; handled separately in wrapper
+    return 0;
+  }
   // emotion mode
   const i = args.indexOf("--emotion");
   if (i === -1) {
@@ -197,8 +202,47 @@ export function main(args = []) {
   return 1;
 }
 
+export async function testHttp(args = []) {
+  const i = args.indexOf("--test-http");
+  const equation = args[i + 1];
+  if (!equation || equation.startsWith("--")) {
+    console.error("No equation specified.");
+    printPlotUsage();
+    return 1;
+  }
+  // start server on ephemeral port
+  const server = http.createServer(handlePlotRequest);
+  await new Promise((resolve) => server.listen(0, resolve));
+  const port = server.address().port;
+  // perform a single GET request
+  return new Promise((resolve) => {
+    const req = http.get(
+      { hostname: '127.0.0.1', port, path: `/plot?equation=${encodeURIComponent(equation)}` },
+      (res) => {
+        console.log(`Status: ${res.statusCode}`);
+        let body = '';
+        res.on('data', (chunk) => { body += chunk; });
+        res.on('end', () => {
+          console.log(body.slice(0, 200));
+          server.close();
+          resolve(res.statusCode === 200 ? 0 : 1);
+        });
+      }
+    );
+    req.on('error', (err) => {
+      console.error(err.message);
+      server.close();
+      resolve(1);
+    });
+  });
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  const code = main(args);
-  process.exit(code);
+  if (args.includes("--test-http")) {
+    testHttp(args).then((code) => process.exit(code));
+  } else {
+    const code = main(args);
+    process.exit(code);
+  }
 }

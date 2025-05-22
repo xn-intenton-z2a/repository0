@@ -1,6 +1,6 @@
 # CLI Usage
 
-The `repository0` CLI supports displaying emotions as ASCII art, plotting equations in the console, and serving plots over HTTP.
+The `repository0` CLI supports displaying emotions as ASCII art, plotting equations in the console, and serving plots over HTTP, as well as end-to-end HTTP test mode.
 
 ## Usage
 
@@ -87,5 +87,26 @@ curl "http://localhost:4000/plot?equation=sin(x)*x"
 ```
 
 This returns an HTML page with the ASCII plot wrapped in a `<pre>` block.
+
+## End-to-End HTTP Test Mode
+
+```bash
+npm run start -- --test-http "<equation>"
+```
+
+This mode starts an ephemeral server, issues a request, prints response status and the first part of the HTML or error body, then shuts down.
+
+#### Example
+
+```bash
+npm run start -- --test-http "x^2 - 2*x + 1"
+```
+
+Output:
+
+```
+Status: 200
+<!DOCTYPE html><html>... (first 200 chars of <pre> content) ...
+```
 
 For full specification, see [features/PLOT_EQUATION.md](../features/PLOT_EQUATION.md).
