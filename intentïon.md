@@ -3928,3 +3928,54 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T11:47:00.446Z
+
+fixApplied: true
+
+Document PR opener mode in README CLI Usage
+
+Git Diff:
+
+```
+diff --git a/README.md b/README.md
+index 4c003506..14e58bda 100644
+--- a/README.md
++++ b/README.md
+@@ -38,6 +38,12 @@ npm run mission      # or node src/lib/main.js --mission
+ Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
+ Exits with code 0.
+ 
++### PR opener mode
++```bash
++npm run open-prs     # or node src/lib/main.js --open-prs
++```
++Automates creation of separate pull requests for issues #2188 and #2193.
++
+ ### Help
+ ```bash
+ npm run start -- --help  # or node src/lib/main.js --help
+@@ -50,3 +56,4 @@ Displays usage information and exits with code 0.
+ - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
+ - [Mission Mode](docs/MISSION_MODE.md)
+ - [Info Modes](docs/INFO_MODES.md)
++- [PR Opener](docs/PR_OPENER.md)
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2209 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":57053,"completion_tokens":796,"total_tokens":57849,"prompt_tokens_details":{"cached_tokens":1280,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
