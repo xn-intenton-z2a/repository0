@@ -3,6 +3,8 @@ import http from "http";
 import {
   parseOpenPrsArg,
   openPrs,
+  parseConsolidatedPrArg,
+  openConsolidatedPr,
   parseMissionArg,
   readMission,
   parseDiagnosticsArg,
@@ -59,7 +61,35 @@ describe("openPrs", () => {
   });
 });
 
-// Existing tests below...
+describe("parseConsolidatedPrArg", () => {
+  test("no flags", () => {
+    expect(parseConsolidatedPrArg([])).toBe(false);
+  });
+  test("--open-prs-consolidated flag only", () => {
+    expect(parseConsolidatedPrArg(["--open-prs-consolidated"]))
+      .toBe(true);
+  });
+});
+
+describe("openConsolidatedPr", () => {
+  test("executes commands in sequence and logs success", async () => {
+    const execSeq = [];
+    vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => {
+      execSeq.push(cmd);
+      cb(null, '', '');
+    });
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    await expect(openConsolidatedPr()).resolves.toBeUndefined();
+    expect(execSeq).toEqual([
+      'gh auth status',
+      'git checkout -b open-prs-http-diagnostics',
+      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
+    ]);
+    expect(logSpy).toHaveBeenCalledWith('Opened consolidated PR for HTTP server and diagnostics');
+    require('child_process').exec.mockRestore();
+    logSpy.mockRestore();
+  });
+});
 
 describe("parseMissionArg", () => {
   test("no flags", () => {
@@ -128,6 +158,24 @@ describe("startServer and HTTP GET /", () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toBe("Hello World!");
     server.close();
+  });
+});
+
+describe("main consolidated mode", () => {
+  test("calls openConsolidatedPr and exits", async () => {
+    const execMock = vi.spyOn(require('child_process'), 'exec').mockImplementation((cmd, cb) => cb(null, '', ''));
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
+    try {
+      await main(["--open-prs-consolidated"]);
+    } catch (err) {
+      expect(err.message).toBe("Exit:0");
+    }
+    expect(execMock).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith('Opened consolidated PR for HTTP server and diagnostics');
+    execMock.mockRestore();
+    logSpy.mockRestore();
+    exitSpy.mockRestore();
   });
 });
 
@@ -213,8 +261,7 @@ describe("main diagnostics mode", () => {
     }
 
     expect(logSpy).toHaveBeenCalled();
-    const logged = logSpy.mock.calls[0][0];
-    const parsed = JSON.parse(logged);
+    const parsed = JSON.parse(logSpy.mock.calls[0][0]);
     expect(parsed).toHaveProperty("version");
     expect(parsed).toHaveProperty("uptime");
     expect(parsed).toHaveProperty("memoryUsage");
