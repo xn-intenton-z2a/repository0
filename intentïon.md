@@ -8537,3 +8537,28 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T18:52:09.252Z
+
+fixApplied: false
+
+Add CI workflow step to open a consolidated PR for HTTP server and diagnostics
+
+Git Diff:
+
+```
+
+```
+mainOutput:
+```
+
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2230 with title: ""]
+
+LLM API Usage:
+
+```json
+
+```
+---
+
