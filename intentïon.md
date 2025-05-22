@@ -2614,3 +2614,241 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T00:26:27.843Z
+
+fixApplied: true
+
+Add end-to-end HTTP test mode --test-http with async handling update tests and usage docs
+
+Git Diff:
+
+```
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index 404ada55..4e3bb43a 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -1,6 +1,6 @@
+ # CLI Usage
+ 
+-The `repository0` CLI supports displaying emotions as ASCII art, plotting equations in the console, and serving plots over HTTP.
++The `repository0` CLI supports displaying emotions as ASCII art, plotting equations in the console, and serving plots over HTTP, as well as end-to-end HTTP test mode.
+ 
+ ## Usage
+ 
+@@ -88,4 +88,25 @@ curl "http://localhost:4000/plot?equation=sin(x)*x"
+ 
+ This returns an HTML page with the ASCII plot wrapped in a `<pre>` block.
+ 
+-For full specification, see [features/PLOT_EQUATION.md](../features/PLOT_EQUATION.md).
++## End-to-End HTTP Test Mode
++
++```bash
++npm run start -- --test-http "<equation>"
++```
++
++This mode starts an ephemeral server, issues a request, prints response status and the first part of the HTML or error body, then shuts down.
++
++#### Example
++
++```bash
++npm run start -- --test-http "x^2 - 2*x + 1"
++```
++
++Output:
++
++```
++Status: 200
++<!DOCTYPE html><html>... (first 200 chars of <pre> content) ...
++```
++
++For full specification, see [features/PLOT_EQUATION.md](../features/PLOT_EQUATION.md).
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index d53e2ef4..d642b566 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -126,9 +126,10 @@ export function main(args = []) {
+   const hasEmotion = args.includes("--emotion");
+   const hasPlot = args.includes("--plot");
+   const hasServe = args.includes("--serve");
+-  if ([hasEmotion, hasPlot, hasServe].filter(Boolean).length > 1) {
++  const hasTestHttp = args.includes("--test-http");
++  if ([hasEmotion, hasPlot, hasServe, hasTestHttp].filter(Boolean).length > 1) {
+     console.error(
+-      "Flags --emotion, --plot, and --serve are mutually exclusive."
++      "Flags --emotion, --plot, --serve, and --test-http are mutually exclusive."
+     );
+     printUsage();
+     return 1;
+@@ -173,6 +174,10 @@ export function main(args = []) {
+     });
+     return 0;
+   }
++  if (hasTestHttp) {
++    // no-op in main; handled separately in wrapper
++    return 0;
++  }
+   // emotion mode
+   const i = args.indexOf("--emotion");
+   if (i === -1) {
+@@ -197,8 +202,47 @@ export function main(args = []) {
+   return 1;
+ }
+ 
++export async function testHttp(args = []) {
++  const i = args.indexOf("--test-http");
++  const equation = args[i + 1];
++  if (!equation || equation.startsWith("--")) {
++    console.error("No equation specified.");
++    printPlotUsage();
++    return 1;
++  }
++  // start server on ephemeral port
++  const server = http.createServer(handlePlotRequest);
++  await new Promise((resolve) => server.listen(0, resolve));
++  const port = server.address().port;
++  // perform a single GET request
++  return new Promise((resolve) => {
++    const req = http.get(
++      { hostname: '127.0.0.1', port, path: `/plot?equation=${encodeURIComponent(equation)}` },
++      (res) => {
++        console.log(`Status: ${res.statusCode}`);
++        let body = '';
++        res.on('data', (chunk) => { body += chunk; });
++        res.on('end', () => {
++          console.log(body.slice(0, 200));
++          server.close();
++          resolve(res.statusCode === 200 ? 0 : 1);
++        });
++      }
++    );
++    req.on('error', (err) => {
++      console.error(err.message);
++      server.close();
++      resolve(1);
++    });
++  });
++}
++
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  const code = main(args);
+-  process.exit(code);
+-}
++  if (args.includes("--test-http")) {
++    testHttp(args).then((code) => process.exit(code));
++  } else {
++    const code = main(args);
++    process.exit(code);
++  }
++}
+\ No newline at end of file
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index fe56f570..8d4b3dd6 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,5 +1,5 @@
+ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+-import { main } from "@src/lib/main.js";
++import { main, testHttp } from "@src/lib/main.js";
+ import http from "http";
+ 
+ describe("DISPLAY_EMOTION CLI", () => {
+@@ -126,9 +126,75 @@ describe("PLOT_EQUATION CLI", () => {
+   test("should enforce mutual exclusivity and return 1", () => {
+     const code = main(["--emotion", "happy", "--plot", "x+1"]);
+     expect(errorSpy).toHaveBeenCalledWith(
+-      "Flags --emotion, --plot, and --serve are mutually exclusive."
++      "Flags --emotion, --plot, --serve, and --test-http are mutually exclusive."
+     );
+     expect(logSpy).toHaveBeenCalledWith("Usage: --emotion <name>");
+     expect(code).toBe(1);
+   });
+ });
++
++describe("END-TO-END HTTP TEST MODE", () => {
++  let logSpy;
++  let errorSpy;
++  let serverMock;
++  let getSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    serverMock = {
++      listen: vi.fn((port, cb) => cb()),
++      address: vi.fn(() => ({ port: 1234 })),
++      close: vi.fn(),
++    };
++    vi.spyOn(http, "createServer").mockReturnValue(serverMock);
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("should error when no equation provided and return 1", async () => {
++    const code = await testHttp(["--test-http"]);
++    expect(errorSpy).toHaveBeenCalledWith("No equation specified.");
++    expect(logSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
++    expect(code).toBe(1);
++  });
++
++  test("should handle successful request and return 0", async () => {
++    // Spy http.get
++    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
++      const res = { statusCode: 200, on: (_evt, fn) => { if (_evt === 'data') fn('<html>'); if (_evt === 'end') fn(); } };
++      cb(res);
++      return { on: () => {} };
++    });
++    const code = await testHttp(["--test-http", "x+1"]);
++    expect(http.createServer).toHaveBeenCalled();
++    expect(serverMock.listen).toHaveBeenCalled();
++    expect(logSpy).toHaveBeenCalledWith("Status: 200");
++    expect(logSpy).toHaveBeenCalledWith('<html>');
++    expect(serverMock.close).toHaveBeenCalled();
++    expect(code).toBe(0);
++  });
++
++  test("should return 1 on non-200 status", async () => {
++    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
++      const res = { statusCode: 400, on: (_evt, fn) => { if (_evt === 'data') fn('err'); if (_evt === 'end') fn(); } };
++      cb(res);
++      return { on: () => {} };
++    });
++    const code = await testHttp(["--test-http", "x+1"]);
++    expect(logSpy).toHaveBeenCalledWith("Status: 400");
++    expect(code).toBe(1);
++  });
++
++  test("should return 1 on request error", async () => {
++    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
++      const req = { on: (evt, fn) => { if (evt === 'error') fn(new Error('fail')); } };
++      return req;
++    });
++    const code = await testHttp(["--test-http", "x+1"]);
++    expect(errorSpy).toHaveBeenCalledWith('fail');
++    expect(code).toBe(1);
++  });
++});
+\ No newline at end of file
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Usage: --emotion <name>
+Supported emotions: happy, sad, angry, surprised
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2185 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":40891,"completion_tokens":8612,"total_tokens":49503,"prompt_tokens_details":{"cached_tokens":40832,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3264,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
