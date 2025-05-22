@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { main } from "@src/lib/main.js";
+import { main, testHttp } from "@src/lib/main.js";
 import http from "http";
 
 describe("DISPLAY_EMOTION CLI", () => {
@@ -126,9 +126,75 @@ describe("PLOT_EQUATION CLI", () => {
   test("should enforce mutual exclusivity and return 1", () => {
     const code = main(["--emotion", "happy", "--plot", "x+1"]);
     expect(errorSpy).toHaveBeenCalledWith(
-      "Flags --emotion, --plot, and --serve are mutually exclusive."
+      "Flags --emotion, --plot, --serve, and --test-http are mutually exclusive."
     );
     expect(logSpy).toHaveBeenCalledWith("Usage: --emotion <name>");
+    expect(code).toBe(1);
+  });
+});
+
+describe("END-TO-END HTTP TEST MODE", () => {
+  let logSpy;
+  let errorSpy;
+  let serverMock;
+  let getSpy;
+
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    serverMock = {
+      listen: vi.fn((port, cb) => cb()),
+      address: vi.fn(() => ({ port: 1234 })),
+      close: vi.fn(),
+    };
+    vi.spyOn(http, "createServer").mockReturnValue(serverMock);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("should error when no equation provided and return 1", async () => {
+    const code = await testHttp(["--test-http"]);
+    expect(errorSpy).toHaveBeenCalledWith("No equation specified.");
+    expect(logSpy).toHaveBeenCalledWith("Usage: --plot <equation>");
+    expect(code).toBe(1);
+  });
+
+  test("should handle successful request and return 0", async () => {
+    // Spy http.get
+    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
+      const res = { statusCode: 200, on: (_evt, fn) => { if (_evt === 'data') fn('<html>'); if (_evt === 'end') fn(); } };
+      cb(res);
+      return { on: () => {} };
+    });
+    const code = await testHttp(["--test-http", "x+1"]);
+    expect(http.createServer).toHaveBeenCalled();
+    expect(serverMock.listen).toHaveBeenCalled();
+    expect(logSpy).toHaveBeenCalledWith("Status: 200");
+    expect(logSpy).toHaveBeenCalledWith('<html>');
+    expect(serverMock.close).toHaveBeenCalled();
+    expect(code).toBe(0);
+  });
+
+  test("should return 1 on non-200 status", async () => {
+    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
+      const res = { statusCode: 400, on: (_evt, fn) => { if (_evt === 'data') fn('err'); if (_evt === 'end') fn(); } };
+      cb(res);
+      return { on: () => {} };
+    });
+    const code = await testHttp(["--test-http", "x+1"]);
+    expect(logSpy).toHaveBeenCalledWith("Status: 400");
+    expect(code).toBe(1);
+  });
+
+  test("should return 1 on request error", async () => {
+    getSpy = vi.spyOn(http, "get").mockImplementation((opts, cb) => {
+      const req = { on: (evt, fn) => { if (evt === 'error') fn(new Error('fail')); } };
+      return req;
+    });
+    const code = await testHttp(["--test-http", "x+1"]);
+    expect(errorSpy).toHaveBeenCalledWith('fail');
     expect(code).toBe(1);
   });
 });
