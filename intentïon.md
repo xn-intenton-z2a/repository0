@@ -5226,3 +5226,50 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T13:51:03.967Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement CONSOLIDATED_PR_OPENER: --open-prs-consolidated mode
+
+Overview:
+Add a consolidated pull request opener mode to the CLI. When a user runs `node src/lib/main.js --open-prs-consolidated` (or `npm run open-prs-consolidated`), the tool should:
+
+1. Verify GitHub CLI authentication (`gh auth status`).
+2. Create a new branch `open-prs-http-diagnostics`.
+3. Open a single PR with title “Merge HTTP server and diagnostics features” and body containing:
+   - resolves #2188
+   - resolves #2193
+4. Print `Opened consolidated PR for HTTP server and diagnostics` on success and exit with code 0.
+5. On failure, print the error to `console.error` and exit with a nonzero code.
+
+Testable Acceptance Criteria:
+- `parseConsolidatedPrArg([])` returns `false` and `parseConsolidatedPrArg(["--open-prs-consolidated"])` returns `true`.
+- `openConsolidatedPr()` invokes the following `child_process.exec` commands in order:
+  1. `gh auth status`
+  2. `git checkout -b open-prs-http-diagnostics`
+  3. `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+- `openConsolidatedPr()` calls `console.log('Opened consolidated PR for HTTP server and diagnostics')` exactly once when all commands succeed.
+- `main(['--open-prs-consolidated'])` calls `openConsolidatedPr()`, logs the success message, and calls `process.exit(0)`.
+- `package.json` includes a script:
+  ```json
+  "open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated"
+  ```
+- `README.md` is updated to include under **CLI Usage**:
+  ```bash
+  npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+  ```
+  and under **Links to Detailed Docs** ensure `- [PR Opener](docs/PR_OPENER.md)` remains.
+
+Verification Steps:
+1. Run `npm test` and ensure all existing and new tests pass.
+2. Run `npm run open-prs-consolidated` (with real or stubbed `gh` CLI) and verify the branch is created, the PR command is invoked, the success message is printed, and the process exits with code 0.
+3. Confirm no regressions occur in other modes (`--open-prs`, `--mission`, `--diagnostics`, `--serve`, `--help`, default).
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13578,"completion_tokens":1356,"total_tokens":14934,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
