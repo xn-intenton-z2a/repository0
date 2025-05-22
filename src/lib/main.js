@@ -5,6 +5,40 @@ import { fileURLToPath } from "url";
 import http from "http";
 
 /**
+ * Parses command-line arguments to determine if diagnostics mode is requested.
+ * @param {string[]} args
+ * @returns {boolean}
+ */
+export function parseDiagnosticsArg(args) {
+  return args[0] === "--diagnostics";
+}
+
+/**
+ * Collects runtime diagnostics information.
+ * @returns {{
+ *   version: string;
+ *   uptime: number;
+ *   memoryUsage: { rss: number; heapTotal: number; heapUsed: number };
+ *   platform: string;
+ *   arch: string;
+ * }}
+ */
+export function collectDiagnostics() {
+  const memory = process.memoryUsage();
+  return {
+    version: process.version,
+    uptime: process.uptime(),
+    memoryUsage: {
+      rss: memory.rss,
+      heapTotal: memory.heapTotal,
+      heapUsed: memory.heapUsed
+    },
+    platform: process.platform,
+    arch: process.arch
+  };
+}
+
+/**
  * Parses command-line arguments to determine server mode and port.
  * @param {string[]} args
  * @returns {{serve: boolean, port: number}}
@@ -61,6 +95,12 @@ export async function startServer(portArg) {
  * @param {string[]} args
  */
 export async function main(args) {
+  if (parseDiagnosticsArg(args)) {
+    const diag = collectDiagnostics();
+    console.log(JSON.stringify(diag, null, 2));
+    process.exit(0);
+  }
+
   const { serve, port } = parseServeArgs(args);
   if (serve) {
     await startServer(port);
