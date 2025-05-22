@@ -3049,3 +3049,196 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T10:20:45.630Z
+
+fixApplied: true
+
+Enhance PR opener to create individual PRs for issues 2188 and 2193
+
+Git Diff:
+
+```
+diff --git a/docs/PR_OPENER.md b/docs/PR_OPENER.md
+index 0dc03c51..998b30a1 100644
+--- a/docs/PR_OPENER.md
++++ b/docs/PR_OPENER.md
+@@ -2,19 +2,20 @@
+ 
+ ## Overview
+ 
+-Add a new pull request opener mode to the CLI that automates the creation of a consolidated pull request for the HTTP server and diagnostics features.
++Extend the existing PR opener mode to open separate pull requests for the HTTP server and diagnostics issues in a single command invocation. This enhancement automates creating individual branches and PRs for issues 2188 and 2193.
+ 
+ ## Behavior
+ 
+ - When run with `--open-prs`, the CLI will:
+-  - Verify that the GitHub CLI (`gh`) is installed and authenticated.
+-  - Create a new branch named `open-prs-http-diagnostics`.
+-  - Run:
+-    ```
+-    gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"
+-    ```
+-    to open a pull request linking the two issues.
+-  - Print success or error messages and exit with code zero on success or a nonzero code on failure.
++  - Verify that GitHub CLI (`gh`) is installed and authenticated.
++  - For each issue in the list `[2188, 2193]`:
++    - Create a branch named `pr-<issue>`.
++    - Run:
++      ```bash
++      gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
++      ```
++    - Print a success message such as `Opened PR for issue #<issue>`.
++  - After processing all issues, exit with code zero if all commands succeeded; if any command fails, print the error and exit with a nonzero code.
+ 
+ ## CLI Usage
+ 
+@@ -24,14 +25,12 @@ Add a new pull request opener mode to the CLI that automates the creation of a c
+ ## Tests
+ 
+ - Unit test for `parseOpenPrsArg` to detect the `--open-prs` flag.
+-- Unit test for `openPrs` that mocks `child_process.exec` and verifies the correct `gh` commands are executed.
+-- Integration test that stubs `exec`, calls `main` with `["--open-prs"]`, and asserts `exec` was called and `process.exit(0)` is invoked.
++- Unit test for `openPrs` that mocks `child_process.exec` and verifies the sequence of commands for issues 2188 and 2193.
++- Integration-style test for `main(["--open-prs"])` that stubs `exec` and `process.exit`, asserting exit code 0 and logs for each issue.
+ 
+ ## Implementation Details
+ 
+-- Use Node.js built-in `child_process.exec` from the `child_process` module.
+-- Export `parseOpenPrsArg(args: string[]): boolean` and `openPrs(): Promise<void>` from `src/lib/main.js`.
+-- In `main(args)`, check `parseOpenPrsArg` first, then `await openPrs()`, then call `process.exit(0)`.
+-- Add a script `open-prs` to `package.json` pointing to `node src/lib/main.js --open-prs`.
+-
+-*No new dependencies required.*
+\ No newline at end of file
++- Import `exec` from Node.js built-in `child_process` module.
++- `openPrs` iterates over the array `[2188, 2193]`, performing authentication, branch creation, and PR creation for each issue.
++- In `main(args)`, check `parseOpenPrsArg` before other modes and call `openPrs()` on match.
++- No new dependencies required.
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 806439e4..294e6a8f 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -4,7 +4,7 @@
+ import { fileURLToPath } from "url";
+ import http from "http";
+ import { readFile } from "fs/promises";
+-import { createRequire } from "module";
++import { exec } from "child_process";
+ 
+ /**
+  * Checks if a specific flag is present in args.
+@@ -40,30 +40,30 @@ export function parseOpenPrsArg(args) {
+ }
+ 
+ /**
+- * Opens a pull request via GitHub CLI.
++ * Opens separate pull requests via GitHub CLI for each issue.
+  * @returns {Promise<void>}
+  */
+-export function openPrs() {
+-  const requireCP = createRequire(import.meta.url);
+-  return new Promise((resolve, reject) => {
+-    const steps = [
+-      'gh auth status',
+-      'git checkout -b open-prs-http-diagnostics',
+-      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
+-    ];
+-    let idx = 0;
+-    function next(err) {
+-      if (err) return reject(err);
+-      if (idx >= steps.length) return resolve();
+-      const cmd = steps[idx++];
+-      requireCP('child_process').exec(cmd, (error, stdout, stderr) => {
++export async function openPrs() {
++  const issues = [2188, 2193];
++  for (const issue of issues) {
++    await new Promise((resolve, reject) => {
++      exec('gh auth status', (error, stdout, stderr) => {
+         if (error) return reject(error);
+         if (stderr) console.error(stderr);
+-        next();
++        exec(`git checkout -b pr-${issue}`, (error2, stdout2, stderr2) => {
++          if (error2) return reject(error2);
++          if (stderr2) console.error(stderr2);
++          const cmd = `gh pr create --title "Implement feature for issue #${issue}" --body "Resolves issue #${issue}"`;
++          exec(cmd, (error3, stdout3, stderr3) => {
++            if (error3) return reject(error3);
++            if (stderr3) console.error(stderr3);
++            console.log(`Opened PR for issue #${issue}`);
++            resolve();
++          });
++        });
+       });
+-    }
+-    next();
+-  });
++    });
++  }
+ }
+ 
+ /**
+@@ -192,7 +192,6 @@ export async function main(args) {
+   // PR opener mode
+   if (parseOpenPrsArg(args)) {
+     await openPrs();
+-    console.log("Pull request opened: Check your GitHub repository");
+     process.exit(0);
+   }
+ 
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 104e4cf0..6836ebb1 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -49,8 +49,11 @@ describe("openPrs", () => {
+     await expect(openPrs()).resolves.toBeUndefined();
+     expect(execCalls).toEqual([
+       'gh auth status',
+-      'git checkout -b open-prs-http-diagnostics',
+-      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
++      'git checkout -b pr-2188',
++      'gh pr create --title "Implement feature for issue #2188" --body "Resolves issue #2188"',
++      'gh auth status',
++      'git checkout -b pr-2193',
++      'gh pr create --title "Implement feature for issue #2193" --body "Resolves issue #2193"'
+     ]);
+     require('child_process').exec.mockRestore();
+   });
+@@ -168,8 +171,10 @@ describe("main open-prs mode", () => {
+     } catch (err) {
+       expect(err.message).toBe("Exit:0");
+     }
+-    expect(execMock).toHaveBeenCalled();
+-    expect(logSpy).toHaveBeenCalledWith("Pull request opened: Check your GitHub repository");
++    expect(execMock).toHaveBeenCalledTimes(6);
++    expect(logSpy).toHaveBeenCalledTimes(2);
++    expect(logSpy).toHaveBeenCalledWith("Opened PR for issue #2188");
++    expect(logSpy).toHaveBeenCalledWith("Opened PR for issue #2193");
+     execMock.mockRestore();
+     logSpy.mockRestore();
+     exitSpy.mockRestore();
+@@ -231,4 +236,4 @@ describe("main default mode", () => {
+     expect(log[0]).toBe(`Run with: ${JSON.stringify(args)}`);
+     console.log = origLog;
+   });
+-});
+\ No newline at end of file
++});
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2205 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":46031,"completion_tokens":9076,"total_tokens":55107,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4288,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
