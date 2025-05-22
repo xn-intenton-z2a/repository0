@@ -2205,3 +2205,78 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T09:47:08.802Z
+
+fixApplied: true
+
+Update README.md as per CLI Usage enhancement
+
+Git Diff:
+
+```
+diff --git a/README.md b/README.md
+index de084778..4c003506 100644
+--- a/README.md
++++ b/README.md
+@@ -12,35 +12,31 @@ The repository is intended as a template that includes:
+ 
+ ### Default mode
+ ```bash
+-npm run start  # or node src/lib/main.js
++npm run start      # or node src/lib/main.js
+ ```
+-Prints the received arguments.
++Prints the received arguments. Example: `Run with: ["foo","bar"]`.
+ 
+ ### Server mode
+ ```bash
+ npm run serve      # or node src/lib/main.js --serve
+ npm run serve -- 3000  # or node src/lib/main.js --serve 3000
+ ```
+-Starts an HTTP server on port 8080 (default) or the provided port. Responds to `GET /` with status 200 and body `Hello World!`.
++Starts an HTTP server on port 8080 (default) or `3000` when specified.
++Responds to `GET /` with status 200 and body `Hello World!`.
+ 
+ ### Diagnostics mode
+ ```bash
+ npm run diagnostics  # or node src/lib/main.js --diagnostics
+ ```
+-Prints a JSON object with the following keys:
+-- `version`: Node.js version
+-- `uptime`: Process uptime (seconds)
+-- `memoryUsage`: Object with `rss`, `heapTotal`, `heapUsed`
+-- `platform`: OS platform
+-- `arch`: CPU architecture
+-
++Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
+ Exits with code 0.
+ 
+ ### Mission mode
+ ```bash
+ npm run mission      # or node src/lib/main.js --mission
+ ```
+-Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading, and exits with code 0.
++Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
++Exits with code 0.
+ 
+ ### Help
+ ```bash
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2198 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":36013,"completion_tokens":735,"total_tokens":36748,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
