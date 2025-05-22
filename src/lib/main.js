@@ -2,9 +2,72 @@
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
+import http from "http";
 
-export function main(args) {
-  console.log(`Run with: ${JSON.stringify(args)}`);
+/**
+ * Parses command-line arguments to determine server mode and port.
+ * @param {string[]} args
+ * @returns {{serve: boolean, port: number}}
+ */
+export function parseServeArgs(args) {
+  let serve = false;
+  let port = 8080;
+  if (args[0] === "--serve") {
+    serve = true;
+    if (args[1] && !args[1].startsWith("-")) {
+      const p = Number(args[1]);
+      if (!Number.isNaN(p)) {
+        port = p;
+      }
+    }
+  }
+  return { serve, port };
+}
+
+/**
+ * Starts an HTTP server on the given port that responds to GET / with "Hello World!".
+ * @param {number} portArg
+ * @returns {Promise<import('http').Server>}
+ */
+export async function startServer(portArg) {
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      if (req.method === "GET" && req.url === "/") {
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("Hello World!");
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+
+    server.on("error", reject);
+
+    server.listen(portArg, () => {
+      const address = server.address();
+      const actualPort =
+        typeof address === "object" && address ? address.port : address;
+      console.log(`Server listening on port ${actualPort}`);
+      resolve(server);
+    });
+
+    process.on("SIGINT", () => {
+      server.close();
+    });
+  });
+}
+
+/**
+ * Main entry point.
+ * @param {string[]} args
+ */
+export async function main(args) {
+  const { serve, port } = parseServeArgs(args);
+  if (serve) {
+    await startServer(port);
+  } else {
+    console.log(`Run with: ${JSON.stringify(args)}`);
+  }
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
