@@ -1527,3 +1527,57 @@ LLM API Usage:
 
 2025-05-22T06:59:04Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Feature to Issue at 2025-05-22T07:00:10.725Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2198 with title:
+
+Update README.md to document CLI usage for mission, diagnostics, and server modes
+
+And description:
+
+Add a dedicated “CLI Usage” section in `README.md` to surface all available modes and their flags. Specifically, update `README.md` to include:
+
+1. **CLI Usage**
+   - **Default mode**  
+     ```bash
+     npm run start  # or node src/lib/main.js
+     ```
+     Prints the received arguments and exits.
+
+   - **Server mode**  
+     ```bash
+     npm run serve  # or node src/lib/main.js --serve
+     npm run serve -- 3000  # or node src/lib/main.js --serve 3000
+     ```
+     Launches a minimal HTTP server on the given port (default 8080) that responds to `GET /` with “Hello World!”.
+
+   - **Diagnostics mode**  
+     ```bash
+     npm run diagnostics  # or node src/lib/main.js --diagnostics
+     ```
+     Prints a JSON object with runtime diagnostics (Node.js version, uptime, memory usage, platform, arch) and exits with code 0.
+
+   - **Mission mode**  
+     ```bash
+     npm run mission  # or node src/lib/main.js --mission
+     ```
+     Reads and prints the full content of `MISSION.md` and exits with code 0.
+
+2. **Links to Detailed Docs**  
+   Under this section, add links to the feature-specific documentation files:
+   - [HTTP Server](docs/HTTP_SERVER.md)  
+   - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)  
+   - [Mission Mode](docs/MISSION_MODE.md)
+
+Verification steps:
+- Open `README.md` in the repo root and confirm the new **CLI Usage** section appears with the correct commands and descriptions.
+- Run each command locally (`npm run start`, `npm run serve`, `npm run diagnostics`, `npm run mission`) and verify the behavior matches the descriptions in the README.
+- Ensure no other files are modified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":23812,"completion_tokens":2845,"total_tokens":26657,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2368,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
