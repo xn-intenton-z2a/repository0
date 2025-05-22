@@ -196,3 +196,226 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T00:42:29.373Z
+
+fixApplied: true
+
+Implement emotion CLI support with argument parsing error handling tests and updated README usage examples
+
+Git Diff:
+
+```
+diff --git a/README.md b/README.md
+index a8e4c99b..a5670978 100644
+--- a/README.md
++++ b/README.md
+@@ -3,25 +3,24 @@
+ The repository is intended as a template that includes:
+ * A Template Base: A starting point for new projects.
+ * A Running Experiment: An example implementation that demonstrates one way to use the template.
+-* Workflows from `agentic‑lib` which reference reusable workflows.
++* Workflows from `agentic-lib` which reference reusable workflows.
+ 
+ ## Overview
+-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
++`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+ 
+ ## What’s Inside
+ 
+ - **GitHub Workflows:**  
+-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
++  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic-lib`.
+ 
+ - **Source Code:**  
+-  The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
++  The main functionality is in `src/lib/main.js`, now extended to support emotion-based ASCII art via `--emotion` or `-e` flags.
+ 
+ - **Dependencies:**  
+   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
+ 
+ - **Tests:**  
+-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
+-  This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
++  Unit tests in the `tests/unit/` folder ensure that the main script behaves correctly for each supported emotion and handles errors when unsupported emotions are passed.
+ 
+ - **Docs**  
+   This `README.md` can be modified by the workflow.
+@@ -70,37 +69,39 @@ On timer: Automerge (code merged)
+ 
+ On timer: Review Issue (issue reviewed and closed)
+ ```
+-(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+-
+-#### Running the workflows:
+-
+-The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+-The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+-and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+-this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
+ 
+ ### Running the Demo
+ 
+-Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
+-
+ You can run the demo and tests locally:
+ 
+ 1. **Clone the Repository:**  
+-   Run in your terminal:  
+    `git clone <repository_url>`
+ 
+ 2. **Install Dependencies:**  
+-   Change into the project directory and run:  
+    `npm install`
+ 
+ 3. **Run Tests:**  
+-   To verify that everything is working, run:  
+    `npm test`
+ 
+ 4. **Run the Demo:**  
+-   Execute the main script with:  
+-   `npm run start`  
+-   This will display the output of the program.
++   Execute the main script with emotion flags:  
++   ```bash
++   # Default (no emotion flag, defaults to neutral)
++   npm run start
++   # Outputs: (-_-)
++
++   # Using long-form flag
++   npm run start -- --emotion happy
++   # Outputs: (^_^)
++
++   # Using short-form flag
++   npm run start -- -e sad
++   # Outputs: (T_T)
++
++   # Unsupported emotion
++   npm run start -- --emotion excited
++   # Outputs: Error: Unsupported emotion 'excited'. Supported emotions are: happy, sad, angry, neutral.
++   ```
+ 
+ ### Tuning the agentic coding system
+ 
+@@ -115,4 +116,4 @@ The following files are also taken into consideration but may also be changed (e
+ - `tests/unit/main.test.js`
+ 
+ ## Final Notes
+-`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
++`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..2dc0ad8c 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,11 +3,35 @@
+ 
+ import { fileURLToPath } from "url";
+ 
++const faces = {
++  happy: "(^_^)",
++  sad: "(T_T)",
++  angry: "(>_<)",
++  neutral: "(-_-)",
++};
++
+ export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const index = args.findIndex((arg) => arg === "--emotion" || arg === "-e");
++  let emotion = "neutral";
++  if (index !== -1 && args.length > index + 1) {
++    emotion = args[index + 1];
++  }
++  if (!faces[emotion]) {
++    throw new Error(
++      `Unsupported emotion '${emotion}'. Supported emotions are: ${Object.keys(faces).join(
++        ", "
++      )}.`
++    );
++  }
++  console.log(faces[emotion]);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  try {
++    main(args);
++  } catch (err) {
++    console.error(`Error: ${err.message}`);
++    process.exit(1);
++  }
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..1779e3d7 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,41 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, vi } from "vitest";
+ import { main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++describe("EMOTIVE_FACE main function", () => {
++  const faces = {
++    happy: "(^_^)",
++    sad: "(T_T)",
++    angry: "(>_<)",
++    neutral: "(-_-)",
++  };
++
++  beforeEach(() => {
++    vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test.each([
++    [[], faces.neutral],
++    [["--emotion", "happy"], faces.happy],
++    [["--emotion", "sad"], faces.sad],
++    [["--emotion", "angry"], faces.angry],
++    [["--emotion", "neutral"], faces.neutral],
++    [["-e", "happy"], faces.happy],
++    [["-e", "sad"], faces.sad],
++    [["-e", "angry"], faces.angry],
++    [["-e", "neutral"], faces.neutral],
++  ])("main(%p) logs %s", (args, expected) => {
++    main(args);
++    expect(console.log).toHaveBeenCalledWith(expected);
+   });
+-});
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++  test("unsupported emotion throws error", () => {
++    expect(() => main(["--emotion", "excited"]))
++      .toThrowError(
++        "Unsupported emotion 'excited'. Supported emotions are: happy, sad, angry, neutral."
++      );
+   });
+ });
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+(-_-)
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2187 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10099,"completion_tokens":6959,"total_tokens":17058,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4736,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
