@@ -6063,3 +6063,32 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T15:06:35.308Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+The CLI supports both separate (`--open-prs`) and consolidated (`--open-prs-consolidated`) PR opener modes, but the main README does not yet document the consolidated mode.
+
+Acceptance Criteria:
+1. README.md includes a `### Consolidated PR mode` subsection under the **CLI Usage** section immediately after the existing **PR opener mode** subsection.
+2. The subsection contains the following code snippet:
+   ```bash
+   npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+   ```
+3. The subsection includes the description: "Opens a single consolidated pull request resolving issues #2188 and #2193".
+4. The **Links to Detailed Docs** section in README.md lists `[PR Opener](docs/PR_OPENER.md)` alongside the existing links without altering them.
+5. Only README.md is modified; no changes are made to source code, tests, or dependencies.
+
+Verification Steps:
+- Open `README.md` and confirm the **Consolidated PR mode** section appears with the correct heading, code block, and description.
+- Confirm the **Links to Detailed Docs** section includes the `[PR Opener](docs/PR_OPENER.md)` link.
+- (Optional) Run `npm run open-prs-consolidated` or `node src/lib/main.js --open-prs-consolidated` to verify the example command matches the actual usage.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":12904,"completion_tokens":1069,"total_tokens":13973,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
