@@ -38,6 +38,12 @@ npm run mission      # or node src/lib/main.js --mission
 Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
 Exits with code 0.
 
+### PR opener mode
+```bash
+npm run open-prs     # or node src/lib/main.js --open-prs
+```
+Automates creation of separate pull requests for issues #2188 and #2193.
+
 ### Help
 ```bash
 npm run start -- --help  # or node src/lib/main.js --help
@@ -50,3 +56,4 @@ Displays usage information and exits with code 0.
 - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
 - [Mission Mode](docs/MISSION_MODE.md)
 - [Info Modes](docs/INFO_MODES.md)
+- [PR Opener](docs/PR_OPENER.md)
