@@ -9831,3 +9831,50 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T21:16:34.723Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Add CI job to automate consolidated PR opening for HTTP server and diagnostics
+
+Overview:
+Integrate the existing `--open-prs-consolidated` CLI command into our CI workflows to automatically open a single pull request that merges the HTTP server (issue #2188) and Diagnostics Mode (issue #2193) branches. This automation streamlines the final review and release process.
+
+Acceptance Criteria:
+1. CI Workflow Configuration:
+   - A new workflow file (e.g., `.github/workflows/pr_opener.yml`) defines a job named `open_consolidated_pr`.
+   - The job is triggered on both `workflow_dispatch` and a scheduled cron (e.g., `0 0 * * *`).
+   - The job has `needs: [build]` dependency on existing build and test jobs.
+
+2. Job Steps:
+   - Uses `actions/checkout@v3` to checkout the repository.
+   - Uses `actions/setup-node@v3` with `node-version: '20'`.
+   - Installs dependencies with `npm install`.
+   - Runs `npm run open-prs-consolidated`.
+
+3. Command Verification:
+   - The workflow logs include `gh auth status`, `git checkout -b open-prs-http-diagnostics`, and `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`.
+   - The workflow prints `Opened consolidated PR for HTTP server and diagnostics` on success.
+   - The workflow exits with code 0 on success and non-zero on failure.
+
+4. Pull Request Validation:
+   - After workflow execution, a pull request exists with:
+     • Branch name: `open-prs-http-diagnostics`
+     • Title: `Merge HTTP server and diagnostics features`
+     • Body listing “- resolves #2188” and “- resolves #2193”.
+
+Verification Steps:
+1. Commit and push the workflow changes to a feature branch.
+2. Trigger the workflow manually or wait for scheduled run.
+3. Confirm logs and exit code in GitHub Actions UI.
+4. Verify the consolidated pull request is created correctly.
+
+No changes to application code, tests, or dependencies are required; this issue focuses solely on CI workflow orchestration.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11381,"completion_tokens":1194,"total_tokens":12575,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
