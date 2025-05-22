@@ -9878,3 +9878,28 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T21:18:37.424Z
+
+fixApplied: false
+
+Add CI job for consolidated PR opener to GitHub Actions workflow
+
+Git Diff:
+
+```
+
+```
+mainOutput:
+```
+
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2235 with title: ""]
+
+LLM API Usage:
+
+```json
+
+```
+---
+
