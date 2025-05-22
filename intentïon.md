@@ -5164,3 +5164,65 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T13:50:01.474Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2215 with title:
+
+Implement CONSOLIDATED_PR_OPENER: --open-prs-consolidated mode
+
+And description:
+
+Overview:
+Add a new consolidated pull request opener mode to the CLI. When a user runs `node src/lib/main.js --open-prs-consolidated` (or `npm run open-prs-consolidated`), the tool should create one branch and open a single PR that resolves issues #2188 and #2193.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. src/lib/main.js
+   - Export `parseConsolidatedPrArg(args: string[]): boolean` that returns `true` when `args[0] === "--open-prs-consolidated"`, else `false`.
+   - Export `openConsolidatedPr(): Promise<void>` to run sequentially using `child_process.exec` (import or require):
+     a. `gh auth status`
+     b. `git checkout -b open-prs-http-diagnostics`
+     c. `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+     - On success, print `Opened consolidated PR for HTTP server and diagnostics`
+     - On failure, print stderr via `console.error` and reject.
+   - In `main(args)`, before other modes, add:
+     ```js
+     if (parseConsolidatedPrArg(args)) {
+       await openConsolidatedPr();
+       process.exit(0);
+     }
+     ```
+   - Ensure existing modes (`--open-prs`, `--mission`, `--diagnostics`, `--serve`, `--help`, default) are unchanged.
+
+2. package.json
+   - Under `scripts`, add:
+     ```json
+     "open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated"
+     ```
+   - No new dependencies.
+
+3. tests/unit/main.test.js
+   - Unit tests for `parseConsolidatedPrArg`: `[]` → false; `["--open-prs-consolidated"]` → true.
+   - Unit test for `openConsolidatedPr`: mock `child_process.exec` to verify the sequence of commands and that `console.log('Opened consolidated PR for HTTP server and diagnostics')` is called.
+   - Integration-style test for `main(['--open-prs-consolidated'])`: stub `exec` and `process.exit` (to throw), call `main(...)`, and assert success message log and exit code 0.
+
+4. README.md
+   - Under **CLI Usage**, add **Consolidated PR mode**:
+     ```bash
+     npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
+     ```
+     Opens a single consolidated PR resolving issues #2188 and #2193.
+   - Under **Links to Detailed Docs**, ensure `- [PR Opener](docs/PR_OPENER.md)` appears.
+
+Verification:
+1. Run `npm test` → all tests should pass.
+2. Run `npm run open-prs-consolidated` (with `gh` CLI stubbed or real): should create branch, open PR, print `Opened consolidated PR for HTTP server and diagnostics`, and exit with code 0.
+3. Confirm no regressions in other modes (`--serve`, `--mission`, `--diagnostics`, `--open-prs`, `--help`, default).
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":68753,"completion_tokens":778,"total_tokens":69531,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
