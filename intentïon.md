@@ -3889,3 +3889,42 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T11:45:23.748Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Document PR opener mode in README CLI Usage
+
+Description:
+The PR opener feature (`--open-prs` / `npm run open-prs`) is fully implemented and documented in `docs/PR_OPENER.md`, but the main `README.md` CLI Usage section does not yet mention this mode. We need to update the README to surface the PR opener mode and provide users with clear guidance.
+
+Changes required:
+1. README.md
+   - Under **CLI Usage**, after the existing modes, add a new subsection **PR opener mode** with the following content:
+     ```bash
+     ### PR opener mode
+     ```bash
+     npm run open-prs      # or node src/lib/main.js --open-prs
+     ```
+     - Automates creation of separate pull requests for issues #2188 and #2193.
+   - Under **Links to Detailed Docs**, add:
+     - [PR Opener](docs/PR_OPENER.md)
+
+Acceptance Criteria:
+- AC01: The **CLI Usage** section in `README.md` contains a subsection titled **PR opener mode**.
+- AC02: The code block under **PR opener mode** shows exactly `npm run open-prs      # or node src/lib/main.js --open-prs`.
+- AC03: The **Links to Detailed Docs** section includes `- [PR Opener](docs/PR_OPENER.md)`.
+- AC04: No other parts of `README.md` are modified outside of adding the PR opener entries.
+
+Verification Steps:
+1. Open `README.md` and confirm the **PR opener mode** section appears with the correct heading, code snippet, and description.
+2. Ensure the **Links to Detailed Docs** section now lists `[PR Opener](docs/PR_OPENER.md)`.
+3. (Optional) Run `npm run open-prs` or `node src/lib/main.js --open-prs` to ensure the usage example aligns with the documented command.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11464,"completion_tokens":1039,"total_tokens":12503,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
