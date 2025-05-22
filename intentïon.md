@@ -10136,3 +10136,59 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T22:16:23.247Z
+
+Generated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2237 with title:
+
+Add CI job for automated consolidated PR opening
+
+And description:
+
+Overview:
+Integrate the existing `--open-prs-consolidated` CLI command into our GitHub Actions workflows so that a single pull request merging the HTTP server (issue #2188) and Diagnostics Mode (issue #2193) feature branches is created automatically. This streamlines final review and release tagging.
+
+Changes required (single LLM invocation will complete this update):
+
+1. .github/workflows/pr_opener.yml
+   - Add a new job `open_consolidated_pr` that runs after the existing build and test jobs:
+     ```yaml
+     jobs:
+       open_consolidated_pr:
+         runs-on: ubuntu-latest
+         needs: [build]
+         on:
+           workflow_dispatch:
+           schedule:
+             - cron: '0 0 * * *'
+         steps:
+           - uses: actions/checkout@v3
+           - name: Set up Node.js
+             uses: actions/setup-node@v3
+             with:
+               node-version: '20'
+           - name: Install dependencies
+             run: npm install
+           - name: Open consolidated PR for HTTP server and diagnostics
+             run: npm run open-prs-consolidated
+     ```
+   - Ensure the workflow has permission for GitHub CLI commands (`gh auth status`, `git checkout`, `gh pr create`).
+
+Verification Steps:
+1. Commit and push the updated workflow to a feature branch.
+2. Trigger the `open_consolidated_pr` job manually or wait for its schedule.
+3. In the Actions log, confirm it runs:
+   - `gh auth status`
+   - `git checkout -b open-prs-http-diagnostics`
+   - `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+   - Logs `Opened consolidated PR for HTTP server and diagnostics`.
+4. Confirm the job exits with code 0 and a GitHub pull request appears with correct branch, title, and body resolving #2188 and #2193.
+
+No changes to source code, tests, or dependencies are necessary; this issue focuses exclusively on CI workflow orchestration.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":124989,"completion_tokens":500,"total_tokens":125489,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
