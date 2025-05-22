@@ -1,13 +1,13 @@
-# PULL_REQUEST_OPENER
+# PR_OPENER
 
 ## Overview
-Provide a unified pull-request opener feature that supports both separate and consolidated modes via CLI flags and integrates into CI workflows. Users can open individual pull requests per feature issue or a single consolidated pull request merging HTTP server (issue #2188) and diagnostics (issue #2193) features.
+Provide a unified pull-request opener CLI feature that automates creating both individual and consolidated pull requests for the HTTP server and diagnostics features. This feature handles separate PRs per issue and a single consolidated PR, with clear usage, error handling, and CI integration.
 
 ## Behavior
 
 ### Separate PR mode (`--open-prs`)
 - Verify GitHub CLI authentication by running `gh auth status`.
-- For each issue in `[2188, 2193]`:
+- For each issue in [2188, 2193]:
   • Create branch `pr-<issue>` via `git checkout -b pr-<issue>`.
   • Run `gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"`.
   • Log `Opened PR for issue #<issue>` on success.
@@ -29,16 +29,39 @@ npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
 ```
 
 ## CI Integration
-Add or update `.github/workflows/pr_opener.yml` to include a job `open_consolidated_pr` that:
-1. Runs after build and test jobs.
-2. Uses `actions/checkout@v3` and `actions/setup-node@v3` (node 20).
-3. Installs dependencies (`npm install`).
-4. Executes `npm run open-prs-consolidated` to open the consolidated PR.
+Add a job `open_consolidated_pr` in `.github/workflows/pr_opener.yml` that runs after build and test jobs:
+```yaml
+jobs:
+  open_consolidated_pr:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Open consolidated PR for HTTP server and diagnostics
+        run: npm run open-prs-consolidated
+```
 
 ## Tests
 - Unit tests for `parseOpenPrsArg` and `parseConsolidatedPrArg` flag detection.
 - Unit tests for `openPrs()` and `openConsolidatedPr()` mocking `child_process.exec`:
-  • Verify correct sequence of commands and logs.
-  • Simulate errors to assert error logs and exit code 1.
+  • Verify command sequence and success logs.
+  • Simulate errors and assert error logs and exit code 1.
 - Integration tests for `main(["--open-prs"])` and `main(["--open-prs-consolidated"])`:
-  • Stub `exec` and `process.exit` to capture logs and exit codes in success and failure scenarios.
+  • Stub `exec` and `process.exit`, capture logs and exit codes in success and failure scenarios.
+
+## Implementation Details
+- In `src/lib/main.js` export and implement:
+  • `parseOpenPrsArg`, `parseConsolidatedPrArg` to detect flags.
+  • `openPrs()`, `openConsolidatedPr()` using `child_process.exec`.
+  • Wrap calls in `main(args)` with `try/catch` for clear errors and exit codes.
+- Update `package.json` scripts:
+```json
+"open-prs": "node src/lib/main.js --open-prs",
+"open-prs-consolidated": "node src/lib/main.js --open-prs-consolidated"
+```
