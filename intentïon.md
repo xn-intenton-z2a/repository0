@@ -1300,3 +1300,64 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Ready Issue at 2025-05-22T06:46:08.708Z
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2196 with action close and updated description:
+
+Overview:
+Add a new mission mode to our CLI so that users can run `node src/lib/main.js --mission` (or `npm run mission`) to print out the project mission (from MISSION.md) and exit. All existing modes (`default`, `--serve`, and `--diagnostics`) should remain unchanged.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. src/lib/main.js
+   - Export `parseMissionArg(args: string[]): boolean` that returns `true` when `args[0] === "--mission"`, else `false`.
+   - Export `readMission(): Promise<string>` that uses `fs/promises.readFile` (or `fs.readFileSync`) to read `MISSION.md` (utf8) and returns its content as a string.
+   - In `main(args)`, before diagnostics and serve handling, add:
+     ```js
+     if (parseMissionArg(args)) {
+       const mission = await readMission();
+       console.log(mission);
+       process.exit(0);
+     }
+     ```
+   - Ensure this check happens first so that `--mission` supersedes other flags, and that existing behaviors are preserved.
+
+2. tests/unit/main.test.js
+   - Add unit tests for `parseMissionArg`:
+     • `parseMissionArg([])` → `false`
+     • `parseMissionArg(["--mission"])` → `true`
+   - Add a unit test for `readMission`:
+     • Call `await readMission()` and assert the returned string includes a known substring from `MISSION.md`, e.g. `"# repository0"`.
+   - Add an integration-style test for `main(['--mission'])`:
+     • Spy on `console.log` and mock `process.exit` to throw or capture the exit code.
+     • Call `await main(["--mission"])` inside a `try/catch` or promise handler.
+     • Verify `console.log` was called with the mission text and `process.exit(0)` was invoked.
+
+3. README.md
+   - Under **CLI Usage**, add:
+     ```md
+     - `npm run mission` or `node src/lib/main.js --mission` 
+       → Prints the project mission (contents of MISSION.md) and exits with code 0.
+     ```
+   - Ensure the overview mentions the new `mission` script.
+
+4. package.json
+   - In `scripts`, add:
+     ```json
+     "mission": "node src/lib/main.js --mission"
+     ```
+
+Verification Steps:
+1. Run `npm test` → all existing and new tests should pass.
+2. Run `npm run mission` or `node src/lib/main.js --mission` → console should print the full content of `MISSION.md` and exit with code 0.
+3. Confirm `npm run start`, `npm run serve`, and `npm run diagnostics` behaviors remain unchanged.
+
+No new dependencies should be added. Only modify `src/lib/main.js`, `tests/unit/main.test.js`, `README.md`, and `package.json` to implement this feature as specified.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9572,"completion_tokens":1986,"total_tokens":11558,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
