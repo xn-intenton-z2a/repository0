@@ -27,27 +27,27 @@ Responds to `GET /` with status 200 and body `Hello World!`.
 ### Diagnostics mode
 ```bash
 npm run diagnostics  # or node src/lib/main.js --diagnostics
-```
+``` 
 Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
 Exits with code 0.
 
 ### Mission mode
 ```bash
 npm run mission      # or node src/lib/main.js --mission
-```
+``` 
 Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
 Exits with code 0.
 
 ### PR opener mode
 ```bash
 npm run open-prs     # or node src/lib/main.js --open-prs
-```
+``` 
 Automates creation of separate pull requests for issues #2188 and #2193.
 
 ### Consolidated PR mode
 ```bash
 npm run open-prs-consolidated  # or node src/lib/main.js --open-prs-consolidated
-```
+``` 
 Opens a single consolidated pull request resolving issues #2188 and #2193.
 
 ### Help
