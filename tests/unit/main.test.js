@@ -49,8 +49,11 @@ describe("openPrs", () => {
     await expect(openPrs()).resolves.toBeUndefined();
     expect(execCalls).toEqual([
       'gh auth status',
-      'git checkout -b open-prs-http-diagnostics',
-      'gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"'
+      'git checkout -b pr-2188',
+      'gh pr create --title "Implement feature for issue #2188" --body "Resolves issue #2188"',
+      'gh auth status',
+      'git checkout -b pr-2193',
+      'gh pr create --title "Implement feature for issue #2193" --body "Resolves issue #2193"'
     ]);
     require('child_process').exec.mockRestore();
   });
@@ -168,8 +171,10 @@ describe("main open-prs mode", () => {
     } catch (err) {
       expect(err.message).toBe("Exit:0");
     }
-    expect(execMock).toHaveBeenCalled();
-    expect(logSpy).toHaveBeenCalledWith("Pull request opened: Check your GitHub repository");
+    expect(execMock).toHaveBeenCalledTimes(6);
+    expect(logSpy).toHaveBeenCalledTimes(2);
+    expect(logSpy).toHaveBeenCalledWith("Opened PR for issue #2188");
+    expect(logSpy).toHaveBeenCalledWith("Opened PR for issue #2193");
     execMock.mockRestore();
     logSpy.mockRestore();
     exitSpy.mockRestore();

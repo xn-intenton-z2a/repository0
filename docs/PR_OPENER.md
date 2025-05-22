@@ -2,19 +2,20 @@
 
 ## Overview
 
-Add a new pull request opener mode to the CLI that automates the creation of a consolidated pull request for the HTTP server and diagnostics features.
+Extend the existing PR opener mode to open separate pull requests for the HTTP server and diagnostics issues in a single command invocation. This enhancement automates creating individual branches and PRs for issues 2188 and 2193.
 
 ## Behavior
 
 - When run with `--open-prs`, the CLI will:
-  - Verify that the GitHub CLI (`gh`) is installed and authenticated.
-  - Create a new branch named `open-prs-http-diagnostics`.
-  - Run:
-    ```
-    gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"
-    ```
-    to open a pull request linking the two issues.
-  - Print success or error messages and exit with code zero on success or a nonzero code on failure.
+  - Verify that GitHub CLI (`gh`) is installed and authenticated.
+  - For each issue in the list `[2188, 2193]`:
+    - Create a branch named `pr-<issue>`.
+    - Run:
+      ```bash
+      gh pr create --title "Implement feature for issue #<issue>" --body "Resolves issue #<issue>"
+      ```
+    - Print a success message such as `Opened PR for issue #<issue>`.
+  - After processing all issues, exit with code zero if all commands succeeded; if any command fails, print the error and exit with a nonzero code.
 
 ## CLI Usage
 
@@ -24,14 +25,12 @@ Add a new pull request opener mode to the CLI that automates the creation of a c
 ## Tests
 
 - Unit test for `parseOpenPrsArg` to detect the `--open-prs` flag.
-- Unit test for `openPrs` that mocks `child_process.exec` and verifies the correct `gh` commands are executed.
-- Integration test that stubs `exec`, calls `main` with `["--open-prs"]`, and asserts `exec` was called and `process.exit(0)` is invoked.
+- Unit test for `openPrs` that mocks `child_process.exec` and verifies the sequence of commands for issues 2188 and 2193.
+- Integration-style test for `main(["--open-prs"])` that stubs `exec` and `process.exit`, asserting exit code 0 and logs for each issue.
 
 ## Implementation Details
 
-- Use Node.js built-in `child_process.exec` from the `child_process` module.
-- Export `parseOpenPrsArg(args: string[]): boolean` and `openPrs(): Promise<void>` from `src/lib/main.js`.
-- In `main(args)`, check `parseOpenPrsArg` first, then `await openPrs()`, then call `process.exit(0)`.
-- Add a script `open-prs` to `package.json` pointing to `node src/lib/main.js --open-prs`.
-
-*No new dependencies required.*
+- Import `exec` from Node.js built-in `child_process` module.
+- `openPrs` iterates over the array `[2188, 2193]`, performing authentication, branch creation, and PR creation for each issue.
+- In `main(args)`, check `parseOpenPrsArg` before other modes and call `openPrs()` on match.
+- No new dependencies required.
