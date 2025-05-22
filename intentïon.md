@@ -1114,3 +1114,189 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T06:30:43.070Z
+
+fixApplied: true
+
+Implement MISSION_MODE feature add --mission flag readMission tests docs and script
+
+Git Diff:
+
+```
+diff --git a/package.json b/package.json
+index bae22b38..f6d52c92 100644
+--- a/package.json
++++ b/package.json
+@@ -18,6 +18,7 @@
+     "test:e2e": "vitest tests/e2e/cli.test.js",
+     "start": "node src/lib/main.js",
+     "diagnostics": "node src/lib/main.js --diagnostics",
++    "mission": "node src/lib/main.js --mission",
+     "serve": "node src/lib/main.js --serve",
+     "build-intermediate": "node src/lib/main.js --build-intermediate",
+     "build-enhanced": "node src/lib/main.js --build-enhanced",
+diff --git a/src/lib/main.js b/src/lib/main.js
+index af92e100..6bec834a 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,6 +3,28 @@
+ 
+ import { fileURLToPath } from "url";
+ import http from "http";
++import { readFile } from "fs/promises";
++
++/**
++ * Parses command-line arguments to determine if mission mode is requested.
++ * @param {string[]} args
++ * @returns {boolean}
++ */
++export function parseMissionArg(args) {
++  return args[0] === "--mission";
++}
++
++/**
++ * Reads the project mission from MISSION.md.
++ * @returns {Promise<string>}
++ */
++export async function readMission() {
++  const data = await readFile(
++    new URL("../../MISSION.md", import.meta.url),
++    "utf8"
++  );
++  return data;
++}
+ 
+ /**
+  * Parses command-line arguments to determine if diagnostics mode is requested.
+@@ -79,7 +101,8 @@ export async function startServer(portArg) {
+ 
+     server.listen(portArg, () => {
+       const address = server.address();
+-      const actualPort = typeof address === "object" && address ? address.port : address;
++      const actualPort =
++        typeof address === "object" && address ? address.port : address;
+       console.log(`Server listening on port ${actualPort}`);
+       resolve(server);
+     });
+@@ -95,6 +118,12 @@ export async function startServer(portArg) {
+  * @param {string[]} args
+  */
+ export async function main(args) {
++  if (parseMissionArg(args)) {
++    const mission = await readMission();
++    console.log(mission);
++    process.exit(0);
++  }
++
+   if (parseDiagnosticsArg(args)) {
+     const diag = collectDiagnostics();
+     console.log(JSON.stringify(diag, null, 2));
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 07821744..c55a6a36 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,6 +1,8 @@
+ import { describe, test, expect, vi } from "vitest";
+ import http from "http";
+ import {
++  parseMissionArg,
++  readMission,
+   parseDiagnosticsArg,
+   collectDiagnostics,
+   parseServeArgs,
+@@ -24,6 +26,24 @@ async function getResponse(port) {
+   });
+ }
+ 
++describe("parseMissionArg", () => {
++  test("no flags", () => {
++    expect(parseMissionArg([])).toBe(false);
++  });
++
++  test("--mission flag only", () => {
++    expect(parseMissionArg(["--mission"]))
++      .toBe(true);
++  });
++});
++
++describe("readMission", () => {
++  test("returns mission content including title", async () => {
++    const content = await readMission();
++    expect(content).toContain("# repository0");
++  });
++});
++
+ describe("parseDiagnosticsArg", () => {
+   test("no flags", () => {
+     expect(parseDiagnosticsArg([])).toBe(false);
+@@ -76,6 +96,26 @@ describe("startServer and HTTP GET /", () => {
+   });
+ });
+ 
++describe("main mission mode", () => {
++  test("prints mission and exits", async () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`Exit:${code}`); });
++
++    try {
++      await main(["--mission"]);
++    } catch (err) {
++      expect(err.message).toBe("Exit:0");
++    }
++
++    expect(logSpy).toHaveBeenCalled();
++    const output = logSpy.mock.calls[0][0];
++    expect(output).toContain("# repository0");
++
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
++
+ describe("main diagnostics mode", () => {
+   test("prints diagnostics and exits", async () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});\n\n// New [docs/MISSION_MODE.md]:\n# Mission Mode
+
+## Overview
+
+Introduce a mission mode to the CLI that prints the project mission when invoked with the `--mission` flag and exits.
+
+## CLI Usage
+
+- `npm run mission`  
+- `node src/lib/main.js --mission`
+
+## Output
+
+Prints the full content of `MISSION.md`, which contains the project mission statement.
+
+## Exit Code
+
+Exits with code 0 after printing.
+
+## Sample Output
+
+```md
+# repository0
+
+Deliver the traditional first program to write in a new language, the "Hello World!" message.
+```
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2196 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":23723,"completion_tokens":7431,"total_tokens":31154,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3584,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
