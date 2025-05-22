@@ -164,3 +164,203 @@ LLM API Usage:
 ```
 ---
 
+## Issue to Code at 2025-05-22T01:06:03.014Z
+
+fixApplied: true
+
+Implement HTTP server feature with --serve flag parseServeArgs startServer CLI integration tests and documentation
+
+Git Diff:
+
+```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..5ca2da96 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -2,9 +2,72 @@
+ // src/lib/main.js
+ 
+ import { fileURLToPath } from "url";
++import http from "http";
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++/**
++ * Parses command-line arguments to determine server mode and port.
++ * @param {string[]} args
++ * @returns {{serve: boolean, port: number}}
++ */
++export function parseServeArgs(args) {
++  let serve = false;
++  let port = 8080;
++  if (args[0] === "--serve") {
++    serve = true;
++    if (args[1] && !args[1].startsWith("-")) {
++      const p = Number(args[1]);
++      if (!Number.isNaN(p)) {
++        port = p;
++      }
++    }
++  }
++  return { serve, port };
++}
++
++/**
++ * Starts an HTTP server on the given port that responds to GET / with "Hello World!".
++ * @param {number} portArg
++ * @returns {Promise<import('http').Server>}
++ */
++export async function startServer(portArg) {
++  return new Promise((resolve, reject) => {
++    const server = http.createServer((req, res) => {
++      if (req.method === "GET" && req.url === "/") {
++        res.writeHead(200, { "Content-Type": "text/plain" });
++        res.end("Hello World!");
++      } else {
++        res.writeHead(404);
++        res.end();
++      }
++    });
++
++    server.on("error", reject);
++
++    server.listen(portArg, () => {
++      const address = server.address();
++      const actualPort =
++        typeof address === "object" && address ? address.port : address;
++      console.log(`Server listening on port ${actualPort}`);
++      resolve(server);
++    });
++
++    process.on("SIGINT", () => {
++      server.close();
++    });
++  });
++}
++
++/**
++ * Main entry point.
++ * @param {string[]} args
++ */
++export async function main(args) {
++  const { serve, port } = parseServeArgs(args);
++  if (serve) {
++    await startServer(port);
++  } else {
++    console.log(`Run with: ${JSON.stringify(args)}`);
++  }
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..0058f146 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,49 @@
+ import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import http from "http";
++import { parseServeArgs, startServer, main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++describe("parseServeArgs", () => {
++  test("no flags", () => {
++    expect(parseServeArgs([])).toEqual({ serve: false, port: 8080 });
++  });
++
++  test("--serve flag only", () => {
++    expect(parseServeArgs(["--serve"])).toEqual({ serve: true, port: 8080 });
++  });
++
++  test("--serve with port", () => {
++    expect(parseServeArgs(["--serve", "3000"]))
++      .toEqual({ serve: true, port: 3000 });
++  });
++});
++
++describe("startServer and HTTP GET /", () => {
++  test("responds with Hello World!", async () => {
++    const server = await startServer(0);
++    const address = server.address();
++    const port =
++      typeof address === "object" && address ? address.port : address;
++    const response = await new Promise((resolve, reject) => {
++      http.get(`http://127.0.0.1:${port}/`, (res) => {
++        let data = "";
++        res.on("data", (chunk) => (data += chunk));
++        res.on("end", () => resolve({ statusCode: res.statusCode, body: data }));
++      }).on("error", reject);
++    });
++    expect(response.statusCode).toBe(200);
++    expect(response.body).toBe("Hello World!");
++    server.close();
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("main", () => {
++  test("default behavior logs arguments", async () => {
++    const args = ["foo", "bar"];
++    const origLog = console.log;
++    const log = [];
++    console.log = (...msgs) => log.push(msgs.join(" "));
++    await main(args);
++    expect(log[0]).toBe(`Run with: ${JSON.stringify(args)}`);
++    console.log = origLog;
+   });
+ });\n\n// New [docs/HTTP_SERVER.md]:\n# HTTP Server
+
+## Overview
+
+Extend the existing CLI tool to launch a minimal HTTP server that responds with "Hello World!" when accessed at `/`.
+
+## CLI Usage
+
+- `npm run start`  
+  Default mode: prints received arguments.
+
+- `npm run serve`  
+  Starts the server on the default port 8080.
+
+- `node src/lib/main.js --serve`  
+  Equivalent to `npm run serve`.
+
+- `node src/lib/main.js --serve 3000`  
+  Starts the server on port 3000.
+
+## HTTP API
+
+- GET `/`  
+  Returns status 200 and body `Hello World!`.
+
+- Other paths  
+  Returns status 404.
+
+## Graceful Shutdown
+
+- Press `Ctrl+C` to stop the server and exit cleanly.
+```
+mainOutput:
+```
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+
+```
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2188 with title: ""]
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":10914,"completion_tokens":4718,"total_tokens":15632,"prompt_tokens_details":{"cached_tokens":1152,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3136,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
