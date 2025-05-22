@@ -1581,3 +1581,52 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-22T07:01:26.466Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/2198 with enhanced description:
+
+Update README.md to include a comprehensive **CLI Usage** section detailing all available modes and their flags, and add links to feature-specific documentation.
+
+Acceptance Criteria:
+1. **README.md** contains a new top-level section titled **CLI Usage**.
+2. Under **CLI Usage**, include the following subsections with exact command examples and expected behaviors:
+   - **Default mode**
+     ```bash
+     npm run start      # or node src/lib/main.js
+     ```
+     - Prints the received arguments. Example: `Run with: ["foo","bar"]`.
+   - **Server mode**
+     ```bash
+     npm run serve      # or node src/lib/main.js --serve
+     npm run serve -- 3000  # or node src/lib/main.js --serve 3000
+     ```
+     - Starts an HTTP server on port 8080 (default) or `3000` when specified.
+     - Responds to `GET /` with status 200 and body `Hello World!`.
+   - **Diagnostics mode**
+     ```bash
+     npm run diagnostics  # or node src/lib/main.js --diagnostics
+     ```
+     - Prints a JSON object with keys: `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, `arch`.
+     - Exits with code 0.
+   - **Mission mode**
+     ```bash
+     npm run mission      # or node src/lib/main.js --mission
+     ```
+     - Reads and prints the full contents of `MISSION.md`, including the `# repository0` heading.
+     - Exits with code 0.
+3. Directly below **CLI Usage**, add a **Links to Detailed Docs** subsection with links to:
+   - [HTTP Server](docs/HTTP_SERVER.md)
+   - [Diagnostics Mode](docs/DIAGNOSTICS_MODE.md)
+   - [Mission Mode](docs/MISSION_MODE.md)
+4. Verification Steps:
+   - Clone the repository and open the updated `README.md` to confirm the **CLI Usage** section and links appear correctly.
+   - Execute each example command locally and verify the output matches the descriptions in the README.
+   - Ensure no other files are modified during this update.
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":9169,"completion_tokens":1247,"total_tokens":10416,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
