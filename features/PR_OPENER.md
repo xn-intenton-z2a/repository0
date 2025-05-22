@@ -1,54 +1,41 @@
 # PR_OPENER
 
 ## Overview
-
-Enable the CLI to automatically open separate GitHub pull requests for the HTTP server and diagnostics issue branches with a single command invocation. When the user runs the tool with the `--open-prs` flag, it will authenticate with GitHub CLI and create individual branches and PRs for each configured issue.
+Enhance the existing PR opener mode to support both opening separate pull requests for each feature issue and creating a single consolidated pull request that merges the HTTP server and diagnostics features together.
 
 ## Behavior
 
-- When invoked with `--open-prs`:
-  1. Run `gh auth status` to verify GitHub CLI is installed and authenticated.
-  2. For each issue number in the list `[2188, 2193]`:
-     - Create a new branch named `pr-<issue>` via `git checkout -b pr-<issue>`.
-     - Open a pull request with:
-       ```bash
-       gh pr create \
-         --title "Implement feature for issue #<issue>" \
-         --body "Resolves issue #<issue>"
-       ```
-     - On success, log `Opened PR for issue #<issue>`.
-     - On failure, log the error to `console.error` and exit with a nonzero code immediately.
-  3. After processing all issues, exit with code `0` if all PRs succeeded.
+- Separate PR mode (`--open-prs`): unchanged behavior, opens individual PRs for issues 2188 and 2193.
+
+- Consolidated PR mode (`--open-prs-consolidated`):
+  • Verify GitHub CLI authentication with gh auth status.
+  • Create a branch named open-prs-http-diagnostics.
+  • Run gh pr create with title "Merge HTTP server and diagnostics features" and body listing resolves #2188 and #2193.
+  • Log a success message indicating the new PR URL.
+  • Exit with code 0.
 
 ## CLI Usage
 
-- `npm run open-prs`
-- `node src/lib/main.js --open-prs`
+- npm run open-prs               # opens separate PRs per issue
+- node src/lib/main.js --open-prs
+
+- npm run open-prs-consolidated  # opens a single consolidated PR
+- node src/lib/main.js --open-prs-consolidated
 
 ## Tests
 
-- Unit tests for `parseOpenPrsArg`:
-  - No arguments returns `false`.
-  - `['--open-prs']` returns `true`.
-- Unit tests for `openPrs`:
-  - Mock `child_process.exec` to capture and verify command sequence:
-    1. `gh auth status`
-    2. `git checkout -b pr-2188`
-    3. `gh pr create ... #2188`
-    4. `gh auth status`
-    5. `git checkout -b pr-2193`
-    6. `gh pr create ... #2193`
-  - Verify `console.log` was called for each `Opened PR for issue #2188` and `#2193`.
-- Integration-style test for `main(['--open-prs'])`:
-  - Stub `exec` and `process.exit` (to throw) and call `main(['--open-prs'])`.
-  - Catch the exit exception and assert `process.exit(0)` was invoked.
-  - Assert log messages for each opened PR.
+- Unit tests for parseOpenPrsArg and parseConsolidatedPrArg flag detection.
+- Unit test for openPrs (separate mode) mocking child_process.exec sequence for two issues.
+- Unit test for openConsolidatedPr mocking exec commands for consolidated branch and PR creation.
+- Integration tests for main with ["--open-prs"] and ["--open-prs-consolidated"] stubbing exec and process.exit, verifying correct calls and exit codes.
 
 ## Implementation Details
 
-- In `src/lib/main.js`:
-  - Export `parseOpenPrsArg(args: string[]): boolean` to detect the `--open-prs` flag.
-  - Export `openPrs(): Promise<void>` using Node’s built-in `child_process.exec`.
-  - In `main(args)`, before other modes, detect `--open-prs`, call `await openPrs()`, then `process.exit(0)`.
-- Reuse existing implementations of conflict detection, help, mission, diagnostics, and serve modes unchanged.
-- No new dependencies required; rely on `child_process.exec` and `gh` CLI.
+- Update src/lib/main.js:
+  • Export parseConsolidatedPrArg(args) to detect `--open-prs-consolidated`.
+  • Implement openConsolidatedPr() that performs authentication, branch creation open-prs-http-diagnostics, and a single gh pr create for both issues.
+  • In main(args), check consolidated flag first, then separate flag, then existing modes.
+
+- Add npm script `open-prs-consolidated` in package.json mapping to node src/lib/main.js --open-prs-consolidated.
+
+- Preserve existing dependencies and existing implementations of separate PR opener, info modes, and server modes.
