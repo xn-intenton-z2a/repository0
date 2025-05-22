@@ -552,3 +552,59 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-22T04:41:29.772Z
+
+Created issue https://github.com/xn-intenton-z2a/repository0/issues/2193 with title Implement DIAGNOSTICS_MODE feature: add --diagnostics flag and runtime diagnostics output and body:
+
+ Overview:
+Introduce a new diagnostics mode to the CLI. When the user runs `node src/lib/main.js --diagnostics` (or `npm run diagnostics`), the tool should collect and print runtime and environment information (node version, process uptime, memory usage metrics: rss, heapTotal, heapUsed, platform, and CPU architecture) and then exit with code zero. All existing modes (default echo, --serve) must remain unchanged.
+
+Changes required (single LLM invocation will complete these updates):
+
+1. src/lib/main.js
+   - Export `parseDiagnosticsArg(args: string[]): boolean` that returns `true` when `args[0] === "--diagnostics"`, else `false`.
+   - Export `collectDiagnostics(): { version: string; uptime: number; memoryUsage: { rss: number; heapTotal: number; heapUsed: number }; platform: string; arch: string }` that gathers:  
+     • `process.version`  
+     • `process.uptime()`  
+     • `process.memoryUsage()` (include `rss`, `heapTotal`, `heapUsed`)  
+     • `process.platform`  
+     • `process.arch`  
+   - In `main(args)`, detect diagnostics first. If diagnostics mode:  
+     • Call `collectDiagnostics()`  
+     • Print each field or the full object (e.g. `console.log(JSON.stringify(diagnostics, null, 2))`) or plain text labels  
+     • Call `process.exit(0)` immediately after printing  
+   - Ensure existing `--serve` and default behaviors remain.
+
+2. tests/unit/main.test.js
+   - Add unit tests for `parseDiagnosticsArg`:  
+     • `[]` → `false`  
+     • `['--diagnostics']` → `true`  
+   - Add unit test for `collectDiagnostics`:  
+     • Call it and assert returned object has keys `version` (string), `uptime` (number), `memoryUsage` with numeric `rss`, `heapTotal`, `heapUsed`, and strings `platform`, `arch`.
+   - Add integration test for diagnostics mode in `main()`:  
+     • Stub `console.log` to capture output and stub `process.exit` to capture exit code without terminating the test run.  
+     • Call `await main(['--diagnostics'])`  
+     • Assert that `console.log` was called with at least the serialized diagnostics object (check for presence of keys in output) and that `process.exit` was called with `0`.
+
+3. README.md
+   - In the CLI Usage section, add a new bullet:  
+     • `npm run diagnostics` or `node src/lib/main.js --diagnostics` → prints runtime diagnostics (node version, uptime, memory usage, platform, arch) and exits.
+   - Optionally show a sample output snippet.
+
+4. package.json (dependencies file)
+   - No new dependencies are required; confirm the existing `diagnostics` script under `scripts` points to `node src/lib/main.js --diagnostics`.
+
+Verification Steps:
+1. Run `npm test` → all new and existing tests pass.
+2. Run `npm run diagnostics` → should print a JSON or labeled plain-text block including `version`, `uptime`, `memoryUsage` (with `rss`, `heapTotal`, `heapUsed`), `platform`, and `arch`, then exit with code 0.
+3. Confirm that `npm run start` and `npm run serve` behaviors remain unchanged.
+
+No additional dependencies or files should be added, removed, or renamed. This implements the DIAGNOSTICS_MODE feature as specified in `features/DIAGNOSTICS_MODE.md`..
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":13113,"completion_tokens":2272,"total_tokens":15385,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
