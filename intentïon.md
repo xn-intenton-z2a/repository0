@@ -10917,3 +10917,87 @@ LLM API Usage:
 
 2025-05-23T14:58:34Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-22T01-25Z
 
+## Maintain Feature at 2025-05-23T14:59:51.512Z
+
+Maintained feature CONSOLIDATED_PR_CI.
+
+Feature spec:
+
+# CONSOLIDATED_PR_CI
+
+## Overview
+Integrate the consolidated PR opener CLI command into CI workflows so that a single pull request merging the HTTP server (issue #2188) and Diagnostics Mode (issue #2193) branches is created automatically.
+
+## CI Behavior
+- Add or update `.github/workflows/pr_opener.yml` to define a job `open_consolidated_pr`:
+  - Trigger on `workflow_dispatch` and a daily schedule (cron: '0 0 * * *').
+  - Declare `needs: [build]` to depend on existing build and test jobs.
+  - Steps:
+    1. `actions/checkout@v3` to checkout code.
+    2. `actions/setup-node@v3` with `node-version: '20'` to install Node.
+    3. Run `npm install` to install dependencies.
+    4. Run `npm run open-prs-consolidated` to invoke the consolidated PR opener.
+
+## Verification
+1. Push workflow changes to a branch and trigger the `open_consolidated_pr` job manually or wait for schedule.
+2. Confirm Actions logs include:
+   - `gh auth status`
+   - `git checkout -b open-prs-http-diagnostics`
+   - `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+   - `Opened consolidated PR for HTTP server and diagnostics`
+3. Verify exit code 0 and that the PR appears on GitHub with correct branch, title, and body.
+
+Git diff:
+
+```diff
+diff --git a/features/CONSOLIDATED_PR_CI.md b/features/CONSOLIDATED_PR_CI.md
+index 8161f455..13d600ed 100644
+--- a/features/CONSOLIDATED_PR_CI.md
++++ b/features/CONSOLIDATED_PR_CI.md
+@@ -1,23 +1,23 @@
+ # CONSOLIDATED_PR_CI
+ 
+ ## Overview
+-Integrate the consolidated PR opener mode into the CI workflow by adding a dedicated job that invokes the existing `--open-prs-consolidated` CLI command. This automates creation of a single branch and pull request that merges HTTP server (#2188) and diagnostics (#2193) feature branches.
++Integrate the consolidated PR opener CLI command into CI workflows so that a single pull request merging the HTTP server (issue #2188) and Diagnostics Mode (issue #2193) branches is created automatically.
+ 
+ ## CI Behavior
+-- Define a new job `open_consolidated_pr` in `.github/workflows/pr_opener.yml`.
+-- Trigger on `workflow_dispatch` and a daily schedule (e.g., `0 0 * * *`).
+-- Require successful completion of existing build and test jobs (`needs: [build]`).
+-- Steps:
+-  - Checkout the repository using `actions/checkout@v3`.
+-  - Set up Node.js using `actions/setup-node@v3` with `node-version: '20'`.
+-  - Run `npm install` to install dependencies.
+-  - Run `npm run open-prs-consolidated` to trigger the consolidated PR opener CLI.
++- Add or update `.github/workflows/pr_opener.yml` to define a job `open_consolidated_pr`:
++  - Trigger on `workflow_dispatch` and a daily schedule (cron: '0 0 * * *').
++  - Declare `needs: [build]` to depend on existing build and test jobs.
++  - Steps:
++    1. `actions/checkout@v3` to checkout code.
++    2. `actions/setup-node@v3` with `node-version: '20'` to install Node.
++    3. Run `npm install` to install dependencies.
++    4. Run `npm run open-prs-consolidated` to invoke the consolidated PR opener.
+ 
+ ## Verification
+-1. After pushing the updated workflow, manually trigger or await the scheduled run.
+-2. Inspect the Actions log for commands:
++1. Push workflow changes to a branch and trigger the `open_consolidated_pr` job manually or wait for schedule.
++2. Confirm Actions logs include:
+    - `gh auth status`
+    - `git checkout -b open-prs-http-diagnostics`
+    - `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+    - `Opened consolidated PR for HTTP server and diagnostics`
+-3. Confirm exit code `0` and verify the new pull request on GitHub targets `open-prs-http-diagnostics` with correct title and body.
+\ No newline at end of file
++3. Verify exit code 0 and that the PR appears on GitHub with correct branch, title, and body.
+\ No newline at end of file
+```
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":133623,"completion_tokens":383,"total_tokens":134006,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
