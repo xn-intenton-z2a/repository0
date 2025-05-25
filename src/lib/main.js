@@ -1,57 +1,49 @@
 #!/usr/bin/env node
-// src/lib/main.js
 
-import { fileURLToPath } from "url";
-
-export async function main(args = []) {
-  if (args[0] === "--crawl") {
-    const url = args[1];
-    if (!url) {
-      console.error("Error: URL must be provided with --crawl");
+export async function main(args = process.argv.slice(2)) {
+  if (args[0] === '--crawl') {
+    if (!args[1]) {
+      console.error('Error: No URL provided for --crawl');
       process.exitCode = 1;
       return;
     }
-
+    const url = args[1];
+    let response;
     try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.error(`Error fetching URL: ${res.status} ${res.statusText || ""}`.trim());
+      response = await fetch(url);
+    } catch (err) {
+      console.error(`Fetch error: ${err}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (!response.ok) {
+      console.error(`HTTP request failed with status ${response.status}`);
+      process.exitCode = 1;
+      return;
+    }
+    const text = await response.text();
+    const regex = /<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+    const entries = [];
+    let match;
+    while ((match = regex.exec(text))) {
+      const jsonText = match[1];
+      try {
+        entries.push(JSON.parse(jsonText));
+      } catch (err) {
+        console.error(`Error parsing JSON-LD: ${err}`);
         process.exitCode = 1;
         return;
       }
-
-      const text = await res.text();
-      const regex = /<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-      const results = [];
-      let match;
-      const blocks = [];
-
-      while ((match = regex.exec(text)) !== null) {
-        blocks.push(match[1]);
-      }
-
-      for (const block of blocks) {
-        try {
-          results.push(JSON.parse(block));
-        } catch (err) {
-          console.error(`Error parsing JSON-LD: ${err.message}`);
-          process.exitCode = 1;
-          return;
-        }
-      }
-
-      console.log(JSON.stringify(results));
-    } catch (err) {
-      console.error(`Error fetching URL: ${err.message}`);
-      process.exitCode = 1;
     }
-  } else {
-    console.log(`Run with: ${JSON.stringify(args)}`);
+    console.log(JSON.stringify(entries));
+    return;
   }
+
+  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2)).catch((err) => {
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
     console.error(err);
     process.exitCode = 1;
   });

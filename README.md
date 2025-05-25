@@ -29,7 +29,7 @@ The repository is intended as a template that includes:
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.  
   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic-lib`
@@ -98,6 +98,7 @@ You can run the demo and tests locally:
 5. **Crawl URL:**  
    To crawl a URL and extract JSON-LD structured data:  
    ```bash
+   # Crawl a URL to extract JSON-LD structured data
    node src/lib/main.js --crawl https://example.com
    ```
 
