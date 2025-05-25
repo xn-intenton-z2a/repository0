@@ -80,4 +80,72 @@ LLM API Usage:
 {"prompt_tokens":6284,"completion_tokens":1384,"total_tokens":7668,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T22:03:38.707Z
+
+Activity:
+
+Generated issue 2250 for feature "wikidata-fetch" with URL https://github.com/xn-intenton-z2a/repository0/issues/2250
+
+title:
+
+Implement --fetch-wikidata CLI option to retrieve Wikidata entity information
+
+And description:
+
+**Objective**
+Add a new CLI option `--fetch-wikidata <term>` to search Wikidata’s API for a given English term, fetch the first matching entity’s label, description, and aliases, and print them to stdout. This issue will implement the core feature, add unit tests, and update documentation.
+
+**Changes Required**
+
+1. **src/lib/main.js**
+   - Parse command-line arguments to detect `--fetch-wikidata <term>`.
+   - When invoked:
+     - URL-encode the term and call
+       `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=<term>&language=en&format=json`.
+     - If the search response is HTTP 200 and contains at least one result, extract the first result’s `id`.
+     - Fetch full entity data from
+       `https://www.wikidata.org/wiki/Special:EntityData/<id>.json`.
+     - Parse the JSON to extract the English `label`, `description`, and array of `aliases` (English).
+     - Print the fields in a readable format, for example:
+       ```text
+       Label: Example
+       Description: A sample entity
+       Aliases: Sample, Demo
+       ```
+     - Exit with code `0` on success.
+   - **Error Handling**:
+     - If the initial search or entity fetch fails (network error or non-200), log an error to `stderr` and `process.exit(1)`.
+     - If the search returns no results, print “Term not found” to `stderr` and exit with code `1`.
+
+2. **tests/unit/main.test.js**
+   - Extend the existing file with a new `describe("fetch-wikidata CLI option")` block.
+   - Mock the global `fetch` function using Vitest’s `vi.fn()` to simulate:
+     - A successful search response with one entity and a successful entity data response.
+     - A search response with no results.
+     - A network error during search.
+     - A non-200 HTTP code during entity fetch.
+   - Verify that `main(["--fetch-wikidata", "Term"])` writes correct output or error messages and calls `process.exit` with the expected code.
+
+3. **README.md**
+   - Under "Running the Demo" or a new "CLI Options" section, document the `--fetch-wikidata <term>` option with:
+     - Description of behavior.
+     - Example invocation, e.g.:  
+       ```bash
+       npm run start -- --fetch-wikidata "Albert Einstein"
+       ```
+
+**Verification**
+- Run `npm test` to ensure all unit tests (existing and new) pass.
+- Manually invoke:
+  ```bash
+  npm run start -- --fetch-wikidata "Q42 or Douglas Adams"
+  ```
+  and confirm the printed label, description, and aliases.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":6674,"completion_tokens":1720,"total_tokens":8394,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1024,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
