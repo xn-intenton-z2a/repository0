@@ -3,15 +3,15 @@
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic-lib` which reference reusable workflows.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic-lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -20,7 +20,7 @@ The repository is intended as a template that includes:
   `package.json` can be modified by the workflow to add or update dependencies and it also defines some of the test and build scripts.
 
 - **Tests:**  
-  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.  
+  Unit tests in the `tests/unit/` folder ensure that the main script doesn't drift too far.
   This test file can be modified by the workflow `tests/unit/main.test.js`, duplicate `main.test.js` to fix a version of the behaviour where the workflow can't change it.
 
 - **Docs**  
@@ -29,7 +29,7 @@ The repository is intended as a template that includes:
 ## Getting Started
 
 This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.  
+- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
 
 ## intentïon `agentic-lib`
@@ -50,7 +50,7 @@ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions work
 
 ### Initiating the workflow
 
-Run the action "Create Issue" and entero some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
+Run the action "Create Issue" and enter some text to create an issue. This will create an issue and trigger the "Issue Worker" to write the code.
 If the Issue Worker is able to resolve the issue a Pull Request is raised, the change automatically merged.
 The issue reviewed and closed if the change is deemed to have delivered whatever was requested in the issue.
 
@@ -72,7 +72,14 @@ On timer: Review Issue (issue reviewed and closed)
 ```
 (Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
 
-#### Running the Demo
+#### Running the workflows:
+
+The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
+
+### Running the Demo
 
 Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
 
@@ -95,13 +102,6 @@ You can run the demo and tests locally:
    `npm run start`  
    This will display the output of the program.
 
-5. **Crawl URL:**  
-   To crawl a URL and extract JSON-LD structured data:  
-   ```bash
-   # Crawl a URL to extract JSON-LD structured data
-   node src/lib/main.js --crawl https://example.com
-   ```
-
 ### Tuning the agentic coding system
 
 The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
@@ -115,4 +115,4 @@ The following files are also taken into consideration but may also be changed (e
 - `tests/unit/main.test.js`
 
 ## Final Notes
-`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
+`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
