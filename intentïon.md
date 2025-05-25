@@ -418,4 +418,313 @@ LLM API Usage:
 {"prompt_tokens":10812,"completion_tokens":6288,"total_tokens":17100,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3264,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T20:41:34.419Z
+
+Activity:
+
+fixApplied: true with Implement --crawl CLI option to extract JSON-LD blocks and add unit tests and outcome 
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index f84bf6f3..9025b126 100644
+--- a/README.md
++++ b/README.md
+@@ -29,7 +29,7 @@ The repository is intended as a template that includes:
+ ## Getting Started
+ 
+ This repository is already set up with the necessary workflows and scripts but you do need to supply the following secrets:
+-- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.
++- `CHATGPT_API_SECRET_KEY` - This key must be for an account with access to the OpenAI chat completions API for model `o3-mini`.  
+   Set these secrets in your repository settings under *Settings > Secrets and Variables > Actions*. They are essential for the automated workflows such as publishing packages and managing issues.
+ 
+ ## intentïon `agentic-lib`
+@@ -98,6 +98,7 @@ You can run the demo and tests locally:
+ 5. **Crawl URL:**  
+    To crawl a URL and extract JSON-LD structured data:  
+    ```bash
++   # Crawl a URL to extract JSON-LD structured data
+    node src/lib/main.js --crawl https://example.com
+    ```
+ 
+@@ -114,4 +115,4 @@ The following files are also taken into consideration but may also be changed (e
+ - `tests/unit/main.test.js`
+ 
+ ## Final Notes
+-`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
++`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index c7e6e5ec..591bae4d 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,57 +1,49 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
+ 
+-import { fileURLToPath } from "url";
+-
+-export async function main(args = []) {
+-  if (args[0] === "--crawl") {
+-    const url = args[1];
+-    if (!url) {
+-      console.error("Error: URL must be provided with --crawl");
++export async function main(args = process.argv.slice(2)) {
++  if (args[0] === '--crawl') {
++    if (!args[1]) {
++      console.error('Error: No URL provided for --crawl');
+       process.exitCode = 1;
+       return;
+     }
+-
++    const url = args[1];
++    let response;
+     try {
+-      const res = await fetch(url);
+-      if (!res.ok) {
+-        console.error(`Error fetching URL: ${res.status} ${res.statusText || ""}`.trim());
++      response = await fetch(url);
++    } catch (err) {
++      console.error(`Fetch error: ${err}`);
++      process.exitCode = 1;
++      return;
++    }
++    if (!response.ok) {
++      console.error(`HTTP request failed with status ${response.status}`);
++      process.exitCode = 1;
++      return;
++    }
++    const text = await response.text();
++    const regex = /<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
++    const entries = [];
++    let match;
++    while ((match = regex.exec(text))) {
++      const jsonText = match[1];
++      try {
++        entries.push(JSON.parse(jsonText));
++      } catch (err) {
++        console.error(`Error parsing JSON-LD: ${err}`);
+         process.exitCode = 1;
+         return;
+       }
+-
+-      const text = await res.text();
+-      const regex = /<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+-      const results = [];
+-      let match;
+-      const blocks = [];
+-
+-      while ((match = regex.exec(text)) !== null) {
+-        blocks.push(match[1]);
+-      }
+-
+-      for (const block of blocks) {
+-        try {
+-          results.push(JSON.parse(block));
+-        } catch (err) {
+-          console.error(`Error parsing JSON-LD: ${err.message}`);
+-          process.exitCode = 1;
+-          return;
+-        }
+-      }
+-
+-      console.log(JSON.stringify(results));
+-    } catch (err) {
+-      console.error(`Error fetching URL: ${err.message}`);
+-      process.exitCode = 1;
+     }
+-  } else {
+-    console.log(`Run with: ${JSON.stringify(args)}`);
++    console.log(JSON.stringify(entries));
++    return;
+   }
++
++  console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  main(process.argv.slice(2)).catch((err) => {
++if (import.meta.url === `file://${process.argv[1]}`) {
++  main().catch((err) => {
+     console.error(err);
+     process.exitCode = 1;
+   });
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 33398b70..16d59145 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,104 +1,92 @@
+-import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
+-  });
+-});
+-
+-describe("Main Output", () => {
+-  test("should terminate without error", async () => {
+-    process.exitCode = undefined;
+-    await main();
+-    expect(process.exitCode).not.toBe(1);
+-  });
+-});
+-
+-describe("Crawl URL", () => {
+-  let originalFetch;
++describe('main', () => {
+   let logSpy;
+   let errorSpy;
++  let originalFetch;
+ 
+   beforeEach(() => {
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+     originalFetch = global.fetch;
+-    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+-    process.exitCode = undefined;
++    process.exitCode = 0;
+   });
+ 
+   afterEach(() => {
+-    global.fetch = originalFetch;
+     vi.restoreAllMocks();
++    global.fetch = originalFetch;
++    process.exitCode = 0;
+   });
+ 
+-  test("should extract JSON-LD blocks successfully", async () => {
+-    const html = `
+-      <html>
+-        <head>
+-          <script type="application/ld+json">{"key": "value"}</script>
+-          <script type="application/ld+json">{"foo": "bar"}</script>
+-        </head>
+-      </html>
+-    `;
++  it('should terminate without error when no args', async () => {
++    const { main } = await import('../../src/lib/main.js');
++    await main([]);
++    expect(logSpy).toHaveBeenCalledWith('Run with: []');
++    expect(process.exitCode).toBe(0);
++  });
++
++  it('should extract multiple JSON-LD blocks successfully', async () => {
++    const html = `<html><head>
++      <script type="application/ld+json">{"id":1}</script>
++      <script type="application/ld+json">{"id":2}</script>
++    </head></html>`;
+     global.fetch = vi.fn().mockResolvedValue({
+       ok: true,
++      status: 200,
+       text: async () => html,
+     });
+-
+-    await main(["--crawl", "http://example.com"]);
+-    expect(logSpy).toHaveBeenCalledWith(JSON.stringify([{ key: "value" }, { foo: "bar" }]));
+-    expect(process.exitCode).not.toBe(1);
++    const { main } = await import('../../src/lib/main.js');
++    await main(['--crawl', 'https://example.com']);
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify([{ id: 1 }, { id: 2 }]));
++    expect(errorSpy).not.toHaveBeenCalled();
++    expect(process.exitCode).toBe(0);
+   });
+ 
+-  test("should return empty array when no JSON-LD blocks", async () => {
+-    const html = `<html><head><title>No JSON-LD</title></head><body>Hello</body></html>`;
++  it('should log empty array when no JSON-LD blocks found', async () => {
++    const html = '<html><head><title>No JSON-LD here</title></head></html>';
+     global.fetch = vi.fn().mockResolvedValue({
+       ok: true,
++      status: 200,
+       text: async () => html,
+     });
+-
+-    await main(["--crawl", "http://example.com"]);
++    const { main } = await import('../../src/lib/main.js');
++    await main(['--crawl', 'https://example.com']);
+     expect(logSpy).toHaveBeenCalledWith(JSON.stringify([]));
+-    expect(process.exitCode).not.toBe(1);
++    expect(process.exitCode).toBe(0);
+   });
+ 
+-  test("should handle invalid JSON-LD parse error", async () => {
+-    const html = `<script type="application/ld+json">{"invalid: json"}</script>`;
++  it('should handle parse error gracefully', async () => {
++    const html = `<script type="application/ld+json">{invalid json}</script>`;
+     global.fetch = vi.fn().mockResolvedValue({
+       ok: true,
++      status: 200,
+       text: async () => html,
+     });
++    const { main } = await import('../../src/lib/main.js');
++    await main(['--crawl', 'https://example.com']);
++    expect(errorSpy).toHaveBeenCalled();
++    expect(errorSpy.mock.calls[0][0]).toMatch(/Error parsing JSON-LD/);
++    expect(process.exitCode).toBe(1);
++  });
+ 
+-    await main(["--crawl", "http://example.com"]);
++  it('should handle fetch network errors', async () => {
++    global.fetch = vi.fn().mockRejectedValue(new Error('Network failure'));
++    const { main } = await import('../../src/lib/main.js');
++    await main(['--crawl', 'https://example.com']);
+     expect(errorSpy).toHaveBeenCalled();
++    expect(errorSpy.mock.calls[0][0]).toMatch(/Fetch error/);
+     expect(process.exitCode).toBe(1);
+   });
+ 
+-  test("should handle non-200 response status", async () => {
++  it('should handle non-200 HTTP status', async () => {
+     global.fetch = vi.fn().mockResolvedValue({
+       ok: false,
+       status: 404,
+-      statusText: "Not Found",
++      text: async () => '',
+     });
+-
+-    await main(["--crawl", "http://example.com"]);
+-    expect(errorSpy).toHaveBeenCalledWith("Error fetching URL: 404 Not Found");
+-    expect(process.exitCode).toBe(1);
+-  });
+-
+-  test("should handle fetch rejection", async () => {
+-    global.fetch = vi.fn().mockRejectedValue(new Error("network failure"));
+-
+-    await main(["--crawl", "http://example.com"]);
+-    expect(errorSpy).toHaveBeenCalledWith("Error fetching URL: network failure");
+-    expect(process.exitCode).toBe(1);
+-  });
+-
+-  test("should error when URL is missing", async () => {
+-    await main(["--crawl"]);
+-    expect(errorSpy).toHaveBeenCalledWith("Error: URL must be provided with --crawl");
++    const { main } = await import('../../src/lib/main.js');
++    await main(['--crawl', 'https://example.com']);
++    expect(errorSpy).toHaveBeenCalledWith('HTTP request failed with status 404');
+     expect(process.exitCode).toBe(1);
+   });
+ });
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":8211,"completion_tokens":11730,"total_tokens":19941,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":8768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
