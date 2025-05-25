@@ -137,4 +137,109 @@ LLM API Usage:
 {"prompt_tokens":6772,"completion_tokens":978,"total_tokens":7750,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-25T22:59:53.901Z
+
+Activity:
+
+Generated issue 2255 for feature "graph-merger" with URL https://github.com/xn-intenton-z2a/repository0/issues/2255
+
+title:
+
+Implement 'merge' CLI subcommand for GRAPH_MERGER
+
+And description:
+
+## Summary
+
+Add a new `merge` subcommand to the CLI (`src/lib/main.js`) that reads multiple graph JSON files (each containing `nodes` and `edges` arrays), consolidates them into a single deduplicated knowledge graph, and writes the result to stdout or an output file. This delivers the core functionality of the GRAPH_MERGER feature.
+
+## Tasks
+
+1. **src/lib/main.js**
+   - Detect when the first argument is `merge`.
+   - Parse `--inputs <file1> [file2 ...]` and optional `--output <file>` flags from `args`.
+   - Import `fs/promises` and `zod`:
+     ```js
+     import { promises as fs } from 'fs';
+     import { z } from 'zod';
+     ```
+   - Define a Zod schema for the graph structure:
+     ```js
+     const Node = z.object({ id: z.string(), label: z.string(), properties: z.record(z.any()).optional() });
+     const Edge = z.object({ source: z.string(), target: z.string(), label: z.string(), properties: z.record(z.any()).optional() });
+     const Graph = z.object({ nodes: z.array(Node), edges: z.array(Edge) });
+     ```
+   - For each input file:
+     - Read and parse the JSON.
+     - Validate it against `Graph` schema.
+     - Accumulate nodes into a `Map<string, Node>` and edges into a `Set<string>` (using a composite key `source|target|label`) to dedupe.
+   - Build final output object:
+     ```js
+     const result = { nodes: Array.from(nodeMap.values()), edges: Array.from(edgeSet).map(key => {
+       const [source, target, label] = key.split('|'); return { source, target, label };
+     }) };
+     ```
+   - Write `JSON.stringify(result, null, 2)` to stdout or the `--output` file. On any read/parse/validation error, log the error to `console.error` and `process.exit(1)`.
+
+2. **tests/unit/graphMerger.test.js**
+   - Create a new test file covering:
+     - Merging two in-memory graph inputs with overlapping nodes and edges produces a deduplicated output.
+     - Invoking the CLI without `--output` writes JSON to stdout.
+     - Invoking with `--output <file>` writes the file with correct content.
+     - Handling of missing file path: exits with nonzero code.
+     - Handling of invalid JSON: exits with nonzero code.
+   - Use Vitest utilities to spy on `process.exit`, `console.error`, and capture `stdout`.
+   - For file-based tests, use a temporary directory or `fs.writeFileSync` in a `beforeEach` and clean up in `afterEach`.
+
+3. **README.md**
+   - Under **CLI Usage**, add a section for the `merge` subcommand:
+     ```markdown
+     ### merge
+     Consolidate multiple graph JSON files into a single JSON output.
+
+     ```bash
+     npm run start merge --inputs data1.json data2.json [--output combined.json]
+     ```
+     - `--inputs`: One or more paths to JSON files containing `{ nodes, edges }`.
+     - `--output`: (Optional) Path to write the merged JSON. Defaults to stdout.
+     ```
+
+4. **package.json**
+   - No changes required unless you want to add a dedicated script such as:
+     ```jsonc
+     "scripts": {
+       ...
+       "merge": "node src/lib/main.js merge"
+     }
+     ```
+   - This is optional; the `npm run start merge ...` invocation is sufficient.
+
+## Verification
+
+1. Run the unit tests:
+   ```bash
+   npm test
+   ```
+   All new and existing tests should pass.
+
+2. Try merging example files:
+   ```bash
+   # Create two files
+   echo '{"nodes":[{"id":"1","label":"A"}],"edges":[]}' > a.json
+   echo '{"nodes":[{"id":"1","label":"A"},{"id":"2","label":"B"}],"edges":[{"source":"1","target":"2","label":"rel"}]}' > b.json
+
+   # Merge to stdout
+   npm run start merge --inputs a.json b.json
+
+   # Merge to file
+   npm run start merge --inputs a.json b.json --output merged.json
+   ```
+3. Confirm that `merged.json` contains one copy of node `1`, both nodes `1` and `2`, and the edge from `1` to `2`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":6654,"completion_tokens":1943,"total_tokens":8597,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
