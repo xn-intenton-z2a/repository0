@@ -11493,3 +11493,50 @@ LLM API Usage:
 ```
 ---
 
+## Issue to enhanced Issue at 2025-05-25T04:25:10.633Z
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+Integrate the existing `--open-prs-consolidated` CLI command into the repository’s GitHub Actions workflows so that a single pull request merging the HTTP Server feature (#2188) and Diagnostics Mode feature (#2193) branches is created automatically. This streamlines final review and release tagging.
+
+Changes required:
+1. Update `.github/workflows/pr_opener.yml`:
+   - Add a new job `open_consolidated_pr` that runs after the existing build (and tests) jobs.
+   - Configure triggers:
+     • `workflow_dispatch` for manual runs
+     • `schedule` with cron: `0 0 * * *` for daily execution.
+   - Job steps:
+     1. `actions/checkout@v3`
+     2. `actions/setup-node@v3` (Node.js v20)
+     3. `npm install`
+     4. `npm run open-prs-consolidated` to execute the CLI command.
+   - Ensure the runner has permissions to run `gh auth status`, `git checkout`, and `gh pr create`.
+
+Acceptance Criteria:
+- The workflow file contains a job `open_consolidated_pr` with `needs: [build]` and the specified triggers.
+- The job runs the sequence:
+  1. `gh auth status`
+  2. `git checkout -b open-prs-http-diagnostics`
+  3. `gh pr create --title "Merge HTTP server and diagnostics features" --body "- resolves #2188\n- resolves #2193"`
+  4. Logs `Opened consolidated PR for HTTP server and diagnostics` and exits with code 0.
+- On failure of any step, the job logs an error and exits with a nonzero code.
+- After the workflow run, a new PR appears on GitHub with:
+  • Branch: `open-prs-http-diagnostics`
+  • Title: `Merge HTTP server and diagnostics features`
+  • Body listing `resolves #2188` and `resolves #2193`.
+- No changes to source code, tests, or dependencies outside the CI workflow file.
+
+Verification Steps:
+1. Push the updated workflow to a feature branch and open a PR.
+2. Trigger the job manually or wait for its scheduled run.
+3. Confirm logs and that the new PR is created as specified.
+
+
+LLM API Usage:
+
+```json
+{"prompt_tokens":11370,"completion_tokens":1086,"total_tokens":12456,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+---
+
