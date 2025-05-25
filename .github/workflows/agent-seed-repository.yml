@@ -1971,13 +1971,14 @@ jobs:
     needs:
       - agentic-lib
       - fix-code
+      - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -1987,7 +1988,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -2002,13 +2003,14 @@ jobs:
     needs:
       - agentic-lib
       - fix-code
+      - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -2018,7 +2020,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -2033,13 +2035,14 @@ jobs:
     needs:
       - agentic-lib
       - fix-code
+      - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -2049,7 +2052,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -2068,11 +2071,13 @@ jobs:
     needs:
       - agentic-lib
       - fix-code
+      - apply-issue-resolution
+      - apply-issue-resolution
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' }}
     steps:
       - name: set-needs-fix
         id: set-needs-fix
@@ -2112,7 +2117,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -2122,7 +2127,7 @@ jobs:
       id-token: write
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.0'
     with:
-      branch: "${{ needs.apply-issue-resolution.outputs.branch }}"
+      branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
       gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (working on #${{ needs.create-issue-one.outputs.issueNumber }})"
       label: 'automerge'
@@ -2137,7 +2142,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
       - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       pull-requests: write
