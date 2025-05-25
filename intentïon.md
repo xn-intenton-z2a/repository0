@@ -597,4 +597,143 @@ LLM API Usage:
 {"prompt_tokens":11027,"completion_tokens":9036,"total_tokens":20063,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T22:37:19.324Z
+
+Activity:
+
+fixApplied: true with Fix PUBLIC_DATA_CRAWLER argument parsing and error handling and outcome 
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3d1a8c36..cc759585 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,61 +1,79 @@
+-#!/usr/bin/env node
+-// src/lib/main.js
++import axios from 'axios';
+ 
+-import { fileURLToPath } from "url";
+-import axios from "axios";
++/**
++ * Entry point for the CLI tool.
++ * @param {string[]} [cliArgs] - Optional arguments array for testing; defaults to process.argv.slice(2).
++ */
++export async function main(cliArgs) {
++  const args = cliArgs ?? process.argv.slice(2);
+ 
+-export async function main(args) {
+-  const parsed = parseArgs(args);
+-  if (parsed.sourceUrl) {
+-    const { sourceUrl, timeout, format } = parsed;
++  // Handle Public Data Crawler feature
++  if (args.includes('--source-url')) {
++    let options;
+     try {
+-      const response = await axios.get(sourceUrl, { timeout });
++      options = parseArgs(args);
++    } catch (err) {
++      process.stderr.write(`Error: ${err.message}\n`);
++      throw err;
++    }
++    try {
++      const response = await axios.get(options.sourceUrl, { timeout: options.timeout });
+       const data = response.data;
+-      if (format === 'ndjson') {
++      if (options.format === 'ndjson') {
+         if (Array.isArray(data)) {
+           for (const item of data) {
+-            process.stdout.write(`${JSON.stringify(item)}\n`);
++            process.stdout.write(JSON.stringify(item) + '\n');
+           }
+         } else {
+-          process.stdout.write(`${JSON.stringify(data)}\n`);
++          process.stdout.write(JSON.stringify(data) + '\n');
+         }
+       } else {
+         process.stdout.write(JSON.stringify(data, null, 2));
+       }
+-      return;
+-    } catch (error) {
+-      console.error(`Error fetching data: ${error.message}`);
+-      process.exit(1);
++    } catch (err) {
++      process.stderr.write(`Error fetching data: ${err.message}\n`);
++      throw err;
+     }
++    return;
+   }
+ 
++  // Default behavior: no known feature flag
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
++/**
++ * Parse CLI arguments for PUBLIC_DATA_CRAWLER.
++ * @param {string[]} args
++ * @returns {{ sourceUrl: string; timeout: number; format: string }}
++ */
+ function parseArgs(args) {
+   const result = { timeout: 5000, format: 'json' };
+   for (let i = 0; i < args.length; i++) {
+     const arg = args[i];
+     if (arg === '--source-url') {
+-      result.sourceUrl = args[++i];
++      result.sourceUrl = args[i + 1];
++      i++;
+     } else if (arg === '--timeout') {
+-      result.timeout = Number(args[++i]) || 0;
++      const t = parseInt(args[i + 1], 10);
++      if (isNaN(t) || t < 0) {
++        throw new Error(`Invalid timeout value: ${args[i + 1]}`);
++      }
++      result.timeout = t;
++      i++;
+     } else if (arg === '--format') {
+-      result.format = args[++i];
++      const f = args[i + 1];
++      if (f !== 'json' && f !== 'ndjson') {
++        throw new Error(`Invalid format value: ${f}`);
++      }
++      result.format = f;
++      i++;
+     }
++    // ignore other flags
+   }
+-  if (result.sourceUrl && !result.sourceUrl.startsWith('http')) {
+-    console.error(`Invalid URL: ${result.sourceUrl}`);
+-    process.exit(1);
+-  }
+-  if (result.sourceUrl && (result.format !== 'json' && result.format !== 'ndjson')) {
+-    console.error(`Invalid format: ${result.format}`);
+-    process.exit(1);
++  if (!result.sourceUrl) {
++    throw new Error('Missing required --source-url argument');
+   }
+   return result;
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
+-}
++export default main;
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10228,"completion_tokens":5291,"total_tokens":15519,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4352,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
