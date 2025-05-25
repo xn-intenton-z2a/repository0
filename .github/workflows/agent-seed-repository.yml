@@ -868,265 +868,265 @@ jobs:
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
-  maintain-features-two:
-    needs:
-      - agentic-lib
-      - seed-repository
-      - delete-branches
-      - cleanup-issues
-      - update-npm
-      - update-mvn
-      - maintain-features-one
-      #- maintain-library
-    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 1 && inputs.feature == '' }}
-    permissions:
-      contents: write
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
-    with:
-      promptFilepath: '.github/agents/agent-maintain-features.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      feature: ${{ inputs.feature }}
-      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
-      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
-      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
-      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
-      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
-      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
-      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  log-intention-activity-maintain-features-two:
-    needs:
-      - agentic-lib
-      - log-intention-activity-maintain-features-one
-      - maintain-features-two
-    runs-on: ubuntu-latest
-    env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-
-      - name: log-intention-activity
-        id: log-intention-activity
-        uses: actions/github-script@v7
-        env:
-          featureName: "${{ needs.maintain-features-two.outputs.featureName }}"
-          featureSpec: "${{ needs.maintain-features-two.outputs.featureSpec }}"
-          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.maintain-features-two.outputs.usage }}
-        with:
-          script: |
-            const featureName = process.env.featureName;
-            const featureSpec = process.env.featureSpec;
-            const gitDiff = process.env.gitDiff;
-            const intentionFilepath = process.env.intentionFilepath;
-            const usage = process.env.usage;
-            
-            const activity = `Maintained feature ${featureName} with
-            
-            Feature spec:
-            
-            ${featureSpec}
-            
-            Git diff:
-            \`\`\`diff
-            ${gitDiff}
-            \`\`\``;
-
-            core.info(`Activity: ${activity}`);
-            core.info(`Seed discussion filepath: ${intentionFilepath}`);
-
-            const fs = require('fs');
-            const path = require('path');
-
-            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(intentionFilepath))) {
-              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
-            }
-            const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}
-            
-            Activity:
-            
-            ${activity}
-            
-            LLM API Usage:
-            \`\`\`json
-            ${usage}
-            \`\`\`
-            
-            ---`;
-            fs.appendFileSync(intentionFilepath, activityLogContent);
-            core.info(`Activity logged to ${intentionFilepath}`);
-
-      - name: Commit changes
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-          git push -v origin ${{ github.ref_name }}
-
-  maintain-features-three:
-    needs:
-      - agentic-lib
-      - seed-repository
-      - delete-branches
-      - cleanup-issues
-      - update-npm
-      - update-mvn
-      - maintain-features-one
-      - maintain-features-two
-      #- maintain-library
-    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 2 && inputs.feature == '' }}
-    permissions:
-      contents: write
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
-    with:
-      promptFilepath: '.github/agents/agent-maintain-features.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      feature: ''
-      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
-      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
-      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
-      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
-      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
-      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
-      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  log-intention-activity-maintain-features-three:
-    needs:
-      - agentic-lib
-      - log-intention-activity-maintain-features-one
-      - log-intention-activity-maintain-features-two
-      - maintain-features-three
-    runs-on: ubuntu-latest
-    env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-
-      - name: log-intention-activity
-        id: log-intention-activity
-        uses: actions/github-script@v7
-        env:
-          featureName: "${{ needs.maintain-features-three.outputs.featureName }}"
-          featureSpec: "${{ needs.maintain-features-three.outputs.featureSpec }}"
-          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.maintain-features-three.outputs.usage }}
-        with:
-          script: |
-            const featureName = process.env.featureName;
-            const featureSpec = process.env.featureSpec;
-            const gitDiff = process.env.gitDiff;
-            const intentionFilepath = process.env.intentionFilepath;
-            const usage = process.env.usage;
-            
-            const activity = `Maintained feature ${featureName} with
-            
-            Feature spec:
-            
-            ${featureSpec}
-            
-            Git diff:
-            \`\`\`diff
-            ${gitDiff}
-            \`\`\``;
-
-            core.info(`Activity: ${activity}`);
-            core.info(`Seed discussion filepath: ${intentionFilepath}`);
-
-            const fs = require('fs');
-            const path = require('path');
-
-            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(intentionFilepath))) {
-              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
-            }
-            const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}
-            
-            Activity:
-            
-            ${activity}
-            
-            LLM API Usage:
-            \`\`\`json
-            ${usage}
-            \`\`\`
-            
-            ---`;
-            fs.appendFileSync(intentionFilepath, activityLogContent);
-            core.info(`Activity logged to ${intentionFilepath}`);
-
-      - name: Commit changes
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-          git push -v origin ${{ github.ref_name }}
+#  maintain-features-two:
+#    needs:
+#      - agentic-lib
+#      - seed-repository
+#      - delete-branches
+#      - cleanup-issues
+#      - update-npm
+#      - update-mvn
+#      - maintain-features-one
+#      #- maintain-library
+#    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 1 && inputs.feature == '' }}
+#    permissions:
+#      contents: write
+#      issues: write
+#      id-token: write
+#    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
+#    with:
+#      promptFilepath: '.github/agents/agent-maintain-features.md'
+#      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+#      feature: ${{ inputs.feature }}
+#      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+#      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
+#      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+#      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+#      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+#      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+#      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+#      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+#      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+#      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+#      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+#      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    secrets:
+#      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+#      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#
+#  log-intention-activity-maintain-features-two:
+#    needs:
+#      - agentic-lib
+#      - log-intention-activity-maintain-features-one
+#      - maintain-features-two
+#    runs-on: ubuntu-latest
+#    env:
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.ref }}
+#
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#
+#      - name: log-intention-activity
+#        id: log-intention-activity
+#        uses: actions/github-script@v7
+#        env:
+#          featureName: "${{ needs.maintain-features-two.outputs.featureName }}"
+#          featureSpec: "${{ needs.maintain-features-two.outputs.featureSpec }}"
+#          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
+#          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          usage: ${{ needs.maintain-features-two.outputs.usage }}
+#        with:
+#          script: |
+#            const featureName = process.env.featureName;
+#            const featureSpec = process.env.featureSpec;
+#            const gitDiff = process.env.gitDiff;
+#            const intentionFilepath = process.env.intentionFilepath;
+#            const usage = process.env.usage;
+#
+#            const activity = `Maintained feature ${featureName} with
+#
+#            Feature spec:
+#
+#            ${featureSpec}
+#
+#            Git diff:
+#            \`\`\`diff
+#            ${gitDiff}
+#            \`\`\``;
+#
+#            core.info(`Activity: ${activity}`);
+#            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+#
+#            const fs = require('fs');
+#            const path = require('path');
+#
+#            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+#            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+#              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+#            }
+#            const isoDate = new Date().toISOString();
+#            const activityLogContent = `## Maintain Feature at ${isoDate}
+#
+#            Activity:
+#
+#            ${activity}
+#
+#            LLM API Usage:
+#            \`\`\`json
+#            ${usage}
+#            \`\`\`
+#
+#            ---`;
+#            fs.appendFileSync(intentionFilepath, activityLogContent);
+#            core.info(`Activity logged to ${intentionFilepath}`);
+#
+#      - name: Commit changes
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#          git push -v origin ${{ github.ref_name }}
+#
+#  maintain-features-three:
+#    needs:
+#      - agentic-lib
+#      - seed-repository
+#      - delete-branches
+#      - cleanup-issues
+#      - update-npm
+#      - update-mvn
+#      - maintain-features-one
+#      - maintain-features-two
+#      #- maintain-library
+#    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 2 && inputs.feature == '' }}
+#    permissions:
+#      contents: write
+#      issues: write
+#      id-token: write
+#    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
+#    with:
+#      promptFilepath: '.github/agents/agent-maintain-features.md'
+#      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+#      feature: ''
+#      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+#      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
+#      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+#      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+#      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+#      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+#      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+#      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+#      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+#      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+#      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+#      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    secrets:
+#      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+#      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#
+#  log-intention-activity-maintain-features-three:
+#    needs:
+#      - agentic-lib
+#      - log-intention-activity-maintain-features-one
+#      - log-intention-activity-maintain-features-two
+#      - maintain-features-three
+#    runs-on: ubuntu-latest
+#    env:
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.ref }}
+#
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#
+#      - name: log-intention-activity
+#        id: log-intention-activity
+#        uses: actions/github-script@v7
+#        env:
+#          featureName: "${{ needs.maintain-features-three.outputs.featureName }}"
+#          featureSpec: "${{ needs.maintain-features-three.outputs.featureSpec }}"
+#          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
+#          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          usage: ${{ needs.maintain-features-three.outputs.usage }}
+#        with:
+#          script: |
+#            const featureName = process.env.featureName;
+#            const featureSpec = process.env.featureSpec;
+#            const gitDiff = process.env.gitDiff;
+#            const intentionFilepath = process.env.intentionFilepath;
+#            const usage = process.env.usage;
+#
+#            const activity = `Maintained feature ${featureName} with
+#
+#            Feature spec:
+#
+#            ${featureSpec}
+#
+#            Git diff:
+#            \`\`\`diff
+#            ${gitDiff}
+#            \`\`\``;
+#
+#            core.info(`Activity: ${activity}`);
+#            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+#
+#            const fs = require('fs');
+#            const path = require('path');
+#
+#            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+#            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+#              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+#            }
+#            const isoDate = new Date().toISOString();
+#            const activityLogContent = `## Maintain Feature at ${isoDate}
+#
+#            Activity:
+#
+#            ${activity}
+#
+#            LLM API Usage:
+#            \`\`\`json
+#            ${usage}
+#            \`\`\`
+#
+#            ---`;
+#            fs.appendFileSync(intentionFilepath, activityLogContent);
+#            core.info(`Activity logged to ${intentionFilepath}`);
+#
+#      - name: Commit changes
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#          git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue-one:
     needs:
@@ -1285,164 +1285,164 @@ jobs:
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
-  generate-feature-development-issue-two:
-    needs:
-      - agentic-lib
-      - pom-check
-      - update-npm
-      - update-mvn
-      - generate-feature-development-issue-one
-      - maintain-features-two
-    if: ${{ !cancelled() }}
-    permissions:
-      contents: write
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.6'
-    with:
-      promptFilepath: '.github/agents/agent-feature-issue.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      featureName: ${{ needs.maintain-features-two.outputs.featureName }}
-      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
-      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
-      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
-      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
-      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
-      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
-      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
-      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
-      testScript: ${{ needs.agentic-lib.outputs.testScript }}
-      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      issueSelectionLabel: 'feature'
-      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  create-issue-two:
-    needs:
-      - agentic-lib
-      - pom-check
-      - update-npm
-      - update-mvn
-      - maintain-features-two
-      - generate-feature-development-issue-two
-    if: ${{ !cancelled() }}
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.6'
-    with:
-      issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
-      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}'
-
-  log-intention-activity-generate-feature-development-issue-two:
-    needs:
-      - agentic-lib
-      - maintain-features-two
-      - pom-check
-      - update-npm
-      - update-mvn
-      - log-intention-activity-maintain-features-one
-      - generate-feature-development-issue-two
-      - create-issue-two
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
-    env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-
-      - name: log-intention-activity
-        id: log-intention-activity
-        uses: actions/github-script@v7
-        env:
-          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
-          issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
-          issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
-          featureLabel: ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.generate-feature-development-issue-two.outputs.usage }}
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const issueNumber = process.env.issueNumber;
-            const issueTitle = process.env.issueTitle;
-            const issueBody = process.env.issueBody;
-            const featureLabel = process.env.featureLabel;
-            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            
-            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
-            
-            title:
-            
-            ${issueTitle}
-            
-            And description:
-            
-            ${issueBody}`;
-            
-            const intentionFilepath = process.env.intentionFilepath;
-            const usage = process.env.usage;
-
-            core.info(`Activity: ${activity}`);
-            core.info(`Seed discussion filepath: ${intentionFilepath}`);
-
-            const fs = require('fs');
-            const path = require('path');
-
-            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(intentionFilepath))) {
-              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
-            }
-            const isoDate = new Date().toISOString();
-            const activityLogContent = `## Feature to Issue at ${isoDate}
-            
-            Activity:
-            
-            ${activity}
-            
-            LLM API Usage:
-            \`\`\`json
-            ${usage}
-            \`\`\`
-            
-            ---`;
-            fs.appendFileSync(intentionFilepath, activityLogContent);
-            core.info(`Activity logged to ${intentionFilepath}`);
-
-      - name: Commit changes
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-          git push -v origin ${{ github.ref_name }}
+#  generate-feature-development-issue-two:
+#    needs:
+#      - agentic-lib
+#      - pom-check
+#      - update-npm
+#      - update-mvn
+#      - generate-feature-development-issue-one
+#      - maintain-features-two
+#    if: ${{ !cancelled() }}
+#    permissions:
+#      contents: write
+#      issues: write
+#      id-token: write
+#    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.6'
+#    with:
+#      promptFilepath: '.github/agents/agent-feature-issue.md'
+#      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+#      featureName: ${{ needs.maintain-features-two.outputs.featureName }}
+#      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+#      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+#      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
+#      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+#      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+#      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+#      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+#      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+#      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+#      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+#      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+#      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+#      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+#      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+#      issueSelectionLabel: 'feature'
+#      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+#      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+#    secrets:
+#      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+#      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#
+#  create-issue-two:
+#    needs:
+#      - agentic-lib
+#      - pom-check
+#      - update-npm
+#      - update-mvn
+#      - maintain-features-two
+#      - generate-feature-development-issue-two
+#    if: ${{ !cancelled() }}
+#    permissions:
+#      issues: write
+#      id-token: write
+#    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.6'
+#    with:
+#      issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
+#      issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
+#      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}'
+#
+#  log-intention-activity-generate-feature-development-issue-two:
+#    needs:
+#      - agentic-lib
+#      - maintain-features-two
+#      - pom-check
+#      - update-npm
+#      - update-mvn
+#      - log-intention-activity-maintain-features-one
+#      - generate-feature-development-issue-two
+#      - create-issue-two
+#    if: ${{ !cancelled() }}
+#    runs-on: ubuntu-latest
+#    env:
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.ref }}
+#
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#
+#      - name: log-intention-activity
+#        id: log-intention-activity
+#        uses: actions/github-script@v7
+#        env:
+#          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+#          issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
+#          issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
+#          featureLabel: ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}
+#          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          usage: ${{ needs.generate-feature-development-issue-two.outputs.usage }}
+#        with:
+#          script: |
+#            const owner = context.repo.owner;
+#            const repo = context.repo.repo;
+#            const issueNumber = process.env.issueNumber;
+#            const issueTitle = process.env.issueTitle;
+#            const issueBody = process.env.issueBody;
+#            const featureLabel = process.env.featureLabel;
+#            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+#
+#            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+#
+#            title:
+#
+#            ${issueTitle}
+#
+#            And description:
+#
+#            ${issueBody}`;
+#
+#            const intentionFilepath = process.env.intentionFilepath;
+#            const usage = process.env.usage;
+#
+#            core.info(`Activity: ${activity}`);
+#            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+#
+#            const fs = require('fs');
+#            const path = require('path');
+#
+#            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+#            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+#              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+#            }
+#            const isoDate = new Date().toISOString();
+#            const activityLogContent = `## Feature to Issue at ${isoDate}
+#
+#            Activity:
+#
+#            ${activity}
+#
+#            LLM API Usage:
+#            \`\`\`json
+#            ${usage}
+#            \`\`\`
+#
+#            ---`;
+#            fs.appendFileSync(intentionFilepath, activityLogContent);
+#            core.info(`Activity logged to ${intentionFilepath}`);
+#
+#      - name: Commit changes
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#          git push -v origin ${{ github.ref_name }}
 
   enhance-issue-one:
     needs:
@@ -1563,124 +1563,124 @@ jobs:
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
-  enhance-issue-two:
-    needs:
-      - agentic-lib
-      - maintain-features-two
-      - pom-check
-      - update-npm
-      - update-mvn
-      - generate-feature-development-issue-two
-      - create-issue-two
-    if: ${{ !cancelled() }}
-    permissions:
-      contents: read
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.6'
-    with:
-      promptFilepath: '.github/agents/agent-ready-issue.md'
-      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
-      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
-      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
-      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
-      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
-      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
-      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
-      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
-      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
-      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
-      testScript: ${{ needs.agentic-lib.outputs.testScript }}
-      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
-      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
-      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
-      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
-    secrets:
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-  log-intention-activity-enhance-issue-two:
-    needs:
-      - agentic-lib
-      - enhance-issue-one
-    if: ${{ !cancelled() }}
-    runs-on: ubuntu-latest
-    env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-
-      - name: log-intention-activity
-        id: log-intention-activity
-        uses: actions/github-script@v7
-        env:
-          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
-          issueBody: ${{ needs.enhance-issue-two.outputs.enhancedDescription }}
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.enhance-issue-two.outputs.usage }}
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const issueNumber = process.env.issueNumber;
-            const issueBody = process.env.issueBody;
-            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `Updated feature development issue ${issueUrl} with enhanced description:\n\n${issueBody}`;
-            const intentionFilepath = process.env.intentionFilepath;
-            const usage = process.env.usage;
-
-            core.info(`Activity: ${activity}`);
-            core.info(`Seed discussion filepath: ${intentionFilepath}`);
-
-            const fs = require('fs');
-            const path = require('path');
-
-            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
-            if (!fs.existsSync(path.dirname(intentionFilepath))) {
-              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
-            }
-            const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
-            
-            Activity:
-            
-            ${activity}
-            
-            LLM API Usage:
-            \`\`\`json
-            ${usage}
-            \`\`\`
-            
-            ---`;
-            fs.appendFileSync(intentionFilepath, activityLogContent);
-            core.info(`Activity logged to ${intentionFilepath}`);
-
-      - name: Commit changes
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-          git push -v origin ${{ github.ref_name }}
+#  enhance-issue-two:
+#    needs:
+#      - agentic-lib
+#      - maintain-features-two
+#      - pom-check
+#      - update-npm
+#      - update-mvn
+#      - generate-feature-development-issue-two
+#      - create-issue-two
+#    if: ${{ !cancelled() }}
+#    permissions:
+#      contents: read
+#      issues: write
+#      id-token: write
+#    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.6'
+#    with:
+#      promptFilepath: '.github/agents/agent-ready-issue.md'
+#      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+#      issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+#      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+#      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+#      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+#      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+#      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+#      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+#      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+#      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+#      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+#      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+#      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+#      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+#      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+#      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+#      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+#    secrets:
+#      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+#      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#
+#  log-intention-activity-enhance-issue-two:
+#    needs:
+#      - agentic-lib
+#      - enhance-issue-one
+#    if: ${{ !cancelled() }}
+#    runs-on: ubuntu-latest
+#    env:
+#      gitUserEmail: 'action@github.com'
+#      gitUserName: 'GitHub Actions[bot]'
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.ref }}
+#
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#
+#      - name: log-intention-activity
+#        id: log-intention-activity
+#        uses: actions/github-script@v7
+#        env:
+#          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+#          issueBody: ${{ needs.enhance-issue-two.outputs.enhancedDescription }}
+#          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          usage: ${{ needs.enhance-issue-two.outputs.usage }}
+#        with:
+#          script: |
+#            const owner = context.repo.owner;
+#            const repo = context.repo.repo;
+#            const issueNumber = process.env.issueNumber;
+#            const issueBody = process.env.issueBody;
+#            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+#            const activity = `Updated feature development issue ${issueUrl} with enhanced description:\n\n${issueBody}`;
+#            const intentionFilepath = process.env.intentionFilepath;
+#            const usage = process.env.usage;
+#
+#            core.info(`Activity: ${activity}`);
+#            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+#
+#            const fs = require('fs');
+#            const path = require('path');
+#
+#            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+#            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+#              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+#            }
+#            const isoDate = new Date().toISOString();
+#            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
+#
+#            Activity:
+#
+#            ${activity}
+#
+#            LLM API Usage:
+#            \`\`\`json
+#            ${usage}
+#            \`\`\`
+#
+#            ---`;
+#            fs.appendFileSync(intentionFilepath, activityLogContent);
+#            core.info(`Activity logged to ${intentionFilepath}`);
+#
+#      - name: Commit changes
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+#          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#          git push -v origin ${{ github.ref_name }}
 
   npm-test-before-issue-resolution:
     needs:
