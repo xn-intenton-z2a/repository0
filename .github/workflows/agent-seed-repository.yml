@@ -75,7 +75,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.5'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -92,7 +92,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.9.5'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -115,7 +115,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       #- name: archive
       #  id: archive
@@ -267,7 +267,7 @@ jobs:
           git diff
           git commit -m 'Reseed repository' --allow-empty
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
           git status -v
 
@@ -294,7 +294,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git fetch --all
           git branch -r
 
@@ -431,7 +431,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -483,7 +483,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, seed repository" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   pom-check:
@@ -510,7 +510,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: mvn
         id: mvn
@@ -576,7 +576,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - uses: actions/setup-node@v4
         with:
@@ -650,7 +650,7 @@ jobs:
           git diff
           git commit -m 'Library updates after reseed from possible unmaintained dependency file' --allow-empty
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
           git status -v
 
@@ -687,7 +687,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: download-dependencies
         id: download-dependencies
@@ -734,7 +734,7 @@ jobs:
           git diff
           git commit -m 'Library updates after reseed from possible unmaintained dependency file' --allow-empty
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
           git status -v
 
@@ -755,7 +755,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -800,7 +800,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -865,7 +865,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   maintain-features-two:
@@ -883,7 +883,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -929,7 +929,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -994,7 +994,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   maintain-features-three:
@@ -1013,7 +1013,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1060,7 +1060,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1125,7 +1125,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue-one:
@@ -1140,7 +1140,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1179,7 +1179,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.5'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue-one.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue-one.outputs.issueDescription }}
@@ -1212,7 +1212,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1282,7 +1282,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue-two:
@@ -1298,7 +1298,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1337,7 +1337,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.5'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
@@ -1371,7 +1371,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1441,7 +1441,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   enhance-issue-one:
@@ -1458,7 +1458,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1504,7 +1504,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1560,7 +1560,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   enhance-issue-two:
@@ -1577,7 +1577,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1623,7 +1623,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1679,7 +1679,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   npm-test-before-issue-resolution:
@@ -1707,7 +1707,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -1719,7 +1719,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -1794,7 +1794,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1847,7 +1847,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -1928,7 +1928,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-transformation-issue-to-code.yml" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   npm-test-after-issue-resolution:
@@ -2089,7 +2089,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.5'
     with:
       branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
@@ -2107,7 +2107,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.5'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -2122,7 +2122,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -2176,7 +2176,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -2249,7 +2249,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged byagent-seed-repository.yml, fix code" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   npm-test-after-fix:
@@ -2433,7 +2433,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.5'
     with:
       branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
@@ -2458,7 +2458,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.5'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

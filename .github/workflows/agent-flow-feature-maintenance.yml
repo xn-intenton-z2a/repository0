@@ -75,7 +75,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.5'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -116,7 +116,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -161,7 +161,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -226,7 +226,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-flow-feature-maintenance.yml, maintain feature." || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   generate-feature-development-issue:
@@ -238,7 +238,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -271,7 +271,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.5'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
@@ -299,7 +299,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -369,7 +369,7 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-flow-feature-maintenance.yml, generate issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
   select-issue-to-enhance:
@@ -379,7 +379,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.5'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'automated'
@@ -397,7 +397,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -443,7 +443,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -499,5 +499,5 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-flow-feature-maintenance.yml, enhance issue" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}

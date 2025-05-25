@@ -66,7 +66,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.5'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -76,7 +76,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.5'
     with:
       issueNumber: ${{ inputs.issueNumber || '' }}
       selectionLabel: 'merged'
@@ -112,7 +112,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@6.9.4'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-review-issue.yml@6.9.5'
     with:
       promptFilepath: '.github/agents/agent-review-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -154,7 +154,7 @@ jobs:
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 
       - name: log-intention-activity
         id: log-intention-activity
@@ -214,5 +214,5 @@ jobs:
           git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
           git commit -m "Activity logged by agent-transformation-merged-issue-to-closed-issue.yml" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
