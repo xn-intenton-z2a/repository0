@@ -449,6 +449,7 @@ jobs:
 
   seed-repository:
     needs:
+      - process-discussion-post
       - generate-response
     if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
     permissions:
@@ -470,6 +471,7 @@ jobs:
 
   log-intention-activity-seed-repository:
     needs:
+      - process-discussion-post
       - generate-response
       - seed-repository
       - agentic-lib

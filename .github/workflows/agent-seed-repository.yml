@@ -806,11 +806,11 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          featureName: "${{ needs.maintain-features.outputs.featureName }}"
-          featureSpec: "${{ needs.maintain-features.outputs.featureSpec }}"
-          gitDiff: ${{ needs.maintain-features.outputs.gitDiff }}
+          featureName: "${{ needs.maintain-features-one.outputs.featureName }}"
+          featureSpec: "${{ needs.maintain-features-one.outputs.featureSpec }}"
+          gitDiff: ${{ needs.maintain-features-one.outputs.gitDiff }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.maintain-features.outputs.usage }}
+          usage: ${{ needs.maintain-features-one.outputs.usage }}
         with:
           script: |
             const featureName = process.env.featureName;
