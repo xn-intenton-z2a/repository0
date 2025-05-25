@@ -161,4 +161,216 @@ LLM API Usage:
 
 ```
 
+---## Issue to Code at 2025-05-25T22:08:11.150Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2249 with message Add --fetch-wikipedia CLI option with tests and documentation and outcome 
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..8e51c963 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,7 +3,45 @@
+ 
+ import { fileURLToPath } from "url";
+ 
+-export function main(args) {
++export async function main(args = []) {
++  const flagIndex = args.indexOf("--fetch-wikipedia");
++  if (flagIndex !== -1) {
++    const term = args[flagIndex + 1];
++    if (!term) {
++      console.error("No search term provided for --fetch-wikipedia");
++      process.exit(1);
++    }
++    const encoded = encodeURIComponent(term);
++    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`;
++    try {
++      const res = await fetch(url);
++      if (res.status === 200) {
++        const data = await res.json();
++        if (data.type === "disambiguation") {
++          console.error(`Disambiguation page encountered for term: ${term}`);
++          process.exit(1);
++        }
++        if (!data.extract) {
++          console.error(`No summary available for term: ${term}`);
++          process.exit(1);
++        }
++        console.log(data.extract);
++        process.exit(0);
++      } else if (res.status === 404) {
++        console.error(`Article not found: ${term}`);
++        process.exit(1);
++      } else {
++        console.error(`Error fetching article: ${res.status}`);
++        process.exit(1);
++      }
++    } catch (err) {
++      console.error(`Error fetching article: ${err.message}`);
++      process.exit(1);
++    }
++    return;
++  }
++
++  // default behavior
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..c975f995 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,4 +1,4 @@
+-import { describe, test, expect } from "vitest";
++import { describe, test, expect, vi } from "vitest";
+ import * as mainModule from "@src/lib/main.js";
+ import { main } from "@src/lib/main.js";
+ 
+@@ -8,9 +8,75 @@ describe("Main Module Import", () => {
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("Default behavior", () => {
++  test("logs args and does not exit", async () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
++    await main([]);
++    expect(logSpy).toHaveBeenCalledWith("Run with: []");
++    expect(exitSpy).not.toHaveBeenCalled();
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++});
++
++describe("fetch-wikipedia CLI option", () => {
++  let logSpy;
++  let errorSpy;
++  let exitSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit:${code}`); });
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("Successful response", async () => {
++    global.fetch = vi.fn().mockResolvedValue({
++      status: 200,
++      json: vi.fn().mockResolvedValue({ extract: "Summary text." }),
++    });
++    await expect(main(["--fetch-wikipedia", "Term"]))
++      .rejects.toThrow("exit:0");
++    expect(fetch).toHaveBeenCalledWith(
++      "https://en.wikipedia.org/api/rest_v1/page/summary/Term"
++    );
++    expect(logSpy).toHaveBeenCalledWith("Summary text.");
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++
++  test("Article not found (404)", async () => {
++    global.fetch = vi.fn().mockResolvedValue({ status: 404 });
++    await expect(main(["--fetch-wikipedia", "NotFound"]))
++      .rejects.toThrow("exit:1");
++    expect(errorSpy).toHaveBeenCalledWith("Article not found: NotFound");
++    expect(exitSpy).toHaveBeenCalledWith(1);
++  });
++
++  test("Network error", async () => {
++    global.fetch = vi.fn().mockRejectedValue(new Error("network failure"));
++    await expect(main(["--fetch-wikipedia", "ErrorTerm"]))
++      .rejects.toThrow("exit:1");
++    expect(errorSpy).toHaveBeenCalledWith(
++      "Error fetching article: network failure"
++    );
++    expect(exitSpy).toHaveBeenCalledWith(1);
++  });
++
++  test("Disambiguation", async () => {
++    global.fetch = vi.fn().mockResolvedValue({
++      status: 200,
++      json: vi.fn().mockResolvedValue({ type: "disambiguation", extract: "" }),
++    });
++    await expect(main(["--fetch-wikipedia", "Term"]))
++      .rejects.toThrow("exit:1");
++    expect(errorSpy).toHaveBeenCalledWith(
++      "Disambiguation page encountered for term: Term"
++    );
++    expect(exitSpy).toHaveBeenCalledWith(1);
+   });
+ });\n\n// New [docs/WIKIPEDIA_SUMMARY.md]:\n# WIKIPEDIA_SUMMARY
+
+## Overview
+
+Add a new CLI option `--fetch-wikipedia <term>` to fetch a summary of a topic from Wikipedia's REST API and display it as plain text. This brings the repository closer to its mission of building a knowledge graph by enabling data retrieval from a public source.
+
+## CLI Usage
+
+The main script accepts:
+
+- `--fetch-wikipedia <term>` : Fetches the introduction summary of the specified Wikipedia article.
+
+Supply the term as a single argument or a quoted string for multi-word titles.
+
+## Behavior
+
+When invoked with `--fetch-wikipedia`, the tool constructs a request to:
+
+```
+https://en.wikipedia.org/api/rest_v1/page/summary/<encoded term>
+```
+
+It retrieves the `extract` field from the JSON response and prints it to stdout. The process exits with code 0 on success.
+
+## Error Handling
+
+- If fetch fails (network error or non-200 HTTP code), an error message is printed to stderr and the process exits with code 1.
+- If the page does not exist, the CLI prints:
+
+  ```
+  Article not found: <term>
+  ```
+
+  to stderr and exits with code 1.
+- If the page is a disambiguation (`type` of `disambiguation`), a notice is printed to stderr and the process exits with code 1.
+
+## Testing
+
+Unit tests mock the global `fetch` function to simulate:
+
+- A successful response with sample JSON containing an `extract` field.
+- A 404 response representing a missing page.
+- A network error.
+- A disambiguation response.
+
+Tests verify that `main()` handles each case according to the specification.
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2249 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10539,"completion_tokens":6094,"total_tokens":16633,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4032,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
