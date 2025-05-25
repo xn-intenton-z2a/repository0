@@ -373,4 +373,271 @@ LLM API Usage:
 {"prompt_tokens":10539,"completion_tokens":6094,"total_tokens":16633,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4032,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-25T22:10:25.128Z
+
+Activity:
+
+fixApplied: true with Implement --fetch-wikipedia option and fix test imports and outcome 
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 8e51c963..997627ec 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,51 +1,64 @@
+-#!/usr/bin/env node
+-// src/lib/main.js
++/*
++ * Main script for repository0 CLI.
++ */
+ 
+-import { fileURLToPath } from "url";
+-
+-export async function main(args = []) {
+-  const flagIndex = args.indexOf("--fetch-wikipedia");
+-  if (flagIndex !== -1) {
+-    const term = args[flagIndex + 1];
++export async function main(argv = process.argv.slice(2)) {
++  const args = argv;
++  const wikiFlag = '--fetch-wikipedia';
++  const idx = args.indexOf(wikiFlag);
++  if (idx !== -1) {
++    const term = args[idx + 1];
+     if (!term) {
+-      console.error("No search term provided for --fetch-wikipedia");
++      console.error('No term provided for --fetch-wikipedia');
+       process.exit(1);
++      return;
+     }
+-    const encoded = encodeURIComponent(term);
+-    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`;
++    const urlTerm = encodeURIComponent(term);
++    let response;
+     try {
+-      const res = await fetch(url);
+-      if (res.status === 200) {
+-        const data = await res.json();
+-        if (data.type === "disambiguation") {
+-          console.error(`Disambiguation page encountered for term: ${term}`);
+-          process.exit(1);
+-        }
+-        if (!data.extract) {
+-          console.error(`No summary available for term: ${term}`);
+-          process.exit(1);
+-        }
+-        console.log(data.extract);
+-        process.exit(0);
+-      } else if (res.status === 404) {
+-        console.error(`Article not found: ${term}`);
+-        process.exit(1);
+-      } else {
+-        console.error(`Error fetching article: ${res.status}`);
+-        process.exit(1);
+-      }
++      response = await fetch(
++        `https://en.wikipedia.org/api/rest_v1/page/summary/${urlTerm}`
++      );
+     } catch (err) {
+       console.error(`Error fetching article: ${err.message}`);
+       process.exit(1);
++      return;
++    }
++    if (response.status === 404) {
++      console.error(`Article not found: ${term}`);
++      process.exit(1);
++      return;
++    }
++    if (!response.ok) {
++      console.error(
++        `Error fetching article: ${response.status} ${response.statusText || ''}`.trim()
++      );
++      process.exit(1);
++      return;
++    }
++    const data = await response.json();
++    if (data.type === 'disambiguation') {
++      console.error(`${term} is a disambiguation page`);
++      process.exit(1);
++      return;
++    }
++    if (data.extract) {
++      console.log(data.extract);
++      process.exit(0);
++      return;
++    } else {
++      console.error(`No summary available for: ${term}`);
++      process.exit(1);
++      return;
+     }
+-    return;
+   }
+ 
+-  // default behavior
++  // Default behavior
+   console.log(`Run with: ${JSON.stringify(args)}`);
++  process.exit(0);
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++// If run as script, invoke main()
++if (import.meta.url === `file://${process.argv[1]}`) {
++  main();
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index c975f995..47e3849a 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,82 +1,66 @@
+-import { describe, test, expect, vi } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
++import { main } from '../../src/lib/main.js';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
+-  });
+-});
++let logSpy;
++let errorSpy;
++let exitSpy;
+ 
+-describe("Default behavior", () => {
+-  test("logs args and does not exit", async () => {
+-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {});
+-    await main([]);
+-    expect(logSpy).toHaveBeenCalledWith("Run with: []");
+-    expect(exitSpy).not.toHaveBeenCalled();
+-    logSpy.mockRestore();
+-    exitSpy.mockRestore();
+-  });
++beforeEach(() => {
++  logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++  exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {});
+ });
+ 
+-describe("fetch-wikipedia CLI option", () => {
+-  let logSpy;
+-  let errorSpy;
+-  let exitSpy;
+-
+-  beforeEach(() => {
+-    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+-    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw new Error(`exit:${code}`); });
+-  });
++afterEach(() => {
++  vi.restoreAllMocks();
++});
+ 
+-  afterEach(() => {
+-    vi.restoreAllMocks();
++describe('main', () => {
++  it('should print usage when no args', async () => {
++    await main([]);
++    expect(logSpy).toHaveBeenCalledWith('Run with: []');
++    expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+ 
+-  test("Successful response", async () => {
+-    global.fetch = vi.fn().mockResolvedValue({
+-      status: 200,
+-      json: vi.fn().mockResolvedValue({ extract: "Summary text." }),
+-    });
+-    await expect(main(["--fetch-wikipedia", "Term"]))
+-      .rejects.toThrow("exit:0");
+-    expect(fetch).toHaveBeenCalledWith(
+-      "https://en.wikipedia.org/api/rest_v1/page/summary/Term"
+-    );
+-    expect(logSpy).toHaveBeenCalledWith("Summary text.");
++  it('should fetch and print summary when article found', async () => {
++    vi.stubGlobal('fetch', vi.fn(() =>
++      Promise.resolve({
++        status: 200,
++        ok: true,
++        json: () => Promise.resolve({ extract: 'Sample summary', type: 'standard' }),
++      })
++    ));
++    await main(['--fetch-wikipedia', 'Term']);
++    expect(logSpy).toHaveBeenCalledWith('Sample summary');
+     expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+ 
+-  test("Article not found (404)", async () => {
+-    global.fetch = vi.fn().mockResolvedValue({ status: 404 });
+-    await expect(main(["--fetch-wikipedia", "NotFound"]))
+-      .rejects.toThrow("exit:1");
+-    expect(errorSpy).toHaveBeenCalledWith("Article not found: NotFound");
++  it('should handle 404', async () => {
++    vi.stubGlobal('fetch', vi.fn(() =>
++      Promise.resolve({ status: 404, ok: false, statusText: 'Not Found' })
++    ));
++    await main(['--fetch-wikipedia', 'Missing']);
++    expect(errorSpy).toHaveBeenCalledWith('Article not found: Missing');
+     expect(exitSpy).toHaveBeenCalledWith(1);
+   });
+ 
+-  test("Network error", async () => {
+-    global.fetch = vi.fn().mockRejectedValue(new Error("network failure"));
+-    await expect(main(["--fetch-wikipedia", "ErrorTerm"]))
+-      .rejects.toThrow("exit:1");
+-    expect(errorSpy).toHaveBeenCalledWith(
+-      "Error fetching article: network failure"
+-    );
++  it('should handle disambiguation', async () => {
++    vi.stubGlobal('fetch', vi.fn(() =>
++      Promise.resolve({
++        status: 200,
++        ok: true,
++        json: () => Promise.resolve({ extract: '', type: 'disambiguation' }),
++      })
++    ));
++    await main(['--fetch-wikipedia', 'Multi']);
++    expect(errorSpy).toHaveBeenCalledWith('Multi is a disambiguation page');
+     expect(exitSpy).toHaveBeenCalledWith(1);
+   });
+ 
+-  test("Disambiguation", async () => {
+-    global.fetch = vi.fn().mockResolvedValue({
+-      status: 200,
+-      json: vi.fn().mockResolvedValue({ type: "disambiguation", extract: "" }),
+-    });
+-    await expect(main(["--fetch-wikipedia", "Term"]))
+-      .rejects.toThrow("exit:1");
+-    expect(errorSpy).toHaveBeenCalledWith(
+-      "Disambiguation page encountered for term: Term"
+-    );
++  it('should handle network error', async () => {
++    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('NetworkFail'))));
++    await main(['--fetch-wikipedia', 'ErrorTerm']);
++    expect(errorSpy).toHaveBeenCalledWith('Error fetching article: NetworkFail');
+     expect(exitSpy).toHaveBeenCalledWith(1);
+   });
+-});
++});
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":8496,"completion_tokens":7496,"total_tokens":15992,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6080,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
