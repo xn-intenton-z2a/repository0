@@ -65,7 +65,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -114,7 +114,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -142,10 +142,23 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  create-issue:
+    needs:
+      - generate-feature-development-issue
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.0'
+    with:
+      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue.outputs.featureLabel }}'
+
   log-intention-activity:
     needs:
       - agentic-lib
       - generate-feature-development-issue
+      - create-issue
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -166,14 +179,33 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          activity: "Generated feature development issue with title ${{ needs.generate-feature-development-issue.outputs.issueTitle }}."
+          issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+          issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
+          issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+          featureLabel: ${{ needs.generate-feature-development-issue.outputs.featureLabel }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.generate-feature-development-issue.outputs.usage }}
         with:
           script: |
-            const activity = process.env.activity;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueTitle = process.env.issueTitle;
+            const issueBody = process.env.issueBody;
+            const featureLabel = process.env.featureLabel;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            
+            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+            
+            title:
+            
+            ${issueTitle}
+            
+            And description:
+            
+            ${issueBody}`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -198,18 +230,6 @@ jobs:
           git commit -m "Activity logged agent-flow-feature-development.yml, generate issue" || echo "No changes to commit"
           git push
 
-  create-issue:
-    needs:
-      - generate-feature-development-issue
-    permissions:
-      issues: write
-      id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.8.1'
-    with:
-      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
-
   select-issue-to-enhance:
     needs:
       - create-issue
@@ -217,7 +237,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.0'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'automated'
@@ -254,7 +274,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -349,7 +369,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-select-issue.yml@6.9.0'
     with:
       issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
       selectionLabel: 'ready'
@@ -371,7 +391,7 @@ jobs:
       id-token: write
       packages: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-transformation-issue-to-code.yml@6.9.0'
     with:
       issueNumber: ${{ needs.select-issue-to-code.outputs.issueNumber }}
     secrets:
@@ -389,7 +409,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

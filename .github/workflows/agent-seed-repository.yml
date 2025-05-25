@@ -20,6 +20,11 @@ on:
         required: false
         type: string
         default: ''
+      url:
+        description: 'The URL of the repository to seed. e.g. https://github.com/xn-intenton-z2a/agentic-lib/discussions/1318'
+        required: false
+        type: string
+        default: ''
   workflow_call:
     inputs:
       mission:
@@ -29,6 +34,11 @@ on:
         default: ''
       feature:
         description: 'Text to drive the feature creation (if populated the seeding and creation of a new mission will be skipped). e.g. "Support output to PDF."'
+        required: false
+        type: string
+        default: ''
+      url:
+        description: 'The URL of the repository to seed. e.g. https://github.com/xn-intenton-z2a/agentic-lib/discussions/1318'
         required: false
         type: string
         default: ''
@@ -46,6 +56,7 @@ on:
 env:
   mission: ${{ inputs.mission || '' }}
   feature: ${{ inputs.feature || '' }}
+  url: ${{ inputs.url || '' }}
   npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
   gitUserEmail: 'action@github.com'
   gitUserName: 'GitHub Actions[bot]'
@@ -64,7 +75,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -81,7 +92,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.9.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -171,12 +182,30 @@ jobs:
         if: needs.agentic-lib.outputs.sandboxReset == 'true'
         shell: bash
         run: |          
-          # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
-          mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
-          if [ -n "${{ env.mission }}" ]; then
-            echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md'
-            echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.featuresPath }}/FEATURE.md"
-          fi
+            # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
+            mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
+            if [ -n "${{ env.mission }}" ]; then
+              echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
+              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
+            fi
+          
+            if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
+              mkdir -p '${{ needs.agentic-lib.outputs.targetSourcePath }}'
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}main.js'
+            else
+              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}'
+            fi
+            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}'
+
+            if [[ '${{ needs.agentic-lib.outputs.targetTestsPath }}' == */ ]]; then
+              mkdir -p '${{ needs.agentic-lib.outputs.targetTestsPath }}'
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}main.test.js'
+            else
+              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
+              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}'
+            fi
+            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}'
 
       - name: seed-repository
         if: needs.agentic-lib.outputs.repositoryReseed == 'true'
@@ -248,10 +277,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: Fetch all branches
+      - name: Get latest from remote
         run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
           git fetch --all
           git branch -r
 
@@ -363,19 +396,334 @@ jobs:
               page++;
             }
 
-  maintain-features:
+  log-intention-activity-seed-repository:
+    needs:
+      - archive-intention
+      - seed-repository
+      - cleanup-issues
+      - delete-branches
+      - agentic-lib
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && inputs.feature == '' }}
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          mission: ${{ inputs.mission || '' }}
+          url: ${{ inputs.url || needs.agentic-lib.outputs.seedDiscussionUrl }}
+          outcome: ${{ needs.seed-repository.outcome }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+        with:
+          script: |
+            const mission = process.env.mission;
+            const url = process.env.url;
+            const usage = process.env.usage;
+            const outcome = process.env.outcome;
+            const intentionFilepath = process.env.intentionFilepath;
+
+            const activity = `When responding to a post on url ${url}, the repository was seeded with mission:
+            
+            ${mission}
+            
+            and outcome "${outcome}"`;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Seed repository activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n---\n\n`;
+            if (fs.existsSync(intentionFilepath)) {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
+            }
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-seed-repository.yml, seed repository" || echo "No changes to commit"
+          git push
+
+  pom-check:
     needs:
       - agentic-lib
       - seed-repository
       - delete-branches
       - cleanup-issues
-      #- maintain-library
     if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: mvn
+        id: mvn
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            pomXmlExists='true'
+          else
+            pomXmlExists='false'
+          fi
+          echo "pomXmlExists=${pomXmlExists?}" | tee -a "${GITHUB_OUTPUT?}"
+
+      - uses: actions/setup-java@v4
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: download-dependencies
+        id: download-dependencies
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw --batch-mode --quiet dependency:go-offline > /dev/null 2>&1
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: package
+        id: package
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw validate
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+    outputs:
+      pomXmlExists: ${{ steps.mvn.outputs.pomXmlExists }}
+
+  update-npm:
+    needs:
+      - agentic-lib
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: rm -f package-lock.json
+
+      - run: npm install
+
+      - name: Update packages with npm
+        continue-on-error: true
+        shell: bash
+        run: npm install --save ; npm update ; npm upgrade ; npm install
+
+      - name: Update packages with ncu
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: 'minor'
+        run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
+
+      - name: git-diff
+        id: git-diff
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+
+      - run: rm -rf './node_modules/'
+
+      - run: npm ci || npm install
+
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+
+      - name: Commit
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m 'Library updates after reseed from possible unmaintained dependency file' --allow-empty
+          git pull --ff-only origin ${{ github.ref }}
+          git push -v
+          git status -v
+
+    outputs:
+      updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}
+
+  update-mvn:
+    needs:
+      - agentic-lib
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+      - pom-check
+      - update-npm
+    if: ${{ needs.pom-check.outputs.pomXmlExists == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java (JDK 21)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: download-dependencies
+        id: download-dependencies
+        if: steps.mvn.outputs.pomXmlExists == 'true'
+        shell: bash
+        run: ./mvnw --batch-mode --quiet dependency:go-offline > /dev/null 2>&1
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Update Maven dependencies
+        continue-on-error: true
+        shell: bash
+        run: |
+          mvn versions:use-latest-releases -DallowSnapshots=false
+          # Optionally, run: mvn versions:commit to finalize changes
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Get git diff status
+        id: git-diff
+        shell: bash
+        run: |
+          savedOptions=$(set +o) && set +e
+          if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi
+          eval "${savedOptions?}"
+        continue-on-error: true
+
+      - name: Commit changes
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git status -v
+          git add -v --all
+          git diff
+          git commit -m 'Library updates after reseed from possible unmaintained dependency file' --allow-empty
+          git pull --ff-only origin ${{ github.ref }}
+          git push -v
+          git status -v
+
+    outputs:
+      updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}
+
+  maintain-features-one:
+    needs:
+      - agentic-lib
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+      - update-npm
+      - update-mvn
+      #- maintain-library
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -399,11 +747,10 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  log-intention-activity-maintain-features:
+  log-intention-activity-maintain-features-one:
     needs:
       - agentic-lib
-      - maintain-features
-    if: ${{ !cancelled() }}
+      - maintain-features-one
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -462,20 +809,229 @@ jobs:
           git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
           git push
 
-  generate-feature-development-issue:
+  maintain-features-two:
     needs:
       - agentic-lib
-      - maintain-features
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+      - update-npm
+      - update-mvn
+      - maintain-features-one
+      #- maintain-library
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 1 && inputs.feature == '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.0'
+    with:
+      promptFilepath: '.github/agents/agent-maintain-features.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      feature: ${{ inputs.feature }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  log-intention-activity-maintain-features-two:
+    needs:
+      - agentic-lib
+      - log-intention-activity-maintain-features-one
+      - maintain-features-two
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          featureName: "${{ needs.maintain-features-two.outputs.featureName }}"
+          featureSpec: "${{ needs.maintain-features-two.outputs.featureSpec }}"
+          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.maintain-features-two.outputs.usage }}
+        with:
+          script: |
+            const featureName = process.env.featureName;
+            const featureSpec = process.env.featureSpec;
+            const gitDiff = process.env.gitDiff;
+            const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
+            
+            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+          git push
+
+  maintain-features-three:
+    needs:
+      - agentic-lib
+      - seed-repository
+      - delete-branches
+      - cleanup-issues
+      - update-npm
+      - update-mvn
+      - maintain-features-one
+      - maintain-features-two
+      #- maintain-library
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 2 && inputs.feature == '' }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.0'
+    with:
+      promptFilepath: '.github/agents/agent-maintain-features.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      feature: ''
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      featuresLimit: '${{ needs.agentic-lib.outputs.featuresLimit }}'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  log-intention-activity-maintain-features-three:
+    needs:
+      - agentic-lib
+      - log-intention-activity-maintain-features-one
+      - log-intention-activity-maintain-features-two
+      - maintain-features-three
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          featureName: "${{ needs.maintain-features-three.outputs.featureName }}"
+          featureSpec: "${{ needs.maintain-features-three.outputs.featureSpec }}"
+          gitDiff: ${{ needs.maintain-features-two.outputs.gitDiff }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.maintain-features-three.outputs.usage }}
+        with:
+          script: |
+            const featureName = process.env.featureName;
+            const featureSpec = process.env.featureSpec;
+            const gitDiff = process.env.gitDiff;
+            const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
+            
+            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-seed-repository.yml, maintain feature." || echo "No changes to commit"
+          git push
+
+  generate-feature-development-issue-one:
+    needs:
+      - agentic-lib
+      - pom-check
+      - update-npm
+      - update-mvn
+      - maintain-features-one
     if: ${{ !cancelled() }}
     permissions:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      featureName: ${{ needs.maintain-features.outputs.featureName }}
+      featureName: ${{ needs.maintain-features-one.outputs.featureName }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
@@ -498,27 +1054,33 @@ jobs:
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  create-issue:
+  create-issue-one:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
+      - pom-check
+      - update-npm
+      - update-mvn
+      - maintain-features-one
+      - generate-feature-development-issue-one
     if: ${{ !cancelled() }}
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.0'
     with:
-      issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
-      issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
+      issueTitle: ${{ needs.generate-feature-development-issue-one.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue-one.outputs.issueDescription }}
+      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue-one.outputs.featureLabel }}'
 
-  log-intention-activity:
+  log-intention-activity-generate-feature-development-issue-one:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
-      - create-issue
+      - maintain-features-one
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - create-issue-one
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
@@ -540,11 +1102,12 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
-          issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
-          issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
+          issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
+          issueTitle: ${{ needs.generate-feature-development-issue-one.outputs.issueTitle }}
+          issueBody: ${{ needs.generate-feature-development-issue-one.outputs.issueDescription }}
+          featureLabel: ${{ needs.generate-feature-development-issue-one.outputs.featureLabel }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.generate-feature-development-issue.outputs.usage }}
+          usage: ${{ needs.generate-feature-development-issue-one.outputs.usage }}
         with:
           script: |
             const owner = context.repo.owner;
@@ -552,8 +1115,18 @@ jobs:
             const issueNumber = process.env.issueNumber;
             const issueTitle = process.env.issueTitle;
             const issueBody = process.env.issueBody;
+            const featureLabel = process.env.featureLabel;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `Generated feature development issue ${issueUrl} with title:\n\n${issueTitle}\n\nAnd description:\n\n${issueBody}`;
+            
+            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+            
+            title:
+            
+            ${issueTitle}
+            
+            And description:
+            
+            ${issueBody}`;
             
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
@@ -581,22 +1154,166 @@ jobs:
           git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
           git push
 
-  enhance-issue:
+  generate-feature-development-issue-two:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
-      - create-issue
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - maintain-features-two
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.0'
+    with:
+      promptFilepath: '.github/agents/agent-feature-issue.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      featureName: ${{ needs.maintain-features-two.outputs.featureName }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+      featureDevelopmentIssuesWipLimit: '${{ needs.agentic-lib.outputs.featureDevelopmentIssuesWipLimit }}'
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      issueSelectionLabel: 'feature'
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  create-issue-two:
+    needs:
+      - agentic-lib
+      - pom-check
+      - update-npm
+      - update-mvn
+      - maintain-features-two
+      - generate-feature-development-issue-two
+    if: ${{ !cancelled() }}
+    permissions:
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.0'
+    with:
+      issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
+      issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
+      issueLabels: 'feature, automated, ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}'
+
+  log-intention-activity-generate-feature-development-issue-two:
+    needs:
+      - agentic-lib
+      - maintain-features-two
+      - pom-check
+      - update-npm
+      - update-mvn
+      - log-intention-activity-maintain-features-one
+      - generate-feature-development-issue-two
+      - create-issue-two
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+          issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
+          issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
+          featureLabel: ${{ needs.generate-feature-development-issue-two.outputs.featureLabel }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.generate-feature-development-issue-two.outputs.usage }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueTitle = process.env.issueTitle;
+            const issueBody = process.env.issueBody;
+            const featureLabel = process.env.featureLabel;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            
+            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+            
+            title:
+            
+            ${issueTitle}
+            
+            And description:
+            
+            ${issueBody}`;
+            
+            const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Feature to Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-seed-repository.yml, generate issue" || echo "No changes to commit"
+          git push
+
+  enhance-issue-one:
+    needs:
+      - agentic-lib
+      - maintain-features-one
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - create-issue-one
     if: ${{ !cancelled() }}
     permissions:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
       featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
       libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
@@ -619,7 +1336,7 @@ jobs:
   log-intention-activity-enhance-issue:
     needs:
       - agentic-lib
-      - enhance-issue
+      - enhance-issue-one
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
@@ -641,10 +1358,111 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          issueNumber: ${{ needs.select-issue-to-enhance.outputs.issueNumber }}
-          issueBody: ${{ needs.enhance-issue.outputs.enhancedDescription }}
+          issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
+          issueBody: ${{ needs.enhance-issue-one.outputs.enhancedDescription }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          usage: ${{ needs.enhance-issue.outputs.usage }}
+          usage: ${{ needs.enhance-issue-one.outputs.usage }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNumber = process.env.issueNumber;
+            const issueBody = process.env.issueBody;
+            const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
+            const activity = `Updated feature development issue ${issueUrl} with enhanced description:\n\n${issueBody}`;
+            const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-seed-repository.yml, enhance issue" || echo "No changes to commit"
+          git push
+
+  enhance-issue-two:
+    needs:
+      - agentic-lib
+      - maintain-features-two
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-two
+      - create-issue-two
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.0'
+    with:
+      promptFilepath: '.github/agents/agent-ready-issue.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+      featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+      libraryDocumentsPath: ${{ needs.agentic-lib.outputs.libraryDocumentsPath }}
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  log-intention-activity-enhance-issue-two:
+    needs:
+      - agentic-lib
+      - enhance-issue-one
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          issueNumber: ${{ needs.create-issue-two.outputs.issueNumber }}
+          issueBody: ${{ needs.enhance-issue-two.outputs.enhancedDescription }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.enhance-issue-two.outputs.usage }}
         with:
           script: |
             const owner = context.repo.owner;
@@ -682,17 +1500,26 @@ jobs:
   npm-test-before-issue-resolution:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
-      - create-issue
-      - enhance-issue
+      - maintain-features-one
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - create-issue-one
+      - enhance-issue-one
     if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -701,7 +1528,7 @@ jobs:
         run: |
           git config --local user.email "${{ env.gitUserEmail }}"
           git config --local user.name "${{ env.gitUserName }}"
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+          git pull --ff-only origin ${{ github.ref }}
       - name: Set up .npmrc
         if: ${{ env.npmAuthOrganisation != '' }}
         shell: bash
@@ -715,10 +1542,13 @@ jobs:
   label-issue-before-attempt:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
-      - create-issue
-      - enhance-issue
+      - maintain-features-one
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - create-issue-one
+      - enhance-issue-one
       - npm-test-before-issue-resolution
     if: ${{ !cancelled() }}
     permissions:
@@ -752,17 +1582,20 @@ jobs:
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: "${{ needs.create-issue.outputs.issueNumber }}",
+              issue_number: "${{ needs.create-issue-one.outputs.issueNumber }}",
               labels: [`issue-worker-${{ github.run_id }}`, `in-progress`]
             });
 
   apply-issue-resolution:
     needs:
       - agentic-lib
-      - maintain-features
-      - generate-feature-development-issue
-      - create-issue
-      - enhance-issue
+      - maintain-features-one
+      - pom-check
+      - update-npm
+      - update-mvn
+      - generate-feature-development-issue-one
+      - create-issue-one
+      - enhance-issue-one
       - npm-test-before-issue-resolution
       - label-issue-before-attempt
     if: ${{ !cancelled() }}
@@ -770,11 +1603,11 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
-      issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+      issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
       allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
       targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
       allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
@@ -803,7 +1636,7 @@ jobs:
   apply-issue-resolution-log-intention-activity:
     needs:
       - agentic-lib
-      - create-issue
+      - create-issue-one
       - apply-issue-resolution
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
@@ -826,7 +1659,7 @@ jobs:
         id: log-intention-activity
         uses: actions/github-script@v7
         env:
-          issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
+          issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
           issueTitle: "${{ needs.apply-issue-resolution.outputs.issueTitle }}"
           fixApplied: "${{ needs.apply-issue-resolution.outputs.fixApplied }}"
           message: "${{ needs.apply-issue-resolution.outputs.message }}"
@@ -992,7 +1825,7 @@ jobs:
 
   create-pr:
     needs:
-      - create-issue
+      - create-issue-one
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
     if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
@@ -1003,11 +1836,11 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.0'
     with:
-      branch: '${{ needs.apply-issue-resolution.outputs.branch }}'
+      branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
-      gitCommitMessage: "${{ needs.apply-issue-resolution.outputs.message }} (working on #${{ needs.create-issue.outputs.issueNumber }})"
+      gitCommitMessage: "${{ needs.apply-issue-resolution.outputs.message }} (working on #${{ needs.create-issue-one.outputs.issueNumber }})"
       label: 'automerge'
 
   automerge-pr:
@@ -1021,7 +1854,298 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.0'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  fix-code:
+    needs:
+      - create-issue-one
+      - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    permissions:
+      contents: write
+      issues: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.0'
+    with:
+      promptFilepath: '.github/agents/agent-apply-fix.md'
+      agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
+      allSourcePaths: ${{ needs.agentic-lib.outputs.allSourcePaths }}
+      targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+      allTestsPaths: ${{ needs.agentic-lib.outputs.allTestsPaths }}
+      targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+      readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+      documentationPath: ${{ needs.agentic-lib.outputs.documentationPath }}
+      missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+      contributingFilepath: ${{ needs.agentic-lib.outputs.contributingFilepath }}
+      dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+      formattingFilepath: ${{ needs.agentic-lib.outputs.formattingFilepath }}
+      lintingFilepath: ${{ needs.agentic-lib.outputs.lintingFilepath }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      mainScript: ${{ needs.agentic-lib.outputs.mainScript }}
+      branch: ${{ needs.apply-issue-resolution.outputs.branch }}
+      issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
+      writeableFilepaths: ${{ needs.agentic-lib.outputs.writeableFilepaths }}
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      model: ${{ vars.CHATGPT_API_MODEL || 'o4-mini' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    secrets:
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  log-intention-activity-fix-code:
+    needs:
+      - create-issue-one
+      - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+      - fix-code
+      - agentic-lib
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          fixApplied: ${{ needs.fix-code.outputs.fixApplied }}
+          message: ${{ needs.fix-code.outputs.message }}
+          gitDiff: ${{ needs.fix-code.outputs.gitDiff }}
+          mainOutput: ${{ needs.fix-code.outputs.mainOutput }}
+          allValidationStepsSuccessful: ${{ needs.fix-code.outputs.allValidationStepsSuccessful }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          usage: ${{ needs.fix-code.outputs.usage }}
+        with:
+          script: |
+            const fixApplied = process.env.fixApplied;
+            const message = process.env.message;
+            const gitDiff = process.env.gitDiff;
+            const mainOutput = process.env.mainOutput;
+            const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
+            const intentionFilepath = process.env.intentionFilepath;
+            const usage = process.env.usage;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            const activityLogContent = `## Fixed Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            fs.appendFileSync(intentionFilepath, activityLogContent);
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged byagent-seed-repository.yml, fix code" || echo "No changes to commit"
+          git push
+
+  npm-test-after-fix:
+    needs:
+      - agentic-lib
+      - fix-code
+    if: ${{ !cancelled() }}
+    name: 'npm test with coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci || npm install
+      - run: ${{ needs.agentic-lib.outputs.testScript }}
+
+  npm-build-after-fix:
+    needs:
+      - agentic-lib
+      - fix-code
+    if: ${{ !cancelled() }}
+    name: 'npm run build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci || npm install
+      - run: ${{ needs.agentic-lib.outputs.buildScript }}
+
+  npm-run-after-fix:
+    needs:
+      - agentic-lib
+      - fix-code
+    if: ${{ !cancelled() }}
+    name: 'npm run start'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.branch-for-fix.outputs.branch }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ needs.branch-for-fix.outputs.branch }}
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - run: npm ci || npm install
+      - run: ${{ needs.agentic-lib.outputs.mainScript }}
+
+      #buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      #testScript: ${{ needs.agentic-lib.outputs.testScript }}
+      #mainScript:
+
+  needs-fix-after-fix:
+    needs:
+      - agentic-lib
+      - fix-code
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    steps:
+      - name: set-needs-fix
+        id: set-needs-fix
+        uses: actions/github-script@v7
+        env:
+          needsFix: ${{ needs.needs-fix.outputs.needsFix }}
+          anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
+          anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
+        with:
+          script: |
+            const anySkipped = process.env.anySkipped === "true";
+            const anyDidntSucceed = process.env.anyDidntSucceed === "true";
+            const readyToMerge = !anySkipped && !anyDidntSucceed;
+
+            core.setOutput("anySkipped", anySkipped);
+            core.setOutput("anyDidntSucceed", anyDidntSucceed);
+            core.setOutput("readyToMerge", readyToMerge);     
+
+            core.info(`Any skipped: ${anySkipped}`);
+            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
+            core.info(`Ready to merge: ${readyToMerge}`);
+
+    outputs:
+      applyFixEvenIfTestsPass: ${{ steps.set-needs-fix.outputs.applyFixEvenIfTestsPass }}
+      fixedFromTheBeginning: ${{ steps.set-needs-fix.outputs.fixedFromTheBeginning }}
+      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
+      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
+      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
+
+  create-pr-fix-code:
+    needs:
+      - agentic-lib
+      - fix-code
+      - create-issue-one
+      - apply-issue-resolution
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+      - needs-fix-after-fix
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.0'
+    with:
+      branch: "${{ needs.apply-issue-resolution.outputs.branch }}"
+      baseBranch: 'main'
+      gitCommitMessage: "${{ needs.apply-fix.outputs.message }} (working on #${{ needs.create-issue-one.outputs.issueNumber }})"
+      label: 'automerge'
+
+  automerge-pr-fix-code:
+    needs:
+      - create-pr-fix-code
+      - agentic-lib
+      - fix-code
+      - apply-issue-resolution
+      - npm-test-after-fix
+      - npm-build-after-fix
+      - npm-run-after-fix
+      - needs-fix-after-fix
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}

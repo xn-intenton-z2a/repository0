@@ -55,7 +55,6 @@ env:
   iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
   iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
-  # TODO: Post as the Bot's app account.
 
 jobs:
   check-secrets:
@@ -72,7 +71,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -229,7 +228,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -354,51 +353,11 @@ jobs:
 
             core.info(`Comment posted.`);
 
-  seed-repository:
-    needs:
-      - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'seed-repository' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
-    permissions:
-      contents: write
-      pull-requests: write
-      packages: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.8.1'
-    with:
-      mission: ${{ needs.generate-response.outputs.detail }}
-      feature: ''
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  create-feature:
-    needs:
-      - generate-response
-    if: ${{ needs.generate-response.outputs.action == 'create-feature' && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
-    permissions:
-      contents: write
-      pull-requests: write
-      packages: write
-      checks: write
-      issues: write
-      id-token: write
-      pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.8.1'
-    with:
-      mission: ''
-      feature: ${{ needs.generate-response.outputs.detail }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
-
-  log-intention-activity:
+  log-intention-activity-post-reply:
     needs:
       - process-discussion-post
       - generate-response
-      - seed-repository
+      - post-reply
       - agentic-lib
     if: ${{ !cancelled() && startsWith(needs.process-discussion-post.outputs.url, 'https') }}
     runs-on: ubuntu-latest
@@ -426,6 +385,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
+          outcome: ${{ needs.post-reply.outcome }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -434,9 +394,18 @@ jobs:
             const reply = process.env.reply;
             const url = process.env.url;
             const usage = process.env.usage;
+            const outcome = process.env.outcome;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `${reply}\n\n[Posted on "${url}" by the repository bot which took the action "${action}" with the detail "${detail}".]`;
+            const activity = `Reply Posted on "${url}" by the repository bot which took the action "${action}":
+            
+            ${reply}
+            
+            with the detail:
+            
+            "${detail}"
+            
+            and outcome "${outcome}"`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -450,6 +419,210 @@ jobs:
             }
             const isoDate = new Date().toISOString();
             let activityLogContent = `## Discussions activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
+            if (action == 'seed-repository') {
+              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
+            }
+            if (fs.existsSync(intentionFilepath)) {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
+            }
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
+          git push
+
+  seed-repository:
+    needs:
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'seed-repository' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.0'
+    with:
+      mission: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
+      feature: ''
+      url: ${{ needs.process-discussion-post.outputs.url }}
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  log-intention-activity-seed-repository:
+    needs:
+      - generate-response
+      - seed-repository
+      - agentic-lib
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
+          usage: ${{ needs.generate-response.outputs.usage }}
+          outcome: ${{ needs.seed-repository.outcome }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+        with:
+          script: |
+            const action = process.env.action;
+            const detail = process.env.detail;
+            const reply = process.env.reply;
+            const url = process.env.url;
+            const usage = process.env.usage;
+            const outcome = process.env.outcome;
+            const intentionFilepath = process.env.intentionFilepath;
+
+            const activity = `When responding to a post on url ${url}, the repository bot took the action "${action}":
+            
+            ${reply}
+            
+            with the detail:
+            
+            "${detail}"
+            
+            and outcome "${outcome}"`;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            let activityLogContent = `## Seed repository activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
+            if (action == 'seed-repository') {
+              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
+            }
+            if (fs.existsSync(intentionFilepath)) {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
+            }
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
+          git push
+
+  create-feature:
+    needs:
+      - agentic-lib
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'create-feature' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.0'
+    with:
+      mission: ''
+      feature: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  log-intention-activity-create-feature:
+    needs:
+      - generate-response
+      - create-feature
+      - agentic-lib
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email "${{ env.gitUserEmail }}"
+          git config --local user.name "${{ env.gitUserName }}"
+          git pull --ff-only origin ${{ github.ref }}
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+          usage: ${{ needs.generate-response.outputs.usage }}
+          outcome: ${{ needs.create-feature.outcome }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+        with:
+          script: |
+            const action = process.env.action;
+            const detail = process.env.detail;
+            const reply = process.env.reply;
+            const usage = process.env.usage;
+            const outcome = process.env.outcome;
+            const intentionFilepath = process.env.intentionFilepath;
+
+            const activity = `The repository bot took the following action "${action}":
+            
+            ${reply}
+            
+            with the detail:
+            
+            "${detail}"
+            
+            and outcome "${outcome}"`;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            let activityLogContent = `## Create feature activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
             if (action == 'seed-repository') {
               activityLogContent = `# Activity Log\n\n${activityLogContent}`;
             }

@@ -69,7 +69,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -137,7 +137,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -171,11 +171,11 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.0'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue.outputs.issueDescription }}
-      issueLabels: 'feature, automated'
+      issueLabels: 'feature, automated, ${{ needs.select-feature.outputs.featureLabel }}'
 
   log-intention-activity:
     needs:
@@ -205,6 +205,7 @@ jobs:
           issueNumber: ${{ needs.create-issue.outputs.issueNumber }}
           issueTitle: "${{ needs.generate-feature-development-issue.outputs.issueTitle }}"
           issueBody: "${{ needs.generate-feature-development-issue.outputs.issueDescription }}"
+          featureLabel: ${{ needs.select-feature.outputs.featureLabel }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.generate-feature-development-issue.outputs.usage }}
         with:
@@ -214,11 +215,20 @@ jobs:
             const issueNumber = process.env.issueNumber;
             const issueTitle = process.env.issueTitle;
             const issueBody = process.env.issueBody;
+            const featureLabel = process.env.featureLabel;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Created issue ${issueUrl} with title ${issueTitle} and body:\n\n ${issueBody}.`;
+            const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
+            
+            title:
+            
+            ${issueTitle}
+            
+            And description:
+            
+            ${issueBody}`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);

@@ -25,6 +25,28 @@ on:
         required: false
         type: boolean
         default: false
+  workflow_call:
+    inputs:
+      branchPrefix:
+        description: 'The prefix of the branch to scan for. e.g. "agentic-lib-"'
+        required: false
+        type: string
+        default: 'agentic-lib-'
+      applyFixEvenIfTestsPass:
+        description: 'Apply the fix even if the tests pass. e.g. true'
+        required: false
+        type: boolean
+        default: false
+      scanForBranches:
+        description: 'Scan for branches matching the pattern. e.g. true'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: false
+      CHATGPT_API_SECRET_KEY:
+        required: true
   #workflow_run:
   #  workflows:
   #    - seed-repository
@@ -62,7 +84,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -558,7 +580,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.0'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -625,7 +647,7 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
-            const activity = `fixApplied: ${process.env.fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
+            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -827,7 +849,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.0'
     with:
       branch: "${{ needs.branch-for-fix.outputs.branch }}"
       baseBranch: 'main'
@@ -856,7 +878,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.8.1'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.0'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
