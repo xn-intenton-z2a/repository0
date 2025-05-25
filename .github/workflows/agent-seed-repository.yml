@@ -1682,53 +1682,53 @@ jobs:
 #          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
 #          git push -v origin ${{ github.ref_name }}
 
-  npm-test-before-issue-resolution:
-    needs:
-      - agentic-lib
-      - maintain-features-one
-      - pom-check
-      - update-npm
-      - update-mvn
-      - generate-feature-development-issue-one
-      - create-issue-one
-      - enhance-issue-one
-    if: ${{ !cancelled() }}
-    name: 'npm test with coverage'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git fetch origin ${{ github.ref_name }}
-          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: npm run test:unit
+#  npm-test-before-issue-resolution:
+#    needs:
+#      - agentic-lib
+#      - maintain-features-one
+#      - pom-check
+#      - update-npm
+#      - update-mvn
+#      - generate-feature-development-issue-one
+#      - create-issue-one
+#      - enhance-issue-one
+#    if: ${{ !cancelled() }}
+#    name: 'npm test with coverage'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          ref: ${{ github.ref }}
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git fetch origin ${{ github.ref_name }}
+#          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: npm run test:unit
 
   label-issue-before-attempt:
     needs:
@@ -1740,7 +1740,7 @@ jobs:
       - generate-feature-development-issue-one
       - create-issue-one
       - enhance-issue-one
-      - npm-test-before-issue-resolution
+      #- npm-test-before-issue-resolution
     if: ${{ !cancelled() }}
     permissions:
       contents: write
@@ -1787,7 +1787,7 @@ jobs:
       - generate-feature-development-issue-one
       - create-issue-one
       - enhance-issue-one
-      - npm-test-before-issue-resolution
+      #- npm-test-before-issue-resolution
       - label-issue-before-attempt
     if: ${{ !cancelled() }}
     permissions:
@@ -1861,6 +1861,13 @@ jobs:
           outcome: "${{ needs.apply-issue-resolution.result }}"
           gitDiff: "${{ needs.apply-issue-resolution.outputs.gitDiff }}"
           mainOutput: "${{ needs.apply-issue-resolution.outputs.mainOutput }}"
+          installAfterUpdateOutcome: ${{ needs.apply-issue-resolution.outputs.installAfterUpdateOutcome }}
+          ciAfterUpdateOutcome: ${{ needs.apply-issue-resolution.outputs.ciAfterUpdateOutcome }}
+          testAfterUpdateOutcome: ${{ needs.apply-issue-resolution.outputs.testAfterUpdateOutcome }}
+          mainAfterUpdateOutcome: ${{ needs.apply-issue-resolution.outputs.mainAfterUpdateOutcome }}
+          commitOutcome: ${{ needs.apply-issue-resolution.outputs.commitOutcome }}
+          postResolutionCommentOutcome: ${{ needs.apply-issue-resolution.outputs.postResolutionCommentOutcome }}
+          allValidationStepsSuccessful: ${{ needs.apply-issue-resolution.outputs.allValidationStepsSuccessful }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
           usage: ${{ needs.apply-issue-resolution.outputs.usage }}
         with:
@@ -1875,6 +1882,13 @@ jobs:
             const outcome = process.env.outcome;
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
+            const installAfterUpdateOutcome = process.env.installAfterUpdateOutcome;
+            const ciAfterUpdateOutcome = process.env.ciAfterUpdateOutcome;
+            const testAfterUpdateOutcome = process.env.testAfterUpdateOutcome;
+            const mainAfterUpdateOutcome = process.env.mainAfterUpdateOutcome;
+            const commitOutcome = process.env.commitOutcome;
+            const postResolutionCommentOutcome = process.env.postResolutionCommentOutcome;
+            const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
@@ -1890,6 +1904,20 @@ jobs:
             \`\`\`log
             ${mainOutput}
             \`\`\`
+            
+            installAfterUpdateOutcome: ${installAfterUpdateOutcome}
+            
+            ciAfterUpdateOutcome: ${ciAfterUpdateOutcome}
+            
+            testAfterUpdateOutcome: ${testAfterUpdateOutcome}
+            
+            mainAfterUpdateOutcome: ${mainAfterUpdateOutcome}
+            
+            commitOutcome: ${commitOutcome}
+            
+            postResolutionCommentOutcome: ${postResolutionCommentOutcome}
+            
+            allValidationStepsSuccessful: ${allValidationStepsSuccessful}
             
             [for issue ${issueUrl} with title: "${issueTitle}"]`;
 
@@ -1931,157 +1959,158 @@ jobs:
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
-  npm-test-after-issue-resolution:
-    needs:
-      - agentic-lib
-      - create-issue-one
-      - apply-issue-resolution
-    if: ${{ !cancelled() }}
-    name: 'npm test with coverage'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: npm run test:unit
-
-  npm-build-after-issue-resolution:
-    needs:
-      - agentic-lib
-      - create-issue-one
-      - apply-issue-resolution
-    if: ${{ !cancelled() }}
-    name: 'npm run build'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: npm run build
-
-  npm-run-after-issue-resolution:
-    needs:
-      - agentic-lib
-      - create-issue-one
-      - apply-issue-resolution
-    if: ${{ !cancelled() }}
-    name: 'npm run start'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
-
-  needs-fix-after-issue-resolution:
-    needs:
-      - agentic-lib
-      - create-issue-one
-      - apply-issue-resolution
-      - npm-test-after-issue-resolution
-      - npm-build-after-issue-resolution
-      - npm-run-after-issue-resolution
-    if: ${{ !cancelled() && ( needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' ) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: set-needs-fix
-        id: set-needs-fix
-        uses: actions/github-script@v7
-        env:
-          testResult: ${{ needs.npm-test-after-issue-resolution.result }}
-          buildResult: ${{ needs.npm-build-after-issue-resolution.result }}
-          runResult: ${{ needs.npm-run-after-issue-resolution.result }}
-        with:
-          script: |
-            const testResult = process.env.testResult;
-            const buildResult = process.env.buildResult;
-            const runResult = process.env.runResult;
-            
-            core.info(`Test result: ${testResult}`);
-            core.info(`Build result: ${buildResult}`);
-            core.info(`Run result: ${runResult}`);
-            
-            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
-            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
-            
-            const readyToMerge = !anySkipped && !anyDidntSucceed;
-
-            core.setOutput("anySkipped", anySkipped);
-            core.setOutput("anyDidntSucceed", anyDidntSucceed);
-            core.setOutput("readyToMerge", readyToMerge);     
-
-            core.info(`Any skipped: ${anySkipped}`);
-            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
-            core.info(`Ready to merge: ${readyToMerge}`);
-
-    outputs:
-      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
-      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
-      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
+#  npm-test-after-issue-resolution:
+#    needs:
+#      - agentic-lib
+#      - create-issue-one
+#      - apply-issue-resolution
+#    if: ${{ !cancelled() }}
+#    name: 'npm test with coverage'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: npm run test:unit
+#
+#  npm-build-after-issue-resolution:
+#    needs:
+#      - agentic-lib
+#      - create-issue-one
+#      - apply-issue-resolution
+#    if: ${{ !cancelled() }}
+#    name: 'npm run build'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: npm run build
+#
+#  npm-run-after-issue-resolution:
+#    needs:
+#      - agentic-lib
+#      - create-issue-one
+#      - apply-issue-resolution
+#    if: ${{ !cancelled() }}
+#    name: 'npm run start'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: ${{ vars.MAIN_SCRIPT || 'npm run start' }}
+#
+#  needs-fix-after-issue-resolution:
+#    needs:
+#      - agentic-lib
+#      - create-issue-one
+#      - apply-issue-resolution
+#      - npm-test-after-issue-resolution
+#      - npm-build-after-issue-resolution
+#      - npm-run-after-issue-resolution
+#    if: ${{ !cancelled() && ( needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' ) }}
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: set-needs-fix
+#        id: set-needs-fix
+#        uses: actions/github-script@v7
+#        env:
+#          testResult: ${{ needs.npm-test-after-issue-resolution.result }}
+#          buildResult: ${{ needs.npm-build-after-issue-resolution.result }}
+#          runResult: ${{ needs.npm-run-after-issue-resolution.result }}
+#        with:
+#          script: |
+#            const testResult = process.env.testResult;
+#            const buildResult = process.env.buildResult;
+#            const runResult = process.env.runResult;
+#
+#            core.info(`Test result: ${testResult}`);
+#            core.info(`Build result: ${buildResult}`);
+#            core.info(`Run result: ${runResult}`);
+#
+#            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
+#            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
+#
+#            const readyToMerge = !anySkipped && !anyDidntSucceed;
+#
+#            core.setOutput("anySkipped", anySkipped);
+#            core.setOutput("anyDidntSucceed", anyDidntSucceed);
+#            core.setOutput("readyToMerge", readyToMerge);
+#
+#            core.info(`Any skipped: ${anySkipped}`);
+#            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
+#            core.info(`Ready to merge: ${readyToMerge}`);
+#
+#    outputs:
+#      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
+#      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
+#      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
 
   create-pr:
     needs:
       - create-issue-one
       - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
+      #- needs-fix-after-issue-resolution
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' }}
+    #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
       packages: write
@@ -2099,7 +2128,8 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
-    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' }}
+    #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
       pull-requests: write
@@ -2116,8 +2146,9 @@ jobs:
     needs:
       - create-issue-one
       - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+      #- needs-fix-after-issue-resolution
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' }}
+    #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     permissions:
       contents: write
       issues: write
@@ -2153,12 +2184,13 @@ jobs:
 
   log-intention-activity-fix-code:
     needs:
+      - agentic-lib
       - create-issue-one
       - apply-issue-resolution
-      - needs-fix-after-issue-resolution
+      #- needs-fix-after-issue-resolution
       - fix-code
-      - agentic-lib
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' }}
+    #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -2252,167 +2284,167 @@ jobs:
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
           git push -v origin ${{ github.ref_name }}
 
-  npm-test-after-fix:
-    needs:
-      - create-issue-one
-      - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-      - fix-code
-      - agentic-lib
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
-    name: 'npm test with coverage'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: ${{ needs.agentic-lib.outputs.testScript }}
-
-  npm-build-after-fix:
-    needs:
-      - create-issue-one
-      - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-      - fix-code
-      - agentic-lib
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
-    name: 'npm run build'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: ${{ needs.agentic-lib.outputs.buildScript }}
-
-  npm-run-after-fix:
-    needs:
-      - agentic-lib
-      - fix-code
-      - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
-    name: 'npm run start'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-      - name: Get latest from remote
-        run: |
-          git config --local user.email '${{ env.gitUserEmail }}'
-          git config --local user.name '${{ env.gitUserName }}'
-          git config --local pull.ff     false       # never fast-forward
-          git config --local pull.rebase false       # never rebase on pull
-          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
-      - name: Set up .npmrc
-        if: ${{ env.npmAuthOrganisation != '' }}
-        shell: bash
-        run: |
-          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
-          echo "always-auth=true" >> .npmrc
-      - run: npm ci || npm install
-      - run: ${{ needs.agentic-lib.outputs.mainScript }}
-
-      #buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
-      #testScript: ${{ needs.agentic-lib.outputs.testScript }}
-      #mainScript:
-
-  needs-fix-after-fix:
-    needs:
-      - agentic-lib
-      - fix-code
-      - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-      - npm-test-after-fix
-      - npm-build-after-fix
-      - npm-run-after-fix
-    runs-on: ubuntu-latest
-    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
-    steps:
-      - name: set-needs-fix
-        id: set-needs-fix
-        uses: actions/github-script@v7
-        env:
-          testResult: ${{ needs.npm-test-after-fix.result }}
-          buildResult: ${{ needs.npm-build-after-fix.result }}
-          runResult: ${{ needs.npm-run-after-fix.result }}
-          anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
-          anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
-        with:
-          script: |
-            const testResult = process.env.testResult;
-            const buildResult = process.env.buildResult;
-            const runResult = process.env.runResult;
-            
-            core.info(`Test result: ${testResult}`);
-            core.info(`Build result: ${buildResult}`);
-            core.info(`Run result: ${runResult}`);
-            
-            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
-            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
-
-            const readyToMerge = !anySkipped && !anyDidntSucceed;
-
-            core.setOutput("anySkipped", anySkipped);
-            core.setOutput("anyDidntSucceed", anyDidntSucceed);
-            core.setOutput("readyToMerge", readyToMerge);     
-
-            core.info(`Any skipped: ${anySkipped}`);
-            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
-            core.info(`Ready to merge: ${readyToMerge}`);
-
-    outputs:
-      applyFixEvenIfTestsPass: ${{ steps.set-needs-fix.outputs.applyFixEvenIfTestsPass }}
-      fixedFromTheBeginning: ${{ steps.set-needs-fix.outputs.fixedFromTheBeginning }}
-      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
-      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
-      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
+#  npm-test-after-fix:
+#    needs:
+#      - create-issue-one
+#      - apply-issue-resolution
+#      - needs-fix-after-issue-resolution
+#      - fix-code
+#      - agentic-lib
+#    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+#    name: 'npm test with coverage'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#          fetch-depth: 0
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: ${{ needs.agentic-lib.outputs.testScript }}
+#
+#  npm-build-after-fix:
+#    needs:
+#      - create-issue-one
+#      - apply-issue-resolution
+#      - needs-fix-after-issue-resolution
+#      - fix-code
+#      - agentic-lib
+#    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+#    name: 'npm run build'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#          fetch-depth: 0
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: ${{ needs.agentic-lib.outputs.buildScript }}
+#
+#  npm-run-after-fix:
+#    needs:
+#      - agentic-lib
+#      - fix-code
+#      - apply-issue-resolution
+#      - needs-fix-after-issue-resolution
+#    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+#    name: 'npm run start'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          ref: ${{ needs.apply-issue-resolution.outputs.branch }}
+#          fetch-depth: 0
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 20
+#          cache: "npm"
+#      - name: Get latest from remote
+#        run: |
+#          git config --local user.email '${{ env.gitUserEmail }}'
+#          git config --local user.name '${{ env.gitUserName }}'
+#          git config --local pull.ff     false       # never fast-forward
+#          git config --local pull.rebase false       # never rebase on pull
+#          git pull --ff-only origin ${{ needs.apply-issue-resolution.outputs.branch }}
+#      - name: Set up .npmrc
+#        if: ${{ env.npmAuthOrganisation != '' }}
+#        shell: bash
+#        run: |
+#          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+#          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+#          echo "always-auth=true" >> .npmrc
+#      - run: npm ci || npm install
+#      - run: ${{ needs.agentic-lib.outputs.mainScript }}
+#
+#      #buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+#      #testScript: ${{ needs.agentic-lib.outputs.testScript }}
+#      #mainScript:
+#
+#  needs-fix-after-fix:
+#    needs:
+#      - agentic-lib
+#      - fix-code
+#      - apply-issue-resolution
+#      - needs-fix-after-issue-resolution
+#      - npm-test-after-fix
+#      - npm-build-after-fix
+#      - npm-run-after-fix
+#    runs-on: ubuntu-latest
+#    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
+#    steps:
+#      - name: set-needs-fix
+#        id: set-needs-fix
+#        uses: actions/github-script@v7
+#        env:
+#          testResult: ${{ needs.npm-test-after-fix.result }}
+#          buildResult: ${{ needs.npm-build-after-fix.result }}
+#          runResult: ${{ needs.npm-run-after-fix.result }}
+#          anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
+#          anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
+#        with:
+#          script: |
+#            const testResult = process.env.testResult;
+#            const buildResult = process.env.buildResult;
+#            const runResult = process.env.runResult;
+#
+#            core.info(`Test result: ${testResult}`);
+#            core.info(`Build result: ${buildResult}`);
+#            core.info(`Run result: ${runResult}`);
+#
+#            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
+#            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
+#
+#            const readyToMerge = !anySkipped && !anyDidntSucceed;
+#
+#            core.setOutput("anySkipped", anySkipped);
+#            core.setOutput("anyDidntSucceed", anyDidntSucceed);
+#            core.setOutput("readyToMerge", readyToMerge);
+#
+#            core.info(`Any skipped: ${anySkipped}`);
+#            core.info(`Any didn't succeed: ${anyDidntSucceed}`);
+#            core.info(`Ready to merge: ${readyToMerge}`);
+#
+#    outputs:
+#      applyFixEvenIfTestsPass: ${{ steps.set-needs-fix.outputs.applyFixEvenIfTestsPass }}
+#      fixedFromTheBeginning: ${{ steps.set-needs-fix.outputs.fixedFromTheBeginning }}
+#      allSkipped: ${{ steps.set-needs-fix.outputs.allSkipped }}
+#      anyDidntSucceed: ${{ steps.set-needs-fix.outputs.anyDidntSucceed }}
+#      readyToMerge: ${{ steps.set-needs-fix.outputs.readyToMerge }}
 
   create-pr-fix-code:
     needs:
@@ -2420,12 +2452,13 @@ jobs:
       - fix-code
       - create-issue-one
       - apply-issue-resolution
-      - needs-fix-after-issue-resolution
-      - npm-test-after-fix
-      - npm-build-after-fix
-      - npm-run-after-fix
-      - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+      #- needs-fix-after-issue-resolution
+      #- npm-test-after-fix
+      #- npm-build-after-fix
+      #- npm-run-after-fix
+      #- needs-fix-after-fix
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful != 'true' }}
+    #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       packages: write
@@ -2442,15 +2475,16 @@ jobs:
 
   automerge-pr-fix-code:
     needs:
-      - create-pr-fix-code
       - agentic-lib
-      - fix-code
       - apply-issue-resolution
-      - npm-test-after-fix
-      - npm-build-after-fix
-      - npm-run-after-fix
-      - needs-fix-after-fix
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
+      - fix-code
+      - create-pr-fix-code
+      #- npm-test-after-fix
+      #- npm-build-after-fix
+      #- npm-run-after-fix
+      #- needs-fix-after-fix
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful != 'true' }}
+    #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
       pull-requests: write
