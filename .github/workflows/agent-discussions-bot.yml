@@ -71,7 +71,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.6'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -231,7 +231,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -391,7 +391,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.post-reply.outcome }}
+          outcome: ${{ needs.post-reply.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -460,7 +460,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.6'
     with:
       mission: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
       feature: ''
@@ -503,7 +503,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           url: ${{ needs.process-discussion-post.outputs.url }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.seed-repository.outcome }}
+          outcome: ${{ needs.seed-repository.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -572,7 +572,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.6'
     with:
       mission: ''
       feature: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
@@ -612,7 +612,7 @@ jobs:
           detail: ${{ needs.generate-response.outputs.detail }}
           reply: ${{ needs.generate-response.outputs.reply }}
           usage: ${{ needs.generate-response.outputs.usage }}
-          outcome: ${{ needs.create-feature.outcome }}
+          outcome: ${{ needs.create-feature.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |

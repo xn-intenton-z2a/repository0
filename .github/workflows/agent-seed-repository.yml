@@ -75,7 +75,7 @@ jobs:
   agentic-lib:
     needs:
       - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.6'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
       haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
@@ -92,7 +92,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-archive-intentïon.yml@6.9.6'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -438,8 +438,8 @@ jobs:
         uses: actions/github-script@v7
         env:
           mission: ${{ inputs.mission || '' }}
-          url: ${{ inputs.url || needs.agentic-lib.outputs.seedDiscussionUrl }}
-          outcome: ${{ needs.seed-repository.outcome }}
+          url: ${{ inputs.url }}
+          outcome: ${{ needs.seed-repository.result }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -755,7 +755,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -883,7 +883,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1013,7 +1013,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1140,7 +1140,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1179,7 +1179,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.6'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue-one.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue-one.outputs.issueDescription }}
@@ -1298,7 +1298,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-feature-development-issue.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-feature-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1337,7 +1337,7 @@ jobs:
     permissions:
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-issue.yml@6.9.6'
     with:
       issueTitle: ${{ needs.generate-feature-development-issue-two.outputs.issueTitle }}
       issueBody: ${{ needs.generate-feature-development-issue-two.outputs.issueDescription }}
@@ -1458,7 +1458,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1577,7 +1577,7 @@ jobs:
       contents: read
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-enhance-issue.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-ready-issue.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1794,7 +1794,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-issue-resolution-in-code.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-issue-resolution.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -1858,7 +1858,7 @@ jobs:
           fixApplied: "${{ needs.apply-issue-resolution.outputs.fixApplied }}"
           branch: "${{ needs.apply-issue-resolution.outputs.branch }}"
           message: "${{ needs.apply-issue-resolution.outputs.message }}"
-          outcome: "${{ needs.apply-issue-resolution.outcome }}"
+          outcome: "${{ needs.apply-issue-resolution.result }}"
           gitDiff: "${{ needs.apply-issue-resolution.outputs.gitDiff }}"
           mainOutput: "${{ needs.apply-issue-resolution.outputs.mainOutput }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -2089,7 +2089,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.6'
     with:
       branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
@@ -2107,7 +2107,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.6'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -2122,7 +2122,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-generate-fix-for-code.yml@6.9.6'
     with:
       promptFilepath: '.github/agents/agent-apply-fix.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -2184,7 +2184,7 @@ jobs:
         env:
           fixApplied: ${{ needs.fix-code.outputs.fixApplied }}
           message: ${{ needs.fix-code.outputs.message }}
-          outcome: ${{ needs.fix-code.outcome }}
+          outcome: ${{ needs.fix-code.result }}
           gitDiff: ${{ needs.fix-code.outputs.gitDiff }}
           mainOutput: ${{ needs.fix-code.outputs.mainOutput }}
           allValidationStepsSuccessful: ${{ needs.fix-code.outputs.allValidationStepsSuccessful }}
@@ -2433,7 +2433,7 @@ jobs:
       pull-requests: write
       checks: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-create-pr.yml@6.9.6'
     with:
       branch: ${{ needs.apply-issue-resolution.outputs.branch }}
       baseBranch: 'main'
@@ -2458,7 +2458,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.5'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/ci-automerge.yml@6.9.6'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
