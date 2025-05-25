@@ -78,4 +78,63 @@ LLM API Usage:
 {"prompt_tokens":6213,"completion_tokens":2578,"total_tokens":8791,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1856,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-25T22:59:36.186Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement fetch subcommand for PUBLIC_DATA_CRAWLER CLI
+
+Description:
+Implement a new `fetch` subcommand to the main CLI to retrieve data from a public API, validate it with Zod, transform it into a nodes/edges graph format, and output structured JSON to stdout or a file.
+
+Acceptance Criteria:
+1. Default behavior:
+   - Given no flags, running `npm run start -- fetch` fetches from `https://api.example.com/data`.
+   - The output is valid JSON with properties:
+     ```json
+     {
+       "nodes": [ { "id": number, "label": string }, ... ],
+       "edges": [ { "source": number, "target": number }, ... ]
+     }
+     ```
+   - Output is sent to stdout via `console.log`.
+
+2. Custom endpoint:
+   - Given `--endpoint <url>`, the CLI fetches from the specified URL.
+   - The same JSON schema is produced.
+
+3. File output:
+   - Given `--output <file>`, the CLI writes the stringified JSON to the given file path using `fs.writeFileSync`.
+   - No console output besides error messages.
+
+4. Error handling:
+   - Network errors or non-OK responses cause the command to exit with a nonzero code and log the error to `console.error`.
+   - Validation failures against the Zod schema throw an exception, exit nonzero, and log the validation error.
+
+5. Tests in `tests/unit/main.test.js`:
+   - Mock `global.fetch` to return a successful payload, and assert `console.log` is called with the expected JSON.
+   - Mock `global.fetch` to return invalid data, and assert an error is thrown and logged.
+   - Stub `fs.writeFileSync` and run with `--output`, then assert the file is written with the expected JSON.
+
+6. Documentation in `README.md`:
+   - Add a **Fetch Subcommand** section under CLI Usage.
+   - Describe `--endpoint` and `--output` flags with default values.
+   - Provide example invocations:
+     ```bash
+     npm run start -- fetch
+     npm run start -- fetch --endpoint https://api.example.com/data --output out.json
+     ```
+
+Verification:
+- All existing and new tests pass (`npm test`).
+- Manual test executes `npm run start -- fetch` and confirms JSON output.
+- Manual test with `--output` writes correct file content.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6772,"completion_tokens":978,"total_tokens":7750,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
