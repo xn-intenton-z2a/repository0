@@ -483,9 +483,23 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+            
+            const activity = `fixApplied: ${fixApplied} with message ${message}
+            
+            Git Diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\`
+            
+            mainOutput:
+            \`\`\`log
+            ${mainOutput}
+            \`\`\`
+            
+            [for issue ${issueUrl} with title: "${issueTitle}"]`;
+
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -498,7 +512,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Issue to Code at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 

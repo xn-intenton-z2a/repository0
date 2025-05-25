@@ -140,7 +140,12 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
-            core.info(`Crawl summary: ${crawlSummary} produced the following git diff: ${gitDiff}`);
+            const activity = `Crawl summary: ${crawlSummary} produced the following
+            
+            git diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\``);
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -153,7 +158,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintained Library Documents at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Maintained Library Documents at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 

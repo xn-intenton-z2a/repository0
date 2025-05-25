@@ -177,7 +177,16 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+            const activity = `Maintained feature ${featureName} with:
+            
+            Feature spec:
+            
+            ${featureSpec}
+            
+            Git diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -190,7 +199,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Maintain Feature at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -315,7 +335,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Feature to Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Feature to Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -427,7 +458,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 

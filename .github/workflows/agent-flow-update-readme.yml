@@ -262,7 +262,13 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
   
-            const activity = `Updated README: ${message}\n\n\`\`\`\n${gitDiff}\n\`\`\``
+            const activity = `Updated README: with message ${message}
+            
+            Git Diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\`
+            `
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -275,7 +281,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Updated Readme at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Updated Readme at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 

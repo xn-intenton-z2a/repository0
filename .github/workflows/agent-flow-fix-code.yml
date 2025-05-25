@@ -647,9 +647,22 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+
+            const activity = `fixApplied: ${fixApplied} with message ${message}
+              
+              Git Diff:
+              \`\`\`diff
+              ${gitDiff}
+              \`\`\`
+              
+              mainOutput:
+              \`\`\`log
+              ${mainOutput}
+              \`\`\`
+              
+              [allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -662,7 +675,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Fixed Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Fixed Code at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -797,16 +821,30 @@ jobs:
         id: set-needs-fix
         uses: actions/github-script@v7
         env:
+          testResult: ${{ needs.npm-test-after-issue-resolution.result }}
+          buildResult: ${{ needs.npm-build-after-issue-resolution.result }}
+          runResult: ${{ needs.npm-run-after-issue-resolution.result }}
           applyFixEvenIfTestsPass: ${{ inputs.applyFixEvenIfTestsPass }}
           needsFix: ${{ needs.needs-fix.outputs.needsFix }}
           anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
           anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
         with:
           script: |
+            const testResult = process.env.testResult;
+            const buildResult = process.env.buildResult;
+            const runResult = process.env.runResult;
             const applyFixEvenIfTestsPass = process.env.applyFixEvenIfTestsPass === "true";
             const fixedFromTheBeginning = process.env.needsFix === "false";
-            const anySkipped = process.env.anySkipped === "true";
-            const anyDidntSucceed = process.env.anyDidntSucceed === "true";
+            
+            core.info(`Test result: ${testResult}`);
+            core.info(`Build result: ${buildResult}`);
+            core.info(`Run result: ${runResult}`);
+            core.info(`Apply fix even if tests pass: ${applyFixEvenIfTestsPass}`);
+            core.info(`Fixed from the beginning: ${fixedFromTheBeginning}`);
+            
+            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
+            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
+            
             const readyToMerge = applyFixEvenIfTestsPass || fixedFromTheBeginning || !anySkipped && !anyDidntSucceed;
 
             core.setOutput("applyFixEvenIfTestsPass", applyFixEvenIfTestsPass);

@@ -784,7 +784,16 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+            const activity = `Maintained feature ${featureName} with
+            
+            Feature spec:
+            
+            ${featureSpec}
+            
+            Git diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -797,7 +806,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Maintain Feature at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -886,7 +906,16 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+            const activity = `Maintained feature ${featureName} with
+            
+            Feature spec:
+            
+            ${featureSpec}
+            
+            Git diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -899,7 +928,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Maintain Feature at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -990,7 +1030,16 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             
-            const activity = `Maintained feature ${featureName}.\n\nFeature spec:\n\n${featureSpec}\n\nGit diff:\n\n\`\`\`diff\n${gitDiff}\n\`\`\``;
+            const activity = `Maintained feature ${featureName} with
+            
+            Feature spec:
+            
+            ${featureSpec}
+            
+            Git diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\``;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -1003,7 +1052,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintain Feature at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Maintain Feature at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1142,7 +1202,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Feature to Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Feature to Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1283,7 +1354,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Feature to Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Feature to Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1384,7 +1466,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1485,7 +1578,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Issue to enhanced Issue at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1662,7 +1766,9 @@ jobs:
           issueNumber: ${{ needs.create-issue-one.outputs.issueNumber }}
           issueTitle: "${{ needs.apply-issue-resolution.outputs.issueTitle }}"
           fixApplied: "${{ needs.apply-issue-resolution.outputs.fixApplied }}"
+          branch: "${{ needs.apply-issue-resolution.outputs.branch }}"
           message: "${{ needs.apply-issue-resolution.outputs.message }}"
+          outcome: "${{ needs.apply-issue-resolution.outcome }}"
           gitDiff: "${{ needs.apply-issue-resolution.outputs.gitDiff }}"
           mainOutput: "${{ needs.apply-issue-resolution.outputs.mainOutput }}"
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
@@ -1674,13 +1780,28 @@ jobs:
             const issueNumber = process.env.issueNumber;
             const issueTitle = process.env.issueTitle;
             const fixApplied = process.env.fixApplied;
+            const branch = process.env.branch;
             const message = process.env.message;
+            const outcome = process.env.outcome;
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[for issue ${issueUrl} with title: "${issueTitle}"]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+
+            const activity = `fixApplied: ${fixApplied} to branch ${branch} with message ${message} and outcome ${outcome}
+            
+            Git Diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\`
+            
+            mainOutput:
+            \`\`\`log
+            ${mainOutput}
+            \`\`\`
+            
+            [for issue ${issueUrl} with title: "${issueTitle}"]`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -1693,7 +1814,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Issue to Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Issue to Code at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1707,6 +1839,8 @@ jobs:
 
   npm-test-after-issue-resolution:
     needs:
+      - agentic-lib
+      - create-issue-one
       - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm test with coverage'
@@ -1736,6 +1870,8 @@ jobs:
 
   npm-build-after-issue-resolution:
     needs:
+      - agentic-lib
+      - create-issue-one
       - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm run build'
@@ -1765,6 +1901,8 @@ jobs:
 
   npm-run-after-issue-resolution:
     needs:
+      - agentic-lib
+      - create-issue-one
       - apply-issue-resolution
     if: ${{ !cancelled() }}
     name: 'npm run start'
@@ -1794,6 +1932,8 @@ jobs:
 
   needs-fix-after-issue-resolution:
     needs:
+      - agentic-lib
+      - create-issue-one
       - apply-issue-resolution
       - npm-test-after-issue-resolution
       - npm-build-after-issue-resolution
@@ -1804,10 +1944,23 @@ jobs:
       - name: set-needs-fix
         id: set-needs-fix
         uses: actions/github-script@v7
+        env:
+          testResult: ${{ needs.npm-test-after-issue-resolution.result }}
+          buildResult: ${{ needs.npm-build-after-issue-resolution.result }}
+          runResult: ${{ needs.npm-run-after-issue-resolution.result }}
         with:
           script: |
-            const anySkipped = "${{ needs.npm-test-after-issue-resolution.result == 'skipped' || needs.npm-build-after-issue-resolution.result == 'skipped' || needs.npm-run-after-issue-resolution.result == 'skipped' }}" === "true";
-            const anyDidntSucceed = "${{ needs.npm-test-after-issue-resolution.result != 'success' || needs.npm-build-after-issue-resolution.result != 'success' || needs.npm-run-after-issue-resolution.result != 'success' }}" === "true";
+            const testResult = process.env.testResult;
+            const buildResult = process.env.buildResult;
+            const runResult = process.env.runResult;
+            
+            core.info(`Test result: ${testResult}`);
+            core.info(`Build result: ${buildResult}`);
+            core.info(`Run result: ${runResult}`);
+            
+            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
+            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
+            
             const readyToMerge = !anySkipped && !anyDidntSucceed;
 
             core.setOutput("anySkipped", anySkipped);
@@ -1928,6 +2081,7 @@ jobs:
         env:
           fixApplied: ${{ needs.fix-code.outputs.fixApplied }}
           message: ${{ needs.fix-code.outputs.message }}
+          outcome: ${{ needs.fix-code.outcome }}
           gitDiff: ${{ needs.fix-code.outputs.gitDiff }}
           mainOutput: ${{ needs.fix-code.outputs.mainOutput }}
           allValidationStepsSuccessful: ${{ needs.fix-code.outputs.allValidationStepsSuccessful }}
@@ -1937,12 +2091,25 @@ jobs:
           script: |
             const fixApplied = process.env.fixApplied;
             const message = process.env.message;
+            const outcome = process.env.outcome;
             const gitDiff = process.env.gitDiff;
             const mainOutput = process.env.mainOutput;
             const allValidationStepsSuccessful = process.env.allValidationStepsSuccessful;
-            const activity = `fixApplied: ${fixApplied}\n\n${message}\n\nGit Diff:\n\n\`\`\`\n${gitDiff}\n\`\`\`\nmainOutput:\n\`\`\`\n${mainOutput}\n\n\`\`\`\n[allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
+            const activity = `fixApplied: ${fixApplied} with ${message} and outcome ${outcome}
+            
+            Git Diff:
+            \`\`\`diff
+            ${gitDiff}
+            \`\`\`
+            
+            mainOutput:
+            \`\`\`log
+            ${mainOutput}
+            \`\`\`
+            
+            [allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -1955,7 +2122,18 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Fixed Code at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\`\`\`\n---\n\n`;
+            const activityLogContent = `## Fixed Code at ${isoDate}
+            
+            Activity:
+            
+            ${activity}
+            
+            LLM API Usage:
+            \`\`\`json
+            ${usage}
+            \`\`\`
+            
+            ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
 
@@ -1969,9 +2147,11 @@ jobs:
 
   npm-test-after-fix:
     needs:
-      - agentic-lib
-      - fix-code
+      - create-issue-one
       - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+      - fix-code
+      - agentic-lib
     if: ${{ !cancelled() }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
@@ -2001,9 +2181,11 @@ jobs:
 
   npm-build-after-fix:
     needs:
-      - agentic-lib
-      - fix-code
+      - create-issue-one
       - apply-issue-resolution
+      - needs-fix-after-issue-resolution
+      - fix-code
+      - agentic-lib
     if: ${{ !cancelled() }}
     name: 'npm run build'
     runs-on: ubuntu-latest
@@ -2072,7 +2254,7 @@ jobs:
       - agentic-lib
       - fix-code
       - apply-issue-resolution
-      - apply-issue-resolution
+      - needs-fix-after-issue-resolution
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
@@ -2083,13 +2265,24 @@ jobs:
         id: set-needs-fix
         uses: actions/github-script@v7
         env:
-          needsFix: ${{ needs.needs-fix.outputs.needsFix }}
+          testResult: ${{ needs.npm-test-after-fix.result }}
+          buildResult: ${{ needs.npm-build-after-fix.result }}
+          runResult: ${{ needs.npm-run-after-fix.result }}
           anySkipped: ${{ needs.npm-test-after-fix.result == 'skipped' || needs.npm-build-after-fix.result == 'skipped' || needs.npm-run-after-fix.result == 'skipped' }}
           anyDidntSucceed: ${{ needs.npm-test-after-fix.result != 'success' || needs.npm-build-after-fix.result != 'success' || needs.npm-run-after-fix.result != 'success' }}
         with:
           script: |
-            const anySkipped = process.env.anySkipped === "true";
-            const anyDidntSucceed = process.env.anyDidntSucceed === "true";
+            const testResult = process.env.testResult;
+            const buildResult = process.env.buildResult;
+            const runResult = process.env.runResult;
+            
+            core.info(`Test result: ${testResult}`);
+            core.info(`Build result: ${buildResult}`);
+            core.info(`Run result: ${runResult}`);
+            
+            const anySkipped = testResult == 'skipped' || buildResult == 'skipped' || runResult == 'skipped';
+            const anyDidntSucceed = testResult != 'success' || buildResult != 'success' || runResult != 'success';
+
             const readyToMerge = !anySkipped && !anyDidntSucceed;
 
             core.setOutput("anySkipped", anySkipped);
@@ -2113,6 +2306,7 @@ jobs:
       - fix-code
       - create-issue-one
       - apply-issue-resolution
+      - needs-fix-after-issue-resolution
       - npm-test-after-fix
       - npm-build-after-fix
       - npm-run-after-fix
