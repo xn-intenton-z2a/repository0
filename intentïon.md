@@ -12,3 +12,72 @@ LLM API Usage:
 
 ---
 
+## Feature to Issue at 2025-05-25T22:02:50.438Z
+
+Activity:
+
+Generated issue 2249 for feature "wikipedia-summary" with URL https://github.com/xn-intenton-z2a/repository0/issues/2249
+
+title:
+
+Add --fetch-wikipedia CLI option to fetch and display Wikipedia summaries
+
+And description:
+
+## Goal
+
+Implement the `--fetch-wikipedia <term>` CLI flag in `src/lib/main.js` so that users can retrieve the introduction summary of any Wikipedia article. This enhances our knowledge-graph mission by sourcing structured public data.
+
+## Changes Required
+
+1. **src/lib/main.js**
+   - Parse process arguments for `--fetch-wikipedia` and capture the next value as the search term.
+   - If the flag is present:
+     - URL-encode the term and fetch from `https://en.wikipedia.org/api/rest_v1/page/summary/<encoded term>` using the built-in global `fetch` API.
+     - On HTTP 200, extract the `extract` field from the JSON response and `console.log()` it.
+     - On non-200 or network errors, print an error message to `console.error()` and `process.exit(1)`.
+     - If the page is missing or disambiguation (Wikipedia returns a `type` of `disambiguation` or 404), print a clear notice and exit with code 1.
+   - If the flag is not provided, fall back to existing behavior.
+
+2. **tests/unit/main.test.js**
+   - Add a new `describe` block for `--fetch-wikipedia` behavior with three test cases:
+     1. **Successful response**: mock `global.fetch` to return a 200 JSON with an `extract` string; verify that `main()` logs the summary and exits with code 0.
+     2. **404 page not found**: mock `global.fetch` to return a 404 response; verify error message and exit code 1.
+     3. **Network error**: mock `global.fetch` to throw; verify error message and exit code 1.
+   - Use Vitest spies or mocks to simulate `fetch`, `console.log`, `console.error`, and override `process.exit` to capture exit codes without terminating the test runner.
+
+3. **README.md**
+   - Under **Running the Demo**, document the new flag:
+     ```md
+     ## CLI Options
+     - `--fetch-wikipedia <term>`: Fetches and prints the introduction summary of the specified Wikipedia article.
+     
+     **Example**:
+     ```bash
+     npm run start -- --fetch-wikipedia "Node.js"
+     ```
+     ```
+     Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine...  (truncated)
+     ```
+     ```
+
+4. **package.json** (if needed)
+   - No additional dependencies are required since Node >=20 provides a global `fetch`. Ensure the `start` script continues to accept flags (`npm run start -- --fetch-wikipedia <term>`).
+
+## Verification
+
+- **Local Test**: Run `npm test` and ensure all new tests pass.
+- **Manual Demo**: 
+  ```bash
+  npm run start -- --fetch-wikipedia "Albert Einstein"
+  ```
+  Should print Einstein’s summary and exit cleanly.
+
+Once all parts are updated, the CLI tool will be able to retrieve Wikipedia summaries, moving us closer to our mission of building a knowledge graph from public sources.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6284,"completion_tokens":1384,"total_tokens":7668,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
