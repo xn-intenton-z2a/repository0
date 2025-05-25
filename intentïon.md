@@ -242,4 +242,424 @@ LLM API Usage:
 {"prompt_tokens":6654,"completion_tokens":1943,"total_tokens":8597,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-25T23:01:42.603Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2254 with message Implement fetch and merge subcommands with tests and update CLI documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..0b9a7a95 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -2,12 +2,145 @@
+ // src/lib/main.js
+ 
+ import { fileURLToPath } from "url";
++import fs from "fs";
++import { promises as fsp } from "fs";
++import { z } from "zod";
+ 
+-export function main(args) {
++export async function main(args = process.argv.slice(2)) {
++  const [cmd, ...rest] = args;
++
++  if (cmd === "fetch") {
++    // Fetch subcommand
++    const endpointIndex = rest.indexOf("--endpoint");
++    const endpoint =
++      endpointIndex >= 0 && rest[endpointIndex + 1]
++        ? rest[endpointIndex + 1]
++        : "https://api.example.com/data";
++    const outputIndex = rest.indexOf("--output");
++    const output =
++      outputIndex >= 0 && rest[outputIndex + 1] ? rest[outputIndex + 1] : null;
++
++    // Define Zod schema for items
++    const Item = z.object({
++      id: z.number(),
++      name: z.string(),
++      relations: z.array(z.number()),
++    });
++    const ItemsSchema = z.array(Item);
++
++    try {
++      const response = await fetch(endpoint);
++      if (!response.ok) {
++        throw new Error(
++          `Network response was not ok: ${response.status} ${response.statusText}`
++        );
++      }
++      const data = await response.json();
++      const items = ItemsSchema.parse(data);
++
++      const nodes = items.map((item) => ({ id: item.id, label: item.name }));
++      const edges = items.flatMap((item) =>
++        item.relations.map((target) => ({ source: item.id, target }))
++      );
++
++      const result = { nodes, edges };
++      const outputText = JSON.stringify(result, null, 2);
++
++      if (output) {
++        fs.writeFileSync(output, outputText);
++      } else {
++        console.log(outputText);
++      }
++    } catch (err) {
++      console.error(err);
++      process.exit(1);
++    }
++
++    return;
++  }
++
++  if (cmd === "merge") {
++    // Merge subcommand
++    const inputsIndex = rest.indexOf("--inputs");
++    if (inputsIndex < 0 || inputsIndex + 1 >= rest.length) {
++      console.error("--inputs <file1> [file2 ...] is required");
++      process.exit(1);
++    }
++    // Collect inputs until next flag or end
++    const inputs = [];
++    for (
++      let i = inputsIndex + 1;
++      i < rest.length && !rest[i].startsWith("--");
++      i++
++    ) {
++      inputs.push(rest[i]);
++    }
++    const outputIndex = rest.indexOf("--output");
++    const output =
++      outputIndex >= 0 && rest[outputIndex + 1] ? rest[outputIndex + 1] : null;
++
++    const Node = z.object({
++      id: z.string(),
++      label: z.string(),
++      properties: z.record(z.any()).optional(),
++    });
++    const Edge = z.object({
++      source: z.string(),
++      target: z.string(),
++      label: z.string(),
++      properties: z.record(z.any()).optional(),
++    });
++    const Graph = z.object({ nodes: z.array(Node), edges: z.array(Edge) });
++
++    try {
++      const nodeMap = new Map();
++      const edgeSet = new Set();
++
++      for (const file of inputs) {
++        const text = await fsp.readFile(file, "utf-8");
++        const parsed = JSON.parse(text);
++        const graph = Graph.parse(parsed);
++
++        for (const node of graph.nodes) {
++          if (!nodeMap.has(node.id)) {
++            nodeMap.set(node.id, node);
++          }
++        }
++        for (const edge of graph.edges) {
++          const key = `${edge.source}|${edge.target}|${edge.label}`;
++          if (!edgeSet.has(key)) {
++            edgeSet.add(key);
++          }
++        }
++      }
++
++      const nodes = Array.from(nodeMap.values());
++      const edges = Array.from(edgeSet).map((key) => {
++        const [source, target, label] = key.split("|");
++        return { source, target, label };
++      });
++
++      const result = { nodes, edges };
++      const outputText = JSON.stringify(result, null, 2);
++
++      if (output) {
++        await fsp.writeFile(output, outputText, "utf-8");
++      } else {
++        console.log(outputText);
++      }
++    } catch (err) {
++      console.error(err);
++      process.exit(1);
++    }
++
++    return;
++  }
++
++  // Default behavior
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+-  main(args);
++  main(args).catch(() => process.exit(1));
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..8061a3ee 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,74 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
++import fs from "fs";
+ import { main } from "@src/lib/main.js";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++    expect(main).not.toBeNull();
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("Default Main Output", () => {
++  test("should terminate without error and print args", () => {
++    const log = console.log;
++    const spy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    expect(() => main([])).not.toThrow();
++    spy.mockRestore();
++  });
++});
++
++describe("fetch subcommand", () => {
++  const sample = [
++    { id: 1, name: "A", relations: [2] },
++    { id: 2, name: "B", relations: [] }
++  ];
++  const expectedResult = {
++    nodes: [
++      { id: 1, label: "A" },
++      { id: 2, label: "B" }
++    ],
++    edges: [
++      { source: 1, target: 2 }
++    ]
++  };
++
++  beforeEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("fetches default endpoint and logs JSON to console", async () => {
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({ ok: true, async json() { return sample; } })
++    );
++    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++
++    await main(["fetch"]);
++
++    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(expectedResult, null, 2));
++  });
++
++  test("fetches custom endpoint and writes to file", async () => {
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({ ok: true, async json() { return sample; } })
++    );
++    const writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++
++    await main(["fetch", "--endpoint", "http://test", "--output", "out.json"]);
++
++    expect(writeSpy).toHaveBeenCalledWith(
++      "out.json",
++      JSON.stringify(expectedResult, null, 2)
++    );
++  });
++
++  test("handles network error and exits nonzero", async () => {
++    vi.stubGlobal("fetch", () =>
++      Promise.resolve({ ok: false, status: 404, statusText: "Not Found" })
++    );
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('process.exit'); });
++
++    await expect(main(["fetch"])).rejects.toThrow("process.exit");
++    expect(errorSpy).toHaveBeenCalled();
+   });
+ });\n\n// New [docs/CLI.md]:\n# CLI Commands
+
+This document describes the available CLI subcommands for the repository0 tool.
+
+## fetch
+
+Retrieve data from a public API, validate it, transform into a graph format, and output JSON.
+
+**Usage:**
+```bash
+npm run start -- fetch [--endpoint <url>] [--output <file>]
+```
+
+**Options:**
+- `--endpoint <url>`: Custom API endpoint to fetch data from. Default: `https://api.example.com/data`
+- `--output <file>`: Path to write the JSON output. If omitted, output is printed to stdout.
+
+**Data Schema:**
+Input items must conform to:
+```json
+[{
+  "id": number,
+  "name": string,
+  "relations": number[]
+}]
+```
+
+The output JSON structure is:
+```json
+{
+  "nodes": [ { "id": number, "label": string }, ... ],
+  "edges": [ { "source": number, "target": number }, ... ]
+}
+```
+
+**Examples:**
+```bash
+npm run start -- fetch
+npm run start -- fetch --endpoint https://api.example.com/data --output output.json
+```
+
+## merge
+
+Consolidate multiple graph JSON files (nodes & edges) into a single deduplicated graph.
+
+**Usage:**
+```bash
+npm run start -- merge --inputs <file1> [<file2> ...] [--output <file>]
+```
+
+**Options:**
+- `--inputs <file1> [<file2> ...]`: One or more paths to graph JSON files.
+- `--output <file>`: Path to write the merged JSON. If omitted, output is printed to stdout.
+
+**Graph JSON Schema:**
+```json
+{
+  "nodes": [{ "id": string, "label": string, "properties"?: {...} }],
+  "edges": [{ "source": string, "target": string, "label": string, "properties"?: {...} }]
+}
+```
+
+**Behavior:**
+- Nodes are deduplicated by `id`, preserving the first occurrence.
+- Edges are deduplicated by the combination of `source|target|label`.
+
+**Examples:**
+```bash
+# Merge two files and print to stdout
+npm run start -- merge --inputs data1.json data2.json
+
+# Merge and write to file
+npm run start -- merge --inputs data1.json data2.json --output combined.json
+```\n\n// New [tests/unit/graphMerger.test.js]:\nimport { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import fs from "fs";
+import path from "path";
+import { main } from "@src/lib/main.js";
+
+const tmpA = "tempA.json";
+const tmpB = "tempB.json";
+const tmpBad = "tempBad.json";
+
+beforeEach(() => {
+  // Write good JSON files
+  fs.writeFileSync(
+    tmpA,
+    JSON.stringify({ nodes: [{ id: "1", label: "A" }], edges: [] }, null, 2)
+  );
+  fs.writeFileSync(
+    tmpB,
+    JSON.stringify(
+      {
+        nodes: [{ id: "1", label: "A" }, { id: "2", label: "B" }],
+        edges: [{ source: "1", target: "2", label: "rel" }]
+      },
+      null,
+      2
+    )
+  );
+});
+
+afterEach(() => {
+  [tmpA, tmpB, tmpBad].forEach((f) => {
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  });
+  vi.restoreAllMocks();
+});
+
+describe("merge subcommand", () => {
+  test("merges multiple graph files and logs to console", async () => {
+    const expected = { nodes: [
+      { id: "1", label: "A" },
+      { id: "2", label: "B" }
+    ], edges: [
+      { source: "1", target: "2", label: "rel" }
+    ] };
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    await main(["merge", "--inputs", tmpA, tmpB]);
+
+    expect(logSpy).toHaveBeenCalledWith(JSON.stringify(expected, null, 2));
+  });
+
+  test("writes merged graph to file when --output is used", async () => {
+    const expected = { nodes: [
+      { id: "1", label: "A" },
+      { id: "2", label: "B" }
+    ], edges: [
+      { source: "1", target: "2", label: "rel" }
+    ] };
+    const writeSpy = vi.spyOn(fs.promises, 'writeFile').mockImplementation(() => Promise.resolve());
+
+    await main(["merge", "--inputs", tmpA, tmpB, "--output", "out.json"]);
+
+    expect(writeSpy).toHaveBeenCalledWith(
+      "out.json",
+      JSON.stringify(expected, null, 2),
+      "utf-8"
+    );
+  });
+
+  test("errors when no inputs provided", async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('exit'); });
+    await expect(main(["merge"])).rejects.toThrow("exit");
+    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  test("errors on invalid JSON in input file", async () => {
+    fs.writeFileSync(tmpBad, "not json");
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => { throw new Error('exit'); });
+
+    await expect(main(["merge", "--inputs", tmpBad])).rejects.toThrow("exit");
+    expect(errorSpy).toHaveBeenCalled();
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2254 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":11693,"completion_tokens":5904,"total_tokens":17597,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2240,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
