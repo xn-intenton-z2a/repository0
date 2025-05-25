@@ -1999,7 +1999,7 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
       pull-requests: write
@@ -2017,7 +2017,7 @@ jobs:
       - create-issue-one
       - apply-issue-resolution
       - needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     permissions:
       contents: write
       issues: write
@@ -2058,7 +2058,7 @@ jobs:
       - needs-fix-after-issue-resolution
       - fix-code
       - agentic-lib
-    if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'false' ) }}
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -2152,7 +2152,7 @@ jobs:
       - needs-fix-after-issue-resolution
       - fix-code
       - agentic-lib
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     name: 'npm test with coverage'
     runs-on: ubuntu-latest
     steps:
@@ -2186,7 +2186,7 @@ jobs:
       - needs-fix-after-issue-resolution
       - fix-code
       - agentic-lib
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     name: 'npm run build'
     runs-on: ubuntu-latest
     steps:
@@ -2218,7 +2218,8 @@ jobs:
       - agentic-lib
       - fix-code
       - apply-issue-resolution
-    if: ${{ !cancelled() }}
+      - needs-fix-after-issue-resolution
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     name: 'npm run start'
     runs-on: ubuntu-latest
     steps:
@@ -2259,7 +2260,7 @@ jobs:
       - npm-build-after-fix
       - npm-run-after-fix
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' }}
+    if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     steps:
       - name: set-needs-fix
         id: set-needs-fix
