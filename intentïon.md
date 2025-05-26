@@ -4074,3 +4074,89 @@ LLM API Usage:
 ```
 ---
 
+
+## Feature to Issue at 2025-05-26T20:24:10.268Z
+
+Activity:
+
+Generated issue 2281 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2281
+
+title:
+
+Add CLI Usage Examples with Mission Alignment to README
+
+And description:
+
+# Description
+
+While our CLI supports key flags (`--help`, `--version`, `--mission`, `--ingest`, `--ingest-all`), the top-level README lacks concrete usage examples and clear alignment of each flag with our repository’s mission: **Build a knowledge graph of the physical world by crawling public data sources**. This makes it harder for new contributors to understand how the CLI features map back to the project’s goals.
+
+We should enhance `README.md` by adding a dedicated **CLI Usage** or **Running the Demo** section that:
+
+- Lists each supported flag.
+- Shows example commands and expected outputs.
+- Explains how each flag contributes to building or inspecting the knowledge graph.
+
+# Changes Required
+
+1. **README.md**
+   - Create a new section (e.g., `### CLI Usage`) below **Getting Started** or **Intentïon**.
+   - Under that section, add:
+     ```markdown
+     ## CLI Usage
+
+     Our CLI supports the following commands, aligned with the mission to build a knowledge graph of the physical world by crawling public data sources:
+
+     - `--help`
+       - Show available flags and exit.
+       ```bash
+       $ npm run start -- --help
+       Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
+       --help           Show this help message and exit
+       --version        Print version number and exit
+       --mission        Print repository mission statement and exit
+       --ingest <url>   Fetch and ingest a record and persist to graph.json
+       --ingest-all <url>  Batch ingest multiple records from URL and persist to graph.json
+       ```
+
+     - `--version`
+       ```bash
+       $ npm run start -- --version
+       1.2.0-0
+       ```
+
+     - `--mission`
+       ```bash
+       $ npm run start -- --mission
+       Build a knowledge graph of the physical world by crawling public data sources.
+       ```
+
+     - `--ingest <url>`
+       ```bash
+       $ npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
+       Ingested record with id: 1
+       ```
+
+     - `--ingest-all <url>`
+       ```bash
+       $ npm run start -- --ingest-all https://jsonplaceholder.typicode.com/posts
+       Ingested 100 records from https://jsonplaceholder.typicode.com/posts
+       ```
+     ```
+
+2. **Optional Cleanup**
+   - If a **Running the Demo** section exists, move or merge the above examples into it.
+
+# Verification
+
+1. **Review** the updated `README.md` in a Markdown preview to ensure the new CLI Usage section is clear and correctly formatted.
+2. **Smoke test** each example command locally to confirm it produces the documented output.
+3. **No tests** need to be updated for this change.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":52597,"completion_tokens":3726,"total_tokens":56323,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3008,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
