@@ -67,7 +67,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.8'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -106,7 +106,7 @@ jobs:
       contents: write
       issues: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.7'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-maintain-features.yml@6.9.8'
     with:
       promptFilepath: '.github/agents/agent-maintain-features.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.agentConfigContent }}
@@ -168,12 +168,7 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
-            const activity = `Maintained feature ${featureName}
-            
-            Git diff:
-            \`\`\`
-            ${gitDiff}
-            \`\`\``;
+            const activity = `Maintained feature ${featureName}`;
 
             core.info(`Activity: ${activity}`);
             core.info(`Seed discussion filepath: ${intentionFilepath}`);
@@ -186,7 +181,8 @@ jobs:
               fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
             }
             const isoDate = new Date().toISOString();
-            const activityLogContent = `## Maintained Feature at ${isoDate}
+            const activityLogContent = `
+            ## Maintained Feature at ${isoDate}
             
             Activity:
             
