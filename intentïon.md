@@ -102,3 +102,65 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T23:58:16.490Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+## Objective
+
+Add a new CLI command `--capital-cities` to fetch a list of countries and their capital cities from the Rest Countries API, transform the results into an OWL ontology JSON, and either print it to stdout or write it to a file when `--output <path>` is provided.
+
+### Acceptance Criteria
+1. **CLI Invocation**
+   - Running `node src/lib/main.js --capital-cities`:
+     - Fetches data from `https://restcountries.com/v3.1/all`.
+     - Outputs to stdout a stringified JSON with top-level key `ontology`, containing:
+       - `classes: ["Country", "City"]`
+       - `objectProperties: [{ name: "hasCapital", domain: "Country", range: "City" }]`
+       - `individuals`: one `Country` individual per country (with `id` = country code), one `City` individual per capital (with `id` = city name), and one triple for each country linking it to its capital via the `hasCapital` property.
+   - The JSON printed must parse without errors (`JSON.parse(output)` should not throw).
+
+2. **File Output**
+   - Running `node src/lib/main.js --capital-cities --output <path>`:
+     - Writes a file at `<path>` containing the exact same JSON structure as above.
+     - Use `fs.promises.writeFile()` to create or overwrite `<path>`.
+
+3. **Unit Tests**
+   - Tests stub `global.fetch` to return a sample array:
+     ```js
+     [
+       { cca3: 'USA', capital: ['Washington D.C.'] },
+       { cca3: 'FRA', capital: ['Paris'] }
+     ]
+     ```
+   - A test for `main(["--capital-cities"])` spies on `console.log`:
+     - Asserts that `console.log` was called once with the correct stringified JSON.
+     - Asserts that `JSON.parse(spyCallArg)` matches the expected object structure.
+   - A test for `main(["--capital-cities","--output","out.json"])` stubs `fs.promises.writeFile`:
+     - Asserts it was called once with `'out.json'` and the correct JSON string.
+
+4. **Documentation**
+   - In `README.md`, under **CLI Usage**, add a section:
+     ```md
+     ### Fetch Capital Cities as OWL JSON
+     ```bash
+     node src/lib/main.js --capital-cities [--output <path>]
+     ```
+     - Describes behavior, shows a sample JSON snippet, and references `MISSION.md`.
+
+5. **Verification**
+   - All new and existing tests pass (`npm test`).
+   - Manual test:
+     - `node src/lib/main.js --capital-cities` prints valid JSON.
+     - `node src/lib/main.js --capital-cities --output sample.json` creates `sample.json` with correct content.
+
+_No other files beyond `src/lib/main.js`, `tests/unit/main.test.js`, and `README.md` should be modified. This implements the core `CAPITAL_CITIES` feature._
+
+LLM API Usage:
+```json
+{"prompt_tokens":6752,"completion_tokens":1453,"total_tokens":8205,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
