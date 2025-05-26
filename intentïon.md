@@ -3103,4 +3103,499 @@ LLM API Usage:
 {"prompt_tokens":40880,"completion_tokens":1756,"total_tokens":42636,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T17:27:18.720Z
+
+Activity:
+
+fixApplied: true with message Add batch ingest --ingest-all support with tests and docs updates
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index 4e376754..219fe9ea 100644
+--- a/README.md
++++ b/README.md
+@@ -72,50 +72,4 @@ On timer: Automerge (code merged)
+ -> Review Issue (issue reviewed and closed)
+ 
+ On timer: Review Issue (issue reviewed and closed)
+-```
+-(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+-
+-#### Running the workflows:
+-
+-The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+-The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+-and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+-this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
+-
+-### Running the Demo
+-
+-Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
+-
+-You can run the demo and tests locally:
+-
+-1. **Clone the Repository:**  
+-   Run in your terminal:  
+-   `git clone <repository_url>`
+-
+-2. **Install Dependencies:**  
+-   Change into the project directory and run:  
+-   `npm install`
+-
+-3. **Run Tests:**  
+-   To verify that everything is working, run:  
+-   `npm test`
+-
+-4. **Run the Demo:**  
+-   Execute the main script with:  
+-   `npm run start`  
+-   This will display the output of the program.
+-
+-### Tuning the agentic coding system
+-
+-The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+-- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+-- `eslint.config.js` - Code style rules and additional plugins can be added here.
+-
+-The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+-- `README.md`
+-- `package.json`
+-- `src/lib/main.js`
+-- `tests/unit/main.test.js`
+-
+-## Final Notes
+-`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
++```
+\ No newline at end of file
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index ef162fc1..42aec375 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -5,7 +5,7 @@ This document describes how to use the CLI flags supported by the main script.
+ ## Command Syntax
+ 
+ ```
+-Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
++Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
+ ```
+ 
+ ## Options
+@@ -14,17 +14,23 @@ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+ 
+ --version        Print version number and exit
+ 
+---ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
++--mission        Print repository mission statement and exit
++
++--ingest <url>   Fetch and ingest a record and persist to graph.json
++
++--ingest-all <url>  Fetch an array of records from URL, normalize each, and append all to graph.json
+ 
+ ## Examples
+ 
+ Show help message:
+ ```
+ $ npm run start -- --help
+-Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
++Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
+ --help           Show this help message and exit
+ --version        Print version number and exit
+---ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
++--mission        Print repository mission statement and exit
++--ingest <url>   Fetch and ingest a record and persist to graph.json
++--ingest-all <url>  Fetch an array of records from URL, normalize each, and append all to graph.json
+ ```
+ 
+ Print version number:
+@@ -33,8 +39,20 @@ $ npm run start -- --version
+ 1.2.0-0
+ ```
+ 
++Print mission statement:
++```
++$ npm run start -- --mission
++Build a knowledge graph of the physical world by crawling public data sources.
++```
++
+ Ingest a record:
+ ```
+ $ npm run start -- --ingest https://example.com/data
+ Ingested record with id: 1
+-```
+\ No newline at end of file
++```
++
++Batch ingest records:
++```
++$ npm run start -- --ingest-all https://jsonplaceholder.typicode.com/posts
++# Output: Ingested 100 records from https://jsonplaceholder.typicode.com/posts
++```
+diff --git a/src/lib/graph.js b/src/lib/graph.js
+index 2b73a59c..0b34b56e 100644
+--- a/src/lib/graph.js
++++ b/src/lib/graph.js
+@@ -8,7 +8,12 @@ import fs from "./fsWrapper.js";
+  * @returns {Promise<any[]>} The array of records.
+  */
+ export async function loadGraph(filePath) {
+-  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
++  const defaultPath = join(
++    dirname(fileURLToPath(import.meta.url)),
++    "..",
++    "..",
++    "graph.json"
++  );
+   const path = filePath || defaultPath;
+   try {
+     const content = fs.readFileSync(path, "utf8");
+@@ -28,18 +33,26 @@ export async function loadGraph(filePath) {
+  * @param {string} [filePath] - Optional path to graph.json.
+  */
+ export function saveGraph(records, filePath) {
+-  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
++  const defaultPath = join(
++    dirname(fileURLToPath(import.meta.url)),
++    "..",
++    "..",
++    "graph.json"
++  );
+   const path = filePath || defaultPath;
+   fs.writeFileSync(path, JSON.stringify(records, null, 2), "utf8");
+ }
+ 
+ /**
+- * Append a record to the graph, loading existing records and saving the updated array.
+- * @param {any} record - The record to append.
++ * Append a record or array of records to the graph, loading existing records and saving the updated array.
++ * @param {any|any[]} recordOrRecords - The record or records to append.
+  * @param {string} [filePath] - Optional path to graph.json.
+  */
+-export async function appendRecord(record, filePath) {
+-  const records = await loadGraph(filePath);
+-  records.push(record);
+-  saveGraph(records, filePath);
+-}
+\ No newline at end of file
++export async function appendRecord(recordOrRecords, filePath) {
++  const existing = await loadGraph(filePath);
++  const toAppend = Array.isArray(recordOrRecords)
++    ? recordOrRecords
++    : [recordOrRecords];
++  const combined = existing.concat(toAppend);
++  saveGraph(combined, filePath);
++}
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 99d5cd23..5ea9ae30 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -12,12 +12,40 @@ import { appendRecord } from "./graph.js";
+  * @param {string[]} [args] - Arguments to process (defaults to process.argv.slice(2)).
+  */
+ export function main(args = process.argv.slice(2)) {
++  // Mission flag
++  if (args.includes("--mission")) {
++    const __filename = fileURLToPath(import.meta.url);
++    const __dirname = dirname(__filename);
++    const missionPath = join(__dirname, "..", "..", "MISSION.md");
++    let mission = "";
++    try {
++      const content = fs.readFileSync(missionPath, "utf8");
++      const lines = content
++        .split(/\r?\n/)
++        .map((l) => l.trim())
++        .filter((l) => l && !l.startsWith("#"));
++      mission = lines.length ? lines[0] : content.trim();
++    } catch (err) {
++      mission = "Build a knowledge graph of the physical world by crawling public data sources.";
++    }
++    console.log(mission);
++    process.exit(0);
++  }
++
+   // Help flag
+   if (args.includes("--help")) {
+-    console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
++    console.log(
++      "Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]"
++    );
+     console.log("--help     Show this help message and exit");
+     console.log("--version  Print version number and exit");
+-    console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
++    console.log("--mission  Print repository mission statement and exit");
++    console.log(
++      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
++    );
++    console.log(
++      "--ingest-all <url>  Fetch an array of records from URL, normalize each, and append all to graph.json"
++    );
+     process.exit(0);
+   }
+ 
+@@ -47,6 +75,29 @@ export function main(args = process.argv.slice(2)) {
+     })();
+   }
+ 
++  // Batch ingest flag
++  if (args[0] === "--ingest-all") {
++    const url = args[1];
++    if (!url) {
++      console.error("Error: --ingest-all requires a URL argument");
++      process.exit(1);
++      return;
++    }
++    return (async () => {
++      const rawArray = await fetchData(url);
++      if (!Array.isArray(rawArray)) {
++        console.error("Error: --ingest-all endpoint did not return an array");
++        process.exit(1);
++      }
++      const records = rawArray.map(normalizeRecord);
++      for (const rec of records) {
++        await appendRecord(rec);
++      }
++      console.log(`Ingested ${records.length} records from ${url}`);
++      process.exit(0);
++    })();
++  }
++
+   // Default behavior
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+@@ -59,4 +110,4 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+     console.error(err);
+     process.exit(1);
+   });
+-}
+\ No newline at end of file
++}
+diff --git a/tests/unit/graph.test.js b/tests/unit/graph.test.js
+index e1e8b7ca..6ff7210e 100644
+--- a/tests/unit/graph.test.js
++++ b/tests/unit/graph.test.js
+@@ -51,4 +51,4 @@ describe("Graph Storage Module", () => {
+       "utf8"
+     );
+   });
+-});
+\ No newline at end of file
++});
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index b22561fc..20feb5d8 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@src/lib/main.js";
+ import pkg from "../../package.json" assert { type: "json" };
+ import * as graphModule from "@src/lib/graph.js";
++import fs from "@src/lib/fsWrapper.js";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+@@ -17,30 +18,31 @@ describe("Main Output", () => {
+ 
+   test("should display help and exit with code 0", () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+-      throw new Error("Process exit");
+-    });
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation(() => {
++        throw new Error("Process exit");
++      });
+     try {
+       main(["--help"]);
+     } catch (err) {
+       expect(err.message).toBe("Process exit");
+     }
+-    expect(logSpy).toHaveBeenCalledTimes(4);
++    expect(logSpy).toHaveBeenCalledTimes(6);
+     expect(logSpy).toHaveBeenNthCalledWith(
+       1,
+-      "Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]"
++      "Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]"
+     );
++    expect(logSpy).toHaveBeenNthCalledWith(2, "--help     Show this help message and exit");
++    expect(logSpy).toHaveBeenNthCalledWith(3, "--version  Print version number and exit");
++    expect(logSpy).toHaveBeenNthCalledWith(4, "--mission  Print repository mission statement and exit");
+     expect(logSpy).toHaveBeenNthCalledWith(
+-      2,
+-      "--help     Show this help message and exit"
++      5,
++      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
+     );
+     expect(logSpy).toHaveBeenNthCalledWith(
+-      3,
+-      "--version  Print version number and exit"
+-    );
+-    expect(logSpy).toHaveBeenNthCalledWith(
+-      4,
+-      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
++      6,
++      "--ingest-all <url>  Fetch an array of records from URL, normalize each, and append all to graph.json"
+     );
+     expect(exitSpy).toHaveBeenCalledWith(0);
+     logSpy.mockRestore();
+@@ -49,9 +51,11 @@ describe("Main Output", () => {
+ 
+   test("should display version and exit with code 0", () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+-      throw new Error("Process exit");
+-    });
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation(() => {
++        throw new Error("Process exit");
++      });
+     try {
+       main(["--version"]);
+     } catch (err) {
+@@ -64,6 +68,29 @@ describe("Main Output", () => {
+     exitSpy.mockRestore();
+   });
+ 
++  test("should display mission and exit with code 0", () => {
++    const missionContent =
++      "# Mission\nBuild a knowledge graph of the physical world by crawling public data sources.\n";
++    vi.spyOn(fs, "readFileSync").mockReturnValue(missionContent);
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation(() => {
++        throw new Error("Process exit");
++      });
++    try {
++      main(["--mission"]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit");
++    }
++    expect(logSpy).toHaveBeenCalledWith(
++      "Build a knowledge graph of the physical world by crawling public data sources."
++    );
++    expect(exitSpy).toHaveBeenCalledWith(0);
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
+   test("should log args when no flags are present", () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+     main(["foo", "bar"]);
+@@ -88,13 +115,19 @@ describe("Ingest Command", () => {
+   });
+ 
+   test("should ingest record via appendRecord and exit with code 0", async () => {
+-    const appendSpy = vi.spyOn(graphModule, "appendRecord").mockResolvedValue();
++    const appendSpy = vi
++      .spyOn(graphModule, "appendRecord")
++      .mockResolvedValue();
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
+-      throw new Error(`Process exit: ${code}`);
+-    });
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation((code) => {
++        throw new Error(`Process exit: ${code}`);
++      });
+ 
+-    await expect(main(["--ingest", url])).rejects.toThrow("Process exit: 0");
++    await expect(main(["--ingest", url])).rejects.toThrow(
++      "Process exit: 0"
++    );
+ 
+     expect(fetch).toHaveBeenCalledWith(url);
+     expect(appendSpy).toHaveBeenCalledWith({
+@@ -104,4 +137,70 @@ describe("Ingest Command", () => {
+     expect(logSpy).toHaveBeenCalledWith("Ingested record with id: 1");
+     expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+-});
+\ No newline at end of file
++});
++
++describe("Batch Ingest Command", () => {
++  const url = "https://example.com/batch";
++  const rawArray = [
++    { id: 1, foo: "a" },
++    { id: 2, foo: "b" },
++  ];
++
++  beforeEach(() => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
++      ok: true,
++      json: async () => rawArray,
++    }));
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("should batch ingest and exit with code 0", async () => {
++    const appendSpy = vi
++      .spyOn(graphModule, "appendRecord")
++      .mockResolvedValue();
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation((code) => {
++        throw new Error(`Process exit: ${code}`);
++      });
++
++    await expect(main(["--ingest-all", url])).rejects.toThrow(
++      "Process exit: 0"
++    );
++
++    expect(fetch).toHaveBeenCalledWith(url);
++    expect(appendSpy).toHaveBeenCalledTimes(rawArray.length);
++    expect(logSpy).toHaveBeenCalledWith(
++      `Ingested ${rawArray.length} records from ${url}`
++    );
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++
++  test("should error and exit 1 when response is not array", async () => {
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
++      ok: true,
++      json: async () => ({ id: 1 }),
++    }));
++    const exitSpy = vi
++      .spyOn(process, "exit")
++      .mockImplementation((code) => {
++        throw new Error(`Process exit: ${code}`);
++      });
++    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
++
++    try {
++      await main(["--ingest-all", url]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit: 1");
++    }
++    expect(errSpy).toHaveBeenCalledWith(
++      "Error: --ingest-all endpoint did not return an array"
++    );
++    exitSpy.mockRestore();
++    errSpy.mockRestore();
++  });
++});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2275 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":45015,"completion_tokens":6236,"total_tokens":51251,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
