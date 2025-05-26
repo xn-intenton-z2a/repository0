@@ -1025,4 +1025,66 @@ LLM API Usage:
 {"prompt_tokens":8080,"completion_tokens":1765,"total_tokens":9845,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Ready Issue at 2025-05-26T04:43:40.003Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2263 with action enhance and updated description:
+
+# Description
+
+Introduce a new CLI flag `--ingest <url>` in `src/lib/main.js` to support knowledge graph construction by fetching, normalizing, and persisting records from public data sources.
+
+This feature will:
+- Fetch JSON data from the provided URL using `fetchData(source)` from `src/lib/crawler.js`.
+- Normalize the fetched record using `normalizeRecord(record)`.
+- Locate or initialize a `graph.json` file at the project root, append the normalized record, and write it back as valid JSON.
+- Print a confirmation: `Ingested record with id: <id>`.
+- Exit with code `0`.
+
+# Acceptance Criteria
+
+1. **Async Support**: The `main` function in `src/lib/main.js` is updated to be `async` and can detect the `--ingest <url>` flag pair.
+2. **Data Fetching & Normalization**:
+   - Calling `main(["--ingest", <url>])` invokes `fetchData(url)` exactly once.
+   - The raw data returned is passed to `normalizeRecord` and returns an object of the form `{ id: string, attributes: object }`.
+3. **Graph Persistence**:
+   - If `graph.json` does not exist at the project root, the code initializes an empty array.
+   - If `graph.json` exists, it is read, parsed, and the existing array preserved.
+   - The normalized record is appended to the array and written back to `graph.json` using `writeFileSync` with 2-space indentation.
+4. **Console Output & Exit**:
+   - Upon successful ingestion, `console.log` is called once with the message: `Ingested record with id: <id>`.
+   - `process.exit(0)` is invoked to terminate the CLI with a zero exit code.
+5. **Test Coverage**:
+   - A new `describe('Ingest Command', ...)` suite is added in `tests/unit/main.test.js` that:
+     - Stubs global `fetch` to return a known object (e.g., `{ id: 42, foo: 'bar' }`).
+     - Stubs `fs.readFileSync` to simulate missing and existing `graph.json` scenarios.
+     - Spies on `fs.writeFileSync`, `console.log`, and mocks `process.exit` to throw an error.
+     - Verifies that `writeFileSync` is called with the correct file path and JSON content.
+     - Verifies console output and exit code behavior.
+   - Existing tests for `--help`, `--version`, and default behavior continue to pass unchanged.
+6. **Documentation Update**:
+   - Update `README.md` under **Running the Demo** to include the `--ingest` flag example:
+     ```bash
+     # Ingest and persist a record
+     npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
+     # Output: Ingested record with id: 1
+     ```
+
+# Verification
+
+- Run `npm test` to ensure all unit tests pass (including the new ingestion tests).
+- Perform a manual smoke test:
+  ```bash
+  node src/lib/main.js --ingest https://jsonplaceholder.typicode.com/posts/1
+  ```
+  - Confirm that `graph.json` is created/updated correctly.
+  - Confirm the console output and exit code `0`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":8865,"completion_tokens":1444,"total_tokens":10309,"prompt_tokens_details":{"cached_tokens":6400,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
