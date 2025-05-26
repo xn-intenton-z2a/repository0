@@ -2481,4 +2481,57 @@ LLM API Usage:
 {"prompt_tokens":10489,"completion_tokens":738,"total_tokens":11227,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-26T14:23:35.369Z
+
+Activity:
+
+Generated issue 2272 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2272
+
+title:
+
+Add unit test and document --mission CLI flag
+
+And description:
+
+# Description
+
+The CLI now supports the `--mission` flag (printing the repository’s mission statement), but we are missing automated tests for it and end-to-end documentation in the README. This issue will add a unit test to ensure `main(["--mission"])` prints the correct mission and exits with code 0, and will update the README under "Running the Demo" to show how to use the `--mission` flag.
+
+## Changes Required
+
+1. **tests/unit/main.test.js**
+   - Add a new `test("should display mission and exit with code 0", ...)` under the existing `Main Output` suite.
+   - Stub `fs.readFileSync` (imported from `@src/lib/fsWrapper.js`) to return a known mission string (e.g., the first non-empty line of `MISSION.md`).
+   - Spy on `console.log` to capture output and on `process.exit` to mock exit behavior (throwing an error to be caught by the test).
+   - Call `main(["--mission"])` and assert:
+     - `console.log` was called exactly once with the mission sentence.
+     - `process.exit(0)` was invoked.
+   - Ensure existing tests for `--help`, `--version`, `--ingest`, and default behavior remain unchanged and continue to pass.
+
+2. **README.md**
+   - Under **Running the Demo**, add a bullet or code block demonstrating the `--mission` flag:
+     ```bash
+     # Print the project mission statement
+     npm run start -- --mission
+     # Output: Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+
+## Verification
+
+1. Run `npm test` and confirm that all tests pass, including the new mission flag test.
+2. Manually run:
+   ```bash
+   node src/lib/main.js --mission
+   ```
+   - Confirm the console prints exactly:
+     ```text
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+   - Confirm the process exits with code 0.
+
+LLM API Usage:
+```json
+{"prompt_tokens":35204,"completion_tokens":2235,"total_tokens":37439,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1728,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
