@@ -8,7 +8,12 @@ import fs from "./fsWrapper.js";
  * @returns {Promise<any[]>} The array of records.
  */
 export async function loadGraph(filePath) {
-  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
+  const defaultPath = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "graph.json"
+  );
   const path = filePath || defaultPath;
   try {
     const content = fs.readFileSync(path, "utf8");
@@ -28,18 +33,26 @@ export async function loadGraph(filePath) {
  * @param {string} [filePath] - Optional path to graph.json.
  */
 export function saveGraph(records, filePath) {
-  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
+  const defaultPath = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "graph.json"
+  );
   const path = filePath || defaultPath;
   fs.writeFileSync(path, JSON.stringify(records, null, 2), "utf8");
 }
 
 /**
- * Append a record to the graph, loading existing records and saving the updated array.
- * @param {any} record - The record to append.
+ * Append a record or array of records to the graph, loading existing records and saving the updated array.
+ * @param {any|any[]} recordOrRecords - The record or records to append.
  * @param {string} [filePath] - Optional path to graph.json.
  */
-export async function appendRecord(record, filePath) {
-  const records = await loadGraph(filePath);
-  records.push(record);
-  saveGraph(records, filePath);
+export async function appendRecord(recordOrRecords, filePath) {
+  const existing = await loadGraph(filePath);
+  const toAppend = Array.isArray(recordOrRecords)
+    ? recordOrRecords
+    : [recordOrRecords];
+  const combined = existing.concat(toAppend);
+  saveGraph(combined, filePath);
 }
