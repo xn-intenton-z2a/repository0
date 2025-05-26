@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { main } from "@src/lib/main.js";
 import pkg from "../../package.json" assert { type: "json" };
-import * as fs from "fs";
+import fs from "@src/lib/fsWrapper.js";
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -93,7 +93,7 @@ describe("Ingest Command", () => {
     });
     const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(code => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
       throw new Error(`Process exit: ${code}`);
     });
 

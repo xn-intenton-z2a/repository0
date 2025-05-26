@@ -3,7 +3,7 @@
 
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { readFileSync, writeFileSync } from "fs";
+import fs from "./fsWrapper.js";
 import { fetchData, normalizeRecord } from "./crawler.js";
 
 /**
@@ -23,7 +23,7 @@ export async function main(args = process.argv.slice(2)) {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const pkgPath = join(__dirname, "..", "..", "package.json");
-    const pkgJson = JSON.parse(readFileSync(pkgPath, "utf8"));
+    const pkgJson = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
     console.log(pkgJson.version);
     process.exit(0);
   }
@@ -40,7 +40,7 @@ export async function main(args = process.argv.slice(2)) {
     const graphPath = join(projectRoot, "graph.json");
     let dataList = [];
     try {
-      const content = readFileSync(graphPath, "utf8");
+      const content = fs.readFileSync(graphPath, "utf8");
       dataList = JSON.parse(content);
       if (!Array.isArray(dataList)) {
         dataList = [];
@@ -52,7 +52,7 @@ export async function main(args = process.argv.slice(2)) {
     const raw = await fetchData(url);
     const record = normalizeRecord(raw);
     dataList.push(record);
-    writeFileSync(graphPath, JSON.stringify(dataList, null, 2), "utf8");
+    fs.writeFileSync(graphPath, JSON.stringify(dataList, null, 2), "utf8");
     console.log(`Ingested record ${record.id}`);
     process.exit(0);
   }
@@ -62,7 +62,7 @@ export async function main(args = process.argv.slice(2)) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  main(args).catch(err => {
+  main(args).catch((err) => {
     console.error(err);
     process.exit(1);
   });
