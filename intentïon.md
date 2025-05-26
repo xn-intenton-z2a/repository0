@@ -488,3 +488,15 @@ with message: "PR #2280 is in an unexpected state: unstable."
 with outcome "success".
 
 ---
+
+## Merge PR activity at 2025-05-26T23:28:43.507Z
+
+When attempting to merge PR #2280 for branch name "dependabot/npm_and_yarn/minimatch-10.0.1" to resolve issue number "" the decision to skip merge was "false":
+
+then the PR was merged "false"
+
+with message: "PR #2280 is in an unexpected state: unstable."
+
+with outcome "success".
+
+---
