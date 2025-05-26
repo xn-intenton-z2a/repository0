@@ -549,3 +549,53 @@ with message: "Branch 'agentic-lib-issue-2260' deleted."
 with outcome "success".
 
 ---
+## Issue to Ready Issue at 2025-05-26T03:50:54.652Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2260 with action close and updated description:
+
+# Description
+
+As part of the mission to build a knowledge graph of the physical world, we need a core crawler module that can fetch and normalize data from public sources. This issue scaffolds the initial crawler and implements ingestion from a sample API (e.g., JSONPlaceholder) to demonstrate the workflow.
+
+## Changes Required
+
+1. **src/lib/crawler.js**
+   - Create a new module exporting:
+     - `async function fetchData(source: string): Promise<any>`: Fetch JSON from the given URL using native `fetch`.
+     - `function normalizeRecord(record: any): { id: string; attributes: any }`: Normalize the raw record into a minimal schema.
+   - Ensure errors are thrown on non-2xx responses.
+
+2. **tests/unit/crawler.test.js**
+   - Add tests mocking `fetch` to validate:
+     - `fetchData` successfully retrieves and returns JSON.
+     - `normalizeRecord` transforms a sample record into the expected schema.
+     - Error handling when the fetch response has a non-200 status.
+
+3. **README.md**
+   - Document the crawler module under a new section **"Data Crawler Module"**:
+     - Usage examples:
+       ```js
+       import { fetchData, normalizeRecord } from './src/lib/crawler.js';
+       const raw = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+       const node = normalizeRecord(raw);
+       console.log(node);
+       ```
+
+4. **Dependencies**
+   - No new dependencies required (Node 20+ supports global `fetch`).
+
+## Verification
+
+1. Run tests: `npm test` (all tests, including new ones, should pass).
+2. Import and call `fetchData` & `normalizeRecord` in a REPL or a small script to confirm correct behavior.
+
+This lays the foundation for adding additional source connectors and building the knowledge graph incrementally.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8146,"completion_tokens":741,"total_tokens":8887,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
