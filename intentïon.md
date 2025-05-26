@@ -2162,4 +2162,88 @@ LLM API Usage:
 {"prompt_tokens":32654,"completion_tokens":2723,"total_tokens":35377,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Ready Issue at 2025-05-26T11:38:32.761Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2269 with action enhance and updated description:
+
+# Feature: `--mission` CLI Flag
+
+## Overview
+Add a new command‐line flag `--mission` to the CLI in `src/lib/main.js` so that users can view the repository mission directly from the terminal. This aligns the CLI interface with the project’s core purpose: *Build a knowledge graph of the physical world by crawling public data sources.*
+
+## Acceptance Criteria (Testable)
+
+1. **Mission Output**
+   - When the CLI is invoked with `--mission`, the program:
+     - Reads the mission statement from the top‐level `MISSION.md` file (or embeds it directly).
+     - Prints exactly:
+       ```text
+       Build a knowledge graph of the physical world by crawling public data sources.
+       ```
+     - Calls `process.exit(0)` to terminate with exit code 0.
+   - Verify in a unit test by:
+     - Mocking or stubbing `fs.readFileSync` (if reading from file) to return the mission string.
+     - Spying on `console.log` to capture the printed statement.
+     - Spying on `process.exit` to ensure it is called with `0`.
+
+2. **Flag Precedence and Unaffected Behavior**
+   - The `--mission` flag is processed before any other flags or default behavior.
+   - Existing behavior for `--help`, `--version`, `--ingest <url>`, and the default case remains unchanged and continues to pass its existing tests.
+   - Adding the new flag must not break existing tests in `tests/unit/main.test.js` for other flags or default logging.
+
+## Implementation Steps
+
+1. **src/lib/main.js**
+   - Detect `--mission` as the first check in the `main` function.
+   - Read mission text from `MISSION.md` (or store the mission string as a constant) and `console.log` it.
+   - Call `process.exit(0)`.
+
+2. **tests/unit/main.test.js**
+   - Add a test case:
+     ```js
+     test("should display mission and exit with code 0", () => {
+       const mission = "Build a knowledge graph of the physical world by crawling public data sources.";
+       vi.spyOn(fs, "readFileSync").mockReturnValue(mission);
+       const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+       const exitSpy = vi.spyOn(process, "exit").mockImplementation(code => { throw new Error(`exit:${code}`); });
+
+       expect(() => main(["--mission"]))
+         .toThrow(new Error('exit:0'));
+       expect(logSpy).toHaveBeenCalledWith(mission);
+       expect(exitSpy).toHaveBeenCalledWith(0);
+     });
+     ```
+   - Preserve and run all existing tests to ensure no regressions.
+
+3. **Documentation Updates**
+   - **docs/USAGE.md**:
+     - Under **Options**, add:
+       ```markdown
+       --mission    Print repository mission statement and exit
+       ```
+     - Under **Examples**, add:
+       ```bash
+       $ npm run start -- --mission
+       Build a knowledge graph of the physical world by crawling public data sources.
+       ```
+
+   - **README.md**:
+     - In the **Usage** or **Running the Demo** section, document the `--mission` flag with the same example.
+
+## Verification
+
+- Run `npm test` to confirm all unit tests, including the new mission flag test, pass.
+- Manually run:
+  ```bash
+  node src/lib/main.js --mission
+  ```
+  to verify correct output and exit code.
+
+LLM API Usage:
+```json
+{"prompt_tokens":10668,"completion_tokens":1375,"total_tokens":12043,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
