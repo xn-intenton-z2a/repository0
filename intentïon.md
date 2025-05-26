@@ -1089,3 +1089,77 @@ LLM API Usage:
 
 ---2025-05-26T05:02:43Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-26T05-02Z
 
+## Feature to Issue at 2025-05-26T05:23:57.656Z
+
+Activity:
+
+Generated issue 2265 for feature "graph-storage-module" with URL https://github.com/xn-intenton-z2a/repository0/issues/2265
+
+title:
+
+Implement Graph Storage Module for Knowledge Graph Persistence
+
+And description:
+
+# Description
+
+To advance our mission of building a knowledge graph of the physical world, we need a dedicated graph storage module to encapsulate loading, saving, and appending normalized records to `graph.json`. This will cleanly separate persistence concerns from CLI logic and make future graph operations more maintainable.
+
+## Changes Required
+
+1. **src/lib/graph.js** (new)
+   - Export:
+     ```js
+     export async function loadGraph(filePath?: string): Promise<any[]>;
+     export function saveGraph(records: any[], filePath?: string): void;
+     export async function appendRecord(record: any, filePath?: string): Promise<void>;
+     ```
+   - Implement using `fs.readFileSync`/`writeFileSync` and `JSON.parse`/`stringify`, defaulting `filePath` to the project-root `graph.json`.
+   - On missing or invalid JSON, `loadGraph` should return an empty array.
+
+2. **tests/unit/graph.test.js** (new)
+   - Mock `fs.readFileSync` and `fs.writeFileSync` to verify:
+     - `loadGraph` returns `[]` when file is absent or content is invalid.
+     - `loadGraph` returns parsed array when file contains valid JSON.
+     - `saveGraph` writes stringified JSON with 2-space indentation to the correct path.
+     - `appendRecord` reads existing graph, appends the record, and writes back.
+
+3. **src/lib/main.js**
+   - Replace inline persistence logic in the `--ingest` branch to use `appendRecord` from `src/lib/graph.js`.
+   - Import:
+     ```js
+     import { appendRecord } from "./graph.js";
+     ```
+   - Call `await appendRecord(record);` then log and exit. Remove direct `fs` usage in that block.
+
+4. **tests/unit/main.test.js**
+   - In the "Ingest Command" suite, mock `appendRecord` (instead of stubbing `fs` directly) to throw or resolve and verify:
+     - `appendRecord` is called with the normalized record.
+     - `console.log` outputs `Ingested record with id: <id>`.
+     - `process.exit(0)` is invoked.
+
+5. **README.md**
+   - Under **Running the Demo**, document how the CLI uses `appendRecord` via `--ingest` and reference the new graph module.
+   - Example:
+     ```bash
+     $ npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
+     Ingested record with id: 1
+     ```
+
+## Verification
+
+1. Run all unit tests: `npm test` (including new `graph.test.js` and existing CLI tests).
+2. Smoke test ingest:
+   ```bash
+   node src/lib/main.js --ingest https://jsonplaceholder.typicode.com/posts/1
+   ```
+   - Confirm `graph.json` is created/updated with a single normalized record.
+   - Confirm console output and exit code `0`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":18815,"completion_tokens":2200,"total_tokens":21015,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
