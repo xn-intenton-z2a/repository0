@@ -1,19 +1,25 @@
 # CLI Flags Support
 
 # Overview
-Enhance the main script to accept and process standard CLI flags such as --help and --version without external dependencies.
+Enhance the main script to accept and process standard CLI flags such as --help, --version, and the new --ingest flag for data ingestion and persistence, without external dependencies.
 
 # Behavior
-When invoked with --help, display usage instructions and list available flags.
-When invoked with --version, read and output the version from package.json.
-When invoked without flags or with unrecognized flags, fallback to existing behavior: log the provided arguments.
+- --help: Display a usage message listing available flags and syntax, then exit cleanly with code 0.
+- --version: Read and print the version number from package.json, then exit cleanly with code 0.
+- --ingest <url>: Fetch JSON data from the specified URL using fetchData and normalizeRecord from the crawler module; load or initialize project-root graph.json; append the normalized record; write the updated graph back to graph.json; print confirmation of the ingested record ID; exit with code 0.
+- Default: When no known flags or a flag without required arguments is provided, log the provided arguments as before and do not exit early.
 
 # Implementation
-Use process.argv to detect flags, format output to stdout, and exit cleanly. Maintain ESM module style. No additional dependencies.
+- In src/lib/main.js, update main to async and use process.argv slice to detect flags.
+- Use fileURLToPath and dirname to resolve module location; import fetchData and normalizeRecord from src/lib/crawler.js via relative paths.
+- For --ingest, ensure args[0] is --ingest and args[1] is present; handle read/write of graph.json using fs readFileSync and writeFileSync with JSON parsing and stringification.
+- Maintain ESM module style; preserve help/version behavior.
 
 # Tests
-Add unit tests to verify:
-- --help produces the expected usage message.
-- --version outputs the version matching package.json.
-- Default invocation logs arguments as before.
-Ensure existing tests continue to pass.
+- In tests/unit/main.test.js, update the Main Output suite to expect usage lines for --help, --version, and --ingest.
+- Add an "Ingest Command" describe block:
+  - Stub global fetch to return a sample record.
+  - Mock fs.readFileSync to simulate absent or existing graph.json and spy on fs.writeFileSync.
+  - Spy on console.log and mock process.exit to throw, verifying exit code.
+  - Assert writeFileSync was called with correct file path, JSON content matching array of normalized record, and utf8 encoding; assert log and exit call for ingestion.
+- Ensure existing tests for help, version, and default behavior continue to pass.
