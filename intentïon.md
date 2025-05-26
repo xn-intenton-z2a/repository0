@@ -4160,3 +4160,81 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T20:27:43.726Z
+
+Activity:
+
+fixApplied: true with message Add CLI Usage section to README.md with examples aligned to mission
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index 219fe9ea..21fc1e03 100644
+--- a/README.md
++++ b/README.md
+@@ -72,4 +72,44 @@ On timer: Automerge (code merged)
+ -> Review Issue (issue reviewed and closed)
+ 
+ On timer: Review Issue (issue reviewed and closed)
+-```
+\ No newline at end of file
++```
++
++### CLI Usage
++
++Our CLI supports the following commands, aligned with the mission to build a knowledge graph of the physical world by crawling public data sources:
++
++- `--help`
++  - Show available flags and exit.
++  ```bash
++  $ npm run start -- --help
++  Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
++  --help           Show this help message and exit
++  --version        Print version number and exit
++  --mission        Print repository mission statement and exit
++  --ingest <url>   Fetch and ingest a record and persist to graph.json
++  --ingest-all <url>  Batch ingest multiple records from URL and persist to graph.json
++  ```
++
++- `--version`
++  ```bash
++  $ npm run start -- --version
++  1.2.0-0
++  ```
++
++- `--mission`
++  ```bash
++  $ npm run start -- --mission
++  Build a knowledge graph of the physical world by crawling public data sources.
++  ```
++
++- `--ingest <url>`
++  ```bash
++  $ npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
++  Ingested record with id: 1
++  ```
++
++- `--ingest-all <url>`
++  ```bash
++  $ npm run start -- --ingest-all https://jsonplaceholder.typicode.com/posts
++  Ingested 100 records from https://jsonplaceholder.typicode.com/posts
++  ```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2281 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":56355,"completion_tokens":1523,"total_tokens":57878,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
