@@ -1896,4 +1896,70 @@ LLM API Usage:
 {"prompt_tokens":13612,"completion_tokens":2409,"total_tokens":16021,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1792,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-26T11:22:29.297Z
+
+Activity:
+
+Generated issue 2269 for feature "mission-cli-flag" with URL https://github.com/xn-intenton-z2a/repository0/issues/2269
+
+title:
+
+Add `--mission` CLI Flag to Display Mission Statement
+
+And description:
+
+# Description
+
+Introduce a new CLI flag `--mission` in `src/lib/main.js` so users can quickly view the project’s mission directly from the command line. This ties the CLI behavior back to the core purpose: **Build a knowledge graph of the physical world by crawling public data sources.**
+
+## Changes Required
+
+1. **src/lib/main.js**
+   - Detect when `--mission` is present in `args`.
+   - Read the mission sentence from `MISSION.md` (top-level file) or embed it directly if preferred.
+   - `console.log` the mission statement and exit with code `0`.
+   - Ensure this is handled before other flags or default behavior.
+
+2. **tests/unit/main.test.js**
+   - Add a new `test("should display mission and exit with code 0", ...)`:
+     - Stub `fs.readFileSync` (or mock reading `MISSION.md`) to return a known mission string.
+     - Spy on `console.log` and mock `process.exit` to throw.
+     - Call `main(["--mission"])` and verify:
+       - `console.log` was called with the mission sentence.
+       - `process.exit(0)` was invoked.
+   - Ensure existing tests for `--help`, `--version`, `--ingest`, and default behavior continue to pass.
+
+3. **docs/USAGE.md** (or **README.md**)  
+   - Under **Options** in `docs/USAGE.md`, add:
+     ```markdown
+     --mission    Print repository mission statement and exit
+     ```
+   - In **Examples**, show:
+     ```bash
+     $ npm run start -- --mission
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+
+4. **README.md**  
+   - In the **Running the Demo** or **Usage** section, document the `--mission` flag with the same example as above.
+
+## Verification
+
+1. Run `npm test` to confirm all unit tests (including the new mission flag test) pass.
+2. Manual smoke test:
+   ```bash
+   node src/lib/main.js --mission
+   ```
+   - Should print exactly the mission sentence:
+     ```text
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+   - Process must exit with code `0`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":29184,"completion_tokens":1859,"total_tokens":31043,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
