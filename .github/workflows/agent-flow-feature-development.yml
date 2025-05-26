@@ -267,6 +267,7 @@ jobs:
   validate-issue-number:
     needs:
       - select-issue-to-enhance
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - id: validate-issue-number

@@ -480,6 +480,7 @@ jobs:
     needs:
       - select-branch
     runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
     steps:
       - id: validate-issue-number
         run: |

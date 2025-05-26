@@ -240,6 +240,7 @@ jobs:
   validate-issue-number:
     needs:
       - merge-check
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - id: validate-issue-number
