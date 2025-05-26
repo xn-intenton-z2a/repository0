@@ -2852,4 +2852,84 @@ LLM API Usage:
 {"prompt_tokens":38291,"completion_tokens":3564,"total_tokens":41855,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2752,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Ready Issue at 2025-05-26T15:40:04.619Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2273 with action close and updated description:
+
+# Description
+
+The CLI currently supports the `--mission` flag, but the help output and the usage documentation do not list it. We need to update the help command, the docs/USAGE.md file, and the README so that users can discover and learn about the `--mission` flag that prints the repository’s mission statement.
+
+# Changes Required
+
+1. **src/lib/main.js**
+   - In the `--help` block, update the usage string to include `[--mission]`:
+     ```diff
+-    console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
++    console.log("Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]");
+     ```
+   - Add a new help line for `--mission`:
+     ```diff
+-    console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
++    console.log("--mission  Print repository mission statement and exit");
++    console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
+     ```
+
+2. **tests/unit/main.test.js**
+   - Update the `"should display help and exit with code 0"` test to expect 5 log calls, inserting the `--mission` line before the ingest line.
+   - Verify:
+     - The first `console.log` is the updated usage including `[--mission]`.
+     - The fourth `console.log` is `--mission  Print repository mission statement and exit`.
+     - The fifth `console.log` remains the ingest description.
+
+3. **docs/USAGE.md**
+   - Update the **Command Syntax** header to include `[--mission]`:
+     ```diff
+-```
+-Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+-```
++```
++Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]
++```
+   - Under **Options**, add:
+     ```markdown
+     --mission    Print repository mission statement and exit
+     ```
+   - In **Examples**, demonstrate the `--mission` flag:
+     ```bash
+     $ npm run start -- --mission
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+
+4. **README.md**
+   - In the **Running the Demo** or **Usage** section, add a bullet or code block for `--mission`:
+     ```bash
+     # Print the project mission statement
+     npm run start -- --mission
+     # Output: Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+
+# Verification
+
+- Run `npm test` to ensure the updated help flag test passes along with existing tests.
+- Manually run:
+  ```bash
+  node src/lib/main.js --help
+  ```
+  - Confirm the usage line includes `[--mission]`.
+  - Confirm a line for `--mission` appears immediately before the ingest description.
+- Manually run:
+  ```bash
+  node src/lib/main.js --mission
+  ```
+  - Confirm it prints the mission sentence and exits with code 0.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":10795,"completion_tokens":1543,"total_tokens":12338,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
