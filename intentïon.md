@@ -1162,4 +1162,67 @@ LLM API Usage:
 {"prompt_tokens":18815,"completion_tokens":2200,"total_tokens":21015,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1472,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Ready Issue at 2025-05-26T05:41:35.098Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2265 with action enhance and updated description:
+
+# Description
+
+Introduce a dedicated graph storage module to cleanly encapsulate graph persistence operations for our knowledge graph, separating file I/O from CLI logic.
+
+## New Module: src/lib/graph.js
+Exports:
+```js
+export async function loadGraph(filePath?: string): Promise<any[]>;
+export function saveGraph(records: any[], filePath?: string): void;
+export async function appendRecord(record: any, filePath?: string): Promise<void>;
+```
+Default `filePath` should resolve to the project root `graph.json`.
+
+## Updated CLI: src/lib/main.js
+- Replace inline `fs` logic under `--ingest` with:
+  ```js
+  import { appendRecord } from './graph.js';
+  const record = normalizeRecord(raw);
+  await appendRecord(record);
+  console.log(`Ingested record with id: ${record.id}`);
+  process.exit(0);
+  ```
+
+## Documentation: README.md
+- Add a **Ingest Command** example showing `--ingest` and referencing the graph storage module.
+
+## Acceptance Criteria
+1. **Graph Module Tests** (`tests/unit/graph.test.js`)
+   - When `fs.readFileSync` throws or returns invalid JSON, `loadGraph()` returns `[]`.
+   - When file contains valid JSON array, `loadGraph()` returns the parsed array.
+   - `saveGraph(records)` writes a 2-space indented JSON array to `graph.json`.
+   - `appendRecord(record)` calls `loadGraph()`, appends `record`, then calls `saveGraph()` with the new array.
+
+2. **CLI Ingest Tests** (update `tests/unit/main.test.js`)
+   - Mock `appendRecord` to resolve; verify it is called with the normalized record.
+   - Verify `console.log` outputs: `Ingested record with id: <id>`.
+   - Verify `process.exit(0)` is invoked.
+
+3. **Integration Smoke Test**
+   ```bash
+   node src/lib/main.js --ingest https://jsonplaceholder.typicode.com/posts/1
+   ```
+   - Creates/updates `graph.json` with one normalized record.
+   - Console prints `Ingested record with id: 1` and exits with code 0.
+
+4. **Documentation**
+   - `README.md` shows the `--ingest` example and mentions the `graph.js` module.
+
+## Verification
+- Run `npm test` to ensure all unit tests (existing and new) pass.
+- Perform the smoke test above.
+
+LLM API Usage:
+```json
+{"prompt_tokens":8580,"completion_tokens":994,"total_tokens":9574,"prompt_tokens_details":{"cached_tokens":6400,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
