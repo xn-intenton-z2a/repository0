@@ -3,15 +3,18 @@
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic‑lib` which reference reusable workflows.
+* Workflows from `agentic-lib` which reference reusable workflows.
+
+## Mission
+Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic-lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -115,4 +118,4 @@ The following files are also taken into consideration but may also be changed (e
 - `tests/unit/main.test.js`
 
 ## Final Notes
-`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
+`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.

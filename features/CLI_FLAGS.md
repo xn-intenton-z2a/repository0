@@ -1,5 +1,8 @@
 # CLI Flags Support
 
+# Mission Alignment
+This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [Mission statement](../MISSION.md).
+
 # Overview
 Enhance the main script to accept and process standard CLI flags such as --help, --version, and the new --ingest flag for data ingestion and persistence, without external dependencies.
 
