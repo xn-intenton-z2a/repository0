@@ -137,4 +137,185 @@ LLM API Usage:
 {"prompt_tokens":6201,"completion_tokens":1567,"total_tokens":7768,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T03:02:05.031Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2258 with message Add --help and --version CLI flags support to main script with corresponding unit tests and usage documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..7dba0fe7 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -2,8 +2,30 @@
+ // src/lib/main.js
+ 
+ import { fileURLToPath } from "url";
++import { dirname, join } from "path";
++import { readFileSync } from "fs";
++
++/**
++ * Main entrypoint for CLI.
++ * @param {string[]} [args] - Arguments to process (defaults to process.argv.slice(2)).
++ */
++export function main(args = process.argv.slice(2)) {
++  if (args.includes("--help")) {
++    console.log("Usage: node src/lib/main.js [--help] [--version]");
++    console.log("--help     Show this help message and exit");
++    console.log("--version  Print version number and exit");
++    process.exit(0);
++  }
++
++  if (args.includes("--version")) {
++    const __filename = fileURLToPath(import.meta.url);
++    const __dirname = dirname(__filename);
++    const pkgPath = join(__dirname, "..", "..", "package.json");
++    const pkgJson = JSON.parse(readFileSync(pkgPath, "utf8"));
++    console.log(pkgJson.version);
++    process.exit(0);
++  }
+ 
+-export function main(args) {
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..43f9db6a 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,10 +1,10 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, vi } from "vitest";
+ import { main } from "@src/lib/main.js";
++import pkg from "../../package.json" assert { type: "json" };
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++    expect(main).not.toBeNull();
+   });
+ });
+ 
+@@ -13,4 +13,56 @@ describe("Main Output", () => {
+     process.argv = ["node", "src/lib/main.js"];
+     main();
+   });
++
++  test("should display help and exit with code 0", () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
++      throw new Error("Process exit");
++    });
++    try {
++      main(["--help"]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit");
++    }
++    expect(logSpy).toHaveBeenCalledTimes(3);
++    expect(logSpy).toHaveBeenNthCalledWith(
++      1,
++      "Usage: node src/lib/main.js [--help] [--version]"
++    );
++    expect(logSpy).toHaveBeenNthCalledWith(
++      2,
++      "--help     Show this help message and exit"
++    );
++    expect(logSpy).toHaveBeenNthCalledWith(
++      3,
++      "--version  Print version number and exit"
++    );
++    expect(exitSpy).toHaveBeenCalledWith(0);
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  test("should display version and exit with code 0", () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
++      throw new Error("Process exit");
++    });
++    try {
++      main(["--version"]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit");
++    }
++    expect(logSpy).toHaveBeenCalledTimes(1);
++    expect(logSpy).toHaveBeenCalledWith(pkg.version);
++    expect(exitSpy).toHaveBeenCalledWith(0);
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  test("should log args when no flags are present", () => {
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    main(["foo", "bar"]);
++    expect(logSpy).toHaveBeenCalledWith('Run with: ["foo","bar"]');
++    logSpy.mockRestore();
++  });
+ });\n\n// New [docs/USAGE.md]:\n# Usage
+
+This document describes how to use the CLI flags supported by the main script.
+
+## Command Syntax
+
+```
+Usage: node src/lib/main.js [--help] [--version]
+```
+
+## Options
+
+--help     Show this help message and exit
+
+--version  Print version number and exit
+
+## Examples
+
+Show help message:
+```
+$ npm run start -- --help
+Usage: node src/lib/main.js [--help] [--version]
+--help     Show this help message and exit
+--version  Print version number and exit
+```
+
+Print version number:
+```
+$ npm run start -- --version
+1.2.0-0
+```
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: success
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: true
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2258 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10183,"completion_tokens":4911,"total_tokens":15094,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3456,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
