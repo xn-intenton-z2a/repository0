@@ -530,4 +530,298 @@ LLM API Usage:
 {"prompt_tokens":10370,"completion_tokens":6201,"total_tokens":16571,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Fixed Code at 2025-05-26T00:10:46.023Z
+
+Activity:
+
+fixApplied: true with Implement CLI subcommands with handlers and fix invalid command test and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 0ac021e0..699b501d 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,97 +1,80 @@
+-#!/usr/bin/env node
+-// src/lib/main.js
+-
+ import http from "http";
+-import { fileURLToPath } from "url";
+ import { z } from "zod";
+ 
+-// Zod schema for allowed commands
+-const commandSchema = z.enum(["start", "diagnostics", "serve"]);
+-
+ /**
+- * Main entry point for CLI handling.
+- * @param {string[]} args - Command-line arguments excluding node and script path.
+- * @returns {http.Server|void} The HTTP server instance for serve command.
+- */
+-export async function main(args = []) {
+-  const cmd = args[0] ?? "start";
+-  let command;
+-  try {
+-    command = commandSchema.parse(cmd);
+-  } catch (e) {
+-    const errMsg = `Unrecognized command: ${cmd}`;
+-    console.error(errMsg);
+-    process.exitCode = 1;
+-    throw new Error(errMsg);
+-  }
+-
+-  const handlerArgs = args.slice(1);
+-  switch (command) {
+-    case "start":
+-      start(handlerArgs);
+-      return;
+-    case "diagnostics":
+-      diagnostics();
+-      return;
+-    case "serve":
+-      return serve();
+-    default:
+-      // Should not reach here
+-      return;
+-  }
+-}
+-
+-/**
+- * Start handler: logs provided arguments.
++ * Handles the 'start' command by logging provided arguments.
+  * @param {string[]} args
+  */
+-export function start(args) {
++export function startHandler(args) {
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ /**
+- * Diagnostics handler: prints Node version, platform, and memory usage.
++ * Handles the 'diagnostics' command by logging Node version, platform, and memory usage.
+  */
+-export function diagnostics() {
+-  const mem = process.memoryUsage();
++export function diagnosticsHandler() {
++  const version = process.version;
++  const platform = process.platform;
++  const memory = process.memoryUsage();
+   console.log(
+-    `Node: ${process.version}, Platform: ${process.platform}, MemoryUsage: ${JSON.stringify(
+-      mem
+-    )}`
++    `Node: ${version}, Platform: ${platform}, MemoryUsage: ${JSON.stringify(memory)}`
+   );
+ }
+ 
+ /**
+- * Serve handler: launches HTTP server on port 3000 with /health endpoint.
+- * @returns {http.Server}
++ * Handles the 'serve' command by starting an HTTP server on port 3000.
++ * Responds to GET /health with { status: 'ok' }.
++ * @returns {Promise<http.Server>}
+  */
+-export function serve() {
++export function serveHandler() {
+   const server = http.createServer((req, res) => {
+     if (req.method === "GET" && req.url === "/health") {
+       res.writeHead(200, { "Content-Type": "application/json" });
+-      res.end(JSON.stringify({ status: "ok" }));
++      res.end(JSON.stringify({ status: 'ok' }));
+     } else {
+       res.writeHead(404);
+       res.end();
+     }
+   });
+ 
+-  server.listen(3000);
+-
++  // Graceful shutdown
+   const shutdown = () => {
+-    server.close(() => process.exit(0));
++    server.close();
+   };
+-
+   process.on("SIGINT", shutdown);
+   process.on("SIGTERM", shutdown);
+ 
+-  return server;
++  return new Promise((resolve, reject) => {
++    server.on("error", reject);
++    server.listen(3000, () => resolve(server));
++  });
+ }
+ 
+-// CLI invocation when run directly
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  // slice off "node" and script path
+-  main(process.argv.slice(2)).catch(() => {
+-    // error already logged
+-  });
++/**
++ * Main entrypoint for CLI.
++ * @param {string[]} [args]
++ */
++export default async function main(args = process.argv.slice(2)) {
++  const [first, ...rest] = args;
++  const cmd = first || "start";
++
++  // Validate command
++  const subcommandSchema = z.enum(["start", "diagnostics", "serve"]);
++  const parsed = subcommandSchema.safeParse(cmd);
++  if (!parsed.success) {
++    throw new Error(`Unrecognized command: ${cmd}`);
++  }
++  const command = parsed.data;
++
++  switch (command) {
++    case "start":
++      return startHandler(rest);
++    case "diagnostics":
++      return diagnosticsHandler();
++    case "serve":
++      return serveHandler();
++    default:
++      // Should never reach here
++      throw new Error(`Unrecognized command: ${cmd}`);
++  }
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 3498e6d8..aa13a292 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,73 +1,64 @@
+-import { describe, test, expect, vi, afterAll } from "vitest";
+-import http from "http";
+-import { main, start, diagnostics, serve } from "@src/lib/main.js";
++import { describe, test, expect } from 'vitest';
++import http from 'http';
++import main, { startHandler, diagnosticsHandler, serveHandler } from '../../src/lib/main.js';
+ 
+-describe("Main Module Import", () => {
+-  test("should export functions", () => {
+-    expect(main).toBeInstanceOf(Function);
+-    expect(start).toBeInstanceOf(Function);
+-    expect(diagnostics).toBeInstanceOf(Function);
+-    expect(serve).toBeInstanceOf(Function);
++describe('Main Module Import', () => {
++  test('should export functions', () => {
++    expect(typeof main).toBe('function');
++    expect(typeof startHandler).toBe('function');
++    expect(typeof diagnosticsHandler).toBe('function');
++    expect(typeof serveHandler).toBe('function');
+   });
+ });
+ 
+-describe("Start Handler", () => {
+-  test("default main should log empty args", async () => {
+-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    await main();
+-    expect(logSpy).toHaveBeenCalledWith("Run with: []");
+-    logSpy.mockRestore();
++describe('Start Handler', () => {
++  test('default main should log empty args', async () => {
++    const logs = [];
++    console.log = (msg) => logs.push(msg);
++    await main([]);
++    expect(logs[0]).toBe('Run with: []');
+   });
+ 
+-  test("main start with args should log args array", async () => {
+-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    await main(["start", "foo", "bar"]);
+-    expect(logSpy).toHaveBeenCalledWith("Run with: [\"foo\",\"bar\"]");
+-    logSpy.mockRestore();
++  test('main start with args should log args array', async () => {
++    const logs = [];
++    console.log = (msg) => logs.push(msg);
++    await main(['start', 'arg1', 'arg2']);
++    expect(logs[0]).toBe('Run with: ["arg1","arg2"]');
+   });
+ });
+ 
+-describe("Diagnostics Handler", () => {
+-  test("diagnostics should log version, platform, and memory usage", async () => {
+-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    await main(["diagnostics"]);
+-    const call = logSpy.mock.calls[0][0];
+-    expect(call).toMatch(/Node:\s*v\d+\.\d+\.\d+, Platform:\s*\w+, MemoryUsage: \{.*\}/);
+-    logSpy.mockRestore();
++describe('Diagnostics Handler', () => {
++  test('diagnostics should log version, platform, and memory usage', async () => {
++    const logs = [];
++    console.log = (msg) => logs.push(msg);
++    await main(['diagnostics']);
++    expect(logs[0]).toMatch(/Node: v\d+\.\d+\.\d+, Platform: \w+, MemoryUsage: \{.*\}/);
+   });
+ });
+ 
+-describe("Serve Handler", () => {
+-  let server;
+-  afterAll(() => {
+-    server && server.close();
+-  });
+-
+-  test("serve should return server listening on port 3000 and respond to /health", async () => {
+-    // Try direct serve
+-    server = serve();
+-    await new Promise((resolve) => server.once("listening", resolve));
++describe('Serve Handler', () => {
++  test('serve should return server listening on port 3000 and respond to /health', async () => {
++    const server = await main(['serve']);
+     const address = server.address();
+-    expect(address).toBeTruthy();
+-    const port = typeof address === "object" && address.port;
+-    expect(port).toBe(3000);
++    expect(address.port).toBe(3000);
+ 
+-    // Make HTTP request to /health
+-    const data = await new Promise((resolve, reject) => {
+-      http.get("http://localhost:3000/health", (res) => {
+-        let raw = "";
+-        res.on("data", (chunk) => (raw += chunk));
+-        res.on("end", () => resolve({ statusCode: res.statusCode, body: raw }));
+-      }).on("error", reject);
++    const response = await new Promise((resolve, reject) => {
++      http.get('http://127.0.0.1:3000/health', (res) => {
++        let data = '';
++        res.on('data', (chunk) => (data += chunk));
++        res.on('end', () => resolve({ statusCode: res.statusCode, data }));
++      }).on('error', reject);
+     });
+-    expect(data.statusCode).toBe(200);
+-    expect(JSON.parse(data.body)).toEqual({ status: "ok" });
++
++    expect(response.statusCode).toBe(200);
++    expect(response.data).toBe(JSON.stringify({ status: 'ok' }));
++
++    server.close();
+   });
+ });
+ 
+-describe("Invalid Command", () => {
+-  test("should throw on unrecognized command", async () => {
+-    const err = await expect(main(["invalid"])).rejects.toThrow("Unrecognized command: invalid");
+-    expect(err.message).toBe("Unrecognized command: invalid");
++describe('Invalid Command', () => {
++  test('should throw on unrecognized command', async () => {
++    await expect(main(['invalid'])).rejects.toThrow('Unrecognized command: invalid');
+   });
+ });
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":8663,"completion_tokens":5279,"total_tokens":13942,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3712,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
