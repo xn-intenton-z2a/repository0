@@ -1225,4 +1225,91 @@ LLM API Usage:
 {"prompt_tokens":8580,"completion_tokens":994,"total_tokens":9574,"prompt_tokens_details":{"cached_tokens":6400,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Maintain Feature at 2025-05-26T07:00:07.177Z
+
+Activity:
+
+Maintained feature GRAPH_STORAGE_MODULE with:
+
+Feature spec:
+
+# Graph Storage Module
+
+# Overview
+Introduce a dedicated graph storage module in src/lib/graph.js to encapsulate persistence operations for the knowledge graph, separating file I/O from CLI logic.
+
+# API
+- async loadGraph(filePath?: string): Promise<any[]>
+- saveGraph(records: any[], filePath?: string): void
+- async appendRecord(record: any, filePath?: string): Promise<void>
+
+# Behavior
+- loadGraph: Read project-root graph.json, return parsed array or empty array if file is missing or contains invalid JSON.
+- saveGraph: Serialize provided records array with 2-space indentation and write to graph.json.
+- appendRecord: Invoke loadGraph, append the given record, then call saveGraph with the updated array.
+
+# Implementation
+- Create src/lib/graph.js exporting the three functions using ESM syntax.
+- Use fileURLToPath and dirname to resolve default filePath to project root graph.json.
+- Use fs.readFileSync, fs.writeFileSync, JSON.parse, and JSON.stringify.
+- Ensure loadGraph catches and ignores read or parse errors, defaulting to an empty array.
+
+# Integration
+- In src/lib/main.js, replace inline --ingest fs logic with:
+  import { appendRecord } from "./graph.js";
+  await appendRecord(record);
+  console.log(...);
+  process.exit(0);
+
+# Tests
+- Add tests in tests/unit/graph.test.js mocking fs to verify:
+  - loadGraph returns empty array on missing or invalid file, returns parsed array on valid JSON.
+  - saveGraph writes correct JSON string with 2-space indentation to correct path.
+  - appendRecord calls loadGraph and saveGraph with updated data.
+- Update tests/unit/main.test.js to stub appendRecord, verify it is called with the normalized record, console.log output, and process.exit(0).
+
+
+Git diff:
+```diff
+\n\n// New [features/GRAPH_STORAGE_MODULE.md]:\n# Graph Storage Module
+
+# Overview
+Introduce a dedicated graph storage module in src/lib/graph.js to encapsulate persistence operations for the knowledge graph, separating file I/O from CLI logic.
+
+# API
+- async loadGraph(filePath?: string): Promise<any[]>
+- saveGraph(records: any[], filePath?: string): void
+- async appendRecord(record: any, filePath?: string): Promise<void>
+
+# Behavior
+- loadGraph: Read project-root graph.json, return parsed array or empty array if file is missing or contains invalid JSON.
+- saveGraph: Serialize provided records array with 2-space indentation and write to graph.json.
+- appendRecord: Invoke loadGraph, append the given record, then call saveGraph with the updated array.
+
+# Implementation
+- Create src/lib/graph.js exporting the three functions using ESM syntax.
+- Use fileURLToPath and dirname to resolve default filePath to project root graph.json.
+- Use fs.readFileSync, fs.writeFileSync, JSON.parse, and JSON.stringify.
+- Ensure loadGraph catches and ignores read or parse errors, defaulting to an empty array.
+
+# Integration
+- In src/lib/main.js, replace inline --ingest fs logic with:
+  import { appendRecord } from "./graph.js";
+  await appendRecord(record);
+  console.log(...);
+  process.exit(0);
+
+# Tests
+- Add tests in tests/unit/graph.test.js mocking fs to verify:
+  - loadGraph returns empty array on missing or invalid file, returns parsed array on valid JSON.
+  - saveGraph writes correct JSON string with 2-space indentation to correct path.
+  - appendRecord calls loadGraph and saveGraph with updated data.
+- Update tests/unit/main.test.js to stub appendRecord, verify it is called with the normalized record, console.log output, and process.exit(0).
+```
+
+LLM API Usage:
+```json
+{"prompt_tokens":20715,"completion_tokens":1658,"total_tokens":22373,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1216,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
