@@ -3609,3 +3609,80 @@ with message: "Branch 'agentic-lib-issue-2275' deleted."
 with outcome "success".
 
 ---
+## Issue to Ready Issue at 2025-05-26T17:40:03.016Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2275 with action close and updated description:
+
+# Summary
+
+To further our mission of building a knowledge graph by crawling public data sources, introduce a new CLI flag `--ingest-all <url>` to fetch a JSON array of records, normalize each one, and append them all to `graph.json` in a single batch. This enables bulk ingestion from any public API endpoint that returns an array of items.
+
+# Changes Required
+
+1. **src/lib/main.js**
+   - Inside the `main` function, before or after the existing `--ingest` block, add handling for:
+     ```js
+     if (args[0] === "--ingest-all" && args[1]) {
+       const url = args[1];
+       const rawArray = await fetchData(url);
+       if (!Array.isArray(rawArray)) {
+         console.error("Error: --ingest-all endpoint did not return an array");
+         process.exit(1);
+       }
+       const records = rawArray.map(normalizeRecord);
+       // Append all records in one operation:
+       await appendRecord(records); // extend appendRecord to accept array
+       console.log(`Ingested ${records.length} records from ${url}`);
+       process.exit(0);
+     }
+     ```
+   - Update or overload `appendRecord` in `src/lib/graph.js` to accept either a single record or an array of records (batch) and save accordingly.
+   - Ensure existing flags (`--help`, `--version`, `--mission`, `--ingest`) and default behavior remain unchanged.
+
+2. **tests/unit/main.test.js**
+   - Add a new `describe("Batch Ingest Command", ...)` suite with tests that:
+     - Stub global `fetch` to return an array of raw objects (e.g., `[{ id: 1, foo: "a" }, { id: 2, foo: "b" }]`).
+     - Spy on `appendRecord` (or a new `appendRecords`) to capture the passed array.
+     - Spy on `console.log` and mock `process.exit` to throw.
+     - Call `await main(["--ingest-all", "https://example.com/data"]);` and assert:
+       - `appendRecord` was called with the full normalized array.
+       - `console.log` was called with `Ingested 2 records from https://example.com/data`.
+       - `process.exit(0)` was invoked.
+   - Test the error path where `fetchData` returns non-array (e.g., an object): expect exit code 1 and error message.
+
+3. **docs/USAGE.md** and **README.md**
+   - Under **Command Syntax**, extend usage:
+     ```text
+     Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
+     ```
+   - Under **Options**, add:
+     ```text
+     --ingest-all <url>   Fetch an array of records from URL, normalize each, and append all to graph.json
+     ```
+   - Under **Examples**, add:
+     ```bash
+     # Batch ingest multiple records
+     npm run start -- --ingest-all https://jsonplaceholder.typicode.com/posts
+     # Output: Ingested 100 records from https://jsonplaceholder.typicode.com/posts
+     ```
+
+# Verification
+
+1. Run `npm test` to ensure all existing tests and the new batch ingest tests pass.
+2. Manual smoke test:
+   ```bash
+   node src/lib/main.js --ingest-all https://jsonplaceholder.typicode.com/posts
+   ```
+   - Verify `graph.json` contains all fetched records.
+   - Confirm console output and exit code `0`.
+
+_No other files should be created or deleted. Update only **src/lib/main.js**, **src/lib/graph.js**, **tests/unit/main.test.js**, **docs/USAGE.md**, and **README.md_.
+
+LLM API Usage:
+```json
+{"prompt_tokens":12001,"completion_tokens":1389,"total_tokens":13390,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
