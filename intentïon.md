@@ -1389,4 +1389,95 @@ LLM API Usage:
 {"prompt_tokens":22648,"completion_tokens":2033,"total_tokens":24681,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T08:34:10.068Z
+
+Activity:
+
+fixApplied: true with message Align documentation with mission statement
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index a8e4c99b..4e376754 100644
+--- a/README.md
++++ b/README.md
+@@ -3,15 +3,18 @@
+ The repository is intended as a template that includes:
+ * A Template Base: A starting point for new projects.
+ * A Running Experiment: An example implementation that demonstrates one way to use the template.
+-* Workflows from `agentic‑lib` which reference reusable workflows.
++* Workflows from `agentic-lib` which reference reusable workflows.
++
++## Mission
++Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+ 
+ ## Overview
+-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
++`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+ 
+ ## What’s Inside
+ 
+ - **GitHub Workflows:**  
+-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
++  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic-lib`.
+ 
+ - **Source Code:**  
+   The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
+@@ -115,4 +118,4 @@ The following files are also taken into consideration but may also be changed (e
+ - `tests/unit/main.test.js`
+ 
+ ## Final Notes
+-`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
++`repository0` demonstrates intentïon `agentic-lib` workflows for you to run with your own projects.
+diff --git a/features/CLI_FLAGS.md b/features/CLI_FLAGS.md
+index 081a5f72..7acc1070 100644
+--- a/features/CLI_FLAGS.md
++++ b/features/CLI_FLAGS.md
+@@ -1,5 +1,8 @@
+ # CLI Flags Support
+ 
++# Mission Alignment
++This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [Mission statement](../MISSION.md).
++
+ # Overview
+ Enhance the main script to accept and process standard CLI flags such as --help, --version, and the new --ingest flag for data ingestion and persistence, without external dependencies.
+ 
+@@ -22,4 +25,4 @@ Enhance the main script to accept and process standard CLI flags such as --help,
+   - Mock fs.readFileSync to simulate absent or existing graph.json and spy on fs.writeFileSync.
+   - Spy on console.log and mock process.exit to throw, verifying exit code.
+   - Assert writeFileSync was called with correct file path, JSON content matching array of normalized record, and utf8 encoding; assert log and exit call for ingestion.
+-- Ensure existing tests for help, version, and default behavior continue to pass.
+\ No newline at end of file
++- Ensure existing tests for help, version, and default behavior continue to pass.
+diff --git a/features/GRAPH_STORAGE_MODULE.md b/features/GRAPH_STORAGE_MODULE.md
+index 42a08741..cc70b058 100644
+--- a/features/GRAPH_STORAGE_MODULE.md
++++ b/features/GRAPH_STORAGE_MODULE.md
+@@ -1,5 +1,8 @@
+ # Graph Storage Module
+ 
++# Mission Alignment
++This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [Mission statement](../MISSION.md).
++
+ # Overview
+ Introduce a dedicated graph storage module in src/lib/graph.js to encapsulate persistence operations for the knowledge graph, separating file I/O from CLI logic.
+ 
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2266 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":25948,"completion_tokens":6147,"total_tokens":32095,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3456,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
