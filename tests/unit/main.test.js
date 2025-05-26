@@ -1,73 +1,64 @@
-import { describe, test, expect, vi, afterAll } from "vitest";
-import http from "http";
-import { main, start, diagnostics, serve } from "@src/lib/main.js";
+import { describe, test, expect } from 'vitest';
+import http from 'http';
+import main, { startHandler, diagnosticsHandler, serveHandler } from '../../src/lib/main.js';
 
-describe("Main Module Import", () => {
-  test("should export functions", () => {
-    expect(main).toBeInstanceOf(Function);
-    expect(start).toBeInstanceOf(Function);
-    expect(diagnostics).toBeInstanceOf(Function);
-    expect(serve).toBeInstanceOf(Function);
+describe('Main Module Import', () => {
+  test('should export functions', () => {
+    expect(typeof main).toBe('function');
+    expect(typeof startHandler).toBe('function');
+    expect(typeof diagnosticsHandler).toBe('function');
+    expect(typeof serveHandler).toBe('function');
   });
 });
 
-describe("Start Handler", () => {
-  test("default main should log empty args", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main();
-    expect(logSpy).toHaveBeenCalledWith("Run with: []");
-    logSpy.mockRestore();
+describe('Start Handler', () => {
+  test('default main should log empty args', async () => {
+    const logs = [];
+    console.log = (msg) => logs.push(msg);
+    await main([]);
+    expect(logs[0]).toBe('Run with: []');
   });
 
-  test("main start with args should log args array", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["start", "foo", "bar"]);
-    expect(logSpy).toHaveBeenCalledWith("Run with: [\"foo\",\"bar\"]");
-    logSpy.mockRestore();
-  });
-});
-
-describe("Diagnostics Handler", () => {
-  test("diagnostics should log version, platform, and memory usage", async () => {
-    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-    await main(["diagnostics"]);
-    const call = logSpy.mock.calls[0][0];
-    expect(call).toMatch(/Node:\s*v\d+\.\d+\.\d+, Platform:\s*\w+, MemoryUsage: \{.*\}/);
-    logSpy.mockRestore();
+  test('main start with args should log args array', async () => {
+    const logs = [];
+    console.log = (msg) => logs.push(msg);
+    await main(['start', 'arg1', 'arg2']);
+    expect(logs[0]).toBe('Run with: ["arg1","arg2"]');
   });
 });
 
-describe("Serve Handler", () => {
-  let server;
-  afterAll(() => {
-    server && server.close();
+describe('Diagnostics Handler', () => {
+  test('diagnostics should log version, platform, and memory usage', async () => {
+    const logs = [];
+    console.log = (msg) => logs.push(msg);
+    await main(['diagnostics']);
+    expect(logs[0]).toMatch(/Node: v\d+\.\d+\.\d+, Platform: \w+, MemoryUsage: \{.*\}/);
   });
+});
 
-  test("serve should return server listening on port 3000 and respond to /health", async () => {
-    // Try direct serve
-    server = serve();
-    await new Promise((resolve) => server.once("listening", resolve));
+describe('Serve Handler', () => {
+  test('serve should return server listening on port 3000 and respond to /health', async () => {
+    const server = await main(['serve']);
     const address = server.address();
-    expect(address).toBeTruthy();
-    const port = typeof address === "object" && address.port;
-    expect(port).toBe(3000);
+    expect(address.port).toBe(3000);
 
-    // Make HTTP request to /health
-    const data = await new Promise((resolve, reject) => {
-      http.get("http://localhost:3000/health", (res) => {
-        let raw = "";
-        res.on("data", (chunk) => (raw += chunk));
-        res.on("end", () => resolve({ statusCode: res.statusCode, body: raw }));
-      }).on("error", reject);
+    const response = await new Promise((resolve, reject) => {
+      http.get('http://127.0.0.1:3000/health', (res) => {
+        let data = '';
+        res.on('data', (chunk) => (data += chunk));
+        res.on('end', () => resolve({ statusCode: res.statusCode, data }));
+      }).on('error', reject);
     });
-    expect(data.statusCode).toBe(200);
-    expect(JSON.parse(data.body)).toEqual({ status: "ok" });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.data).toBe(JSON.stringify({ status: 'ok' }));
+
+    server.close();
   });
 });
 
-describe("Invalid Command", () => {
-  test("should throw on unrecognized command", async () => {
-    const err = await expect(main(["invalid"])).rejects.toThrow("Unrecognized command: invalid");
-    expect(err.message).toBe("Unrecognized command: invalid");
+describe('Invalid Command', () => {
+  test('should throw on unrecognized command', async () => {
+    await expect(main(['invalid'])).rejects.toThrow('Unrecognized command: invalid');
   });
 });
