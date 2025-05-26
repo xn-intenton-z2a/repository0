@@ -1,5 +1,8 @@
 # Graph Storage Module
 
+# Mission Alignment
+This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [Mission statement](../MISSION.md).
+
 # Overview
 Introduce a dedicated graph storage module in src/lib/graph.js to encapsulate persistence operations for the knowledge graph, separating file I/O from CLI logic.
 
