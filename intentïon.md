@@ -1332,3 +1332,61 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-26T08:28:13.756Z
+
+Activity:
+
+Generated issue 2266 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2266
+
+title:
+
+Align Feature Specifications and Documentation with Mission Statement
+
+And description:
+
+# Description
+
+Currently, our feature specification files do not explicitly link back to the core mission of this repository: **"Build a knowledge graph of the physical world by crawling public data sources."** To make the purpose of each feature clearer and to ensure ongoing development remains aligned with the mission, we should update our documentation accordingly.
+
+## Changes Required
+
+1. **MISSION.md**
+   - Expand the mission statement to a single clear sentence at the top:  
+     > Build a knowledge graph of the physical world by crawling public data sources.
+
+2. **features/CLI_FLAGS.md** and **features/GRAPH_STORAGE_MODULE.md**
+   - Add a new **Mission Alignment** section immediately after the Overview header, for example:
+     ```markdown
+     # Mission Alignment
+     This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+   - Ensure the mission sentence matches exactly the one in `MISSION.md` and links to it:  
+     ```markdown
+     [Mission statement](../MISSION.md)
+     ```
+
+3. **README.md**
+   - In the **Overview** or **What’s Inside** section, insert a concise mission summary with a link to `MISSION.md`:
+     ```markdown
+     ## Mission
+     Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+     ```
+
+4. **Hyperlinks & Consistency**
+   - Verify all references are valid relative paths.
+   - Confirm that the same mission sentence is used verbatim in all places.
+
+## Verification
+
+- Review `MISSION.md` to confirm the mission is stated as a single clear sentence.
+- Open `features/CLI_FLAGS.md` and `features/GRAPH_STORAGE_MODULE.md` to confirm the new **Mission Alignment** section is present and links correctly.
+- Open `README.md` to confirm the **Mission** section is present and links to `MISSION.md`.
+
+_No code changes or tests are required. This is purely a documentation alignment task._
+
+LLM API Usage:
+```json
+{"prompt_tokens":22648,"completion_tokens":2033,"total_tokens":24681,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
