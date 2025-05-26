@@ -4308,3 +4308,55 @@ with message: "PR #2279 is in an unexpected state: unstable."
 with outcome "success".
 
 ---
+
+## Feature to Issue at 2025-05-26T21:23:11.436Z
+
+Activity:
+
+Generated issue 2283 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2283
+
+title:
+
+Add Mission Alignment to Documentation Files
+
+And description:
+
+# Description
+
+Several documentation artifacts in the repository currently lack an explicit reference to the core mission: **Build a knowledge graph of the physical world by crawling public data sources.** To maintain clarity and ensure that every part of the user-facing docs ties back to our mission, we need to add a Mission Alignment section to each top-level doc.
+
+## Changes Required
+
+1. **docs/DATA_CRAWLER_MODULE.md**
+   - Immediately after the `# Data Crawler Module` heading, insert:
+     ```markdown
+     # Mission Alignment
+     This module supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+2. **docs/USAGE.md**
+   - Immediately after the `# Usage` heading, insert:
+     ```markdown
+     # Mission Alignment
+     This document supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+3. **README.md**
+   - Verify there is a `## Mission` section linking to `MISSION.md` and that it matches the exact mission sentence. If missing or out of sync, update it to:
+     ```markdown
+     ## Mission
+     Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+     ```
+
+## Verification
+
+- Open each file in a markdown preview and confirm the new **Mission Alignment** section appears verbatim and links correctly to `MISSION.md`.
+- Run formatting (`npm run formatting`) and linting (`npm run linting --fix`) to ensure no style violations are introduced.
+- No code or test changes should be necessary; CI should remain green after the doc updates.
+
+LLM API Usage:
+```json
+{"prompt_tokens":54754,"completion_tokens":1783,"total_tokens":56537,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1344,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
