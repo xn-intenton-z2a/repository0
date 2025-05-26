@@ -1543,3 +1543,282 @@ with message: "Branch 'agentic-lib-issue-2266' deleted."
 with outcome "success".
 
 ---
+## Issue to Code at 2025-05-26T10:28:11.047Z
+
+Activity:
+
+fixApplied: true with message Add graph storage module and integrate with CLI ingest command
+
+Git Diff:
+```diff
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index bb9d296a..ef162fc1 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -10,11 +10,11 @@ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+ 
+ ## Options
+ 
+---help     Show this help message and exit
++--help           Show this help message and exit
+ 
+---version  Print version number and exit
++--version        Print version number and exit
+ 
+---ingest <url>  Fetch and ingest a record from the specified URL and persist it to graph.json
++--ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
+ 
+ ## Examples
+ 
+@@ -22,9 +22,9 @@ Show help message:
+ ```
+ $ npm run start -- --help
+ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+---help     Show this help message and exit
+---version  Print version number and exit
+---ingest   Fetch and ingest a record from the specified URL
++--help           Show this help message and exit
++--version        Print version number and exit
++--ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
+ ```
+ 
+ Print version number:
+@@ -36,5 +36,5 @@ $ npm run start -- --version
+ Ingest a record:
+ ```
+ $ npm run start -- --ingest https://example.com/data
+-Ingested record 1
+-```
++Ingested record with id: 1
++```
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index b867b27c..99d5cd23 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
+ import { dirname, join } from "path";
+ import fs from "./fsWrapper.js";
+ import { fetchData, normalizeRecord } from "./crawler.js";
++import { appendRecord } from "./graph.js";
+ 
+ /**
+  * Main entrypoint for CLI.
+@@ -16,7 +17,7 @@ export function main(args = process.argv.slice(2)) {
+     console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
+     console.log("--help     Show this help message and exit");
+     console.log("--version  Print version number and exit");
+-    console.log("--ingest   Fetch and ingest a record from the specified URL");
++    console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
+     process.exit(0);
+   }
+ 
+@@ -37,28 +38,11 @@ export function main(args = process.argv.slice(2)) {
+       console.error("Error: --ingest requires a URL argument");
+       return;
+     }
+-    // Perform ingestion asynchronously
+     return (async () => {
+-      const __filename = fileURLToPath(import.meta.url);
+-      const __dirname = dirname(__filename);
+-      const projectRoot = join(__dirname, "..", "..");
+-      const graphPath = join(projectRoot, "graph.json");
+-      let dataList = [];
+-      try {
+-        const content = fs.readFileSync(graphPath, "utf8");
+-        dataList = JSON.parse(content);
+-        if (!Array.isArray(dataList)) {
+-          dataList = [];
+-        }
+-      } catch (err) {
+-        dataList = [];
+-      }
+-
+       const raw = await fetchData(url);
+       const record = normalizeRecord(raw);
+-      dataList.push(record);
+-      fs.writeFileSync(graphPath, JSON.stringify(dataList, null, 2), "utf8");
+-      console.log(`Ingested record ${record.id}`);
++      await appendRecord(record);
++      console.log(`Ingested record with id: ${record.id}`);
+       process.exit(0);
+     })();
+   }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 774a34d8..b22561fc 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,7 +1,7 @@
+ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@src/lib/main.js";
+ import pkg from "../../package.json" assert { type: "json" };
+-import fs from "@src/lib/fsWrapper.js";
++import * as graphModule from "@src/lib/graph.js";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+@@ -40,7 +40,7 @@ describe("Main Output", () => {
+     );
+     expect(logSpy).toHaveBeenNthCalledWith(
+       4,
+-      "--ingest   Fetch and ingest a record from the specified URL"
++      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
+     );
+     expect(exitSpy).toHaveBeenCalledWith(0);
+     logSpy.mockRestore();
+@@ -87,11 +87,8 @@ describe("Ingest Command", () => {
+     vi.restoreAllMocks();
+   });
+ 
+-  test("should ingest record and exit with code 0", async () => {
+-    const readSpy = vi.spyOn(fs, "readFileSync").mockImplementation(() => {
+-      throw new Error("File not found");
+-    });
+-    const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
++  test("should ingest record via appendRecord and exit with code 0", async () => {
++    const appendSpy = vi.spyOn(graphModule, "appendRecord").mockResolvedValue();
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+     const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
+       throw new Error(`Process exit: ${code}`);
+@@ -100,18 +97,11 @@ describe("Ingest Command", () => {
+     await expect(main(["--ingest", url])).rejects.toThrow("Process exit: 0");
+ 
+     expect(fetch).toHaveBeenCalledWith(url);
+-    expect(readSpy).toHaveBeenCalled();
+-    expect(writeSpy).toHaveBeenCalled();
+-    const [path, content, encoding] = writeSpy.mock.calls[0];
+-    const saved = JSON.parse(content);
+-    expect(saved).toEqual([
+-      {
+-        id: "1",
+-        attributes: { name: "Alice", extra: "value" },
+-      },
+-    ]);
+-    expect(encoding).toBe("utf8");
+-    expect(logSpy).toHaveBeenCalledWith("Ingested record 1");
++    expect(appendSpy).toHaveBeenCalledWith({
++      id: "1",
++      attributes: { name: "Alice", extra: "value" },
++    });
++    expect(logSpy).toHaveBeenCalledWith("Ingested record with id: 1");
+     expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+-});
++});
+\ No newline at end of file\n\n// New [src/lib/graph.js]:\nimport { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import fs from "./fsWrapper.js";
+
+/**
+ * Load the graph JSON file and return an array of records.
+ * @param {string} [filePath] - Optional path to graph.json.
+ * @returns {Promise<any[]>} The array of records.
+ */
+export async function loadGraph(filePath) {
+  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
+  const path = filePath || defaultPath;
+  try {
+    const content = fs.readFileSync(path, "utf8");
+    const data = JSON.parse(content);
+    if (Array.isArray(data)) {
+      return data;
+    }
+  } catch {
+    // ignore errors
+  }
+  return [];
+}
+
+/**
+ * Save an array of records to the graph JSON file.
+ * @param {any[]} records - The array of records to save.
+ * @param {string} [filePath] - Optional path to graph.json.
+ */
+export function saveGraph(records, filePath) {
+  const defaultPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "graph.json");
+  const path = filePath || defaultPath;
+  fs.writeFileSync(path, JSON.stringify(records, null, 2), "utf8");
+}
+
+/**
+ * Append a record to the graph, loading existing records and saving the updated array.
+ * @param {any} record - The record to append.
+ * @param {string} [filePath] - Optional path to graph.json.
+ */
+export async function appendRecord(record, filePath) {
+  const records = await loadGraph(filePath);
+  records.push(record);
+  saveGraph(records, filePath);
+}\n\n// New [tests/unit/graph.test.js]:\nimport { describe, test, expect, vi, afterEach } from "vitest";
+import fs from "@src/lib/fsWrapper.js";
+import { loadGraph, saveGraph, appendRecord } from "@src/lib/graph.js";
+
+describe("Graph Storage Module", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("loadGraph returns empty array when file is missing", async () => {
+    vi.spyOn(fs, "readFileSync").mockImplementation(() => {
+      throw new Error("File not found");
+    });
+    const data = await loadGraph();
+    expect(data).toEqual([]);
+  });
+
+  test("loadGraph returns empty array when JSON is invalid", async () => {
+    vi.spyOn(fs, "readFileSync").mockReturnValue("invalid json");
+    const data = await loadGraph();
+    expect(data).toEqual([]);
+  });
+
+  test("loadGraph returns parsed array when JSON is valid", async () => {
+    const arr = [{ foo: "bar" }];
+    vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(arr));
+    const data = await loadGraph();
+    expect(data).toEqual(arr);
+  });
+
+  test("saveGraph writes JSON file with 2-space indentation", () => {
+    const records = [{ id: "1", attributes: { foo: "bar" } }];
+    const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+    saveGraph(records);
+    expect(writeSpy).toHaveBeenCalledTimes(1);
+    const [path, content, encoding] = writeSpy.mock.calls[0];
+    expect(content).toBe(JSON.stringify(records, null, 2));
+    expect(encoding).toBe("utf8");
+  });
+
+  test("appendRecord loads, appends, and saves new record", async () => {
+    const existing = [{ id: "1", attributes: { foo: "bar" } }];
+    vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(existing));
+    const saveSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+    const newRecord = { id: "2", attributes: { baz: "qux" } };
+    await appendRecord(newRecord);
+    const expected = [...existing, newRecord];
+    expect(saveSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      JSON.stringify(expected, null, 2),
+      "utf8"
+    );
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2265 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":30943,"completion_tokens":8775,"total_tokens":39718,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":5504,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
