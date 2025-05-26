@@ -4261,3 +4261,39 @@ with message: "PR #2279 is in an unexpected state: unstable."
 with outcome "success".
 
 ---
+
+## Issue to Ready Issue at 2025-05-26T20:39:15.752Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2281 with action enhance and updated description:
+
+# Description
+
+The top-level README currently outlines the repository's purpose and features, but it is missing concrete **CLI Usage** examples that demonstrate how each supported flag contributes to our mission: **Build a knowledge graph of the physical world by crawling public data sources**. Adding this section will help new contributors and users quickly understand and verify the CLI capabilities in practice.
+
+## Proposed Changes
+
+1. **Add a `## CLI Usage` section** below **Getting Started** in `README.md`.
+2. **List each supported flag** (`--help`, `--version`, `--mission`, `--ingest <url>`, `--ingest-all <url>`) with:
+   - A brief description of its purpose.
+   - A code block showing the example command and its **expected output**.
+3. **Align each example** with the mission by explaining how it supports building, inspecting, or persisting the knowledge graph.
+4. **Optional:** Merge or replace any existing "Running the Demo" section with these updated examples.
+
+## Acceptance Criteria
+
+- [ ] `README.md` contains a `## CLI Usage` heading at the correct location.
+- [ ] Each CLI flag has at least one example command in a fenced code block.
+- [ ] The output shown in each example matches the actual output produced by running the command locally.
+- [ ] Each example includes a one-sentence note tying it back to the mission (e.g., fetching data, persisting records, inspecting graph state).
+- [ ] Manual smoke tests have been executed for all examples to confirm correctness.
+
+_No code changes or tests are required for this documentation update._
+
+LLM API Usage:
+```json
+{"prompt_tokens":11812,"completion_tokens":852,"total_tokens":12664,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
