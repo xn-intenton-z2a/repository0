@@ -73,3 +73,43 @@ On timer: Automerge (code merged)
 
 On timer: Review Issue (issue reviewed and closed)
 ```
+
+### CLI Usage
+
+Our CLI supports the following commands, aligned with the mission to build a knowledge graph of the physical world by crawling public data sources:
+
+- `--help`
+  - Show available flags and exit.
+  ```bash
+  $ npm run start -- --help
+  Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>] [--ingest-all <url>]
+  --help           Show this help message and exit
+  --version        Print version number and exit
+  --mission        Print repository mission statement and exit
+  --ingest <url>   Fetch and ingest a record and persist to graph.json
+  --ingest-all <url>  Batch ingest multiple records from URL and persist to graph.json
+  ```
+
+- `--version`
+  ```bash
+  $ npm run start -- --version
+  1.2.0-0
+  ```
+
+- `--mission`
+  ```bash
+  $ npm run start -- --mission
+  Build a knowledge graph of the physical world by crawling public data sources.
+  ```
+
+- `--ingest <url>`
+  ```bash
+  $ npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
+  Ingested record with id: 1
+  ```
+
+- `--ingest-all <url>`
+  ```bash
+  $ npm run start -- --ingest-all https://jsonplaceholder.typicode.com/posts
+  Ingested 100 records from https://jsonplaceholder.typicode.com/posts
+  ```
