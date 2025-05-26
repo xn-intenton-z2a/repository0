@@ -419,4 +419,123 @@ LLM API Usage:
 {"prompt_tokens":10067,"completion_tokens":2328,"total_tokens":12395,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1856,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T03:40:38.769Z
+
+Activity:
+
+fixApplied: true with message Add core crawler module with fetchData and normalizeRecord including tests and documentation
+
+Git Diff:
+```diff
+\n\n// New [docs/DATA_CRAWLER_MODULE.md]:\n# Data Crawler Module
+
+This module provides functions to fetch and normalize records from public data sources.
+
+## API
+
+### fetchData(source: string): Promise<any>
+
+Fetch JSON data from the specified URL. Throws an error if the response status is not in the 200-299 range.
+
+### normalizeRecord(record: any): { id: string; attributes: any }
+
+Normalize a raw record into a standardized format with an `id` string and `attributes` object.
+
+## Usage
+
+```js
+import { fetchData, normalizeRecord } from 'src/lib/crawler.js';
+
+async function run() {
+  const raw = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  const node = normalizeRecord(raw);
+  console.log(node);
+}
+
+run();
+```
+
+## Error Handling
+
+If `fetchData` encounters a non-2xx response, it throws an error including the status code and URL.\n\n// New [src/lib/crawler.js]:\n/**
+ * Fetch JSON data from a given source URL.
+ * @param {string} source - The URL to fetch data from.
+ * @returns {Promise<any>} The JSON-parsed response body.
+ * @throws {Error} When the response status is not 2xx.
+ */
+export async function fetchData(source) {
+  const response = await fetch(source);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch data from ${source}: ${response.status}`);
+  }
+  return response.json();
+}
+
+/**
+ * Normalize a raw record into an object with id and attributes.
+ * @param {any} record - The raw record object.
+ * @returns {{ id: string; attributes: any }} The normalized record.
+ */
+export function normalizeRecord(record) {
+  const { id, ...attributes } = record;
+  return {
+    id: String(id),
+    attributes,
+  };
+}\n\n// New [tests/unit/crawler.test.js]:\nimport { describe, test, expect, vi, afterEach } from "vitest";
+import { fetchData, normalizeRecord } from "@src/lib/crawler.js";
+
+describe("Crawler Module", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("fetchData returns JSON when response is ok", async () => {
+    const mockJson = { foo: "bar" };
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockJson,
+    }));
+    const data = await fetchData("https://example.com/data");
+    expect(data).toEqual(mockJson);
+    expect(fetch).toHaveBeenCalledWith("https://example.com/data");
+  });
+
+  test("fetchData throws an error when response is not ok", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: false,
+      status: 404,
+    }));
+    await expect(fetchData("https://example.com/missing")).rejects.toThrow(
+      "Failed to fetch data from https://example.com/missing: 404"
+    );
+  });
+
+  test("normalizeRecord transforms record into {id, attributes}", () => {
+    const raw = { id: 123, name: "Alice", extra: "value" };
+    const normalized = normalizeRecord(raw);
+    expect(normalized).toEqual({
+      id: "123",
+      attributes: { name: "Alice", extra: "value" },
+    });
+  });
+});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2260 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":13405,"completion_tokens":4758,"total_tokens":18163,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3648,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
