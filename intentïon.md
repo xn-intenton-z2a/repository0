@@ -2377,4 +2377,59 @@ LLM API Usage:
 {"prompt_tokens":10518,"completion_tokens":1083,"total_tokens":11601,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Feature to Issue at 2025-05-26T13:26:04.101Z
+
+Activity:
+
+Generated issue 2271 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2271
+
+title:
+
+Add Mission Alignment Sections to Feature Specifications
+
+And description:
+
+# Description
+
+Our feature specification files should explicitly reference the repository’s core mission—"Build a knowledge graph of the physical world by crawling public data sources." This will help contributors understand how each feature supports our overall goal.
+
+## Changes Required
+
+1. **MISSION.md**
+   - Ensure the file begins with the single sentence:
+     > Build a knowledge graph of the physical world by crawling public data sources.
+
+2. **features/CLI_FLAGS.md**
+   - Immediately after the `# Overview` header, insert a new section:
+     ```markdown
+     # Mission Alignment
+     This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+3. **features/GRAPH_STORAGE_MODULE.md**
+   - Immediately after the `# Overview` header, insert a matching section:
+     ```markdown
+     # Mission Alignment
+     This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+4. **README.md**
+   - Under the top-level headings (just below the introduction), add:
+     ```markdown
+     ## Mission
+     Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+     ```
+
+## Verification
+
+1. Open `MISSION.md` to confirm the mission is stated as a single clear sentence.
+2. View each feature spec under `features/` to verify the new **Mission Alignment** section appears and links correctly.
+3. Preview the `README.md` to ensure the **Mission** section is present and correctly linked.
+4. Run any formatting or linting checks (e.g., `npm run formatting` / `npm run linting`) to ensure markdown style is preserved.
+
+LLM API Usage:
+```json
+{"prompt_tokens":34173,"completion_tokens":3272,"total_tokens":37445,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2816,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
