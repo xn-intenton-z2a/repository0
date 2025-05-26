@@ -1962,4 +1962,204 @@ LLM API Usage:
 {"prompt_tokens":29184,"completion_tokens":1859,"total_tokens":31043,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1280,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T11:26:16.481Z
+
+Activity:
+
+fixApplied: true with message Add --mission CLI flag to display mission statement
+
+Git Diff:
+```diff
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index ef162fc1..7bc1ca81 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -5,7 +5,7 @@ This document describes how to use the CLI flags supported by the main script.
+ ## Command Syntax
+ 
+ ```
+-Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
++Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]
+ ```
+ 
+ ## Options
+@@ -14,6 +14,8 @@ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+ 
+ --version        Print version number and exit
+ 
++--mission        Print repository mission statement and exit
++
+ --ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
+ 
+ ## Examples
+@@ -21,9 +23,10 @@ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+ Show help message:
+ ```
+ $ npm run start -- --help
+-Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
++Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]
+ --help           Show this help message and exit
+ --version        Print version number and exit
++--mission        Print repository mission statement and exit
+ --ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
+ ```
+ 
+@@ -33,8 +36,14 @@ $ npm run start -- --version
+ 1.2.0-0
+ ```
+ 
++Print mission statement:
++```
++$ npm run start -- --mission
++Build a knowledge graph of the physical world by crawling public data sources.
++```
++
+ Ingest a record:
+ ```
+ $ npm run start -- --ingest https://example.com/data
+ Ingested record with id: 1
+-```
+\ No newline at end of file
++```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 99d5cd23..51dc5306 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -12,11 +12,30 @@ import { appendRecord } from "./graph.js";
+  * @param {string[]} [args] - Arguments to process (defaults to process.argv.slice(2)).
+  */
+ export function main(args = process.argv.slice(2)) {
++  // Mission flag
++  if (args.includes("--mission")) {
++    const __filename = fileURLToPath(import.meta.url);
++    const __dirname = dirname(__filename);
++    const missionPath = join(__dirname, "..", "..", "MISSION.md");
++    let mission = "";
++    try {
++      const content = fs.readFileSync(missionPath, "utf8");
++      // Take the first non-empty line after potential headings
++      const lines = content.split(/\r?\n/).map(l => l.trim()).filter(l => l && !l.startsWith('#'));
++      mission = lines.length ? lines[0] : content.trim();
++    } catch (err) {
++      mission = "Build a knowledge graph of the physical world by crawling public data sources.";
++    }
++    console.log(mission);
++    process.exit(0);
++  }
++
+   // Help flag
+   if (args.includes("--help")) {
+-    console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
++    console.log("Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]");
+     console.log("--help     Show this help message and exit");
+     console.log("--version  Print version number and exit");
++    console.log("--mission  Print repository mission statement and exit");
+     console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
+     process.exit(0);
+   }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index b22561fc..790406f4 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import { main } from "@src/lib/main.js";
+ import pkg from "../../package.json" assert { type: "json" };
+ import * as graphModule from "@src/lib/graph.js";
++import fs from "@src/lib/fsWrapper.js";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+@@ -15,33 +16,36 @@ describe("Main Output", () => {
+     main();
+   });
+ 
++  test("should display mission and exit with code 0", () => {
++    const missionContent = "# Mission\nBuild a knowledge graph of the physical world by crawling public data sources.\n";
++    vi.spyOn(fs, "readFileSync").mockReturnValue(missionContent);
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("Process exit"); });
++    try {
++      main(["--mission"]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit");
++    }
++    expect(logSpy).toHaveBeenCalledWith("Build a knowledge graph of the physical world by crawling public data sources.");
++    expect(exitSpy).toHaveBeenCalledWith(0);
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
+   test("should display help and exit with code 0", () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+-      throw new Error("Process exit");
+-    });
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("Process exit"); });
+     try {
+       main(["--help"]);
+     } catch (err) {
+       expect(err.message).toBe("Process exit");
+     }
+-    expect(logSpy).toHaveBeenCalledTimes(4);
+-    expect(logSpy).toHaveBeenNthCalledWith(
+-      1,
+-      "Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]"
+-    );
+-    expect(logSpy).toHaveBeenNthCalledWith(
+-      2,
+-      "--help     Show this help message and exit"
+-    );
+-    expect(logSpy).toHaveBeenNthCalledWith(
+-      3,
+-      "--version  Print version number and exit"
+-    );
+-    expect(logSpy).toHaveBeenNthCalledWith(
+-      4,
+-      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
+-    );
++    expect(logSpy).toHaveBeenCalledTimes(5);
++    expect(logSpy).toHaveBeenNthCalledWith(1, "Usage: node src/lib/main.js [--help] [--version] [--mission] [--ingest <url>]");
++    expect(logSpy).toHaveBeenNthCalledWith(2, "--help     Show this help message and exit");
++    expect(logSpy).toHaveBeenNthCalledWith(3, "--version  Print version number and exit");
++    expect(logSpy).toHaveBeenNthCalledWith(4, "--mission  Print repository mission statement and exit");
++    expect(logSpy).toHaveBeenNthCalledWith(5, "--ingest <url>  Fetch and ingest a record and persist to graph.json");
+     expect(exitSpy).toHaveBeenCalledWith(0);
+     logSpy.mockRestore();
+     exitSpy.mockRestore();
+@@ -49,9 +53,7 @@ describe("Main Output", () => {
+ 
+   test("should display version and exit with code 0", () => {
+     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+-      throw new Error("Process exit");
+-    });
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => { throw new Error("Process exit"); });
+     try {
+       main(["--version"]);
+     } catch (err) {
+@@ -104,4 +106,4 @@ describe("Ingest Command", () => {
+     expect(logSpy).toHaveBeenCalledWith("Ingested record with id: 1");
+     expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+-});
+\ No newline at end of file
++});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+Run with: []
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2269 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":32654,"completion_tokens":2723,"total_tokens":35377,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
