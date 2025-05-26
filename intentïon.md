@@ -158,3 +158,226 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-26T22:35:48.130Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2285 with message Implement HELLO_WORLD CLI default diagnostics and serve modes with tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..ac9e13e4 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -2,11 +2,45 @@
+ // src/lib/main.js
+ 
+ import { fileURLToPath } from "url";
++import http from "http";
+ 
++/**
++ * Main entrypoint for CLI and programmatic usage.
++ * @param {string[]} args Command-line arguments
++ * @returns {import("http").Server|undefined} HTTP server instance in serve mode, otherwise undefined
++ */
+ export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const hasDiagnostics = args.includes("--diagnostics");
++  const hasServe = args.includes("--serve");
++  const remainingArgs = args.filter(
++    (arg) => arg !== "--diagnostics" && arg !== "--serve"
++  );
++
++  if (hasServe) {
++    const server = http.createServer((req, res) => {
++      if (req.method === "GET" && req.url === "/") {
++        res.statusCode = 200;
++        res.setHeader("Content-Type", "text/plain");
++        res.end("Hello World");
++      } else {
++        res.statusCode = 404;
++        res.end();
++      }
++    });
++    server.listen(3000);
++    return server;
++  }
++
++  console.log("Hello World");
++
++  if (hasDiagnostics) {
++    console.log(`Node version: ${process.version}`);
++    console.log(`Platform: ${process.platform}`);
++    console.log(`Args: ${JSON.stringify(remainingArgs)}`);
++  }
+ }
+ 
++// If invoked directly from the command line, run with process.argv
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   const args = process.argv.slice(2);
+   main(args);
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..e4f3c8d3 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,49 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
++import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
+ import { main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++describe("HELLO_WORLD CLI", () => {
++  let logSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    logSpy.mockRestore();
++  });
++
++  test("default mode prints Hello World", () => {
++    main([]);
++    expect(logSpy).toHaveBeenCalledTimes(1);
++    expect(logSpy).toHaveBeenCalledWith("Hello World");
++  });
++
++  test("diagnostics mode prints Hello World and diagnostics", () => {
++    const args = ["--diagnostics", "foo", "bar"];
++    main(args);
++    expect(logSpy).toHaveBeenCalledTimes(4);
++    expect(logSpy.mock.calls[0][0]).toBe("Hello World");
++    expect(logSpy.mock.calls[1][0]).toBe(`Node version: ${process.version}`);
++    expect(logSpy.mock.calls[2][0]).toBe(`Platform: ${process.platform}`);
++    expect(logSpy.mock.calls[3][0]).toBe(`Args: ${JSON.stringify(["foo","bar"])}`);
++  });
++
++  test("serve mode responds with Hello World", async () => {
++    const server = main(["--serve"]);
++    expect(server).toBeDefined();
++    await new Promise((resolve) => server.once("listening", resolve));
++
++    const res = await fetch("http://localhost:3000/");
++    const text = await res.text();
++
++    expect(res.status).toBe(200);
++    expect(text).toBe("Hello World");
++
++    server.close();
+   });
+-});
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++  test("programmatic invocation returns undefined for non-serve", () => {
++    const result = main(["foo"]);
++    expect(result).toBeUndefined();
+   });
+ });\n\n// New [docs/CLI.md]:\n# Hello World CLI
+
+The `repository0` command-line tool supports three modes: default, diagnostics, and serve.
+
+## Default Mode
+
+Usage:
+```bash
+npm run start
+# or
+node src/lib/main.js
+```
+
+Output:
+```
+Hello World
+```
+
+---
+
+## Diagnostics Mode
+
+Usage:
+```bash
+npm run diagnostics
+# or
+node src/lib/main.js --diagnostics [args...]
+```
+
+Example output:
+```
+Hello World
+Node version: vX.Y.Z
+Platform: <your-platform>
+Args: ["arg1","arg2"]
+```
+
+---
+
+## Serve Mode
+
+Usage:
+```bash
+npm run serve
+# or
+node src/lib/main.js --serve
+```
+
+This starts an HTTP server on port `3000`. Send an HTTP GET request to `/`:
+
+```bash
+curl http://localhost:3000/
+# Hello World
+```
+
+The server can be stopped programmatically by calling the returned server’s `close()` method.
+
+---
+
+## Programmatic Usage
+
+You can import and call `main(args)` directly in your application:
+
+```js
+import { main } from "./src/lib/main.js";
+
+// Start the server
+const server = main(["--serve"]);
+// ...
+// Stop the server when done
+server.close();
+```
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: success
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: true
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2285 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10307,"completion_tokens":4044,"total_tokens":14351,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2560,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
