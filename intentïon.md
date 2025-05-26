@@ -3952,3 +3952,57 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-26T19:22:41.216Z
+
+Activity:
+
+Generated issue 2278 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2278
+
+title:
+
+Add Mission Alignment Sections to Feature Specifications and README
+
+And description:
+
+# Description
+
+Several feature specification files currently lack explicit references to the repository’s mission: *Build a knowledge graph of the physical world by crawling public data sources.* To improve clarity and maintain alignment as the project grows, we need to add a **Mission Alignment** section to each feature spec and surface the mission in the README.
+
+## Changes Required
+
+1. **MISSION.md**
+   - Confirm the top-level mission is stated exactly:
+     ```markdown
+     # xn-intenton-z2a/repository0
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+
+2. **features/CLI_FLAGS.md**
+   - Immediately after the `# Overview` header, insert:
+     ```markdown
+     # Mission Alignment
+     This feature supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+3. **features/GRAPH_STORAGE_MODULE.md**
+   - Immediately after the `# Overview` header, insert the same **Mission Alignment** section with the exact mission sentence and link to `MISSION.md`.
+
+4. **README.md**
+   - Under the top-level heading (just below the introduction list), add a **Mission** block:
+     ```markdown
+     ## Mission
+     Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+     ```
+
+## Verification
+
+- Open `MISSION.md`, `features/CLI_FLAGS.md`, `features/GRAPH_STORAGE_MODULE.md`, and `README.md` in a Markdown preview to confirm the mission appears verbatim and links correctly.
+- Run `npm run linting --fix` or `npm run formatting` to ensure no formatting errors.
+- No code or tests should be impacted; CI should pass without changes to source or tests after applying documentation updates.
+
+LLM API Usage:
+```json
+{"prompt_tokens":51324,"completion_tokens":4621,"total_tokens":55945,"prompt_tokens_details":{"cached_tokens":39552,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4160,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
