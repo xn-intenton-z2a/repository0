@@ -4517,3 +4517,63 @@ LLM API Usage:
 ```
 ---
 
+
+## Feature to Issue at 2025-05-26T22:23:17.757Z
+
+Activity:
+
+Generated issue 2284 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2284
+
+title:
+
+Add Mission Alignment Sections to Documentation Files
+
+And description:
+
+# Description
+
+Our documentation currently lacks explicit references to the repository’s core mission: **“Build a knowledge graph of the physical world by crawling public data sources.”** We need to ensure that each top-level doc clarifies how it supports that mission so contributors can easily see the connection.
+
+## Changes Required
+
+1. **MISSION.md**
+   - Replace existing placeholder text so that the file contains exactly two lines:
+     ```markdown
+     # xn-intenton-z2a/repository0
+     Build a knowledge graph of the physical world by crawling public data sources.
+     ```
+   - No extra blank lines or comments.
+
+2. **docs/DATA_CRAWLER_MODULE.md**
+   - Immediately after the `# Data Crawler Module` heading, insert a **Mission Alignment** section:
+     ```markdown
+     # Mission Alignment
+     This module supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+3. **docs/USAGE.md**
+   - Immediately after the `# Usage` heading, insert:
+     ```markdown
+     # Mission Alignment
+     This document supports the mission: Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](../MISSION.md) for details.
+     ```
+
+4. **README.md**
+   - Confirm the existing `## Mission` section matches the exact mission sentence and links correctly to `MISSION.md`. If missing or mismatched, update it:
+     ```markdown
+     ## Mission
+     Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+     ```
+
+## Verification
+
+- Open each updated file in a Markdown preview to confirm the new sections appear verbatim and links resolve correctly.
+- Run `npm run formatting` and `npm run linting` to ensure no formatting or lint errors are introduced.
+- No tests or code changes should be necessary; CI must remain green after applying these documentation updates.
+
+LLM API Usage:
+```json
+{"prompt_tokens":56961,"completion_tokens":1069,"total_tokens":58030,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":576,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
