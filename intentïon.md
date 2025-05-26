@@ -68,4 +68,73 @@ LLM API Usage:
 {"prompt_tokens":6086,"completion_tokens":1601,"total_tokens":7687,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":960,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to enhanced Issue at 2025-05-26T03:00:10.258Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+# Description
+
+Enhance the main script (`src/lib/main.js`) to accept and process standard CLI flags according to the CLI_FLAGS specification:
+
+- **--help**: Display a concise usage message listing available flags, then exit cleanly with code `0`.
+- **--version**: Read and print the version number from `package.json`, then exit cleanly with code `0`.
+- **Default behavior**: When no known flags are provided, maintain existing behavior by logging the provided arguments.
+
+## Acceptance Criteria
+
+1. **Help flag**
+   - Invoking `node src/lib/main.js --help` prints a help message matching the approved format:
+     ```
+     Usage: node src/lib/main.js [--help] [--version]
+     --help     Show this help message and exit
+     --version  Print version number and exit
+     ```
+   - The process exits with code `0`.
+
+2. **Version flag**
+   - Invoking `node src/lib/main.js --version` prints exactly the version string from `package.json` (e.g., `1.2.0-0`).
+   - The process exits with code `0`.
+
+3. **Default invocation**
+   - Invoking `node src/lib/main.js foo bar` (or calling `main(["foo","bar"])`) prints exactly:
+     ```
+     Run with: ["foo","bar"]
+     ```
+   - The process does **not** exit early (exit code remains unchanged).
+
+4. **Testable API**
+   - `main(args?: string[])` defaults to `process.argv.slice(2)` when `args` is omitted.
+   - Unit tests use Vitest spies/mocks on `console.log` and stub `process.exit` to verify outputs and exit codes without terminating the test run.
+
+## Changes Required
+
+1. **src/lib/main.js**
+   - Update `main` to parse `args` for `--help` and `--version`.
+   - Implement help and version behavior with proper exit codes.
+   - Preserve logging for other inputs.
+
+2. **tests/unit/main.test.js**
+   - Add tests for `main(["--help"])` and `main(["--version"])`, verifying `console.log` calls and `process.exit(0)`.
+   - Ensure existing test for default behavior still passes.
+
+3. **README.md**
+   - Document new flags under "Running the Demo":
+     - Example: `npm run start -- --help` ➔ shows help message.
+     - Example: `npm run start -- --version` ➔ shows version number.
+
+## Verification
+
+1. Run `npm test` to confirm all unit tests (including new flag tests) pass.
+2. Manual smoke tests:
+   - `node src/lib/main.js --help` ➔ displays help, exit code `0`.
+   - `node src/lib/main.js --version` ➔ displays version, exit code `0`.
+   - `node src/lib/main.js foo bar` ➔ logs the arguments and does not exit early.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6201,"completion_tokens":1567,"total_tokens":7768,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
