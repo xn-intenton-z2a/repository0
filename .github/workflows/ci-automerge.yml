@@ -12,6 +12,12 @@ on:
   check_suite:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      workflow:
+        description: 'Was this workflow called by another workflow?, e.g. "true"'
+        type: string
+        required: false
+        default: 'true'
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
@@ -92,7 +98,7 @@ jobs:
           echo "Triggered by: workflow_dispatch"
 
   workflow-call-event:
-    if: github.event_name == 'workflow_call'
+    if: inputs.workflow == 'true' || github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -116,7 +122,7 @@ jobs:
 
   ls:
     needs: label
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || inputs.workflow == 'true' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
     runs-on: ubuntu-latest
     steps:
       - name: Determine pull request number
@@ -127,6 +133,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const branchPrefix = process.env.branchPrefix;
             const pullRequestLabel = process.env.pullRequestLabel;
             let pullNumber = ''
             let branchName = '';
@@ -140,11 +147,13 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const filteredPRs = pullRequests.filter(pr => pr.labels.some(label => label.name === pullRequestLabel ));
+              const filteredPRs = pullRequests
+                .filter(pr => pr.labels.some(label => label.name === pullRequestLabel ))
+                .filter(pr => pr.head.ref.startsWith(branchPrefix));
               if (filteredPRs.length > 0) {
                 const pullRequest = filteredPRs[0];
                 pullNumber = pullRequest.number;
-                core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number}.`);
+                core.info(`Found open pull request with label ${pullRequestLabel}: #${pullRequest.number} and branch name ${pullRequest.head.ref}`);
                 core.info(JSON.stringify(pullRequest));
               } else {
                 core.info(`No open pull request found with label ${pullRequestLabel}.`);

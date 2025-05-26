@@ -183,72 +183,156 @@ jobs:
 
       - name: seed-sandbox
         if: needs.agentic-lib.outputs.sandboxReset == 'true'
-        shell: bash
-        run: |          
-            # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
-            mkdir -p '${{ needs.agentic-lib.outputs.featuresPath }}'
-            if [ -n "${{ env.mission }}" ]; then
-              echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
-            fi
-          
-            if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
-              mkdir -p '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}main.js'
-            else
-              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-            fi
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}'
+        uses: actions/github-script@v6
+        env:
+          featuresPath: ${{ needs.agentic-lib.outputs.featuresPath }}
+          mission: ${{ env.mission }}
+          missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+          targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+          repositoryReseedSourcePath: ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}
+          targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          repositoryReseedTestsPath: ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
 
-            if [[ '${{ needs.agentic-lib.outputs.targetTestsPath }}' == */ ]]; then
-              mkdir -p '${{ needs.agentic-lib.outputs.targetTestsPath }}'
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}main.test.js'
-            else
-              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}'
-            fi
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}'
+            // Get all environment variables at the beginning
+            const featuresPath = process.env.featuresPath;
+            const mission = process.env.mission;
+            const missionFilepath = process.env.missionFilepath;
+            const targetSourcePath = process.env.targetSourcePath;
+            const repositoryReseedSourcePath = process.env.repositoryReseedSourcePath;
+            const targetTestsPath = process.env.targetTestsPath;
+            const repositoryReseedTestsPath = process.env.repositoryReseedTestsPath;
+
+            // Log all environment variables
+            core.info(`featuresPath: ${featuresPath}`);
+            core.info(`mission: ${mission}`);
+            core.info(`missionFilepath: ${missionFilepath}`);
+            core.info(`targetSourcePath: ${targetSourcePath}`);
+            core.info(`repositoryReseedSourcePath: ${repositoryReseedSourcePath}`);
+            core.info(`targetTestsPath: ${targetTestsPath}`);
+            core.info(`repositoryReseedTestsPath: ${repositoryReseedTestsPath}`);
+
+            // Create features directory
+            fs.mkdirSync(featuresPath, { recursive: true });
+
+            // If mission is set, create a mission file
+            if (mission) {
+              fs.appendFileSync(missionFilepath, mission);
+              core.info(`Seeded repository from '${mission}' to ${missionFilepath}`);
+            }
+
+            // Handle source path
+            if (targetSourcePath.endsWith('/')) {
+              fs.mkdirSync(targetSourcePath, { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, `${targetSourcePath}main.js`);
+            } else {
+              fs.mkdirSync(path.dirname(targetSourcePath), { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, targetSourcePath);
+            }
+            core.info(`Seeded repository from ${repositoryReseedSourcePath} to ${targetSourcePath}`);
+
+            // Handle tests path
+            if (targetTestsPath.endsWith('/')) {
+              fs.mkdirSync(targetTestsPath, { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, `${targetTestsPath}main.test.js`);
+            } else {
+              fs.mkdirSync(path.dirname(targetTestsPath), { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, targetTestsPath);
+            }
+            core.info(`Seeded repository from ${repositoryReseedTestsPath} to ${targetTestsPath}`);
 
       - name: seed-repository
         if: needs.agentic-lib.outputs.repositoryReseed == 'true'
-        shell: bash
-        run: |
-            if [[ '${{ needs.agentic-lib.outputs.targetSourcePath }}' == */ ]]; then
-              mkdir -p '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}main.js'
-            else
-              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetSourcePath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}' '${{ needs.agentic-lib.outputs.targetSourcePath }}'
-            fi
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }} to ${{ needs.agentic-lib.outputs.targetSourcePath }}'
+        uses: actions/github-script@v6
+        env:
+          targetSourcePath: ${{ needs.agentic-lib.outputs.targetSourcePath }}
+          repositoryReseedSourcePath: ${{ needs.agentic-lib.outputs.repositoryReseedSourcePath }}
+          targetTestsPath: ${{ needs.agentic-lib.outputs.targetTestsPath }}
+          repositoryReseedTestsPath: ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}
+          readmeFilepath: ${{ needs.agentic-lib.outputs.readmeFilepath }}
+          repositoryReseedReadmeFilepath: ${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}
+          dependenciesFilepath: ${{ needs.agentic-lib.outputs.dependenciesFilepath }}
+          repositoryReseedDependenciesFilepath: ${{ needs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}
+          missionFilepath: ${{ needs.agentic-lib.outputs.missionFilepath }}
+          repositoryReseedMissionFilepath: ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}
+          mission: ${{ env.mission }}
+          githubRepository: ${{ github.repository }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const { execSync } = require('child_process');
 
-            if [[ '${{ needs.agentic-lib.outputs.targetTestsPath }}' == */ ]]; then
-              mkdir -p '${{ needs.agentic-lib.outputs.targetTestsPath }}'
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}main.test.js'
-            else
-              mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.targetTestsPath }}')"
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }}' '${{ needs.agentic-lib.outputs.targetTestsPath }}'
-            fi
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedTestsPath }} to ${{ needs.agentic-lib.outputs.targetTestsPath }}'
+            // Get all environment variables at the beginning
+            const targetSourcePath = process.env.targetSourcePath;
+            const repositoryReseedSourcePath = process.env.repositoryReseedSourcePath;
+            const targetTestsPath = process.env.targetTestsPath;
+            const repositoryReseedTestsPath = process.env.repositoryReseedTestsPath;
+            const readmeFilepath = process.env.readmeFilepath;
+            const repositoryReseedReadmeFilepath = process.env.repositoryReseedReadmeFilepath;
+            const dependenciesFilepath = process.env.dependenciesFilepath;
+            const repositoryReseedDependenciesFilepath = process.env.repositoryReseedDependenciesFilepath;
+            const missionFilepath = process.env.missionFilepath;
+            const repositoryReseedMissionFilepath = process.env.repositoryReseedMissionFilepath;
+            const mission = process.env.mission;
+            const githubRepository = process.env.githubRepository;
 
-            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.readmeFilepath }}')"
-            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }}' '${{ needs.agentic-lib.outputs.readmeFilepath }}'
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedReadmeFilepath }} to ${{ needs.agentic-lib.outputs.readmeFilepath }}'
+            // Log all environment variables
+            core.info(`targetSourcePath: ${targetSourcePath}`);
+            core.info(`repositoryReseedSourcePath: ${repositoryReseedSourcePath}`);
+            core.info(`targetTestsPath: ${targetTestsPath}`);
+            core.info(`repositoryReseedTestsPath: ${repositoryReseedTestsPath}`);
+            core.info(`readmeFilepath: ${readmeFilepath}`);
+            core.info(`repositoryReseedReadmeFilepath: ${repositoryReseedReadmeFilepath}`);
+            core.info(`dependenciesFilepath: ${dependenciesFilepath}`);
+            core.info(`repositoryReseedDependenciesFilepath: ${repositoryReseedDependenciesFilepath}`);
+            core.info(`missionFilepath: ${missionFilepath}`);
+            core.info(`repositoryReseedMissionFilepath: ${repositoryReseedMissionFilepath}`);
+            core.info(`mission: ${mission}`);
+            core.info(`githubRepository: ${githubRepository}`);
 
-            cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }}' '${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
-            echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedDependenciesFilepath }} to ${{ needs.agentic-lib.outputs.dependenciesFilepath }}'
+            // Handle source path
+            if (targetSourcePath.endsWith('/')) {
+              fs.mkdirSync(targetSourcePath, { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, `${targetSourcePath}main.js`);
+            } else {
+              fs.mkdirSync(path.dirname(targetSourcePath), { recursive: true });
+              fs.copyFileSync(repositoryReseedSourcePath, targetSourcePath);
+            }
+            core.info(`Seeded repository from ${repositoryReseedSourcePath} to ${targetSourcePath}`);
 
-            # If the mission is set, create a mission out of that text, else if the mission is not set use the config.
-            mkdir -p "$(dirname '${{ needs.agentic-lib.outputs.missionFilepath }}')"
-            if [ -n "${{ env.mission }}" ]; then
-              echo "# ${GITHUB_REPOSITORY}" > '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo "${{ env.mission }}" >> '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo "Seeded repository from '${{ env.mission }}' to ${{ needs.agentic-lib.outputs.missionFilepath }}"
-            else
-              cp -vf '${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }}' '${{ needs.agentic-lib.outputs.missionFilepath }}'
-              echo 'Seeded repository from ${{ needs.agentic-lib.outputs.repositoryReseedMissionFilepath }} to ${{ needs.agentic-lib.outputs.missionFilepath }}'
-            fi
+            // Handle tests path
+            if (targetTestsPath.endsWith('/')) {
+              fs.mkdirSync(targetTestsPath, { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, `${targetTestsPath}main.test.js`);
+            } else {
+              fs.mkdirSync(path.dirname(targetTestsPath), { recursive: true });
+              fs.copyFileSync(repositoryReseedTestsPath, targetTestsPath);
+            }
+            core.info(`Seeded repository from ${repositoryReseedTestsPath} to ${targetTestsPath}`);
+
+            // Handle readme file
+            fs.mkdirSync(path.dirname(readmeFilepath), { recursive: true });
+            fs.copyFileSync(repositoryReseedReadmeFilepath, readmeFilepath);
+            core.info(`Seeded repository from ${repositoryReseedReadmeFilepath} to ${readmeFilepath}`);
+
+            // Handle dependencies file
+            fs.copyFileSync(repositoryReseedDependenciesFilepath, dependenciesFilepath);
+            core.info(`Seeded repository from ${repositoryReseedDependenciesFilepath} to ${dependenciesFilepath}`);
+
+            // Handle mission file
+            fs.mkdirSync(path.dirname(missionFilepath), { recursive: true });
+            if (mission) {
+              fs.writeFileSync(missionFilepath, `# ${githubRepository}\n${mission}`);
+              core.info(`Seeded repository from '${mission}' to ${missionFilepath}`);
+            } else {
+              fs.copyFileSync(repositoryReseedMissionFilepath, missionFilepath);
+              core.info(`Seeded repository from ${repositoryReseedMissionFilepath} to ${missionFilepath}`);
+            }
 
       - name: Truncate the intentïon file and seed it with the mission
         run: |
@@ -450,9 +534,9 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
 
             const activity = `When responding to a post on url ${url}, the repository was seeded with mission:
-            
+
             ${mission}
-            
+
             and outcome "${outcome}"`;
 
             core.info(`Activity: ${activity}`);
@@ -819,11 +903,11 @@ jobs:
             const gitDiff = process.env.gitDiff;
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
-            
+
             const activity = `Maintained feature ${featureName} with
-            
+
             Feature spec:
-            
+
             ${featureSpec}
             `;
 
@@ -840,16 +924,16 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `
             ## Maintain Feature at ${isoDate}
-            
+
             Activity:
-            
+
             ${activity}
-            
+
             LLM API Usage:
             \`\`\`json
             ${usage}
             \`\`\`
-            
+
             ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
@@ -1233,17 +1317,17 @@ jobs:
             const issueBody = process.env.issueBody;
             const featureLabel = process.env.featureLabel;
             const issueUrl = `https://github.com/${owner}/${repo}/issues/${issueNumber}`;
-            
+
             const activity = `Generated issue ${issueNumber} for feature "${featureLabel}" with URL ${issueUrl}
-            
+
             title:
-            
+
             ${issueTitle}
-            
+
             And description:
-            
+
             ${issueBody}`;
-            
+
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
 
@@ -1260,16 +1344,16 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `
             ## Feature to Issue at ${isoDate}
-            
+
             Activity:
-            
+
             ${activity}
-            
+
             LLM API Usage:
             \`\`\`json
             ${usage}
             \`\`\`
-            
+
             ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
@@ -1540,16 +1624,16 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `
             ## Issue to enhanced Issue at ${isoDate}
-            
+
             Activity:
-            
+
             ${activity}
-            
+
             LLM API Usage:
             \`\`\`json
             ${usage}
             \`\`\`
-            
+
             ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
@@ -1898,31 +1982,31 @@ jobs:
             const usage = process.env.usage;
 
             const activity = `fixApplied: ${fixApplied} to branch ${branch} with message ${message} and outcome ${outcome}
-            
+
             Git Diff:
             \`\`\`diff
             ${gitDiff}
             \`\`\`
-            
+
             mainOutput:
             \`\`\`log
             ${mainOutput}
             \`\`\`
-            
+
             installAfterUpdateOutcome: ${installAfterUpdateOutcome}
-            
+
             ciAfterUpdateOutcome: ${ciAfterUpdateOutcome}
-            
+
             testAfterUpdateOutcome: ${testAfterUpdateOutcome}
-            
+
             mainAfterUpdateOutcome: ${mainAfterUpdateOutcome}
-            
+
             commitOutcome: ${commitOutcome}
-            
+
             postResolutionCommentOutcome: ${postResolutionCommentOutcome}
-            
+
             allValidationStepsSuccessful: ${allValidationStepsSuccessful}
-            
+
             [for issue ${issueUrl} with title: "${issueTitle}"]`;
 
             core.info(`Activity: ${activity}`);
@@ -1938,16 +2022,16 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `
             ## Issue to Code at ${isoDate}
-            
+
             Activity:
-            
+
             ${activity}
-            
+
             LLM API Usage:
             \`\`\`json
             ${usage}
             \`\`\`
-            
+
             ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
@@ -2238,17 +2322,17 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
             const usage = process.env.usage;
             const activity = `fixApplied: ${fixApplied} with ${message} and outcome ${outcome}
-            
+
             Git Diff:
             \`\`\`diff
             ${gitDiff}
             \`\`\`
-            
+
             mainOutput:
             \`\`\`log
             ${mainOutput}
             \`\`\`
-            
+
             [allValidationStepsSuccessful: ${allValidationStepsSuccessful}]`;
 
             core.info(`Activity: ${activity}`);
@@ -2264,16 +2348,16 @@ jobs:
             const isoDate = new Date().toISOString();
             const activityLogContent = `
             ## Fixed Code at ${isoDate}
-            
+
             Activity:
-            
+
             ${activity}
-            
+
             LLM API Usage:
             \`\`\`json
             ${usage}
             \`\`\`
-            
+
             ---`;
             fs.appendFileSync(intentionFilepath, activityLogContent);
             core.info(`Activity logged to ${intentionFilepath}`);
