@@ -91,3 +91,70 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-26T22:34:10.356Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+# Implement HELLO_WORLD CLI: default, diagnostics, and serve modes
+
+## Summary
+Add full support for the HELLO_WORLD feature by enhancing the CLI to:
+
+1. Default mode (no flags): print exactly `Hello World` to stdout and exit with code 0.
+2. Diagnostics mode (`--diagnostics` flag): print `Hello World` on the first line, then output three additional lines:
+   - `Node version: <process.version>`
+   - `Platform: <process.platform>`
+   - `Args: <JSON.stringify(remainingArgs)>`
+   Exit with code 0.
+3. Serve mode (`--serve` flag): start an HTTP server on port 3000 that responds to `GET /` with status code 200 and body `Hello World`.  The server should close gracefully after being programmatically stopped.
+4. Preserve and test existing behavior when `main(args)` is called directly.
+
+## Testable Acceptance Criteria
+
+1. **Default Mode**
+   - Given no flags, when running `node src/lib/main.js`, then stdout is exactly:
+     ```txt
+     Hello World
+     ``` 
+   - Process should exit with code 0.
+
+2. **Diagnostics Mode**
+   - Given `node src/lib/main.js --diagnostics arg1 arg2`, then stdout includes exactly:
+     ```txt
+     Hello World
+     Node version: vX.Y.Z
+     Platform: <current-platform>
+     Args: ["arg1","arg2"]
+     ```
+   - Lines must appear in this order, match JSON formatting for remaining args, and exit code is 0.
+
+3. **Serve Mode**
+   - Given `node src/lib/main.js --serve`, the process listens on port 3000.
+   - When sending an HTTP GET request to `http://localhost:3000/`, the response status is `200` and body is exactly `Hello World`.
+   - The server can be programmatically stopped (e.g., by calling a returned `close()` function) without errors.
+
+4. **Programmatic API**
+   - Calling `main(args)` directly should not throw, and should respect flags in `args` as if passed on the CLI.
+
+5. **Tests and Documentation**
+   - Update `tests/unit/main.test.js` to cover default, diagnostics, serve modes, and programmatic invocation with appropriate assertions.
+   - Update `README.md` to include usage examples for `npm run start`, `npm run diagnostics`, and `npm run serve`, and show expected outputs.
+
+## Verification Steps
+
+1. Run `npm test` to ensure all new and existing tests pass.
+2. Manually verify:
+   - `npm run start` prints `Hello World`.
+   - `npm run diagnostics` prints the four lines described above.
+   - `npm run serve` starts the server, and `curl http://localhost:3000/` returns `Hello World` with status 200.
+3. Confirm `main(args)` behaves identically when invoked from another module.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":6191,"completion_tokens":904,"total_tokens":7095,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":192,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
