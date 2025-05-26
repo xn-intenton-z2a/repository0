@@ -708,4 +708,232 @@ LLM API Usage:
 {"prompt_tokens":13228,"completion_tokens":4028,"total_tokens":17256,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3072,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
 ```
 
+---## Issue to Code at 2025-05-26T04:29:49.431Z
+
+Activity:
+
+fixApplied: true with message Add --ingest CLI flag to main script with persistence update tests and documentation
+
+Git Diff:
+```diff
+diff --git a/docs/USAGE.md b/docs/USAGE.md
+index 1f2aaf84..5636f537 100644
+--- a/docs/USAGE.md
++++ b/docs/USAGE.md
+@@ -5,23 +5,26 @@ This document describes how to use the CLI flags supported by the main script.
+ ## Command Syntax
+ 
+ ```
+-Usage: node src/lib/main.js [--help] [--version]
++Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
+ ```
+ 
+ ## Options
+ 
+---help     Show this help message and exit
++--help           Show this help message and exit
+ 
+---version  Print version number and exit
++--version        Print version number and exit
++
++--ingest <url>   Fetch data from URL, normalize and append to graph.json, then exit
+ 
+ ## Examples
+ 
+ Show help message:
+ ```
+ $ npm run start -- --help
+-Usage: node src/lib/main.js [--help] [--version]
+---help     Show this help message and exit
+---version  Print version number and exit
++Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
++--help           Show this help message and exit
++--version        Print version number and exit
++--ingest <url>   Fetch data from URL, normalize and append to graph.json, then exit
+ ```
+ 
+ Print version number:
+@@ -29,3 +32,9 @@ Print version number:
+ $ npm run start -- --version
+ 1.2.0-0
+ ```
++
++Ingest a record and persist to graph.json:
++```
++$ npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
++Ingested record with id: 1
++```
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 7dba0fe7..83cb5662 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -3,17 +3,19 @@
+ 
+ import { fileURLToPath } from "url";
+ import { dirname, join } from "path";
+-import { readFileSync } from "fs";
++import { readFileSync, writeFileSync } from "fs";
++import { fetchData, normalizeRecord } from "@src/lib/crawler.js";
+ 
+ /**
+  * Main entrypoint for CLI.
+  * @param {string[]} [args] - Arguments to process (defaults to process.argv.slice(2)).
+  */
+-export function main(args = process.argv.slice(2)) {
++export async function main(args = process.argv.slice(2)) {
+   if (args.includes("--help")) {
+-    console.log("Usage: node src/lib/main.js [--help] [--version]");
+-    console.log("--help     Show this help message and exit");
+-    console.log("--version  Print version number and exit");
++    console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
++    console.log("--help           Show this help message and exit");
++    console.log("--version        Print version number and exit");
++    console.log("--ingest <url>   Fetch data from URL, normalize and append to graph.json, then exit");
+     process.exit(0);
+   }
+ 
+@@ -26,6 +28,25 @@ export function main(args = process.argv.slice(2)) {
+     process.exit(0);
+   }
+ 
++  if (args[0] === "--ingest" && args[1]) {
++    const url = args[1];
++    const raw = await fetchData(url);
++    const record = normalizeRecord(raw);
++    const __filename = fileURLToPath(import.meta.url);
++    const __dirname = dirname(__filename);
++    const graphPath = join(__dirname, "..", "..", "graph.json");
++    let graph = [];
++    try {
++      graph = JSON.parse(readFileSync(graphPath, "utf8"));
++    } catch {
++      graph = [];
++    }
++    graph.push(record);
++    writeFileSync(graphPath, JSON.stringify(graph, null, 2), "utf8");
++    console.log(`Ingested record with id: ${record.id}`);
++    process.exit(0);
++  }
++
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 43f9db6a..7a945d17 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,6 +1,7 @@
+ import { describe, test, expect, vi } from "vitest";
+ import { main } from "@src/lib/main.js";
+ import pkg from "../../package.json" assert { type: "json" };
++import * as fs from "fs";
+ 
+ describe("Main Module Import", () => {
+   test("should be non-null", () => {
+@@ -24,18 +25,22 @@ describe("Main Output", () => {
+     } catch (err) {
+       expect(err.message).toBe("Process exit");
+     }
+-    expect(logSpy).toHaveBeenCalledTimes(3);
++    expect(logSpy).toHaveBeenCalledTimes(4);
+     expect(logSpy).toHaveBeenNthCalledWith(
+       1,
+-      "Usage: node src/lib/main.js [--help] [--version]"
++      "Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]"
+     );
+     expect(logSpy).toHaveBeenNthCalledWith(
+       2,
+-      "--help     Show this help message and exit"
++      "--help           Show this help message and exit"
+     );
+     expect(logSpy).toHaveBeenNthCalledWith(
+       3,
+-      "--version  Print version number and exit"
++      "--version        Print version number and exit"
++    );
++    expect(logSpy).toHaveBeenNthCalledWith(
++      4,
++      "--ingest <url>   Fetch data from URL, normalize and append to graph.json, then exit"
+     );
+     expect(exitSpy).toHaveBeenCalledWith(0);
+     logSpy.mockRestore();
+@@ -66,3 +71,44 @@ describe("Main Output", () => {
+     logSpy.mockRestore();
+   });
+ });
++
++describe("Ingest Command", () => {
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  test("should ingest and persist record then exit with code 0", async () => {
++    const mockRaw = { id: 42, foo: "bar" };
++    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
++      ok: true,
++      json: async () => mockRaw,
++    }));
++    const readStub = vi.spyOn(fs, "readFileSync").mockImplementation(() => {
++      throw new Error("File not found");
++    });
++    const writeStub = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
++      throw new Error("Process exit");
++    });
++
++    try {
++      await main(["--ingest", "https://example.com/data"]);
++    } catch (err) {
++      expect(err.message).toBe("Process exit");
++    }
++
++    expect(writeStub).toHaveBeenCalled();
++    const calledPath = writeStub.mock.calls[0][0];
++    expect(calledPath).toMatch(/graph\.json$/);
++    const expectedGraph = JSON.stringify(
++      [{ id: "42", attributes: { foo: "bar" } }],
++      null,
++      2
++    );
++    expect(writeStub.mock.calls[0][1]).toBe(expectedGraph);
++    expect(writeStub.mock.calls[0][2]).toBe("utf8");
++    expect(logSpy).toHaveBeenCalledWith("Ingested record with id: 42");
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++});
+```
+
+mainOutput:
+```log
+
+> @xn-intenton-z2a/repository0@1.2.0-0 start
+> node src/lib/main.js
+
+node:internal/modules/esm/resolve:873
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@src/lib' imported from /home/runner/work/repository0/repository0/src/lib/main.js
+    at packageResolve (node:internal/modules/esm/resolve:873:9)
+    at moduleResolve (node:internal/modules/esm/resolve:946:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v20.19.1
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2263 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":17357,"completion_tokens":9617,"total_tokens":26974,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":7296,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
 ---
