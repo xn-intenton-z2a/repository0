@@ -618,3 +618,94 @@ LLM API Usage:
 ```
 ---
 
+## Feature to Issue at 2025-05-26T04:24:52.465Z
+
+Activity:
+
+Generated issue 2263 for feature "cli-data-ingestion-persistence" with URL https://github.com/xn-intenton-z2a/repository0/issues/2263
+
+title:
+
+Add CLI data ingestion and persistence (--ingest) to support knowledge graph construction
+
+And description:
+
+# Description
+
+Introduce a new CLI flag `--ingest <url>` in `src/lib/main.js` to kick off the next step toward our mission of building a knowledge graph of the physical world:
+
+- Fetch JSON data from the provided URL using `fetchData(source)` from `src/lib/crawler.js`.
+- Normalize the fetched record using `normalizeRecord(record)`.
+- Load an existing `graph.json` file at the project root (or initialize an empty array if none exists), append the new record, then write it back as valid JSON.
+- Print a confirmation: `Ingested record with id: <id>` and exit with code `0`.
+
+This feature will enable ingestion of public data sources and persistence of normalized nodes for later graph processing.
+
+# Changes Required
+
+1. **src/lib/main.js**
+   - Import:
+     ```js
+     import { fetchData, normalizeRecord } from "@src/lib/crawler.js";
+     import { readFileSync, writeFileSync } from "fs";
+     import { join, dirname } from "path";
+     import { fileURLToPath } from "url";
+     ```
+   - In the `main(args)` function, detect when:
+     ```js
+     if (args[0] === "--ingest" && args[1]) {
+       const url = args[1];
+       const raw = await fetchData(url);
+       const record = normalizeRecord(raw);
+       // Determine project root and graph file path
+       const __filename = fileURLToPath(import.meta.url);
+       const __dirname = dirname(__filename);
+       const graphPath = join(__dirname, "..", "..", "graph.json");
+       // Read existing graph or default to []
+       let graph = [];
+       try { graph = JSON.parse(readFileSync(graphPath, "utf8")); } catch {};
+       graph.push(record);
+       writeFileSync(graphPath, JSON.stringify(graph, null, 2), "utf8");
+       console.log(`Ingested record with id: ${record.id}`);
+       process.exit(0);
+     }
+     ```
+   - Handle async appropriately (e.g., make `main` async).
+   - Ensure existing flags (`--help`, `--version`) and default behavior remain unchanged.
+
+2. **tests/unit/main.test.js**
+   - Add or update a `describe("Ingest Command", ...)` suite with tests that:
+     - Stub `fetch` to return a known object (e.g., `{ id: 42, foo: "bar" }`).
+     - Stub `fs.readFileSync` to simulate missing or existing `graph.json`.
+     - Spy on `fs.writeFileSync` and `console.log`, and mock `process.exit` to throw.
+     - Call `await main(["--ingest", "https://example.com/data"]);` and assert:
+       - `writeFileSync` was called with the correct path and JSON array containing the normalized record.
+       - `console.log` was called with `Ingested record with id: 42`.
+       - `process.exit(0)` was invoked.
+   - Ensure existing tests for flags and default behavior still pass.
+
+3. **README.md**
+   - Under **Running the Demo**, document the new `--ingest` flag with examples:
+     ```bash
+     # Ingest a single record and persist it to graph.json
+     npm run start -- --ingest https://jsonplaceholder.typicode.com/posts/1
+     # Output: Ingested record with id: 1
+     ```
+
+# Verification
+
+1. Run all unit tests: `npm test` (new ingestion tests and existing tests must pass).
+2. Manual smoke test:
+   ```bash
+   node src/lib/main.js --ingest https://jsonplaceholder.typicode.com/posts/1
+   ```
+   - Verify a `graph.json` file is created/updated in the project root containing the normalized record.
+   - Confirm the console output and exit code `0`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":13228,"completion_tokens":4028,"total_tokens":17256,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3072,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
