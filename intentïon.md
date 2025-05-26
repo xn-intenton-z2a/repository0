@@ -427,3 +427,53 @@ with message: "PR #2280 is in an unexpected state: unstable."
 with outcome "success".
 
 ---
+
+## Feature to Issue at 2025-05-26T23:23:20.442Z
+
+Activity:
+
+Generated issue 2287 for feature "no-features-refer-to-mission" with URL https://github.com/xn-intenton-z2a/repository0/issues/2287
+
+title:
+
+Add --mission CLI option to display project mission
+
+And description:
+
+## Summary
+
+Introduce a new `--mission` flag in the CLI entrypoint to surface the repository’s mission directly from the `MISSION.md` file. This ensures features are explicitly tied back to the mission and allows users to review the project goal on demand.
+
+## Changes
+
+1. **src/lib/main.js**
+   - Parse for a new `--mission` argument in the `main(args)` function.
+   - When `--mission` is present, read and print the contents of `MISSION.md` to stdout (line-by-line).
+   - Short-circuit other modes if `--mission` is provided.
+
+2. **tests/unit/main.test.js**
+   - Add a unit test for `main(["--mission"])`:
+     - Mock the file system read of `MISSION.md` (e.g., using `vi.mock('fs', ...)`).
+     - Assert that `console.log` is called with each line of the mocked mission text.
+
+3. **README.md**
+   - Document the new `npm run mission` script and `--mission` flag usage under the CLI section, including an example invocation and expected output.
+
+4. **package.json**
+   - Add a new npm script:
+     ```json
+     "mission": "node src/lib/main.js --mission"
+     ```
+
+## Verification
+
+1. Run `npm run mission` and confirm the full content of `MISSION.md` is printed to the console.
+2. Execute `npm test` and ensure the new mission flag test passes without affecting existing tests.
+3. Verify that other CLI modes (`start`, `diagnostics`, `serve`) continue to work as before.
+
+LLM API Usage:
+```json
+{"prompt_tokens":9590,"completion_tokens":1951,"total_tokens":11541,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1536,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
