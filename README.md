@@ -3,18 +3,15 @@
 The repository is intended as a template that includes:
 * A Template Base: A starting point for new projects.
 * A Running Experiment: An example implementation that demonstrates one way to use the template.
-* Workflows from `agentic-lib` which reference reusable workflows.
-
-## Mission
-Build a knowledge graph of the physical world by crawling public data sources. See [MISSION.md](MISSION.md) for details.
+* Workflows from `agentic‑lib` which reference reusable workflows.
 
 ## Overview
-`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
+`repository0` is a demo repository that showcases the GitHub workflows imported from intentïon `agentic‑lib`. Its primary purpose is to demonstrate these automated CI/CD workflows.
 
 ## What’s Inside
 
 - **GitHub Workflows:**  
-  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic-lib`.
+  Workflows in the `.github/workflows/` These workflows consume reusable workflows from intentïon `agentic‑lib`.
 
 - **Source Code:**  
   The main functionality is in `src/lib/main.js`. This file is focus of the workflow and is modified by the workflow to deliver the project goals.
@@ -73,3 +70,49 @@ On timer: Automerge (code merged)
 
 On timer: Review Issue (issue reviewed and closed)
 ```
+(Each workflow is triggered by the previous one and also on a schedule so that failures can be recovered from.)
+
+#### Running the workflows:
+
+The workflows have `schedules:` set and will run automatically. You can also run them manually from the Actions tab.
+The workflows can become stuck and need manual intervention. It's worth running things like `Automerge`
+and `Review Issue` manually to get things moving again. If a branch has a failing build you can try `Apply Fix`
+this is somewhat unreliable but worth a try, then delete the branch and run the worker again for a fresh attempt.
+
+### Running the Demo
+
+Check the current source file in `./src/lib/main.js` and the tests in `./tests/unit/main.test.js`.
+
+You can run the demo and tests locally:
+
+1. **Clone the Repository:**  
+   Run in your terminal:  
+   `git clone <repository_url>`
+
+2. **Install Dependencies:**  
+   Change into the project directory and run:  
+   `npm install`
+
+3. **Run Tests:**  
+   To verify that everything is working, run:  
+   `npm test`
+
+4. **Run the Demo:**  
+   Execute the main script with:  
+   `npm run start`  
+   This will display the output of the program.
+
+### Tuning the agentic coding system
+
+The default set-up is quite open which can be chaotic. To temper this chaos you can change these files which the workflow takes into consideration:
+- `CONTRIBUTING.md` - The workflow is itself a contributor and will be asked to follow these guidelines. Tip: Add a "prime directive" here.
+- `eslint.config.js` - Code style rules and additional plugins can be added here.
+
+The following files are also taken into consideration but may also be changed (even blanked out completely) by the workflow:
+- `README.md`
+- `package.json`
+- `src/lib/main.js`
+- `tests/unit/main.test.js`
+
+## Final Notes
+`repository0` demonstrates intentïon `agentic‑lib` workflows for you to run with your own projects.
