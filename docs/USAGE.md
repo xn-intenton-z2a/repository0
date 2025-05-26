@@ -10,11 +10,11 @@ Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
 
 ## Options
 
---help     Show this help message and exit
+--help           Show this help message and exit
 
---version  Print version number and exit
+--version        Print version number and exit
 
---ingest <url>  Fetch and ingest a record from the specified URL and persist it to graph.json
+--ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
 
 ## Examples
 
@@ -22,9 +22,9 @@ Show help message:
 ```
 $ npm run start -- --help
 Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]
---help     Show this help message and exit
---version  Print version number and exit
---ingest   Fetch and ingest a record from the specified URL
+--help           Show this help message and exit
+--version        Print version number and exit
+--ingest <url>   Fetch and ingest a record and persist to graph.json via graph storage module
 ```
 
 Print version number:
@@ -36,5 +36,5 @@ $ npm run start -- --version
 Ingest a record:
 ```
 $ npm run start -- --ingest https://example.com/data
-Ingested record 1
+Ingested record with id: 1
 ```

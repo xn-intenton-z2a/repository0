@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "./fsWrapper.js";
 import { fetchData, normalizeRecord } from "./crawler.js";
+import { appendRecord } from "./graph.js";
 
 /**
  * Main entrypoint for CLI.
@@ -16,7 +17,7 @@ export function main(args = process.argv.slice(2)) {
     console.log("Usage: node src/lib/main.js [--help] [--version] [--ingest <url>]");
     console.log("--help     Show this help message and exit");
     console.log("--version  Print version number and exit");
-    console.log("--ingest   Fetch and ingest a record from the specified URL");
+    console.log("--ingest <url>  Fetch and ingest a record and persist to graph.json");
     process.exit(0);
   }
 
@@ -37,28 +38,11 @@ export function main(args = process.argv.slice(2)) {
       console.error("Error: --ingest requires a URL argument");
       return;
     }
-    // Perform ingestion asynchronously
     return (async () => {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = dirname(__filename);
-      const projectRoot = join(__dirname, "..", "..");
-      const graphPath = join(projectRoot, "graph.json");
-      let dataList = [];
-      try {
-        const content = fs.readFileSync(graphPath, "utf8");
-        dataList = JSON.parse(content);
-        if (!Array.isArray(dataList)) {
-          dataList = [];
-        }
-      } catch (err) {
-        dataList = [];
-      }
-
       const raw = await fetchData(url);
       const record = normalizeRecord(raw);
-      dataList.push(record);
-      fs.writeFileSync(graphPath, JSON.stringify(dataList, null, 2), "utf8");
-      console.log(`Ingested record ${record.id}`);
+      await appendRecord(record);
+      console.log(`Ingested record with id: ${record.id}`);
       process.exit(0);
     })();
   }

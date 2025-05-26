@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { main } from "@src/lib/main.js";
 import pkg from "../../package.json" assert { type: "json" };
-import fs from "@src/lib/fsWrapper.js";
+import * as graphModule from "@src/lib/graph.js";
 
 describe("Main Module Import", () => {
   test("should be non-null", () => {
@@ -40,7 +40,7 @@ describe("Main Output", () => {
     );
     expect(logSpy).toHaveBeenNthCalledWith(
       4,
-      "--ingest   Fetch and ingest a record from the specified URL"
+      "--ingest <url>  Fetch and ingest a record and persist to graph.json"
     );
     expect(exitSpy).toHaveBeenCalledWith(0);
     logSpy.mockRestore();
@@ -87,11 +87,8 @@ describe("Ingest Command", () => {
     vi.restoreAllMocks();
   });
 
-  test("should ingest record and exit with code 0", async () => {
-    const readSpy = vi.spyOn(fs, "readFileSync").mockImplementation(() => {
-      throw new Error("File not found");
-    });
-    const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+  test("should ingest record via appendRecord and exit with code 0", async () => {
+    const appendSpy = vi.spyOn(graphModule, "appendRecord").mockResolvedValue();
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => {
       throw new Error(`Process exit: ${code}`);
@@ -100,18 +97,11 @@ describe("Ingest Command", () => {
     await expect(main(["--ingest", url])).rejects.toThrow("Process exit: 0");
 
     expect(fetch).toHaveBeenCalledWith(url);
-    expect(readSpy).toHaveBeenCalled();
-    expect(writeSpy).toHaveBeenCalled();
-    const [path, content, encoding] = writeSpy.mock.calls[0];
-    const saved = JSON.parse(content);
-    expect(saved).toEqual([
-      {
-        id: "1",
-        attributes: { name: "Alice", extra: "value" },
-      },
-    ]);
-    expect(encoding).toBe("utf8");
-    expect(logSpy).toHaveBeenCalledWith("Ingested record 1");
+    expect(appendSpy).toHaveBeenCalledWith({
+      id: "1",
+      attributes: { name: "Alice", extra: "value" },
+    });
+    expect(logSpy).toHaveBeenCalledWith("Ingested record with id: 1");
     expect(exitSpy).toHaveBeenCalledWith(0);
   });
 });
