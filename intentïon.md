@@ -14,7 +14,7 @@ and to provide a set of tools for managing the OWL ontologies in a JSON format.
 
 ## Seed repository activity at 2025-05-26T23:54:40.337Z
 
-When responding to a post on url , the repository was seeded with mission:
+When responding to a post on url https://github.com/xn-intenton-z2a/repository0/discussions/2245, the repository was seeded with mission:
 
 
 
