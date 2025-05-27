@@ -1413,3 +1413,240 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T02:31:43.254Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2293 with message Add offline input support to --find-capital-of with tests and docs and outcome success
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index bc76f9eb..64e21d81 100644
+--- a/README.md
++++ b/README.md
+@@ -79,10 +79,25 @@ For more details, see [MISSION.md](MISSION.md).
+ ### Query a Country’s Capital from OWL JSON
+ 
+ ```bash
+-node src/lib/main.js --find-capital-of <countryCode> [--output <path>]
++node src/lib/main.js --find-capital-of <countryCode> [--input <ontology.json>] [--output <path>]
+ ```
+ 
+-This command fetches all countries from the Rest Countries API, builds an OWL ontology with classes `Country` and `City`, an object property `hasCapital`, and then extracts the capital for the specified country code. If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name to stdout. If the country code is not found, it errors and exits with a non-zero status.
++This command supports two modes:
++
++1. **Online Mode** (no `--input` flag):
++   - Fetches all countries from the Rest Countries API, builds an OWL ontology, and extracts the capital city for the specified country code.
++
++2. **Offline Mode** (`--input <ontology.json>`):
++   - Reads and parses the provided OWL JSON ontology file instead of fetching data.
++
++If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name (or array of capitals) to stdout.
++
++Error handling:
++- If the input file cannot be read or parsed, prints an error and exits with a non-zero status: `Error: Failed to read or parse input file <path>`.
++- If the ontology format is invalid, prints: `Error: Invalid ontology format in <path>`.
++- If the country code is not found, prints:
++  - Online: `Error: Country code <code> not found.`
++  - Offline: `Error: Country code <code> not found in input ontology.`
+ 
+ Examples:
+ 
+@@ -92,6 +107,12 @@ node src/lib/main.js --find-capital-of USA
+ 
+ node src/lib/main.js --find-capital-of FRA --output capital.json
+ # writes {"country":"FRA","capital":"Paris"} to capital.json
++
++node src/lib/main.js --find-capital-of USA --input ontology.json
++# prints Washington D.C.
++
++node src/lib/main.js --find-capital-of USA --input ontology.json --output out.json
++# writes {"country":"USA","capital":"Washington D.C."} to out.json
+ ```
+ 
+ ## intentïon `agentic-lib`
+diff --git a/src/lib/main.js b/src/lib/main.js
+index dda1b1b1..e7f25cc6 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -28,6 +28,30 @@ async function buildCapitalCitiesOntology() {
+   return { ontology: { classes, objectProperties, individuals } };
+ }
+ 
++/**
++ * Load ontology from an input file path.
++ * @param {string} inputPath - Path to the ontology JSON file.
++ * @returns {Promise<Object>} Parsed ontology object.
++ */
++async function loadOntologyFromFile(inputPath) {
++  let content;
++  try {
++    content = await fs.promises.readFile(inputPath, 'utf-8');
++  } catch (err) {
++    throw new Error(`Failed to read or parse input file ${inputPath}`);
++  }
++  let parsed;
++  try {
++    parsed = JSON.parse(content);
++  } catch (err) {
++    throw new Error(`Failed to read or parse input file ${inputPath}`);
++  }
++  if (!parsed.ontology || !Array.isArray(parsed.ontology.individuals)) {
++    throw new Error(`Invalid ontology format in ${inputPath}`);
++  }
++  return parsed;
++}
++
+ /**
+  * Main entry point for CLI
+  * @param {string[]} args - Command line arguments
+@@ -57,17 +81,26 @@ export async function main(args = []) {
+     if (!countryCode) {
+       throw new Error('Country code not provided');
+     }
++    const inputIdx = args.indexOf('--input');
++    const inputPath = inputIdx !== -1 && args.length > inputIdx + 1
++      ? args[inputIdx + 1]
++      : null;
+     const outIdx = args.indexOf('--output');
+     const outputPath = outIdx !== -1 && args.length > outIdx + 1
+       ? args[outIdx + 1]
+       : null;
+-    const ontologyObj = await buildCapitalCitiesOntology();
++    const ontologyObj = inputPath
++      ? await loadOntologyFromFile(inputPath)
++      : await buildCapitalCitiesOntology();
+     const individuals = ontologyObj.ontology.individuals;
+     const matches = individuals
+       .filter(ind => ind.subject === countryCode && ind.predicate === 'hasCapital')
+       .map(ind => ind.object);
+     if (matches.length === 0) {
+-      throw new Error(`Country code ${countryCode} not found.`);
++      const errMsg = inputPath
++        ? `Country code ${countryCode} not found in input ontology.`
++        : `Country code ${countryCode} not found.`;
++      throw new Error(errMsg);
+     }
+     const capitalValue = matches.length === 1 ? matches[0] : matches;
+     const resultObj = { country: countryCode, capital: capitalValue };
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 23f47571..f9a4b5b8 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -72,7 +72,7 @@ describe('find-capital-of CLI', () => {
+     vi.restoreAllMocks();
+   });
+ 
+-  it('should print capital for the given country code', async () => {
++  it('should print capital for the given country code online', async () => {
+     const sampleCountries = [
+       { cca3: 'USA', capital: ['Washington D.C.'] }
+     ];
+@@ -87,7 +87,7 @@ describe('find-capital-of CLI', () => {
+     expect(result).toEqual({ country: 'USA', capital: 'Washington D.C.' });
+   });
+ 
+-  it('should write capital JSON to file when --output is specified', async () => {
++  it('should write capital JSON to file online when --output is specified', async () => {
+     const sampleCountries = [
+       { cca3: 'FRA', capital: ['Paris'] }
+     ];
+@@ -105,7 +105,7 @@ describe('find-capital-of CLI', () => {
+     expect(result).toEqual(expected);
+   });
+ 
+-  it('should throw an error when country code not found', async () => {
++  it('should throw an error when country code not found online', async () => {
+     const sampleCountries = [
+       { cca3: 'USA', capital: ['Washington D.C.'] }
+     ];
+@@ -115,4 +115,57 @@ describe('find-capital-of CLI', () => {
+     })));
+     await expect(main(['--find-capital-of', 'XYZ'])).rejects.toThrow('Country code XYZ not found.');
+   });
+-});
++
++  it('should print capital for the given country code offline', async () => {
++    const sampleOntology = {
++      ontology: {
++        classes: ['Country', 'City'],
++        objectProperties: [{ name: 'hasCapital', domain: 'Country', range: 'City' }],
++        individuals: [
++          { type: 'Country', id: 'USA' },
++          { type: 'City', id: 'Washington D.C.' },
++          { subject: 'USA', predicate: 'hasCapital', object: 'Washington D.C.' }
++        ]
++      }
++    };
++    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(JSON.stringify(sampleOntology));
++    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    const result = await main(['--find-capital-of', 'USA', '--input', 'ontology.json']);
++    expect(consoleSpy).toHaveBeenCalledTimes(1);
++    expect(consoleSpy).toHaveBeenCalledWith('Washington D.C.');
++    expect(result).toEqual({ country: 'USA', capital: 'Washington D.C.' });
++  });
++
++  it('should write capital JSON to file offline when --output is specified', async () => {
++    const sampleOntology = {
++      ontology: {
++        classes: ['Country', 'City'],
++        objectProperties: [{ name: 'hasCapital', domain: 'Country', range: 'City' }],
++        individuals: [
++          { type: 'Country', id: 'USA' },
++          { type: 'City', id: 'Washington D.C.' },
++          { subject: 'USA', predicate: 'hasCapital', object: 'Washington D.C.' }
++        ]
++      }
++    };
++    vi.spyOn(fs.promises, 'readFile').mockResolvedValue(JSON.stringify(sampleOntology));
++    const writeSpy = vi.spyOn(fs.promises, 'writeFile').mockResolvedValue();
++    const outputPath = 'out.json';
++    const result = await main(['--find-capital-of', 'USA', '--input', 'ontology.json', '--output', outputPath]);
++    const expected = { country: 'USA', capital: 'Washington D.C.' };
++    const expectedString = JSON.stringify(expected);
++    expect(writeSpy).toHaveBeenCalledTimes(1);
++    expect(writeSpy).toHaveBeenCalledWith(outputPath, expectedString);
++    expect(result).toEqual(expected);
++  });
++
++  it('should reject with parse error for invalid input file', async () => {
++    vi.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('nop')); 
++    await expect(main(['--find-capital-of', 'USA', '--input', 'bad.json'])).rejects.toThrow('Failed to read or parse input file bad.json');
++  });
++
++  it('should reject for invalid ontology format in input file', async () => {
++    vi.spyOn(fs.promises, 'readFile').mockResolvedValue('{}');
++    await expect(main(['--find-capital-of', 'USA', '--input', 'bad.json'])).rejects.toThrow('Invalid ontology format in bad.json');
++  });
++});
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: success
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: true
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2293 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":26407,"completion_tokens":4852,"total_tokens":31259,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
