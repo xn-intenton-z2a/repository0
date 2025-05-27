@@ -71,7 +71,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.10'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -231,7 +231,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.10'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -461,10 +461,12 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
     with:
-      mission: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
+      mission: "Mission [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
       feature: ''
+      issue: ''
+      action: 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution'
       url: ${{ needs.process-discussion-post.outputs.url }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -574,10 +576,12 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-seed-repository.yml@6.9.9'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
     with:
       mission: ''
-      feature: "${{ needs.generate-response.outputs.detail }} as mentioned in reply ${{ needs.generate-response.outputs.detail }}"
+      feature: "Please create feature [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
+      issue: ''
+      action: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -615,6 +619,7 @@ jobs:
           reply: ${{ needs.generate-response.outputs.reply }}
           usage: ${{ needs.generate-response.outputs.usage }}
           outcome: ${{ needs.create-feature.result }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
           intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
         with:
           script: |
@@ -623,9 +628,10 @@ jobs:
             const reply = process.env.reply;
             const usage = process.env.usage;
             const outcome = process.env.outcome;
+            const url = process.env.url;
             const intentionFilepath = process.env.intentionFilepath;
 
-            const activity = `The repository bot took the following action "${action}":
+            const activity = `When responding to a post on url ${url}, the repository bot took the following action "${action}":
             
             ${reply}
             
@@ -648,9 +654,116 @@ jobs:
             const isoDate = new Date().toISOString();
             let activityLogContent = `
             ## Create feature activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
-            if (action == 'seed-repository') {
-              activityLogContent = `# Activity Log\n\n${activityLogContent}`;
+            if (fs.existsSync(intentionFilepath)) {
+              fs.appendFileSync(intentionFilepath, activityLogContent);
+            } else {
+              fs.writeFileSync(intentionFilepath, activityLogContent);
             }
+            core.info(`Activity logged to ${intentionFilepath}`);
+
+      - name: Commit changes
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git commit -m "Activity logged by agent-discussions-bot.yml" || echo "No changes to commit"
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+          git push -v origin ${{ github.ref_name }}
+
+  create-issue:
+    needs:
+      - agentic-lib
+      - generate-response
+    if: ${{ needs.generate-response.outputs.action == 'create-issue' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
+    with:
+      mission: ''
+      feature: ''
+      issue: "Please create issue [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
+      action: 'generate-feature-development-issue, apply-issue-resolution'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
+
+  log-intention-activity-create-issue:
+    needs:
+      - generate-response
+      - create-issue
+      - agentic-lib
+    runs-on: ubuntu-latest
+    env:
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false       # never fast-forward
+          git config --local pull.rebase false       # never rebase on pull
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+
+      - name: log-intention-activity
+        id: log-intention-activity
+        uses: actions/github-script@v7
+        env:
+          action: ${{ needs.generate-response.outputs.action }}
+          detail: ${{ needs.generate-response.outputs.detail }}
+          reply: ${{ needs.generate-response.outputs.reply }}
+          usage: ${{ needs.generate-response.outputs.usage }}
+          outcome: ${{ needs.create-issue.result }}
+          url: ${{ needs.process-discussion-post.outputs.url }}
+          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+        with:
+          script: |
+            const action = process.env.action;
+            const detail = process.env.detail;
+            const reply = process.env.reply;
+            const usage = process.env.usage;
+            const outcome = process.env.outcome;
+            const url = process.env.url;
+            const intentionFilepath = process.env.intentionFilepath;
+
+            const activity = `When responding to a post on url ${url}, the repository bot took the following action "${action}":
+            
+            ${reply}
+            
+            with the detail:
+            
+            "${detail}"
+            
+            and outcome "${outcome}"`;
+
+            core.info(`Activity: ${activity}`);
+            core.info(`Seed discussion filepath: ${intentionFilepath}`);
+
+            const fs = require('fs');
+            const path = require('path');
+
+            // Create trace file and the parent directory of intentionFilepath if it doesn't exist
+            if (!fs.existsSync(path.dirname(intentionFilepath))) {
+              fs.mkdirSync(path.dirname(intentionFilepath), { recursive: true });
+            }
+            const isoDate = new Date().toISOString();
+            let activityLogContent = `
+            ## Create issue activity at ${isoDate}\n\n${activity}\n\nLLM API Usage:\n\n\`\`\`json\n${usage}\n\n\`\`\`\n---\n\n`;
             if (fs.existsSync(intentionFilepath)) {
               fs.appendFileSync(intentionFilepath, activityLogContent);
             } else {
