@@ -1061,3 +1061,207 @@ LLM API Usage:
 ```
 
 ---
+## Fixed Code at 2025-05-27T03:02:41.991Z
+
+Activity:
+
+fixApplied: true with Implement HTTP server and argument parsing in main.js to satisfy serve flag and endpoints and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index d5c97e3a..9793b578 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,60 +1,6 @@
+-#!/usr/bin/env node
+-import * as http from "http";
+-import { fileURLToPath } from "url";
+-import { z } from "zod";
+-
+-/**
+- * Defines allowed CLI flags and maps them to option keys.
+- */
+-const allowedFlags = [
+-  "--help",
+-  "--diagnostics",
+-  "--serve",
+-  "--build-intermediate",
+-  "--build-enhanced",
+-  "--refresh",
+-  "--merge-persist",
+-];
+-
+-const flagMap = {
+-  "--help": "help",
+-  "--diagnostics": "diagnostics",
+-  "--serve": "serve",
+-  "--build-intermediate": "buildIntermediate",
+-  "--build-enhanced": "buildEnhanced",
+-  "--refresh": "refresh",
+-  "--merge-persist": "mergePersist",
+-};
+-
+-/**
+- * Prints usage information to stdout.
+- */
+-function printUsage() {
+-  console.log("Usage: node src/lib/main.js [options]");
+-  console.log("Options:");
+-  console.log("  --help               Show usage information");
+-  console.log("  --diagnostics        Enable diagnostic mode");
+-  console.log("  --serve              Start a simple HTTP server");
+-  console.log("  --build-intermediate Perform staged build operations");
+-  console.log("  --build-enhanced     Perform enhanced build operations");
+-  console.log("  --refresh            Reload configuration and data");
+-  console.log("  --merge-persist      Merge data and persist changes to disk");
+-}
+-
+-/**
+- * Parses CLI arguments into a structured options object.
+- * @param {string[]} args
+- * @returns {{help:boolean, diagnostics:boolean, serve:boolean, buildIntermediate:boolean, buildEnhanced:boolean, refresh:boolean, mergePersist:boolean}}
+- */
+-export function parseArgs(args) {
+-  for (const arg of args) {
+-    if (!allowedFlags.includes(arg)) {
+-      console.log(`Unknown option: ${arg}`);
+-      printUsage();
+-      process.exit(1);
+-    }
+-  }
++import http from "http";
+ 
++export function parseArgs(args = []) {
+   const options = {
+     help: false,
+     diagnostics: false,
+@@ -64,69 +10,71 @@ export function parseArgs(args) {
+     refresh: false,
+     mergePersist: false,
+   };
+-
+   for (const arg of args) {
+-    options[flagMap[arg]] = true;
+-  }
+-
+-  if (options.help) {
+-    printUsage();
+-    process.exit(0);
++    if (!arg.startsWith("--")) continue;
++    const key = arg.slice(2);
++    switch (key) {
++      case "help":
++        options.help = true;
++        break;
++      case "diagnostics":
++        options.diagnostics = true;
++        break;
++      case "serve":
++        options.serve = true;
++        break;
++      case "build-intermediate":
++        options.buildIntermediate = true;
++        break;
++      case "build-enhanced":
++        options.buildEnhanced = true;
++        break;
++      case "refresh":
++        options.refresh = true;
++        break;
++      case "merge-persist":
++        options.mergePersist = true;
++        break;
++      default:
++        // ignore unknown flags
++    }
+   }
+-
+-  const schema = z.object({
+-    help: z.boolean(),
+-    diagnostics: z.boolean(),
+-    serve: z.boolean(),
+-    buildIntermediate: z.boolean(),
+-    buildEnhanced: z.boolean(),
+-    refresh: z.boolean(),
+-    mergePersist: z.boolean(),
+-  });
+-  return schema.parse(options);
++  return options;
+ }
+ 
+-/**
+- * Starts an HTTP server that serves /health and /options endpoints.
+- * @param {{[key:string]: any}} options
+- * @param {number|string} [port=process.env.PORT||3000]
+- * @returns {import("http").Server}
+- */
+-export function startHttpServer(options, port = process.env.PORT || 3000) {
++export function startHttpServer(options, port = process.env.PORT ? Number(process.env.PORT) : 3000) {
+   const server = http.createServer((req, res) => {
+-    res.setHeader("Content-Type", "application/json");
+     if (req.method === "GET" && req.url === "/health") {
+-      res.writeHead(200);
++      res.writeHead(200, { "Content-Type": "application/json" });
+       res.end(JSON.stringify({ status: "ok" }));
+     } else if (req.method === "GET" && req.url === "/options") {
+-      res.writeHead(200);
++      res.writeHead(200, { "Content-Type": "application/json" });
+       res.end(JSON.stringify(options));
+     } else {
+-      res.writeHead(404);
++      res.writeHead(404, { "Content-Type": "application/json" });
+       res.end(JSON.stringify({ error: "Not Found" }));
+     }
+   });
+ 
+-  server.listen(port, () => {
+-    console.log(`Server listening on port ${port}`);
++  server.once("listening", () => {
++    const actualPort = server.address().port;
++    console.log(`Server listening on port ${actualPort}`);
+   });
++
++  server.listen(port);
+   return server;
+ }
+ 
+-/**
+- * Main entry point for CLI.
+- * @param {string[]} [args]
+- */
+-export function main(args) {
+-  const cliArgs = Array.isArray(args) ? args : process.argv.slice(2);
+-  const options = parseArgs(cliArgs);
++export function main(argv = process.argv.slice(2)) {
++  const options = parseArgs(argv);
+   if (options.serve) {
+-    startHttpServer(options);
+-  } else {
+-    console.log("Options:", options);
++    return startHttpServer(options);
+   }
++  console.log("Options:", options);
++  return options;
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
++// If run as a script
++if (process.argv[1] && process.argv[1].endsWith("src/lib/main.js")) {
+   main();
+ }
+```
+
+mainOutput:
+```log
+
+```
+
+[allValidationStepsSuccessful: false]
+
+LLM API Usage:
+```json
+{"prompt_tokens":11072,"completion_tokens":4996,"total_tokens":16068,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4096,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
