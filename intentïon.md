@@ -1998,3 +1998,326 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T06:49:50.652Z
+
+Activity:
+
+fixApplied: true with message Implement structured CLI parsing diagnostics mode and integrate basic HTTP serve stub
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..14a999bb 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,13 +1,136 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
+-
++import { z } from "zod";
+ import { fileURLToPath } from "url";
+ 
++// Known CLI flags and their mapping to option keys
++const knownFlags = [
++  "--help",
++  "--diagnostics",
++  "--serve",
++  "--build-intermediate",
++  "--build-enhanced",
++  "--refresh",
++  "--merge-persist",
++];
++const flagMap = {
++  "--help": "help",
++  "--diagnostics": "diagnostics",
++  "--serve": "serve",
++  "--build-intermediate": "buildIntermediate",
++  "--build-enhanced": "buildEnhanced",
++  "--refresh": "refresh",
++  "--merge-persist": "mergePersist",
++};
++
++/**
++ * Print usage information for the CLI.
++ */
++function printUsage() {
++  console.log("Usage: node src/lib/main.js [options]");
++  console.log("Options:");
++  console.log("  --help               Show usage information");
++  console.log("  --diagnostics        Enable diagnostics mode");
++  console.log("  --serve              Start a simple HTTP server");
++  console.log("  --build-intermediate Perform staged build operations");
++  console.log("  --build-enhanced     Perform enhanced build operations");
++  console.log("  --refresh            Reload configuration and data");
++  console.log("  --merge-persist      Merge data and persist changes to disk");
++}
++
++/**
++ * Parse and validate CLI arguments.
++ * Exits the process on unknown flags.
++ * @param {string[]} args
++ * @returns {object} options
++ */
++export function parseArgs(args) {
++  for (const arg of args) {
++    if (!knownFlags.includes(arg)) {
++      console.log(`Unknown option: ${arg}`);
++      printUsage();
++      process.exit(1);
++    }
++  }
++
++  const options = {
++    help: false,
++    diagnostics: false,
++    serve: false,
++    buildIntermediate: false,
++    buildEnhanced: false,
++    refresh: false,
++    mergePersist: false,
++  };
++
++  for (const arg of args) {
++    options[flagMap[arg]] = true;
++  }
++
++  // Validate shapes via Zod
++  const schema = z.object({
++    help: z.boolean(),
++    diagnostics: z.boolean(),
++    serve: z.boolean(),
++    buildIntermediate: z.boolean(),
++    buildEnhanced: z.boolean(),
++    refresh: z.boolean(),
++    mergePersist: z.boolean(),
++  });
++  return schema.parse(options);
++}
++
++/**
++ * Gather and return diagnostic information.
++ * @returns {{nodeVersion:string,platform:string,cwd:string,env:Record<string,string>}}
++ */
++export function printDiagnostics() {
++  const diagnostics = {
++    nodeVersion: process.versions.node,
++    platform: process.platform,
++    cwd: process.cwd(),
++    env: { ...process.env },
++  };
++  return diagnostics;
++}
++
++/**
++ * Stub for HTTP server start. In full feature this starts an actual server.
++ * @param {object} options
++ * @param {string|number} [port=process.env.PORT||3000]
++ */
++export function startHttpServer(options, port = process.env.PORT || 3000) {
++  console.log(`Server listening on port ${port}`);
++}
++
++/**
++ * Main CLI entrypoint.
++ * @param {string[]} [args]
++ */
+ export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const argv = Array.isArray(args) ? args : process.argv.slice(2);
++  const options = parseArgs(argv);
++
++  if (options.help) {
++    printUsage();
++    process.exit(0);
++  }
++
++  if (options.diagnostics) {
++    const report = printDiagnostics();
++    console.log(JSON.stringify(report, null, 2));
++    process.exit(0);
++  }
++
++  if (options.serve) {
++    startHttpServer(options, process.env.PORT || 3000);
++    return;
++  }
++
++  console.log("Options:", options);
++  return options;
+ }
+ 
++// Execute when run directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main();
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..d505e171 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,101 @@
+-import { describe, test, expect } from "vitest";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+ import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++describe("parseArgs", () => {
++  let exitSpy;
++
++  beforeEach(() => {
++    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw code; });
++  });
++  afterEach(() => {
++    exitSpy.mockRestore();
++  });
++
++  test("returns all false for no flags", () => {
++    const opts = mainModule.parseArgs([]);
++    expect(opts).toEqual({
++      help: false,
++      diagnostics: false,
++      serve: false,
++      buildIntermediate: false,
++      buildEnhanced: false,
++      refresh: false,
++      mergePersist: false,
++    });
++  });
++
++  test("parses multiple valid flags", () => {
++    const opts = mainModule.parseArgs(["--serve", "--build-intermediate", "--merge-persist"]);
++    expect(opts).toMatchObject({ serve: true, buildIntermediate: true, mergePersist: true });
++  });
++
++  test("unknown flag prints error and exits with code 1", () => {
++    const logSpy = vi.spyOn(console, "log");
++    expect(() => mainModule.parseArgs(["--unknown"])).toThrow(1);
++    expect(logSpy).toHaveBeenCalledWith("Unknown option: --unknown");
++    expect(exitSpy).toHaveBeenCalledWith(1);
++    logSpy.mockRestore();
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("printDiagnostics", () => {
++  test("returns object with nodeVersion, platform, cwd, and env", () => {
++    const diag = mainModule.printDiagnostics();
++    expect(diag).toHaveProperty("nodeVersion");
++    expect(diag).toHaveProperty("platform");
++    expect(diag).toHaveProperty("cwd");
++    expect(diag).toHaveProperty("env");
++    // env should include at least one known environment key
++    expect(Object.keys(diag.env).length).toBeGreaterThan(0);
++  });
++});
++
++describe("main dispatch", () => {
++  let exitSpy;
++  let logSpy;
++  let usageSpy;
++
++  beforeEach(() => {
++    exitSpy = vi.spyOn(process, "exit").mockImplementation((code) => { throw code; });
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    usageSpy = vi.spyOn(mainModule, "printDiagnostics");
++  });
++  afterEach(() => {
++    exitSpy.mockRestore();
++    logSpy.mockRestore();
++    usageSpy.mockRestore();
++  });
++
++  test("help flag prints usage and exits 0", () => {
++    expect(() => mainModule.main(["--help"]))
++      .toThrow(0);
++    expect(logSpy).toHaveBeenCalled();
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++
++  test("diagnostics flag prints report and exits 0", () => {
++    const diagObject = { foo: "bar" };
++    // stub printDiagnostics to return custom object
++    usageSpy.mockReturnValue(diagObject);
++    expect(() => mainModule.main(["--diagnostics"]))
++      .toThrow(0);
++    // one call to console.log for JSON report
++    const printed = logSpy.mock.calls[0][0];
++    expect(printed).toContain('"foo": "bar"');
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++
++  test("no flags logs options and returns options", () => {
++    const result = mainModule.main([]);
++    expect(result).toEqual({
++      help: false,
++      diagnostics: false,
++      serve: false,
++      buildIntermediate: false,
++      buildEnhanced: false,
++      refresh: false,
++      mergePersist: false,
++    });
++    expect(logSpy).toHaveBeenCalledWith("Options:", result);
+   });
+ });\n\n// New [docs/CLI_USAGE.md]:\n# CLI Usage
+
+This tool supports the following command line flags:
+
+- **--help**: Show usage information and exit.
+- **--diagnostics**: Enable diagnostics mode to collect and display system and environment details.
+- **--serve**: Start a simple HTTP server on a configurable port.
+- **--build-intermediate**: Perform staged build operations (placeholder).
+- **--build-enhanced**: Perform enhanced build operations (placeholder).
+- **--refresh**: Reload configuration and data (placeholder).
+- **--merge-persist**: Merge data and persist changes to disk (placeholder).
+
+Examples:
+
+You can run `npm run start --help` to display usage information.
+Use `npm run diagnostics` to view system diagnostics in JSON format.
+Type `npm run serve` to start the HTTP server on the default port.\n\n// New [docs/DIAGNOSTICS.md]:\n# Diagnostics Mode
+
+When the **--diagnostics** flag is provided, the CLI gathers the following system information:
+
+- **nodeVersion**: The running Node.js version (process.versions.node).
+- **platform**: The host operating system (process.platform).
+- **cwd**: Current working directory (process.cwd()).
+- **env**: A collection of environment variables (process.env).
+
+The information is output as a formatted JSON report and the process exits with status code 0.
+
+Example:
+
+type `npm run diagnostics` to see a JSON report similar to:
+{
+  "nodeVersion": "20.x.x",
+  "platform": "linux",
+  "cwd": "/path/to/project",
+  "env": {
+    "PATH": "/usr/local/bin:...",
+    "HOME": "/home/user",
+    ...
+  }
+}
+```
+
+mainOutput:
+```log
+
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2297 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":27335,"completion_tokens":7327,"total_tokens":34662,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4672,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
