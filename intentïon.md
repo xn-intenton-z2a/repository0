@@ -808,3 +808,83 @@ LLM API Usage:
 ```
 ---
 
+
+## Feature to Issue at 2025-05-27T00:39:20.163Z
+
+Activity:
+
+Generated issue 2290 for feature "find-capital-of" with URL https://github.com/xn-intenton-z2a/repository0/issues/2290
+
+title:
+
+Implement `--find-capital-of` CLI command to query a country’s capital from OWL JSON
+
+And description:
+
+## Objective
+
+Add a new CLI command `--find-capital-of <countryCode>` that reuses the existing OWL ontology generation logic (from `--capital-cities`) to fetch country data, build an OWL JSON ontology, then extract and output the capital city for the specified country code. Support the following modes:
+
+1. **Query Only**
+   - `node src/lib/main.js --find-capital-of USA`
+   - Fetch data from the Rest Countries API (`https://restcountries.com/v3.1/all`), build the ontology, find the individual(s) where `subject` = `<countryCode>` and `predicate` = `hasCapital`, and print the city name(s) (plain text) to `stdout`.
+
+2. **File Output**
+   - `node src/lib/main.js --find-capital-of FRA --output capital.json`
+   - Write a JSON object `{ country: "FRA", capital: "Paris" }` (or an array of capitals if multiple) to the given file path.
+
+## Changes to Make
+
+1. **src/lib/main.js**
+   - Extend `main(args)` to detect `--find-capital-of` and read the country code argument.
+   - Reuse the fetch-and-build-ontology logic from `--capital-cities` or factor it into a helper:
+     ```js
+     async function buildOntology() { /* fetch and return OWL JSON */ }
+     ```
+   - After building the ontology, locate triples in `ontology.individuals` where `predicate === 'hasCapital'` and `subject === countryCode`.
+   - If no matches, print an error and exit with non-zero status.
+   - Otherwise, extract the `object` values (city names). If `--output <path>` is provided, write `{ country: code, capital: <string or string[]> }` to file via `fs.promises.writeFile`; else print the capital(s) to `stdout`.
+   - Ensure `main` returns the object for testability when invoked programmatically.
+
+2. **tests/unit/main.test.js**
+   - Add a suite for `--find-capital-of`:
+     - Stub `global.fetch` to return a minimal country list containing at least one entry with `cca3` = sample code and `capital` array.
+     - Test that `main(["--find-capital-of","USA"])` prints the expected city name(s) via `console.log` and returns the expected object.
+     - Test that `main(["--find-capital-of","USA","--output","out.json"])` calls `fs.promises.writeFile` with the correct JSON string and returns the same object.
+     - Test error handling when an unknown code is provided (e.g., expect a thrown error or process exit).
+
+3. **README.md**
+   - Under **CLI Usage**, add a new section:
+     ```md
+     ### Query a Country’s Capital from OWL JSON
+     ```bash
+     node src/lib/main.js --find-capital-of <countryCode> [--output <path>]
+     ```
+     - Describe behavior: fetch countries, build OWL ontology, find `hasCapital` triples, print or write the capital city.
+     - Show examples:
+       ```bash
+       > node src/lib/main.js --find-capital-of USA
+       Washington D.C.
+
+       > node src/lib/main.js --find-capital-of FRA --output capital.json
+       # writes {"country":"FRA","capital":"Paris"} to capital.json
+       ```
+     ```
+   - Link to [MISSION.md] to frame this as part of the mission to query OWL ontologies.
+
+## Verification
+
+1. Run `npm test` to ensure new and existing tests pass.
+2. Manual smoke test:
+   - `node src/lib/main.js --find-capital-of USA` prints `Washington D.C.`
+   - `node src/lib/main.js --find-capital-of XYZ` exits with an error code and a clear message.
+   - `node src/lib/main.js --find-capital-of FRA --output out.json` creates `out.json` with valid JSON.
+
+**Note:** Only modify `src/lib/main.js`, `tests/unit/main.test.js`, and `README.md` to implement this feature.
+
+LLM API Usage:
+```json
+{"prompt_tokens":14772,"completion_tokens":1893,"total_tokens":16665,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":896,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
