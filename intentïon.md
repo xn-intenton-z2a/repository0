@@ -6762,3 +6762,341 @@ LLM API Usage:
 ```
 
 ---
+## Fixed Code at 2025-05-27T16:32:49.193Z
+
+Activity:
+
+fixApplied: true with Implement CLI parsing usage version diagnostics and adjust tests to properly handle process.exit and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 69bda0cf..4de11a11 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,24 +1,26 @@
+-#!/usr/bin/env node
+-import minimist from 'minimist';
+-import { createRequire } from 'module';
+-import { fileURLToPath } from 'url';
++import fs from 'fs';
++import path from 'path';
+ 
+ /**
+- * Parse CLI arguments into options object.
+- * Unknown flags cause an error and exit code 1.
++ * Parse command-line arguments.
+  * @param {string[]} args
+- * @returns {{help:boolean,version:boolean,diagnostics:boolean}}
++ * @returns {{help: boolean, version: boolean, diagnostics: boolean}}
+  */
+-export function parseArgs(args = []) {
+-  const parsed = minimist(args, {
+-    boolean: ['help', 'version', 'diagnostics'],
+-    unknown: (opt) => { console.error(`Unknown option: ${opt}`); printUsage(); process.exit(1); }
+-  });
+-  return {
+-    help: Boolean(parsed.help),
+-    version: Boolean(parsed.version),
+-    diagnostics: Boolean(parsed.diagnostics)
+-  };
++export function parseArgs(args) {
++  const options = { help: false, version: false, diagnostics: false };
++  for (const arg of args) {
++    if (arg === '--help') {
++      options.help = true;
++    } else if (arg === '--version') {
++      options.version = true;
++    } else if (arg === '--diagnostics') {
++      options.diagnostics = true;
++    } else {
++      console.error(`Unknown option: ${arg}`);
++      process.exit(1);
++    }
++  }
++  return options;
+ }
+ 
+ /**
+@@ -28,37 +30,50 @@ export function printUsage() {
+   console.log('Usage: node src/lib/main.js [options]');
+   console.log('Options:');
+   console.log('  --help         Show usage information and exit');
+-  console.log('  --version      Print tool version and exit');
+-  console.log('  --diagnostics  Print system diagnostics and exit');
++  console.log('  --version      Print current tool version and exit');
++  console.log('  --diagnostics  Collect and display system diagnostics and exit');
+ }
+ 
+ /**
+- * Print the version from package.json.
++ * Print version from package.json.
++ * @returns {string}
+  */
+ export function printVersion() {
+-  const require = createRequire(import.meta.url);
+-  const pkg = require('../../package.json');
+-  console.log(pkg.version);
++  const pkgPath = path.resolve(process.cwd(), 'package.json');
++  let version;
++  try {
++    const content = fs.readFileSync(pkgPath, 'utf8');
++    const pkg = JSON.parse(content);
++    version = pkg.version;
++  } catch (e) {
++    console.error(`Failed to read version from package.json: ${e.message}`);
++    process.exit(1);
++  }
++  console.log(version);
++  return version;
+ }
+ 
+ /**
+- * Print system diagnostics as JSON.
++ * Print system diagnostics.
++ * @returns {object}
+  */
+ export function printDiagnostics() {
+   const diag = {
+-    nodeVersion: process.versions.node,
++    nodeVersion: process.version,
+     platform: process.platform,
+     cwd: process.cwd(),
+-    env: { ...process.env }
++    env: process.env,
+   };
+   console.log(JSON.stringify(diag, null, 2));
++  return diag;
+ }
+ 
+ /**
+- * Main entry point for the CLI.
++ * Main CLI entry point.
+  * @param {string[]} args
++ * @returns {{help: boolean, version: boolean, diagnostics: boolean}}
+  */
+-export function main(args = process.argv.slice(2)) {
++export function main(args) {
+   const options = parseArgs(args);
+   if (options.help) {
+     printUsage();
+@@ -73,9 +88,10 @@ export function main(args = process.argv.slice(2)) {
+     process.exit(0);
+   }
+   console.log('Options:', options);
++  return options;
+ }
+ 
+-// Run if invoked directly
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  main();
+-}
+\ No newline at end of file
++// Execute main when run as CLI
++if (process.argv[1] && process.argv[1].endsWith('src/lib/main.js')) {
++  main(process.argv.slice(2));
++}
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index bbc3c3a8..37fe967a 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,94 +1,139 @@
+-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+-import { createRequire } from 'module';
+-import * as mainModule from '@src/lib/main.js';
+-
+-// Helper to capture console.log and console.error
+-let logSpy;
+-let errorSpy;
+-let exitSpy;
+-
+-beforeEach(() => {
+-  logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+-  errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+-  exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => { throw code; });
+-});
+-
+-afterEach(() => {
+-  vi.restoreAllMocks();
+-});
++import fs from 'fs';
++import path from 'path';
++import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
++import * as mainModule from '../../src/lib/main.js';
+ 
+ describe('parseArgs', () => {
++  let errorSpy;
++  let exitSpy;
++
++  beforeEach(() => {
++    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++    exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => { throw code; });
++  });
++
++  afterEach(() => {
++    errorSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
+   it('returns all false for no flags', () => {
+-    const opts = mainModule.parseArgs([]);
+-    expect(opts).toEqual({ help: false, version: false, diagnostics: false });
++    expect(mainModule.parseArgs([])).toEqual({ help: false, version: false, diagnostics: false });
+   });
+ 
+   it('parses --help flag', () => {
+-    const opts = mainModule.parseArgs(['--help']);
+-    expect(opts.help).toBe(true);
+-    expect(opts.version).toBe(false);
+-    expect(opts.diagnostics).toBe(false);
++    expect(mainModule.parseArgs(['--help'])).toEqual({ help: true, version: false, diagnostics: false });
+   });
+ 
+   it('parses --version and --diagnostics flags simultaneously', () => {
+-    const opts = mainModule.parseArgs(['--version', '--diagnostics']);
+-    expect(opts).toEqual({ help: false, version: true, diagnostics: true });
++    expect(mainModule.parseArgs(['--version', '--diagnostics'])).toEqual({ help: false, version: true, diagnostics: true });
+   });
+ 
+   it('errors on unknown flag', () => {
+-    expect(() => mainModule.parseArgs(['--unknown'])).toThrow(1);
++    expect(() => mainModule.parseArgs(['--unknown'])).toThrow();
+     expect(errorSpy).toHaveBeenCalledWith('Unknown option: --unknown');
++    expect(exitSpy).toHaveBeenCalledWith(1);
+   });
+ });
+ 
+ describe('printUsage', () => {
++  let logSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    logSpy.mockRestore();
++  });
++
+   it('prints usage lines', () => {
+     mainModule.printUsage();
++    expect(logSpy).toHaveBeenCalledTimes(5);
+     expect(logSpy).toHaveBeenCalledWith('Usage: node src/lib/main.js [options]');
+     expect(logSpy).toHaveBeenCalledWith('Options:');
++    expect(logSpy).toHaveBeenCalledWith('  --help         Show usage information and exit');
++    expect(logSpy).toHaveBeenCalledWith('  --version      Print current tool version and exit');
++    expect(logSpy).toHaveBeenCalledWith('  --diagnostics  Collect and display system diagnostics and exit');
+   });
+ });
+ 
+ describe('printVersion', () => {
++  let logSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    logSpy.mockRestore();
++  });
++
+   it('prints the version from package.json', () => {
+-    const require = createRequire(import.meta.url);
+-    const pkg = require('../../package.json');
+-    mainModule.printVersion();
++    const version = mainModule.printVersion();
++    const pkg = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'));
++    expect(version).toBe(pkg.version);
+     expect(logSpy).toHaveBeenCalledWith(pkg.version);
+   });
+ });
+ 
+ describe('printDiagnostics', () => {
++  let logSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    logSpy.mockRestore();
++  });
++
+   it('prints JSON diagnostics with keys', () => {
+-    mainModule.printDiagnostics();
+-    const printed = logSpy.mock.calls[0][0];
+-    const obj = JSON.parse(printed);
+-    expect(obj).toHaveProperty('nodeVersion');
+-    expect(obj).toHaveProperty('platform');
+-    expect(obj).toHaveProperty('cwd');
+-    expect(obj).toHaveProperty('env');
++    const diag = mainModule.printDiagnostics();
++    expect(logSpy).toHaveBeenCalled();
++    expect(diag).toHaveProperty('nodeVersion');
++    expect(diag).toHaveProperty('platform');
++    expect(diag).toHaveProperty('cwd');
++    expect(diag).toHaveProperty('env');
+   });
+ });
+ 
+ describe('main dispatch', () => {
++  let logSpy;
++  let exitSpy;
++
++  beforeEach(() => {
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => { throw code; });
++  });
++
++  afterEach(() => {
++    logSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
+   it('handles --help and exits', () => {
+-    expect(() => mainModule.main(['--help'])).toThrow(0);
+-    expect(logSpy).toHaveBeenCalled();
++    expect(() => mainModule.main(['--help'])).toThrow();
++    expect(logSpy).toHaveBeenCalledWith('Usage: node src/lib/main.js [options]');
++    expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+ 
+   it('handles --version and exits', () => {
+-    expect(() => mainModule.main(['--version'])).toThrow(0);
+-    expect(logSpy).toHaveBeenCalled();
++    expect(() => mainModule.main(['--version'])).toThrow();
++    const pkgVersion = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8')).version;
++    expect(logSpy).toHaveBeenCalledWith(pkgVersion);
++    expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+ 
+   it('handles --diagnostics and exits', () => {
+-    expect(() => mainModule.main(['--diagnostics'])).toThrow(0);
++    expect(() => mainModule.main(['--diagnostics'])).toThrow();
+     expect(logSpy).toHaveBeenCalled();
++    expect(exitSpy).toHaveBeenCalledWith(0);
+   });
+ 
+   it('logs options when no special flags', () => {
+-    const opts = { help: false, version: false, diagnostics: false };
+-    mainModule.main([]);
+-    expect(logSpy).toHaveBeenCalledWith('Options:', opts);
++    const options = mainModule.main([]);
++    expect(logSpy).toHaveBeenCalledWith('Options:', { help: false, version: false, diagnostics: false });
++    expect(options).toEqual({ help: false, version: false, diagnostics: false });
+   });
+ });
+```
+
+mainOutput:
+```log
+
+```
+
+[allValidationStepsSuccessful: true]
+
+LLM API Usage:
+```json
+{"prompt_tokens":12092,"completion_tokens":10964,"total_tokens":23056,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":8640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
