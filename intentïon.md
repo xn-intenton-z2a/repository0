@@ -70,3 +70,44 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T02:50:00.511Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Implement robust CLI argument parsing using Zod in src/lib/main.js.
+
+Acceptance Criteria:
+1. parseArgs(args: string[]):
+   - Export a function that defines and validates against a Zod schema for flags: help, diagnostics, serve, buildIntermediate, buildEnhanced, refresh, mergePersist.
+   - Returns a structured options object with boolean properties matching each flag in camelCase.
+2. Help and error handling:
+   - When `--help` is passed, print a clear usage message listing all supported flags and exit with code 0.
+   - On invalid flag or failed validation, print an error message, print usage, and exit with a non-zero code.
+3. main() integration:
+   - main() calls `parseArgs(process.argv.slice(2))` and logs `Options: <options object>` to stdout.
+   - main() does not throw under normal operation, help, or error exit flows.
+4. Tests (tests/unit/main.test.js):
+   - Unit tests for parseArgs covering:
+     • Each individual flag
+     • Multiple flag combinations
+     • No flags
+     • Invalid flags (assert error exit behavior)
+   - Tests for `--help` behavior using Vitest’s `spyOn(process, 'exit')` and `spyOn(console, 'log')`.
+   - Test that main() delegates to parseArgs without throwing and logs the correct options.
+5. Documentation (README.md):
+   - Add a **CLI Usage** section listing: help, diagnostics, serve, build-intermediate, build-enhanced, refresh, merge-persist.
+   - Include inline examples (no fenced code blocks) demonstrating commands, e.g. `npm run start --diagnostics` and expected output.
+
+Validation:
+- `npm test` passes all unit tests, including new tests for parseArgs.
+- `npm run start --help` prints the usage message and exits with code 0.
+- `npm run start --serve` prints `Options: { serve: true, ... }`.
+
+LLM API Usage:
+```json
+{"prompt_tokens":6174,"completion_tokens":1565,"total_tokens":7739,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
