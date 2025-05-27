@@ -2839,3 +2839,516 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T08:31:32.192Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2298 with message Implement build refresh and persistence operations with supporting tests and documentation and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..2322bee0 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,13 +1,264 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
++import { z } from "zod";
++import fs from "fs";
++import path from "path";
++import os from "os";
++import yaml from "js-yaml";
++import http from "http";
+ 
+-import { fileURLToPath } from "url";
++// Known CLI flags and mapping to option keys
++const knownFlags = [
++  "--help",
++  "--diagnostics",
++  "--serve",
++  "--build-intermediate",
++  "--build-enhanced",
++  "--refresh",
++  "--merge-persist",
++];
++const flagMap = {
++  "--help": "help",
++  "--diagnostics": "diagnostics",
++  "--serve": "serve",
++  "--build-intermediate": "buildIntermediate",
++  "--build-enhanced": "buildEnhanced",
++  "--refresh": "refresh",
++  "--merge-persist": "mergePersist",
++};
+ 
+-export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++/**
++ * Print usage information for the CLI.
++ */
++export function printUsage() {
++  console.log("Usage: node src/lib/main.js [options]");
++  console.log("Options:");
++  console.log("  --help               Show usage information");
++  console.log("  --diagnostics        Enable diagnostics mode");
++  console.log("  --serve              Start a simple HTTP server");
++  console.log("  --build-intermediate Perform staged build operations");
++  console.log("  --build-enhanced     Perform enhanced build operations");
++  console.log("  --refresh            Reload configuration and data");
++  console.log("  --merge-persist      Merge data and persist to disk");
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++/**
++ * Parse and validate CLI arguments.
++ * Exits on help or unknown flags.
++ * @param {string[]} args
++ * @returns {object}
++ */
++export function parseArgs(args = []) {
++  // Unknown flag check
++  for (const arg of args) {
++    if (!knownFlags.includes(arg)) {
++      console.log(`Unknown option: ${arg}`);
++      printUsage();
++      process.exit(1);
++    }
++  }
++
++  const options = {
++    help: false,
++    diagnostics: false,
++    serve: false,
++    buildIntermediate: false,
++    buildEnhanced: false,
++    refresh: false,
++    mergePersist: false,
++  };
++
++  for (const arg of args) {
++    options[flagMap[arg]] = true;
++  }
++
++  // Validate shape
++  const schema = z.object({
++    help: z.boolean(),
++    diagnostics: z.boolean(),
++    serve: z.boolean(),
++    buildIntermediate: z.boolean(),
++    buildEnhanced: z.boolean(),
++    refresh: z.boolean(),
++    mergePersist: z.boolean(),
++  });
++  return schema.parse(options);
++}
++
++/**
++ * Gather and return diagnostic information.
++ */
++export function printDiagnostics() {
++  return {
++    nodeVersion: process.versions.node,
++    platform: process.platform,
++    cwd: process.cwd(),
++    env: { ...process.env },
++  };
++}
++
++/**
++ * Start an HTTP server for /health and /options endpoints.
++ */
++export function startHttpServer(options, port = process.env.PORT || 3000) {
++  const server = http.createServer((req, res) => {
++    res.setHeader("Content-Type", "application/json");
++    if (req.method === "GET" && req.url === "/health") {
++      res.writeHead(200);
++      res.end(JSON.stringify({ status: "ok" }));
++    } else if (req.method === "GET" && req.url === "/options") {
++      res.writeHead(200);
++      res.end(JSON.stringify(options));
++    } else {
++      res.writeHead(404);
++      res.end(JSON.stringify({ error: "Not Found" }));
++    }
++  });
++  server.listen(port, () => {
++    console.log(`Server listening on port ${port}`);
++  });
++  return server;
++}
++
++/**
++ * Perform a staged build: read a source definition, generate an intermediate manifest.
++ * @param {object} options
++ * @returns {{items:number,path:string}}
++ */
++export function performBuildIntermediate(options) {
++  const cwd = process.cwd();
++  const candidates = ["source.json", "config.json", "source.yml", "config.yml"];
++  let sourceFile;
++  for (const file of candidates) {
++    const p = path.resolve(cwd, file);
++    if (fs.existsSync(p)) {
++      sourceFile = p;
++      break;
++    }
++  }
++  if (!sourceFile) {
++    throw new Error('Source definition file not found');
++  }
++  const ext = path.extname(sourceFile).toLowerCase();
++  const content = fs.readFileSync(sourceFile, 'utf-8');
++  const data = ext === '.json'
++    ? JSON.parse(content)
++    : yaml.load(content);
++  const items = Array.isArray(data) ? data.length : Object.keys(data).length;
++  const manifest = { items, data };
++  const tempDir = os.tmpdir();
++  const manifestPath = path.join(tempDir, `intermediate-${Date.now()}.json`);
++  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
++  const summary = { items, path: manifestPath };
++  console.log(summary);
++  return summary;
+ }
++
++/**
++ * Perform an enhanced build: read intermediate manifest, transform, write enhanced.
++ * @param {object} options
++ * @returns {{transformed:boolean,path:string}}
++ */
++export function performBuildEnhanced(options) {
++  const cwd = process.cwd();
++  const manifestPath = process.env.INTERMEDIATE_PATH
++    || path.resolve(cwd, 'intermediate.json');
++  if (!fs.existsSync(manifestPath)) {
++    throw new Error(`Intermediate manifest not found: ${manifestPath}`);
++  }
++  const content = fs.readFileSync(manifestPath, 'utf-8');
++  const manifest = JSON.parse(content);
++  const transformedData = { ...manifest, transformedAt: new Date().toISOString() };
++  const tempDir = os.tmpdir();
++  const enhancedPath = path.join(tempDir, `enhanced-${Date.now()}.json`);
++  fs.writeFileSync(enhancedPath, JSON.stringify(transformedData, null, 2));
++  const report = { transformed: true, path: enhancedPath };
++  console.log(report);
++  return report;
++}
++
++/**
++ * Refresh and load configuration from JSON or YAML.
++ * @returns {object}
++ */
++export function refreshConfiguration() {
++  const cwd = process.cwd();
++  const jsonPath = path.resolve(cwd, 'config.json');
++  const yamlPath = path.resolve(cwd, 'config.yml');
++  let config;
++  if (fs.existsSync(jsonPath)) {
++    config = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
++  } else if (fs.existsSync(yamlPath)) {
++    config = yaml.load(fs.readFileSync(yamlPath, 'utf-8'));
++  } else {
++    throw new Error('No configuration file found');
++  }
++  console.log(config);
++  return config;
++}
++
++/**
++ * Merge two data sources and persist the result.
++ * @param {object} options
++ * @returns {{path:string,size:number}}
++ */
++export function mergeAndPersistData(options) {
++  const cwd = process.cwd();
++  const data1Path = process.env.DATA1_PATH || path.resolve(cwd, 'data1.json');
++  const data2Path = process.env.DATA2_PATH || path.resolve(cwd, 'data2.json');
++  if (!fs.existsSync(data1Path) || !fs.existsSync(data2Path)) {
++    throw new Error('Data source file not found');
++  }
++  const data1 = JSON.parse(fs.readFileSync(data1Path, 'utf-8'));
++  const data2 = JSON.parse(fs.readFileSync(data2Path, 'utf-8'));
++  const merged = { ...data1, ...data2 };
++  const mergedPath = process.env.MERGED_PATH || path.resolve(cwd, 'merged-data.json');
++  fs.writeFileSync(mergedPath, JSON.stringify(merged, null, 2));
++  const { size } = fs.statSync(mergedPath);
++  const result = { path: mergedPath, size };
++  console.log(result);
++  return result;
++}
++
++/**
++ * Main CLI entrypoint.
++ * @param {string[]} args
++ */
++export function main(args = process.argv.slice(2)) {
++  const options = parseArgs(args);
++  if (options.help) {
++    printUsage();
++    process.exit(0);
++  }
++  if (options.diagnostics) {
++    const report = printDiagnostics();
++    console.log(JSON.stringify(report, null, 2));
++    process.exit(0);
++  }
++  if (options.serve) {
++    startHttpServer(options);
++    return;
++  }
++  if (options.buildIntermediate) {
++    performBuildIntermediate(options);
++    process.exit(0);
++  }
++  if (options.buildEnhanced) {
++    performBuildEnhanced(options);
++    process.exit(0);
++  }
++  if (options.refresh) {
++    refreshConfiguration();
++    process.exit(0);
++  }
++  if (options.mergePersist) {
++    mergeAndPersistData(options);
++    process.exit(0);
++  }
++  console.log('Options:', options);
++  return options;
++}
++
++// Execute when run directly
++if (process.argv[1] && process.argv[1].endsWith('src/lib/main.js')) {
++  main();
++}
+\ No newline at end of file
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..6af9dfa3 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,142 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
++import * as mainModule from '@src/lib/main.js';
++import fs from 'fs';
++import path from 'path';
++import os from 'os';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++// Tests for performBuildIntermediate
++describe('performBuildIntermediate', () => {
++  let existsSpy, readSpy, writeSpy, tmpdirSpy, dateNowSpy, logSpy;
++  beforeEach(() => {
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation((p) => p.endsWith('source.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation((p) => '{"a":1,"b":2}');
++    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++    tmpdirSpy = vi.spyOn(os, 'tmpdir').mockReturnValue('/tmp');
++    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(123);
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++  afterEach(() => {
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    writeSpy.mockRestore();
++    tmpdirSpy.mockRestore();
++    dateNowSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++  test('reads source.json and writes intermediate manifest', () => {
++    const summary = mainModule.performBuildIntermediate({});
++    expect(summary).toEqual({ items: 2, path: '/tmp/intermediate-123.json' });
++    expect(readSpy).toHaveBeenCalledWith(path.resolve(process.cwd(), 'source.json'), 'utf-8');
++    expect(writeSpy).toHaveBeenCalled();
++  });
++});
++
++// Tests for performBuildEnhanced
++describe('performBuildEnhanced', () => {
++  let existsSpy, readSpy, writeSpy, tmpdirSpy, dateNowSpy, logSpy;
++  beforeEach(() => {
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation((p) => p.includes('intermediate.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation((p) => '{"items":1}');
++    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++    tmpdirSpy = vi.spyOn(os, 'tmpdir').mockReturnValue('/tmp');
++    dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(456);
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    process.env.INTERMEDIATE_PATH = 'intermediate.json';
++  });
++  afterEach(() => {
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    writeSpy.mockRestore();
++    tmpdirSpy.mockRestore();
++    dateNowSpy.mockRestore();
++    logSpy.mockRestore();
++    delete process.env.INTERMEDIATE_PATH;
++  });
++  test('reads intermediate.json and writes enhanced file', () => {
++    const report = mainModule.performBuildEnhanced({});
++    expect(report).toEqual({ transformed: true, path: '/tmp/enhanced-456.json' });
++    expect(readSpy).toHaveBeenCalledWith('intermediate.json', 'utf-8');
++    expect(writeSpy).toHaveBeenCalled();
++  });
++});
++
++// Tests for refreshConfiguration
++describe('refreshConfiguration', () => {
++  let existsSpy, readSpy, logSpy;
++  beforeEach(() => {
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation((p) => p.endsWith('config.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation((p) => '{"x":10}');
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++  afterEach(() => {
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++  test('reads config.json and logs', () => {
++    const config = mainModule.refreshConfiguration();
++    expect(config).toEqual({ x: 10 });
++    expect(readSpy).toHaveBeenCalledWith(path.resolve(process.cwd(), 'config.json'), 'utf-8');
++    expect(logSpy).toHaveBeenCalledWith({ x: 10 });
++  });
++});
++
++// Tests for mergeAndPersistData
++describe('mergeAndPersistData', () => {
++  let existsSpy, readSpy, writeSpy, statSpy, logSpy;
++  beforeEach(() => {
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation((p) => p.endsWith('data1.json') || p.endsWith('data2.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation((p) => (p.endsWith('data1.json') ? '{"a":1}' : '{"b":2}'));
++    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++    statSpy = vi.spyOn(fs, 'statSync').mockReturnValue({ size: 100 });
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++  afterEach(() => {
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    writeSpy.mockRestore();
++    statSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++  test('merges data1 and data2 and writes merged file', () => {
++    const result = mainModule.mergeAndPersistData({});
++    expect(result).toEqual({ path: path.resolve(process.cwd(), 'merged-data.json'), size: 100 });
++    expect(writeSpy).toHaveBeenCalled();
++    expect(logSpy).toHaveBeenCalledWith(result);
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++// Tests for main integration
++describe('main integration', () => {
++  let exitSpy, buildSpy, enhancedSpy, refreshSpy, mergeSpy;
++  beforeEach(() => {
++    exitSpy = vi.spyOn(process, 'exit').mockImplementation((code) => { throw code; });
++    buildSpy = vi.spyOn(mainModule, 'performBuildIntermediate').mockImplementation(() => {});
++    enhancedSpy = vi.spyOn(mainModule, 'performBuildEnhanced').mockImplementation(() => {});
++    refreshSpy = vi.spyOn(mainModule, 'refreshConfiguration').mockImplementation(() => {});
++    mergeSpy = vi.spyOn(mainModule, 'mergeAndPersistData').mockImplementation(() => {});
++  });
++  afterEach(() => {
++    exitSpy.mockRestore();
++    buildSpy.mockRestore();
++    enhancedSpy.mockRestore();
++    refreshSpy.mockRestore();
++    mergeSpy.mockRestore();
++  });
++  test('--build-intermediate triggers performBuildIntermediate', () => {
++    expect(() => mainModule.main(['--build-intermediate'])).toThrow(0);
++    expect(buildSpy).toHaveBeenCalled();
++  });
++  test('--build-enhanced triggers performBuildEnhanced', () => {
++    expect(() => mainModule.main(['--build-enhanced'])).toThrow(0);
++    expect(enhancedSpy).toHaveBeenCalled();
++  });
++  test('--refresh triggers refreshConfiguration', () => {
++    expect(() => mainModule.main(['--refresh'])).toThrow(0);
++    expect(refreshSpy).toHaveBeenCalled();
++  });
++  test('--merge-persist triggers mergeAndPersistData', () => {
++    expect(() => mainModule.main(['--merge-persist'])).toThrow(0);
++    expect(mergeSpy).toHaveBeenCalled();
+   });
+ });\n\n// New [docs/BUILD_OPERATIONS.md]:\n# Build Operations
+
+## Staged Build (--build-intermediate)
+
+- Read a source definition (`source.json` or `config.yml`) from the project root.
+- Generate an intermediate manifest in the system temporary directory.
+- Log a summary object with `items` count and manifest file `path`.
+
+Usage:
+
+npm run build-intermediate
+
+## Enhanced Build (--build-enhanced)
+
+- Read the intermediate manifest from `intermediate.json` (or set `INTERMEDIATE_PATH`).
+- Apply a simple transformation by adding a `transformedAt` timestamp.
+- Write the enhanced output to the system temporary directory.
+- Log a report object with `transformed` flag and output file `path`.
+
+Usage:
+
+npm run build-enhanced\n\n// New [docs/CONFIGURATION.md]:\n# Configuration Refresh
+
+When `--refresh` is provided:
+
+- Load configuration from `config.json` or `config.yml` in the project root.
+- Validate and parse settings.
+- Log and return the configuration object.
+
+Usage:
+
+npm run refresh\n\n// New [docs/DATA_PERSISTENCE.md]:\n# Data Persistence
+
+When `--merge-persist` is provided:
+
+- Read two data sources from `data1.json` and `data2.json` in the project root.
+- Merge them into a combined object.
+- Write the merged JSON to `merged-data.json` (or set `MERGED_PATH`).
+- Log and return an object with file `path` and byte `size`.
+
+Usage:
+
+npm run merge-persist
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2298 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":33978,"completion_tokens":11069,"total_tokens":45047,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":6400,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
