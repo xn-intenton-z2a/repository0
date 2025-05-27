@@ -1,24 +1,26 @@
-#!/usr/bin/env node
-import minimist from 'minimist';
-import { createRequire } from 'module';
-import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
 
 /**
- * Parse CLI arguments into options object.
- * Unknown flags cause an error and exit code 1.
+ * Parse command-line arguments.
  * @param {string[]} args
- * @returns {{help:boolean,version:boolean,diagnostics:boolean}}
+ * @returns {{help: boolean, version: boolean, diagnostics: boolean}}
  */
-export function parseArgs(args = []) {
-  const parsed = minimist(args, {
-    boolean: ['help', 'version', 'diagnostics'],
-    unknown: (opt) => { console.error(`Unknown option: ${opt}`); printUsage(); process.exit(1); }
-  });
-  return {
-    help: Boolean(parsed.help),
-    version: Boolean(parsed.version),
-    diagnostics: Boolean(parsed.diagnostics)
-  };
+export function parseArgs(args) {
+  const options = { help: false, version: false, diagnostics: false };
+  for (const arg of args) {
+    if (arg === '--help') {
+      options.help = true;
+    } else if (arg === '--version') {
+      options.version = true;
+    } else if (arg === '--diagnostics') {
+      options.diagnostics = true;
+    } else {
+      console.error(`Unknown option: ${arg}`);
+      process.exit(1);
+    }
+  }
+  return options;
 }
 
 /**
@@ -28,37 +30,50 @@ export function printUsage() {
   console.log('Usage: node src/lib/main.js [options]');
   console.log('Options:');
   console.log('  --help         Show usage information and exit');
-  console.log('  --version      Print tool version and exit');
-  console.log('  --diagnostics  Print system diagnostics and exit');
+  console.log('  --version      Print current tool version and exit');
+  console.log('  --diagnostics  Collect and display system diagnostics and exit');
 }
 
 /**
- * Print the version from package.json.
+ * Print version from package.json.
+ * @returns {string}
  */
 export function printVersion() {
-  const require = createRequire(import.meta.url);
-  const pkg = require('../../package.json');
-  console.log(pkg.version);
+  const pkgPath = path.resolve(process.cwd(), 'package.json');
+  let version;
+  try {
+    const content = fs.readFileSync(pkgPath, 'utf8');
+    const pkg = JSON.parse(content);
+    version = pkg.version;
+  } catch (e) {
+    console.error(`Failed to read version from package.json: ${e.message}`);
+    process.exit(1);
+  }
+  console.log(version);
+  return version;
 }
 
 /**
- * Print system diagnostics as JSON.
+ * Print system diagnostics.
+ * @returns {object}
  */
 export function printDiagnostics() {
   const diag = {
-    nodeVersion: process.versions.node,
+    nodeVersion: process.version,
     platform: process.platform,
     cwd: process.cwd(),
-    env: { ...process.env }
+    env: process.env,
   };
   console.log(JSON.stringify(diag, null, 2));
+  return diag;
 }
 
 /**
- * Main entry point for the CLI.
+ * Main CLI entry point.
  * @param {string[]} args
+ * @returns {{help: boolean, version: boolean, diagnostics: boolean}}
  */
-export function main(args = process.argv.slice(2)) {
+export function main(args) {
   const options = parseArgs(args);
   if (options.help) {
     printUsage();
@@ -73,9 +88,10 @@ export function main(args = process.argv.slice(2)) {
     process.exit(0);
   }
   console.log('Options:', options);
+  return options;
 }
 
-// Run if invoked directly
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  main();
+// Execute main when run as CLI
+if (process.argv[1] && process.argv[1].endsWith('src/lib/main.js')) {
+  main(process.argv.slice(2));
 }
