@@ -2704,3 +2704,68 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T08:27:35.324Z
+
+Activity:
+
+Generated issue 2298 for feature "cli-parser" with URL https://github.com/xn-intenton-z2a/repository0/issues/2298
+
+title:
+
+Implement build, refresh, and persistence operations in CLI parser
+
+And description:
+
+Overview
+Currently, the CLI supports argument parsing, diagnostics, and HTTP serving. This issue will add the remaining core workflows defined in the CLI_PARSER spec, namely staged and enhanced build operations, configuration refresh, and data merge+persistence.
+
+1. src/lib/main.js
+   • Export and implement four new functions:
+     - performBuildIntermediate(options): Reads a source definition (e.g., a JSON or YAML config file), generates an intermediate JSON manifest, prints it to stdout or a temp directory, and logs a concise summary object (e.g., { items: <count>, path: <manifestPath> }).
+     - performBuildEnhanced(options): Accepts the intermediate manifest, applies a simple transformation (e.g., adds a timestamp or uppercases a field), writes the final bundled result to stdout or a configured output directory, and logs a detailed report.
+     - refreshConfiguration(): Loads a YAML or JSON configuration file from a default location (e.g., ./config.yml or ./config.json), validates it against a schema (use Zod), returns the normalized object, and logs the refreshed settings.
+     - mergeAndPersistData(options): Collects two example data sources (e.g., two in-memory arrays or sample JSON files), merges them into one object, writes the result to disk at a configurable path (via an environment variable or default ./data/merged.json), and logs the file path and size.
+   • Update main(args) to:
+     - After parsing, if options.buildIntermediate is true: call performBuildIntermediate(options) and exit(0).
+     - Else if options.buildEnhanced is true: call performBuildEnhanced(options) and exit(0).
+     - Else if options.refresh is true: call refreshConfiguration(), print the returned config, and exit(0).
+     - Else if options.mergePersist is true: call mergeAndPersistData(options) and exit(0).
+
+2. tests/unit/main.test.js
+   • Add unit tests for each new function:
+     - performBuildIntermediate: mock file I/O (fs or tmp), verify that it returns an object with expected keys and that console.log was called with the summary.
+     - performBuildEnhanced: supply a fake intermediate manifest, spy on console.log, and assert that the returned metadata matches the transformation.
+     - refreshConfiguration: create a temporary config file fixture, call the function, and assert the returned object matches the parsed schema and log output.
+     - mergeAndPersistData: spy on fs.writeFile or use a temp directory, call the function, and verify the merged JSON file exists with correct contents, and console.log reports the path and byte size.
+   • Add integration tests for main([...]) flows for each flag to confirm the correct function is invoked and the process exits with code 0.
+
+3. README.md
+   • Under **Build Operations**, document:
+     - `--build-intermediate`: generates an intermediate manifest.
+     - `--build-enhanced`: produces a final optimized bundle.
+     - Provide inline examples:
+       npm run build-intermediate
+       npm run build-enhanced
+   • Under **Data Management**, document:
+     - `--refresh`: reloads configuration from config files.
+     - `--merge-persist`: merges data sources and writes to disk.
+     - Provide inline examples:
+       npm run refresh
+       npm run merge-persist
+
+4. package.json (if needed)
+   • Ensure the CLI scripts for `build-intermediate`, `build-enhanced`, `refresh`, and `merge-persist` correctly invoke `node src/lib/main.js --<flag>` per convention.
+
+Verification
+- Run `npm test` to confirm all new and existing tests pass.
+- Execute `npm run build-intermediate` and verify it prints the manifest and summary.
+- Execute `npm run build-enhanced` and verify the final output and report.
+- Execute `npm run refresh` and confirm the configuration object is printed and validated.
+- Execute `npm run merge-persist` and inspect the merged JSON file and log output.
+
+LLM API Usage:
+```json
+{"prompt_tokens":29667,"completion_tokens":1728,"total_tokens":31395,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":832,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
