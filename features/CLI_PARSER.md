@@ -1,49 +1,75 @@
 # CLI_PARSER
 
 # Description
-Extend the existing command line interface to include a full diagnostics mode alongside structured parsing and handling of all supported flags. Ensure each flag is validated and documented, and provide a reusable diagnostics function for troubleshooting.
+Enhance the command-line interface to implement build, refresh, and persistence behaviors in addition to parsing and diagnostics. Users can perform staged and enhanced builds, reload configuration, and merge data with persistence.
 
 # Flags and Subcommands
-1. --help              Show usage information and exit
-2. --diagnostics       Enable diagnostics mode: collect and display system and environment details
-3. --serve             Start a simple HTTP server on a configurable port
-4. --build-intermediate Perform staged build operations (placeholder)
-5. --build-enhanced    Perform enhanced build operations (placeholder)
-6. --refresh           Reload configuration and data (placeholder)
-7. --merge-persist     Merge data and persist changes to disk (placeholder)
+1. --help               Show usage information and exit
+2. --diagnostics        Enable diagnostics mode: collect and display system and environment details
+3. --serve              Start a simple HTTP server on a configurable port
+4. --build-intermediate Perform staged build operations
+5. --build-enhanced     Perform enhanced build operations
+6. --refresh            Reload configuration and data
+7. --merge-persist      Merge data and write results to disk
 
-# Diagnostics Mode
-When --diagnostics is provided:
-- Collect system information:
-  • nodeVersion: process.versions.node
-  • platform: process.platform
-  • cwd: process.cwd()
-  • env: selected entries from process.env matching supported flags or a configurable prefix
-- Format the collected data as a JSON object with keys nodeVersion, platform, cwd, env
-- Print the JSON diagnostics report to standard output and exit with status code 0
+# Build Operations
+## Staged Build (--build-intermediate)
+- Read source definitions or configuration
+- Generate an intermediate artifact (e.g., JSON manifest)
+- Write intermediate artifact to a temporary workspace or stdout
+- Log summary of generated items and return
+
+## Enhanced Build (--build-enhanced)
+- Starting from intermediate artifact, apply transformations or optimizations
+- Produce final build output (e.g., compiled files, bundled results)
+- Write output to configured output path or stdout
+- Log detailed build report
+
+# Refresh and Persistence
+## Refresh (--refresh)
+- Load or reload configuration files (e.g., YAML or JSON settings)
+- Validate and normalize configuration
+- Cache loaded settings in memory for subsequent operations
+- Log refreshed configuration values
+
+## Merge and Persist (--merge-persist)
+- Collect current data sources or previous build artifacts
+- Merge entries into a combined data structure
+- Serialize merged data to disk at a configurable output file
+- Log path and size of persisted file
 
 # Implementation
 - In src/lib/main.js:
-  1. Export parseArgs(args: string[]) that validates known flags and returns a structured options object, exiting on help or invalid flags.
-  2. Export printDiagnostics() that gathers the diagnostics fields above and returns a diagnostics object.
-  3. In main(args):
-     • Call parseArgs with CLI arguments
-     • If options.help is true, print usage and exit(0)
-     • Else if options.diagnostics is true, call printDiagnostics, console.log JSON.stringify(report, null, 2), and process.exit(0)
-     • Else if options.serve is true, invoke startHttpServer(options, port)
-     • Otherwise, console.log 'Options:', options
+  - Export functions:
+    - performBuildIntermediate(options)
+    - performBuildEnhanced(options)
+    - refreshConfiguration()
+    - mergeAndPersistData(options)
+  - In main(): after parsing args:
+    - If buildIntermediate: call performBuildIntermediate and exit
+    - Else if buildEnhanced: call performBuildEnhanced and exit
+    - Else if refresh: call refreshConfiguration and exit
+    - Else if mergePersist: call mergeAndPersistData and exit
+    - Maintain single-responsibility functions and clear logging
 
 # Testing
 - In tests/unit/main.test.js:
-  • Unit tests for parseArgs:
-    - Each flag alone, multiple flags, no flags, invalid flags exit behavior
-  • Unit tests for printDiagnostics:
-    - Spy on console.log to capture output and validate returned object has keys nodeVersion, platform, cwd, env
-    - Ensure env includes at least one known entry from process.env
-  • Integration tests for main(['--diagnostics']):
-    - Mock parseArgs, printDiagnostics, process.exit, and console.log to confirm the correct flow on diagnostics and help flags
+  - Add unit tests for each new function:
+    * performBuildIntermediate returns expected structure and logs summary
+    * performBuildEnhanced applies transformation and logs report
+    * refreshConfiguration loads and returns normalized config
+    * mergeAndPersistData writes a file and returns file metadata
+  - Use spies on console.log and mock file I/O (fs) to isolate behavior
+  - Confirm exit codes or returned values when flags selected
 
 # Documentation
-- Update README.md:
-  • Under CLI Usage section list all supported flags and describe their behavior
-  • Add Diagnostics Mode section with inline examples showing how to run npm run diagnostics and the expected JSON output
+- Update README.md under **Build Operations**:
+  - Describe usage of --build-intermediate and --build-enhanced
+  - Provide inline examples:
+    npm run build-intermediate
+    npm run build-enhanced
+- Add **Data Management** section:
+  - Explain --refresh and --merge-persist behaviors
+  - Show examples:
+    npm run refresh
+    npm run merge-persist
