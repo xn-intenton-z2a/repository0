@@ -121,7 +121,7 @@ jobs:
       mission: ''
       feature: ${{ inputs.feature || '' }}
       issue: ''
-      action: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
+      actions: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
