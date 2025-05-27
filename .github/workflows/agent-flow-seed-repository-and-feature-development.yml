@@ -118,11 +118,26 @@ jobs:
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
+  log-inputs:
+    needs: agentic-lib
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log inputs
+        run: |
+          echo "Mission: ${{ inputs.mission }}"
+          echo "Feature: ${{ inputs.feature }}"
+          echo "Issue: ${{ inputs.issue }}"
+          echo "URL: ${{ inputs.url }}"
+          echo "Actions: ${{ inputs.actions }}"
+          echo "repositoryReseed: ${{ needs.agentic-lib.outputs.repositoryReseed }}"
+          echo "sandboxReset: ${{ needs.agentic-lib.outputs.sandboxReset }}"
+
   seed-repository:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.actions, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -381,7 +396,7 @@ jobs:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.actions, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     env:
       branchPrefix: 'agentic-lib-'
@@ -463,7 +478,7 @@ jobs:
     needs:
       - agentic-lib
       - archive-intention
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.actions, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Redact old GitHub issues and delete their comments
@@ -519,7 +534,7 @@ jobs:
       - cleanup-issues
       - delete-branches
       - agentic-lib
-    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.action, 'seed-repository' ) }}
+    if: ${{ ( needs.agentic-lib.outputs.repositoryReseed == 'true' || needs.agentic-lib.outputs.sandboxReset == 'true' ) && contains( inputs.actions, 'seed-repository' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -599,7 +614,7 @@ jobs:
       - seed-repository
       - delete-branches
       - cleanup-issues
-    if: ${{ !cancelled() && contains( inputs.action, 'update' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'update' ) }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -668,7 +683,7 @@ jobs:
       - seed-repository
       - delete-branches
       - cleanup-issues
-    if: ${{ !cancelled() && contains( inputs.action, 'update' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'update' ) }}
     runs-on: ubuntu-latest
     steps:
 
@@ -773,7 +788,7 @@ jobs:
       - cleanup-issues
       - pom-check
       - update-npm
-    if: ${{ !cancelled() && needs.pom-check.outputs.pomXmlExists == 'true' && contains( inputs.action, 'update' ) }}
+    if: ${{ !cancelled() && needs.pom-check.outputs.pomXmlExists == 'true' && contains( inputs.actions, 'update' ) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -858,7 +873,7 @@ jobs:
       - update-npm
       - update-mvn
       #- maintain-library
-    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.action, 'maintain-features' ) }}
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.actions, 'maintain-features' ) }}
     permissions:
       contents: write
       issues: write
@@ -891,7 +906,7 @@ jobs:
     needs:
       - agentic-lib
       - maintain-features-one
-    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.action, 'maintain-features' ) }}
+    if: ${{ !cancelled() && needs.agentic-lib.outputs.featuresLimit > 0 && contains( inputs.actions, 'maintain-features' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -1243,7 +1258,7 @@ jobs:
       - update-npm
       - update-mvn
       - maintain-features-one
-    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'generate-feature-development-issue' ) }}
     permissions:
       contents: write
       issues: write
@@ -1283,7 +1298,7 @@ jobs:
       - update-mvn
       - maintain-features-one
       - generate-feature-development-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'generate-feature-development-issue' ) }}
     permissions:
       issues: write
       id-token: write
@@ -1302,7 +1317,7 @@ jobs:
       - update-mvn
       - generate-feature-development-issue-one
       - create-issue-one
-    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'generate-feature-development-issue' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -1563,7 +1578,7 @@ jobs:
       - update-mvn
       - generate-feature-development-issue-one
       - create-issue-one
-    if: ${{ !cancelled() && contains( inputs.action, 'generate-feature-development-issue' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'generate-feature-development-issue' ) }}
     permissions:
       contents: read
       issues: write
@@ -1596,7 +1611,7 @@ jobs:
     needs:
       - agentic-lib
       - enhance-issue-one
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'generate-feature-development-issue' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -1853,7 +1868,7 @@ jobs:
       - create-issue-one
       - enhance-issue-one
       #- npm-test-before-issue-resolution
-    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'apply-issue-resolution' ) }}
     permissions:
       contents: write
       issues: write
@@ -1901,7 +1916,7 @@ jobs:
       - enhance-issue-one
       #- npm-test-before-issue-resolution
       - label-issue-before-attempt
-    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'apply-issue-resolution' ) }}
     permissions:
       contents: write
       issues: write
@@ -1941,7 +1956,7 @@ jobs:
       - agentic-lib
       - create-issue-one
       - apply-issue-resolution
-    if: ${{ !cancelled() && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && contains( inputs.actions, 'apply-issue-resolution' ) }}
     runs-on: ubuntu-latest
     env:
       gitUserEmail: 'action@github.com'
@@ -2222,7 +2237,7 @@ jobs:
       - create-issue-one
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
@@ -2241,7 +2256,7 @@ jobs:
   automerge-pr:
     needs:
       - create-pr
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && ( needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.needs-fix-after-issue-resolution.outputs.readyToMerge == 'true' ) }}
     permissions:
       contents: write
@@ -2260,7 +2275,7 @@ jobs:
       - create-issue-one
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     permissions:
       contents: write
@@ -2302,7 +2317,7 @@ jobs:
       - apply-issue-resolution
       #- needs-fix-after-issue-resolution
       - fix-code
-    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.fixApplied == 'true' && needs.apply-issue-resolution.outputs.allValidationStepsSuccessful != 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.needs-fix-after-issue-resolution.outputs.readyToMerge != 'true' }}
     runs-on: ubuntu-latest
     env:
@@ -2571,7 +2586,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
@@ -2597,7 +2612,7 @@ jobs:
       #- npm-build-after-fix
       #- npm-run-after-fix
       #- needs-fix-after-fix
-    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.action, 'apply-issue-resolution' ) }}
+    if: ${{ !cancelled() && needs.fix-code.outputs.fixApplied == 'true' && needs.fix-code.outputs.allValidationStepsSuccessful == 'true' && contains( inputs.actions, 'apply-issue-resolution' ) }}
     #if: ${{ !cancelled() && needs.apply-issue-resolution.outputs.branch != '' && needs.needs-fix-after-fix.outputs.readyToMerge == 'true' }}
     permissions:
       contents: write
