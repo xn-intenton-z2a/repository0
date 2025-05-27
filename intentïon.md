@@ -5163,3 +5163,70 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T12:28:37.050Z
+
+Activity:
+
+Generated issue 2301 for feature "config-validation" with URL https://github.com/xn-intenton-z2a/repository0/issues/2301
+
+title:
+
+Implement schema validation for configuration files using Zod
+
+And description:
+
+We need to add robust schema validation to our configuration loader (`refreshConfiguration`) to ensure users cannot introduce invalid or malformed settings. This will prevent runtime errors from bad configs and provide clear feedback.
+
+**1. src/lib/main.js**
+- Import `z` from Zod.
+- Create and export a new function `refreshConfiguration()` that:
+  1. Reads `config.json` or `config.yml` from the project root (use `fs.existsSync`, `fs.readFileSync`, and `js-yaml` for YAML support).
+  2. Defines a Zod schema:
+     ```js
+     const configSchema = z.object({
+       inputPath: z.string().nonempty(),
+       outputPath: z.string().optional().default(process.cwd()),
+       timeout: z.number().optional().default(30000),
+       enableFeatureX: z.boolean().optional().default(false),
+     });
+     ```
+  3. Parses the raw config object (JSON or YAML), then calls `configSchema.parse(raw)`.
+  4. On validation failure, throws the Zod error so it bubbles up with human-readable messages.
+  5. Returns the parsed and typed configuration object with defaults applied.
+- (Optional) In `main()`, detect the `--refresh` flag and call `refreshConfiguration()`, then `console.log(config)` and exit with code 0.
+
+**2. tests/unit/main.test.js**
+- Add unit tests for `refreshConfiguration()`:
+  - **Valid config**: Mock `fs.existsSync` and `fs.readFileSync` to return a minimal valid JSON or YAML. Assert the returned object matches the expected shape and includes default values.
+  - **Invalid config**: Return a raw object missing `inputPath` or with wrong types. Assert that calling `refreshConfiguration()` throws a ZodError, and that the error message mentions the invalid field.
+
+**3. Documentation (README.md)**
+- Under a new **Configuration** section, document:
+  - **Required**: `inputPath` (string)
+  - **Optional**: `outputPath` (string, defaults to project root), `timeout` (number, defaults to 30000), `enableFeatureX` (boolean)
+- Provide inline examples:
+  ```text
+  // config.json
+  {
+    "inputPath": "./src",
+    "enableFeatureX": true
+  }
+  ```
+- Show an example of validation error output:
+  ```text
+  Error: [
+    { code: 'invalid_type', expected: 'string', received: 'undefined', path: ['inputPath'], message: 'Required' }
+  ]
+  ```
+
+**Verification**
+- Run `npm test` and ensure new tests for `refreshConfiguration()` pass.
+- Optionally run `npm run refresh` (after wiring into CLI) to see the loaded config or validation errors in the console.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":52236,"completion_tokens":2099,"total_tokens":54335,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1408,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
