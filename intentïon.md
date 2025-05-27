@@ -4389,3 +4389,87 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T11:26:37.309Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement staged and enhanced build workflows in CLI parser
+
+Overview:
+Extend the CLI to support two core build workflows as defined in the CLI_PARSER spec:
+
+1. performBuildIntermediate(options)
+   • Discover a source definition file (`source.json` or `source.yml`) in the project root.
+   • Parse its contents (JSON or YAML) and count the number of top-level entries.
+   • Write an intermediate manifest to the system temporary directory named `intermediate-<timestamp>.json` containing:
+     ```json
+     {
+       "items": <number>,
+       "data": <original parsed object>
+     }
+     ```
+   • Return and `console.log` a summary object:
+     ```json
+     { "items": <number>, "path": "<full temp file path>" }
+     ```
+
+2. performBuildEnhanced(options)
+   • Locate the intermediate manifest at `process.env.INTERMEDIATE_PATH` or default to `./intermediate.json` in CWD.
+   • Read and parse the manifest, then add a `transformedAt` timestamp to the payload.
+   • Write the enhanced manifest to the system temporary directory as `enhanced-<timestamp>.json`.
+   • Return and `console.log` a report object:
+     ```json
+     { "transformed": true, "path": "<full temp file path>" }
+     ```
+
+3. main(args) flag handling:
+   • If `--build-intermediate` is present:
+     - Invoke `performBuildIntermediate(options)`
+     - Exit with `process.exit(0)` after success.
+   • Else if `--build-enhanced` is present:
+     - Invoke `performBuildEnhanced(options)`
+     - Exit with `process.exit(0)` after success.
+
+Acceptance Criteria:
+
+1. Unit Tests for performBuildIntermediate:
+   • Mock `fs.existsSync`, `fs.readFileSync`, `fs.writeFileSync`, and `os.tmpdir()`.
+   • Verify returned summary object matches `{ items: <number>, path: <string> }`.
+   • Assert `console.log` was called once with the summary object.
+
+2. Unit Tests for performBuildEnhanced:
+   • Mock `process.env.INTERMEDIATE_PATH`, file I/O, and `os.tmpdir()`.
+   • Verify returned report object matches `{ transformed: true, path: <string> }`.
+   • Assert `console.log` was called once with the report object.
+
+3. Integration Tests for main dispatch:
+   • Supply `['--build-intermediate']`, stub performBuildIntermediate, and assert it is called and process exits with code 0.
+   • Supply `['--build-enhanced']`, stub performBuildEnhanced, and assert it is called and process exits with code 0.
+
+4. README.md Documentation:
+   • Under **Build Operations**, add descriptions:
+     - `--build-intermediate`: “Generates an intermediate manifest and logs a summary to console.”
+     - `--build-enhanced`: “Reads an intermediate manifest, applies a timestamp, and logs a report.”
+   • Include inline examples (no fenced code blocks):
+     npm run build-intermediate  → Generates intermediate manifest and logs summary
+     npm run build-enhanced     → Produces enhanced manifest and logs report
+
+5. Manual Verification:
+   • Run `npm run build-intermediate` without errors, then confirm a file named `intermediate-<timestamp>.json` exists in the temp directory and the console logged a summary object.
+   • Set `INTERMEDIATE_PATH` to that file, run `npm run build-enhanced`, confirm a file named `enhanced-<timestamp>.json` exists in the temp directory and the console logged a report object.
+
+6. All new and existing tests pass under `npm test` with 100% coverage for build paths.
+
+Notes:
+- Ensure files are written under `os.tmpdir()` and not the project root.
+- Timestamp format can be ISO or epoch, but must be parseable as a valid Date by `new Date()`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7055,"completion_tokens":1271,"total_tokens":8326,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":320,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
