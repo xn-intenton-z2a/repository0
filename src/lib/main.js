@@ -1,61 +1,44 @@
-#!/usr/bin/env node
-// src/lib/main.js
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-import { fileURLToPath } from "url";
-import { promises as fs } from "fs";
-
-/**
- * Main entry point for CLI
- * @param {string[]} args - Command line arguments
- */
-export async function main(args) {
-  if (args.includes("--capital-cities")) {
-    // Determine output file path if provided
-    const outputIndex = args.indexOf("--output");
-    let outputPath;
-    if (outputIndex !== -1 && args[outputIndex + 1]) {
-      outputPath = args[outputIndex + 1];
-    }
-    // Fetch country data
-    const response = await fetch("https://restcountries.com/v3.1/all");
-    if (!response.ok) {
-      throw new Error(`Failed to fetch countries: ${response.status}`);
-    }
-    const data = await response.json();
-    // Build OWL ontology structure
-    const classes = ["Country", "City"];
-    const objectProperties = [
-      { name: "hasCapital", domain: "Country", range: "City" }
-    ];
+export async function main(args = []) {
+  if (args.includes('--capital-cities')) {
+    const outFlagIndex = args.indexOf('--output');
+    const outputPath = outFlagIndex !== -1 && args.length > outFlagIndex + 1
+      ? args[outFlagIndex + 1]
+      : null;
+    const response = await fetch('https://restcountries.com/v3.1/all');
+    const countries = await response.json();
+    const classes = ['Country', 'City'];
+    const objectProperties = [{ name: 'hasCapital', domain: 'Country', range: 'City' }];
     const individuals = [];
-    for (const country of data) {
-      const code = country.cca3;
-      const capitals = Array.isArray(country.capital) ? country.capital : [];
-      // Country individual
-      individuals.push({ type: "Country", id: code });
-      // City individuals and relationships
-      for (const cityName of capitals) {
-        individuals.push({ type: "City", id: cityName });
-        individuals.push({ subject: code, predicate: "hasCapital", object: cityName });
+    for (const country of countries) {
+      const countryCode = country.cca3;
+      const capitalArr = country.capital;
+      if (!countryCode || !capitalArr || capitalArr.length === 0) {
+        continue;
       }
+      const cityName = capitalArr[0];
+      individuals.push({ type: 'Country', id: countryCode });
+      individuals.push({ type: 'City', id: cityName });
+      individuals.push({ subject: countryCode, predicate: 'hasCapital', object: cityName });
     }
     const ontology = { ontology: { classes, objectProperties, individuals } };
-    const jsonString = JSON.stringify(ontology, null, 2);
+    const jsonString = JSON.stringify(ontology);
     if (outputPath) {
-      await fs.writeFile(outputPath, jsonString, "utf-8");
+      await fs.promises.writeFile(outputPath, jsonString);
     } else {
       console.log(jsonString);
     }
-    return;
+    return ontology;
+  } else {
+    console.log('Run with:', args);
   }
-  // Default fallback behavior
-  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
-// Execute if invoked as script
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args).catch((err) => {
+const __filename = fileURLToPath(import.meta.url);
+if (process.argv[1] === __filename) {
+  main(process.argv.slice(2)).catch(err => {
     console.error(err);
     process.exit(1);
   });
