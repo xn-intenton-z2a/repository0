@@ -5230,3 +5230,60 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T12:29:22.366Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement schema validation for configuration files using Zod
+
+Description:
+Add a new function `refreshConfiguration()` in `src/lib/main.js` that reads and validates `config.json` or `config.yml` from the project root using a Zod schema. Integrate support for the CLI flag `--refresh` to invoke the function, log the validated configuration, and exit with the appropriate code.
+
+Acceptance Criteria:
+
+1. Function Implementation:
+   - `refreshConfiguration()` reads from `config.json` or `config.yml` using `fs.existsSync` and `fs.readFileSync`. Use `js-yaml` for YAML parsing.
+   - Define and export a Zod schema matching:
+     ```js
+     const configSchema = z.object({
+       inputPath: z.string().nonempty(),
+       outputPath: z.string().optional().default(process.cwd()),
+       timeout: z.number().optional().default(30000),
+       enableFeatureX: z.boolean().optional().default(false),
+     });
+     ```
+   - Parse the raw object and call `configSchema.parse(rawConfig)`.
+   - On validation failure, allow the ZodError to propagate, displaying human-readable messages.
+   - Return the parsed and typed config object with defaults applied.
+
+2. CLI Integration:
+   - In `main()`, detect the `--refresh` flag (via `parseArgs` or manual parsing).
+   - Call `refreshConfiguration()`, `console.log(config)`, and exit with code 0 on success.
+   - On ZodError, print the error to `stderr` and exit with a non-zero code.
+
+3. Unit Tests (`tests/unit/main.test.js`):
+   - Mock `fs.existsSync` and `fs.readFileSync` to return:
+     a. A valid minimal JSON object (e.g. `{ "inputPath": "./src" }`).
+     b. A valid minimal YAML equivalent.
+   - Assert that `refreshConfiguration()` returns an object matching expected values and default fields.
+   - Mock invalid inputs:
+     - Missing `inputPath` → Expect `refreshConfiguration()` to throw a ZodError whose message includes `inputPath`.
+     - Wrong type (e.g. `timeout: "fast"`) → Expect `ZodError` mentioning `timeout`.
+
+4. Documentation (README.md):
+   - Add a **Configuration** section describing each field (required and optional), default values, and usage.
+   - Provide inline examples for a valid `config.json` and the corresponding YAML.
+   - Show sample validation error output with codes, expected vs. received types, and path.
+
+Verification:
+- Run `npm test` and confirm new tests pass.
+- Execute `npm run refresh` with valid and invalid configs to observe correct logging and error handling.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7274,"completion_tokens":1746,"total_tokens":9020,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
