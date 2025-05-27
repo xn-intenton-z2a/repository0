@@ -983,3 +983,249 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T01:02:55.901Z
+
+Activity:
+
+fixApplied: true with message Add --find-capital-of CLI command tests and documentation
+
+Git Diff:
+```diff
+diff --git a/README.md b/README.md
+index b37bf2ca..bc76f9eb 100644
+--- a/README.md
++++ b/README.md
+@@ -76,6 +76,24 @@ Sample output:
+ 
+ For more details, see [MISSION.md](MISSION.md).
+ 
++### Query a Country’s Capital from OWL JSON
++
++```bash
++node src/lib/main.js --find-capital-of <countryCode> [--output <path>]
++```
++
++This command fetches all countries from the Rest Countries API, builds an OWL ontology with classes `Country` and `City`, an object property `hasCapital`, and then extracts the capital for the specified country code. If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name to stdout. If the country code is not found, it errors and exits with a non-zero status.
++
++Examples:
++
++```bash
++node src/lib/main.js --find-capital-of USA
++# prints Washington D.C.
++
++node src/lib/main.js --find-capital-of FRA --output capital.json
++# writes {"country":"FRA","capital":"Paris"} to capital.json
++```
++
+ ## intentïon `agentic-lib`
+ 
+ The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 9f7309d4..dda1b1b1 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,41 +1,94 @@
+ import fs from 'fs';
+ import { fileURLToPath } from 'url';
+ 
++/**
++ * Build an OWL ontology JSON for countries and their capital cities.
++ * @returns {Promise<Object>} The ontology JSON object.
++ */
++async function buildCapitalCitiesOntology() {
++  const response = await fetch('https://restcountries.com/v3.1/all');
++  if (!response.ok) {
++    throw new Error(`Failed to fetch countries: ${response.status}`);
++  }
++  const countries = await response.json();
++  const classes = ['Country', 'City'];
++  const objectProperties = [{ name: 'hasCapital', domain: 'Country', range: 'City' }];
++  const individuals = [];
++  for (const country of countries) {
++    const countryCode = country.cca3;
++    const capitalArr = country.capital;
++    if (!countryCode || !capitalArr || capitalArr.length === 0) {
++      continue;
++    }
++    const cityName = capitalArr[0];
++    individuals.push({ type: 'Country', id: countryCode });
++    individuals.push({ type: 'City', id: cityName });
++    individuals.push({ subject: countryCode, predicate: 'hasCapital', object: cityName });
++  }
++  return { ontology: { classes, objectProperties, individuals } };
++}
++
++/**
++ * Main entry point for CLI
++ * @param {string[]} args - Command line arguments
++ * @returns {Promise<Object|undefined>} Returns ontology or query result when invoked programmatically.
++ */
+ export async function main(args = []) {
++  // Handle --capital-cities command
+   if (args.includes('--capital-cities')) {
+     const outFlagIndex = args.indexOf('--output');
+     const outputPath = outFlagIndex !== -1 && args.length > outFlagIndex + 1
+       ? args[outFlagIndex + 1]
+       : null;
+-    const response = await fetch('https://restcountries.com/v3.1/all');
+-    const countries = await response.json();
+-    const classes = ['Country', 'City'];
+-    const objectProperties = [{ name: 'hasCapital', domain: 'Country', range: 'City' }];
+-    const individuals = [];
+-    for (const country of countries) {
+-      const countryCode = country.cca3;
+-      const capitalArr = country.capital;
+-      if (!countryCode || !capitalArr || capitalArr.length === 0) {
+-        continue;
+-      }
+-      const cityName = capitalArr[0];
+-      individuals.push({ type: 'Country', id: countryCode });
+-      individuals.push({ type: 'City', id: cityName });
+-      individuals.push({ subject: countryCode, predicate: 'hasCapital', object: cityName });
+-    }
+-    const ontology = { ontology: { classes, objectProperties, individuals } };
+-    const jsonString = JSON.stringify(ontology);
++    const ontologyObj = await buildCapitalCitiesOntology();
++    const jsonString = JSON.stringify(ontologyObj);
+     if (outputPath) {
+       await fs.promises.writeFile(outputPath, jsonString);
+     } else {
+       console.log(jsonString);
+     }
+-    return ontology;
+-  } else {
+-    console.log('Run with:', args);
++    return ontologyObj;
+   }
++
++  // Handle --find-capital-of command
++  if (args.includes('--find-capital-of')) {
++    const idx = args.indexOf('--find-capital-of');
++    const countryCode = args[idx + 1];
++    if (!countryCode) {
++      throw new Error('Country code not provided');
++    }
++    const outIdx = args.indexOf('--output');
++    const outputPath = outIdx !== -1 && args.length > outIdx + 1
++      ? args[outIdx + 1]
++      : null;
++    const ontologyObj = await buildCapitalCitiesOntology();
++    const individuals = ontologyObj.ontology.individuals;
++    const matches = individuals
++      .filter(ind => ind.subject === countryCode && ind.predicate === 'hasCapital')
++      .map(ind => ind.object);
++    if (matches.length === 0) {
++      throw new Error(`Country code ${countryCode} not found.`);
++    }
++    const capitalValue = matches.length === 1 ? matches[0] : matches;
++    const resultObj = { country: countryCode, capital: capitalValue };
++    if (outputPath) {
++      await fs.promises.writeFile(outputPath, JSON.stringify(resultObj));
++      return resultObj;
++    } else {
++      if (Array.isArray(capitalValue)) {
++        console.log(JSON.stringify(capitalValue));
++      } else {
++        console.log(capitalValue);
++      }
++      return resultObj;
++    }
++  }
++
++  // Default fallback behavior
++  console.log('Run with:', args);
+ }
+ 
++// Execute if invoked as script
+ const __filename = fileURLToPath(import.meta.url);
+ if (process.argv[1] === __filename) {
+   main(process.argv.slice(2)).catch(err => {
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index d6113a4c..23f47571 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -13,6 +13,7 @@ describe('capital-cities CLI', () => {
+       { cca3: 'FRA', capital: ['Paris'] }
+     ];
+     vi.stubGlobal('fetch', vi.fn(async () => ({
++      ok: true,
+       json: async () => sampleCountries
+     })));
+     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+@@ -42,6 +43,7 @@ describe('capital-cities CLI', () => {
+       { cca3: 'USA', capital: ['Washington D.C.'] }
+     ];
+     vi.stubGlobal('fetch', vi.fn(async () => ({
++      ok: true,
+       json: async () => sampleCountries
+     })));
+     const writeSpy = vi.spyOn(fs.promises, 'writeFile').mockResolvedValue();
+@@ -64,3 +66,53 @@ describe('capital-cities CLI', () => {
+     expect(result).toEqual(expectedOntology);
+   });
+ });
++
++describe('find-capital-of CLI', () => {
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it('should print capital for the given country code', async () => {
++    const sampleCountries = [
++      { cca3: 'USA', capital: ['Washington D.C.'] }
++    ];
++    vi.stubGlobal('fetch', vi.fn(async () => ({
++      ok: true,
++      json: async () => sampleCountries
++    })));
++    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    const result = await main(['--find-capital-of', 'USA']);
++    expect(consoleSpy).toHaveBeenCalledTimes(1);
++    expect(consoleSpy).toHaveBeenCalledWith('Washington D.C.');
++    expect(result).toEqual({ country: 'USA', capital: 'Washington D.C.' });
++  });
++
++  it('should write capital JSON to file when --output is specified', async () => {
++    const sampleCountries = [
++      { cca3: 'FRA', capital: ['Paris'] }
++    ];
++    vi.stubGlobal('fetch', vi.fn(async () => ({
++      ok: true,
++      json: async () => sampleCountries
++    })));
++    const writeSpy = vi.spyOn(fs.promises, 'writeFile').mockResolvedValue();
++    const outputPath = 'capital.json';
++    const result = await main(['--find-capital-of', 'FRA', '--output', outputPath]);
++    const expected = { country: 'FRA', capital: 'Paris' };
++    const expectedString = JSON.stringify(expected);
++    expect(writeSpy).toHaveBeenCalledTimes(1);
++    expect(writeSpy).toHaveBeenCalledWith(outputPath, expectedString);
++    expect(result).toEqual(expected);
++  });
++
++  it('should throw an error when country code not found', async () => {
++    const sampleCountries = [
++      { cca3: 'USA', capital: ['Washington D.C.'] }
++    ];
++    vi.stubGlobal('fetch', vi.fn(async () => ({
++      ok: true,
++      json: async () => sampleCountries
++    })));
++    await expect(main(['--find-capital-of', 'XYZ'])).rejects.toThrow('Country code XYZ not found.');
++  });
++});
+```
+
+mainOutput:
+```log
+
+```
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2290 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":20619,"completion_tokens":6940,"total_tokens":27559,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3328,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
