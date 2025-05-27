@@ -7187,3 +7187,61 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T17:26:09.753Z
+
+Activity:
+
+Generated issue 2304 for feature "cli-parser" with URL https://github.com/xn-intenton-z2a/repository0/issues/2304
+
+title:
+
+Implement file watch mode with --watch flag to auto rerun operations
+
+And description:
+
+Overview:
+Extend the existing CLI to support a new `--watch` flag that monitors project files (source definitions, config, data) and automatically reruns the selected primary operation on changes. This will greatly improve developer productivity by providing live feedback loops.
+
+Changes:
+1. src/lib/main.js
+   • In `parseArgs(args)`, detect the `--watch` flag and set `options.watch = true`.
+   • Import `chokidar` to watch patterns `*.json` and `*.y?(a)ml` in the project root.
+   • Export a new function `startWatchMode(options)` that:
+     - Creates a watcher with `chokidar.watch` on `["*.json","*.y?(a)ml"]`.
+     - Debounces rapid file events (e.g., using a 100ms debounce).
+     - On each `add`/`change`/`unlink` event, invokes the selected operation:
+       • If `options.serve`, restart or refresh the HTTP server.
+       • If `options.buildIntermediate` or `options.buildEnhanced`, re-run the corresponding build function.
+       • If `options.refresh`, re-run `refreshConfiguration()` and log the result.
+       • If no other flags, log the file event path.
+     - Keeps the process alive until terminated.
+   • In `main(args)`, after parsing options:
+     - If `options.watch` is true, call `startWatchMode(options)` instead of exiting.
+
+2. tests/unit/main.test.js
+   • Mock `chokidar` to emit synthetic file events.
+   • Test `startWatchMode`:
+     - Verify that the watcher is created with correct patterns.
+     - Emit a `change` event and assert the correct task function (e.g., `performBuildIntermediate`) is called.
+     - Verify debounce logic prevents duplicate calls within 100ms.
+   • Integration tests for `--watch`:
+     - Spy on `startWatchMode` invocation when `--watch` flag is present with or without other flags.
+
+3. README.md
+   • Under **CLI Usage**, add:
+     - **--watch**: Watch project files and automatically re-run the selected operation on changes.
+   • Provide inline examples:
+     npm run start --serve --watch   → start server and restart on file changes
+     npm run build-intermediate --watch  → rerun staged build on source changes
+     npm run refresh --watch  → rerun config validation on change
+
+Verification:
+- Run `npm test` to ensure new unit tests for watch mode pass.
+- Manually execute `npm run start --build-intermediate --watch` and modify a source file to observe automatic re-run.
+
+LLM API Usage:
+```json
+{"prompt_tokens":70964,"completion_tokens":1015,"total_tokens":71979,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
