@@ -1296,3 +1296,67 @@ LLM API Usage:
 
 2025-05-27T02:28:17Z - Archiving intentïon to branch https://github.com/xn-intenton-z2a/repository0/tree/intention-2025-05-27T01-53Z
 
+
+## Feature to Issue at 2025-05-27T02:29:24.076Z
+
+Activity:
+
+Generated issue 2293 for feature "find-capital-of" with URL https://github.com/xn-intenton-z2a/repository0/issues/2293
+
+title:
+
+Add support for existing OWL JSON ontology input in --find-capital-of command
+
+And description:
+
+## Objective
+
+Enhance the `--find-capital-of` CLI command so that users can query a pre-generated OWL JSON ontology file rather than always refetching and rebuilding it. By adding an `--input <path>` option, users can perform offline or repeated queries efficiently against an existing ontology file.
+
+## Changes to Make
+
+1. **src/lib/main.js**
+   - Detect an optional `--input <path>` flag when `--find-capital-of` is present.
+   - If `--input <path>` is provided, read and parse the JSON from the specified file (`fs.promises.readFile`), and skip the `buildCapitalCitiesOntology()` fetch logic.
+   - Validate that the parsed object has a top-level `ontology.individuals` array; if not, throw a descriptive error.
+   - Continue the existing matching logic against `ontology.individuals` to find the capital(s).
+   - Maintain existing `--output <path>` support (write the `{ country, capital }` object) when both `--input` and `--output` are used.
+
+2. **tests/unit/main.test.js**
+   - Add a new test case for offline querying:
+     - Stub `fs.promises.readFile` to return a stringified sample ontology JSON containing at least one `hasCapital` triple.
+     - Invoke `main(["--find-capital-of","USA","--input","ontology.json"])` and verify that:
+       - `console.log` is called once with the correct capital name.
+       - The returned object matches `{ country: "USA", capital: "Washington D.C." }`.
+   - Add a test for file output in offline mode:
+     - Stub `fs.promises.readFile` and `fs.promises.writeFile`.
+     - Invoke `main(["--find-capital-of","USA","--input","ontology.json","--output","out.json"])` and verify that:
+       - `writeFile` is called with `out.json` and the JSON string of `{ country, capital }`.
+       - The returned object matches expectations.
+   - Add error-handling tests:
+     - Stub `readFile` to return malformed JSON or valid JSON without `ontology.individuals`, and expect `main(...)` to throw a descriptive error.
+
+3. **README.md**
+   - In the **Query a Country’s Capital from OWL JSON** section, document the new optional flag:
+     ```bash
+     node src/lib/main.js --find-capital-of <countryCode> [--input <ontology.json>] [--output <path>]
+     ```
+   - Explain behavior, including examples for:
+     - Online mode (no `--input`, default fetch).
+     - Offline mode (`--input ontology.json`).
+     - File output with `--output`.
+
+## Verification Steps
+
+1. Run `npm test` to ensure all new and existing tests pass.
+2. Manual smoke tests:
+   - `node src/lib/main.js --find-capital-of USA --input sample-ontology.json` prints `Washington D.C.`
+   - `node src/lib/main.js --find-capital-of USA --input sample-ontology.json --output out.json` creates `out.json` with `{ "country":"USA","capital":"Washington D.C." }`.
+   - Invalid `--input` path or malformed file results in a clear error message.
+
+LLM API Usage:
+```json
+{"prompt_tokens":22029,"completion_tokens":2455,"total_tokens":24484,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1664,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
