@@ -29,44 +29,50 @@ When --serve is provided:
 ## Staged Build (--build-intermediate)
 - Locate a source definition (JSON or YAML) in project root
 - Parse and count entries to form an intermediate manifest
-- Write manifest to the system temp directory
-- Log a summary object with item count and manifest path
+- Write manifest to the system temporary directory
+- Log a summary object with keys items and path
 
 ## Enhanced Build (--build-enhanced)
 - Read the intermediate manifest via environment or default path
-- Apply a transformation (e.g. add timestamp)
-- Write enhanced output to the system temp directory
-- Log a report object with transformed flag and output path
+- Apply a transformation such as adding a timestamp
+- Write enhanced output to the system temporary directory
+- Log a report object with keys transformed and path
 
 # Refresh Configuration
 When --refresh is provided:
 - Load config.json or config.yml from project root
-- Validate and normalize using a schema
+- Validate and normalize settings using a schema
 - Print the loaded configuration object
 - Exit with status code 0
 
 # Merge and Persist Data
 When --merge-persist is provided:
 - Read two data sources from project root or environment paths
-- Merge into a single object
+- Merge them into a single object
 - Write merged JSON to a configurable output path
 - Log an object with file path and byte size
 - Exit with status code 0
 
 # Implementation
-- Export parseArgs(args) for validating and mapping flags to an options object
-- Export printUsage() to print usage text
-- Export printDiagnostics() to collect diagnostics data
-- Export startHttpServer(options, port) for serve behavior
-- Export performBuildIntermediate(options) and performBuildEnhanced(options) for build flows
-- Export refreshConfiguration() and mergeAndPersistData(options) for config and data
-- In main(args): dispatch based on parsed options and handle each operation with clear exit flows
+- In src/lib/main.js export:
+  • parseArgs(args) to validate and map flags to an options object and handle help and invalid flags
+  • printUsage() to display usage text
+  • printDiagnostics() to collect diagnostics data
+  • startHttpServer(options, port) for serve behavior
+  • performBuildIntermediate(options) and performBuildEnhanced(options) for build flows
+  • refreshConfiguration() to load and return config
+  • mergeAndPersistData(options) to merge data and write the result
+- In main(args) dispatch based on parsed options and handle each operation with clear exit flows
 
 # Testing
-- Unit tests for each function covering valid and invalid flags, diagnostics output, server endpoints, build intermediate and enhanced logic, config reload, and data merge
-- Mock file I/O and environment variables as needed
-- Integration tests for main dispatch on each flag combination
+- In tests/unit/main.test.js add:
+  • Unit tests for parseArgs covering valid flags, invalid flags exit behavior, and help flag
+  • Unit tests for printDiagnostics asserting returned object keys and env entries
+  • Unit tests for startHttpServer verifying server instance and endpoints behavior
+  • Unit tests for performBuildIntermediate and performBuildEnhanced mocking file I O and temp directory
+  • Unit tests for refreshConfiguration and mergeAndPersistData mocking file reads and writes
+  • Integration tests for main dispatch on each flag combining spies for process.exit and console.log
 
 # Documentation
-- Update README under **CLI Usage**, **Diagnostics Mode**, **HTTP Server**, **Build Operations**, **Configuration Refresh**, and **Data Persistence** sections
-- Provide inline examples for each command without fenced code blocks
+- Update README.md under **CLI Usage**, **Diagnostics Mode**, **HTTP Server**, **Build Operations**, **Configuration Refresh**, and **Data Persistence** sections
+- Provide inline examples without fenced code blocks such as npm run start --serve and npm run merge-persist
