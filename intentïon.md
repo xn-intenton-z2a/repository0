@@ -665,3 +665,72 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T02:58:16.748Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Integrate HTTP server for --serve flag with /health and /options endpoints
+
+Description:
+Extend the existing CLI to start an HTTP server when the `--serve` flag is provided. Implement a new function `startHttpServer(options, port = process.env.PORT || 3000)` in `src/lib/main.js` that:
+
+1. Creates an HTTP server using Node’s built-in `http` module.
+2. Routes requests as follows:
+   • GET `/health` → respond 200 with JSON `{ "status": "ok" }`.
+   • GET `/options` → respond 200 with JSON of the passed `options` object.
+   • All other paths → respond 404 with JSON `{ "error": "Not Found" }`.
+3. Listens on `port` and logs `Server listening on port <port>`.
+4. Returns the `http.Server` instance.
+5. In the `main(args)` function: parse CLI arguments into `options` (using the existing parser or `zod` schema), and if `options.serve === true`, invoke `startHttpServer(options)` and keep the process alive.
+
+Acceptance Criteria:
+
+AC1: startHttpServer Function
+• Given valid `options` and no explicit port, when `startHttpServer(options)` is called,
+  - Then it returns an instance of `http.Server`.
+  - And logs `Server listening on port 3000` (or the value of environment variable `PORT`).
+
+AC2: /health Endpoint
+• Given a running server, when a client sends `GET /health`,
+  - Then the response status code is 200
+  - And `Content-Type` is `application/json`
+  - And response body is `{ "status": "ok" }`.
+
+AC3: /options Endpoint
+• Given a running server started with `options = { serve: true, foo: "bar" }`, when a client sends `GET /options`,
+  - Then the response status code is 200
+  - And `Content-Type` is `application/json`
+  - And response body matches the JSON representation of the `options` object.
+
+AC4: Unknown Route Handling
+• Given a running server, when a client requests any other path (e.g., `GET /foo`),
+  - Then the response status code is 404
+  - And `Content-Type` is `application/json`
+  - And response body is `{ "error": "Not Found" }`.
+
+AC5: Integration in main()
+• Given CLI args `--serve`, when `npm run serve` is executed,
+  - Then `startHttpServer` is invoked.
+  - And the process does not exit immediately.
+
+AC6: Tests and Documentation
+• Unit tests in `tests/unit/main.test.js` cover all above behaviors using spies or direct invocation of the request handler.
+• README.md is updated with an **HTTP Server** section describing the `--serve` flag, default port, endpoints, and `curl` examples:
+  ```bash
+  curl http://localhost:3000/health
+  curl http://localhost:3000/options
+  ```
+
+Verification:
+- All tests pass with `npm test`.
+- Manual test with `npm run serve`, verifying endpoints using `curl` or a browser.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":6625,"completion_tokens":1152,"total_tokens":7777,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":384,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
