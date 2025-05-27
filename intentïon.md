@@ -3892,3 +3892,16 @@ and outcome "success"
 
 ---
 
+
+## Updated Readme at 2025-05-27T08:51:58.843Z
+
+Activity:
+
+Updated README: with message Add CLI usage section and reference to new docsCLI_USAGE.md
+
+LLM API Usage:
+```json
+{"prompt_tokens":41768,"completion_tokens":2595,"total_tokens":44363,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":1088,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
