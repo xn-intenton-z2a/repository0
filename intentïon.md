@@ -6429,3 +6429,45 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T16:28:08.286Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Overview:
+The CLI entrypoint currently logs only raw arguments. We need to implement robust argument parsing to support the core flags `--help`, `--version`, and `--diagnostics`. This will improve usability and ensure users can quickly access usage information, version data, and environment diagnostics.
+
+Acceptance Criteria:
+1. parseArgs(args: string[]): { help: boolean; version: boolean; diagnostics: boolean } must return correct boolean flags for no args, each supported flag alone, and exit with code 1 for any unrecognized flag.
+2. printUsage() prints a clear usage string that lists supported flags and exits with code 0.
+3. printVersion() reads the `version` field from package.json, prints it exactly, and exits with code 0.
+4. printDiagnostics() collects and prints JSON with keys `nodeVersion` (string), `platform` (string), `cwd` (string), and `env` (object of filtered environment variables), then exits with code 0.
+5. main(args) dispatches in order: `--help` → printUsage, `--version` → printVersion, `--diagnostics` → printDiagnostics, otherwise falls back to `console.log('Options:', options)` without exiting.
+6. Unit tests cover:
+   • parseArgs behavior (all flags false by default, each flag true when provided, exit on unknown flag).
+   • printUsage, printVersion, and printDiagnostics output to console.log and appropriate process.exit codes (use spies/mocks).
+   • main dispatch logic issuing the correct function calls and exit codes.
+7. README.md under **CLI Usage** includes descriptions and inline examples for `npm run start --help`, `npm run start --version`, and `npm run diagnostics`.
+
+Implementation Steps:
+- Install `minimist` and import in src/lib/main.js.
+- Create and export `parseArgs`.
+- Implement and export `printUsage`, `printVersion`, `printDiagnostics`.
+- Update `main` to call these in the required order.
+- Add/update tests in tests/unit/main.test.js to validate new functions and dispatch logic.
+- Update README.md accordingly.
+
+Verification:
+- `npm test` passes all existing and new tests.
+- `npm run start --help` outputs usage text and exits 0.
+- `npm run start --version` outputs correct package.json version and exits 0.
+- `npm run diagnostics` outputs valid JSON diagnostics and exits 0.
+- Unknown flags cause an error message and exit code 1.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7346,"completion_tokens":1044,"total_tokens":8390,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":448,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
