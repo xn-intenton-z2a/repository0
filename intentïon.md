@@ -6471,3 +6471,294 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T16:30:20.170Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2302 with message Implement CLI argument parsing with version and diagnostics support and update tests and docs and outcome success
+
+Git Diff:
+```diff
+diff --git a/package-lock.json b/package-lock.json
+index 3bc297fd..06a05090 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -13,6 +13,7 @@
+         "ejs": "^3.1.10",
+         "js-yaml": "^4.1.0",
+         "minimatch": "^9.0.5",
++        "minimist": "^1.2.8",
+         "openai": "^4.103.0",
+         "zod": "^3.25.30"
+       },
+@@ -4512,7 +4513,6 @@
+       "version": "1.2.8",
+       "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.8.tgz",
+       "integrity": "sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==",
+-      "dev": true,
+       "license": "MIT",
+       "funding": {
+         "url": "https://github.com/sponsors/ljharb"
+diff --git a/package.json b/package.json
+index 3f87842c..29af45d0 100644
+--- a/package.json
++++ b/package.json
+@@ -33,7 +33,8 @@
+     "ejs": "^3.1.10",
+     "js-yaml": "^4.1.0",
+     "minimatch": "^9.0.5",
+-    "zod": "^3.25.30"
++    "zod": "^3.25.30",
++    "minimist": "^1.2.8"
+   },
+   "devDependencies": {
+     "eslint": "^9.24.0",
+@@ -72,4 +73,4 @@
+       "sonarjs/cognitive-complexity": "off"
+     }
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index bfdee1b7..69bda0cf 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,17 +1,81 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
++import minimist from 'minimist';
++import { createRequire } from 'module';
++import { fileURLToPath } from 'url';
+ 
+-import { fileURLToPath } from "url";
++/**
++ * Parse CLI arguments into options object.
++ * Unknown flags cause an error and exit code 1.
++ * @param {string[]} args
++ * @returns {{help:boolean,version:boolean,diagnostics:boolean}}
++ */
++export function parseArgs(args = []) {
++  const parsed = minimist(args, {
++    boolean: ['help', 'version', 'diagnostics'],
++    unknown: (opt) => { console.error(`Unknown option: ${opt}`); printUsage(); process.exit(1); }
++  });
++  return {
++    help: Boolean(parsed.help),
++    version: Boolean(parsed.version),
++    diagnostics: Boolean(parsed.diagnostics)
++  };
++}
++
++/**
++ * Print usage information.
++ */
++export function printUsage() {
++  console.log('Usage: node src/lib/main.js [options]');
++  console.log('Options:');
++  console.log('  --help         Show usage information and exit');
++  console.log('  --version      Print tool version and exit');
++  console.log('  --diagnostics  Print system diagnostics and exit');
++}
++
++/**
++ * Print the version from package.json.
++ */
++export function printVersion() {
++  const require = createRequire(import.meta.url);
++  const pkg = require('../../package.json');
++  console.log(pkg.version);
++}
++
++/**
++ * Print system diagnostics as JSON.
++ */
++export function printDiagnostics() {
++  const diag = {
++    nodeVersion: process.versions.node,
++    platform: process.platform,
++    cwd: process.cwd(),
++    env: { ...process.env }
++  };
++  console.log(JSON.stringify(diag, null, 2));
++}
+ 
+ /**
+  * Main entry point for the CLI.
+- * @param {string[]} args - Array of command-line arguments.
++ * @param {string[]} args
+  */
+ export function main(args = process.argv.slice(2)) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const options = parseArgs(args);
++  if (options.help) {
++    printUsage();
++    process.exit(0);
++  }
++  if (options.version) {
++    printVersion();
++    process.exit(0);
++  }
++  if (options.diagnostics) {
++    printDiagnostics();
++    process.exit(0);
++  }
++  console.log('Options:', options);
+ }
+ 
+-// When invoked directly from the command line, call main with default args
++// Run if invoked directly
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   main();
+ }
+\ No newline at end of file
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..bbc3c3a8 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,94 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
++import { createRequire } from 'module';
++import * as mainModule from '@src/lib/main.js';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++// Helper to capture console.log and console.error
++let logSpy;
++let errorSpy;
++let exitSpy;
++
++beforeEach(() => {
++  logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++  exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => { throw code; });
++});
++
++afterEach(() => {
++  vi.restoreAllMocks();
++});
++
++describe('parseArgs', () => {
++  it('returns all false for no flags', () => {
++    const opts = mainModule.parseArgs([]);
++    expect(opts).toEqual({ help: false, version: false, diagnostics: false });
++  });
++
++  it('parses --help flag', () => {
++    const opts = mainModule.parseArgs(['--help']);
++    expect(opts.help).toBe(true);
++    expect(opts.version).toBe(false);
++    expect(opts.diagnostics).toBe(false);
++  });
++
++  it('parses --version and --diagnostics flags simultaneously', () => {
++    const opts = mainModule.parseArgs(['--version', '--diagnostics']);
++    expect(opts).toEqual({ help: false, version: true, diagnostics: true });
++  });
++
++  it('errors on unknown flag', () => {
++    expect(() => mainModule.parseArgs(['--unknown'])).toThrow(1);
++    expect(errorSpy).toHaveBeenCalledWith('Unknown option: --unknown');
++  });
++});
++
++describe('printUsage', () => {
++  it('prints usage lines', () => {
++    mainModule.printUsage();
++    expect(logSpy).toHaveBeenCalledWith('Usage: node src/lib/main.js [options]');
++    expect(logSpy).toHaveBeenCalledWith('Options:');
++  });
++});
++
++describe('printVersion', () => {
++  it('prints the version from package.json', () => {
++    const require = createRequire(import.meta.url);
++    const pkg = require('../../package.json');
++    mainModule.printVersion();
++    expect(logSpy).toHaveBeenCalledWith(pkg.version);
++  });
++});
++
++describe('printDiagnostics', () => {
++  it('prints JSON diagnostics with keys', () => {
++    mainModule.printDiagnostics();
++    const printed = logSpy.mock.calls[0][0];
++    const obj = JSON.parse(printed);
++    expect(obj).toHaveProperty('nodeVersion');
++    expect(obj).toHaveProperty('platform');
++    expect(obj).toHaveProperty('cwd');
++    expect(obj).toHaveProperty('env');
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe('main dispatch', () => {
++  it('handles --help and exits', () => {
++    expect(() => mainModule.main(['--help'])).toThrow(0);
++    expect(logSpy).toHaveBeenCalled();
++  });
++
++  it('handles --version and exits', () => {
++    expect(() => mainModule.main(['--version'])).toThrow(0);
++    expect(logSpy).toHaveBeenCalled();
++  });
++
++  it('handles --diagnostics and exits', () => {
++    expect(() => mainModule.main(['--diagnostics'])).toThrow(0);
++    expect(logSpy).toHaveBeenCalled();
++  });
++
++  it('logs options when no special flags', () => {
++    const opts = { help: false, version: false, diagnostics: false };
++    mainModule.main([]);
++    expect(logSpy).toHaveBeenCalledWith('Options:', opts);
+   });
+ });\n\n// New [docs/CLI_USAGE.md]:\n# CLI Usage
+
+This tool supports the following command line flags:
+
+- **--help**: Show usage information and exit.
+- **--version**: Print the tool version (from package.json) and exit.
+- **--diagnostics**: Collect and display system diagnostics (node version, platform, cwd, env) in JSON format and exit.
+
+Examples of usage:
+
+You can run `npm run start -- --help` to display usage information.
+Use `npm run start -- --version` to see the current tool version.
+Type `npm run diagnostics` to view system diagnostics as formatted JSON.
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2302 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":67584,"completion_tokens":5521,"total_tokens":73105,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2624,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
