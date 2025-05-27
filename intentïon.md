@@ -1786,3 +1786,62 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Ready Issue at 2025-05-27T05:41:26.386Z
+
+Activity:
+
+Enhanced issue https://github.com/xn-intenton-z2a/repository0/issues/2297 with action enhance and updated description:
+
+Context:
+The current `src/lib/main.js` only logs raw arguments and does not implement the structured CLI parsing or diagnostics mode described in the feature specifications. This issue introduces full flag parsing, diagnostics reporting, and behavior dispatch.
+
+Acceptance Criteria:
+
+1. parseArgs:
+   - Implement `parseArgs(args: string[]): Options` using Zod to validate and parse the following boolean flags:
+     • --help
+     • --diagnostics
+     • --serve
+     • --build-intermediate
+     • --build-enhanced
+     • --refresh
+     • --merge-persist
+   - On invalid flag, print usage to stdout and call `process.exit(1)`.
+
+2. printDiagnostics:
+   - Implement `printDiagnostics(): Diagnostics` that returns an object with the following keys:
+     • nodeVersion (string)
+     • platform (string)
+     • cwd (string)
+     • env (Record<string,string>) including at least one known environment variable.
+
+3. main dispatch:
+   - Update `main(args: string[])` to:
+     • Call `parseArgs(args)`.
+     • If `options.help` is true, print usage to stdout and exit with code 0.
+     • If `options.diagnostics` is true, call `printDiagnostics()`, `console.log(JSON.stringify(report, null, 2))`, then exit with code 0.
+     • If `options.serve` is true, import and invoke `startHttpServer(options, port)` and log "Server listening on port <port>".
+     • Else, `console.log('Options:', options)`.
+
+4. Testing:
+   - In `tests/unit/main.test.js`, add unit tests for:
+     • `parseArgs` with valid flag combinations and expected `options` output.
+     • `parseArgs` with invalid flags: mock `console.log` and `process.exit` to assert exit code 1.
+     • `printDiagnostics`: assert returned object has correct keys and types, and `env` contains at least one known variable.
+     • Integration tests for `main`: mock `parseArgs`, `printDiagnostics`, `process.exit`, and `console.log` to validate behavior for `--help` and `--diagnostics`.
+
+5. Documentation:
+   - In `README.md`, under **CLI Usage**, list and describe all supported flags and exit behavior.
+   - Add a **Diagnostics Mode** section with inline examples demonstrating `npm run diagnostics` and showing expected formatted JSON output.
+
+Verification:
+- Run `npm test`, ensuring all new tests pass with 100% coverage for the CLI parsing and diagnostics code paths.
+- Manually run `npm run diagnostics` and observe correct, formatted JSON output.
+- Manually run `npm run serve` to verify the HTTP server starts, responds to `/health` and `/options`, and logs the listening port.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7093,"completion_tokens":1175,"total_tokens":8268,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
