@@ -1584,3 +1584,53 @@ LLM API Usage:
 ```
 
 ---
+## Maintenance Activity to Issue at 2025-05-27T04:57:29.151Z
+
+Activity:
+
+Created issue https://github.com/xn-intenton-z2a/repository0/issues/2297 with title Clean coder: Implement structured CLI parsing and diagnostics mode in src/lib/main.js and body:
+
+ Context:
+The current main script in src/lib/main.js simply logs the raw arguments and does not implement the intended CLI functionality described in the feature specs (flags, diagnostics, HTTP server). Without structured parsing and a diagnostics mode, users cannot leverage core behaviors like --diagnostics or --serve.
+
+Desired Change:
+1. In src/lib/main.js, refactor to:
+   - Extract a parseArgs(args: string[]) function that validates and parses known flags (--help, --diagnostics, --serve, --build-intermediate, --build-enhanced, --refresh, --merge-persist) using a Zod schema.
+   - Implement a printDiagnostics() function that collects nodeVersion, platform, cwd, and filtered env variables, returning a diagnostics object.
+   - Update main(args) to:
+     • Call parseArgs on the CLI args.
+     • If options.help: print usage and exit(0).
+     • If options.diagnostics: call printDiagnostics(), console.log(JSON.stringify(report, null, 2)), and exit(0).
+     • If options.serve: invoke startHttpServer(options, port) (imported from a new or existing module).
+     • Else: console.log('Options:', options).
+   - Ensure each function has a single responsibility, meaningful names, minimal branching, and low coupling.
+
+2. In tests/unit/main.test.js:
+   - Add unit tests for parseArgs:
+     • Valid flag combinations produce the correct options object.
+     • Invalid flags cause the process to exit(1) after printing usage (mock console.log and process.exit).
+   - Add unit tests for printDiagnostics:
+     • Returns object with nodeVersion, platform, cwd, env (contains at least one known variable).
+   - Add integration tests for main:
+     • Mock parseArgs, printDiagnostics, process.exit, and console.log to verify behavior on --diagnostics and --help flags.
+
+3. In README.md:
+   - Under “CLI Usage,” document the supported flags and their behavior.
+   - Add a “Diagnostics Mode” section with inline examples showing how to run npm run diagnostics and the expected JSON output.
+
+Verification:
+- Run npm test to ensure new unit and integration tests pass.
+- Manually verify README examples by running npm run diagnostics and observing formatted JSON output.
+
+Files to modify:
+- src/lib/main.js
+- tests/unit/main.test.js
+- README.md
+- package.json (if needed to adjust dependencies or scripts).
+
+LLM API Usage:
+```json
+{"prompt_tokens":6592,"completion_tokens":1336,"total_tokens":7928,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
