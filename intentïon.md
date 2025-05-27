@@ -2769,3 +2769,73 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T08:28:21.553Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+Title: Implement build, refresh, and persistence operations in CLI parser
+
+Description:
+The CLI currently supports argument parsing, diagnostics reporting, and HTTP serving. This issue will add support for the remaining core workflows defined in the CLI_PARSER specification, namely:
+
+1. performBuildIntermediate(options)
+2. performBuildEnhanced(options)
+3. refreshConfiguration()
+4. mergeAndPersistData(options)
+
+Testable Acceptance Criteria:
+
+1. performBuildIntermediate(options):
+   • Reads a sample JSON or YAML source definition from a fixture file.
+   • Generates an intermediate manifest JSON file in a temporary directory.
+   • Returns an object with keys `{ items: number, path: string }`.
+   • Logs the summary object via `console.log`.
+   • Unit test should mock file I/O and assert the returned object and log call.
+
+2. performBuildEnhanced(options):
+   • Accepts a fake intermediate manifest input.
+   • Applies a transformation (e.g., adds a timestamp field).
+   • Writes the transformed result to a temporary output file or stdout.
+   • Returns metadata including `{ transformed: true, path: string }`.
+   • Logs a detailed report via `console.log`.
+   • Unit test should spy on `console.log` and validate returned metadata.
+
+3. refreshConfiguration():
+   • Loads `config.yml` or `config.json` from a temp fixture directory.
+   • Validates against a Zod schema (e.g., required fields, types).
+   • Returns the parsed and normalized configuration object.
+   • Logs the loaded settings via `console.log`.
+   • Unit test should provide a temp config file and assert output and log.
+
+4. mergeAndPersistData(options):
+   • Reads two sample data sources from fixtures (arrays or JSON files).
+   • Merges them into a single object.
+   • Writes the merged JSON to a configurable output path (env var or default `./data/merged.json`).
+   • Returns an object `{ path: string, size: number }`.
+   • Logs the file path and byte size via `console.log`.
+   • Unit test should spy on file writes, assert file existence and log output.
+
+5. main(args) integration:
+   • Calling `node src/lib/main.js --build-intermediate` triggers `performBuildIntermediate` and exits(0).
+   • Calling `--build-enhanced`, `--refresh`, `--merge-persist` flags invoke the respective functions and exit(0).
+   • Integration tests confirm the process exit code is 0 and the correct console output.
+
+Documentation Updates:
+• README.md under **Build Operations** and **Data Management** sections with inline examples:
+  - `npm run build-intermediate`
+  - `npm run build-enhanced`
+  - `npm run refresh`
+  - `npm run merge-persist`
+
+Verification Steps:
+• `npm test` passes all new and existing tests.
+• Manual CLI commands produce the expected files, console outputs, and exit code 0.
+
+LLM API Usage:
+```json
+{"prompt_tokens":7394,"completion_tokens":1346,"total_tokens":8740,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
