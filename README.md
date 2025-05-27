@@ -79,10 +79,25 @@ For more details, see [MISSION.md](MISSION.md).
 ### Query a Country’s Capital from OWL JSON
 
 ```bash
-node src/lib/main.js --find-capital-of <countryCode> [--output <path>]
+node src/lib/main.js --find-capital-of <countryCode> [--input <ontology.json>] [--output <path>]
 ```
 
-This command fetches all countries from the Rest Countries API, builds an OWL ontology with classes `Country` and `City`, an object property `hasCapital`, and then extracts the capital for the specified country code. If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name to stdout. If the country code is not found, it errors and exits with a non-zero status.
+This command supports two modes:
+
+1. **Online Mode** (no `--input` flag):
+   - Fetches all countries from the Rest Countries API, builds an OWL ontology, and extracts the capital city for the specified country code.
+
+2. **Offline Mode** (`--input <ontology.json>`):
+   - Reads and parses the provided OWL JSON ontology file instead of fetching data.
+
+If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name (or array of capitals) to stdout.
+
+Error handling:
+- If the input file cannot be read or parsed, prints an error and exits with a non-zero status: `Error: Failed to read or parse input file <path>`.
+- If the ontology format is invalid, prints: `Error: Invalid ontology format in <path>`.
+- If the country code is not found, prints:
+  - Online: `Error: Country code <code> not found.`
+  - Offline: `Error: Country code <code> not found in input ontology.`
 
 Examples:
 
@@ -92,6 +107,12 @@ node src/lib/main.js --find-capital-of USA
 
 node src/lib/main.js --find-capital-of FRA --output capital.json
 # writes {"country":"FRA","capital":"Paris"} to capital.json
+
+node src/lib/main.js --find-capital-of USA --input ontology.json
+# prints Washington D.C.
+
+node src/lib/main.js --find-capital-of USA --input ontology.json --output out.json
+# writes {"country":"USA","capital":"Washington D.C."} to out.json
 ```
 
 ## intentïon `agentic-lib`

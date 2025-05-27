@@ -29,6 +29,30 @@ async function buildCapitalCitiesOntology() {
 }
 
 /**
+ * Load ontology from an input file path.
+ * @param {string} inputPath - Path to the ontology JSON file.
+ * @returns {Promise<Object>} Parsed ontology object.
+ */
+async function loadOntologyFromFile(inputPath) {
+  let content;
+  try {
+    content = await fs.promises.readFile(inputPath, 'utf-8');
+  } catch (err) {
+    throw new Error(`Failed to read or parse input file ${inputPath}`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch (err) {
+    throw new Error(`Failed to read or parse input file ${inputPath}`);
+  }
+  if (!parsed.ontology || !Array.isArray(parsed.ontology.individuals)) {
+    throw new Error(`Invalid ontology format in ${inputPath}`);
+  }
+  return parsed;
+}
+
+/**
  * Main entry point for CLI
  * @param {string[]} args - Command line arguments
  * @returns {Promise<Object|undefined>} Returns ontology or query result when invoked programmatically.
@@ -57,17 +81,26 @@ export async function main(args = []) {
     if (!countryCode) {
       throw new Error('Country code not provided');
     }
+    const inputIdx = args.indexOf('--input');
+    const inputPath = inputIdx !== -1 && args.length > inputIdx + 1
+      ? args[inputIdx + 1]
+      : null;
     const outIdx = args.indexOf('--output');
     const outputPath = outIdx !== -1 && args.length > outIdx + 1
       ? args[outIdx + 1]
       : null;
-    const ontologyObj = await buildCapitalCitiesOntology();
+    const ontologyObj = inputPath
+      ? await loadOntologyFromFile(inputPath)
+      : await buildCapitalCitiesOntology();
     const individuals = ontologyObj.ontology.individuals;
     const matches = individuals
       .filter(ind => ind.subject === countryCode && ind.predicate === 'hasCapital')
       .map(ind => ind.object);
     if (matches.length === 0) {
-      throw new Error(`Country code ${countryCode} not found.`);
+      const errMsg = inputPath
+        ? `Country code ${countryCode} not found in input ontology.`
+        : `Country code ${countryCode} not found.`;
+      throw new Error(errMsg);
     }
     const capitalValue = matches.length === 1 ? matches[0] : matches;
     const resultObj = { country: countryCode, capital: capitalValue };
