@@ -366,3 +366,176 @@ LLM API Usage:
 ```
 
 ---
+## Fixed Code at 2025-05-27T02:53:38.878Z
+
+Activity:
+
+fixApplied: true with Implement CLI argument parsing with exit behavior and adjust main to accept args for testing and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index a3edd092..f0c74b39 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,48 +1,34 @@
+-#!/usr/bin/env node
+-import { fileURLToPath } from "url";
+-import { z } from "zod";
++import { z } from 'zod';
++import { fileURLToPath } from 'url';
+ 
+-const knownFlags = new Set([
+-  "--help",
+-  "--diagnostics",
+-  "--serve",
+-  "--build-intermediate",
+-  "--build-enhanced",
+-  "--refresh",
+-  "--merge-persist"
+-]);
++// Define allowed flags and mapping to option keys
++const allowedFlags = [
++  '--help',
++  '--diagnostics',
++  '--serve',
++  '--build-intermediate',
++  '--build-enhanced',
++  '--refresh',
++  '--merge-persist',
++];
+ 
+-const flagToProp = {
+-  "--help": "help",
+-  "--diagnostics": "diagnostics",
+-  "--serve": "serve",
+-  "--build-intermediate": "buildIntermediate",
+-  "--build-enhanced": "buildEnhanced",
+-  "--refresh": "refresh",
+-  "--merge-persist": "mergePersist"
++const flagMap = {
++  '--help': 'help',
++  '--diagnostics': 'diagnostics',
++  '--serve': 'serve',
++  '--build-intermediate': 'buildIntermediate',
++  '--build-enhanced': 'buildEnhanced',
++  '--refresh': 'refresh',
++  '--merge-persist': 'mergePersist',
+ };
+ 
+-function printUsage() {
+-  console.log("Usage: node src/lib/main.js [options]");
+-  console.log("Options:");
+-  console.log("  --help               Show usage information");
+-  console.log("  --diagnostics        Enable diagnostic mode");
+-  console.log("  --serve              Start a simple HTTP server");
+-  console.log("  --build-intermediate Perform staged build operations");
+-  console.log("  --build-enhanced     Perform enhanced build operations");
+-  console.log("  --refresh            Reload configuration and data");
+-  console.log("  --merge-persist      Merge data and persist changes to disk");
+-}
+-
++/**
++ * Parse and validate CLI arguments.
++ * @param {string[]} args
++ * @returns {{ help: boolean; diagnostics: boolean; serve: boolean; buildIntermediate: boolean; buildEnhanced: boolean; refresh: boolean; mergePersist: boolean; }}
++ */
+ export function parseArgs(args) {
+-  for (const arg of args) {
+-    if (arg.startsWith("-") && !knownFlags.has(arg)) {
+-      console.log(`Unknown option: ${arg}`);
+-      printUsage();
+-      process.exit(1);
+-    }
+-  }
+-
++  // Initialize options with defaults
+   const options = {
+     help: false,
+     diagnostics: false,
+@@ -50,40 +36,49 @@ export function parseArgs(args) {
+     buildIntermediate: false,
+     buildEnhanced: false,
+     refresh: false,
+-    mergePersist: false
++    mergePersist: false,
+   };
+ 
++  // Check for unknown flags
+   for (const arg of args) {
+-    if (knownFlags.has(arg)) {
+-      const prop = flagToProp[arg];
+-      options[prop] = true;
++    if (!allowedFlags.includes(arg)) {
++      console.log(`Unknown option: ${arg}`);
++      process.exit(1);
++      throw 1;
+     }
+   }
+ 
+-  if (options.help) {
+-    printUsage();
++  // Handle help flag: print usage and exit
++  if (args.includes('--help')) {
++    console.log(
++      'Usage: [--help] [--diagnostics] [--serve] [--build-intermediate] [--build-enhanced] [--refresh] [--merge-persist]'
++    );
+     process.exit(0);
++    throw 0;
+   }
+ 
+-  const schema = z.object({
+-    help: z.boolean(),
+-    diagnostics: z.boolean(),
+-    serve: z.boolean(),
+-    buildIntermediate: z.boolean(),
+-    buildEnhanced: z.boolean(),
+-    refresh: z.boolean(),
+-    mergePersist: z.boolean()
+-  });
++  // Set options based on provided flags
++  for (const arg of args) {
++    const key = flagMap[arg];
++    if (key && key !== 'help') {
++      options[key] = true;
++    }
++  }
+ 
+-  return schema.parse(options);
++  return options;
+ }
+ 
+-export function main(cliArgs) {
+-  const args = Array.isArray(cliArgs) ? cliArgs : process.argv.slice(2);
++/**
++ * Main entrypoint for the CLI.
++ * @param {string[]} args
++ */
++export function main(args) {
+   const options = parseArgs(args);
+-  console.log("Options:", options);
++  console.log('Options:', options);
+ }
+ 
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  main();
++// If executed directly, invoke main with process.argv slice
++const __filename = fileURLToPath(import.meta.url);
++if (process.argv[1] === __filename) {
++  main(process.argv.slice(2));
+ }
+```
+
+mainOutput:
+```log
+
+```
+
+[allValidationStepsSuccessful: false]
+
+LLM API Usage:
+```json
+{"prompt_tokens":10343,"completion_tokens":4652,"total_tokens":14995,"prompt_tokens_details":{"cached_tokens":1536,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":3648,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
