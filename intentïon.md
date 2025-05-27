@@ -7595,3 +7595,492 @@ LLM API Usage:
 ```
 
 ---
+## Fixed Code at 2025-05-27T17:30:22.018Z
+
+Activity:
+
+fixApplied: true with Add chokidar dependency and implement --watch mode in main.js and outcome success
+
+Git Diff:
+```diff
+diff --git a/package-lock.json b/package-lock.json
+index 3bc297fd..194dc9ff 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -9,6 +9,7 @@
+       "version": "1.2.0-0",
+       "license": "Apache-2.0",
+       "dependencies": {
++        "chokidar": "^3.5.3",
+         "dotenv": "^16.5.0",
+         "ejs": "^3.1.10",
+         "js-yaml": "^4.1.0",
+@@ -1759,6 +1760,31 @@
+         "url": "https://github.com/chalk/ansi-styles?sponsor=1"
+       }
+     },
++    "node_modules/anymatch": {
++      "version": "3.1.3",
++      "resolved": "https://registry.npmjs.org/anymatch/-/anymatch-3.1.3.tgz",
++      "integrity": "sha512-KMReFUr0B4t+D+OBkjR3KYqvocp2XaSzO55UcB6mgQMd3KbcE+mWTyvVV7D/zsdEbNnV6acZUutkiHQXvTr1Rw==",
++      "license": "ISC",
++      "dependencies": {
++        "normalize-path": "^3.0.0",
++        "picomatch": "^2.0.4"
++      },
++      "engines": {
++        "node": ">= 8"
++      }
++    },
++    "node_modules/anymatch/node_modules/picomatch": {
++      "version": "2.3.1",
++      "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz",
++      "integrity": "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=8.6"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/jonschlinkert"
++      }
++    },
+     "node_modules/argparse": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz",
+@@ -1977,6 +2003,18 @@
+       "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==",
+       "license": "MIT"
+     },
++    "node_modules/binary-extensions": {
++      "version": "2.3.0",
++      "resolved": "https://registry.npmjs.org/binary-extensions/-/binary-extensions-2.3.0.tgz",
++      "integrity": "sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=8"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/sindresorhus"
++      }
++    },
+     "node_modules/brace-expansion": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.0.1.tgz",
+@@ -1986,6 +2024,18 @@
+         "balanced-match": "^1.0.0"
+       }
+     },
++    "node_modules/braces": {
++      "version": "3.0.3",
++      "resolved": "https://registry.npmjs.org/braces/-/braces-3.0.3.tgz",
++      "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==",
++      "license": "MIT",
++      "dependencies": {
++        "fill-range": "^7.1.1"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/builtin-modules": {
+       "version": "3.3.0",
+       "resolved": "https://registry.npmjs.org/builtin-modules/-/builtin-modules-3.3.0.tgz",
+@@ -2121,6 +2171,42 @@
+         "node": ">= 16"
+       }
+     },
++    "node_modules/chokidar": {
++      "version": "3.6.0",
++      "resolved": "https://registry.npmjs.org/chokidar/-/chokidar-3.6.0.tgz",
++      "integrity": "sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==",
++      "license": "MIT",
++      "dependencies": {
++        "anymatch": "~3.1.2",
++        "braces": "~3.0.2",
++        "glob-parent": "~5.1.2",
++        "is-binary-path": "~2.1.0",
++        "is-glob": "~4.0.1",
++        "normalize-path": "~3.0.0",
++        "readdirp": "~3.6.0"
++      },
++      "engines": {
++        "node": ">= 8.10.0"
++      },
++      "funding": {
++        "url": "https://paulmillr.com/funding/"
++      },
++      "optionalDependencies": {
++        "fsevents": "~2.3.2"
++      }
++    },
++    "node_modules/chokidar/node_modules/glob-parent": {
++      "version": "5.1.2",
++      "resolved": "https://registry.npmjs.org/glob-parent/-/glob-parent-5.1.2.tgz",
++      "integrity": "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==",
++      "license": "ISC",
++      "dependencies": {
++        "is-glob": "^4.0.1"
++      },
++      "engines": {
++        "node": ">= 6"
++      }
++    },
+     "node_modules/color-convert": {
+       "version": "2.0.1",
+       "resolved": "https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz",
+@@ -3221,6 +3307,18 @@
+         "node": ">=10"
+       }
+     },
++    "node_modules/fill-range": {
++      "version": "7.1.1",
++      "resolved": "https://registry.npmjs.org/fill-range/-/fill-range-7.1.1.tgz",
++      "integrity": "sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==",
++      "license": "MIT",
++      "dependencies": {
++        "to-regex-range": "^5.0.1"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/find-up": {
+       "version": "5.0.0",
+       "resolved": "https://registry.npmjs.org/find-up/-/find-up-5.0.0.tgz",
+@@ -3320,7 +3418,6 @@
+       "version": "2.3.3",
+       "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
+       "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
+-      "dev": true,
+       "hasInstallScript": true,
+       "license": "MIT",
+       "optional": true,
+@@ -3749,6 +3846,18 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/is-binary-path": {
++      "version": "2.1.0",
++      "resolved": "https://registry.npmjs.org/is-binary-path/-/is-binary-path-2.1.0.tgz",
++      "integrity": "sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==",
++      "license": "MIT",
++      "dependencies": {
++        "binary-extensions": "^2.0.0"
++      },
++      "engines": {
++        "node": ">=8"
++      }
++    },
+     "node_modules/is-boolean-object": {
+       "version": "1.2.2",
+       "resolved": "https://registry.npmjs.org/is-boolean-object/-/is-boolean-object-1.2.2.tgz",
+@@ -3834,7 +3943,6 @@
+       "version": "2.1.1",
+       "resolved": "https://registry.npmjs.org/is-extglob/-/is-extglob-2.1.1.tgz",
+       "integrity": "sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==",
+-      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+@@ -3879,7 +3987,6 @@
+       "version": "4.0.3",
+       "resolved": "https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz",
+       "integrity": "sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg==",
+-      "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "is-extglob": "^2.1.1"
+@@ -3901,6 +4008,15 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
++    "node_modules/is-number": {
++      "version": "7.0.0",
++      "resolved": "https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz",
++      "integrity": "sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.12.0"
++      }
++    },
+     "node_modules/is-number-object": {
+       "version": "1.1.1",
+       "resolved": "https://registry.npmjs.org/is-number-object/-/is-number-object-1.1.1.tgz",
+@@ -4600,6 +4716,15 @@
+         }
+       }
+     },
++    "node_modules/normalize-path": {
++      "version": "3.0.0",
++      "resolved": "https://registry.npmjs.org/normalize-path/-/normalize-path-3.0.0.tgz",
++      "integrity": "sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=0.10.0"
++      }
++    },
+     "node_modules/npm-check-updates": {
+       "version": "17.1.18",
+       "resolved": "https://registry.npmjs.org/npm-check-updates/-/npm-check-updates-17.1.18.tgz",
+@@ -5078,6 +5203,30 @@
+       "dev": true,
+       "license": "MIT"
+     },
++    "node_modules/readdirp": {
++      "version": "3.6.0",
++      "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-3.6.0.tgz",
++      "integrity": "sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==",
++      "license": "MIT",
++      "dependencies": {
++        "picomatch": "^2.2.1"
++      },
++      "engines": {
++        "node": ">=8.10.0"
++      }
++    },
++    "node_modules/readdirp/node_modules/picomatch": {
++      "version": "2.3.1",
++      "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz",
++      "integrity": "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==",
++      "license": "MIT",
++      "engines": {
++        "node": ">=8.6"
++      },
++      "funding": {
++        "url": "https://github.com/sponsors/jonschlinkert"
++      }
++    },
+     "node_modules/refa": {
+       "version": "0.12.1",
+       "resolved": "https://registry.npmjs.org/refa/-/refa-0.12.1.tgz",
+@@ -5811,6 +5960,18 @@
+         "node": ">=14.0.0"
+       }
+     },
++    "node_modules/to-regex-range": {
++      "version": "5.0.1",
++      "resolved": "https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz",
++      "integrity": "sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==",
++      "license": "MIT",
++      "dependencies": {
++        "is-number": "^7.0.0"
++      },
++      "engines": {
++        "node": ">=8.0"
++      }
++    },
+     "node_modules/tr46": {
+       "version": "0.0.3",
+       "resolved": "https://registry.npmjs.org/tr46/-/tr46-0.0.3.tgz",
+diff --git a/package.json b/package.json
+index 3f87842c..0605c2ca 100644
+--- a/package.json
++++ b/package.json
+@@ -33,7 +33,8 @@
+     "ejs": "^3.1.10",
+     "js-yaml": "^4.1.0",
+     "minimatch": "^9.0.5",
+-    "zod": "^3.25.30"
++    "zod": "^3.25.30",
++    "chokidar": "^3.5.3"
+   },
+   "devDependencies": {
+     "eslint": "^9.24.0",
+@@ -72,4 +73,4 @@
+       "sonarjs/cognitive-complexity": "off"
+     }
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/src/lib/main.js b/src/lib/main.js
+index f0da2f8b..15339540 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,62 +1,121 @@
+-#!/usr/bin/env node
+-import fs from 'fs';
+-import path from 'path';
+ import chokidar from 'chokidar';
+-import { fileURLToPath } from 'url';
+-import { parseArgs, printUsage, printVersion, printDiagnostics, startHttpServer,
+-         performBuildIntermediate, performBuildEnhanced, refreshConfiguration, mergeAndPersistData } from './main-core.js';
++import * as core from './main-core.js';
+ 
+ /**
+- * Start watch mode: watch JSON and YAML files and rerun primary tasks on changes.
+- * @param {object} options
++ * Parse CLI arguments into options.
++ * @param {string[]} args
++ * @returns {object}
+  */
+-export function startWatchMode(options) {
+-  const patterns = ["*.json", "*.y?(a)ml"];
+-  const watcher = chokidar.watch(patterns, { ignoreInitial: true });
+-  let timeout;
+-  const debounce = (fn) => {
+-    clearTimeout(timeout);
+-    timeout = setTimeout(fn, 100);
++export function parseArgs(args) {
++  const options = {
++    help: false,
++    version: false,
++    diagnostics: false,
++    serve: false,
++    buildIntermediate: false,
++    buildEnhanced: false,
++    refresh: false,
++    mergePersist: false,
++    watch: false,
+   };
++  const flagMap = {
++    '--help': 'help',
++    '--version': 'version',
++    '--diagnostics': 'diagnostics',
++    '--serve': 'serve',
++    '--build-intermediate': 'buildIntermediate',
++    '--build-enhanced': 'buildEnhanced',
++    '--refresh': 'refresh',
++    '--merge-persist': 'mergePersist',
++    '--watch': 'watch',
++  };
++  args.forEach((arg) => {
++    if (flagMap[arg]) {
++      options[flagMap[arg]] = true;
++    }
++  });
++  return options;
++}
+ 
+-  watcher.on('all', (event, filePath) => {
+-    debounce(() => {
+-      console.log(`File ${event}: ${filePath}`);
++/**
++ * Start watch mode: watch files and rerun tasks on change.
++ * @param {object} options
++ * @returns {import('chokidar').FSWatcher}
++ */
++export function startWatchMode(options = {}) {
++  const patterns = ['*.json', '*.y?(a)ml'];
++  const watcher = chokidar.watch(patterns, { ignoreInitial: true });
++  let timer;
++  const delay = typeof options.debounceDelay === 'number' ? options.debounceDelay : 100;
++  const onChange = (path) => {
++    if (timer) clearTimeout(timer);
++    timer = setTimeout(() => {
+       if (options.serve) {
+-        console.log('Watch: restarting HTTP server...');
+-        // in full impl, restart or refresh server
+-        startHttpServer(options);
+-      } else if (options.buildIntermediate) {
+-        performBuildIntermediate(options);
+-      } else if (options.buildEnhanced) {
+-        performBuildEnhanced(options);
+-      } else if (options.refresh) {
+-        const cfg = refreshConfiguration();
+-        console.log(JSON.stringify(cfg, null, 2));
+-      } else {
+-        // just log change
++        core.startHttpServer(options);
+       }
+-    });
+-  });
+-
+-  console.log('Watching files for changes...');
++      if (options.buildIntermediate) {
++        core.performBuildIntermediate(options);
++      }
++      if (options.buildEnhanced) {
++        core.performBuildEnhanced(options);
++      }
++      if (options.refresh) {
++        core.refreshConfiguration(options);
++      }
++      if (
++        !options.serve &&
++        !options.buildIntermediate &&
++        !options.buildEnhanced &&
++        !options.refresh
++      ) {
++        console.log(`File changed: ${path}`);
++      }
++    }, delay);
++  };
++  watcher.on('add', onChange);
++  watcher.on('change', onChange);
++  watcher.on('unlink', onChange);
++  return watcher;
+ }
+ 
+-// Main CLI invoking startWatchMode when --watch is present.
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const argv = process.argv.slice(2);
+-  const options = parseArgs(argv);
++/**
++ * Main entrypoint for CLI.
++ * @param {string[]} [rawArgs]
++ */
++export function main(rawArgs) {
++  const args = Array.isArray(rawArgs) ? rawArgs : process.argv.slice(2);
++  const options = parseArgs(args);
+   if (options.watch) {
+-    startWatchMode(options);
+-  } else {
+-    if (options.help) { printUsage(); process.exit(0); }
+-    if (options.version) { printVersion(); process.exit(0); }
+-    if (options.diagnostics) { printDiagnostics(); process.exit(0); }
+-    if (options.serve) { startHttpServer(options); }
+-    else if (options.buildIntermediate) { performBuildIntermediate(options); process.exit(0); }
+-    else if (options.buildEnhanced) { performBuildEnhanced(options); process.exit(0); }
+-    else if (options.refresh) { const cfg = refreshConfiguration(); console.log(JSON.stringify(cfg, null, 2)); process.exit(0); }
+-    else if (options.mergePersist) { mergeAndPersistData(options); process.exit(0); }
+-    else { console.log('Options:', options); }
++    return startWatchMode(options);
++  }
++  if (options.serve) {
++    return core.startHttpServer(options);
++  }
++  if (options.buildIntermediate) {
++    return core.performBuildIntermediate(options);
++  }
++  if (options.buildEnhanced) {
++    return core.performBuildEnhanced(options);
+   }
++  if (options.refresh) {
++    return core.refreshConfiguration(options);
++  }
++  if (options.mergePersist) {
++    return core.mergePersist(options);
++  }
++  if (options.diagnostics) {
++    return core.diagnostics(options);
++  }
++  if (options.help) {
++    return core.help();
++  }
++  if (options.version) {
++    return core.version();
++  }
++  console.log('No operation specified. Use --help for usage.');
+ }
++
++// If run directly, execute main()
++if (import.meta.url === `file://${process.argv[1]}`) {
++  main();
++}
+\ No newline at end of file
+```
+
+mainOutput:
+```log
+
+```
+
+[allValidationStepsSuccessful: false]
+
+LLM API Usage:
+```json
+{"prompt_tokens":9525,"completion_tokens":6770,"total_tokens":16295,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4608,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
