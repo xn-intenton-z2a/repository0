@@ -1,7 +1,7 @@
 # CLI_PARSER
 
 # Description
-Enhance the command-line interface to include a full diagnostics mode alongside structured parsing of all supported flags. Diagnostics mode gathers and displays environment and system information for troubleshooting, then exits cleanly.
+Extend the command-line interface with structured parsing of all supported flags, including a full diagnostics mode. This feature ensures consistent validation of inputs, clear usage output, and integration with diagnostics, HTTP server, build, refresh, and persistence workflows.
 
 # Flags and Subcommands
 1. --help               Show usage information and exit
@@ -15,40 +15,48 @@ Enhance the command-line interface to include a full diagnostics mode alongside 
 # Diagnostics Mode
 When --diagnostics is provided:
 - Collect system information:
-  - Node version (process.versions.node)
-  - Platform (process.platform)
-  - Current working directory (process.cwd())
-  - Selected environment variables (entries in process.env matching CLI flags or a configurable prefix)
-- Format the collected data as a JSON object with keys:
-  - nodeVersion
-  - platform
-  - cwd
-  - env (object of selected variables)
+  - nodeVersion: process.versions.node
+  - platform: process.platform
+  - cwd: process.cwd()
+  - env: filtered process.env entries for CLI flags or a configurable prefix
+- Format the data as a JSON object with keys nodeVersion, platform, cwd, env
 - Print the JSON diagnostics report to stdout
 - Exit with status code 0
 
 # Implementation
 - In src/lib/main.js:
-  - Export a function printDiagnostics() that performs the collection steps above and returns the diagnostics object.
-  - In parseArgs, detect the diagnostics flag and return options.diagnostics = true.
-  - In main(), after parsing args:
-    * If options.diagnostics is true, call printDiagnostics(), console.log the returned object, and process.exit(0).
-    * Otherwise proceed to existing serve or logging flows.
-- Ensure parseArgs continues to validate known flags and Zod schema if used.
+  1. Export parseArgs(args: string[]) to:
+     - Validate known flags against a Zod schema
+     - Set boolean options for each supported flag
+     - On --help: print usage and exit(0)
+     - On invalid flag: print usage and exit(1)
+     - Return a structured options object
+  2. Export printDiagnostics() to:
+     - Gather diagnostics fields
+     - Return the diagnostics object
+  3. In main():
+     - Call parseArgs(process.argv.slice(2))
+     - If options.diagnostics: call printDiagnostics(), console.log the report, process.exit(0)
+     - Else if options.serve: delegate to startHttpServer(options)
+     - Else: console.log('Options:', options)
 
 # Testing
 - In tests/unit/main.test.js:
-  - Add unit tests for parseArgs(["--diagnostics"]) to verify options.diagnostics is true and other flags false.
-  - Write tests for printDiagnostics():
-     * Spy on console.log to capture output
-     * Assert returned object has keys nodeVersion, platform, cwd, env
-     * Validate that env includes at least one known variable from process.env
-  - Simulate invocation of main(["--diagnostics"]):
-     * Spy on printDiagnostics and process.exit
-     * Confirm printDiagnostics is called, console.log prints the report, and main exits with code 0
+  * Unit tests for parseArgs:
+    - Each flag alone, multiple flags, no flags, and invalid flags with exit behavior
+    - Assert the returned options object matches expectations
+  * Unit tests for printDiagnostics():
+    - Spy on console.log to capture output
+    - Validate returned object contains nodeVersion, platform, cwd, and env
+    - Ensure env includes at least one known variable from process.env
+  * Integration test for main(['--diagnostics']):
+    - Spy on printDiagnostics and process.exit
+    - Confirm printDiagnostics is called, console.log prints the report, and exit(0) occurs
 
 # Documentation
 - Update README.md:
-  - Add a **Diagnostics Mode** section under CLI Usage.
-  - Describe the purpose and fields collected.
-  - Provide inline example: npm run diagnostics and sample JSON output without fenced code blocks.
+  - Under **CLI Usage**, list all supported flags
+  - Add a **Diagnostics Mode** section describing collected fields
+  - Provide inline examples (no fenced code blocks) for:
+    npm run diagnostics
+    Expected JSON output for diagnostics
