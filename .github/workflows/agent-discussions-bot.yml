@@ -71,7 +71,7 @@ jobs:
   agentic-lib:
     needs:
       - check-secrets
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.9.10'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.0'
     with:
       configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
     secrets:
@@ -231,7 +231,7 @@ jobs:
       packages: read
       discussions: write
       id-token: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.9.10'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-completion-discussions.yml@6.10.0'
     with:
       promptFilepath: '.github/agents/agent-discussion-bot.md'
       agentConfigContent: ${{ needs.agentic-lib.outputs.config }}
@@ -461,7 +461,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.10.0'
     with:
       mission: "Mission [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
       feature: ''
@@ -576,7 +576,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.10.0'
     with:
       mission: ''
       feature: "Please create feature [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
@@ -686,7 +686,7 @@ jobs:
       issues: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.9.10'
+    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/agent-flow-seed-repository-and-feature-development.yml@6.10.0'
     with:
       mission: ''
       feature: ''
