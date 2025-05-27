@@ -1360,3 +1360,56 @@ LLM API Usage:
 ```
 
 ---
+## Issue to enhanced Issue at 2025-05-27T02:30:02.831Z
+
+Activity:
+
+Updated feature development issue https://github.com/xn-intenton-z2a/repository0/issues/ with enhanced description:
+
+## Objective
+
+Extend the existing `--find-capital-of` CLI command to support offline querying of a pre-generated OWL JSON ontology file via a new `--input <path>` option. Users should be able to skip the live fetch and ontology build when an input file is provided.
+
+## Acceptance Criteria
+
+1. **CLI Parsing**
+   - When `--find-capital-of <countryCode>` is provided without `--input`, behavior remains unchanged (fetch and build ontology).
+   - When `--find-capital-of <countryCode> --input <ontology.json>` is provided:
+     - The tool reads and parses `<ontology.json>` using `fs.promises.readFile`.
+     - If the file does not exist or is not valid JSON, the command throws an error: `Error: Failed to read or parse input file <path>`.
+     - If parsed JSON lacks `ontology.individuals` array, the command throws an error: `Error: Invalid ontology format in <path>`.
+   - When both `--input <path>` and `--output <path>` are provided, the tool writes the result to the output file.
+
+2. **Offline Query Logic**
+   - Given a valid ontology input, filter `ontology.individuals` for entries with `subject === <countryCode>` and `predicate === 'hasCapital'`.
+   - If no matching triples are found, throw: `Error: Country code <countryCode> not found in input ontology.`
+   - If one match is found, print or write a string; if multiple, print or write a JSON array.
+
+3. **Tests**
+   - Unit tests stub `fs.promises.readFile` to return a sample ontology JSON containing at least one `hasCapital` triple and verify:
+     - `main(["--find-capital-of","USA","--input","ontology.json"])` prints `Washington D.C.` and returns `{ country: 'USA', capital: 'Washington D.C.' }`.
+   - Unit tests stub both `fs.promises.readFile` and `fs.promises.writeFile` for offline mode with `--output` and verify the output file contents and returned object.
+   - Unit tests simulate invalid/malformed input (missing `ontology.individuals` or parse error) and expect descriptive errors.
+
+4. **Documentation**
+   - Update **Query a Country’s Capital from OWL JSON** in `README.md`:
+     ```bash
+     node src/lib/main.js --find-capital-of <countryCode> [--input <ontology.json>] [--output <path>]
+     ```
+   - Include examples for online fetch mode, offline input mode, and file output.
+
+## Verification Steps
+
+- Run `npm test` to ensure all tests (existing and new) pass.
+- Manual smoke tests:
+  - `node src/lib/main.js --find-capital-of USA --input sample-ontology.json` prints `Washington D.C.`
+  - `node src/lib/main.js --find-capital-of USA --input sample-ontology.json --output out.json` writes `{ "country":"USA","capital":"Washington D.C." }` to `out.json`.
+  - Invalid `--input` path or malformed file yields a clear error message.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":8938,"completion_tokens":1018,"total_tokens":9956,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":256,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
