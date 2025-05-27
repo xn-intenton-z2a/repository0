@@ -5287,3 +5287,249 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T12:31:43.944Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2301 with message Implement schema validation for configuration files using Zod and add --refresh support and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index bfdee1b7..ecb76155 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,17 +1,58 @@
+ #!/usr/bin/env node
+ // src/lib/main.js
+ 
+-import { fileURLToPath } from "url";
++import fs from 'fs';
++import path from 'path';
++import yaml from 'js-yaml';
++import { z } from 'zod';
++import { fileURLToPath } from 'url';
++
++/**
++ * Reads and validates configuration from JSON or YAML file.
++ * @returns {object} validated config
++ * @throws {ZodError} if validation fails
++ */
++export function refreshConfiguration() {
++  const cwd = process.cwd();
++  const jsonPath = path.resolve(cwd, 'config.json');
++  const yamlPath = path.resolve(cwd, 'config.yml');
++  let rawConfig;
++  if (fs.existsSync(jsonPath)) {
++    rawConfig = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
++  } else if (fs.existsSync(yamlPath)) {
++    rawConfig = yaml.load(fs.readFileSync(yamlPath, 'utf-8'));
++  } else {
++    throw new Error('No configuration file found (config.json or config.yml)');
++  }
++  const configSchema = z.object({
++    inputPath: z.string().nonempty(),
++    outputPath: z.string().optional().default(cwd),
++    timeout: z.number().optional().default(30000),
++    enableFeatureX: z.boolean().optional().default(false),
++  });
++  return configSchema.parse(rawConfig);
++}
+ 
+ /**
+  * Main entry point for the CLI.
++ * Supports --refresh flag to load configuration.
+  * @param {string[]} args - Array of command-line arguments.
+  */
+ export function main(args = process.argv.slice(2)) {
++  if (args.includes('--refresh')) {
++    try {
++      const config = refreshConfiguration();
++      console.log(JSON.stringify(config, null, 2));
++      process.exit(0);
++    } catch (error) {
++      console.error(error);
++      process.exit(1);
++    }
++  }
+   console.log(`Run with: ${JSON.stringify(args)}`);
+ }
+ 
+ // When invoked directly from the command line, call main with default args
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+   main();
+-}
+\ No newline at end of file
++}
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..9261b177 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,96 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
++import fs from 'fs';
++import path from 'path';
++import yaml from 'js-yaml';
++import * as mainModule from '../../src/lib/main.js';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++// Unit tests for refreshConfiguration
++
++describe('refreshConfiguration', () => {
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it('parses valid JSON config and applies defaults', () => {
++    vi.spyOn(fs, 'existsSync').mockImplementation(p => p.endsWith('config.json'));
++    vi.spyOn(fs, 'readFileSync').mockReturnValue('{"inputPath":"./data"}');
++    const config = mainModule.refreshConfiguration();
++    expect(config).toEqual({
++      inputPath: './data',
++      outputPath: process.cwd(),
++      timeout: 30000,
++      enableFeatureX: false
++    });
++  });
++
++  it('parses valid YAML config and applies defaults', () => {
++    vi.spyOn(fs, 'existsSync').mockImplementation(p => p.endsWith('config.yml'));
++    vi.spyOn(fs, 'readFileSync').mockReturnValue('inputPath: "./data"\nenableFeatureX: true');
++    vi.spyOn(yaml, 'load').mockReturnValue({ inputPath: './data', enableFeatureX: true });
++    const config = mainModule.refreshConfiguration();
++    expect(config).toEqual({
++      inputPath: './data',
++      outputPath: process.cwd(),
++      timeout: 30000,
++      enableFeatureX: true
++    });
++  });
++
++  it('throws ZodError when required inputPath is missing', () => {
++    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
++    vi.spyOn(fs, 'readFileSync').mockReturnValue('{}');
++    expect(() => mainModule.refreshConfiguration()).toThrowError(/inputPath/);
++  });
++
++  it('throws ZodError when timeout has wrong type', () => {
++    vi.spyOn(fs, 'existsSync').mockReturnValue(true);
++    vi.spyOn(fs, 'readFileSync').mockReturnValue('{"inputPath":"./data","timeout":"fast"}');
++    expect(() => mainModule.refreshConfiguration()).toThrowError(/timeout/);
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++// Integration tests for CLI --refresh flag
++
++describe('main with --refresh flag', () => {
++  let exitSpy;
++  let consoleLogSpy;
++  let consoleErrorSpy;
++
++  beforeEach(() => {
++    exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => { throw code; });
++    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    vi.restoreAllMocks();
++  });
++
++  it('logs config and exits with code 0 on success', () => {
++    const fakeConfig = { foo: 'bar' };
++    vi.spyOn(mainModule, 'refreshConfiguration').mockReturnValue(fakeConfig);
++    expect(() => mainModule.main(['--refresh'])).toThrow(0);
++    expect(consoleLogSpy).toHaveBeenCalledWith(JSON.stringify(fakeConfig, null, 2));
++    expect(exitSpy).toHaveBeenCalledWith(0);
++  });
++
++  it('logs error and exits with code 1 on failure', () => {
++    const error = new Error('test error');
++    vi.spyOn(mainModule, 'refreshConfiguration').mockImplementation(() => { throw error; });
++    expect(() => mainModule.main(['--refresh'])).toThrow(1);
++    expect(consoleErrorSpy).toHaveBeenCalledWith(error);
++    expect(exitSpy).toHaveBeenCalledWith(1);
++  });
++});
++
++// Default behavior when --refresh is absent
++
++describe('main default behavior', () => {
++  it('prints raw args when --refresh is absent', () => {
++    const args = ['--serve'];
++    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++    mainModule.main(args);
++    expect(logSpy).toHaveBeenCalledWith(`Run with: ${JSON.stringify(args)}`);
++    logSpy.mockRestore();
+   });
+ });\n\n// New [docs/CONFIG_VALIDATION.md]:\n# Configuration Validation
+
+When the `--refresh` flag is provided, the CLI loads and validates configuration from `config.json` or `config.yml` in the project root. The following fields are supported:
+
+- `inputPath`: string (required)
+- `outputPath`: string (optional, defaults to the current working directory)
+- `timeout`: number (optional, defaults to 30000)
+- `enableFeatureX`: boolean (optional, defaults to false)
+
+Examples of valid configuration:
+
+A JSON configuration file named `config.json`:
+
+{ "inputPath": "./src", "timeout": 5000 }
+
+A YAML configuration file named `config.yml`:
+
+inputPath: "./src"
+enableFeatureX: true
+
+Usage:
+
+npm run refresh
+
+Expected output:
+
+{ "inputPath": "./src", "outputPath": "/path/to/project", "timeout": 5000, "enableFeatureX": false }
+
+Validation error example when `inputPath` is missing:
+
+Error: [
+  { code: "invalid_type", expected: "string", received: "undefined", path: ["inputPath"], message: "Required" }
+]
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2301 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":56662,"completion_tokens":6573,"total_tokens":63235,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":4480,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
