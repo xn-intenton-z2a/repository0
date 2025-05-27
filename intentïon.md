@@ -4330,3 +4330,62 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T11:25:48.407Z
+
+Activity:
+
+Generated issue 2300 for feature "cli-parser" with URL https://github.com/xn-intenton-z2a/repository0/issues/2300
+
+title:
+
+Implement staged and enhanced build workflows in CLI parser
+
+And description:
+
+Overview:
+Extend the existing CLI to support the two core build workflows defined in the `CLI_PARSER` spec: `--build-intermediate` and `--build-enhanced`. These commands will enable users to generate an intermediate JSON manifest and then apply an enhancement transformation.
+
+1. src/lib/main.js
+   • Export two new functions:
+     - **performBuildIntermediate(options)**:
+       1. Discover a source definition file (`source.json` or `source.yml`) in project root.
+       2. Parse its contents (JSON/YAML) and count entries.
+       3. Write an intermediate manifest to `os.tmpdir()` named `intermediate-<timestamp>.json` containing `{ items, data }`.
+       4. Return and `console.log` a summary object `{ items, path }`.
+     - **performBuildEnhanced(options)**:
+       1. Locate the intermediate manifest via `process.env.INTERMEDIATE_PATH` or default `intermediate.json` in cwd.
+       2. Read and parse the manifest, add a `transformedAt` timestamp to the payload.
+       3. Write the enhanced result to `os.tmpdir()` as `enhanced-<timestamp>.json`.
+       4. Return and `console.log` a report object `{ transformed: true, path }`.
+   • In `main(args)`, after parsing flags, add:
+     - If `options.buildIntermediate` is `true`, invoke `performBuildIntermediate(options)` and exit with `process.exit(0)`.
+     - Else if `options.buildEnhanced` is `true`, invoke `performBuildEnhanced(options)` and exit with `process.exit(0)`.
+
+2. tests/unit/main.test.js
+   • Unit tests for **performBuildIntermediate**:
+     - Mock `fs.existsSync`, `fs.readFileSync`, `fs.writeFileSync`, and `os.tmpdir()` to simulate reading a fixture and writing the manifest.
+     - Assert the returned object matches the expected `{ items, path }` shape and `console.log` was called with that summary.
+   • Unit tests for **performBuildEnhanced**:
+     - Mock `process.env.INTERMEDIATE_PATH` and file I/O calls to simulate reading the manifest and writing the enhanced file.
+     - Assert the returned object matches `{ transformed:true, path }` and `console.log` was called with that report.
+   • Integration tests for `main(...)` flows:
+     - Mock the two functions and assert that supplying `['--build-intermediate']` or `['--build-enhanced']` triggers the correct calls and exits with code 0.
+
+3. README.md
+   • Under **Build Operations**, add documentation:
+     - Describe `--build-intermediate` and `--build-enhanced` flags and their effects.
+     - Provide inline examples (no fenced code):
+       npm run build-intermediate  → Generates intermediate manifest and logs summary
+       npm run build-enhanced     → Produces enhanced output and logs report
+
+Verification:
+- Run `npm test` and ensure all new and existing tests pass with 100% coverage for build paths.
+- Manually run `npm run build-intermediate` and verify a manifest file is created under the system temp directory and summary is printed.
+- Manually run `npm run build-enhanced` (after setting `INTERMEDIATE_PATH`) and verify the enhanced JSON file is created and report printed.
+
+LLM API Usage:
+```json
+{"prompt_tokens":44259,"completion_tokens":1542,"total_tokens":45801,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":768,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
