@@ -466,7 +466,7 @@ jobs:
       mission: "Mission [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
       feature: ''
       issue: ''
-      action: 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution'
+      actions: 'seed-repository, update, maintain-features, generate-feature-development-issue, apply-issue-resolution'
       url: ${{ needs.process-discussion-post.outputs.url }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
@@ -581,7 +581,7 @@ jobs:
       mission: ''
       feature: "Please create feature [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
       issue: ''
-      action: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
+      actions: 'maintain-features, generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
@@ -691,7 +691,7 @@ jobs:
       mission: ''
       feature: ''
       issue: "Please create issue [${{ needs.generate-response.outputs.detail }}] as mentioned in reply [${{ needs.generate-response.outputs.reply }}]"
-      action: 'generate-feature-development-issue, apply-issue-resolution'
+      actions: 'generate-feature-development-issue, apply-issue-resolution'
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       CHATGPT_API_SECRET_KEY: ${{ secrets.CHATGPT_API_SECRET_KEY }}
