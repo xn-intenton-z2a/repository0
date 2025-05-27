@@ -76,6 +76,24 @@ Sample output:
 
 For more details, see [MISSION.md](MISSION.md).
 
+### Query a Country’s Capital from OWL JSON
+
+```bash
+node src/lib/main.js --find-capital-of <countryCode> [--output <path>]
+```
+
+This command fetches all countries from the Rest Countries API, builds an OWL ontology with classes `Country` and `City`, an object property `hasCapital`, and then extracts the capital for the specified country code. If `--output <path>` is provided, writes a JSON object with `country` and `capital` to the specified file; otherwise, prints the capital name to stdout. If the country code is not found, it errors and exits with a non-zero status.
+
+Examples:
+
+```bash
+node src/lib/main.js --find-capital-of USA
+# prints Washington D.C.
+
+node src/lib/main.js --find-capital-of FRA --output capital.json
+# writes {"country":"FRA","capital":"Paris"} to capital.json
+```
+
 ## intentïon `agentic-lib`
 
 The **intentïon `agentic-lib`** is a collection of reusable GitHub Actions workflows that enable your repository to operate in an “agentic” manner. Autonomous workflows communicate through branches and issues to continuously review, fix, update, and evolve your code. Each workflow is designed to be invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK. This project itself is evolving, and these workflows may eventually become bundled actions.
