@@ -6372,3 +6372,60 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T16:27:27.625Z
+
+Activity:
+
+Generated issue 2302 for feature "cli-parser" with URL https://github.com/xn-intenton-z2a/repository0/issues/2302
+
+title:
+
+Implement CLI argument parsing with Version and Diagnostics support
+
+And description:
+
+Overview:
+The main script currently only logs raw arguments. We need to add robust CLI parsing to support the core flags `--help`, `--version`, and `--diagnostics` so users can view usage, tool version, and environment diagnostics.
+
+Changes:
+1. src/lib/main.js
+   • Install and import `minimist` to parse `process.argv.slice(2)` into a structured options object: `help`, `version`, `diagnostics`, and a catch-all for unrecognized flags.
+   • Export a new function `parseArgs(args: string[])` that returns `{ help: boolean; version: boolean; diagnostics: boolean; }`. Unknown flags should print an error and exit with code 1.
+   • Implement `printUsage()` to display usage text listing the supported flags and exit code 0.
+   • Implement `printVersion()` to read the `version` field from `package.json` and print it, then exit code 0.
+   • Implement `printDiagnostics()` to collect `nodeVersion`, `platform`, `cwd`, and a filtered `env` object, then print this JSON and exit code 0.
+   • Update `main(args: string[])` to dispatch in this order:
+     1. `--help`: call `printUsage()`.
+     2. `--version`: call `printVersion()`.
+     3. `--diagnostics`: call `printDiagnostics()`.
+     4. Otherwise, fall back to `console.log('Options:', options)`.
+
+2. tests/unit/main.test.js
+   • Add unit tests for `parseArgs`:
+     - No flags → all options false.
+     - Each flag alone → correct property true.
+     - Unknown flag → error message & exit code 1 (use Vitest spies).
+   • Tests for `printUsage()`, `printVersion()`, and `printDiagnostics()`:
+     - Spy on `console.log` and `process.exit` to verify output & exit codes.
+     - Mock `package.json` version for `printVersion()`.
+
+3. README.md
+   • Under **CLI Usage**, list `--help`, `--version`, and `--diagnostics` with descriptions.
+   • Provide inline usage examples:
+     - `npm run start --help`
+     - `npm run start --version`
+     - `npm run diagnostics`
+
+Verification:
+- Run `npm install minimist` if necessary.
+- `npm test` should pass all new and existing tests.
+- `npm run start --help` prints usage and exits 0.
+- `npm run start --version` prints the version and exits 0.
+- `npm run diagnostics` prints JSON diagnostics and exits 0.
+
+LLM API Usage:
+```json
+{"prompt_tokens":62375,"completion_tokens":1332,"total_tokens":63707,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":704,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
