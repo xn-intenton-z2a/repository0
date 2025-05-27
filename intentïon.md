@@ -734,3 +734,330 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T03:01:12.913Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2296 with message Integrate HTTP server feature for --serve flag with health and options endpoints and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index 3cdd4e2a..d5c97e3a 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,13 +1,132 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
+-
++import * as http from "http";
+ import { fileURLToPath } from "url";
++import { z } from "zod";
++
++/**
++ * Defines allowed CLI flags and maps them to option keys.
++ */
++const allowedFlags = [
++  "--help",
++  "--diagnostics",
++  "--serve",
++  "--build-intermediate",
++  "--build-enhanced",
++  "--refresh",
++  "--merge-persist",
++];
++
++const flagMap = {
++  "--help": "help",
++  "--diagnostics": "diagnostics",
++  "--serve": "serve",
++  "--build-intermediate": "buildIntermediate",
++  "--build-enhanced": "buildEnhanced",
++  "--refresh": "refresh",
++  "--merge-persist": "mergePersist",
++};
++
++/**
++ * Prints usage information to stdout.
++ */
++function printUsage() {
++  console.log("Usage: node src/lib/main.js [options]");
++  console.log("Options:");
++  console.log("  --help               Show usage information");
++  console.log("  --diagnostics        Enable diagnostic mode");
++  console.log("  --serve              Start a simple HTTP server");
++  console.log("  --build-intermediate Perform staged build operations");
++  console.log("  --build-enhanced     Perform enhanced build operations");
++  console.log("  --refresh            Reload configuration and data");
++  console.log("  --merge-persist      Merge data and persist changes to disk");
++}
++
++/**
++ * Parses CLI arguments into a structured options object.
++ * @param {string[]} args
++ * @returns {{help:boolean, diagnostics:boolean, serve:boolean, buildIntermediate:boolean, buildEnhanced:boolean, refresh:boolean, mergePersist:boolean}}
++ */
++export function parseArgs(args) {
++  for (const arg of args) {
++    if (!allowedFlags.includes(arg)) {
++      console.log(`Unknown option: ${arg}`);
++      printUsage();
++      process.exit(1);
++    }
++  }
++
++  const options = {
++    help: false,
++    diagnostics: false,
++    serve: false,
++    buildIntermediate: false,
++    buildEnhanced: false,
++    refresh: false,
++    mergePersist: false,
++  };
++
++  for (const arg of args) {
++    options[flagMap[arg]] = true;
++  }
++
++  if (options.help) {
++    printUsage();
++    process.exit(0);
++  }
++
++  const schema = z.object({
++    help: z.boolean(),
++    diagnostics: z.boolean(),
++    serve: z.boolean(),
++    buildIntermediate: z.boolean(),
++    buildEnhanced: z.boolean(),
++    refresh: z.boolean(),
++    mergePersist: z.boolean(),
++  });
++  return schema.parse(options);
++}
++
++/**
++ * Starts an HTTP server that serves /health and /options endpoints.
++ * @param {{[key:string]: any}} options
++ * @param {number|string} [port=process.env.PORT||3000]
++ * @returns {import("http").Server}
++ */
++export function startHttpServer(options, port = process.env.PORT || 3000) {
++  const server = http.createServer((req, res) => {
++    res.setHeader("Content-Type", "application/json");
++    if (req.method === "GET" && req.url === "/health") {
++      res.writeHead(200);
++      res.end(JSON.stringify({ status: "ok" }));
++    } else if (req.method === "GET" && req.url === "/options") {
++      res.writeHead(200);
++      res.end(JSON.stringify(options));
++    } else {
++      res.writeHead(404);
++      res.end(JSON.stringify({ error: "Not Found" }));
++    }
++  });
++
++  server.listen(port, () => {
++    console.log(`Server listening on port ${port}`);
++  });
++  return server;
++}
+ 
++/**
++ * Main entry point for CLI.
++ * @param {string[]} [args]
++ */
+ export function main(args) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const cliArgs = Array.isArray(args) ? args : process.argv.slice(2);
++  const options = parseArgs(cliArgs);
++  if (options.serve) {
++    startHttpServer(options);
++  } else {
++    console.log("Options:", options);
++  }
+ }
+ 
+ if (process.argv[1] === fileURLToPath(import.meta.url)) {
+-  const args = process.argv.slice(2);
+-  main(args);
++  main();
+ }
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..4c6a7ff4 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,109 @@
+-import { describe, test, expect } from "vitest";
++import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
++import * as http from "http";
+ import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++/**
++ * Helper to perform HTTP GET requests and collect response data.
++ * @param {string} url
++ * @returns {Promise<{statusCode:number,headers:Object,body:string}>}
++ */
++function request(url) {
++  return new Promise((resolve, reject) => {
++    http.get(url, (res) => {
++      let data = "";
++      res.on("data", (chunk) => (data += chunk));
++      res.on("end", () => resolve({ statusCode: res.statusCode, headers: res.headers, body: data }));
++    }).on("error", reject);
++  });
++}
++
++describe("startHttpServer", () => {
++  test("returns http.Server instance and logs listening", (done) => {
++    const options = { serve: true };
++    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++    const server = mainModule.startHttpServer(options, 0);
++    expect(server).toBeInstanceOf(http.Server);
++    server.once("listening", () => {
++      expect(logSpy).toHaveBeenCalledWith(`Server listening on port ${server.address().port}`);
++      logSpy.mockRestore();
++      server.close(done);
++    });
++  });
++
++  test("responds to /health", async () => {
++    const options = {};
++    const server = mainModule.startHttpServer(options, 0);
++    await new Promise((resolve) => server.once("listening", resolve));
++    const port = server.address().port;
++    const { statusCode, headers, body } = await request(`http://localhost:${port}/health`);
++    expect(statusCode).toBe(200);
++    expect(headers["content-type"]).toContain("application/json");
++    expect(JSON.parse(body)).toEqual({ status: "ok" });
++    server.close();
++  });
++
++  test("responds to /options", async () => {
++    const options = { foo: "bar" };
++    const server = mainModule.startHttpServer(options, 0);
++    await new Promise((resolve) => server.once("listening", resolve));
++    const port = server.address().port;
++    const { statusCode, headers, body } = await request(`http://localhost:${port}/options`);
++    expect(statusCode).toBe(200);
++    expect(headers["content-type"]).toContain("application/json");
++    expect(JSON.parse(body)).toEqual(options);
++    server.close();
++  });
++
++  test("responds 404 on unknown route", async () => {
++    const options = {};
++    const server = mainModule.startHttpServer(options, 0);
++    await new Promise((resolve) => server.once("listening", resolve));
++    const port = server.address().port;
++    const { statusCode, headers, body } = await request(`http://localhost:${port}/foo`);
++    expect(statusCode).toBe(404);
++    expect(headers["content-type"]).toContain("application/json");
++    expect(JSON.parse(body)).toEqual({ error: "Not Found" });
++    server.close();
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++describe("main", () => {
++  let startSpy;
++  let logSpy;
++
++  beforeEach(() => {
++    startSpy = vi.spyOn(mainModule, "startHttpServer").mockImplementation(() => {});
++    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    startSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++
++  test("starts HTTP server when serve flag present", () => {
++    mainModule.main(["--serve"]);
++    expect(startSpy).toHaveBeenCalledWith({
++      help: false,
++      diagnostics: false,
++      serve: true,
++      buildIntermediate: false,
++      buildEnhanced: false,
++      refresh: false,
++      mergePersist: false,
++    });
++  });
++
++  test("logs options when serve flag absent", () => {
++    mainModule.main([]);
++    expect(logSpy).toHaveBeenCalledWith("Options:", {
++      help: false,
++      diagnostics: false,
++      serve: false,
++      buildIntermediate: false,
++      buildEnhanced: false,
++      refresh: false,
++      mergePersist: false,
++    });
+   });
+ });\n\n// New [docs/HTTP_SERVER.md]:\n# HTTP Server
+
+When the `--serve` flag is provided, the tool starts an HTTP server on port specified by the `PORT` environment variable or defaults to `3000`.
+
+## Endpoints
+
+- **GET /health**  
+  Responds with HTTP 200 and JSON  
+  { "status": "ok" }
+
+- **GET /options**  
+  Responds with HTTP 200 and the parsed CLI options as JSON.
+
+Any other request returns HTTP 404 and JSON  
+{ "error": "Not Found" }
+
+## Examples
+
+Use `npm run serve` to start the server.
+
+curl http://localhost:3000/health  
+curl http://localhost:3000/options  
+
+Set a custom port:
+
+PORT=4000 npm run serve  
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2296 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":16152,"completion_tokens":9710,"total_tokens":25862,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":7104,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
