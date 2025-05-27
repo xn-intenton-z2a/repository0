@@ -3,9 +3,9 @@
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
 
-name: seed-repository
-concurrency: seed-repository
-run-name: "seed repository"
+name: seed-repository-and-feature-development
+concurrency: seed-repository-and-feature-development
+run-name: "seed repository and feature development"
 
 on:
   workflow_dispatch:
