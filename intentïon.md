@@ -4473,3 +4473,289 @@ LLM API Usage:
 ```
 
 ---
+## Issue to Code at 2025-05-27T11:28:38.803Z
+
+Activity:
+
+fixApplied: true to branch agentic-lib-issue-2300 with message Implement staged and enhanced build workflows in CLI parser and outcome success
+
+Git Diff:
+```diff
+diff --git a/src/lib/main.js b/src/lib/main.js
+index bfdee1b7..8faaf0ff 100755
+--- a/src/lib/main.js
++++ b/src/lib/main.js
+@@ -1,17 +1,92 @@
+ #!/usr/bin/env node
+-// src/lib/main.js
++import fs from 'fs';
++import path from 'path';
++import os from 'os';
++import yaml from 'js-yaml';
+ 
+-import { fileURLToPath } from "url";
++/**
++ * Parse CLI arguments for build operations.
++ * @param {string[]} args
++ * @returns {{buildIntermediate:boolean, buildEnhanced:boolean}}
++ */
++export function parseArgs(args = []) {
++  return {
++    buildIntermediate: args.includes('--build-intermediate'),
++    buildEnhanced: args.includes('--build-enhanced'),
++  };
++}
++
++/**
++ * Perform a staged build: read source definition, generate an intermediate manifest.
++ * @param {object} options
++ * @returns {{items:number, path:string}}
++ */
++export function performBuildIntermediate(options) {
++  const cwd = process.cwd();
++  const candidates = ['source.json', 'source.yml'];
++  let sourceFile;
++  for (const file of candidates) {
++    const p = path.resolve(cwd, file);
++    if (fs.existsSync(p)) {
++      sourceFile = p;
++      break;
++    }
++  }
++  if (!sourceFile) {
++    throw new Error('Source definition file not found');
++  }
++  const content = fs.readFileSync(sourceFile, 'utf-8');
++  const ext = path.extname(sourceFile).toLowerCase();
++  const data = ext === '.json' ? JSON.parse(content) : yaml.load(content);
++  const items = Array.isArray(data) ? data.length : Object.keys(data).length;
++  const manifest = { items, data };
++  const manifestPath = path.join(os.tmpdir(), `intermediate-${Date.now()}.json`);
++  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
++  const summary = { items, path: manifestPath };
++  console.log(summary);
++  return summary;
++}
++
++/**
++ * Perform an enhanced build: read intermediate manifest, transform, write enhanced output.
++ * @param {object} options
++ * @returns {{transformed:boolean, path:string}}
++ */
++export function performBuildEnhanced(options) {
++  const cwd = process.cwd();
++  const manifestPath = process.env.INTERMEDIATE_PATH || path.resolve(cwd, 'intermediate.json');
++  if (!fs.existsSync(manifestPath)) {
++    throw new Error(`Intermediate manifest not found: ${manifestPath}`);
++  }
++  const content = fs.readFileSync(manifestPath, 'utf-8');
++  const manifest = JSON.parse(content);
++  const transformedData = { ...manifest, transformedAt: new Date().toISOString() };
++  const outputPath = path.join(os.tmpdir(), `enhanced-${Date.now()}.json`);
++  fs.writeFileSync(outputPath, JSON.stringify(transformedData, null, 2));
++  const report = { transformed: true, path: outputPath };
++  console.log(report);
++  return report;
++}
+ 
+ /**
+- * Main entry point for the CLI.
+- * @param {string[]} args - Array of command-line arguments.
++ * Main CLI entrypoint.
++ * @param {string[]} args
+  */
+ export function main(args = process.argv.slice(2)) {
+-  console.log(`Run with: ${JSON.stringify(args)}`);
++  const options = parseArgs(args);
++  if (options.buildIntermediate) {
++    performBuildIntermediate(options);
++    process.exit(0);
++  }
++  if (options.buildEnhanced) {
++    performBuildEnhanced(options);
++    process.exit(0);
++  }
++  console.log('Options:', options);
++  return options;
+ }
+ 
+-// When invoked directly from the command line, call main with default args
+-if (process.argv[1] === fileURLToPath(import.meta.url)) {
++// Execute when run directly
++if (process.argv[1] && process.argv[1].endsWith('src/lib/main.js')) {
+   main();
+ }
+\ No newline at end of file
+diff --git a/tests/unit/main.test.js b/tests/unit/main.test.js
+index 6ea3d264..a8c7cf51 100644
+--- a/tests/unit/main.test.js
++++ b/tests/unit/main.test.js
+@@ -1,16 +1,95 @@
+-import { describe, test, expect } from "vitest";
+-import * as mainModule from "@src/lib/main.js";
+-import { main } from "@src/lib/main.js";
++import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
++import fs from 'fs';
++import path from 'path';
++import os from 'os';
++import * as mainModule from '../../src/lib/main.js';
+ 
+-describe("Main Module Import", () => {
+-  test("should be non-null", () => {
+-    expect(mainModule).not.toBeNull();
++// Tests for performBuildIntermediate
++describe('performBuildIntermediate', () => {
++  let existsSpy, readSpy, writeSpy, tmpdirSpy, nowSpy, logSpy;
++
++  beforeEach(() => {
++    // Only source.json is found
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation(p => p.endsWith('source.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation(() => '{"x":1,"y":2}');
++    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++    tmpdirSpy = vi.spyOn(os, 'tmpdir').mockReturnValue('/tmp');
++    nowSpy = vi.spyOn(Date, 'now').mockReturnValue(100);
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    writeSpy.mockRestore();
++    tmpdirSpy.mockRestore();
++    nowSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++
++  it('reads source.json and writes intermediate manifest', () => {
++    const summary = mainModule.performBuildIntermediate({});
++    expect(summary).toEqual({ items: 2, path: '/tmp/intermediate-100.json' });
++    expect(readSpy).toHaveBeenCalledWith(path.resolve(process.cwd(), 'source.json'), 'utf-8');
++    expect(writeSpy).toHaveBeenCalled();
++  });
++});
++
++// Tests for performBuildEnhanced
++describe('performBuildEnhanced', () => {
++  let existsSpy, readSpy, writeSpy, tmpdirSpy, nowSpy, logSpy;
++
++  beforeEach(() => {
++    process.env.INTERMEDIATE_PATH = 'intermediate.json';
++    existsSpy = vi.spyOn(fs, 'existsSync').mockImplementation(p => p.endsWith('intermediate.json'));
++    readSpy = vi.spyOn(fs, 'readFileSync').mockImplementation(() => '{"items":1}');
++    writeSpy = vi.spyOn(fs, 'writeFileSync').mockImplementation(() => {});
++    tmpdirSpy = vi.spyOn(os, 'tmpdir').mockReturnValue('/tmp');
++    nowSpy = vi.spyOn(Date, 'now').mockReturnValue(200);
++    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    delete process.env.INTERMEDIATE_PATH;
++    existsSpy.mockRestore();
++    readSpy.mockRestore();
++    writeSpy.mockRestore();
++    tmpdirSpy.mockRestore();
++    nowSpy.mockRestore();
++    logSpy.mockRestore();
++  });
++
++  it('reads intermediate.json and writes enhanced file', () => {
++    const report = mainModule.performBuildEnhanced({});
++    expect(report).toEqual({ transformed: true, path: '/tmp/enhanced-200.json' });
++    expect(readSpy).toHaveBeenCalledWith('intermediate.json', 'utf-8');
++    expect(writeSpy).toHaveBeenCalled();
+   });
+ });
+ 
+-describe("Main Output", () => {
+-  test("should terminate without error", () => {
+-    process.argv = ["node", "src/lib/main.js"];
+-    main();
++// Tests for main dispatch
++describe('main dispatch', () => {
++  let buildSpy, enhancedSpy, exitSpy;
++
++  beforeEach(() => {
++    buildSpy = vi.spyOn(mainModule, 'performBuildIntermediate').mockImplementation(() => {});
++    enhancedSpy = vi.spyOn(mainModule, 'performBuildEnhanced').mockImplementation(() => {});
++    exitSpy = vi.spyOn(process, 'exit').mockImplementation(code => { throw code; });
++  });
++
++  afterEach(() => {
++    buildSpy.mockRestore();
++    enhancedSpy.mockRestore();
++    exitSpy.mockRestore();
++  });
++
++  it('--build-intermediate triggers performBuildIntermediate and exits', () => {
++    expect(() => mainModule.main(['--build-intermediate'])).toThrow(0);
++    expect(buildSpy).toHaveBeenCalled();
++  });
++
++  it('--build-enhanced triggers performBuildEnhanced and exits', () => {
++    expect(() => mainModule.main(['--build-enhanced'])).toThrow(0);
++    expect(enhancedSpy).toHaveBeenCalled();
+   });
+ });\n\n// New [docs/BUILD_OPERATIONS.md]:\n# Build Operations
+
+This section describes the two build workflows supported by the CLI.
+
+## Staged Build (--build-intermediate)
+
+- Discover a source definition file named `source.json` or `source.yml` in the project root.
+- Parse the file contents (JSON or YAML) and count the top-level entries.
+- Generate an intermediate manifest containing:
+  ```json
+  {
+    "items": <number>,
+    "data": <original parsed object>
+  }
+  ```
+- Write the manifest to the system temporary directory as `intermediate-<timestamp>.json`.
+- Log a summary object with keys `items` and `path`.
+
+Usage:
+
+npm run build-intermediate
+
+---
+
+## Enhanced Build (--build-enhanced)
+
+- Locate the intermediate manifest from the environment variable `INTERMEDIATE_PATH` or fallback to `./intermediate.json` in the working directory.
+- Read and parse the manifest JSON.
+- Add a `transformedAt` timestamp to the manifest payload.
+- Write the enhanced manifest to the system temporary directory as `enhanced-<timestamp>.json`.
+- Log a report object with keys `transformed` and `path`.
+
+Usage:
+
+npm run build-enhanced
+```
+
+mainOutput:
+```log
+
+```
+
+installAfterUpdateOutcome: success
+
+ciAfterUpdateOutcome: success
+
+testAfterUpdateOutcome: failure
+
+mainAfterUpdateOutcome: success
+
+commitOutcome: success
+
+postResolutionCommentOutcome: success
+
+allValidationStepsSuccessful: false
+
+[for issue https://github.com/xn-intenton-z2a/repository0/issues/2300 with title: ""]
+
+LLM API Usage:
+```json
+{"prompt_tokens":48881,"completion_tokens":4914,"total_tokens":53795,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":2496,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
