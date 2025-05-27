@@ -607,3 +607,61 @@ LLM API Usage:
 ```
 
 ---
+## Feature to Issue at 2025-05-27T02:57:30.244Z
+
+Activity:
+
+Generated issue 2296 for feature "http-server" with URL https://github.com/xn-intenton-z2a/repository0/issues/2296
+
+title:
+
+Integrate HTTP server for --serve flag with /health and /options endpoints
+
+And description:
+
+We need to add an HTTP server behind the existing `--serve` CLI flag so users can monitor the tool via HTTP. This issue will deliver the core functionality, tests, and documentation to fulfill the HTTP_SERVER feature.
+
+1. src/lib/main.js
+   • Import Node’s built-in `http` module.
+   • Create and export a new function:
+     ```js
+     function startHttpServer(options, port = process.env.PORT || 3000)
+     ```
+     - Use `http.createServer` to build a server whose request handler dispatches:
+       - GET `/health`: respond with status 200 and JSON `{ status: 'ok' }`.
+       - GET `/options`: respond with status 200 and the parsed `options` object as JSON.
+       - All other paths: respond 404 with an error JSON.
+     - Call `server.listen(port)` and log `Server listening on port <port>`.
+     - Return the `http.Server` instance.
+   • In `main()`, detect `options.serve === true` and invoke `startHttpServer(options)` instead of exiting immediately, so the server stays alive.
+
+2. tests/unit/main.test.js
+   • Write unit tests for `startHttpServer`:
+     - Verify it returns an instance of `http.Server`.
+     - Spy on `http.createServer` (or invoke handler directly) to simulate requests:
+       - For `/health`, assert status code 200, correct `Content-Type: application/json`, and body `{ status: 'ok' }`.
+       - For `/options`, assert it returns the passed options object as JSON.
+       - For unknown paths, assert 404 and an error JSON.
+   • Add a spy in the `main()` tests to confirm `startHttpServer` is called when `options.serve` is true.
+
+3. README.md
+   • Under **HTTP Server** (new section), describe:
+     - `--serve` flag starts the server on `PORT` or default `3000`.
+     - Endpoints `/health` and `/options`.
+   • Provide inline `curl` examples: e.g.
+     ```text
+     curl http://localhost:3000/health
+     curl http://localhost:3000/options
+     ```
+
+Verification:
+- Run `npm test` to ensure all new and existing tests pass.
+- Execute `npm run serve` and confirm the server starts and responds as expected to `/health` and `/options`.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":11582,"completion_tokens":1228,"total_tokens":12810,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":640,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
