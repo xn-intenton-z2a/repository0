@@ -10,9 +10,9 @@ run-name: "ci formating [${{ github.ref_name }}]"
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '24 3 */28 * *' # schedule-1
+    - cron: '24 3 */28 * *' # schedule-1
     #- cron: '24 3 * * *' # schedule-2
-    - cron: '24 3 * * *' # schedule-3
+    #- cron: '24 3 * * *' # schedule-3
     #- cron: '24 3 * * *' # schedule-4
 
 env:

@@ -35,9 +35,9 @@ on:
   repository_dispatch:
     types: [package-published]
   schedule:
-    #- cron: '24 1 */28 * *' # schedule-1
+    - cron: '24 1 */28 * *' # schedule-1
     #- cron: '24 1 * * *' # schedule-2
-    - cron: '24 1 * * *' # schedule-3
+    #- cron: '24 1 * * *' # schedule-3
     #- cron: '24 1 * * *' # schedule-4
 
 env:

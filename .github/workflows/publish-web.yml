@@ -9,9 +9,9 @@ run-name: "publish web [${{ github.ref_name }}] [${{ github.event.head_commit.me
 on:
   workflow_dispatch:
   schedule:
-    #- cron: '41 7 * * *' # schedule-1
+    - cron: '41 7 * * *' # schedule-1
     #- cron: '41 7 * * *' # schedule-2
-    - cron: '41 7 * * *' # schedule-3
+    #- cron: '41 7 * * *' # schedule-3
     #- cron: '41 7 * * *' # schedule-4
 
 env:

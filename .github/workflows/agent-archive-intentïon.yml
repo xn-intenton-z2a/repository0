@@ -14,9 +14,9 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
   schedule:
-    #- cron: '57 1 * * 4' # schedule-1
+    - cron: '57 1 * * 4' # schedule-1
     #- cron: '57 1 * * 4' # schedule-2
-    - cron: '57 1 * * *' # schedule-3
+    #- cron: '57 1 * * *' # schedule-3
     #- cron: '57 1 * * *' # schedule-4
 
 env:
