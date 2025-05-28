@@ -9713,3 +9713,67 @@ LLM API Usage:
 ```
 
 ---
+## Enhanced Issue at 2025-05-28T07:41:19.371Z
+
+Activity:
+
+Enhanced maintenance issue https://github.com/xn-intenton-z2a/repository0/issues/2308 with enhanced description:
+
+## Context
+The current `src/lib/main.js` only logs the provided arguments and does not implement any CLI functionality. We need to transition from this placeholder behavior to a real HTTP server feature as defined in `features/HTTP_SERVER.md`.
+
+## Changes Required
+
+1. **Argument Parsing**
+   - Implement `parseArgs(args: string[]): Record<string, boolean>` that recognizes at least the `--serve` flag.  
+   - When `--serve` is provided, subsequent behavior should start the HTTP server.
+
+2. **HTTP Server Implementation**
+   - Add and export a function `startHttpServer(options: Record<string, boolean>, port = process.env.PORT || 3000): http.Server` in `src/lib/main.js` using Node's built-in `http` module:  
+     - **GET /health** → respond `200 OK` with JSON `{ "status": "ok" }`.  
+     - **GET /options** → respond `200 OK` with a JSON object of the parsed CLI options.  
+     - **Any other path** → respond `404 Not Found` with JSON `{ "error": "Not Found" }`.  
+     - Set `Content-Type: application/json` on all responses.  
+     - Log `Server listening on port <port>` once the server starts.
+   - Update `main(args)` to detect `--serve` and call `startHttpServer(parsedOptions)`; ensure the process remains alive while the server runs.
+
+3. **Unit Tests**
+   - In `tests/unit/main.test.js`, add tests to verify:  
+     1. `startHttpServer` returns an instance of `http.Server` and logs the listening port.  
+     2. HTTP endpoints behavior using Vitest and Node's `http.get` or similar:  
+        - `/health` → status `200`, `application/json`, body `{ "status": "ok" }`.  
+        - `/options` → status `200`, JSON body matching the parsed options object.  
+        - Unknown path → status `404`, body `{ "error": "Not Found" }`.
+
+4. **Documentation Updates**
+   - In `README.md`, add an **HTTP Server** section under **Usage**:  
+     ```markdown
+     ## HTTP Server
+     To start the server:  
+     ```bash
+     npm run serve
+     ```
+     - Default port: `3000` (override with `PORT` environment variable).  
+     - Endpoints:  
+       ```bash
+       curl http://localhost:3000/health    # { "status": "ok" }
+       curl http://localhost:3000/options   # { /* parsed options */ }
+       ```
+     ```
+
+## Acceptance Criteria
+- [ ] `parseArgs` returns `{ serve: true }` when called with `['--serve']`.
+- [ ] `startHttpServer` returns an `http.Server` instance and logs `Server listening on port 3000` (or custom port).
+- [ ] GET `/health` returns `200` and JSON `{ "status": "ok" }`.
+- [ ] GET `/options` returns `200` and JSON matching parsed options.
+- [ ] GET unknown path returns `404` and JSON `{ "error": "Not Found" }`.
+- [ ] All new and existing tests pass with `npm test`.
+- [ ] README includes the HTTP Server usage section with working `curl` examples.
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":7225,"completion_tokens":1328,"total_tokens":8553,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":512,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
