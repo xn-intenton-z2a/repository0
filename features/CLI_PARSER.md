@@ -1,28 +1,75 @@
 # CLI_PARSER
 
 # Description
-Consolidate and refine the single-entry CLI into a structured parser supporting core flags and operations. Users invoke a single entry point with validated flags to perform help, version reporting, diagnostics mode, HTTP serving, build workflows, configuration validation, data persistence, and watch mode. Ensure clear dispatch logic, consistent logging, and proper exit codes.
+Consolidate and refine the command-line interface to support core flags and operations. Users invoke a single entry point with validated flags to perform:
 
-# Flags and Dispatch Order
-1. --help              Show usage information and exit(0)
-2. --version           Print tool version from package.json and exit(0)
-3. --diagnostics       Collect and display system diagnostics (nodeVersion, platform, cwd, env) as JSON and exit(0)
-4. --serve             Start an HTTP server on a configurable port with /health and /options endpoints
-5. --build-intermediate  Generate an intermediate manifest from source.json or source.yml and exit(0)
-6. --build-enhanced   Execute enhanced build transformations on the intermediate manifest and exit(0)
-7. --refresh           Load and validate configuration from JSON or YAML using a Zod schema, print JSON, and exit(0)
-8. --merge-persist     Merge data sources and write the combined JSON to disk, log { path, size }, and exit(0)
-9. --watch             Watch JSON/YAML files and debounce change events to automatically rerun the selected operation until terminated
+- **help**: Show usage information and exit(0)
+- **version**: Print the current tool version from package.json and exit(0)
+- **diagnostics**: Display system diagnostics (nodeVersion, platform, cwd, env) as JSON and exit(0)
+- **serve**: Start an HTTP server on a configurable port with `/health` and `/options` endpoints
+- **build-intermediate**: Generate an intermediate manifest from `source.json` or `source.yml` and exit(0)
+- **build-enhanced**: Execute enhanced build transformations on the intermediate manifest and exit(0)
+- **refresh**: Load and validate `config.json` or `config.yml` against a Zod schema, print JSON, and exit(0)
+- **merge-persist**: Merge `data1.json` and `data2.json`, write `merged-data.json`, and exit(0)
+- **watch**: Watch JSON/YAML files and debounce change events to rerun the selected operation until terminated
 
 # Implementation
-- parseArgs(args: string[]): map supported flags to boolean options; exit(1) on unknown flags
-- printUsage(): display usage text listing flags
-- printVersion(): read and print version from package.json; return version
-- printDiagnostics(): gather process.version, process.platform, process.cwd(), and process.env; print JSON; return object
-- startHttpServer(options, port): use Node http to serve GET /health and GET /options; log listening port
-- performBuildIntermediate(options): locate and parse source.json or source.yml, count entries, write intermediate manifest to os.tmpdir(), log and return { items, path }
-- performBuildEnhanced(options): read intermediate manifest, add timestamp, write enhanced output to os.tmpdir(), log and return { transformed, path }
-- refreshConfiguration(): load and parse config.json or config.yml, validate with Zod schema (inputPath, outputPath, timeout, enableFeatureX); print and return config
-- mergeAndPersistData(options): read data1.json and data2.json, merge, write merged-data.json or override; print and return { path, size }
-- startWatchMode(options): use chokidar to watch ["*.json","*.y?(a)ml"], debounce 100ms, on change rerun serve, build, or refresh based on options
-- main(args: string[]): call parseArgs, then dispatch flags in above order; for each flag call its function and exit or return result; fallback logs "Options:" and options object
+
+1. parseArgs(args: string[]) : Record<string, boolean>
+   - Recognize supported flags and map them to boolean values
+   - On unknown flags, log an error and exit(1)
+
+2. printUsage()
+   - Display usage text listing all flags and descriptions
+
+3. printVersion()
+   - Read `version` from package.json, log it, and return the version string
+
+4. printDiagnostics()
+   - Collect `process.version`, `process.platform`, `process.cwd()`, and `process.env`
+   - Print formatted JSON and return the diagnostics object
+
+5. startHttpServer(options, port?)
+   - Create a Node HTTP server to serve:
+     - GET `/health` → 200, JSON `{ status: "ok" }`
+     - GET `/options` → 200, JSON of parsed CLI options
+     - Other paths → 404, JSON `{ error: "Not Found" }`
+   - Log `Server listening on port <port>` and return the server instance
+
+6. performBuildIntermediate(options)
+   - Locate `source.json` or `source.yml`, parse it, count entries
+   - Write an intermediate manifest to `os.tmpdir()` named `intermediate-<timestamp>.json`
+   - Log and return `{ items, path }`
+
+7. performBuildEnhanced(options)
+   - Read the intermediate manifest via `INTERMEDIATE_PATH` or default `intermediate.json`
+   - Add a `transformedAt` timestamp, write enhanced output to `os.tmpdir()` as `enhanced-<timestamp>.json`
+   - Log and return `{ transformed: true, path }`
+
+8. refreshConfiguration()
+   - Load `config.json` or `config.yml`, validate against a Zod schema:
+     ```js
+     z.object({
+       inputPath: z.string().nonempty(),
+       outputPath: z.string().optional().default(process.cwd()),
+       timeout: z.number().optional().default(30000),
+       enableFeatureX: z.boolean().optional().default(false)
+     })
+     ```
+   - Print the validated config JSON and return it
+
+9. mergeAndPersistData(options)
+   - Read `data1.json` and `data2.json`, merge them
+   - Write the merged result to `merged-data.json` or `MERGED_PATH`
+   - Log and return `{ path, size }`
+
+10. startWatchMode(options)
+    - Use `chokidar` to watch `['*.json','*.y?(a)ml']`, debounce events by 100ms
+    - On file add/change/unlink, rerun serve, build, or refresh based on options
+    - Continue until terminated
+
+11. main(args: string[])
+    - Call `parseArgs`
+    - Dispatch flags in the order: help, version, diagnostics, serve, build-intermediate, build-enhanced, refresh, merge-persist, watch
+    - For each flag, invoke its function and exit or return result
+    - If no flags, log `Options:` and the options object
