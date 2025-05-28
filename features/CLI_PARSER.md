@@ -1,30 +1,28 @@
 # CLI_PARSER
 
 # Description
-Consolidate and refine the command-line interface to support structured parsing of core flags and operations. Users can invoke a single entry point with validated flags to perform help, version reporting, diagnostics mode, HTTP serving, build workflows, configuration validation, data persistence, and watch mode.
+Consolidate and refine the command-line interface to support core operations via flags. Provide structured parsing of flags, clear dispatch logic, and integration with key behaviors: help, version, diagnostics, HTTP server, build workflows, configuration validation, data persistence, and watch mode.
 
-# Flags and Subcommands
-1. --help               Show usage information and exit with code 0
-2. --version            Print current tool version from package.json and exit with code 0
-3. --diagnostics        Collect and display system diagnostics (nodeVersion, platform, cwd, env) as JSON and exit with code 0
-4. --serve              Start an HTTP server on a configurable port (/health and /options endpoints)
-5. --build-intermediate Perform staged build operations to generate an intermediate manifest and exit
-6. --build-enhanced     Execute enhanced build transformations on the intermediate manifest and exit
-7. --refresh            Reload and validate configuration from JSON or YAML using a Zod schema, print JSON, and exit
-8. --merge-persist      Merge data sources and persist the combined result to disk, print summary, and exit
-9. --watch              Watch JSON/YAML files in the project root and automatically rerun the selected operation on file changes
+# Flags and Dispatch Order
+1. --help              Show usage information and exit(0)
+2. --version           Print tool version and exit(0)
+3. --diagnostics       Print system diagnostics as formatted JSON and exit(0)
+4. --serve             Start HTTP server on PORT or default 3000
+5. --build-intermediate Generate intermediate manifest and exit(0)
+6. --build-enhanced    Apply enhancement to manifest and exit(0)
+7. --refresh           Load and validate config JSON/YAML via Zod, print JSON, and exit(0)
+8. --merge-persist     Merge data sources into merged-data.json, print summary, and exit(0)
+9. --watch             Watch JSON/YAML files and rerun selected operation on changes
 
 # Implementation
-- Export `parseArgs(args: string[])` to map supported flags to a boolean options object, exit(1) on unknown flags
-- Export `printUsage()`, `printVersion()`, `printDiagnostics()`, `startHttpServer()`, `performBuildIntermediate()`, `performBuildEnhanced()`, `refreshConfiguration()`, `mergeAndPersistData()`, and `startWatchMode()` with clear responsibilities and return values for testing
-- In `main(args: string[])`, dispatch in this order:
-  1. help → `printUsage()` + exit(0)
-  2. version → `printVersion()` + exit(0)
-  3. diagnostics → `printDiagnostics()` + exit(0)
-  4. serve → `startHttpServer(options)`
-  5. build-intermediate → `performBuildIntermediate(options)` + exit(0)
-  6. build-enhanced → `performBuildEnhanced(options)` + exit(0)
-  7. refresh → `refreshConfiguration()` + exit(0)
-  8. merge-persist → `mergeAndPersistData()` + exit(0)
-  9. watch → `startWatchMode(options)`
-  10. fallback → `console.log('Options:', options)`
+- parseArgs(args: string[]) → options object mapping flags to booleans; unknown flags log error and exit(1).
+- printUsage() → usage text listing flags.
+- printVersion() → read version from package.json, print, return version.
+- printDiagnostics() → gather nodeVersion, platform, cwd, env; print JSON, return object.
+- startHttpServer(options) → create HTTP server with /health and /options endpoints; log listening port.
+- performBuildIntermediate(options) → locate source.json/yml, parse, count entries, write manifest to temp, return and log summary.
+- performBuildEnhanced(options) → read manifest, add timestamp, write enhanced file, return and log report.
+- refreshConfiguration() → locate config file, parse JSON/YAML, validate with Zod schema (inputPath, outputPath, timeout, enableFeatureX), return config.
+- mergeAndPersistData(options) → read data1.json and data2.json, merge, write merged file, return and log {path, size}.
+- startWatchMode(options) → use chokidar to watch *.json and *.y?(a)ml; debounce 100ms; on change rerun serve, build, or refresh based on options.
+- main(args) → call parseArgs, then dispatch in above order; return or exit where appropriate.
