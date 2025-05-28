@@ -1,35 +1,39 @@
 # HTTP_SERVER
 
 # Description
-When the `--serve` flag is provided, the CLI starts a simple HTTP server for monitoring and integration purposes.
+When the --serve flag is provided to the CLI, start a HTTP server on a configurable port (default 3000). Provide two endpoints for monitoring:
 
 # Endpoints
 1. GET /health
-   - Returns HTTP 200 with JSON `{ "status": "ok" }`
+   - Responds with HTTP 200 and JSON { status: "ok" }
 2. GET /options
-   - Returns HTTP 200 with JSON containing the parsed CLI options
+   - Responds with HTTP 200 and the current parsed CLI options as JSON
 3. Any other path
-   - Returns HTTP 404 with JSON `{ "error": "Not Found" }`
+   - Responds with HTTP 404 and JSON { error: "Not Found" }
 
 # Implementation
-- In `src/lib/main.js`, export a function `startHttpServer(options, port = process.env.PORT || 3000)`.
-- Use Node's built-in `http` module to create a server.
-- In the request handler, inspect `req.method` and `req.url` to route to `/health` and `/options`, set `Content-Type: application/json`, and send appropriate JSON responses.
+- Add and export `startHttpServer(options, port = process.env.PORT || 3000)` in `src/lib/main.js`.
+- Use Node’s built-in `http` module to create the server.
+- In the request handler, inspect `req.method` and `req.url`:
+  - If GET /health: writeHead 200 and end with JSON status object.
+  - If GET /options: writeHead 200 and end with JSON options object.
+  - Else: writeHead 404 and end with JSON error.
 - Call `server.listen(port)` and log `Server listening on port <port>`.
-- Ensure the process remains alive while the server is running.
+- Return the `http.Server` instance so tests can hook into it.
 
 # Testing
 - In `tests/unit/main.test.js`:
-  - Import and spy on `startHttpServer` to verify it returns an instance of `http.Server` and logs the listening message.
-  - Use Vitest’s `http.get` or simulate requests to confirm:
-    * `/health` responds with status 200, JSON content type, and body `{ status: "ok" }`.
-    * `/options` responds with the parsed options object as JSON.
-    * Unknown paths respond with status 404 and error JSON.
+  1. Spy on console.log and call `startHttpServer({serve:true}, 0)`:
+     - Assert return is `http.Server`.
+     - On `listening` event, confirm console.log was called with correct port.
+  2. Simulate HTTP GET requests to the server:
+     - GET /health: expect 200, Content-Type application/json, body { status: "ok" }.
+     - GET /options: expect 200, body matching passed options object.
+     - GET /unknown: expect 404, body { error: "Not Found" }.
 
 # Documentation
-- Update `README.md` to include an **HTTP Server** section:
+- Update `README.md` under **HTTP Server**:
   - Describe the `--serve` flag and default port.
-  - Document the available endpoints (`/health` and `/options`).
-  - Provide inline `curl` examples:
+  - List endpoints and sample inline `curl` commands:
     curl http://localhost:3000/health
     curl http://localhost:3000/options
