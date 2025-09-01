@@ -13616,3 +13616,60 @@ LLM API Usage:
 ```
 
 ---
+## Maintain Feature at 2025-09-01T07:00:59.826Z
+
+Activity:
+
+Maintained feature BOOKMARK_EXPORT with:
+
+Feature spec:
+
+# BOOKMARK_EXPORT
+# Description
+Provide a mechanism to persist key CLI outputs and operation summaries into a structured JSON bookmarks file. Users can enable this behavior via CLI flags to export parsed options, intermediate build summaries, enhanced build reports, configuration objects, and merge summaries for downstream automation or inspection.
+
+# Commands and Flags
+1. --export-bookmarks
+   When provided, collects available CLI outputs and operation results and writes them to a JSON file.
+2. --export-path <file>
+   Specify the output bookmarks file path; defaults to `bookmarks.json` in the working directory.
+
+# Implementation
+- Extend `parseArgs(args)` to detect:
+  • `options.exportBookmarks` when `--export-bookmarks` is present.
+  • `options.exportPath` to capture the following argument as target file path.
+- Export function `exportBookmarks(data, filePath)`:
+  1. Serialize `data` to pretty JSON.
+  2. Write to `filePath` using `fs.writeFileSync`.
+  3. Log a confirmation: `Bookmarks saved to <filePath>`.
+- In `main(args)`, after primary operations (build-intermediate, build-enhanced, refresh, merge-persist):
+  • If `options.exportBookmarks` is true:
+    - Gather a `bookmarks` object with keys:
+      • `options`: parsed flags object
+      • `intermediateSummary`: result of `performBuildIntermediate` if run
+      • `enhancedReport`: result of `performBuildEnhanced` if run
+      • `config`: result of `refreshConfiguration` if run
+      • `mergeSummary`: result of `mergeAndPersistData` if run
+    - Call `exportBookmarks(bookmarks, options.exportPath)`
+    - Exit with status code 0.
+
+# Testing
+- Unit tests in tests/unit/main.test.js:
+  * parseArgs(['--export-bookmarks','--export-path','out.json']) yields correct flags.
+  * Mock fs.writeFileSync to test exportBookmarks writes correct JSON and logs confirmation.
+  * Integration test: stub performBuildIntermediate, run main(['--build-intermediate','--export-bookmarks','--export-path','bm.json']), verify exportBookmarks called with expected data and file path.
+
+# Documentation
+- Update README.md under **Bookmark Export** section:
+  • Describe `--export-bookmarks` and `--export-path` flags.
+  • Provide inline examples:
+    npm run build-intermediate -- --export-bookmarks
+    npm run refresh -- --export-bookmarks --export-path=my-bookmarks.json
+
+
+LLM API Usage:
+```json
+{"prompt_tokens":128921,"completion_tokens":587,"total_tokens":129508,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}}
+```
+
+---
