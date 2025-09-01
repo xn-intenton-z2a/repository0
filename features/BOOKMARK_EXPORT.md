@@ -1,5 +1,4 @@
 # BOOKMARK_EXPORT
-
 # Description
 Provide a mechanism to persist key CLI outputs and operation summaries into a structured JSON bookmarks file. Users can enable this behavior via CLI flags to export parsed options, intermediate build summaries, enhanced build reports, configuration objects, and merge summaries for downstream automation or inspection.
 
@@ -29,14 +28,14 @@ Provide a mechanism to persist key CLI outputs and operation summaries into a st
     - Exit with status code 0.
 
 # Testing
-- In `tests/unit/main.test.js`:
-  • Test `parseArgs(['--export-bookmarks','--export-path','out.json'])` yields correct flags.
-  • Mock `fs.writeFileSync` to verify `exportBookmarks` writes correct JSON and logs confirmation.
-  • Integration test: stub `performBuildIntermediate`, run `main(['--build-intermediate','--export-bookmarks','--export-path','bm.json'])`, assert `exportBookmarks` is called with expected data and `bm.json`.
+- Unit tests in tests/unit/main.test.js:
+  * parseArgs(['--export-bookmarks','--export-path','out.json']) yields correct flags.
+  * Mock fs.writeFileSync to test exportBookmarks writes correct JSON and logs confirmation.
+  * Integration test: stub performBuildIntermediate, run main(['--build-intermediate','--export-bookmarks','--export-path','bm.json']), verify exportBookmarks called with expected data and file path.
 
 # Documentation
-- Update `README.md` under **Bookmark Export** section:
+- Update README.md under **Bookmark Export** section:
   • Describe `--export-bookmarks` and `--export-path` flags.
   • Provide inline examples:
-    npm run start -- --build-intermediate --export-bookmarks
-    npm run start -- --refresh --export-bookmarks --export-path=my-bookmarks.json
+    npm run build-intermediate -- --export-bookmarks
+    npm run refresh -- --export-bookmarks --export-path=my-bookmarks.json
