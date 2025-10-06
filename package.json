@@ -36,7 +36,7 @@
     "zod": "^3.25.30"
   },
   "devDependencies": {
-    "eslint": "^9.24.0",
+    "eslint": "^9.37.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.31.0",
