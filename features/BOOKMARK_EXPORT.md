@@ -1,41 +1,37 @@
 # BOOKMARK_EXPORT
 
 # Description
-Provide a mechanism to persist key CLI outputs and operation summaries into a structured JSON bookmarks file. Users can enable this behavior via CLI flags to export parsed options, intermediate build summaries, enhanced build reports, configuration objects, and merge summaries for downstream automation or inspection.
+Add a new CLI feature to export key operation results and parsed options into a JSON bookmarks file. This utility helps users persist outputs such as CLI flags, intermediate build summaries, enhanced build reports, configuration objects, and merge summaries for later inspection or integration into automation workflows.
 
 # Commands and Flags
-1. **--export-bookmarks**  
-   When provided, collect available CLI outputs and operation results and write them to a JSON file.
-2. **--export-path <file>**  
-   Specify the output bookmarks file path; defaults to `bookmarks.json` in the working directory.
+1. --export-bookmarks
+   When present, triggers the export of collected data into a bookmarks file.
+2. --export-path <file>
+   Specify the target file path for bookmarks; defaults to bookmarks.json in the working directory.
 
 # Implementation
 - Extend `parseArgs(args)` in `src/lib/main.js` to detect:
-  • `options.exportBookmarks` when `--export-bookmarks` is present.  
-  • `options.exportPath` to capture the following argument as the target file path.
-- Export a function `exportBookmarks(data, filePath)` that:
-  1. Serializes `data` to pretty JSON.  
-  2. Writes it to `filePath` using `fs.writeFileSync`.  
-  3. Logs a confirmation message: `Bookmarks saved to <filePath>`.
-- In `main(args)`, after performing any primary operations (build, refresh, or merge):
+  • `options.exportBookmarks` when `--export-bookmarks` is provided.
+  • `options.exportPath` capturing the next argument as the output path.
+- Export a function `exportBookmarks(data, filePath)`:
+  1. Accept a `data` object containing fields: options, intermediateSummary, enhancedReport, config, mergeSummary.
+  2. Serialize `data` as pretty JSON and write to `filePath` via `fs.writeFileSync`.
+  3. Log confirmation: "Bookmarks saved to <filePath>".
+- In `main(args)`, after primary operation functions run:
   • If `options.exportBookmarks` is true:
-    - Gather a `bookmarks` object containing:
-      • `options`: parsed flags object  
-      • `intermediateSummary`: result of `performBuildIntermediate` if run  
-      • `enhancedReport`: result of `performBuildEnhanced` if run  
-      • `config`: result of `refreshConfiguration` if run  
-      • `mergeSummary`: result of `mergeAndPersistData` if run
-    - Call `exportBookmarks(bookmarks, options.exportPath)` and exit with code 0.
+    - Assemble a `bookmarks` object with present results.
+    - Call `exportBookmarks(bookmarks, options.exportPath)`.
+    - Exit process with code 0.
 
 # Testing
-- Unit tests in `tests/unit/main.test.js`:
-  • `parseArgs(['--export-bookmarks','--export-path','out.json'])` sets flags correctly.  
-  • Mock `fs.writeFileSync` to verify `exportBookmarks` writes the expected JSON and logs confirmation.  
-  • Integration test: stub `performBuildIntermediate`, call `main(['--build-intermediate','--export-bookmarks','--export-path','bm.json'])`, and assert `exportBookmarks` is invoked with the expected data and path.
+- In `tests/unit/main.test.js`:
+  • Unit test for `parseArgs(['--export-bookmarks','--export-path','out.json'])` to confirm flags are set.
+  • Mock `fs.writeFileSync` and spy on `console.log` to test `exportBookmarks` writes correct JSON and logs confirmation.
+  • Integration test: stub `performBuildIntermediate` to return a summary, run `main(['--build-intermediate','--export-bookmarks','--export-path','bm.json'])`, and assert `exportBookmarks` called with expected data and path.
 
 # Documentation
-- Update `README.md` under a **Bookmark Export** section:
-  • Describe `--export-bookmarks` and `--export-path` flags.  
+- Update `README.md` under **Bookmark Export**:
+  • Describe the flags `--export-bookmarks` and `--export-path`.
   • Provide inline examples:
-    npm run build-intermediate -- --export-bookmarks  
+    npm run build-intermediate -- --export-bookmarks
     npm run refresh -- --export-bookmarks --export-path=my-bookmarks.json
