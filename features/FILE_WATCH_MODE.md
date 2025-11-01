@@ -18,7 +18,7 @@ Extend the CLI to support a watch mode that monitors JSON and YAML files in the 
 # Implementation
 - In `src/lib/main.js`, extend `parseArgs` to set `options.watch` when `--watch` is provided.
 - Import `chokidar` and export `startWatchMode(options)` that:
-  1. Uses `chokidar.watch(["*.json","*.y?(a)ml"], { ignoreInitial: true })`.
+  1. Uses `chokidar.watch(["*.json","*.y?(a)ml"], { ignoreInitial: true }).
   2. Registers handlers for `add`, `change`, and `unlink` events.
   3. Debounces handler calls by 100 ms before invoking tasks based on `options`.
   4. Returns the watcher instance so tests can verify behavior.
