@@ -1,6 +1,6 @@
 {
   "name": "@xn-intenton-z2a/repository0",
-  "version": "1.2.0-0",
+  "version": "1.2.0-1",
   "description": "add repository description here",
   "type": "module",
   "main": "src/lib/main.js",
@@ -62,11 +62,21 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "files": ["package.json"],
+  "files": [
+    "package.json"
+  ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "eslintIgnore": ["archive/**", "build/", "coverage/", "dist/", "exports/", "node_modules/", "eslint.config.js"],
+  "eslintIgnore": [
+    "archive/**",
+    "build/",
+    "coverage/",
+    "dist/",
+    "exports/",
+    "node_modules/",
+    "eslint.config.js"
+  ],
   "eslintConfig": {
     "rules": {
       "sonarjs/cognitive-complexity": "off"
