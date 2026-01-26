@@ -51,7 +51,7 @@
     "prettier": "^3.5.3",
     "vitest": "^3.1.4",
     "@vitest/coverage-v8": "^3.1.4",
-    "npm-check-updates": "^17.1.18"
+    "npm-check-updates": "^19.3.1"
   },
   "overrides": {
     "rimraf": "^4.0.0",
