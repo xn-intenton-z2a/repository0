@@ -1,31 +1,27 @@
 # CLI_ECHO
 
 # Description
-Add a dedicated echo command to the CLI that repeats back provided message parts for quick debugging and verification of flag parsing.
+Add a dedicated echo command to the CLI that repeats back provided message parts for quick debugging and verifying argument parsing.
 
 # Usage
-1. The user invokes the CLI with echo as the first argument followed by message parts.
-2. The CLI collects all following arguments into messageParts.
-3. The CLI joins messageParts into a single string separated by spaces.
-4. The CLI prints the joined message to stdout and exits with status code 0.
+1. User invokes the CLI with echo as the first argument and message parts following.
+2. The CLI collects all arguments after echo into messageParts.
+3. It joins messageParts into a single string separated by spaces.
+4. It prints the joined string to stdout and exits with code 0.
 
 # Implementation
 - In src/lib/main.js:
-  1. Extend parseArgs(args) to detect the first argument "echo":
-     - Set options.echo = true
-     - Set options.messageParts = args.slice(1)
-  2. Export function echoMessage(messageParts) that:
-     - Joins messageParts with spaces
-     - Logs the resulting string via console.log
-     - Returns the joined string for testing
-  3. In main(args):
-     - After parsing options, if options.echo is true:
-       * Call echoMessage(options.messageParts)
-       * Call process.exit(0)
-     - Otherwise continue existing dispatch flows
+  1. Extend parseArgs to detect if args[0] is "echo". Set options.echo and options.messageParts.
+  2. Export function echoMessage(messageParts) that joins parts, logs the result, and returns it.
+  3. In main(args): if options.echo is true, call echoMessage(options.messageParts) and process.exit(0).
 
 # Testing
 - In tests/unit/main.test.js:
-  1. Unit tests for parseArgs(["echo","hello","world"]): assert options.echo is true and messageParts equals ["hello","world"].
-  2. Tests for echoMessage(["hello","world"]): spy on console.log, assert return value and logged string is "hello world".
-  3. Integration test for main(["echo","test","message"]): spy on console.log and process.exit, verify echoMessage invoked, message printed, exit code 0.
+  * Test parseArgs(["echo","hello","world"]) sets echo and messageParts correctly.
+  * Test echoMessage(["hello","world"]) returns "hello world" and logs it.
+  * Integration test for main(["echo","test","msg"]): spy on console.log and process.exit, confirm echoMessage is called, output printed, and exit code 0.
+
+# Documentation
+- Update README.md under **Echo Command**:
+  Describe usage: npm run start -- echo <message parts>
+  Provide inline example: npm run start -- echo Hello world → Prints Hello world
