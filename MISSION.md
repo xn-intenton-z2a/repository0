@@ -1,2 +1,4 @@
-# xn-intenton-z2a/repository0
-Mission [] as mentioned in reply [Seeding the repository to kickstart the mission: setting up the initial project structure, CI workflows, and README guidance towards building the owl-builder CLI. Let's get started!]
+# repository0
+
+A JavaScript utility library that provides string transformation functions (capitalize, slugify, truncate, reverse).
+Published to npm as `@xn-intenton-z2a/repository0`. Includes a CLI that demonstrates each function.

@@ -11,18 +11,11 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - flow-feature-development
-      - transformation-07-code-to-close-issue
-      - transformation-07.1-in-progress-issue-to-ready-issue
+      - agent-flow-evolve
+      - agent-flow-maintain
       - ci-automerge
-      - seed-repository
     types:
       - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   schedule:
     - cron: '29 7 * * *' # schedule-1
     #- cron: '29 7 * * *' # schedule-2
@@ -64,7 +57,7 @@ jobs:
       npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
       lastActivityName: "${{ github.workflow }}"
       lastActivityBranchName: "${{ github.ref_name }}"
-      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
+      nextIssue: "[${{ needs.select-next-issue.outputs.issueNumber }}] ${{ needs.select-next-issue.outputs.issueTitle }} ${{ needs.select-next-issue.outputs.issueLabels }}"
       s3BucketUrl: 's3://agentic-lib-telemetry-bucket/events/'
       s3WebsiteBucketUrl: 's3://agentic-lib-public-website-stats-bucket/'
       iamActionsRoleArn: 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role'

@@ -73,7 +73,7 @@ docRoot: 'public'
 seeding:
   repositoryReseed: 'true'
   sourcePath: '.github/agentic-lib/seeds/zero-main.js'
-  testsPath: '.github/agentic-lib/seeds/zero-tests.js'
+  testsPath: '.github/agentic-lib/seeds/zero-main.test.js'
   dependenciesFilepath: '.github/agentic-lib/seeds/zero-package.json'
   readmeFilepath: '.github/agentic-lib/seeds/zero-README.md'
 

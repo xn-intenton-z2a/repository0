@@ -82,7 +82,7 @@ jobs:
             }.join(' ');
 
             core.setOutput("allPaths", allPaths);
-            core.info(`allPaths: allPaths}`);
+            core.info(`allPaths: ${allPaths}`);
     outputs:
       allPaths: ${{ steps.extract-paths.outputs.allPaths }}
 
