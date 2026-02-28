@@ -171,22 +171,134 @@ jobs:
 
   publish-npm:
     needs:
+      - agentic-lib
       - npm-test-and-run-main
       - mvn-package-cdk-synth
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-npm-publish.yml@6.10.2'
-    with:
+    runs-on: ubuntu-latest
+    env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
-      #githubRelease: true
-      buildScript: ${{ needs.agentic-lib.outputs.buildScript }}
+      buildScript: ${{ needs.agentic-lib.outputs.buildScript || 'npm run build' }}
+      cache: 'npm'
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ env.cache }}
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - name: Install dependencies
+        run: npm ci || npm install
+      - name: Set up .npmrc with only the GitHub token
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+      - name: Build project before publishing begins
+        id: build
+        shell: bash
+        run: ${{ env.buildScript }}
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git status -v
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+      - name: released
+        id: released
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        shell: bash
+        run: |
+          unset PERSONAL_ACCESS_TOKEN
+          npm version ${{ env.versionIncrement }}
+          ${{ env.buildScript }}
+          npm publish --tag latest --access restricted
+          git push --follow-tags
+          releasedVersion=$(node -p "require('./package.json').version")
+          echo "releasedVersion=${releasedVersion}" >> $GITHUB_OUTPUT
+          echo "releasedVersion=${releasedVersion}"
+      - name: Create GitHub Release
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.released.outputs.releasedVersion }}
+          name: Release ${{ steps.released.outputs.releasedVersion }}
+          body: ${{ env.releaseNotes }}
+      - name: Rotate to next prepatch version from a released version
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        shell: bash
+        run: npm version --no-git-tag-version prepatch
+      - name: Rotate to next pre-release version
+        if: env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease'
+        shell: bash
+        run: npm version --no-git-tag-version ${{ env.versionIncrement }}
+      - name: rotated
+        id: rotated
+        shell: bash
+        run: |
+          newVersion=$(node -p "require('./package.json').version")
+          echo "newVersion=${newVersion}" >> $GITHUB_OUTPUT
+          echo "newVersion=${newVersion}"
+      - name: Run build after version bump
+        run: ${{ env.buildScript }}
+      - name: Push version commit
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git add -v --all
+          newVersion=$(node -p "require('./package.json').version")
+          git commit -m "${newVersion?}"
+          git push origin HEAD
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+      - name: Upload package.json artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-json
+          path: "./package.json"
+      - name: Log final version
+        shell: bash
+        run: echo "Final version: ${{ steps.rotated.outputs.newVersion }}"
+    outputs:
+      releasedVersion: ${{ steps.released.outputs.releasedVersion }}
+      newVersion: ${{ steps.rotated.outputs.newVersion }}
 
   publish-mvn:
     needs:
@@ -197,16 +309,185 @@ jobs:
     permissions:
       contents: write
       packages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-mvn-publish.yml@6.10.2'
-    with:
+    runs-on: ubuntu-latest
+    env:
       versionIncrement: ${{ inputs.versionIncrement || 'prerelease' }}
       releaseVersionOverride: ${{ needs.publish-npm.outputs.releasedVersion }}
       newVersionOverride: ${{ needs.publish-npm.outputs.newVersion }}
-      githubRelease: false
       mavenBuildScript: './mvnw --batch-mode clean install'
       mavenDeployScript: './mvnw --batch-mode deploy'
+      cache: 'maven'
       releaseNotes: 'Release increment: ${{ inputs.versionIncrement }}.'
       gitUserEmail: 'action@github.com'
       gitUserName: 'GitHub Actions[bot]'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: ${{ env.cache }}
+          server-password: PERSONAL_ACCESS_TOKEN
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Validate settings.xml
+        shell: bash
+        run: mvn help:effective-settings
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Download dependencies
+        shell: bash
+        run: ./mvnw --batch-mode --quiet dependency:go-offline > /dev/null 2>&1
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Build project before publishing begins
+        id: build
+        shell: bash
+        run: ${{ env.mavenBuildScript }}
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Setup Java using GitHub Token
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: ${{ env.cache }}
+      - name: Validate settings.xml (GitHub Token)
+        shell: bash
+        run: mvn help:effective-settings
+      - name: Examine the git working copy
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git status -v
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: 'maven'
+      - name: released
+        id: released
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        shell: bash
+        run: |
+          releaseVersionOverride='${{ env.releaseVersionOverride }}'
+          if [[ -n "$releaseVersionOverride" ]]; then
+            newVersion="$releaseVersionOverride"
+            mvn versions:set -DnewVersion=$newVersion
+            echo "Using version override: $newVersion"
+          else
+            currentVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            newVersion=${currentVersion/-SNAPSHOT/}
+            mvn versions:set -DnewVersion=$newVersion
+            echo "Using standard version increment: $newVersion"
+          fi
+          ${{ env.mavenBuildScript }}
+          echo "Deploying version: $newVersion"
+          ${{ env.mavenDeployScript }}
+          git push --follow-tags
+          echo "releasedVersion=${newVersion}" >> $GITHUB_OUTPUT
+          echo "releasedVersion=${newVersion}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Create GitHub Release
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.released.outputs.releasedVersion }}
+          name: Release ${{ steps.released.outputs.releasedVersion }}
+          body: ${{ env.releaseNotes }}
+      - name: Rotate to next snapshot version
+        if: env.versionIncrement == 'major' || env.versionIncrement == 'minor' || env.versionIncrement == 'patch'
+        shell: bash
+        run: |
+          newVersionOverride='${{ env.newVersionOverride }}'
+          if [[ -n "$newVersionOverride" ]]; then
+            newVersion="$newVersionOverride"
+            mvn versions:set -DnewVersion=$newVersion
+            echo "Using version override: $newVersion"
+          else
+            currentVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            if [[ "$currentVersion" != *-SNAPSHOT ]]; then
+              newVersion="${currentVersion}-SNAPSHOT"
+              mvn versions:set -DnewVersion=$newVersion
+            fi
+            echo "Using incremented version: $newVersion"
+          fi
+      - name: Rotate to next pre-release version
+        if: env.versionIncrement == 'premajor' || env.versionIncrement == 'preminor' || env.versionIncrement == 'prepatch' || env.versionIncrement == 'prerelease'
+        shell: bash
+        run: |
+          newVersionOverride='${{ env.newVersionOverride }}'
+          if [[ -n "$newVersionOverride" ]]; then
+            newVersion="$newVersionOverride"
+            mvn versions:set -DnewVersion=$newVersion
+            echo "Using version override: $newVersion"
+          else
+            currentVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            newVersion="${currentVersion%-SNAPSHOT}-SNAPSHOT"
+            mvn versions:set -DnewVersion=$newVersion
+            echo "Using incremented version: $newVersion"
+          fi
+      - name: rotated
+        id: rotated
+        shell: bash
+        run: |
+          newVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "newVersion=${newVersion}" >> $GITHUB_OUTPUT
+          echo "newVersion=${newVersion}"
+      - name: Run build after version bump
+        run: ${{ env.mavenBuildScript }}
+      - name: Examine the git working copy and push
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git status -v
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+          git push -v origin ${{ github.ref_name }}
+      - name: Push version commit
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          newVersionOverride='${{ env.newVersionOverride }}'
+          if [[ -n "$newVersionOverride" ]]; then
+            git add -v --all
+            newVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            git commit -m "${newVersion?}"
+            git push origin HEAD
+          fi
+      - name: Upload pom.xml artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pom-xml
+          path: "./pom.xml"
+      - name: Log final version
+        shell: bash
+        run: echo "Final version: ${{ steps.rotated.outputs.newVersion }}"
+    outputs:
+      releasedVersion: ${{ steps.released.outputs.releasedVersion }}
+      newVersion: ${{ steps.rotated.outputs.newVersion }}
