@@ -238,7 +238,7 @@ fabric.properties
 /.idea/.gitignore
 /.idea/vcs.xml
 /.idea/detekt.xml
-/node_modules/
+node_modules/
 /.idea/jsLibraryMappings.xml
 
 # But don't ignore

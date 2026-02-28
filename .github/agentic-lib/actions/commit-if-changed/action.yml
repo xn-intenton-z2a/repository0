@@ -23,7 +23,7 @@ runs:
       run: |
         git config --local user.email 'action@github.com'
         git config --local user.name 'GitHub Actions[bot]'
-        git add -A -- ':!**/node_modules'
+        git add -A
         if git diff --cached --quiet; then
           echo "No changes to commit"
         else
