@@ -114,12 +114,110 @@ jobs:
 
   pr:
     needs: label
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel )
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-from-pull-request.yml@6.10.2'
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, needs.label.outputs.pullRequestLabel)
+    runs-on: ubuntu-latest
+    steps:
+      - name: check-pr
+        id: check-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const pullNumber = pr.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let shouldSkipMerge;
+            let prMerged;
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number: pullNumber,
+            });
+            core.info(`Found pull request #${pullRequest.number} with state: ${pullRequest.state}, mergeable: ${pullRequest.mergeable}`);
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pullNumber} is already closed.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'true';
+            } else if (pullRequest.state !== "open") {
+              core.info(`PR #${pullNumber} is not open, it is ${pullRequest.state}.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === true) {
+              core.info(`PR #${pullNumber} is mergeable.`);
+              shouldSkipMerge = 'false';
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === false) {
+              core.info(`PR #${pullNumber} is not mergeable.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+              core.info(`PR #${pullNumber} mergeability is ${pullRequest.mergeable}.`);
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            }
+
+            core.setOutput('pullNumber', pullNumber ? pullNumber.toString() : '');
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.setOutput('prMerged', prMerged);
+    outputs:
+      pullNumber: ${{ steps.check-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.check-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.check-pr.outputs.prMerged }}
 
   cs:
     if: github.event_name == 'check_suite' && github.event.check_suite.conclusion == 'success'
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-find-pr-in-check-suite.yml@6.10.2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: find-pr
+        id: find-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const checkSuite = context.payload.check_suite;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const headSha = checkSuite.head_sha;
+            let pullNumber;
+            let shouldSkipMerge;
+            let prMerged;
+
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner,
+              repo,
+              commit_sha: headSha,
+            });
+
+            if (!prs || prs.length === 0) {
+              core.info('No pull requests associated with this check suite.');
+              pullNumber = '';
+              shouldSkipMerge = 'true';
+              prMerged = 'false';
+            } else {
+              const openPRs = prs.filter(pr => pr.state === 'open');
+              const prWithAutomerge = openPRs.find(pr => pr.labels.some(label => label.name === 'automerge'));
+
+              if (!prWithAutomerge) {
+                core.info('No open pull requests with the "automerge" label.');
+                pullNumber = '';
+                shouldSkipMerge = 'true';
+                prMerged = 'false';
+              } else {
+                core.info(`Open pull request with "automerge" label: #${prWithAutomerge.number}`);
+                pullNumber = prWithAutomerge.number;
+                shouldSkipMerge = 'false';
+                prMerged = 'false';
+              }
+            }
+
+            core.setOutput('pullNumber', pullNumber ? pullNumber.toString() : '');
+            core.setOutput('shouldSkipMerge', shouldSkipMerge);
+            core.setOutput('prMerged', prMerged);
+    outputs:
+      pullNumber: ${{ steps.find-pr.outputs.pullNumber }}
+      shouldSkipMerge: ${{ steps.find-pr.outputs.shouldSkipMerge }}
+      prMerged: ${{ steps.find-pr.outputs.prMerged }}
 
   ls:
     needs: label
@@ -252,9 +350,102 @@ jobs:
       contents: write
       pull-requests: write
       checks: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-merge-pr.yml@6.10.2'
-    with:
-      pullNumber: '${{ needs.merge-check.outputs.pullNumber }}'
+    runs-on: ubuntu-latest
+    env:
+      pullNumber: ${{ needs.merge-check.outputs.pullNumber }}
+    steps:
+      - name: trigger-checks
+        id: trigger-checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pullNumber = parseInt(process.env.pullNumber);
+            if (!pullNumber) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner, repo, pull_number: pullNumber,
+            });
+            core.info(`PR #${pullNumber} state: ${pullRequest.state}, mergeable: ${pullRequest.mergeable}`);
+
+            if (pullRequest.state === "closed") {
+              core.info(`PR #${pullNumber} is already closed.`);
+            } else if (pullRequest.mergeable === null) {
+              core.info(`PR #${pullNumber} mergeability unknown, triggering check re-runs.`);
+              const ref = pullRequest.head.sha;
+              const { data: checkSuites } = await github.rest.checks.listSuitesForRef({ owner, repo, ref });
+              for (const suite of checkSuites.check_suites) {
+                try {
+                  await github.rest.checks.rerequestSuite({ owner, repo, check_suite_id: suite.id });
+                } catch (error) {
+                  core.info(`Failed to re-request check suite: ${error.message}`);
+                }
+              }
+            }
+
+      - name: Wait for checks
+        run: sleep 5
+
+      - name: auto-merge-pr
+        id: auto-merge-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pullNumber = parseInt(process.env.pullNumber);
+            if (!pullNumber) { core.setOutput('prMerged', 'false'); core.setOutput('message', 'No PR number'); return; }
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            let prMerged;
+            let message = '';
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner, repo, pull_number: pullNumber,
+            });
+            core.info(`PR #${pullNumber} state: ${pullRequest.state}, mergeable_state: ${pullRequest.mergeable_state}`);
+
+            if (pullRequest.state === "closed") {
+              if (pullRequest.merged) {
+                message = `PR #${pullNumber} is closed and merged.`;
+                prMerged = 'true';
+              } else {
+                message = `PR #${pullNumber} is closed but not merged.`;
+                prMerged = 'false';
+              }
+            } else if (pullRequest.mergeable && pullRequest.mergeable_state === 'clean') {
+              await github.rest.pulls.merge({ owner, repo, pull_number: pullNumber, merge_method: 'squash' });
+              core.info(`PR #${pullNumber} merged successfully.`);
+              const branchRef = `heads/${pullRequest.head.ref}`;
+              await github.rest.git.deleteRef({ owner, repo, ref: branchRef });
+              message = `Branch '${pullRequest.head.ref}' deleted.`;
+              prMerged = 'true';
+            } else if (pullRequest.mergeable_state === 'dirty' || pullRequest.mergeable === false) {
+              message = `PR #${pullNumber} has conflicts. Closing.`;
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pullNumber,
+                body: `This pull request is being closed due to conflicts (mergeable_state: ${pullRequest.mergeable_state}, mergeable: ${pullRequest.mergeable}).`,
+              });
+              await github.rest.pulls.update({ owner, repo, pull_number: pullNumber, state: "closed" });
+              try {
+                await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pullRequest.head.ref}` });
+                message += ` Branch '${pullRequest.head.ref}' deleted.`;
+              } catch (error) {
+                message += ` Failed to delete branch: ${error.message}`;
+              }
+              prMerged = 'false';
+            } else if (pullRequest.mergeable === null) {
+              message = `PR #${pullNumber} does not yet have a value for mergeability.`;
+              prMerged = 'false';
+            } else {
+              message = `PR #${pullNumber} is in an unexpected state: ${pullRequest.mergeable_state}.`;
+              prMerged = 'false';
+            }
+
+            core.setOutput('prMerged', prMerged);
+            core.setOutput('message', message);
+    outputs:
+      prMerged: ${{ steps.auto-merge-pr.outputs.prMerged }}
+      message: ${{ steps.auto-merge-pr.outputs.message }}
 
   validate-issue-number:
     needs:
@@ -285,10 +476,49 @@ jobs:
       contents: write
       issues: write
       pull-requests: read
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-label-issue.yml@6.10.2'
-    with:
+    runs-on: ubuntu-latest
+    env:
       pullNumber: ${{ needs.automerge.outputs.prMerged == 'true' && needs.merge-check.outputs.pullNumber || '' }}
-      issueNumber: '${{ needs.merge-check.outputs.issueNumber }}'
+      issueNumber: ${{ needs.merge-check.outputs.issueNumber }}
+    steps:
+      - name: Label issue after merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pullNumber = parseInt(process.env.pullNumber);
+            const issueNumber = parseInt(process.env.issueNumber);
+            if (!pullNumber || !issueNumber) return;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner, repo, pull_number: pullNumber,
+            });
+            const branchName = pullRequest.head.ref;
+
+            const { data: issue } = await github.rest.issues.get({
+              owner, repo, issue_number: issueNumber,
+            });
+            const hasMergedLabel = issue.labels.some(label => label.name === 'merged');
+            const hasInProgressLabel = issue.labels.some(label => label.name === 'in-progress');
+
+            if (!hasMergedLabel) {
+              core.info(`Adding "merged" label to issue #${issueNumber}.`);
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: issueNumber, labels: ['merged'],
+              });
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issueNumber,
+                body: `The feature branch has been merged: ${branchName}`,
+              });
+            }
+
+            if (hasInProgressLabel) {
+              core.info(`Removing "in-progress" label from issue #${issueNumber}.`);
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number: issueNumber, name: 'in-progress',
+              });
+            }
 
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
