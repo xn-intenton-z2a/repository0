@@ -33,16 +33,6 @@ on:
         options:
           - ci
           - prod
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   schedule:
     - cron: '22 */12 */7 * *' # schedule-1
     #- cron: '22 */12 * * *' # schedule-2
