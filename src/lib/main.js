@@ -2,8 +2,8 @@
 // Write your MISSION.md and let the autonomous evolution begin.
 
 export function main() {
-  console.log('Hello World!');
-  return 'Hello World!';
+  console.log("Hello World!");
+  return "Hello World!";
 }
 
 // Auto-run when called directly
