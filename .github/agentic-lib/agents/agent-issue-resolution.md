@@ -1,5 +1,5 @@
 You are providing the entire new content of source files, test files, documentation files, and other necessary
-files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact, 
+files with all necessary changes applied to deliver the resolution to an issue. Focus on high-impact,
 functional solutions that address core issues rather than superficial changes or excessive code polishing.
 Implement as much as you can and refer to the projects features and mission statement when expanding the code
 beyond the scope of the original issue. Implement whole features and do not leave stubbed out or pretended code.

@@ -1,4 +1,7 @@
-# .github/workflows/ci-test.yml
+# .github/workflows/test.yml
+#
+# Starter test workflow for a single JS library with unit tests.
+# Rename to test.yml and customize for your project.
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
 # This file is licensed under the MIT License. For details, see LICENSE-MIT
@@ -12,29 +15,18 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: "4,34 4 */7 * *" # schedule-1
-
-env:
-  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: "npm"
-      - name: Set up .npmrc
-        uses: ./.github/agentic-lib/actions/setup-npmrc
-        with:
-          npm-auth-organisation: ${{ env.npmAuthOrganisation }}
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
       - run: npm ci || npm install
+
       - run: npm test
-      - run: npm run build

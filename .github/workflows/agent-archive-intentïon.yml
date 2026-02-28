@@ -14,15 +14,15 @@ on:
       PERSONAL_ACCESS_TOKEN:
         required: false
   schedule:
-    - cron: '57 1 * * 4' # schedule-1
+    - cron: "57 1 * * 4" # schedule-1
     #- cron: '57 1 * * 4' # schedule-2
     #- cron: '57 1 * * *' # schedule-3
     #- cron: '57 1 * * *' # schedule-4
 
 env:
-  gitUserEmail: 'action@github.com'
-  gitUserName: 'GitHub Actions[bot]'
-  archivePath: 'archive/'
+  gitUserEmail: "action@github.com"
+  gitUserName: "GitHub Actions[bot]"
+  archivePath: "archive/"
 
 jobs:
   uuid:
@@ -38,29 +38,25 @@ jobs:
     outputs:
       uuid: ${{ steps.uuid.outputs.uuid }}
 
-  agentic-lib:
-    needs:
-      - uuid
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-      haltSignal: "dont-halt-${{ needs.uuid.outputs.uuid }}"
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   intention:
     needs:
-      - agentic-lib
       - uuid
     runs-on: ubuntu-latest
     outputs:
       branchUrl: ${{ steps.intention.outputs.branchUrl }}
       branchName: ${{ steps.intention.outputs.branchName }}
+      intentionFilepath: ${{ steps.config.outputs.intentionFilepath }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          echo "intentionFilepath=$(yq -r '.intentionBot.intentionFilepath // "intentïon.md"' "$CONFIG" 2>/dev/null || echo 'intentïon.md')" >> $GITHUB_OUTPUT
 
       - name: Get latest from remote
         run: |
@@ -75,7 +71,7 @@ jobs:
         id: intention
         uses: actions/github-script@v7
         env:
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          intentionFilepath: ${{ steps.config.outputs.intentionFilepath }}
           uuid: ${{ needs.uuid.outputs.uuid }}
         with:
           script: |
@@ -145,7 +141,6 @@ jobs:
 
   update-intention:
     needs:
-      - agentic-lib
       - intention
     runs-on: ubuntu-latest
     steps:
@@ -165,8 +160,8 @@ jobs:
 
       - name: Log seed in the intentïon file.
         run: |
-          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
-          echo "" >> ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ") - Archiving intentïon to branch ${{ needs.intention.outputs.branchUrl }}" >> ${{ needs.intention.outputs.intentionFilepath }}
+          echo "" >> ${{ needs.intention.outputs.intentionFilepath }}
 
       - name: Commit and push
         id: commit

@@ -17,43 +17,22 @@ on:
         description: 'Was this workflow called by another workflow?, e.g. "true"'
         type: string
         required: false
-        default: 'true'
+        default: "true"
     secrets:
       PERSONAL_ACCESS_TOKEN:
         required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
-  #workflow_run:
-  #  workflows:
-  #    - agent-issue-to-code
-  #    - agent-update-readme
-  #    - ci-update
-  #  types:
-  #    - completed
-  # secrets:
-  #   PERSONAL_ACCESS_TOKEN:
-  #     required: false
-  #   CHATGPT_API_SECRET_KEY:
-  #     required: true
   schedule:
-    - cron: '53 4 */7 * *' # schedule-1
+    - cron: "53 4 */7 * *" # schedule-1
     #- cron: '53 */4 * * *' # schedule-2
     #- cron: '23,53 * * * *' # schedule-3
     #- cron: '23,53 * * * *' # schedule-4
 
 env:
-  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
-  s3BucketUrl: ${{ vars.s3BucketUrl || 's3://agentic-lib-telemetry-bucket/events/' }}
-  s3WebsiteBucketUrl: ${{ vars.s3WebsiteBucketUrl || 's3://agentic-lib-public-website-stats-bucket/' }}
-  iamActionsRoleArn: ${{ vars.iamActionsRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-github-actions-role' }}
-  iamStatsBucketWriterRoleArn: ${{ vars.iamStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-deployment-role' }}
-  iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
-  pullRequestLabel: 'automerge'
-  branchPrefix: 'agentic-lib-issue-'
-  copilotBranchPrefix: 'copilot/'
+  pullRequestLabel: "automerge"
+  branchPrefix: "agentic-lib-issue-"
+  copilotBranchPrefix: "copilot/"
 
 jobs:
-
   label:
     runs-on: ubuntu-latest
     steps:
@@ -63,54 +42,6 @@ jobs:
           echo "Label: ${{ env.pullRequestLabel }}"
     outputs:
       pullRequestLabel: ${{ env.pullRequestLabel }}
-
-  echo-event:
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo 'Triggered by: ${{ github.event_name }}'
-
-  pull-request-event:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: pull_request"
-
-  check-suite-event:
-    if: github.event_name == 'check_suite'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: check_suite"
-
-  schedule-event:
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: schedule"
-
-  workflow-dispatch-event:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_dispatch"
-
-  workflow-call-event:
-    if: inputs.workflow == 'true' || github.event_name == 'workflow_call'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_call"
-
-  workflow-run-event:
-    if: github.event_name == 'workflow_run'
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          echo "Triggered by: workflow_run"
 
   pr:
     needs: label
@@ -520,28 +451,26 @@ jobs:
               });
             }
 
-  agentic-lib:
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
-    with:
-      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
   log-intention-activity-merge-pr:
     needs:
-      - agentic-lib
       - merge-check
       - automerge
     if: ${{ !cancelled() && needs.merge-check.outputs.shouldSkipMerge != 'true' && needs.merge-check.outputs.pullNumber != '' }}
     runs-on: ubuntu-latest
     env:
-      gitUserEmail: 'action@github.com'
-      gitUserName: 'GitHub Actions[bot]'
+      gitUserEmail: "action@github.com"
+      gitUserName: "GitHub Actions[bot]"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          echo "intentionFilepath=$(yq -r '.intentionBot.intentionFilepath // "intentïon.md"' "$CONFIG" 2>/dev/null || echo 'intentïon.md')" >> $GITHUB_OUTPUT
 
       - name: Get latest from remote
         run: |
@@ -563,7 +492,7 @@ jobs:
           prMerged: ${{ needs.automerge.outputs.prMerged }}
           message: ${{ needs.automerge.outputs.message }}
           outcome: ${{ needs.automerge.result }}
-          intentionFilepath: ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          intentionFilepath: ${{ steps.config.outputs.intentionFilepath }}
         with:
           script: |
             const pullNumber = process.env.pullNumber;
@@ -576,11 +505,11 @@ jobs:
             const intentionFilepath = process.env.intentionFilepath;
 
             const activity = `When attempting to merge PR #${pullNumber} for branch name "${branchName}" to resolve issue number "${issueNumber}" the decision to skip merge was "${shouldSkipMerge}":
-            
+
             then the PR was merged "${prMerged}"
-            
+
             with message: "${message}"
-            
+
             with outcome "${outcome}".`;
 
             core.info(`Activity: ${activity}`);
@@ -595,9 +524,9 @@ jobs:
             }
             const isoDate = new Date().toISOString();
             const activityLogContent = `\n## Merge PR activity at ${isoDate}
-            
+
             ${activity}
-            
+
             ---
             `;
             if (fs.existsSync(intentionFilepath)) {
@@ -613,7 +542,7 @@ jobs:
           git config --local user.name '${{ env.gitUserName }}'
           git config --local pull.ff     false       # never fast-forward
           git config --local pull.rebase false       # never rebase on pull
-          git add  ${{ needs.agentic-lib.outputs.intentionFilepath }}
+          git add  ${{ steps.config.outputs.intentionFilepath }}
           git commit -m "Activity logged by ci-automerge.yml" || echo "No changes to commit"
           git fetch origin ${{ github.ref_name }}
           git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours

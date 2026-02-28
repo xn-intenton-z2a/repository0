@@ -1,0 +1,77 @@
+# .github/workflows/agent-flow-transform.yml
+#
+# Autonomous code transformation: Mission → Features → Issues → Code → PR
+# Replaces the 10 transformation workflows with a single agentic-step call.
+
+name: agent-flow-transform
+run-name: "agent-flow-transform [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # schedule-1: daily at 06:17 UTC
+    #- cron: '17 */6 * * *' # schedule-2
+    #- cron: '17 * * * *' # schedule-3
+    #- cron: '17,47 * * * *' # schedule-4
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Copilot SDK model to use"
+        required: false
+        default: "claude-sonnet-4-5"
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
+
+jobs:
+  transform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG" 2>/dev/null || echo 'src/lib/')
+          TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG" 2>/dev/null || echo 'tests/unit/')
+          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG" 2>/dev/null || echo '.github/agentic-lib/features/')
+          DOCS=$(yq -r '.paths.documentationPath.path // "docs/"' "$CONFIG" 2>/dev/null || echo 'docs/')
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG" 2>/dev/null || echo 'library/')
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG" 2>/dev/null || echo 'SOURCES.md')
+          README=$(yq -r '.paths.readmeFilepath.path // "README.md"' "$CONFIG" 2>/dev/null || echo 'README.md')
+          DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG" 2>/dev/null || echo 'package.json')
+          echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
+
+      - name: Run transformation step
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: "transform"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
+          test-command: "npm test"
+          model: ${{ inputs.model || 'claude-sonnet-4-5' }}
+          writable-paths: ${{ steps.config.outputs.writablePaths }}
+
+      - name: Commit and push changes
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-step: transform"
+          push-ref: ${{ github.ref_name }}

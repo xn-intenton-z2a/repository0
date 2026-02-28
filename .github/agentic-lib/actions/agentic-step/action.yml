@@ -1,0 +1,56 @@
+# .github/agentic-lib/actions/agentic-step/action.yml
+#
+# agentic-step — A GitHub Action wrapping the GitHub Copilot SDK for autonomous code transformation.
+# Part of the intentïon project: https://github.com/xn-intenton-z2a/agentic-lib
+
+name: "agentic-step"
+description: "Run an autonomous agentic task using the GitHub Copilot SDK"
+author: "xn-intenton-z2a"
+
+inputs:
+  task:
+    description: >
+      The task to perform. One of: resolve-issue, fix-code, transform, maintain-features,
+      maintain-library, enhance-issue, review-issue, discussions
+    required: true
+  config:
+    description: "Path to agentic-lib.yml configuration file"
+    required: false
+    default: ".github/agentic-lib/agents/agentic-lib.yml"
+  instructions:
+    description: "Path to agent prompt/instructions file (.md)"
+    required: false
+  issue-number:
+    description: "GitHub issue number (when task involves an issue)"
+    required: false
+  pr-number:
+    description: "GitHub PR number (when task involves a pull request)"
+    required: false
+  writable-paths:
+    description: "Semicolon-separated paths the agent may write to (overrides config)"
+    required: false
+  test-command:
+    description: "Command to validate changes"
+    required: false
+    default: "npm test"
+  discussion-url:
+    description: "GitHub Discussion URL (for discussions task)"
+    required: false
+  model:
+    description: "Copilot SDK model to use"
+    required: false
+    default: "claude-sonnet-4.5"
+
+outputs:
+  result:
+    description: 'The result of the agentic task (e.g. "pr-created", "code-fixed", "nop")'
+  pr-number:
+    description: "PR number created or modified (if applicable)"
+  tokens-used:
+    description: "Total tokens consumed by the Copilot SDK"
+  model:
+    description: "Model used for the completion"
+
+runs:
+  using: "node24"
+  main: "index.js"
