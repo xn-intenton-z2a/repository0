@@ -50,6 +50,7 @@ env:
   iamPublicWebsiteStatsBucketWriterRoleArn: ${{ vars.iamPublicWebsiteStatsBucketWriterRoleArn || 'arn:aws:iam::541134664601:role/agentic-lib-public-website-stats-bucket-writer-role' }}
   pullRequestLabel: 'automerge'
   branchPrefix: 'agentic-lib-issue-'
+  copilotBranchPrefix: 'copilot/'
 
 jobs:
 
@@ -147,9 +148,10 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
+              const copilotBranchPrefix = process.env.copilotBranchPrefix || 'copilot/';
               const filteredPRs = pullRequests
                 .filter(pr => pr.labels.some(label => label.name === pullRequestLabel ))
-                .filter(pr => pr.head.ref.startsWith(branchPrefix));
+                .filter(pr => pr.head.ref.startsWith(branchPrefix) || pr.head.ref.startsWith(copilotBranchPrefix));
               if (filteredPRs.length > 0) {
                 const pullRequest = filteredPRs[0];
                 pullNumber = pullRequest.number;
@@ -214,7 +216,15 @@ jobs:
               branchName = pullRequest.head.ref;
               core.info(`branchName '${branchName}'`);
 
-              const issueNumberMatch = branchName.replace(branchPrefix, '');
+              // Extract issue number from branch name (supports agentic-lib-issue-* and copilot/* prefixes)
+              let issueNumberMatch = '';
+              if (branchName.startsWith(branchPrefix)) {
+                issueNumberMatch = branchName.replace(branchPrefix, '');
+              } else if (branchName.startsWith('copilot/')) {
+                // Copilot branches may contain issue number in the name, e.g. copilot/fix-123
+                const match = branchName.match(/(\d+)/);
+                issueNumberMatch = match ? match[1] : '';
+              }
               if (parseInt(issueNumberMatch)) {
                 issueNumber = `${parseInt(issueNumberMatch)}`;
               } else {
@@ -283,7 +293,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
     with:
-      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 

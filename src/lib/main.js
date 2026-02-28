@@ -1,17 +1,13 @@
-#!/usr/bin/env node
-// src/lib/main.js
+// src/lib/main.js — intentïon starting point
+// Write your MISSION.md and let the autonomous evolution begin.
 
-import { fileURLToPath } from "url";
-
-/**
- * Main entry point for the CLI.
- * @param {string[]} args - Array of command-line arguments.
- */
-export function main(args = process.argv.slice(2)) {
-  console.log(`Run with: ${JSON.stringify(args)}`);
+export function main() {
+  console.log('Hello World!');
+  return 'Hello World!';
 }
 
-// When invoked directly from the command line, call main with default args
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Auto-run when called directly
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
   main();
 }
