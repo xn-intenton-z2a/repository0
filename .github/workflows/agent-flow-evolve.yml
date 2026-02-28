@@ -1,36 +1,30 @@
-# .github/workflows/agent-discussions-bot.yml
+# .github/workflows/agent-flow-evolve.yml
 #
-# Discussions bot for repository0.
+# Autonomous code evolution for repository0.
+# Calls the agentic-step action from agentic-lib.
 
-name: agent-discussions-bot
-run-name: "agent-discussions-bot [${{ github.ref_name }}]"
-concurrency: agentic-lib-bot
+name: agent-flow-evolve
+run-name: "agent-flow-evolve [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
 
 on:
-  discussion:
-    types:
-      - created
-      - edited
-      - answered
-      - unanswered
-  discussion_comment:
-    types:
-      - created
-      - edited
   schedule:
-    - cron: '11 13 */28 * *' # schedule-1: every 28 days
+    - cron: '23 7 * * *' # schedule-1: daily at 07:23 UTC
+    #- cron: '23 */6 * * *' # schedule-2
+    #- cron: '23 * * * *' # schedule-3
+    #- cron: '23,53 * * * *' # schedule-4
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
-  discussions: write
+  pull-requests: write
 
 env:
   configPath: '.github/agentic-lib/agents/agentic-lib.yml'
 
 jobs:
-  respond:
+  evolve:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,29 +45,18 @@ jobs:
         working-directory: .agentic-lib/.github/agentic-lib/actions/agentic-step
         run: npm ci
 
-      - name: Get discussion URL
-        id: discussion-url
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let url = '';
-            if (context.payload.discussion) {
-              url = context.payload.discussion.html_url;
-            }
-            core.setOutput('url', url);
-
-      - name: Respond to discussion
-        if: steps.discussion-url.outputs.url != ''
+      - name: Run evolution step
         uses: ./.agentic-lib/.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'discussions'
+          task: 'evolve'
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-discussion-bot.md'
-          discussion-url: ${{ steps.discussion-url.outputs.url }}
+          instructions: '.github/agentic-lib/agents/agent-issue-resolution.md'
+          test-command: 'npm test'
+          writable-paths: 'src/lib/;tests/unit/;.github/agentic-lib/features/;docs/;package.json;README.md'
 
-      - name: Commit activity log changes
+      - name: Commit and push changes
         run: |
           git config --local user.email 'action@github.com'
           git config --local user.name 'GitHub Actions[bot]'
@@ -81,6 +64,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "agentic-step: discussions bot response"
+            git commit -m "agentic-step: evolve"
             git push origin ${{ github.ref_name }}
           fi

@@ -15,7 +15,7 @@ paths:
     permissions: []
     limit: 0
   featuresPath:
-    path: 'features/'
+    path: '.github/agentic-lib/features/'
     permissions: [ 'write' ]
     limit: 2
 
@@ -72,10 +72,10 @@ docRoot: 'public'
 # Repository seeding
 seeding:
   repositoryReseed: 'true'
-  sourcePath: 'seeds/zero-main.js'
-  testsPath: 'seeds/zero-tests.js'
-  dependenciesFilepath: 'seeds/zero-package.json'
-  readmeFilepath: 'seeds/zero-README.md'
+  sourcePath: '.github/agentic-lib/seeds/zero-main.js'
+  testsPath: '.github/agentic-lib/seeds/zero-main.test.js'
+  dependenciesFilepath: '.github/agentic-lib/seeds/zero-package.json'
+  readmeFilepath: '.github/agentic-lib/seeds/zero-README.md'
 
 # The intention is associated with the bot's discussion thread.
 intentionBot:

@@ -22,7 +22,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
     with:
-      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -46,14 +46,77 @@ jobs:
       contents: write
       id-token: write
       pages: write
-    uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-github-publish-web.yml@6.10.2'
-    with:
-      cache: 'npm'
-      npmAuthOrganisation: "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}"
-      lastActivityName: ${{ github.workflow }}
-      lastActivityBranchName: ${{ github.ref_name }}
-      nextIssue: "[${{ needs.select-issue.outputs.issueNumber }}] ${{ needs.select-issue.outputs.issueTitle }} ${{ needs.select-issue.outputs.issueLabels }}"
-      public: ${{ needs.agentic-lib.outputs.docRoot }}
-      publishToGitHubPages: 'true'
-    secrets:
-      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    runs-on: ubuntu-latest
+    env:
+      public: ${{ needs.agentic-lib.outputs.docRoot || 'public' }}
+      libraryDocumentsPath: 'library/'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up .npmrc
+        shell: bash
+        run: |
+          echo "${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm install
+
+      - name: Generate HTML articles from library documents
+        shell: bash
+        run: |
+          mkdir -p ${{ env.public }}
+          mkdir -p scripts
+          if [ ! -d "${{ env.libraryDocumentsPath }}" ]; then
+            mkdir -p '${{ env.libraryDocumentsPath }}'
+          fi
+          if [ ! -f "scripts/md-to-html.js" ]; then
+            find "${{ env.libraryDocumentsPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+              filename=$(basename "$file" .md)
+              echo "<!DOCTYPE html><html><head><title>$filename</title></head><body><h1>$filename</h1><p>Markdown conversion: scripts/md-to-html.js not found</p></body></html>" > "${{ env.public }}/$filename.html"
+            done
+          else
+            find "${{ env.libraryDocumentsPath }}" -maxdepth 2 -type f -name "*.md" | while read -r file; do
+              filename=$(basename "$file" .md)
+              ./scripts/md-to-html.js < "$file" > "${{ env.public }}/$filename.html"
+            done
+          fi
+
+      - name: Generate index page
+        shell: bash
+        run: |
+          if [ ! -f "README.md" ]; then
+            echo "# Project README" > README.md
+          fi
+          if [ -f "scripts/generate-library-index.js" ]; then
+            chmod +x scripts/generate-library-index.js
+            node scripts/generate-library-index.js
+            cp library-index.html ${{ env.public }}/library-index.html
+          fi
+          if [ -f "scripts/md-to-html.js" ]; then
+            ./scripts/md-to-html.js < README.md > ${{ env.public }}/index.agentic-lib.html
+            cat ${{ env.public }}/index.agentic-lib.html | sed 's/agentic-lib/${{ github.event.repository.name }}/g' > ${{ env.public }}/index.html
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.public }}
+          publish_branch: github-pages
+          keep_files: true
+          enable_jekyll: 'true'
+
+      - name: Upload generated site as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-${{ github.run_id }}
+          path: ${{ env.public }}

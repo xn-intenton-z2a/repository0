@@ -1,36 +1,25 @@
-# .github/workflows/agent-discussions-bot.yml
+# .github/workflows/agent-flow-maintain.yml
 #
-# Discussions bot for repository0.
+# Feature and library maintenance for repository0.
 
-name: agent-discussions-bot
-run-name: "agent-discussions-bot [${{ github.ref_name }}]"
-concurrency: agentic-lib-bot
+name: agent-flow-maintain
+run-name: "agent-flow-maintain [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
 
 on:
-  discussion:
-    types:
-      - created
-      - edited
-      - answered
-      - unanswered
-  discussion_comment:
-    types:
-      - created
-      - edited
   schedule:
-    - cron: '11 13 */28 * *' # schedule-1: every 28 days
+    - cron: '37 8 * * 1' # schedule-1: weekly on Monday
   workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
-  discussions: write
 
 env:
   configPath: '.github/agentic-lib/agents/agentic-lib.yml'
 
 jobs:
-  respond:
+  maintain-features:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,29 +40,17 @@ jobs:
         working-directory: .agentic-lib/.github/agentic-lib/actions/agentic-step
         run: npm ci
 
-      - name: Get discussion URL
-        id: discussion-url
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let url = '';
-            if (context.payload.discussion) {
-              url = context.payload.discussion.html_url;
-            }
-            core.setOutput('url', url);
-
-      - name: Respond to discussion
-        if: steps.discussion-url.outputs.url != ''
+      - name: Maintain features
         uses: ./.agentic-lib/.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'discussions'
+          task: 'maintain-features'
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-discussion-bot.md'
-          discussion-url: ${{ steps.discussion-url.outputs.url }}
+          instructions: '.github/agentic-lib/agents/agent-maintain-features.md'
+          writable-paths: '.github/agentic-lib/features/'
 
-      - name: Commit activity log changes
+      - name: Commit and push changes
         run: |
           git config --local user.email 'action@github.com'
           git config --local user.name 'GitHub Actions[bot]'
@@ -81,6 +58,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "agentic-step: discussions bot response"
+            git commit -m "agentic-step: maintain-features"
             git push origin ${{ github.ref_name }}
           fi

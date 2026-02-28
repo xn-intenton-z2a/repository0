@@ -1,0 +1,48 @@
+# .github/workflows/agent-flow-review.yml
+#
+# Close resolved issues and enhance issues for repository0.
+
+name: agent-flow-review
+run-name: "agent-flow-review [${{ github.ref_name }}]"
+concurrency: agentic-lib-main
+
+on:
+  schedule:
+    - cron: '53 9 */3 * *' # schedule-1: every 3 days
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+
+jobs:
+  review-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: xn-intenton-z2a/agentic-lib
+          path: .agentic-lib
+          sparse-checkout: .github/agentic-lib/actions/agentic-step
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install agentic-step dependencies
+        working-directory: .agentic-lib/.github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Review issues
+        uses: ./.agentic-lib/.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: 'review-issue'
+          config: ${{ env.configPath }}
+          instructions: '.github/agentic-lib/agents/agent-review-issue.md'

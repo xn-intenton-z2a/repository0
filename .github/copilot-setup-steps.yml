@@ -1,0 +1,12 @@
+# .github/copilot-setup-steps.yml
+#
+# Setup steps for GitHub Copilot coding agent.
+# Configures the environment so Copilot can run tests in its sandbox.
+# See: https://docs.github.com/en/copilot/customizing-copilot/customizing-the-development-environment-for-copilot-coding-agent
+
+steps:
+  - uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+  - run: npm ci
+  - run: npm test

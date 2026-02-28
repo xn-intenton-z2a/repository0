@@ -75,4 +75,4 @@ npm test          # Unit tests
 ## Security Checklist
 
 - Never commit secrets — use GitHub Actions secrets
-- Never commit OpenAI API keys
+- Never commit API keys or tokens

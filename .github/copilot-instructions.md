@@ -63,7 +63,7 @@ Tests use **Vitest**. Unit tests in `tests/unit/`, E2E tests in `tests/e2e/`.
 - **Source**: `src/lib/main.js` — the main evolving functionality
 - **Tests**: `tests/unit/main.test.js` — guardrail tests
 - **Workflows**: `.github/workflows/` — consume reusable workflows from `agentic-lib`
-- **Agents**: `.github/agents/` — agent behavior configurations
+- **Agents**: `.github/agentic-lib/agents/` — agent behavior configurations
 
 ### Naming Conventions
 
@@ -74,7 +74,7 @@ Tests use **Vitest**. Unit tests in `tests/unit/`, E2E tests in `tests/e2e/`.
 
 ### Security
 
-- Never commit API keys (OpenAI, GitHub tokens)
+- Never commit API keys or tokens
 - Check workflow permissions follow least privilege
 - Verify automated changes don't introduce vulnerabilities
 

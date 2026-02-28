@@ -17,24 +17,12 @@
     "test:unit": "vitest --coverage",
     "test:e2e": "vitest tests/e2e/cli.test.js",
     "start": "node src/lib/main.js",
-    "diagnostics": "node src/lib/main.js --diagnostics",
-    "serve": "node src/lib/main.js --serve",
-    "build-intermediate": "node src/lib/main.js --build-intermediate",
-    "build-enhanced": "node src/lib/main.js --build-enhanced",
-    "refresh": "node src/lib/main.js --refresh",
-    "merge-persist": "node src/lib/main.js --merge-persist"
+    "diagnostics": "node src/lib/main.js --diagnostics"
   },
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
-  "dependencies": {
-    "openai": "^4.96.2",
-    "dotenv": "^16.5.0",
-    "ejs": "^3.1.10",
-    "js-yaml": "^4.1.0",
-    "minimatch": "^9.0.5",
-    "zod": "^3.24.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^9.24.0",
     "eslint-config-google": "^0.14.0",

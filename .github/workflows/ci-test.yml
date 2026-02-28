@@ -20,16 +20,6 @@ on:
       - '**/*.properties'
       - '!exports/**'
   workflow_dispatch:
-  workflow_run:
-    workflows:
-      - seed-repository
-    types:
-      - completed
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
-      CHATGPT_API_SECRET_KEY:
-        required: true
   schedule:
     - cron: '4,34 4 */7 * *' # schedule-1
     #- cron: '4,34 4 * * *' # schedule-2
@@ -48,7 +38,7 @@ jobs:
   agentic-lib:
     uses: 'xn-intenton-z2a/agentic-lib/.github/workflows/wfr-agent-config.yml@6.10.2'
     with:
-      configPath: ${{ vars.configPath || '.github/agents/agentic-lib.yml' }}
+      configPath: ${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}
     secrets:
       PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
