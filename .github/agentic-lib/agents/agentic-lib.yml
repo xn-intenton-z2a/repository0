@@ -5,78 +5,64 @@ schedule: schedule-1
 paths:
   # Filepaths for elaborator workflows
   missionFilepath:
-    path: 'MISSION.md'
+    path: "MISSION.md"
   librarySourcesFilepath:
-    path: 'SOURCES.md'
+    path: "SOURCES.md"
     permissions: []
     limit: 0
   libraryDocumentsPath:
-    path: 'library/'
+    path: "library/"
     permissions: []
     limit: 0
   featuresPath:
-    path: '.github/agentic-lib/features/'
-    permissions: [ 'write' ]
+    path: ".github/agentic-lib/features/"
+    permissions: ["write"]
     limit: 2
 
   # Filepaths for engineer workflows
   contributingFilepath:
-    path: 'CONTRIBUTING.md'
+    path: "CONTRIBUTING.md"
   targetTestsPath:
-    path: 'tests/unit/'
-    permissions: [ 'write' ]
-  otherTestsPaths:
-    paths: []
+    path: "tests/unit/"
+    permissions: ["write"]
   targetSourcePath:
-    path: 'src/lib/'
-    permissions: [ 'write' ]
-  otherSourcePaths:
-    paths: []
+    path: "src/lib/"
+    permissions: ["write"]
   dependenciesFilepath:
-    path: 'package.json'
-    permissions: [ 'write' ]
+    path: "package.json"
+    permissions: ["write"]
   documentationPath:
-    path: 'docs/'
-    permissions: [ 'write' ]
+    path: "docs/"
+    permissions: ["write"]
 
   # Filepaths for maintainer workflows
   formattingFilepath:
-    path: '.prettierrc'
+    path: ".prettierrc"
   lintingFilepath:
-    path: 'eslint.config.js'
+    path: "eslint.config.js"
   readmeFilepath:
-    path: 'README.md'
-    permissions: [ 'write' ]
+    path: "README.md"
+    permissions: ["write"]
 
 # Execution commands
-buildScript: 'npm run build'
-testScript: 'npm test'
-mainScript: 'npm run start'
+buildScript: "npm run build"
+testScript: "npm test"
+mainScript: "npm run start"
 
 # How many issues should be available to be picked up?
 featureDevelopmentIssuesWipLimit: 2
 maintenanceIssuesWipLimit: 1
 
 # How many attempts should be made to work on an issue?
-attemptsPerBranch: 2
-attemptsPerIssue: 1
-
-# Web publishing
-docRoot: 'public'
-
-# Sandbox configuration
-#sandbox:
-#  sandboxReset: 'true'
-#  sandboxPath: 'sandbox'
+attemptsPerBranch: 3
+attemptsPerIssue: 2
 
 # Repository seeding
 seeding:
-  repositoryReseed: 'true'
-  sourcePath: '.github/agentic-lib/seeds/zero-main.js'
-  testsPath: '.github/agentic-lib/seeds/zero-main.test.js'
-  dependenciesFilepath: '.github/agentic-lib/seeds/zero-package.json'
-  readmeFilepath: '.github/agentic-lib/seeds/zero-README.md'
+  missionFilepath: "src/seeds/zero-MISSION.md"
+  sourcePath: "src/seeds/zero-main.js"
+  testsPath: "src/seeds/zero-main.test.js"
+  dependenciesFilepath: "src/seeds/zero-package.json"
 
-# The intention is associated with the bot's discussion thread.
 intentionBot:
-  intentionFilepath: 'intentïon.md'
+  intentionFilepath: "intentïon.md"

@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - agent-flow-evolve
+      - agent-flow-transform
       - agent-flow-maintain
       - ci-automerge
     types:

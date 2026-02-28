@@ -1,0 +1,60 @@
+# .github/workflows/test.yml
+#
+# Starter test workflow for a website project with HTML generation.
+# Rename to test.yml and customize for your project.
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: test
+run-name: "test [${{ github.ref_name }}]"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - name: Set up .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          echo "${{ env.npmAuthOrganisation }}:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - run: npm ci || npm install
+
+      - run: npm test
+
+      - name: Build HTML
+        run: |
+          mkdir -p public
+          if [ -f "scripts/md-to-html.js" ]; then
+            ./scripts/md-to-html.js < README.md > public/index.html
+          fi
+
+      - name: Validate output
+        run: |
+          if [ -d "public" ]; then
+            echo "Generated files:"
+            ls -la public/
+          fi

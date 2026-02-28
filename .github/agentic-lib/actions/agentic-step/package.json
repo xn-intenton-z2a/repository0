@@ -1,0 +1,28 @@
+{
+  "name": "@xn-intenton-z2a/agentic-step",
+  "version": "0.1.0",
+  "description": "GitHub Action wrapping the Copilot SDK for autonomous code evolution",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest --run",
+    "build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "@github/copilot-sdk": "0.1.29",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xn-intenton-z2a/agentic-lib"
+  }
+}

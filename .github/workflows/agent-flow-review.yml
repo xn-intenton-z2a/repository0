@@ -1,6 +1,6 @@
 # .github/workflows/agent-flow-review.yml
 #
-# Close resolved issues and enhance issues for repository0.
+# Close resolved issues, prune features, enhance issues with criteria.
 
 name: agent-flow-review
 run-name: "agent-flow-review [${{ github.ref_name }}]"
@@ -8,41 +8,91 @@ concurrency: agentic-lib-main
 
 on:
   schedule:
-    - cron: '53 9 */3 * *' # schedule-1: every 3 days
+    - cron: "47 8 */3 * *" # schedule-1: every 3 days at 08:47 UTC
+    #- cron: '47 */8 * * *' # schedule-2
+    #- cron: '47 * * * *' # schedule-3
+    #- cron: '47,17 * * * *' # schedule-4
   workflow_dispatch:
+    inputs:
+      step:
+        description: "Which review step to run"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - review
+          - enhance
 
 permissions:
   contents: read
   issues: write
 
 env:
-  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
   review-issues:
+    if: inputs.step == 'all' || inputs.step == 'review' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-        with:
-          repository: xn-intenton-z2a/agentic-lib
-          path: .agentic-lib
-          sparse-checkout: .github/agentic-lib/actions/agentic-step
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "24"
 
       - name: Install agentic-step dependencies
-        working-directory: .agentic-lib/.github/agentic-lib/actions/agentic-step
+        working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
       - name: Review issues
-        uses: ./.agentic-lib/.github/agentic-lib/actions/agentic-step
+        uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'review-issue'
+          task: "review-issue"
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-review-issue.md'
+          instructions: ".github/agentic-lib/agents/agent-review-issue.md"
+
+  enhance-issues:
+    if: inputs.step == 'all' || inputs.step == 'enhance' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Find issue to enhance
+        id: find-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issues } = await github.rest.issues.listForRepo({
+              ...context.repo,
+              state: 'open',
+              labels: 'automated',
+              per_page: 1,
+              sort: 'created',
+              direction: 'asc',
+            });
+            const unready = issues.filter(i => !i.labels.some(l => l.name === 'ready'));
+            core.setOutput('issueNumber', unready.length > 0 ? String(unready[0].number) : '');
+
+      - name: Install agentic-step dependencies
+        if: steps.find-issue.outputs.issueNumber != ''
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Enhance issue
+        if: steps.find-issue.outputs.issueNumber != ''
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          task: "enhance-issue"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
+          issue-number: ${{ steps.find-issue.outputs.issueNumber }}

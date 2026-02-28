@@ -3,14 +3,15 @@ Before adding a new document, ensure that this document is distinct from any oth
 The document name should be one or two words in SCREAMING_SNAKECASE.
 
 You should extract a section from the sources file to create the document. Each document should contain high-value, actionable content that solves real implementation problems. Focus on:
+
 1. A normalised extract of the crawled content containing:
    a. The most impactful key technical points that directly enable implementation, not summaries of them
    b. A focused table of contents listing the specific technical topics that provide the greatest practical value
    c. The actual detailed information for each item in the table of contents, prioritizing content that enables immediate application
 2. A supplementary details section containing the essential technical specifications and implementation details that complement the crawled content and address core functionality needs
-3. A reference details section containing the critical API specifications, complete SDK method signatures with parameters 
+3. A reference details section containing the critical API specifications, complete SDK method signatures with parameters
    and return types, exact implementation patterns, specific configuration options with their values
-   and effects, concrete best practices with implementation examples, step-by-step troubleshooting procedures, and 
+   and effects, concrete best practices with implementation examples, step-by-step troubleshooting procedures, and
    detailed instructional material. Focus on specifications that deliver substantial user value. Do not describe what specifications exist, include the actual specifications themselves.
 4. A detailed digest containing the most valuable technical content from the source section in SOURCES.md and the date when the
    content was retrieved (current date)
@@ -25,6 +26,6 @@ sequences in any part of the document. Use spacing to make it readable and avoid
 
 For the normalised extract, extract the most valuable technical information from the crawled data and present it in a condensed,
 directly usable format that solves real implementation problems. Focus on high-impact content that enables immediate application.
-Do not describe what information exists, include the actual information itself. The content must be specific, technical, 
+Do not describe what information exists, include the actual information itself. The content must be specific, technical,
 and immediately applicable to core functionality needs. Each item in the table of contents must have the essential
 technical details that thoroughly explain the implementation while prioritizing content that delivers substantial user value.

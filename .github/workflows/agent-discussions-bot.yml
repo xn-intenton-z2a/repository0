@@ -1,6 +1,7 @@
 # .github/workflows/agent-discussions-bot.yml
 #
-# Discussions bot for repository0.
+# Responds to GitHub Discussions using the Copilot SDK.
+# Creates features, seeds repositories, provides status updates.
 
 name: agent-discussions-bot
 run-name: "agent-discussions-bot [${{ github.ref_name }}]"
@@ -18,7 +19,7 @@ on:
       - created
       - edited
   schedule:
-    - cron: '11 13 */28 * *' # schedule-1: every 28 days
+    - cron: "7 12 */28 * *" # schedule-1: every 28 days
   workflow_dispatch:
 
 permissions:
@@ -27,7 +28,7 @@ permissions:
   discussions: write
 
 env:
-  configPath: '.github/agentic-lib/agents/agentic-lib.yml'
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
   respond:
@@ -37,18 +38,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/checkout@v4
-        with:
-          repository: xn-intenton-z2a/agentic-lib
-          path: .agentic-lib
-          sparse-checkout: .github/agentic-lib/actions/agentic-step
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "24"
 
       - name: Install agentic-step dependencies
-        working-directory: .agentic-lib/.github/agentic-lib/actions/agentic-step
+        working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
       - name: Get discussion URL
@@ -64,23 +59,17 @@ jobs:
 
       - name: Respond to discussion
         if: steps.discussion-url.outputs.url != ''
-        uses: ./.agentic-lib/.github/agentic-lib/actions/agentic-step
+        uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          task: 'discussions'
+          task: "discussions"
           config: ${{ env.configPath }}
-          instructions: '.github/agentic-lib/agents/agent-discussion-bot.md'
+          instructions: ".github/agentic-lib/agents/agent-discussion-bot.md"
           discussion-url: ${{ steps.discussion-url.outputs.url }}
 
       - name: Commit activity log changes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Actions[bot]'
-          git add -A
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "agentic-step: discussions bot response"
-            git push origin ${{ github.ref_name }}
-          fi
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-step: discussions bot response"
+          push-ref: ${{ github.ref_name }}

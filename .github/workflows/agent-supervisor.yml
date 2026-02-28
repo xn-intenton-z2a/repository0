@@ -1,0 +1,83 @@
+# .github/workflows/agent-supervisor.yml
+#
+# Reactive orchestration — triggers workflows based on telemetry.
+# When a build fails, dispatches fix-code. When issues pile up, dispatches review.
+
+name: agent-supervisor
+run-name: "agent-supervisor [${{ github.ref_name }}]"
+
+on:
+  workflow_run:
+    workflows:
+      - ci
+      - agent-flow-transform
+      - agent-flow-maintain
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+  issues: read
+  checks: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check telemetry and dispatch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const workflowRun = context.payload.workflow_run;
+
+            // If a workflow failed, trigger fix-code
+            if (workflowRun && workflowRun.conclusion === 'failure') {
+              const branch = workflowRun.head_branch;
+              const isAgenticBranch = branch.startsWith('agentic-lib-issue-') || branch.startsWith('copilot/');
+
+              if (isAgenticBranch) {
+                core.info(`Workflow "${workflowRun.name}" failed on branch ${branch}. Dispatching fix-code.`);
+
+                // Find the PR for this branch
+                const { data: prs } = await github.rest.pulls.list({
+                  ...context.repo,
+                  state: 'open',
+                  head: `${context.repo.owner}:${branch}`,
+                  per_page: 1,
+                });
+
+                if (prs.length > 0) {
+                  await github.rest.actions.createWorkflowDispatch({
+                    ...context.repo,
+                    workflow_id: 'agent-flow-fix-code.yml',
+                    ref: context.ref,
+                    inputs: { 'pr-number': String(prs[0].number) },
+                  });
+                  core.info(`Dispatched fix-code for PR #${prs[0].number}`);
+                }
+              }
+            }
+
+            // Check for stale issues (open > 14 days with no activity)
+            const { data: issues } = await github.rest.issues.listForRepo({
+              ...context.repo,
+              state: 'open',
+              labels: 'automated',
+              sort: 'updated',
+              direction: 'asc',
+              per_page: 5,
+            });
+
+            const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+            const staleIssues = issues.filter(i => new Date(i.updated_at) < fourteenDaysAgo);
+
+            if (staleIssues.length > 0) {
+              core.info(`Found ${staleIssues.length} stale issue(s). Dispatching review.`);
+              await github.rest.actions.createWorkflowDispatch({
+                ...context.repo,
+                workflow_id: 'agent-flow-review.yml',
+                ref: context.ref,
+              });
+            }

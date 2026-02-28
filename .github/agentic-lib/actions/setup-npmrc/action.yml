@@ -1,0 +1,36 @@
+# .github/agentic-lib/actions/setup-npmrc/action.yml
+#
+# Composite action: Set up .npmrc for GitHub Packages authentication.
+# Replaces the 7-line block repeated across 11+ workflows.
+
+name: "Setup .npmrc"
+description: "Configure .npmrc for GitHub Packages authentication"
+
+inputs:
+  npm-auth-organisation:
+    description: "npm scope (e.g. @xn-intenton-z2a). If empty, skip setup."
+    required: false
+    default: ""
+  token:
+    description: "GitHub token for npm authentication"
+    required: true
+  target:
+    description: 'Where to write .npmrc: "home" (~/.npmrc) or "project" (.npmrc)'
+    required: false
+    default: "project"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up .npmrc
+      if: ${{ inputs.npm-auth-organisation != '' }}
+      shell: bash
+      run: |
+        if [ "${{ inputs.target }}" = "home" ]; then
+          NPMRC="$HOME/.npmrc"
+        else
+          NPMRC=".npmrc"
+        fi
+        echo "${{ inputs.npm-auth-organisation }}:registry=https://npm.pkg.github.com" >> "$NPMRC"
+        echo "//npm.pkg.github.com/:_authToken=${{ inputs.token }}" >> "$NPMRC"
+        echo "always-auth=true" >> "$NPMRC"

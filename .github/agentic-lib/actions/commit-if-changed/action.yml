@@ -1,0 +1,37 @@
+# .github/agentic-lib/actions/commit-if-changed/action.yml
+#
+# Composite action: Commit and push if there are staged changes.
+# Replaces the 8-line block repeated across 6 agent workflows.
+
+name: "Commit if changed"
+description: "Stage all changes, commit if any exist, and push"
+
+inputs:
+  commit-message:
+    description: "Commit message"
+    required: true
+  push-ref:
+    description: "Branch ref to push to (default: current ref_name)"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Commit and push if changed
+      shell: bash
+      run: |
+        git config --local user.email 'action@github.com'
+        git config --local user.name 'GitHub Actions[bot]'
+        git add -A
+        if git diff --cached --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "${{ inputs.commit-message }}"
+          REF="${{ inputs.push-ref }}"
+          if [ -n "$REF" ]; then
+            git push origin "$REF"
+          else
+            git push
+          fi
+        fi
