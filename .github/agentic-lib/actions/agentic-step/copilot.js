@@ -4,49 +4,39 @@
 
 import { CopilotClient, approveAll } from "@github/copilot-sdk";
 import { readFileSync, readdirSync, existsSync } from "fs";
-import { execSync } from "child_process";
 import { createAgentTools } from "./tools.js";
 import * as core from "@actions/core";
 
 /**
- * Login to gh CLI with a token so the Copilot CLI subprocess uses gh auth.
- * The SDK's --auth-token-env approach gets 400 on models.list, but gh CLI auth works.
+ * Build the CopilotClient options for authentication.
+ *
+ * Auth strategy (in order of preference):
+ * 1. COPILOT_GITHUB_TOKEN env var → override GITHUB_TOKEN/GH_TOKEN in subprocess env
+ *    so the Copilot CLI's auto-login finds the PAT instead of the Actions token.
+ * 2. Fall back to whatever auth is available (GITHUB_TOKEN, gh CLI login, etc.)
+ *
+ * Note: Passing githubToken directly to CopilotClient causes 400 on models.list.
+ * Instead we override the env vars so the CLI subprocess picks up the right token
+ * via its auto-login flow (useLoggedInUser: true).
  */
-function ensureGhAuth() {
+function buildClientOptions() {
   const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
-  if (!copilotToken) {
-    core.info("[copilot] No COPILOT_GITHUB_TOKEN set, using existing gh auth");
-    return;
+  if (copilotToken) {
+    core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
+    const env = { ...process.env };
+    // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
+    // subprocess uses the Copilot PAT for its auto-login flow
+    env.GITHUB_TOKEN = copilotToken;
+    env.GH_TOKEN = copilotToken;
+    return { env };
   }
-
-  try {
-    // Check current auth status
-    const currentAuth = execSync("gh auth status 2>&1", { encoding: "utf8", timeout: 10000 }).trim();
-    core.info(`[copilot] Current gh auth: ${currentAuth.substring(0, 200)}`);
-  } catch {
-    core.info("[copilot] gh not authenticated yet");
-  }
-
-  try {
-    // Login with the Copilot PAT via gh CLI
-    execSync("gh auth login --with-token", {
-      input: copilotToken,
-      encoding: "utf8",
-      timeout: 15000,
-      env: { ...process.env, GH_TOKEN: undefined, GITHUB_TOKEN: undefined },
-    });
-    core.info("[copilot] gh auth login with COPILOT_GITHUB_TOKEN succeeded");
-  } catch (err) {
-    core.warning(`[copilot] gh auth login failed: ${err.message}`);
-  }
+  core.info("[copilot] No COPILOT_GITHUB_TOKEN — using default auth");
+  return {};
 }
 
 /**
  * Run a Copilot SDK session and return the response.
  * Handles the full lifecycle: create client → create session → send → stop.
- *
- * Uses gh CLI auth (useLoggedInUser) instead of passing githubToken directly,
- * because the SDK's --auth-token-env approach gets 400 on models.list.
  *
  * @param {Object} options
  * @param {string} options.model - Copilot SDK model name
@@ -58,13 +48,8 @@ function ensureGhAuth() {
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
   core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`);
 
-  // Login via gh CLI with COPILOT_GITHUB_TOKEN if available.
-  // This is the auth path that works — the SDK's direct token passing gets 400 on models.list.
-  ensureGhAuth();
-
-  // Don't pass githubToken — let the SDK use useLoggedInUser (gh CLI auth).
-  // This mirrors the auth path that works locally.
-  const client = new CopilotClient();
+  const clientOptions = buildClientOptions();
+  const client = new CopilotClient(clientOptions);
 
   try {
     core.info("[copilot] Creating session...");
