@@ -20,14 +20,8 @@ on:
         type: string
         required: false
         default: "true"
-    secrets:
-      PERSONAL_ACCESS_TOKEN:
-        required: false
   schedule:
-    - cron: "53 4 */7 * *" # schedule-1
-    #- cron: '53 */4 * * *' # schedule-2
-    #- cron: '23,53 * * * *' # schedule-3
-    #- cron: '23,53 * * * *' # schedule-4
+    - cron: '53 */4 * * *'
 
 env:
   pullRequestLabel: "automerge"
@@ -179,10 +173,9 @@ jobs:
               direction: 'asc'
             });
             if (pullRequests.length > 0) {
-              const copilotBranchPrefix = process.env.copilotBranchPrefix || 'copilot/';
               const filteredPRs = pullRequests
                 .filter(pr => pr.labels.some(label => label.name === pullRequestLabel ))
-                .filter(pr => pr.head.ref.startsWith(branchPrefix) || pr.head.ref.startsWith(copilotBranchPrefix));
+                .filter(pr => pr.head.ref.startsWith(branchPrefix));
               if (filteredPRs.length > 0) {
                 const pullRequest = filteredPRs[0];
                 pullNumber = pullRequest.number;
@@ -472,7 +465,7 @@ jobs:
         id: config
         run: |
           CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
-          echo "intentionFilepath=$(yq -r '.intentionBot.intentionFilepath // "intentïon.md"' "$CONFIG" 2>/dev/null || echo 'intentïon.md')" >> $GITHUB_OUTPUT
+          echo "intentionFilepath=$(yq -r '.intentionBot.intentionFilepath // "intentïon.md"' "$CONFIG")" >> $GITHUB_OUTPUT
 
       - name: Get latest from remote
         run: |

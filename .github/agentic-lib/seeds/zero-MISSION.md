@@ -1,7 +1,7 @@
-# Mission Statement
+# Mission
 
-**agentic‑lib** Is a JavaScript library which can be used as a drop in JS implementation or wholesale replacement for
-the steps, jobs, and re-usable workflows below in this repository. It is designed to be used in a GitHub Actions
-workflow to enable your repository to operate in an “agentic” manner. In our system, autonomous workflows communicate
-through branches and issues to continuously review, fix, update, and transform your code. Each workflow is designed to be
-invoked using GitHub’s `workflow_call` event, so they can be composed together like an SDK.
+Build a useful JavaScript library.
+
+Write your intention here. The agentic workflows will transform the code in `src/lib/main.js` to realise this mission. Tests in `tests/unit/` keep the code on track. Each workflow cycle assesses the current state, plans improvements, and executes changes — guided by this document.
+
+See [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) for details.
