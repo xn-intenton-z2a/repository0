@@ -18,7 +18,7 @@ on:
       model:
         description: "Copilot SDK model to use"
         required: false
-        default: "claude-sonnet-4-5"
+        default: "claude-sonnet-4.5"
 
 permissions:
   contents: write
@@ -67,7 +67,7 @@ jobs:
           config: ${{ env.configPath }}
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
           test-command: "npm test"
-          model: ${{ inputs.model || 'claude-sonnet-4-5' }}
+          model: ${{ inputs.model || 'claude-sonnet-4.5' }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push changes
