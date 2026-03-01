@@ -1,7 +1,7 @@
 {
   "name": "@xn-intenton-z2a/repository0",
   "version": "1.2.0-1",
-  "description": "add repository description here",
+  "description": "A JavaScript utility library that provides string transformation functions (capitalize, slugify, truncate, reverse)",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -17,9 +17,10 @@
     "test:unit": "vitest --coverage",
     "test:e2e": "vitest tests/e2e/cli.test.js",
     "start": "node src/lib/main.js",
-    "diagnostics": "node src/lib/main.js --diagnostics"
+    "cli": "node src/lib/main.js",
+    "diagnostics": "node src/lib/main.js --help"
   },
-  "keywords": [],
+  "keywords": ["string", "utility", "transformation", "capitalize", "slugify", "truncate", "reverse", "cli"],
   "author": "",
   "license": "MIT",
   "dependencies": {},
@@ -51,7 +52,9 @@
     "node": ">=20.0.0"
   },
   "files": [
-    "package.json"
+    "src/",
+    "package.json",
+    "README.md"
   ],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
