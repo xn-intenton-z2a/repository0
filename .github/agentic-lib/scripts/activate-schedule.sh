@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # scripts/activate-schedule.sh
 #
 # Usage: ./scripts/activate-schedule.sh <schedule-number>

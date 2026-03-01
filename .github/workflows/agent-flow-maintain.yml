@@ -11,7 +11,7 @@ concurrency: agentic-lib-main
 
 on:
   schedule:
-    - cron: "33 7 * * *"
+    - cron: "33 7 * * 1" # Weekly on Monday at 07:33 UTC
   workflow_dispatch:
     inputs:
       step:
@@ -52,7 +52,7 @@ jobs:
         id: features-config
         run: |
           CONFIG="${{ env.configPath }}"
-          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG" 2>/dev/null || echo '.github/agentic-lib/features/')
+          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG")
           echo "writablePaths=${FEATURES}" >> $GITHUB_OUTPUT
 
       - name: Maintain features
@@ -92,8 +92,8 @@ jobs:
         id: library-config
         run: |
           CONFIG="${{ env.configPath }}"
-          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG" 2>/dev/null || echo 'library/')
-          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG" 2>/dev/null || echo 'SOURCES.md')
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
           echo "writablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
       - name: Maintain library

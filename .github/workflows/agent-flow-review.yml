@@ -10,10 +10,7 @@ concurrency: agentic-lib-main
 
 on:
   schedule:
-    - cron: "47 8 */3 * *" # schedule-1: every 3 days at 08:47 UTC
-    #- cron: '47 */8 * * *' # schedule-2
-    #- cron: '47 * * * *' # schedule-3
-    #- cron: '47,17 * * * *' # schedule-4
+    - cron: "47 8 */3 * *" # Every 3 days at 08:47 UTC
   workflow_dispatch:
     inputs:
       step:

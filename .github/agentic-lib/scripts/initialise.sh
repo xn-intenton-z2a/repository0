@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # scripts/initialise.sh
 # Usage: ./scripts/initialise.sh <intention>
 # Example: ./scripts/initialise.sh (randomly selects an intention)
@@ -25,7 +27,7 @@ rm -f library/*.md
 rm -f library/*.txt
 rm -f features/*.md
 rm -f prompts/*.md
-cp -fv .github/agentic-lib/seeds/features/*.md features/ 2>/dev/null || true
+cp -fv .github/agentic-lib/seeds/features/*.md features/
 #rm -rfv node_modules
 #rm -rfv package-lock.json
 #npm install

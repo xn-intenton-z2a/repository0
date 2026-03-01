@@ -1,54 +1,26 @@
 {
-  "name": "@xn-intenton-z2a/agentic-lib",
+  "name": "@xn-intenton-z2a/repo",
   "version": "0.1.0",
-  "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
     "build": "echo \"Nothing to build\"",
-    "formatting": "prettier --check",
-    "formatting-fix": "prettier --write",
-    "linting": "eslint",
-    "linting-json": "eslint --format=@microsoft/eslint-formatter-sarif",
-    "linting-fix": "eslint --fix",
-    "update-to-minor": "npx npm-check-updates --upgrade --enginesNode --target minor --verbose --install always",
-    "update-to-greatest": "npx npm-check-updates --upgrade --enginesNode --target greatest --verbose --install always --reject \"alpha\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
   "keywords": [],
-  "author": "https://github.com/xn-intenton-z2a",
-  "license": "GPL-3.0, MIT",
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.5.0",
-    "express": "^4.21.2",
-    "minimatch": "^10.0.1",
-    "zod": "^3.25.28"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.2"
   },
   "devDependencies": {
-    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@vitest/coverage-v8": "^4.0.0",
-    "eslint": "^9.25.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-config-prettier": "^10.0.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.4.0",
-    "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-security": "^4.0.0",
-    "eslint-plugin-sonarjs": "^4.0.0",
-    "markdown-it": "^14.1.0",
-    "markdown-it-github": "^0.5.0",
-    "npm-check-updates": "^19.0.0",
-    "prettier": "^3.8.0",
     "vitest": "^4.0.0"
   },
   "engines": {
     "node": ">=24.0.0"
-  },
-  "files": ["package.json"],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }

@@ -37,7 +37,7 @@ jobs:
             // If a workflow failed, trigger fix-code
             if (workflowRun && workflowRun.conclusion === 'failure') {
               const branch = workflowRun.head_branch;
-              const isAgenticBranch = branch.startsWith('agentic-lib-issue-') || branch.startsWith('copilot/');
+              const isAgenticBranch = !['main', 'master'].includes(branch);
 
               if (isAgenticBranch) {
                 core.info(`Workflow "${workflowRun.name}" failed on branch ${branch}. Dispatching fix-code.`);
