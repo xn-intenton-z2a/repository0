@@ -44,7 +44,7 @@ jobs:
         run: npm update @xn-intenton-z2a/agentic-lib
 
       - name: Run init --purge
-        run: npx @xn-intenton-z2a/agentic-lib init --purge
+        run: npx agentic-lib init --purge
 
       - run: npm install
 
@@ -59,7 +59,7 @@ jobs:
           git config user.name "GitHub Actions[bot]"
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
-          VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
+          VERSION=$(npx agentic-lib version 2>/dev/null || echo "latest")
           git commit -m "init --purge (agentic-lib@${VERSION})"
           git push origin "$BRANCH"
 
