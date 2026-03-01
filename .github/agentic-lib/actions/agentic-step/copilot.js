@@ -29,7 +29,7 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
       workingDirectory: process.cwd(),
     });
 
-    const response = await session.sendAndWait({ prompt });
+    const response = await session.sendAndWait({ prompt }, 300000);
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const content = response?.data?.content || "";
 

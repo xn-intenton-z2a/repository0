@@ -100,7 +100,7 @@ export async function transform(context) {
       workingDirectory: process.cwd(),
     });
 
-    const response = await session.sendAndWait({ prompt });
+    const response = await session.sendAndWait({ prompt }, 300000);
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const resultContent = response?.data?.content || "";
 
@@ -180,7 +180,7 @@ async function transformTdd({
       workingDirectory: process.cwd(),
     });
 
-    const response1 = await session1.sendAndWait({ prompt: testPrompt });
+    const response1 = await session1.sendAndWait({ prompt: testPrompt }, 300000);
     totalTokens += response1?.data?.usage?.totalTokens || 0;
     const testResult = response1?.data?.content || "";
 
@@ -225,7 +225,7 @@ async function transformTdd({
       workingDirectory: process.cwd(),
     });
 
-    const response2 = await session2.sendAndWait({ prompt: implPrompt });
+    const response2 = await session2.sendAndWait({ prompt: implPrompt }, 300000);
     totalTokens += response2?.data?.usage?.totalTokens || 0;
 
     core.info(`TDD Phase 2 completed (total ${totalTokens} tokens)`);
