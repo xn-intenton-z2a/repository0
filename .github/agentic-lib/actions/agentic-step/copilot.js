@@ -19,10 +19,19 @@ import * as core from "@actions/core";
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
-  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, tools=${writablePaths.length} writable paths)`);
+  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`);
   const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
 
   try {
+    // Check auth status before creating session
+    core.info("[copilot] Checking auth status...");
+    try {
+      const authStatus = await client.getAuthStatus();
+      core.info(`[copilot] Auth status: ${JSON.stringify(authStatus)}`);
+    } catch (authErr) {
+      core.warning(`[copilot] Auth check failed: ${authErr.message}`);
+    }
+
     core.info("[copilot] Creating session...");
     const session = await client.createSession({
       model,
@@ -33,21 +42,24 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
     });
     core.info(`[copilot] Session created: ${session.sessionId}`);
 
-    // Register event handlers for diagnostics
-    session.on("assistant.message", (event) => {
-      const preview = event?.data?.content?.substring(0, 100) || "(no content)";
-      core.info(`[copilot] assistant.message: ${preview}...`);
-    });
-    session.on("session.idle", () => {
-      core.info("[copilot] session.idle event received");
-    });
-    session.on("error", (event) => {
-      core.error(`[copilot] error event: ${JSON.stringify(event?.data || event)}`);
+    // Register wildcard event handler for ALL events
+    session.on((event) => {
+      const eventType = event?.type || "unknown";
+      if (eventType === "assistant.message") {
+        const preview = event?.data?.content?.substring(0, 100) || "(no content)";
+        core.info(`[copilot] event=${eventType}: ${preview}...`);
+      } else if (eventType === "session.idle") {
+        core.info(`[copilot] event=${eventType}`);
+      } else if (eventType === "session.error") {
+        core.error(`[copilot] event=${eventType}: ${JSON.stringify(event?.data || event)}`);
+      } else {
+        core.info(`[copilot] event=${eventType}: ${JSON.stringify(event?.data || event).substring(0, 200)}`);
+      }
     });
 
     core.info("[copilot] Sending prompt and waiting for idle...");
     const response = await session.sendAndWait({ prompt }, 300000);
-    core.info(`[copilot] sendAndWait resolved, response type: ${typeof response}`);
+    core.info(`[copilot] sendAndWait resolved`);
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const content = response?.data?.content || "";
 
