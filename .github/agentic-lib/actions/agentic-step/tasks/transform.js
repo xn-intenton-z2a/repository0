@@ -4,9 +4,7 @@
 // and either creates features, issues, or code.
 
 import * as core from "@actions/core";
-import { CopilotClient, approveAll } from "@github/copilot-sdk";
-import { readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
-import { createAgentTools } from "../tools.js";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
 
 /**
  * Run the full transformation pipeline from mission to code.
@@ -84,37 +82,24 @@ export async function transform(context) {
     `- Run \`${testCommand}\` to validate your changes`,
   ].join("\n");
 
-  // Use direct SDK calls here since transform is performance-critical
-  // and TDD mode below needs multi-session on one client
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
+  core.info(`Transform prompt length: ${prompt.length} chars`);
 
-  try {
-    const session = await client.createSession({
-      model,
-      systemMessage: {
-        content:
-          "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
-      },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
+  const { content: resultContent, tokensUsed } = await runCopilotTask({
+    model,
+    systemMessage:
+      "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
+    prompt,
+    writablePaths,
+  });
 
-    const response = await session.sendAndWait({ prompt }, 300000);
-    const tokensUsed = response?.data?.usage?.totalTokens || 0;
-    const resultContent = response?.data?.content || "";
+  core.info(`Transformation step completed (${tokensUsed} tokens)`);
 
-    core.info(`Transformation step completed (${tokensUsed} tokens)`);
-
-    return {
-      outcome: "transformed",
-      tokensUsed,
-      model,
-      details: resultContent.substring(0, 500),
-    };
-  } finally {
-    await client.stop();
-  }
+  return {
+    outcome: "transformed",
+    tokensUsed,
+    model,
+    details: resultContent.substring(0, 500),
+  };
 }
 
 /**
@@ -132,111 +117,96 @@ async function transformTdd({
   sourceFiles,
   openIssues,
 }) {
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
   let totalTokens = 0;
 
-  try {
-    // Phase 1: Create a failing test
-    core.info("TDD Phase 1: Creating failing test");
+  // Phase 1: Create a failing test
+  core.info("TDD Phase 1: Creating failing test");
 
-    const testPrompt = [
-      "## Instructions",
-      instructions,
-      "",
-      "## Mode: TDD Phase 1 — Write Failing Test",
-      "You are in TDD mode. In this phase, you must ONLY write a test.",
-      "The test should capture the next feature requirement based on the mission and current state.",
-      "The test MUST fail against the current codebase (it tests something not yet implemented).",
-      "Do NOT write any implementation code in this phase.",
-      "",
-      "## Mission",
-      mission,
-      "",
-      `## Current Features (${features.length})`,
-      ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
-      "",
-      `## Current Source Files (${sourceFiles.length})`,
-      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-      "",
-      `## Open Issues (${openIssues.length})`,
-      ...openIssues.slice(0, 10).map((i) => `- #${i.number}: ${i.title}`),
-      "",
-      formatPathsSection(writablePaths, readOnlyPaths),
-      "",
-      "## Constraints",
-      "- Write ONLY test code in this phase",
-      "- The test must fail when run (it tests unimplemented functionality)",
-      `- Run \`${testCommand}\` to confirm the test fails`,
-    ].join("\n");
+  const testPrompt = [
+    "## Instructions",
+    instructions,
+    "",
+    "## Mode: TDD Phase 1 — Write Failing Test",
+    "You are in TDD mode. In this phase, you must ONLY write a test.",
+    "The test should capture the next feature requirement based on the mission and current state.",
+    "The test MUST fail against the current codebase (it tests something not yet implemented).",
+    "Do NOT write any implementation code in this phase.",
+    "",
+    "## Mission",
+    mission,
+    "",
+    `## Current Features (${features.length})`,
+    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
+    "",
+    `## Current Source Files (${sourceFiles.length})`,
+    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+    "",
+    `## Open Issues (${openIssues.length})`,
+    ...openIssues.slice(0, 10).map((i) => `- #${i.number}: ${i.title}`),
+    "",
+    formatPathsSection(writablePaths, readOnlyPaths),
+    "",
+    "## Constraints",
+    "- Write ONLY test code in this phase",
+    "- The test must fail when run (it tests unimplemented functionality)",
+    `- Run \`${testCommand}\` to confirm the test fails`,
+  ].join("\n");
 
-    const session1 = await client.createSession({
-      model,
-      systemMessage: {
-        content:
-          "You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.",
-      },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
+  const phase1 = await runCopilotTask({
+    model,
+    systemMessage:
+      "You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.",
+    prompt: testPrompt,
+    writablePaths,
+  });
+  totalTokens += phase1.tokensUsed;
+  const testResult = phase1.content;
 
-    const response1 = await session1.sendAndWait({ prompt: testPrompt }, 300000);
-    totalTokens += response1?.data?.usage?.totalTokens || 0;
-    const testResult = response1?.data?.content || "";
+  core.info(`TDD Phase 1 completed (${totalTokens} tokens): test created`);
 
-    core.info(`TDD Phase 1 completed (${totalTokens} tokens): test created`);
+  // Phase 2: Write implementation to make the test pass
+  core.info("TDD Phase 2: Writing implementation");
 
-    // Phase 2: Write implementation to make the test pass
-    core.info("TDD Phase 2: Writing implementation");
+  const implPrompt = [
+    "## Instructions",
+    instructions,
+    "",
+    "## Mode: TDD Phase 2 — Write Implementation",
+    "A failing test has been written in Phase 1. Your job is to write the MINIMUM implementation",
+    "code needed to make the test pass. Do not modify the test.",
+    "",
+    "## What was done in Phase 1",
+    testResult.substring(0, 1000),
+    "",
+    "## Mission",
+    mission,
+    "",
+    `## Current Source Files (${sourceFiles.length})`,
+    ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+    "",
+    formatPathsSection(writablePaths, readOnlyPaths),
+    "",
+    "## Constraints",
+    "- Write implementation code to make the failing test pass",
+    "- Do NOT modify the test file created in Phase 1",
+    `- Run \`${testCommand}\` to confirm all tests pass`,
+  ].join("\n");
 
-    const implPrompt = [
-      "## Instructions",
-      instructions,
-      "",
-      "## Mode: TDD Phase 2 — Write Implementation",
-      "A failing test has been written in Phase 1. Your job is to write the MINIMUM implementation",
-      "code needed to make the test pass. Do not modify the test.",
-      "",
-      "## What was done in Phase 1",
-      testResult.substring(0, 1000),
-      "",
-      "## Mission",
-      mission,
-      "",
-      `## Current Source Files (${sourceFiles.length})`,
-      ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
-      "",
-      formatPathsSection(writablePaths, readOnlyPaths),
-      "",
-      "## Constraints",
-      "- Write implementation code to make the failing test pass",
-      "- Do NOT modify the test file created in Phase 1",
-      `- Run \`${testCommand}\` to confirm all tests pass`,
-    ].join("\n");
+  const phase2 = await runCopilotTask({
+    model,
+    systemMessage:
+      "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.",
+    prompt: implPrompt,
+    writablePaths,
+  });
+  totalTokens += phase2.tokensUsed;
 
-    const session2 = await client.createSession({
-      model,
-      systemMessage: {
-        content:
-          "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.",
-      },
-      tools: createAgentTools(writablePaths),
-      onPermissionRequest: approveAll,
-      workingDirectory: process.cwd(),
-    });
+  core.info(`TDD Phase 2 completed (total ${totalTokens} tokens)`);
 
-    const response2 = await session2.sendAndWait({ prompt: implPrompt }, 300000);
-    totalTokens += response2?.data?.usage?.totalTokens || 0;
-
-    core.info(`TDD Phase 2 completed (total ${totalTokens} tokens)`);
-
-    return {
-      outcome: "transformed-tdd",
-      tokensUsed: totalTokens,
-      model,
-      details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
-    };
-  } finally {
-    await client.stop();
-  }
+  return {
+    outcome: "transformed-tdd",
+    tokensUsed: totalTokens,
+    model,
+    details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
+  };
 }

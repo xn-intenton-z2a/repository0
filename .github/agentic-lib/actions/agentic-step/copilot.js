@@ -5,6 +5,7 @@
 import { CopilotClient, approveAll } from "@github/copilot-sdk";
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { createAgentTools } from "./tools.js";
+import * as core from "@actions/core";
 
 /**
  * Run a Copilot SDK session and return the response.
@@ -18,9 +19,11 @@ import { createAgentTools } from "./tools.js";
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
+  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, tools=${writablePaths.length} writable paths)`);
   const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
 
   try {
+    core.info("[copilot] Creating session...");
     const session = await client.createSession({
       model,
       systemMessage: { content: systemMessage },
@@ -28,8 +31,23 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
       onPermissionRequest: approveAll,
       workingDirectory: process.cwd(),
     });
+    core.info(`[copilot] Session created: ${session.sessionId}`);
 
+    // Register event handlers for diagnostics
+    session.on("assistant.message", (event) => {
+      const preview = event?.data?.content?.substring(0, 100) || "(no content)";
+      core.info(`[copilot] assistant.message: ${preview}...`);
+    });
+    session.on("session.idle", () => {
+      core.info("[copilot] session.idle event received");
+    });
+    session.on("error", (event) => {
+      core.error(`[copilot] error event: ${JSON.stringify(event?.data || event)}`);
+    });
+
+    core.info("[copilot] Sending prompt and waiting for idle...");
     const response = await session.sendAndWait({ prompt }, 300000);
+    core.info(`[copilot] sendAndWait resolved, response type: ${typeof response}`);
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const content = response?.data?.content || "";
 
