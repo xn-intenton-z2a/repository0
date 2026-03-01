@@ -19,19 +19,23 @@ import * as core from "@actions/core";
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
-  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`);
-  const client = new CopilotClient({ githubToken: process.env.GITHUB_TOKEN });
+  // Use COPILOT_GITHUB_TOKEN (PAT with Copilot permission) if available,
+  // falling back to GITHUB_TOKEN. The default GITHUB_TOKEN from Actions
+  // does NOT have Copilot API permissions.
+  const githubToken = process.env.COPILOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+  const tokenSource = process.env.COPILOT_GITHUB_TOKEN ? "COPILOT_GITHUB_TOKEN" : "GITHUB_TOKEN";
+  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, token=${tokenSource})`);
+
+  if (tokenSource === "GITHUB_TOKEN") {
+    core.warning(
+      "[copilot] Using GITHUB_TOKEN which may lack Copilot API permissions. " +
+        "Set COPILOT_GITHUB_TOKEN secret with a PAT that has 'Copilot' permission.",
+    );
+  }
+
+  const client = new CopilotClient({ githubToken });
 
   try {
-    // Check auth status before creating session
-    core.info("[copilot] Checking auth status...");
-    try {
-      const authStatus = await client.getAuthStatus();
-      core.info(`[copilot] Auth status: ${JSON.stringify(authStatus)}`);
-    } catch (authErr) {
-      core.warning(`[copilot] Auth check failed: ${authErr.message}`);
-    }
-
     core.info("[copilot] Creating session...");
     const session = await client.createSession({
       model,
@@ -41,6 +45,14 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
       workingDirectory: process.cwd(),
     });
     core.info(`[copilot] Session created: ${session.sessionId}`);
+
+    // Check auth status now that client is connected
+    try {
+      const authStatus = await client.getAuthStatus();
+      core.info(`[copilot] Auth status: ${JSON.stringify(authStatus)}`);
+    } catch (authErr) {
+      core.warning(`[copilot] Auth check failed: ${authErr.message}`);
+    }
 
     // Register wildcard event handler for ALL events
     session.on((event) => {
