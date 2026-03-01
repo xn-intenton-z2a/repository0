@@ -38,6 +38,7 @@
   "author": "https://github.com/xn-intenton-z2a",
   "license": "GPL-3.0, MIT",
   "dependencies": {
+    "@xn-intenton-z2a/agentic-lib": "^7.1.2",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "minimatch": "^10.0.1",
