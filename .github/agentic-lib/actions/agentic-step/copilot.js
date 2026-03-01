@@ -8,6 +8,33 @@ import { createAgentTools } from "./tools.js";
 import * as core from "@actions/core";
 
 /**
+ * Build the CopilotClient options for authentication.
+ *
+ * Auth strategy (in order of preference):
+ * 1. COPILOT_GITHUB_TOKEN env var → override GITHUB_TOKEN/GH_TOKEN in subprocess env
+ *    so the Copilot CLI's auto-login finds the PAT instead of the Actions token.
+ * 2. Fall back to whatever auth is available (GITHUB_TOKEN, gh CLI login, etc.)
+ *
+ * Note: Passing githubToken directly to CopilotClient causes 400 on models.list.
+ * Instead we override the env vars so the CLI subprocess picks up the right token
+ * via its auto-login flow (useLoggedInUser: true).
+ */
+function buildClientOptions() {
+  const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
+  if (copilotToken) {
+    core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
+    const env = { ...process.env };
+    // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
+    // subprocess uses the Copilot PAT for its auto-login flow
+    env.GITHUB_TOKEN = copilotToken;
+    env.GH_TOKEN = copilotToken;
+    return { env };
+  }
+  core.info("[copilot] No COPILOT_GITHUB_TOKEN — using default auth");
+  return {};
+}
+
+/**
  * Run a Copilot SDK session and return the response.
  * Handles the full lifecycle: create client → create session → send → stop.
  *
@@ -19,21 +46,12 @@ import * as core from "@actions/core";
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
-  // Use COPILOT_GITHUB_TOKEN (PAT with Copilot permission) if available,
-  // falling back to GITHUB_TOKEN. The default GITHUB_TOKEN from Actions
-  // does NOT have Copilot API permissions.
-  const githubToken = process.env.COPILOT_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
-  const tokenSource = process.env.COPILOT_GITHUB_TOKEN ? "COPILOT_GITHUB_TOKEN" : "GITHUB_TOKEN";
-  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, token=${tokenSource})`);
+  core.info(
+    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`,
+  );
 
-  if (tokenSource === "GITHUB_TOKEN") {
-    core.warning(
-      "[copilot] Using GITHUB_TOKEN which may lack Copilot API permissions. " +
-        "Set COPILOT_GITHUB_TOKEN secret with a PAT that has 'Copilot' permission.",
-    );
-  }
-
-  const client = new CopilotClient({ githubToken });
+  const clientOptions = buildClientOptions();
+  const client = new CopilotClient(clientOptions);
 
   try {
     core.info("[copilot] Creating session...");

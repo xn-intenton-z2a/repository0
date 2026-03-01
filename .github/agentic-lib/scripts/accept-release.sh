@@ -19,9 +19,9 @@ fi
 echo "Workflow schedule: schedule-${schedule?}"
 ./scripts/activate-schedule.sh "${schedule?}"
 git add .github/agentic-lib/agents/*
+git add .github/agentic-lib/actions/*
 git add .github/workflows/*
 git add scripts/*
-git add public/*
 git commit -m "Update agentic-lib to @${1?}"
 git pull
 git push

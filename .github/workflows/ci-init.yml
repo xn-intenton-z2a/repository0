@@ -1,0 +1,60 @@
+# .github/workflows/ci-init.yml
+#
+# Pulls the latest agentic-lib infrastructure into this repository.
+# Can optionally reset source files to the seed template state.
+
+name: ci-init
+run-name: "ci-init [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      purge:
+        description: "Reset source files to seed template state"
+        type: boolean
+        default: false
+      version:
+        description: "agentic-lib version to install (default: latest)"
+        type: string
+        default: "latest"
+
+permissions:
+  contents: write
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run agentic-lib init
+        run: |
+          PURGE_FLAG=""
+          if [ "${{ inputs.purge }}" = "true" ]; then
+            PURGE_FLAG="--purge"
+          fi
+          npx @xn-intenton-z2a/agentic-lib@${{ inputs.version }} init $PURGE_FLAG
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies after init
+        if: inputs.purge == true
+        run: npm install
+
+      - name: Install agentic-step dependencies
+        run: |
+          cd .github/agentic-lib/actions/agentic-step
+          npm ci
+
+      - name: Verify tests pass
+        run: npm test
+
+      - name: Commit changes
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-lib init${{ inputs.purge == true && ' --purge' || '' }} (v${{ inputs.version }})"
+          push-ref: ${{ github.ref_name }}

@@ -1,13 +1,13 @@
-// src/lib/main.js — intentïon starting point
-// Write your MISSION.md and let the autonomous evolution begin.
+#!/usr/bin/env node
+// src/lib/main.js
 
-export function main() {
-  console.log("Hello World!");
-  return "Hello World!";
+import { fileURLToPath } from "url";
+
+export function main(args) {
+  console.log(`Run with: ${JSON.stringify(args)}`);
 }
 
-// Auto-run when called directly
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
-if (isMainModule) {
-  main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2);
+  main(args);
 }

@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, test } from "vitest";
 import { main } from "../../src/lib/main.js";
 
-describe("main", () => {
-  it("should return Hello World!", () => {
-    expect(main()).toBe("Hello World!");
+describe("Main Output", () => {
+  test("should terminate without error", () => {
+    process.argv = ["node", "src/lib/main.js"];
+    main();
   });
 });

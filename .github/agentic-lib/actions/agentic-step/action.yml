@@ -39,7 +39,7 @@ inputs:
   model:
     description: "Copilot SDK model to use"
     required: false
-    default: "claude-sonnet-4.5"
+    default: "claude-sonnet-4"
 
 outputs:
   result:
