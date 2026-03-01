@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-features.js — Feature lifecycle management
 //
 // Reviews existing features, creates new ones from mission/library analysis,

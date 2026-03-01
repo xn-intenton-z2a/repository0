@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, test } from "vitest";
 import { main } from "../../src/lib/main.js";
 

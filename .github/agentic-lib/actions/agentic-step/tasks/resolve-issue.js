@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/resolve-issue.js — Issue → code → PR
 //
 // Given an issue number, reads the issue, generates code using the Copilot SDK,

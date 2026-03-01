@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // index.js — agentic-step GitHub Action entry point
 //
 // Parses inputs, loads config, runs the appropriate task via the Copilot SDK,

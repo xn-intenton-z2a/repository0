@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agent-discussions-bot.yml
 #
 # Responds to GitHub Discussions using the Copilot SDK.

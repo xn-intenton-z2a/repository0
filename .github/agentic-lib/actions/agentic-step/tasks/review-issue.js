@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/review-issue.js — Review issues and close resolved ones
 //
 // Checks open issues against the current codebase to determine

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { WorkflowOrchestrator } from "../../src/lib/workflow-orchestrator.js";
 import { GitHubIntegration } from "../../src/lib/github-integration.js";

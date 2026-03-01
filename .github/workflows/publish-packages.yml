@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/publish-packages.yml
 #
 # This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
@@ -208,4 +210,3 @@ jobs:
     outputs:
       releasedVersion: ${{ steps.released.outputs.releasedVersion }}
       newVersion: ${{ steps.rotated.outputs.newVersion }}
-

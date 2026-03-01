@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/enhance-issue.js — Add testable acceptance criteria to issues
 //
 // Takes an issue and enhances it with clear, testable acceptance criteria

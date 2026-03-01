@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // md-to-html.js
 import fs from "fs";
 import MarkdownIt from "markdown-it";
