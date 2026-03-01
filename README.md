@@ -1,94 +1,50 @@
-# repository0
+# `repository0`
 
-A JavaScript utility library that provides string transformation functions (capitalize, slugify, truncate, reverse).
-Published to npm as `@xn-intenton-z2a/repository0`. Includes a CLI that demonstrates each function.
+A template for autonomous code evolution. Create from this template, write your mission, and watch the code evolve.
 
-## Installation
+## Quick Start
 
-\`\`\`bash
-npm install @xn-intenton-z2a/repository0
-\`\`\`
+1. Click **"Use this template"** above (or `gh repo create my-project --template xn-intenton-z2a/repository0 --public`)
+2. Edit `MISSION.md` with your project goals
+3. Enable GitHub Copilot and activate the workflows in the Actions tab
 
-## Usage
+The agentic workflows will begin generating issues, writing code, running tests, and opening pull requests based on your mission. No OpenAI API key required -- the system uses the GitHub Copilot SDK.
 
-### As a Library
+See the [Getting Started Guide](GETTING-STARTED.md) for detailed setup instructions.
 
-\`\`\`javascript
-import { capitalize, slugify, truncate, reverse } from '@xn-intenton-z2a/repository0';
+## What's Included
 
-// Capitalize first letter
-console.log(capitalize('hello world')); // "Hello world"
+- **Agentic workflows** in `.github/workflows/` -- the full autonomous pipeline (seed, develop, fix, review, merge)
+- **Agent configuration** in `.github/agentic-lib/agents/agentic-lib.yml` -- path permissions, WIP limits, attempt limits
+- **Safety controls** -- writable/read-only path separation, mission protection, TDD mode support
+- **Seed files** in `.github/seeds/` -- reset points for the agent to start fresh
+- **Feature definitions** in `.github/features/` -- generated and maintained by the agent
+- **Clean starting point** -- `src/lib/main.js` with Hello World, ready for the agent to evolve
 
-// Convert to URL-friendly slug
-console.log(slugify('My Blog Post Title!')); // "my-blog-post-title"
+## How It Works
 
-// Truncate with ellipsis
-console.log(truncate('This is a very long string', 10)); // "This is..."
+```
+MISSION.md -> Issues -> Code -> Tests -> PRs -> Merge -> Repeat
+```
 
-// Reverse string
-console.log(reverse('hello')); // "olleh"
-\`\`\`
+Activity is logged to `intentïon.md` in the repository root.
 
-### CLI Usage
+## Configuration
 
-\`\`\`bash
-# Show all transformations (demo)
-npx @xn-intenton-z2a/repository0
+Edit `.github/agentic-lib/agents/agentic-lib.yml` to tune the agent:
 
-# Use specific functions
-npx @xn-intenton-z2a/repository0 capitalize "hello world"
-npx @xn-intenton-z2a/repository0 slugify "My Blog Post Title"
-npx @xn-intenton-z2a/repository0 truncate "This is a very long string"
-npx @xn-intenton-z2a/repository0 reverse "hello"
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `featureDevelopmentIssuesWipLimit` | 2 | Max concurrent feature issues |
+| `attemptsPerBranch` | 2 | Retries per branch |
+| `tdd` | false | Require tests before implementation |
 
-# Get help
-npx @xn-intenton-z2a/repository0 --help
-\`\`\`
+Edit `CONTRIBUTING.md` to set coding guidelines the agent follows.
 
-## API Reference
+## Links
 
-### \`capitalize(str)\`
-Capitalizes the first letter of a string.
-- **Parameters:** \`str\` (string) - The string to capitalize
-- **Returns:** String with first letter capitalized
-
-### \`slugify(str)\`
-Converts a string to a URL-friendly slug.
-- **Parameters:** \`str\` (string) - The string to slugify
-- **Returns:** Lowercase string with spaces/special chars replaced by hyphens
-
-### \`truncate(str, length, suffix = '...')\`
-Truncates a string to a specified length with optional suffix.
-- **Parameters:** 
-  - \`str\` (string) - The string to truncate
-  - \`length\` (number) - Maximum length
-  - \`suffix\` (string, optional) - Suffix to add when truncated (default: '...')
-- **Returns:** Truncated string with suffix if needed
-
-### \`reverse(str)\`
-Reverses a string.
-- **Parameters:** \`str\` (string) - The string to reverse
-- **Returns:** Reversed string
-
-## Development
-
-\`\`\`bash
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:unit
-
-# Run linting
-npm run linting
-
-# Run formatting
-npm run formatting
-\`\`\`
-
-## License
-
-MIT
+- [MISSION.md](MISSION.md) -- project goals
+- [CONTRIBUTING.md](CONTRIBUTING.md) -- contributor guidelines (for humans and agents)
+- [GETTING-STARTED.md](GETTING-STARTED.md) -- setup instructions
+- [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) -- the core SDK powering these workflows
+- [LICENSE](LICENSE) -- MIT
