@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 import { describe, expect, it, vi, beforeEach, test } from "vitest";
 import { main, AgenticLib } from "../../src/lib/main.js";
 

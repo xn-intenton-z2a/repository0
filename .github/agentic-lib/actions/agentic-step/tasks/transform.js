@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/transform.js — Full mission → features → issues → code pipeline
 //
 // Reads the mission, analyzes the current state, identifies what to build next,

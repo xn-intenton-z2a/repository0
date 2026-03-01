@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // copilot.js — Shared utilities for Copilot SDK task handlers
 //
 // Extracts repeated patterns from the 8 task handlers into reusable functions.

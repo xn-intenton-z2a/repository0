@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // src/lib/agentic-lib.js
 
 import { GitHubIntegration } from "./github-integration.js";

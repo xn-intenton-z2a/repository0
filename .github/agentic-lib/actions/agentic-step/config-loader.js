@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // config-loader.js — Parse agentic-lib.yml and resolve paths
 //
 // Reads the agent configuration file and provides a structured config object

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/fix-code.js — Fix failing tests on a PR
 //
 // Given a PR number with failing tests, analyzes the test output,

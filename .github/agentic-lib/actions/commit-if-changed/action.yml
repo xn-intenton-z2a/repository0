@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
 # .github/agentic-lib/actions/commit-if-changed/action.yml
 #
 # Composite action: Commit and push if there are staged changes.

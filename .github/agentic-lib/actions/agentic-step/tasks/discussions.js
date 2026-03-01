@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2025-2026 Polycode Limited
 // tasks/discussions.js — GitHub Discussions bot
 //
 // Responds to GitHub Discussions, creates features, seeds repositories,
