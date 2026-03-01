@@ -2,49 +2,38 @@
 
 A template for autonomous code evolution. Create from this template, write your mission, and watch the code evolve.
 
-## Quick Start
+## Overview
 
-1. Click **"Use this template"** above (or `gh repo create my-project --template xn-intenton-z2a/repository0 --public`)
-2. Edit `MISSION.md` with your project goals
-3. Enable GitHub Copilot and activate the workflows in the Actions tab
+`repository0` is a template repository that showcases the GitHub workflows imported from intentïon `agentic-lib`. Its primary purpose is to demonstrate autonomous CI/CD workflows powered by the GitHub Copilot SDK.
 
-The agentic workflows will begin generating issues, writing code, running tests, and opening pull requests based on your mission. No OpenAI API key required -- the system uses the GitHub Copilot SDK.
+## What's Inside
 
-See the [Getting Started Guide](GETTING-STARTED.md) for detailed setup instructions.
+- **GitHub Workflows:**
+  Workflows in `.github/workflows/` consume reusable workflows from intentïon `agentic-lib`.
 
-## What's Included
+- **Source Code:**
+  The main functionality is in `src/lib/main.js`. This file is the focus of the workflow and is modified by the workflow to deliver the project goals.
 
-- **Agentic workflows** in `.github/workflows/` -- the full autonomous pipeline (seed, develop, fix, review, merge)
-- **Agent configuration** in `.github/agentic-lib/agents/agentic-lib.yml` -- path permissions, WIP limits, attempt limits
-- **Safety controls** -- writable/read-only path separation, mission protection, TDD mode support
-- **Seed files** in `.github/seeds/` -- reset points for the agent to start fresh
-- **Feature definitions** in `.github/features/` -- generated and maintained by the agent
-- **Clean starting point** -- `src/lib/main.js` with Hello World, ready for the agent to evolve
+- **Dependencies:**
+  `package.json` can be modified by the workflow to add or update dependencies. It also defines test and build scripts.
 
-## How It Works
+- **Tests:**
+  Unit tests in `tests/unit/` ensure that the main script stays on track.
 
-```
-MISSION.md -> Issues -> Code -> Tests -> PRs -> Merge -> Repeat
-```
+- **Docs:**
+  This `README.md` can be modified by the workflow.
 
-Activity is logged to `intentïon.md` in the repository root.
+## Getting Started
 
-## Configuration
+1. Create a repository from this template
+2. Write your `MISSION.md` with project goals
+3. Enable GitHub Copilot and activate the workflows
 
-Edit `.github/agentic-lib/agents/agentic-lib.yml` to tune the agent:
-
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| `featureDevelopmentIssuesWipLimit` | 2 | Max concurrent feature issues |
-| `attemptsPerBranch` | 2 | Retries per branch |
-| `tdd` | false | Require tests before implementation |
-
-Edit `CONTRIBUTING.md` to set coding guidelines the agent follows.
+See [GETTING-STARTED.md](GETTING-STARTED.md) for detailed setup instructions.
 
 ## Links
 
-- [MISSION.md](MISSION.md) -- project goals
-- [CONTRIBUTING.md](CONTRIBUTING.md) -- contributor guidelines (for humans and agents)
-- [GETTING-STARTED.md](GETTING-STARTED.md) -- setup instructions
-- [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) -- the core SDK powering these workflows
-- [LICENSE](LICENSE) -- MIT
+- [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib)
+- [MISSION.md](MISSION.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [LICENSE](LICENSE)
