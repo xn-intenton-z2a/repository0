@@ -25,12 +25,6 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Set up ~/.npmrc
-        run: |
-          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
       - name: Create init branch
         run: |
           BRANCH="agentic-lib-init-$(date -u +%Y%m%d)"
