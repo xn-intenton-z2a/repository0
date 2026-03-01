@@ -1,0 +1,320 @@
+# .github/workflows/ci-update.yml
+#
+# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
+# This file is licensed under the MIT License. For details, see LICENSE-MIT
+
+name: ci-update
+concurrency: agentic-lib-main
+run-name: "ci update [${{ github.ref_name }}]"
+
+on:
+  workflow_dispatch:
+    inputs:
+      upgradeTarget:
+        description: 'Select the type of update to run'
+        type: choice
+        default: 'minor'
+        required: false
+        options:
+          - greatest
+          - latest
+          - newest
+          - patch
+          - minor
+          - semver
+  #workflow_run:
+  #  workflows:
+  #    - seed-repository
+  #  types:
+  #    - completed
+  #  secrets:
+  #    PERSONAL_ACCESS_TOKEN:
+  #      required: false
+  #    CHATGPT_API_SECRET_KEY:
+  #      required: true
+  repository_dispatch:
+    types: [package-published]
+  schedule:
+    - cron: '24 1 */28 * *' # schedule-1
+    #- cron: '24 1 * * *' # schedule-2
+    #- cron: '24 1 * * *' # schedule-3
+    #- cron: '24 1 * * *' # schedule-4
+
+env:
+  npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+
+jobs:
+
+  check-branch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      branchPrefix: 'agentic-lib-update-dependencies'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+      - name: Ensure there isn't already a branch for this prefix
+        shell: bash
+        run: |
+          git fetch origin
+          if git branch -r | grep -q 'origin/${{ env.branchPrefix }}'; then
+            echo "A branch with the prefix '${{ env.branchPrefix }}' already exists."
+            exit 1
+          else
+            echo "No existing branch with the prefix found."
+          fi
+
+  update-npm:
+    needs:
+      - check-branch
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    runs-on: ubuntu-latest
+    env:
+      buildScript: 'npm run build'
+      testScript: 'npm test'
+      testScriptTimeout: '5m'
+      mainScript: 'npm run start'
+      mainScriptTimeout: '5m'
+      upgradeTarget: ${{ inputs.upgradeTarget || 'patch' }}
+      branch: 'agentic-lib-update-dependencies'
+      npmAuthOrganisation: ${{ vars.npmAuthOrganisation || '@xn-intenton-z2a' }}
+      gitUserEmail: 'action@github.com'
+      gitUserName: 'GitHub Actions[bot]'
+      cache: 'npm'
+      gitCommitMessage: 'chore: dependency updates'
+    steps:
+      - name: Log which version
+        if: ${{ github.event.client_payload }}
+        shell: bash
+        run: echo "Package: ${{ github.event.client_payload.packageName }}"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: ${{ env.cache }}
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ vars.configPath || '.github/agentic-lib/agents/agentic-lib.yml' }}"
+          if [ -f "$CONFIG" ]; then
+            BS=$(yq -r '.buildScript // ""' "$CONFIG" 2>/dev/null)
+            TS=$(yq -r '.testScript // ""' "$CONFIG" 2>/dev/null)
+            MS=$(yq -r '.mainScript // ""' "$CONFIG" 2>/dev/null)
+            [ -n "$BS" ] && echo "buildScript=$BS" >> $GITHUB_ENV
+            [ -n "$TS" ] && echo "testScript=$TS" >> $GITHUB_ENV
+            [ -n "$MS" ] && echo "mainScript=$MS" >> $GITHUB_ENV
+          fi
+
+      - name: Check GitHub authentication
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: |
+          curl --include --header "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}" https://api.github.com/user
+      - name: Set up .npmrc
+        uses: ./.github/agentic-lib/actions/setup-npmrc
+        with:
+          npm-auth-organisation: ${{ env.npmAuthOrganisation }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      - name: Get latest from remote
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git fetch origin ${{ github.ref_name }}
+          git merge origin/${{ github.ref_name }} --no-ff --no-edit --strategy=recursive --strategy-option=ours
+      - run: rm -f package-lock.json
+      - run: npm install
+      - name: Build project
+        id: build
+        shell: bash
+        run: |
+          output=$(${{ env.buildScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+      - name: Run tests before update
+        id: test
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+      - name: Run main before update
+        id: main
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+      - name: Update packages with npm
+        continue-on-error: true
+        shell: bash
+        run: npm install --save ; npm update ; npm upgrade ; npm install
+      - name: Update packages with ncu
+        continue-on-error: true
+        shell: bash
+        env:
+          ncuUpgradeTarget: ${{ env.upgradeTarget || 'minor' }}
+        run: npx ncu --upgrade --enginesNode --retry 3 --target ${{ env.ncuUpgradeTarget }} --verbose ; npm install ; npm update ; npm upgrade ; npm install
+      - name: git-diff
+        id: git-diff
+        shell: bash
+        run: |
+          savedOptions=$(set +o) \
+          && set +e \
+          ; if git diff --quiet; then
+            echo "updated=false" | tee -a "${GITHUB_OUTPUT?}"
+          else
+            echo "updated=true" | tee -a "${GITHUB_OUTPUT?}"
+          fi \
+          ; eval "${savedOptions?}" \
+          ;
+        continue-on-error: true
+      - run: rm -rf './node_modules/'
+      - run: npm ci || npm install
+      - name: Tear down .npmrc
+        if: ${{ env.npmAuthOrganisation != '' }}
+        shell: bash
+        run: rm -f .npmrc
+      - name: Run tests after update
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.testScriptTimeout }} ${{ env.testScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+      - name: Run main after update
+        shell: bash
+        run: |
+          output=$(timeout ${{ env.mainScriptTimeout }} ${{ env.mainScript }} 2>&1)
+          echo "output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$output" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "output=${output}"
+      - name: Commit
+        if: ${{ steps.git-diff.outputs.updated == 'true' || env.git-force == 'true' }}
+        shell: bash
+        run: |
+          git config --local user.email '${{ env.gitUserEmail }}'
+          git config --local user.name '${{ env.gitUserName }}'
+          git config --local pull.ff     false
+          git config --local pull.rebase false
+          git status -v
+          git switch -c '${{ env.branch }}'
+          git add -v --all
+          git commit -v -m '${{ env.gitCommitMessage }}'
+          git pull --rebase origin main
+          git push --set-upstream origin '${{ env.branch }}'
+          git push -v
+          git status -v
+    outputs:
+      updatedFiles: ${{ steps.git-diff.outputs.updated || '' }}
+
+  create-pr:
+    needs:
+      - update-npm
+    if: needs.update-npm.outputs.updatedFiles == 'true'
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
+      checks: write
+      id-token: write
+    runs-on: ubuntu-latest
+    env:
+      branch: 'agentic-lib-update-dependencies'
+      baseBranch: 'main'
+      gitCommitMessage: 'chore: dependency updates'
+      label: 'automerge'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create pull request
+        uses: actions/github-script@v7
+        env:
+          branch: ${{ env.branch }}
+          baseBranch: ${{ env.baseBranch }}
+          gitCommitMessage: ${{ env.gitCommitMessage }}
+          label: ${{ env.label }}
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existingPulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${process.env.branch}`,
+              base: process.env.baseBranch,
+              state: 'open',
+            });
+            if (!existingPulls || existingPulls.length === 0) {
+              const comparison = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: process.env.baseBranch,
+                head: process.env.branch,
+              });
+              if (process.env.branch != 'main' && comparison.data.ahead_by === 0) {
+                core.info(`No additions detected. Deleting branch: ${process.env.branch}`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${process.env.branch}`,
+                });
+              } else {
+                const { data: pr } = await github.rest.pulls.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: process.env.gitCommitMessage,
+                  head: process.env.branch,
+                  base: process.env.baseBranch,
+                  body: process.env.gitCommitMessage,
+                  maintainer_can_modify: true,
+                });
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  labels: [process.env.label],
+                });
+                core.info(`Pull request created: ${pr.html_url}`);
+              }
+            } else {
+              core.info(`Pull request already exists for this branch.`);
+            }
+
+  automerge-pr:
+    needs:
+      - create-pr
+      - update-npm
+    if: needs.update-npm.outputs.updatedFiles == 'true'
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+      issues: write
+      id-token: write
+      pages: write
+    uses: './.github/workflows/ci-automerge.yml'
+    secrets:
+      PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+

@@ -17,16 +17,3 @@ if [[ -e 'package.json' ]]; then
   npm run build
   npm link
 fi
-
-# Docker clean
-if [[ -e 'Dockerfile' ]]; then
-  docker system prune --all --force --volumes
-fi
-
-# Java/CDK clean
-if [[ -e 'pom.xml' ]]; then
-  rm -rf target
-  rm -rf cdk.out
-  rm -rf ~/.m2/repository
-  mvn clean
-fi

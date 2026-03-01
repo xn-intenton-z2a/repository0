@@ -46,7 +46,9 @@ function buildClientOptions() {
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
-  core.info(`[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`);
+  core.info(
+    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`,
+  );
 
   const clientOptions = buildClientOptions();
   const client = new CopilotClient(clientOptions);
