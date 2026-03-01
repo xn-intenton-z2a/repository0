@@ -1,0 +1,74 @@
+# .github/workflows/init.yml
+#
+# Daily lifecycle: update agentic-lib, run init --purge, test, PR, automerge.
+# Keeps the repository current with the latest SDK infrastructure.
+
+name: init
+run-name: "init [${{ github.ref_name }}]"
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: read
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Set up ~/.npmrc
+        run: |
+          echo "@xn-intenton-z2a:registry=https://npm.pkg.github.com" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      - name: Create init branch
+        run: |
+          BRANCH="agentic-lib-init-$(date -u +%Y%m%d)"
+          git checkout -b "$BRANCH"
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - name: Update agentic-lib to latest
+        run: npm update @xn-intenton-z2a/agentic-lib
+
+      - name: Run init --purge
+        run: npx @xn-intenton-z2a/agentic-lib init --purge
+
+      - run: npm install
+
+      - name: Install agentic-step deps
+        run: cd .github/agentic-lib/actions/agentic-step && npm ci
+
+      - run: npm test
+
+      - name: Commit and push
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Actions[bot]"
+          git add -A
+          git diff --cached --quiet && echo "No changes" && exit 0
+          VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
+          git commit -m "init --purge (agentic-lib@${VERSION})"
+          git push origin "$BRANCH"
+
+      - name: Create PR
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "init --purge ($(date -u +%Y-%m-%d))" \
+            --body "Nightly init --purge. Auto-labelled for automerge." \
+            --label automerge \
+            --base main \
+            --head "$BRANCH"
