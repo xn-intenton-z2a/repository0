@@ -13,11 +13,7 @@ on:
     - cron: "0 5 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: read
-  workflows: write
+permissions: write-all
 
 jobs:
   init:
