@@ -4,23 +4,6 @@
   "description": "Agentic-lib Agentic Coding Systems SDK powering automated GitHub workflows.",
   "type": "module",
   "main": "src/lib/main.js",
-  "exports": {
-    ".": {
-      "import": "./src/lib/main.js"
-    },
-    "./agentic-lib": {
-      "import": "./src/lib/agentic-lib.js"
-    },
-    "./github-integration": {
-      "import": "./src/lib/github-integration.js"
-    },
-    "./workflow-orchestrator": {
-      "import": "./src/lib/workflow-orchestrator.js"
-    },
-    "./communication-protocol": {
-      "import": "./src/lib/communication-protocol.js"
-    }
-  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "formatting": "prettier --check",
@@ -64,7 +47,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "files": ["src/lib/**", "package.json", "README.md"],
+  "files": ["package.json"],
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }

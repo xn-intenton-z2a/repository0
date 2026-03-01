@@ -12,7 +12,8 @@
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.0.0",
     "@github/copilot-sdk": "0.1.29",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "smol-toml": "^1.6.0"
   },
   "devDependencies": {
     "vitest": "^4.0.18"

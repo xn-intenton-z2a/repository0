@@ -1,10 +1,16 @@
-// config-loader.js — Parse agentic-lib.yml and resolve paths
+// config-loader.js — Parse agentic-lib.toml or agentic-lib.yml and resolve paths
 //
 // Reads the agent configuration file and provides a structured config object
 // with resolved paths, limits, and execution parameters.
+//
+// Supports two formats:
+//   1. agentic-lib.toml (preferred) — flat TOML with [sections]
+//   2. agentic-lib.yml (legacy) — YAML with nested keys
 
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
+import { dirname, join } from "path";
 import yaml from "js-yaml";
+import { parse as parseToml } from "smol-toml";
 
 /**
  * @typedef {Object} PathConfig
@@ -31,12 +37,6 @@ import yaml from "js-yaml";
  * @property {string[]} readOnlyPaths - All paths without write permission
  */
 
-/**
- * Load and parse the agentic-lib.yml configuration file.
- *
- * @param {string} configPath - Path to the YAML config file
- * @returns {AgenticConfig} Parsed configuration object
- */
 function resolvePaths(configPaths) {
   const paths = {};
   const writablePaths = [];
@@ -66,9 +66,101 @@ function resolvePaths(configPaths) {
   return { paths, writablePaths, readOnlyPaths };
 }
 
-export function loadConfig(configPath) {
+/**
+ * Convert a TOML config object (flat [sections]) into the internal format
+ * that matches the YAML config structure.
+ */
+function normaliseToml(toml) {
+  const config = {};
+
+  // [schedule]
+  if (toml.schedule) {
+    config.schedule = toml.schedule.tier || toml.schedule;
+  }
+
+  // [paths] → convert flat key=value into path objects with write permissions
+  if (toml.paths) {
+    config.paths = {};
+    // Known writable paths (paths that agents may modify)
+    const WRITABLE_KEYS = [
+      "source",
+      "targetSourcePath",
+      "tests",
+      "targetTestsPath",
+      "features",
+      "featuresPath",
+      "dependencies",
+      "dependenciesFilepath",
+      "docs",
+      "documentationPath",
+      "readme",
+      "readmeFilepath",
+    ];
+    for (const [key, value] of Object.entries(toml.paths)) {
+      const isWritable = WRITABLE_KEYS.includes(key);
+      config.paths[key] = {
+        path: value,
+        permissions: isWritable ? ["write"] : [],
+      };
+    }
+  }
+
+  // [execution]
+  if (toml.execution) {
+    config.buildScript = toml.execution.build;
+    config.testScript = toml.execution.test;
+    config.mainScript = toml.execution.start;
+  }
+
+  // [limits]
+  if (toml.limits) {
+    config.featureDevelopmentIssuesWipLimit = toml.limits["feature-issues"];
+    config.maintenanceIssuesWipLimit = toml.limits["maintenance-issues"];
+    config.attemptsPerBranch = toml.limits["attempts-per-branch"];
+    config.attemptsPerIssue = toml.limits["attempts-per-issue"];
+  }
+
+  // [bot]
+  if (toml.bot) {
+    config.intentionBot = {
+      intentionFilepath: toml.bot["log-file"],
+    };
+  }
+
+  return config;
+}
+
+/**
+ * Parse a config file — auto-detects TOML vs YAML by extension.
+ */
+function parseConfigFile(configPath) {
   const raw = readFileSync(configPath, "utf8");
-  const config = yaml.load(raw);
+  if (configPath.endsWith(".toml")) {
+    return normaliseToml(parseToml(raw));
+  }
+  return yaml.load(raw);
+}
+
+/**
+ * Load configuration, trying agentic-lib.toml first, then falling back to
+ * the provided configPath (typically agentic-lib.yml).
+ *
+ * @param {string} configPath - Path to the YAML config file (fallback)
+ * @returns {AgenticConfig} Parsed configuration object
+ */
+export function loadConfig(configPath) {
+  // Try TOML in the project root (two levels up from .github/agentic-lib/agents/)
+  const configDir = dirname(configPath);
+  const projectRoot = join(configDir, "..", "..", "..");
+  const tomlPath = join(projectRoot, "agentic-lib.toml");
+
+  let config;
+  if (existsSync(tomlPath)) {
+    config = parseConfigFile(tomlPath);
+  } else {
+    config = parseConfigFile(configPath);
+  }
+
   const { paths, writablePaths, readOnlyPaths } = resolvePaths(config.paths);
 
   return {

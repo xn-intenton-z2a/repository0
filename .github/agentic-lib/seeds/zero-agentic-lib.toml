@@ -1,0 +1,30 @@
+# agentic-lib.toml — Configuration for @xn-intenton-z2a/agentic-lib
+#
+# This file controls how agentic workflows operate on your repository.
+# Place it at the root of your project.
+
+[schedule]
+tier = "schedule-1"       # schedule-1 through schedule-4
+
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+features = ".github/agentic-lib/features/"
+docs = "docs/"
+readme = "README.md"
+dependencies = "package.json"
+
+[execution]
+build = "npm run build"
+test = "npm test"
+start = "npm run start"
+
+[limits]
+feature-issues = 2
+maintenance-issues = 1
+attempts-per-branch = 3
+attempts-per-issue = 2
+
+[bot]
+log-file = "intentïon.md"
