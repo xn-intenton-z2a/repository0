@@ -27,6 +27,11 @@ on:
         type: boolean
         required: false
         default: false
+      mission:
+        description: "Mission text for MISSION.md (leave empty to use seed default)"
+        type: string
+        required: false
+        default: ""
 
 permissions: write-all
 
@@ -42,9 +47,12 @@ jobs:
           echo "mode=${MODE:-update}" >> $GITHUB_OUTPUT
           DRY_RUN='${{ inputs.dry-run }}'
           echo "dry-run=${DRY_RUN:-false}" >> $GITHUB_OUTPUT
+          MISSION='${{ inputs.mission }}'
+          echo "mission=${MISSION}" >> $GITHUB_OUTPUT
     outputs:
       mode: ${{ steps.normalise.outputs.mode }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
+      mission: ${{ steps.normalise.outputs.mission }}
 
   init:
     needs: params
@@ -52,6 +60,7 @@ jobs:
     env:
       INIT_MODE: ${{ needs.params.outputs.mode }}
       INIT_DRY_RUN: ${{ needs.params.outputs.dry-run }}
+      INIT_MISSION: ${{ needs.params.outputs.mission }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -77,6 +86,12 @@ jobs:
           if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge"; fi
           if [ "$INIT_DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
           npx @xn-intenton-z2a/agentic-lib $FLAGS
+
+      - name: Write mission (if provided)
+        if: env.INIT_MISSION != ''
+        run: |
+          printf '# Mission\n\n%s\n' "$INIT_MISSION" > MISSION.md
+          echo "Wrote custom mission to MISSION.md"
 
       - run: npm install
 
