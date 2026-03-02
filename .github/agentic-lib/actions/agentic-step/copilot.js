@@ -92,7 +92,7 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
     });
 
     core.info("[copilot] Sending prompt and waiting for idle...");
-    const response = await session.sendAndWait({ prompt }, 300000);
+    const response = await session.sendAndWait({ prompt }, 600000);
     core.info(`[copilot] sendAndWait resolved`);
     const tokensUsed = response?.data?.usage?.totalTokens || 0;
     const content = response?.data?.content || "";
