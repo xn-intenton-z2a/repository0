@@ -117,6 +117,7 @@ export function loadConfig(configPath) {
 
   return {
     schedule: toml.schedule?.tier || "schedule-1",
+    supervisor: toml.schedule?.supervisor || "daily",
     paths,
     buildScript: execution.build || "npm run build",
     testScript: execution.test || "npm test",

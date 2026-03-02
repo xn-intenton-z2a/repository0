@@ -9,6 +9,139 @@ import * as core from "@actions/core";
 import { existsSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 
+const BOT_LOGINS = ["github-actions[bot]", "github-actions"];
+
+async function fetchDiscussion(octokit, discussionUrl) {
+  const urlMatch = discussionUrl.match(/github\.com\/([^/]+)\/([^/]+)\/discussions\/(\d+)/);
+  if (!urlMatch) {
+    core.warning(`Could not parse discussion URL: ${discussionUrl}`);
+    return { title: "", body: "", comments: [], nodeId: "" };
+  }
+
+  const [, urlOwner, urlRepo, discussionNumber] = urlMatch;
+  try {
+    const query = `query {
+      repository(owner: "${urlOwner}", name: "${urlRepo}") {
+        discussion(number: ${discussionNumber}) {
+          id
+          title
+          body
+          comments(last: 10) {
+            nodes {
+              body
+              author { login }
+              createdAt
+            }
+          }
+        }
+      }
+    }`;
+    const result = await octokit.graphql(query);
+    const discussion = result.repository.discussion;
+    core.info(
+      `Fetched discussion #${discussionNumber}: "${discussion.title}" (${discussion.comments.nodes.length} comments)`,
+    );
+    return {
+      title: discussion.title || "",
+      body: discussion.body || "",
+      comments: discussion.comments.nodes || [],
+      nodeId: discussion.id || "",
+    };
+  } catch (err) {
+    core.warning(`Failed to fetch discussion content via GraphQL: ${err.message}. Falling back to URL-only.`);
+    return { title: "", body: "", comments: [], nodeId: "" };
+  }
+}
+
+function buildPrompt(discussionUrl, discussion, context) {
+  const { config, instructions } = context;
+  const { title, body, comments } = discussion;
+
+  const humanComments = comments.filter((c) => !BOT_LOGINS.includes(c.author?.login));
+  const botReplies = comments.filter((c) => BOT_LOGINS.includes(c.author?.login));
+  const latestHumanComment = humanComments.length > 0 ? humanComments[humanComments.length - 1] : null;
+  const lastBotReply = botReplies.length > 0 ? botReplies[botReplies.length - 1] : null;
+
+  const mission = readOptionalFile(config.paths.mission.path);
+  const contributing = readOptionalFile(config.paths.contributing.path, 1000);
+  const featuresPath = config.paths.features.path;
+  const featureNames = existsSync(featuresPath)
+    ? scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""))
+    : [];
+  const recentActivity = readOptionalFile(config.intentionBot.intentionFilepath).split("\n").slice(-20).join("\n");
+  const agentInstructions = instructions || "Respond to the GitHub Discussion as the repository bot.";
+
+  const parts = [
+    "## Instructions",
+    agentInstructions,
+    "",
+    "## Discussion Thread",
+    `URL: ${discussionUrl}`,
+    title ? `### ${title}` : "",
+    body || "(no body)",
+  ];
+
+  if (humanComments.length > 0) {
+    parts.push("", "### Conversation History");
+    for (const c of humanComments) {
+      const prefix = c === latestHumanComment ? ">>> **[LATEST — RESPOND TO THIS]** " : "";
+      parts.push(`${prefix}**${c.author?.login || "unknown"}** (${c.createdAt}):\n${c.body}`);
+    }
+  }
+
+  if (lastBotReply) {
+    parts.push("", "### Your Last Reply (DO NOT REPEAT THIS)", lastBotReply.body.substring(0, 500));
+  }
+
+  parts.push(
+    "",
+    "## Repository Context",
+    `### Mission\n${mission}`,
+    contributing ? `### Contributing\n${contributing}` : "",
+    `### Current Features\n${featureNames.join(", ") || "none"}`,
+    recentActivity ? `### Recent Activity\n${recentActivity}` : "",
+    "",
+    "## Actions",
+    "Include exactly one action tag in your response. Only mention actions to the user when relevant.",
+    "`[ACTION:request-supervisor] <free text>` — Ask the supervisor to evaluate and act on a user request",
+    "`[ACTION:create-feature] <name>` — Create a new feature",
+    "`[ACTION:update-feature] <name>` — Update an existing feature",
+    "`[ACTION:delete-feature] <name>` — Delete a feature",
+    "`[ACTION:create-issue] <title>` — Create a new issue",
+    "`[ACTION:seed-repository]` — Reset to initial state",
+    "`[ACTION:nop]` — No action needed, just respond conversationally",
+    "`[ACTION:mission-complete]` — Declare mission complete",
+    "`[ACTION:stop]` — Halt automation",
+  );
+
+  return parts.filter(Boolean).join("\n");
+}
+
+async function postReply(octokit, nodeId, replyBody) {
+  if (!nodeId) {
+    core.warning("Cannot post reply: discussion node ID not available");
+    return;
+  }
+  if (!replyBody) {
+    core.warning("Cannot post reply: no reply content generated");
+    return;
+  }
+  try {
+    const mutation = `mutation($discussionId: ID!, $body: String!) {
+      addDiscussionComment(input: { discussionId: $discussionId, body: $body }) {
+        comment { url }
+      }
+    }`;
+    const { addDiscussionComment } = await octokit.graphql(mutation, {
+      discussionId: nodeId,
+      body: replyBody,
+    });
+    core.info(`Posted reply to discussion: ${addDiscussionComment.comment.url}`);
+  } catch (err) {
+    core.warning(`Failed to post discussion reply: ${err.message}`);
+  }
+}
+
 /**
  * Respond to a GitHub Discussion using the Copilot SDK.
  *
@@ -16,142 +149,30 @@ import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
  * @returns {Promise<Object>} Result with outcome, action, tokensUsed, model
  */
 export async function discussions(context) {
-  const { octokit, config, instructions, model, discussionUrl } = context;
+  const { octokit, model, discussionUrl } = context;
 
   if (!discussionUrl) {
     throw new Error("discussions task requires discussion-url input");
   }
 
-  // Parse discussion URL and fetch content via GraphQL
-  const urlMatch = discussionUrl.match(/github\.com\/([^/]+)\/([^/]+)\/discussions\/(\d+)/);
-  let discussionTitle = "";
-  let discussionBody = "";
-  let discussionComments = [];
-  let discussionNodeId = "";
-
-  if (urlMatch) {
-    const [, urlOwner, urlRepo, discussionNumber] = urlMatch;
-    try {
-      const query = `query {
-        repository(owner: "${urlOwner}", name: "${urlRepo}") {
-          discussion(number: ${discussionNumber}) {
-            id
-            title
-            body
-            comments(last: 10) {
-              nodes {
-                body
-                author { login }
-                createdAt
-              }
-            }
-          }
-        }
-      }`;
-      const result = await octokit.graphql(query);
-      const discussion = result.repository.discussion;
-      discussionNodeId = discussion.id || "";
-      discussionTitle = discussion.title || "";
-      discussionBody = discussion.body || "";
-      discussionComments = discussion.comments.nodes || [];
-      core.info(
-        `Fetched discussion #${discussionNumber}: "${discussionTitle}" (${discussionComments.length} comments)`,
-      );
-    } catch (err) {
-      core.warning(`Failed to fetch discussion content via GraphQL: ${err.message}. Falling back to URL-only.`);
-    }
-  } else {
-    core.warning(`Could not parse discussion URL: ${discussionUrl}`);
-  }
-
-  const mission = readOptionalFile(config.paths.mission.path);
-  const contributing = readOptionalFile(config.paths.contributing.path, 1000);
-
-  const featuresPath = config.paths.features.path;
-  let featureNames = [];
-  if (existsSync(featuresPath)) {
-    featureNames = scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""));
-  }
-
-  const intentionPath = config.intentionBot.intentionFilepath;
-  const recentActivity = readOptionalFile(intentionPath).split("\n").slice(-20).join("\n");
-
-  const agentInstructions = instructions || "Respond to the GitHub Discussion as the repository bot.";
-
-  const prompt = [
-    "## Instructions",
-    agentInstructions,
-    "",
-    "## Discussion",
-    `URL: ${discussionUrl}`,
-    discussionTitle ? `### ${discussionTitle}` : "",
-    discussionBody || "(no body)",
-    discussionComments.length > 0 ? `### Comments (${discussionComments.length})` : "",
-    ...discussionComments.map((c) => `**${c.author?.login || "unknown"}** (${c.createdAt}):\n${c.body}`),
-    "",
-    "## Context",
-    `### Mission\n${mission}`,
-    contributing ? `### Contributing\n${contributing}` : "",
-    `### Current Features\n${featureNames.join(", ") || "none"}`,
-    recentActivity ? `### Recent Activity\n${recentActivity}` : "",
-    "",
-    "## Available Actions",
-    "Respond with one of these action tags in your response:",
-    "- `[ACTION:seed-repository]` — Reset the sandbox to initial state",
-    "- `[ACTION:create-feature] <name>` — Create a new feature",
-    "- `[ACTION:update-feature] <name>` — Update an existing feature",
-    "- `[ACTION:delete-feature] <name>` — Delete a feature that is no longer needed",
-    "- `[ACTION:create-issue] <title>` — Create a new issue",
-    "- `[ACTION:nop]` — No action needed, just respond conversationally",
-    "- `[ACTION:mission-complete]` — Declare the current mission complete",
-    "- `[ACTION:stop]` — Halt automation",
-    "",
-    "Include exactly one action tag. The rest of your response is the discussion reply.",
-    "",
-    "## Mission Protection",
-    "If the user requests something that contradicts or would undermine the mission,",
-    "you MUST push back. Explain why the request conflicts with the mission and suggest",
-    "an alternative that aligns with it. Use `[ACTION:nop]` in this case.",
-    "The mission is the non-negotiable foundation of this repository.",
-  ].join("\n");
+  const discussion = await fetchDiscussion(octokit, discussionUrl);
+  const prompt = buildPrompt(discussionUrl, discussion, context);
 
   const { content, tokensUsed } = await runCopilotTask({
     model,
     systemMessage:
-      "You are a repository bot that responds to GitHub Discussions. You are self-aware — you refer to yourself as the repository. Be helpful, adaptive, and proactive about suggesting features. You can update and delete features proactively when they are outdated or completed. You MUST protect the mission: if a user requests something that contradicts the mission, push back politely and suggest an aligned alternative.",
+      "You are this repository. Respond in first person. Be concise and engaging — never repeat what you said in your last reply. Adapt to the user's language level. Encourage experimentation and suggest interesting projects. When a user requests an action, pass it to the supervisor via [ACTION:request-supervisor]. Protect the mission: push back on requests that contradict it.",
     prompt,
     writablePaths: [],
   });
 
-  // Parse action from response
   const actionMatch = content.match(/\[ACTION:(\S+?)\](.+)?/);
   const action = actionMatch ? actionMatch[1] : "nop";
   const actionArg = actionMatch && actionMatch[2] ? actionMatch[2].trim() : "";
   const replyBody = content.replace(/\[ACTION:\S+?\].+/, "").trim();
 
   core.info(`Discussion bot action: ${action}, arg: ${actionArg}`);
-
-  // Post reply comment back to the Discussion
-  if (discussionNodeId && replyBody) {
-    try {
-      const mutation = `mutation($discussionId: ID!, $body: String!) {
-        addDiscussionComment(input: { discussionId: $discussionId, body: $body }) {
-          comment { url }
-        }
-      }`;
-      const { addDiscussionComment } = await octokit.graphql(mutation, {
-        discussionId: discussionNodeId,
-        body: replyBody,
-      });
-      core.info(`Posted reply to discussion: ${addDiscussionComment.comment.url}`);
-    } catch (err) {
-      core.warning(`Failed to post discussion reply: ${err.message}`);
-    }
-  } else if (!discussionNodeId) {
-    core.warning("Cannot post reply: discussion node ID not available");
-  } else if (!replyBody) {
-    core.warning("Cannot post reply: no reply content generated");
-  }
+  await postReply(octokit, discussion.nodeId, replyBody);
 
   const argSuffix = actionArg ? ` (${actionArg})` : "";
   return {
