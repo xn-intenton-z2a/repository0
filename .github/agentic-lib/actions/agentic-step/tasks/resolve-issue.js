@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/resolve-issue.js — Issue → code → PR
 //
@@ -55,9 +55,9 @@ export async function resolveIssue(context) {
     octokit.rest.issues.listComments({ ...repo, issue_number: Number(issueNumber), per_page: 10 }),
   ]);
 
-  const contributing = readOptionalFile(config.paths.contributingFilepath?.path || "CONTRIBUTING.md");
+  const contributing = readOptionalFile(config.paths.contributing.path);
   const agentInstructions = instructions || "Resolve the GitHub issue by writing code that satisfies the requirements.";
-  const readOnlyPaths = config.readOnlyPaths || [];
+  const readOnlyPaths = config.readOnlyPaths;
 
   const prompt = [
     "## Instructions",

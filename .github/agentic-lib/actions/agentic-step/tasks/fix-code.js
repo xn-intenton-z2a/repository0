@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/fix-code.js — Fix failing tests on a PR
 //
@@ -33,7 +33,7 @@ export async function fixCode(context) {
 
   const failureDetails = failedChecks.map((cr) => `**${cr.name}:** ${cr.output?.summary || "Failed"}`).join("\n");
   const agentInstructions = instructions || "Fix the failing tests by modifying the source code.";
-  const readOnlyPaths = config.readOnlyPaths || [];
+  const readOnlyPaths = config.readOnlyPaths;
 
   const prompt = [
     "## Instructions",

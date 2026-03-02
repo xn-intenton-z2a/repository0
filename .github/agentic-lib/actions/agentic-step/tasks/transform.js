@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/transform.js — Full mission → features → issues → code pipeline
 //
@@ -18,15 +18,14 @@ export async function transform(context) {
   const { config, instructions, writablePaths, testCommand, model, octokit, repo } = context;
 
   // Read mission (required)
-  const missionPath = config.paths.missionFilepath?.path || "MISSION.md";
-  const mission = readOptionalFile(missionPath);
+  const mission = readOptionalFile(config.paths.mission.path);
   if (!mission) {
-    core.warning(`No mission file found at ${missionPath}`);
+    core.warning(`No mission file found at ${config.paths.mission.path}`);
     return { outcome: "nop", details: "No mission file found" };
   }
 
-  const features = scanDirectory(config.paths.featuresPath?.path || "features/", ".md");
-  const sourceFiles = scanDirectory(config.paths.targetSourcePath?.path || "src/", [".js", ".ts"], {
+  const features = scanDirectory(config.paths.features.path, ".md");
+  const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
     contentLimit: 2000,
     recursive: true,
   });
@@ -39,7 +38,7 @@ export async function transform(context) {
 
   const agentInstructions =
     instructions || "Transform the repository toward its mission by identifying the next best action.";
-  const readOnlyPaths = config.readOnlyPaths || [];
+  const readOnlyPaths = config.readOnlyPaths;
 
   // TDD mode: split into test-first + implementation phases
   if (config.tdd === true) {

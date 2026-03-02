@@ -15,7 +15,7 @@ paths:
     permissions: []
     limit: 0
   featuresPath:
-    path: ".github/agentic-lib/features/"
+    path: "features/"
     permissions: ["write"]
     limit: 2
 

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-features.js — Feature lifecycle management
 //
@@ -16,11 +16,11 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
 export async function maintainFeatures(context) {
   const { config, instructions, writablePaths, model, octokit, repo } = context;
 
-  const mission = readOptionalFile(config.paths.missionFilepath?.path || "MISSION.md");
-  const featuresPath = config.paths.featuresPath?.path || "features/";
-  const featureLimit = config.paths.featuresPath?.limit || 4;
+  const mission = readOptionalFile(config.paths.mission.path);
+  const featuresPath = config.paths.features.path;
+  const featureLimit = config.paths.features.limit;
   const features = scanDirectory(featuresPath, ".md");
-  const libraryDocs = scanDirectory(config.paths.libraryDocumentsPath?.path || "library/", ".md", {
+  const libraryDocs = scanDirectory(config.paths.library.path, ".md", {
     contentLimit: 1000,
   });
 
@@ -55,7 +55,7 @@ export async function maintainFeatures(context) {
     `2. If there are fewer than ${featureLimit} features, create new features aligned with the mission.`,
     "3. Ensure each feature has clear, testable acceptance criteria.",
     "",
-    formatPathsSection(writablePaths, config.readOnlyPaths || []),
+    formatPathsSection(writablePaths, config.readOnlyPaths),
     "",
     "## Constraints",
     `- Maximum ${featureLimit} feature files`,

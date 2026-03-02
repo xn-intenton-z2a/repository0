@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/review-issue.js — Review issues and close resolved ones
 //
@@ -43,11 +43,11 @@ export async function reviewIssue(context) {
     return { outcome: "nop", details: `Issue #${targetIssueNumber} is already closed` };
   }
 
-  const sourceFiles = scanDirectory(config.paths.targetSourcePath?.path || "src/", [".js", ".ts"], {
+  const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
     contentLimit: 2000,
     recursive: true,
   });
-  const testFiles = scanDirectory(config.paths.targetTestsPath?.path || "tests/", [".test.js", ".test.ts"], {
+  const testFiles = scanDirectory(config.paths.tests.path, [".test.js", ".test.ts"], {
     contentLimit: 2000,
     recursive: true,
   });

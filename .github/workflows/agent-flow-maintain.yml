@@ -23,6 +23,15 @@ on:
           - all
           - features
           - library
+      model:
+        description: "Copilot SDK model to use"
+        type: choice
+        required: false
+        default: "claude-sonnet-4"
+        options:
+          - claude-sonnet-4
+          - gpt-5-mini
+          - gpt-4.1
 
 permissions:
   contents: write
@@ -41,8 +50,11 @@ jobs:
         run: |
           STEP='${{ inputs.step }}'
           echo "step=${STEP:-all}" >> $GITHUB_OUTPUT
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-claude-sonnet-4}" >> $GITHUB_OUTPUT
     outputs:
       step: ${{ steps.normalise.outputs.step }}
+      model: ${{ steps.normalise.outputs.model }}
 
   maintain:
     needs: params
@@ -64,7 +76,7 @@ jobs:
         id: config
         run: |
           CONFIG="${{ env.configPath }}"
-          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG")
+          FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
           LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
           SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
           echo "featuresWritablePaths=${FEATURES}" >> $GITHUB_OUTPUT
@@ -81,6 +93,7 @@ jobs:
           config: ${{ env.configPath }}
           instructions: ".github/agentic-lib/agents/agent-maintain-features.md"
           writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
+          model: ${{ needs.params.outputs.model }}
 
       - name: Maintain library
         if: needs.params.outputs.step == 'all' || needs.params.outputs.step == 'library'
@@ -93,6 +106,7 @@ jobs:
           config: ${{ env.configPath }}
           instructions: ".github/agentic-lib/agents/agent-maintain-library.md"
           writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
+          model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push changes
         uses: ./.github/agentic-lib/actions/commit-if-changed

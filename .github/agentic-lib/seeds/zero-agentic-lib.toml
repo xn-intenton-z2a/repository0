@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# agentic-lib.toml — Configuration for @xn-intenton-z2a/agentic-lib
+# agentic-lib.toml — Configuration for agentic-lib workflows
 #
 # This file controls how agentic workflows operate on your repository.
 # Place it at the root of your project.
@@ -12,7 +12,7 @@ tier = "schedule-1"       # schedule-1 through schedule-4
 mission = "MISSION.md"
 source = "src/lib/"
 tests = "tests/unit/"
-features = ".github/agentic-lib/features/"
+features = "features/"
 docs = "docs/"
 readme = "README.md"
 dependencies = "package.json"
