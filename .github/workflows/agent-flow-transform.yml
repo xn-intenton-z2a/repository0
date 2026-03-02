@@ -11,7 +11,7 @@ concurrency: agentic-lib-main
 
 on:
   schedule:
-    - cron: "17 6,8,10,12 * * *" # daily at 06:17 UTC
+    - cron: "17 6,8,10,12 * * *" # 06:17, 08:17, 10:17, 12:17 UTC
   workflow_dispatch:
     inputs:
       model:

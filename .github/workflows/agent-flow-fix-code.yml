@@ -7,6 +7,9 @@
 
 name: agent-flow-fix-code
 run-name: "agent-flow-fix-code [${{ github.ref_name }}]"
+concurrency:
+  group: agentic-lib-fix-${{ github.event.check_suite.head_branch || inputs.pr-number || github.ref_name }}
+  cancel-in-progress: true
 
 on:
   check_suite:

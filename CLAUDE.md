@@ -43,6 +43,64 @@ A **template repository** that demonstrates the agentic-lib workflows. Starting 
 - `src/lib/main.js` — main functionality, modified by the agentic workflow
 - `tests/unit/` — unit tests to keep the main script from drifting
 
+## Distributed Files (CRITICAL — fix at source, not here)
+
+Many files in this repo are **distributed from `agentic-lib`** via `npx agentic-lib init --purge`. Fixing them locally will be overwritten on the next init run. Fix bugs in `agentic-lib/src/` instead.
+
+The `init.yml` workflow runs daily and is the **only workflow maintained locally** (not distributed).
+
+### Workflows → `.github/workflows/`
+
+Source: `agentic-lib/src/workflows/*.yml` + `agentic-lib/src/seeds/test.yml`
+
+| Distributed file | Source in agentic-lib |
+|------------------|-----------------------|
+| `agent-discussions-bot.yml` | `src/workflows/agent-discussions-bot.yml` |
+| `agent-flow-fix-code.yml` | `src/workflows/agent-flow-fix-code.yml` |
+| `agent-flow-maintain.yml` | `src/workflows/agent-flow-maintain.yml` |
+| `agent-flow-review.yml` | `src/workflows/agent-flow-review.yml` |
+| `agent-flow-transform.yml` | `src/workflows/agent-flow-transform.yml` |
+| `agent-supervisor.yml` | `src/workflows/agent-supervisor.yml` |
+| `ci-automerge.yml` | `src/workflows/ci-automerge.yml` |
+| `test.yml` | `src/seeds/test.yml` |
+| `init.yml` | **LOCAL — not distributed** |
+
+### Actions → `.github/agentic-lib/actions/`
+
+Source: `agentic-lib/src/actions/*/` (full directory copy, excluding node_modules)
+
+| Distributed action | Source in agentic-lib |
+|--------------------|-----------------------|
+| `agentic-step/` | `src/actions/agentic-step/` |
+| `commit-if-changed/` | `src/actions/commit-if-changed/` |
+| `setup-npmrc/` | `src/actions/setup-npmrc/` |
+
+### Agents → `.github/agentic-lib/agents/`
+
+Source: `agentic-lib/src/agents/*` (all files copied)
+
+### Seeds → `.github/agentic-lib/seeds/`
+
+Source: `agentic-lib/src/seeds/*` (all files copied)
+
+### Scripts → `.github/agentic-lib/scripts/`
+
+Source: `agentic-lib/src/scripts/` (selected files only)
+
+Distributed: `accept-release.sh`, `activate-schedule.sh`, `clean.sh`, `initialise.sh`, `md-to-html.js`, `update.sh`
+
+### Seed files (purge only) → project root
+
+On `--purge`, these seed files overwrite project root files:
+
+| Seed file | Target |
+|-----------|--------|
+| `zero-main.js` | `src/lib/main.js` |
+| `zero-main.test.js` | `tests/unit/main.test.js` |
+| `zero-MISSION.md` | `MISSION.md` |
+| `zero-package.json` | `package.json` |
+| `zero-README.md` | `README.md` |
+
 ## Related Repositories
 
 | Repository | Relationship |

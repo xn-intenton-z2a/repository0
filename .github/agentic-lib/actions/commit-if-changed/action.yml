@@ -32,8 +32,10 @@ runs:
           git commit -m "${{ inputs.commit-message }}"
           REF="${{ inputs.push-ref }}"
           if [ -n "$REF" ]; then
+            git pull --rebase origin "$REF"
             git push origin "$REF"
           else
+            git pull --rebase
             git push
           fi
         fi
