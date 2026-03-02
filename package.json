@@ -1,16 +1,20 @@
 {
   "name": "@xn-intenton-z2a/repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "Agentic workflow management library for autonomous GitHub operations",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "agentic": "node src/lib/main.js"
   },
-  "keywords": [],
+  "bin": {
+    "agentic": "./src/lib/main.js"
+  },
+  "keywords": ["agentic", "workflows", "github", "automation", "autonomous", "cli"],
   "author": "",
   "license": "MIT",
   "dependencies": {
