@@ -7,6 +7,7 @@
 // - Retrying failed branches/issues beyond configured limits
 // - Writing to paths outside the allowed set
 
+import { resolve } from "path";
 import { logSafetyCheck } from "./logging.js";
 
 /**
@@ -74,10 +75,12 @@ export async function checkAttemptLimit(octokit, repo, issueNumber, branchPrefix
  * @returns {boolean} True if the path is allowed
  */
 export function isPathWritable(targetPath, writablePaths) {
+  const resolvedTarget = resolve(targetPath);
   const writable = writablePaths.some((allowed) => {
-    if (targetPath === allowed) return true;
-    if (allowed.endsWith("/") && targetPath.startsWith(allowed)) return true;
-    if (targetPath.startsWith(allowed + "/")) return true;
+    const resolvedAllowed = resolve(allowed);
+    if (resolvedTarget === resolvedAllowed) return true;
+    if (allowed.endsWith("/") && resolvedTarget.startsWith(resolvedAllowed)) return true;
+    if (resolvedTarget.startsWith(resolvedAllowed + "/")) return true;
     return false;
   });
   logSafetyCheck("path-writable", writable, { targetPath });

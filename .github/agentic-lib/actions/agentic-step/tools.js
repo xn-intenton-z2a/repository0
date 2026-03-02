@@ -58,7 +58,7 @@ export function createAgentTools(writablePaths) {
     handler: ({ path, content }) => {
       const resolved = resolve(path);
       core.info(`[tool] write_file: ${resolved}`);
-      if (!isPathWritable(resolved, writablePaths) && !isPathWritable(path, writablePaths)) {
+      if (!isPathWritable(resolved, writablePaths)) {
         return { error: `Path is not writable: ${path}. Writable paths: ${writablePaths.join(", ")}` };
       }
       try {
