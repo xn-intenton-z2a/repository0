@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // copilot.js — Shared utilities for Copilot SDK task handlers
 //
@@ -20,20 +20,21 @@ import * as core from "@actions/core";
  * Note: Passing githubToken directly to CopilotClient causes 400 on models.list.
  * Instead we override the env vars so the CLI subprocess picks up the right token
  * via its auto-login flow (useLoggedInUser: true).
+ *
+ * @param {string} [githubToken] - Optional token; falls back to COPILOT_GITHUB_TOKEN env var.
  */
-function buildClientOptions() {
-  const copilotToken = process.env.COPILOT_GITHUB_TOKEN;
-  if (copilotToken) {
-    core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
-    const env = { ...process.env };
-    // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
-    // subprocess uses the Copilot PAT for its auto-login flow
-    env.GITHUB_TOKEN = copilotToken;
-    env.GH_TOKEN = copilotToken;
-    return { env };
+export function buildClientOptions(githubToken) {
+  const copilotToken = githubToken || process.env.COPILOT_GITHUB_TOKEN;
+  if (!copilotToken) {
+    throw new Error("COPILOT_GITHUB_TOKEN is required. Set it as a repository secret.");
   }
-  core.info("[copilot] No COPILOT_GITHUB_TOKEN — using default auth");
-  return {};
+  core.info("[copilot] COPILOT_GITHUB_TOKEN found — overriding subprocess env");
+  const env = { ...process.env };
+  // Override both GITHUB_TOKEN and GH_TOKEN so the Copilot CLI
+  // subprocess uses the Copilot PAT for its auto-login flow
+  env.GITHUB_TOKEN = copilotToken;
+  env.GH_TOKEN = copilotToken;
+  return { env };
 }
 
 /**
@@ -45,14 +46,15 @@ function buildClientOptions() {
  * @param {string} options.systemMessage - System message content
  * @param {string} options.prompt - The prompt to send
  * @param {string[]} options.writablePaths - Paths the agent may modify
+ * @param {string} [options.githubToken] - Optional token; falls back to COPILOT_GITHUB_TOKEN env var.
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
-export async function runCopilotTask({ model, systemMessage, prompt, writablePaths }) {
+export async function runCopilotTask({ model, systemMessage, prompt, writablePaths, githubToken }) {
   core.info(
     `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`,
   );
 
-  const clientOptions = buildClientOptions();
+  const clientOptions = buildClientOptions(githubToken);
   const client = new CopilotClient(clientOptions);
 
   try {
@@ -112,7 +114,8 @@ export function readOptionalFile(filePath, limit) {
   try {
     const content = readFileSync(filePath, "utf8");
     return limit ? content.substring(0, limit) : content;
-  } catch {
+  } catch (err) {
+    core.debug(`[readOptionalFile] ${filePath}: ${err.message}`);
     return "";
   }
 }
@@ -141,7 +144,8 @@ export function scanDirectory(dirPath, extensions, options = {}) {
       try {
         const content = readFileSync(`${dirPath}${f}`, "utf8");
         return { name: f, content: contentLimit ? content.substring(0, contentLimit) : content };
-      } catch {
+      } catch (err) {
+        core.debug(`[scanDirectory] ${dirPath}${f}: ${err.message}`);
         return { name: f, content: "" };
       }
     });

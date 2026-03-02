@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/maintain-library.js — Library and knowledge management
 //
@@ -17,14 +17,14 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
 export async function maintainLibrary(context) {
   const { config, instructions, writablePaths, model } = context;
 
-  const sources = readOptionalFile(config.paths.librarySourcesFilepath?.path || "SOURCES.md");
+  const sources = readOptionalFile(config.paths.librarySources.path);
   if (!sources.trim()) {
     core.info("No sources found. Returning nop.");
     return { outcome: "nop", details: "No SOURCES.md or empty" };
   }
 
-  const libraryPath = config.paths.libraryDocumentsPath?.path || "library/";
-  const libraryLimit = config.paths.libraryDocumentsPath?.limit || 32;
+  const libraryPath = config.paths.library.path;
+  const libraryLimit = config.paths.library.limit;
   const libraryDocs = scanDirectory(libraryPath, ".md", { contentLimit: 500 });
 
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
@@ -44,7 +44,7 @@ export async function maintainLibrary(context) {
     "2. Create or update library documents based on the source content.",
     "3. Remove library documents that no longer have corresponding sources.",
     "",
-    formatPathsSection(writablePaths, config.readOnlyPaths || []),
+    formatPathsSection(writablePaths, config.readOnlyPaths),
     "",
     "## Constraints",
     `- Maximum ${libraryLimit} library documents`,

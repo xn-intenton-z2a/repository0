@@ -2,7 +2,7 @@
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/init.yml
 #
-# Daily lifecycle: update agentic-lib, run init --purge, test, PR, automerge.
+# Daily lifecycle: update agentic-lib, run init, test, PR, automerge.
 # Keeps the repository current with the latest SDK infrastructure.
 
 name: init
@@ -12,12 +12,46 @@ on:
   schedule:
     - cron: "0 5 * * *"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Init mode"
+        type: choice
+        required: false
+        default: "update"
+        options:
+          - update
+          - reseed
+          - purge
+      dry-run:
+        description: "Preview changes without writing files"
+        type: boolean
+        required: false
+        default: false
 
 permissions: write-all
 
 jobs:
-  init:
+  params:
     runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          MODE='${{ inputs.mode }}'
+          echo "mode=${MODE:-update}" >> $GITHUB_OUTPUT
+          DRY_RUN='${{ inputs.dry-run }}'
+          echo "dry-run=${DRY_RUN:-false}" >> $GITHUB_OUTPUT
+    outputs:
+      mode: ${{ steps.normalise.outputs.mode }}
+      dry-run: ${{ steps.normalise.outputs.dry-run }}
+
+  init:
+    needs: params
+    runs-on: ubuntu-latest
+    env:
+      INIT_MODE: ${{ needs.params.outputs.mode }}
+      INIT_DRY_RUN: ${{ needs.params.outputs.dry-run }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,8 +70,13 @@ jobs:
       - name: Update agentic-lib to latest
         run: npm update @xn-intenton-z2a/agentic-lib
 
-      - name: Run init --purge
-        run: npx @xn-intenton-z2a/agentic-lib init --purge
+      - name: Run init
+        run: |
+          FLAGS="init"
+          if [ "$INIT_MODE" = "reseed" ]; then FLAGS="$FLAGS --reseed"; fi
+          if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge"; fi
+          if [ "$INIT_DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
+          npx @xn-intenton-z2a/agentic-lib $FLAGS
 
       - run: npm install
 
@@ -53,7 +92,7 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
-          git commit -m "init --purge (agentic-lib@${VERSION})"
+          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
           git push origin "$BRANCH"
 
       - name: Create PR
@@ -62,8 +101,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           gh pr create \
-            --title "init --purge ($(date -u +%Y-%m-%d))" \
-            --body "Nightly init --purge. Auto-labelled for automerge." \
+            --title "init ${INIT_MODE} ($(date -u +%Y-%m-%d))" \
+            --body "Nightly init ${INIT_MODE}. Auto-labelled for automerge." \
             --label automerge \
             --base main \
             --head "$BRANCH"

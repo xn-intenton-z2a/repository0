@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // safety.js — WIP limits, attempt tracking, and path enforcement
 //
@@ -37,20 +37,16 @@ export async function checkWipLimit(octokit, repo, label, limit) {
  * @param {import('@actions/github').GitHub} octokit - GitHub API client
  * @param {Object} repo - { owner, repo } identifying the repository
  * @param {string|number} issueNumber - The issue number
- * @param {string} branchPrefix - Branch naming prefix (e.g. 'agentic-lib-issue-')
+ * @param {string} branchPrefix - Branch naming prefix (e.g. 'agentic-lib-')
  * @returns {Promise<number>} Number of branches matching the pattern
  */
 export async function countBranchAttempts(octokit, repo, issueNumber, branchPrefix) {
   const pattern = `${branchPrefix}${issueNumber}`;
-  try {
-    const { data: refs } = await octokit.rest.git.listMatchingRefs({
-      ...repo,
-      ref: `heads/${pattern}`,
-    });
-    return refs.length;
-  } catch {
-    return 0;
-  }
+  const { data: refs } = await octokit.rest.git.listMatchingRefs({
+    ...repo,
+    ref: `heads/${pattern}`,
+  });
+  return refs.length;
 }
 
 /**

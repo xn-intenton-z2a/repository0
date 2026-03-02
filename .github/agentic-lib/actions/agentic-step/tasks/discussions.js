@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
 // tasks/discussions.js — GitHub Discussions bot
 //
@@ -27,6 +27,7 @@ export async function discussions(context) {
   let discussionTitle = "";
   let discussionBody = "";
   let discussionComments = [];
+  let discussionNodeId = "";
 
   if (urlMatch) {
     const [, urlOwner, urlRepo, discussionNumber] = urlMatch;
@@ -34,6 +35,7 @@ export async function discussions(context) {
       const query = `query {
         repository(owner: "${urlOwner}", name: "${urlRepo}") {
           discussion(number: ${discussionNumber}) {
+            id
             title
             body
             comments(last: 10) {
@@ -48,6 +50,7 @@ export async function discussions(context) {
       }`;
       const result = await octokit.graphql(query);
       const discussion = result.repository.discussion;
+      discussionNodeId = discussion.id || "";
       discussionTitle = discussion.title || "";
       discussionBody = discussion.body || "";
       discussionComments = discussion.comments.nodes || [];
@@ -61,16 +64,16 @@ export async function discussions(context) {
     core.warning(`Could not parse discussion URL: ${discussionUrl}`);
   }
 
-  const mission = readOptionalFile(config.paths.missionFilepath?.path || "MISSION.md");
-  const contributing = readOptionalFile(config.paths.contributingFilepath?.path || "CONTRIBUTING.md", 1000);
+  const mission = readOptionalFile(config.paths.mission.path);
+  const contributing = readOptionalFile(config.paths.contributing.path, 1000);
 
-  const featuresPath = config.paths.featuresPath?.path || "features/";
+  const featuresPath = config.paths.features.path;
   let featureNames = [];
   if (existsSync(featuresPath)) {
     featureNames = scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""));
   }
 
-  const intentionPath = config.intentionBot?.intentionFilepath || "intentïon.md";
+  const intentionPath = config.intentionBot.intentionFilepath;
   const recentActivity = readOptionalFile(intentionPath).split("\n").slice(-20).join("\n");
 
   const agentInstructions = instructions || "Respond to the GitHub Discussion as the repository bot.";
@@ -127,6 +130,28 @@ export async function discussions(context) {
   const replyBody = content.replace(/\[ACTION:\S+?\].+/, "").trim();
 
   core.info(`Discussion bot action: ${action}, arg: ${actionArg}`);
+
+  // Post reply comment back to the Discussion
+  if (discussionNodeId && replyBody) {
+    try {
+      const mutation = `mutation($discussionId: ID!, $body: String!) {
+        addDiscussionComment(input: { discussionId: $discussionId, body: $body }) {
+          comment { url }
+        }
+      }`;
+      const { addDiscussionComment } = await octokit.graphql(mutation, {
+        discussionId: discussionNodeId,
+        body: replyBody,
+      });
+      core.info(`Posted reply to discussion: ${addDiscussionComment.comment.url}`);
+    } catch (err) {
+      core.warning(`Failed to post discussion reply: ${err.message}`);
+    }
+  } else if (!discussionNodeId) {
+    core.warning("Cannot post reply: discussion node ID not available");
+  } else if (!replyBody) {
+    core.warning("Cannot post reply: no reply content generated");
+  }
 
   const argSuffix = actionArg ? ` (${actionArg})` : "";
   return {

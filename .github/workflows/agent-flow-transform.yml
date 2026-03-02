@@ -67,7 +67,7 @@ jobs:
           CONFIG="${{ env.configPath }}"
           SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG")
           TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG")
-          FEATURES=$(yq -r '.paths.featuresPath.path // ".github/agentic-lib/features/"' "$CONFIG")
+          FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
           DOCS=$(yq -r '.paths.documentationPath.path // "docs/"' "$CONFIG")
           LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
           SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
