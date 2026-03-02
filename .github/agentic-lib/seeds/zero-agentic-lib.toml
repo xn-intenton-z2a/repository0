@@ -6,16 +6,20 @@
 # Place it at the root of your project.
 
 [schedule]
-tier = "schedule-1"       # schedule-1 through schedule-4
+tier = "schedule-1"               # schedule-1 through schedule-4
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
 source = "src/lib/"
 tests = "tests/unit/"
 features = "features/"
+library = "library/"
 docs = "docs/"
 readme = "README.md"
 dependencies = "package.json"
+contributing = "CONTRIBUTING.md"
+library-sources = "SOURCES.md"
 
 [execution]
 build = "npm run build"
@@ -27,6 +31,8 @@ feature-issues = 2
 maintenance-issues = 1
 attempts-per-branch = 3
 attempts-per-issue = 2
+features-limit = 4
+library-limit = 32
 
 [bot]
 log-file = "intentïon.md"

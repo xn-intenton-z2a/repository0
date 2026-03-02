@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
+# .github/workflows/agent-supervisor-schedule.yml
+#
+# Changes the agent-supervisor's cron schedule by editing the workflow file
+# directly and pushing to main. This is the control plane for how often
+# the supervisor runs proactively.
+
+name: agent-supervisor-schedule
+run-name: "agent-supervisor-schedule → ${{ inputs.frequency }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      frequency:
+        description: "How often the supervisor should run"
+        required: true
+        type: choice
+        options:
+          - "off"
+          - "weekly"
+          - "daily"
+          - "hourly"
+          - "continuous"
+
+permissions:
+  contents: write
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Update supervisor schedule
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const frequency = '${{ inputs.frequency }}';
+            const workflowPath = '.github/workflows/agent-supervisor.yml';
+
+            const SCHEDULE_MAP = {
+              off: null,
+              weekly: '0 6 * * 1',
+              daily: '0 6 * * *',
+              hourly: '0 * * * *',
+              continuous: '*/10 * * * *',
+            };
+
+            let content = fs.readFileSync(workflowPath, 'utf8');
+            const cron = SCHEDULE_MAP[frequency];
+
+            // Remove any existing schedule block (between 'on:' triggers)
+            // The schedule block looks like:
+            //   schedule:
+            //     - cron: "..."
+            content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
+
+            if (cron) {
+              // Insert schedule block after the 'on:' line
+              const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
+              // Insert before workflow_run or workflow_dispatch (whichever comes first after 'on:')
+              content = content.replace(
+                /\non:\n/,
+                `\non:${scheduleBlock}`
+              );
+            }
+
+            fs.writeFileSync(workflowPath, content);
+            core.info(`Updated supervisor schedule to: ${frequency} (cron: ${cron || 'none'})`);
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          FREQUENCY="${{ inputs.frequency }}"
+          git add .github/workflows/agent-supervisor.yml
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "supervisor: set schedule to ${FREQUENCY}"
+          git push origin main
