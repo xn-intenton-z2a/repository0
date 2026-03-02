@@ -2,13 +2,17 @@
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agent-supervisor.yml
 #
-# Reactive orchestration — triggers workflows based on telemetry.
-# Watches all agentic workflows and takes corrective or follow-up actions:
-#   - Failed builds on PR branches → dispatch fix-code (with loop protection)
-#   - Successful merges → dispatch transform to pick up next issue
-#   - Discussion bot actions → dispatch maintain or transform as follow-up
-#   - Stale issues → dispatch review
-#   - Stale conflicting PRs → remove automerge label
+# Supervisor: reactive + proactive orchestration.
+#
+# Two modes:
+#   1. Reactive (evaluate job): Hardcoded fast-path responses to workflow events.
+#      - Failed builds on PR branches → dispatch fix-code (with loop protection)
+#      - Stale conflicting PRs → remove automerge label
+#
+#   2. Proactive (supervise job): LLM-driven strategic decisions via agentic-step.
+#      - Gathers full repo context (issues, PRs, workflows, features, activity)
+#      - Chooses actions: dispatch workflows, create/label/close issues, respond to discussions
+#      - Runs on workflow_dispatch or schedule (set via agent-supervisor-schedule.yml)
 
 name: agent-supervisor
 run-name: "agent-supervisor [${{ github.ref_name }}]"
@@ -18,30 +22,52 @@ on:
     workflows:
       - test
       - agent-flow-transform
-      - agent-flow-maintain
       - agent-flow-fix-code
-      - agent-flow-review
-      - agent-discussions-bot
       - ci-automerge
     types:
       - completed
   workflow_dispatch:
+    inputs:
+      model:
+        description: "Copilot SDK model to use"
+        type: choice
+        required: false
+        default: "claude-sonnet-4"
+        options:
+          - claude-sonnet-4
+          - gpt-5-mini
+          - gpt-4.1
 
 permissions:
   actions: write
   contents: read
-  issues: read
+  issues: write
   pull-requests: write
   checks: read
+  discussions: write
 
 env:
   maxFixAttempts: "3"
-  staleDays: "14"
   stalePrDays: "3"
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-claude-sonnet-4}" >> $GITHUB_OUTPUT
+    outputs:
+      model: ${{ steps.normalise.outputs.model }}
+
+  # ─── Reactive: fast-path responses to workflow events ─────────────────
   evaluate:
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_run'
     steps:
       - name: Check telemetry and dispatch
         uses: actions/github-script@v7
@@ -55,7 +81,6 @@ jobs:
             const branch = workflowRun?.head_branch || '';
             const isAgenticBranch = branch && !['main', 'master'].includes(branch);
             const maxFixAttempts = parseInt(process.env.maxFixAttempts) || 3;
-            const staleDays = parseInt(process.env.staleDays) || 14;
             const stalePrDays = parseInt(process.env.stalePrDays) || 3;
 
             core.info(`Supervisor: workflow="${workflowName}" conclusion="${conclusion}" branch="${branch}"`);
@@ -74,7 +99,6 @@ jobs:
                   const pr = prs[0];
                   const prNumber = pr.number;
 
-                  // Count prior fix-code runs for this branch to prevent infinite loops
                   const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
                     owner, repo,
                     workflow_id: 'agent-flow-fix-code.yml',
@@ -109,76 +133,7 @@ jobs:
               core.warning(`Fix-code dispatch failed: ${err.message}`);
             }
 
-            // ─── 2. Successful merge → dispatch transform for next issue ──────────
-
-            try {
-              if (workflowName === 'ci-automerge' && conclusion === 'success') {
-                core.info('Automerge succeeded. Dispatching transform to pick up next issue.');
-                await github.rest.actions.createWorkflowDispatch({
-                  owner, repo,
-                  workflow_id: 'agent-flow-transform.yml',
-                  ref: 'main',
-                });
-              }
-            } catch (err) {
-              core.warning(`Post-merge transform dispatch failed: ${err.message}`);
-            }
-
-            // ─── 3. Discussion bot follow-through ─────────────────────────────────
-
-            try {
-              if (workflowName === 'agent-discussions-bot' && conclusion === 'success') {
-                // Check the most recent run's jobs for the outcome
-                const runId = workflowRun.id;
-                const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
-                  owner, repo, run_id: runId,
-                });
-                const respondJob = jobs.jobs.find(j => j.name === 'respond');
-                if (respondJob) {
-                  // Look through step names/outputs for action indicators
-                  const steps = respondJob.steps || [];
-                  const agenticStep = steps.find(s => s.name === 'Respond to discussion');
-                  if (agenticStep && agenticStep.conclusion === 'success') {
-                    core.info('Discussion bot completed. Dispatching maintain to pick up any new features.');
-                    await github.rest.actions.createWorkflowDispatch({
-                      owner, repo,
-                      workflow_id: 'agent-flow-maintain.yml',
-                      ref: 'main',
-                    });
-                  }
-                }
-              }
-            } catch (err) {
-              core.warning(`Discussion bot follow-through failed: ${err.message}`);
-            }
-
-            // ─── 4. Stale issues → dispatch review ────────────────────────────────
-
-            try {
-              const { data: issues } = await github.rest.issues.listForRepo({
-                owner, repo, state: 'open',
-                labels: 'automated',
-                sort: 'updated',
-                direction: 'asc',
-                per_page: 5,
-              });
-
-              const cutoff = new Date(Date.now() - staleDays * 24 * 60 * 60 * 1000);
-              const staleIssues = issues.filter(i => new Date(i.updated_at) < cutoff);
-
-              if (staleIssues.length > 0) {
-                core.info(`Found ${staleIssues.length} stale issue(s). Dispatching review.`);
-                await github.rest.actions.createWorkflowDispatch({
-                  owner, repo,
-                  workflow_id: 'agent-flow-review.yml',
-                  ref: 'main',
-                });
-              }
-            } catch (err) {
-              core.warning(`Stale issue check failed: ${err.message}`);
-            }
-
-            // ─── 5. Stale conflicting PRs → remove automerge label ────────────────
+            // ─── 2. Stale conflicting PRs → remove automerge label ────────────────
 
             try {
               const { data: openPRs } = await github.rest.pulls.list({
@@ -196,7 +151,6 @@ jobs:
                 const isStale = new Date(pr.updated_at) < prCutoff;
                 if (!isStale) continue;
 
-                // Fetch full PR to get mergeable_state
                 const { data: fullPr } = await github.rest.pulls.get({
                   owner, repo, pull_number: pr.number,
                 });
@@ -217,3 +171,30 @@ jobs:
             } catch (err) {
               core.warning(`Stale PR check failed: ${err.message}`);
             }
+
+  # ─── Proactive: LLM-driven strategic decisions ───────────────────────
+  supervise:
+    needs: params
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Run supervisor
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "supervise"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
+          model: ${{ needs.params.outputs.model }}
