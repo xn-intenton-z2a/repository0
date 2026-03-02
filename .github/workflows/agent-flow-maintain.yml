@@ -73,7 +73,8 @@ jobs:
           push-ref: ${{ github.ref_name }}
 
   maintain-library:
-    if: inputs.step == 'all' || inputs.step == 'library' || github.event_name == 'schedule'
+    needs: maintain-features
+    if: always() && (inputs.step == 'all' || inputs.step == 'library' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
