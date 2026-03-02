@@ -1,17 +1,28 @@
 {
   "name": "@xn-intenton-z2a/repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "GitHub Workflow Orchestration Toolkit - Agentic workflows for autonomous code management",
   "type": "module",
   "main": "src/lib/main.js",
+  "bin": {
+    "agentic-lib": "src/lib/main.js"
+  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "github-actions",
+    "workflow-orchestration",
+    "automation",
+    "agentic",
+    "ci-cd",
+    "code-management",
+    "cli"
+  ],
+  "author": "Polycode Limited",
   "license": "MIT",
   "dependencies": {
     "@xn-intenton-z2a/agentic-lib": "^7.1.2"
