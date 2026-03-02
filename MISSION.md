@@ -1,11 +1,13 @@
-# Mission
+# repository0
 
-Create an intelligent code analyzer that helps developers understand and improve their codebases using agentic intelligence.
+**owl-builder** is a JavaScript library and CLI tool designed to:
+- Hold constants for the URLs of free open public data sources.
+- Crawl these open public data sources via APIs or web crawling to capture data as JSON files.
+- Transform JSON files and capture data into OWL ontologies.
+- Read and write and OWL ontologies as JSON files.
+- Provide examples tools for querying OWL ontologies stored as JSON via a CLI with an ESJ like syntax.
+- Include CLI variations on this example: node src/lib/main.js --capital-cities (yielding OWL as JSON file showing capital cities).
+- Showcase all the features of the library in the README.md file.
 
-This tool will:
-- Analyze JavaScript/Node.js projects for structure and patterns
-- Provide insights about code complexity, dependencies, and potential improvements
-- Demonstrate how agentic workflows can evolve software to be more intelligent and helpful
-- Serve as a foundation for building more sophisticated developer tools
-
-The agentic workflows will evolve `src/lib/main.js` to become increasingly sophisticated at code analysis and developer assistance.
+owl-builder is a CLI tool which will facilitate the creation of OWL ontologies from public data sources,
+and to provide a set of tools for managing the OWL ontologies in a JSON format.
