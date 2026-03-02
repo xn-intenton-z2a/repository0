@@ -6,7 +6,9 @@
 
 name: agent-flow-review
 run-name: "agent-flow-review [${{ github.ref_name }}]"
-concurrency: agentic-lib-main
+concurrency:
+  group: agentic-lib-review
+  cancel-in-progress: true
 
 on:
   schedule:

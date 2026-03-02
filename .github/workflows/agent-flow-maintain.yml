@@ -7,7 +7,9 @@
 
 name: agent-flow-maintain
 run-name: "agent-flow-maintain [${{ github.ref_name }}]"
-concurrency: agentic-lib-main
+concurrency:
+  group: agentic-lib-maintain
+  cancel-in-progress: true
 
 on:
   schedule:

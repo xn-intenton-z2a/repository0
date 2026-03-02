@@ -116,9 +116,9 @@ npm test          # Unit tests
 
 ## Git Workflow
 
-**You may**: create branches, commit changes, push branches, open pull requests
+**You may**: create branches, commit changes, push branches, push to main, open pull requests
 
-**You may NOT** (without explicit permission on a command by command basis given immediately before execution): merge PRs, push to main, delete branches, rewrite history
+**You may NOT** (without explicit permission on a command by command basis given immediately before execution): merge PRs, delete branches, rewrite history
 
 **Branch naming**: `claude/<short-description>`
 

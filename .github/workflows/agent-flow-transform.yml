@@ -7,7 +7,9 @@
 
 name: agent-flow-transform
 run-name: "agent-flow-transform [${{ github.ref_name }}]"
-concurrency: agentic-lib-main
+concurrency:
+  group: agentic-lib-transform
+  cancel-in-progress: true
 
 on:
   schedule:
