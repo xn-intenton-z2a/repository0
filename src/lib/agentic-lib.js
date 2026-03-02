@@ -19,8 +19,16 @@ export class AgenticLib {
       githubToken: options.githubToken || process.env.GITHUB_TOKEN,
       repository: options.repository || this.detectRepository(),
       owner: options.owner || this.detectOwner(),
+      demoMode: options.demoMode || false,
       ...options,
     };
+
+    // Auto-detect demo mode if token has insufficient permissions
+    if (this.options.githubToken && !this.options.demoMode) {
+      this.options.demoMode = false; // Will be set to true if API calls fail
+    } else if (!this.options.githubToken) {
+      this.options.demoMode = true;
+    }
 
     // Initialize core components
     this.github = new GitHubIntegration(this.options);
@@ -48,10 +56,23 @@ export class AgenticLib {
   async initialize() {
     console.log(`Initializing agentic-lib for ${this.options.owner}/${this.options.repository}`);
     
-    // Ensure communication channels are set up
-    await this.communication.initialize();
-    
-    return this;
+    try {
+      // Ensure communication channels are set up
+      await this.communication.initialize();
+      return this;
+    } catch (error) {
+      // If initialization fails due to permissions, enable demo mode
+      if (error.message.includes("403") || error.message.includes("not accessible")) {
+        console.log("⚠️  GitHub API permissions insufficient, enabling demo mode");
+        this.options.demoMode = true;
+        this.github.demoMode = true;
+        
+        // Retry initialization in demo mode
+        await this.communication.initialize();
+        return this;
+      }
+      throw error;
+    }
   }
 
   /**

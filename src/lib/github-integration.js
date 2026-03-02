@@ -14,9 +14,11 @@ export class GitHubIntegration {
     this.owner = options.owner;
     this.repo = options.repository;
     this.baseURL = options.baseURL || "https://api.github.com";
+    this.demoMode = options.demoMode || false;
     
     if (!this.token) {
       console.warn("GitHub token not provided. Some functionality may be limited.");
+      this.demoMode = true;
     }
   }
 
@@ -173,6 +175,12 @@ export class GitHubIntegration {
    */
   async getAgenticIssues(state = "open") {
     try {
+      // Return empty array in demo mode (no token or insufficient permissions)
+      if (this.demoMode || !this.token) {
+        console.log("ℹ️  Demo mode: returning empty agentic issues list");
+        return [];
+      }
+
       const issues = await this.request(`/repos/${this.owner}/${this.repo}/issues?labels=agentic&state=${state}`);
       return issues.map(issue => ({
         number: issue.number,

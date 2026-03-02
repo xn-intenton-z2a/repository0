@@ -49,18 +49,35 @@ export class WorkflowOrchestrator {
       // Create agentic branch for this workflow if needed
       if (config.createBranch !== false) {
         const branchName = `agentic/${config.type}-${workflowId}`;
-        workflow.branch = await this.github.createBranch(branchName, {
-          purpose: `workflow-${config.type}`,
-        });
+        
+        // Skip branch creation in demo mode
+        if (this.github.demoMode || !this.github.token) {
+          console.log(`Demo mode: skipping branch creation for ${branchName}`);
+          workflow.branch = { name: branchName, sha: "demo", purpose: `workflow-${config.type}` };
+        } else {
+          workflow.branch = await this.github.createBranch(branchName, {
+            purpose: `workflow-${config.type}`,
+          });
+        }
       }
 
       // Create tracking issue if needed
       if (config.createIssue !== false) {
-        workflow.issue = await this.github.createIssue(
-          `Agentic Workflow: ${config.type}`,
-          this.generateWorkflowDescription(config),
-          ["agentic", "workflow", config.type]
-        );
+        // Skip issue creation in demo mode
+        if (this.github.demoMode || !this.github.token) {
+          console.log(`Demo mode: skipping issue creation for workflow ${workflowId}`);
+          workflow.issue = { 
+            number: Math.floor(Math.random() * 1000), 
+            title: `Demo Workflow: ${config.type}`, 
+            body: this.generateWorkflowDescription(config) 
+          };
+        } else {
+          workflow.issue = await this.github.createIssue(
+            `Agentic Workflow: ${config.type}`,
+            this.generateWorkflowDescription(config),
+            ["agentic", "workflow", config.type]
+          );
+        }
       }
 
       workflow.status = "running";

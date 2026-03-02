@@ -1,17 +1,32 @@
 {
-  "name": "repo",
+  "name": "@xn-intenton-z2a/repository0",
   "version": "0.1.0",
-  "description": "",
+  "description": "Autonomous GitHub workflow orchestration library enabling AI-driven code evolution through intelligent workflow composition and communication protocols",
   "type": "module",
   "main": "src/lib/main.js",
+  "bin": {
+    "agentic": "src/lib/main.js"
+  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "demo": "node src/lib/main.js demo",
+    "init": "node src/lib/main.js init"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "agentic",
+    "autonomous", 
+    "github-actions",
+    "workflow-orchestration",
+    "ai",
+    "automation",
+    "github-api",
+    "communication-protocol",
+    "ci-cd"
+  ],
+  "author": "Polycode Limited",
   "license": "MIT",
   "dependencies": {
     "@xn-intenton-z2a/agentic-lib": "^7.1.22"
@@ -22,5 +37,13 @@
   },
   "engines": {
     "node": ">=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xn-intenton-z2a/repository0.git"
+  },
+  "homepage": "https://github.com/xn-intenton-z2a/repository0#readme",
+  "bugs": {
+    "url": "https://github.com/xn-intenton-z2a/repository0/issues"
   }
 }

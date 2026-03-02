@@ -23,6 +23,14 @@ export class CommunicationProtocol {
   async initialize() {
     console.log("Initializing agentic communication protocol...");
     
+    // Skip GitHub integration in demo mode (no token or insufficient permissions)
+    if (this.github.demoMode || !this.github.token) {
+      console.log("ℹ️  Running in demo mode - GitHub integration disabled");
+      this.hubIssue = { number: 1, title: "Demo Hub", body: "Demo communication hub" };
+      console.log(`Communication hub initialized: Demo Issue #${this.hubIssue.number}`);
+      return;
+    }
+    
     // Create main communication issue if it doesn't exist
     const existingIssues = await this.github.getAgenticIssues();
     const commIssue = existingIssues.find(issue => 
@@ -65,6 +73,12 @@ export class CommunicationProtocol {
         this.messageQueue.set(channel, []);
       }
       this.messageQueue.get(channel).push(messageData);
+
+      // Skip GitHub integration in demo mode
+      if (this.github.demoMode || !this.github.token) {
+        console.log(`Sent agentic message ${messageId} to channel '${channel}' (demo mode)`);
+        return messageData;
+      }
 
       // Post message to communication hub issue
       const comment = this.formatMessage(messageData);
@@ -133,6 +147,19 @@ export class CommunicationProtocol {
     }
 
     try {
+      // Skip GitHub integration in demo mode
+      if (this.github.demoMode || !this.github.token) {
+        const demoChannel = { 
+          number: Math.floor(Math.random() * 1000), 
+          title: `Demo Channel: ${channelName}`, 
+          body: description 
+        };
+        this.channels.set(channelName, demoChannel);
+        this.messageQueue.set(channelName, []);
+        console.log(`Created agentic communication channel: ${channelName} (demo mode)`);
+        return demoChannel;
+      }
+
       const channelIssue = await this.github.createIssue(
         `Agentic Channel: ${channelName}`,
         description || `Communication channel for agentic workflows: ${channelName}`,
