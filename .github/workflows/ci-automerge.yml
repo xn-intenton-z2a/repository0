@@ -12,6 +12,11 @@ run-name: "ci-automerge [${{ github.ref_name }}]"
 on:
   pull_request:
   check_suite:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
   workflow_dispatch:
   workflow_call:
     inputs:
@@ -148,7 +153,12 @@ jobs:
 
   ls:
     needs: label
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || inputs.workflow == 'true' || github.event_name == 'workflow_call' || github.event_name == 'workflow_run'
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_run' ||
+      inputs.workflow == 'true' ||
+      github.event_name == 'workflow_call'
     runs-on: ubuntu-latest
     steps:
       - name: Determine pull request number
@@ -346,18 +356,21 @@ jobs:
               message = `Branch '${pullRequest.head.ref}' deleted.`;
               prMerged = 'true';
             } else if (pullRequest.mergeable_state === 'dirty' || pullRequest.mergeable === false) {
-              message = `PR #${pullNumber} has conflicts. Closing.`;
+              message = `PR #${pullNumber} has conflicts. Removing automerge label.`;
+              try {
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: pullNumber, name: 'automerge',
+                });
+              } catch (e) {
+                core.info(`Could not remove automerge label: ${e.message}`);
+              }
               await github.rest.issues.createComment({
                 owner, repo, issue_number: pullNumber,
-                body: `This pull request is being closed due to conflicts (mergeable_state: ${pullRequest.mergeable_state}, mergeable: ${pullRequest.mergeable}).`,
+                body: `Automerge label removed — this PR has conflicts (mergeable_state: ${pullRequest.mergeable_state}). Resolve conflicts and re-add the label to retry.`,
               });
-              await github.rest.pulls.update({ owner, repo, pull_number: pullNumber, state: "closed" });
-              try {
-                await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pullRequest.head.ref}` });
-                message += ` Branch '${pullRequest.head.ref}' deleted.`;
-              } catch (error) {
-                message += ` Failed to delete branch: ${error.message}`;
-              }
+              prMerged = 'false';
+            } else if (pullRequest.mergeable_state === 'unstable') {
+              message = `PR #${pullNumber} checks still running (mergeable_state: unstable). Will retry when test workflow completes.`;
               prMerged = 'false';
             } else if (pullRequest.mergeable === null) {
               message = `PR #${pullNumber} does not yet have a value for mergeability.`;
