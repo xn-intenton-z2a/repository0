@@ -1,7 +1,7 @@
 {
-  "name": "@xn-intenton-z2a/plot-code-lib",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "A JavaScript library and CLI tool for generating plots from mathematical expressions",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
@@ -10,14 +10,11 @@
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
-  "keywords": ["plotting", "mathematics", "cli", "expressions", "time-series"],
-  "author": "Polycode Limited",
+  "keywords": [],
+  "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.29",
-    "canvas": "^3.2.1",
-    "d3": "^7.9.0",
-    "mathjs": "^15.1.1"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.29"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
