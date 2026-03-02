@@ -4,64 +4,61 @@
 
 A JavaScript library that enables autonomous GitHub workflows to communicate, coordinate, and manage code through structured protocols. Built on GitHub's native infrastructure using issues as communication channels and branches for workflow isolation.
 
-## 🚀 Quick Start
+## ⚡ Immediate Usage
 
-Install and run immediately:
+**Test it now without installation:**
 
 ```bash
-npx @xn-intenton-z2a/repo --help
+npx @xn-intenton-z2a/repo help
 ```
 
-## 📋 Available Commands
+**Set up in your repository (requires GitHub token):**
 
-### Initialize Agentic System
-Set up communication hub and workflow infrastructure:
 ```bash
+export GITHUB_TOKEN="your_github_token_here"
 npx @xn-intenton-z2a/repo init
-```
-
-### Create Workflows
-Start autonomous workflows for different tasks:
-```bash
 npx @xn-intenton-z2a/repo create-workflow review
-npx @xn-intenton-z2a/repo create-workflow fix
-npx @xn-intenton-z2a/repo create-workflow transform
-npx @xn-intenton-z2a/repo create-workflow maintain
-```
-
-### Send Messages
-Communicate through the agentic system:
-```bash
-npx @xn-intenton-z2a/repo send-message "Build completed successfully" --channel status
-npx @xn-intenton-z2a/repo send-message "Critical error in deployment" --channel errors --type error
-```
-
-### Check System Status
-Monitor active workflows and system health:
-```bash
 npx @xn-intenton-z2a/repo status
 ```
+
+**That's it!** Your repository now has autonomous workflow orchestration.
+
+## 📋 CLI Commands Reference
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `init` | Initialize agentic system | `npx @xn-intenton-z2a/repo init` |
+| `create-workflow <type>` | Create workflow | `npx @xn-intenton-z2a/repo create-workflow review` |
+| `send-message <msg>` | Send communication | `npx @xn-intenton-z2a/repo send-message "Build done" --channel status` |
+| `status` | Show system status | `npx @xn-intenton-z2a/repo status` |
+| `help` | Show all commands | `npx @xn-intenton-z2a/repo help` |
+
+### Workflow Types
+- **`review`** - Automated code review and analysis
+- **`fix`** - Issue detection and automated fixes  
+- **`transform`** - Code refactoring and transformation
+- **`maintain`** - Repository maintenance and optimization
 
 ## 🔧 Core Features
 
 ### 🗣️ Communication Protocol
-- **GitHub Issue-based messaging** - Uses issues as persistent communication channels
-- **Channel system** - Organize messages by purpose (status, errors, coordination)
-- **Message types** - Support for info, warning, error, success, and coordination messages
-- **Metadata tracking** - Automatic timestamps, sender identification, and message IDs
+- **Issue-based messaging** - Persistent communication via GitHub Issues
+- **Channel system** - Organized by purpose (status, errors, coordination)
+- **Metadata tracking** - Timestamps, senders, message types, IDs
+- **Real-time updates** - Comments posted automatically to relevant issues
 
 ### 🎭 Workflow Orchestration  
-- **Dynamic workflow creation** - Generate workflows on-demand with GitHub integration
-- **Branch management** - Automatic branch creation for workflow isolation
-- **Issue tracking** - Each workflow gets a dedicated tracking issue
-- **Status monitoring** - Real-time workflow status updates and health checks
-- **Composition patterns** - Combine multiple workflows for complex tasks
+- **Dynamic workflow creation** - Generate workflows on-demand
+- **Branch isolation** - Each workflow gets its own branch
+- **Issue tracking** - Dedicated tracking issues with status updates
+- **Composition patterns** - Combine workflows for complex automation
+- **Status monitoring** - Real-time workflow health and progress
 
 ### 🐙 GitHub Integration
-- **Native API integration** - Full GitHub REST API support with authentication
-- **Repository auto-detection** - Works seamlessly in GitHub Actions environment
-- **Branch operations** - Create, manage, and coordinate across branches
-- **Issue management** - Automated issue creation, updates, and commenting
+- **Native API support** - Full GitHub REST API with authentication
+- **Actions environment** - Auto-detects repository and token in CI/CD
+- **Branch management** - Automated branch creation and coordination
+- **Issue automation** - Create, update, comment on issues programmatically
 
 ## 🔐 Authentication
 
@@ -73,33 +70,35 @@ export GITHUB_TOKEN="your_github_token_here"
 
 In GitHub Actions, this is automatically available as `${{ secrets.GITHUB_TOKEN }}` or use a Personal Access Token for more permissions.
 
-## 📖 Example Workflows
+## 🚀 Quick Examples
 
 ### Basic Repository Setup
 ```bash
-# Initialize the agentic system
+# Initialize the system and create your first workflow
 npx @xn-intenton-z2a/repo init
-
-# Create a code review workflow
 npx @xn-intenton-z2a/repo create-workflow review
-
-# Send status update
-npx @xn-intenton-z2a/repo send-message "Repository initialized successfully" --channel status --type success
+npx @xn-intenton-z2a/repo send-message "System ready!" --channel status --type success
 ```
 
 ### CI/CD Integration
-```bash
-# In your GitHub Actions workflow
-- name: Initialize Agentic System
-  run: npx @xn-intenton-z2a/repo init
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-- name: Create Fix Workflow
-  run: npx @xn-intenton-z2a/repo create-workflow fix
+```yaml
+# .github/workflows/agentic.yml
+- name: Create Review Workflow
+  run: npx @xn-intenton-z2a/repo create-workflow review
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+### Programmatic Usage
+```javascript
+import { AgenticLib } from "@xn-intenton-z2a/repo";
+
+const agentic = new AgenticLib();
+await agentic.initialize();
+await agentic.createWorkflow({ type: "review" });
+```
+
+**📁 More examples in [`examples/`](examples/) directory**
 
 ## 🏗️ Architecture
 

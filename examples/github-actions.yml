@@ -1,0 +1,184 @@
+name: Agentic Workflow Integration Example
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  initialize-agentic-system:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Initialize Agentic System
+        run: npx @xn-intenton-z2a/repo init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Build Status
+        run: |
+          npx @xn-intenton-z2a/repo send-message \
+            "Build started for ${{ github.ref_name }}" \
+            --channel status \
+            --type info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  code-review-workflow:
+    needs: initialize-agentic-system
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create Review Workflow
+        run: npx @xn-intenton-z2a/repo create-workflow review --branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Send Review Results
+        run: |
+          if [ $? -eq 0 ]; then
+            npx @xn-intenton-z2a/repo send-message \
+              "All tests passed for PR #${{ github.event.pull_request.number }}" \
+              --channel status \
+              --type success
+          else
+            npx @xn-intenton-z2a/repo send-message \
+              "Tests failed for PR #${{ github.event.pull_request.number }}" \
+              --channel errors \
+              --type error
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  automated-maintenance:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create Maintenance Workflow
+        run: npx @xn-intenton-z2a/repo create-workflow maintain
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Dependencies
+        run: |
+          npm audit --audit-level=high
+          if [ $? -ne 0 ]; then
+            npx @xn-intenton-z2a/repo send-message \
+              "Security vulnerabilities detected in dependencies" \
+              --channel errors \
+              --type warning
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  workflow-coordination:
+    runs-on: ubuntu-latest
+    needs: [code-review-workflow, automated-maintenance]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Check System Status
+        run: npx @xn-intenton-z2a/repo status
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send Completion Status
+        run: |
+          npx @xn-intenton-z2a/repo send-message \
+            "Agentic workflow coordination completed for ${{ github.sha }}" \
+            --channel coordination \
+            --type success
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Example of conditional workflow creation based on file changes
+  transform-workflow:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'src/')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create Transform Workflow
+        run: |
+          npx @xn-intenton-z2a/repo create-workflow transform \
+            --branch \
+            --issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify about code transformation
+        run: |
+          npx @xn-intenton-z2a/repo send-message \
+            "Code transformation workflow triggered by changes in src/" \
+            --channel status \
+            --type info
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Error handling example
+  error-handling:
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [initialize-agentic-system, code-review-workflow, automated-maintenance]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Report workflow failure
+        run: |
+          npx @xn-intenton-z2a/repo send-message \
+            "Workflow failed for ${{ github.ref_name }} at ${{ github.sha }}" \
+            --channel errors \
+            --type error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
