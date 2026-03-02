@@ -13,7 +13,7 @@ inputs:
   task:
     description: >
       The task to perform. One of: resolve-issue, fix-code, transform, maintain-features,
-      maintain-library, enhance-issue, review-issue, discussions
+      maintain-library, enhance-issue, review-issue, discussions, supervise
     required: true
   config:
     description: "Path to agentic-lib.yml configuration file"
