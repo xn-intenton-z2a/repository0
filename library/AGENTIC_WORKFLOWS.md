@@ -3,10 +3,10 @@
 ## Table of Contents
 
 1. **AgenticLib Core Class Architecture** - Main SDK entry point with auto-detection and initialization
-2. **GitHub Integration Layer** - Authenticated API requests, branch management, and issue handling
+2. **GitHub Integration Layer** - Authenticated API requests, branch management, and issue handling  
 3. **Workflow Orchestrator System** - Lifecycle management, composition, and state tracking
 4. **Communication Protocol Implementation** - Inter-workflow messaging through GitHub issues
-5. **CLI Tool Integration** - Command-line interface and binary distribution
+5. **CLI Tool Integration** - Command-line interface with argument processing
 6. **Environment Detection** - Repository and owner auto-discovery mechanisms
 7. **Error Handling Patterns** - Comprehensive error management and recovery strategies
 
@@ -46,9 +46,9 @@ Channel management allows createChannel() for topic-specific communication strea
 
 ### CLI Tool Integration
 
-The main.js entry point provides command-line interface functionality with process.argv parsing and JSON argument logging. The implementation includes shebang declaration for direct execution and fileURLToPath comparison for module detection.
+The main.js entry point provides basic command-line interface functionality with process.argv parsing and JSON argument logging. The implementation includes shebang declaration for direct execution and fileURLToPath comparison for module detection to allow both import and direct execution modes.
 
-Package configuration includes binary distribution through agentic CLI command, ES module type declaration, and Node.js version requirement specification. The build process utilizes echo commands for zero-build deployment with Vitest testing integration.
+Package configuration specifies ES module type with Node.js 24.0.0+ requirement and main entry point targeting src/lib/main.js. Development uses Vitest testing framework with coverage reporting through @vitest/coverage-v8 integration.
 
 ### Environment Detection
 
@@ -242,15 +242,15 @@ AGENTIC_CHANNEL: Default communication channel name
 
 This technical documentation was extracted from the agentic workflow management system source code on 2026-03-02, encompassing comprehensive implementation details for autonomous GitHub workflow coordination. The system provides a complete SDK for managing workflow lifecycles through GitHub API integration, enabling workflows to communicate through branches and issues for autonomous operation coordination.
 
-The core architecture implements a layered approach with AgenticLib as the main interface, GitHubIntegration for API operations, WorkflowOrchestrator for lifecycle management, and CommunicationProtocol for inter-workflow messaging. Each component provides specific functionality while maintaining loose coupling and comprehensive error handling.
+The actual implementation reveals a functional agentic workflow management library with AgenticLib as the main interface (117 lines), GitHubIntegration for authenticated GitHub API operations (208 lines), WorkflowOrchestrator for comprehensive workflow lifecycle management (250 lines), and CommunicationProtocol for inter-workflow messaging through GitHub issues (286 lines). The main CLI entry point is currently a basic argument logger (16 lines) suitable for extension.
 
-Key implementation patterns include environment variable detection for GitHub context, Map-based state management for workflow tracking, issue-based communication channels for workflow coordination, and comprehensive error handling with automatic recovery mechanisms. The system supports both programmatic API usage and command-line interface operation through binary distribution.
+Key implementation patterns include GITHUB_REPOSITORY environment variable parsing for context detection, Map-based storage for workflow and message queue management, GitHub issues and branches for persistent workflow communication, comprehensive try-catch error handling with console logging, and fetch-based GitHub API integration with token authentication. The system provides singleton pattern support and full async/await implementation throughout.
 
 ## Attribution and Data Size
 
-**Source Document:** SOURCES.md - Agentic Workflow Management Library Architecture
-**Content Retrieved:** 2026-03-02T07:50:00.208Z
-**Implementation Files:** 5 core JavaScript modules (main.js, agentic-lib.js, github-integration.js, workflow-orchestrator.js, communication-protocol.js)
-**Total Source Lines:** 625+ lines of implementation code
-**Test Coverage:** 44+ unit tests across 4 test files
-**Package Configuration:** Complete npm package with CLI binary and ES module support
+**Source Document:** SOURCES.md - Agentic Workflow Management Library Architecture and actual implementation files
+**Content Retrieved:** 2026-03-02T08:41:06.343Z
+**Implementation Files:** 5 core JavaScript modules with complete working implementations
+**Total Source Lines:** 877 lines of production code (main.js: 16, agentic-lib.js: 117, github-integration.js: 208, workflow-orchestrator.js: 250, communication-protocol.js: 286)
+**Dependencies:** @xn-intenton-z2a/agentic-lib v7.1.19, Vitest v4.0.0 for testing
+**Package Configuration:** ES module with Node.js 24.0.0+ requirement and MIT licensing
