@@ -9,6 +9,8 @@ const mockGitHub = {
   createBranch: vi.fn(),
   createIssue: vi.fn(),
   addComment: vi.fn(),
+  demoMode: false, // Set to false for normal tests
+  token: "test-token", // Provide a test token
 };
 
 describe("WorkflowOrchestrator", () => {
