@@ -20,6 +20,7 @@ import { maintainLibrary } from "./tasks/maintain-library.js";
 import { enhanceIssue } from "./tasks/enhance-issue.js";
 import { reviewIssue } from "./tasks/review-issue.js";
 import { discussions } from "./tasks/discussions.js";
+import { supervise } from "./tasks/supervise.js";
 
 const TASKS = {
   "resolve-issue": resolveIssue,
@@ -30,6 +31,7 @@ const TASKS = {
   "enhance-issue": enhanceIssue,
   "review-issue": reviewIssue,
   "discussions": discussions,
+  "supervise": supervise,
 };
 
 async function run() {
