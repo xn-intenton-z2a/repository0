@@ -33,7 +33,20 @@ env:
   configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-claude-sonnet-4}" >> $GITHUB_OUTPUT
+    outputs:
+      model: ${{ steps.normalise.outputs.model }}
+
   transform:
+    needs: params
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +85,7 @@ jobs:
           config: ${{ env.configPath }}
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
           test-command: "npm test"
-          model: ${{ inputs.model || 'claude-sonnet-4' }}
+          model: ${{ needs.params.outputs.model }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push changes

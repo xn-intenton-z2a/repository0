@@ -31,8 +31,21 @@ env:
   configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
 jobs:
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          STEP='${{ inputs.step }}'
+          echo "step=${STEP:-all}" >> $GITHUB_OUTPUT
+    outputs:
+      step: ${{ steps.normalise.outputs.step }}
+
   review-issues:
-    if: inputs.step == 'all' || inputs.step == 'review' || github.event_name == 'schedule'
+    needs: params
+    if: needs.params.outputs.step == 'all' || needs.params.outputs.step == 'review'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +69,8 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-review-issue.md"
 
   enhance-issues:
-    if: inputs.step == 'all' || inputs.step == 'enhance' || github.event_name == 'schedule'
+    needs: params
+    if: needs.params.outputs.step == 'all' || needs.params.outputs.step == 'enhance'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
