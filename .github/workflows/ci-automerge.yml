@@ -25,7 +25,7 @@ on:
 
 env:
   pullRequestLabel: "automerge"
-  branchPrefix: "agentic-lib-issue-"
+  branchPrefix: "agentic-lib-"
   copilotBranchPrefix: "copilot/"
 
 jobs:
@@ -240,7 +240,7 @@ jobs:
               branchName = pullRequest.head.ref;
               core.info(`branchName '${branchName}'`);
 
-              // Extract issue number from branch name (supports agentic-lib-issue-* and copilot/* prefixes)
+              // Extract issue number from branch name (supports agentic-lib-* and copilot/* prefixes)
               let issueNumberMatch = '';
               if (branchName.startsWith(branchPrefix)) {
                 issueNumberMatch = branchName.replace(branchPrefix, '');
