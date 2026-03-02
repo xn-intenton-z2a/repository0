@@ -118,7 +118,7 @@ npm test          # Unit tests
 
 **You may**: create branches, commit changes, push branches, open pull requests
 
-**You may NOT**: merge PRs, push to main, delete branches, rewrite history
+**You may NOT** (without explicit permission on a command by command basis given immediately before execution): merge PRs, push to main, delete branches, rewrite history
 
 **Branch naming**: `claude/<short-description>`
 
