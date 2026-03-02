@@ -45,13 +45,11 @@ A **template repository** that demonstrates the agentic-lib workflows. Starting 
 
 ## Distributed Files (CRITICAL — fix at source, not here)
 
-Many files in this repo are **distributed from `agentic-lib`** via `npx agentic-lib init --purge`. Fixing them locally will be overwritten on the next init run. Fix bugs in `agentic-lib/src/` instead.
-
-The `init.yml` workflow runs daily and is the **only workflow maintained locally** (not distributed).
+All files in this repo except user content are **distributed from `agentic-lib`** via `npx @xn-intenton-z2a/agentic-lib init --purge`. Fixing them locally will be overwritten on the next init run. Fix bugs in `agentic-lib/src/` instead.
 
 ### Workflows → `.github/workflows/`
 
-Source: `agentic-lib/src/workflows/*.yml` + `agentic-lib/src/seeds/test.yml`
+Source: `agentic-lib/src/workflows/*.yml` + `agentic-lib/src/seeds/{test,init}.yml`
 
 | Distributed file | Source in agentic-lib |
 |------------------|-----------------------|
@@ -63,7 +61,7 @@ Source: `agentic-lib/src/workflows/*.yml` + `agentic-lib/src/seeds/test.yml`
 | `agent-supervisor.yml` | `src/workflows/agent-supervisor.yml` |
 | `ci-automerge.yml` | `src/workflows/ci-automerge.yml` |
 | `test.yml` | `src/seeds/test.yml` |
-| `init.yml` | **LOCAL — not distributed** |
+| `init.yml` | `src/seeds/init.yml` |
 
 ### Actions → `.github/agentic-lib/actions/`
 
