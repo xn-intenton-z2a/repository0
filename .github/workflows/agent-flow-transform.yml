@@ -7,11 +7,13 @@
 
 name: agent-flow-transform
 run-name: "agent-flow-transform [${{ github.ref_name }}]"
-concurrency: agentic-lib-main
+concurrency:
+  group: agentic-lib-transform
+  cancel-in-progress: true
 
 on:
   schedule:
-    - cron: "17 6,8,10,12 * * *" # 06:17, 08:17, 10:17, 12:17 UTC
+    - cron: '23 */11 * * *'
   workflow_dispatch:
     inputs:
       model:

@@ -31,11 +31,30 @@ runs:
         else
           git commit -m "${{ inputs.commit-message }}"
           REF="${{ inputs.push-ref }}"
-          if [ -n "$REF" ]; then
-            git pull --rebase origin "$REF"
-            git push origin "$REF"
-          else
-            git pull --rebase
-            git push
-          fi
+          MAX_RETRIES=3
+          for attempt in $(seq 1 $MAX_RETRIES); do
+            if [ -n "$REF" ]; then
+              git pull --rebase origin "$REF" || {
+                echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
+                git rebase --abort 2>/dev/null || true
+                sleep $((attempt * 2))
+                continue
+              }
+              git push origin "$REF" && break
+            else
+              git pull --rebase || {
+                echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
+                git rebase --abort 2>/dev/null || true
+                sleep $((attempt * 2))
+                continue
+              }
+              git push && break
+            fi
+            if [ "$attempt" -eq "$MAX_RETRIES" ]; then
+              echo "::error::Failed to push after $MAX_RETRIES attempts"
+              exit 1
+            fi
+            echo "Push failed on attempt $attempt, retrying..."
+            sleep $((attempt * 2))
+          done
         fi
