@@ -12,7 +12,7 @@
 #   2. Proactive (supervise job): LLM-driven strategic decisions via agentic-step.
 #      - Gathers full repo context (issues, PRs, workflows, features, activity)
 #      - Chooses actions: dispatch workflows, create/label/close issues, respond to discussions
-#      - Runs on workflow_dispatch or schedule (set via agent-supervisor-schedule.yml)
+#      - Runs on every trigger (workflow_run, workflow_dispatch, schedule)
 
 name: agent-supervisor
 run-name: "agent-supervisor [${{ github.ref_name }}]"
@@ -175,7 +175,7 @@ jobs:
   # ─── Proactive: LLM-driven strategic decisions ───────────────────────
   supervise:
     needs: params
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: always() && needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

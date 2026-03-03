@@ -1,30 +1,20 @@
 {
-  "name": "@xn-intenton-z2a/plot-code-lib",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "Mathematical expression plotting library and CLI tool - the jq of formulae visualisations",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
-  "bin": {
-    "plot-code": "src/lib/main.js"
-  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
-  "keywords": [
-    "plotting",
-    "mathematics",
-    "visualization",
-    "cli",
-    "svg",
-    "expressions"
-  ],
-  "author": "Polycode Limited",
+  "keywords": [],
+  "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.30"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.31"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
