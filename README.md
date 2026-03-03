@@ -251,6 +251,66 @@ plot-code-lib -e "x^3 - 6*x^2 + 9*x + 1" -r "x=-2:5" -o examples/cubic.svg
 
 This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. The system generates issues, writes code, runs tests, and opens pull requests based on the project mission.
 
+## Documentation
+
+### 📚 Complete Documentation
+
+- **[CLI Examples](./docs/CLI_EXAMPLES.md)** - Comprehensive command-line usage examples and tutorials
+- **[API Reference](./docs/API.md)** - Complete JavaScript library API documentation  
+- **[Expression Syntax](./docs/EXPRESSIONS.md)** - Mathematical expression syntax reference and examples
+
+### 🚀 Quick Reference
+
+**Basic Commands:**
+```bash
+# Standard function plot
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg
+
+# Parametric curve
+plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.png
+
+# With custom styling
+plot-code-lib plot -e "x^2" -r "x=-3:3" -o parabola.svg \
+  --title "Quadratic Function" --width 1200 --height 800
+```
+
+**Supported Expression Syntax:**
+- **Functions:** `sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `abs`, etc.
+- **Operators:** `+`, `-`, `*`, `/`, `^`, `%`
+- **Constants:** `pi`, `e`, `phi`, `tau`
+- **Complex:** `sin(x) * exp(-x/5)`, `x >= 0 ? x : -x`
+
+**Range Specifications:**
+- `x=0:10` - 100 points from 0 to 10
+- `x=0:2*pi:0.01` - Custom step size
+- `t=-pi:pi` - Using mathematical constants
+
+## Examples Gallery
+
+Generate these example plots to explore plot-code-lib capabilities:
+
+```bash
+# Mathematical Functions
+plot-code-lib plot -e "sin(x) * exp(-x/5)" -r "x=0:15" -o damped_sine.svg --title "Damped Sine Wave"
+plot-code-lib plot -e "exp(-x^2/2) / sqrt(2*pi)" -r "x=-4:4" -o gaussian.svg --title "Gaussian Distribution"
+
+# Parametric Art
+plot-code-lib parametric -x "16*sin(t)^3" -y "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)" -r "t=0:2*pi" -o heart.svg --title "Heart Curve"
+plot-code-lib parametric -x "cos(5*t)*cos(t)" -y "cos(5*t)*sin(t)" -r "t=0:pi" -o rose.svg --title "Rose Curve"
+
+# Scientific Plots
+plot-code-lib plot -e "sin(x^2)" -r "x=0:5" -o chirp.svg --title "Chirp Signal"
+plot-code-lib plot -e "1/(1 + exp(-x))" -r "x=-6:6" -o sigmoid.svg --title "Sigmoid Function"
+```
+
+## Performance & Features
+
+- **⚡ Fast Rendering:** Optimized D3.js pipeline with Sharp PNG conversion
+- **🎯 Precision:** Handles complex mathematical expressions with domain validation
+- **📊 Flexible:** Standard functions, parametric curves, and custom ranges
+- **🔧 Extensible:** Full JavaScript API for programmatic use
+- **📐 Standards:** GeoJSON coordinate data, MathJS expressions, SVG/PNG output
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and contribution guidelines.
