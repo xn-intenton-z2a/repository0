@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .plot-line { fill: none; stroke: #2563eb; stroke-width: 2px; }
+      .axis { stroke: #666; stroke-width: 1px; }
+      .grid { stroke: #e5e7eb; stroke-width: 0.5px; }
+      .axis-label { font-family: Arial, sans-serif; font-size: 12px; fill: #374151; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1f2937; text-anchor: middle; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#ffffff"/>
+  
+  <!-- Grid lines -->
+  <line x1="60" y1="40" x2="60" y2="540" class="grid"/>
+  <line x1="200" y1="40" x2="200" y2="540" class="grid"/>
+  <line x1="340" y1="40" x2="340" y2="540" class="grid"/>
+  <line x1="480" y1="40" x2="480" y2="540" class="grid"/>
+  <line x1="620" y1="40" x2="620" y2="540" class="grid"/>
+  <line x1="760" y1="40" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="540" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="440" x2="760" y2="440" class="grid"/>
+  <line x1="60" y1="340" x2="760" y2="340" class="grid"/>
+  <line x1="60" y1="240" x2="760" y2="240" class="grid"/>
+  <line x1="60" y1="140" x2="760" y2="140" class="grid"/>
+  <line x1="60" y1="40" x2="760" y2="40" class="grid"/>
+  
+  <!-- Axes -->
+  <line x1="60" y1="540" x2="760" y2="540" class="axis"/>
+  <line x1="60" y1="40" x2="60" y2="540" class="axis"/>
+  
+  <!-- Axis labels -->
+  <text x="60" y="560" class="axis-label">-6.9</text>
+  <text x="200" y="560" class="axis-label">-4.1</text>
+  <text x="340" y="560" class="axis-label">-1.4</text>
+  <text x="480" y="560" class="axis-label">1.4</text>
+  <text x="620" y="560" class="axis-label">4.1</text>
+  <text x="760" y="560" class="axis-label">6.9</text>
+  <text x="50" y="545" class="axis-label" text-anchor="end">-1.1</text>
+  <text x="50" y="445" class="axis-label" text-anchor="end">-0.7</text>
+  <text x="50" y="345" class="axis-label" text-anchor="end">-0.2</text>
+  <text x="50" y="245" class="axis-label" text-anchor="end">0.2</text>
+  <text x="50" y="145" class="axis-label" text-anchor="end">0.7</text>
+  <text x="50" y="45" class="axis-label" text-anchor="end">1.1</text>
+  
+  <!-- Plot line -->
+  <path d="M 91.82 62.73 L 98.18 64.61 L 104.55 70.04 L 110.91 78.94 L 117.27 91.16 L 123.64 106.52 L 130.00 124.76 L 136.36 145.61 L 142.73 168.74 L 149.09 193.77 L 155.45 220.32 L 161.82 247.97 L 168.18 276.28 L 174.55 304.81 L 180.91 333.10 L 187.27 360.71 L 193.64 387.21 L 200.00 412.18 L 206.36 435.23 L 212.73 455.98 L 219.09 474.12 L 225.45 489.36 L 231.82 501.46 L 238.18 510.23 L 244.55 515.53 L 250.91 517.27 L 257.27 515.44 L 263.64 510.05 L 270.00 501.20 L 276.36 489.01 L 282.73 473.70 L 289.09 455.49 L 295.45 434.67 L 301.82 411.57 L 308.18 386.56 L 314.55 360.02 L 320.91 332.39 L 327.27 304.08 L 333.64 275.56 L 340.00 247.26 L 346.36 219.63 L 352.73 193.11 L 359.09 168.12 L 365.45 145.05 L 371.82 124.27 L 378.18 106.09 L 384.55 90.81 L 390.91 78.67 L 397.27 69.86 L 403.64 64.52 L 410.00 62.73 L 416.36 64.52 L 422.73 69.86 L 429.09 78.67 L 435.45 90.81 L 441.82 106.09 L 448.18 124.27 L 454.55 145.05 L 460.91 168.12 L 467.27 193.11 L 473.64 219.63 L 480.00 247.26 L 486.36 275.56 L 492.73 304.08 L 499.09 332.39 L 505.45 360.02 L 511.82 386.56 L 518.18 411.57 L 524.55 434.67 L 530.91 455.49 L 537.27 473.70 L 543.64 489.01 L 550.00 501.20 L 556.36 510.05 L 562.73 515.44 L 569.09 517.27 L 575.45 515.53 L 581.82 510.23 L 588.18 501.46 L 594.55 489.36 L 600.91 474.12 L 607.27 455.98 L 613.64 435.23 L 620.00 412.18 L 626.36 387.21 L 632.73 360.71 L 639.09 333.10 L 645.45 304.81 L 651.82 276.28 L 658.18 247.97 L 664.55 220.32 L 670.91 193.77 L 677.27 168.74 L 683.64 145.61 L 690.00 124.76 L 696.36 106.52 L 702.73 91.16 L 709.09 78.94 L 715.45 70.04 L 721.82 64.61 L 728.18 62.73" class="plot-line"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" class="title">Cosine Wave</text>
+</svg>
