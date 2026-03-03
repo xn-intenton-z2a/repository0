@@ -1,79 +1,178 @@
-# repo
+# plot-code-lib
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+_"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
 
-## Getting Started
+A JavaScript library and CLI tool for generating mathematical plots from expressions. Transform mathematical expressions into beautiful visualizations with simple commands.
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+## Features
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
+- 🧮 **Mathematical Expression Parser**: Support for variables, functions (sin, cos, tan, log, exp, sqrt, abs), and complex expressions
+- 📊 **Time Series Generation**: Convert mathematical expressions into data points over specified ranges
+- 🖥️ **Command Line Interface**: Simple CLI for generating plots from the terminal
+- 📈 **Multiple Output Formats**: SVG and PNG support (SVG implemented, PNG in development)
+- 🎯 **High Precision**: Built-in mathematical function library with proper operator precedence
 
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
-```
-
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-feature-issues = 2      # max concurrent feature issues
-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+## Installation
 
 ```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
+npm install plot-code-lib
 ```
 
-## Links
+## Usage
 
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+### Command Line Interface
+
+Generate plots directly from the command line:
+
+```bash
+# Basic sine wave
+node src/lib/main.js --expr "sin(x)" --range "-3.14:3.14"
+
+# Quadratic function
+node src/lib/main.js --expr "x^2 + 2*x + 1" --range "-3:3"
+
+# Logarithmic function
+node src/lib/main.js --expr "log(x)" --range "0.1:10"
+
+# Complex expression with multiple functions
+node src/lib/main.js --expr "sin(x) + cos(x)" --range "-6:6"
+```
+
+### CLI Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `--expr` | Mathematical expression | `"sin(x)"`, `"x^2 + 2*x + 1"` |
+| `--range` | Range for x values | `"-1:1"`, `"0:10:0.1"` |
+| `--output` | Output file name | `"plot.svg"`, `"graph.png"` |
+| `--format` | Output format (svg/png) | `"svg"`, `"png"` |
+
+### Library API
+
+```javascript
+import { parseExpression, evaluateExpression, generateTimeSeries } from 'plot-code-lib';
+
+// Parse and evaluate expressions
+const result = evaluateExpression("2 + 3 * 4"); // Returns 14
+const withVariables = evaluateExpression("x^2 + y", { x: 3, y: 1 }); // Returns 10
+
+// Generate time series data
+const points = generateTimeSeries("sin(x)", -Math.PI, Math.PI, 100);
+// Returns array of {x, y} points
+```
+
+## Supported Mathematical Functions
+
+- **Basic Operators**: `+`, `-`, `*`, `/`, `^` (exponentiation)
+- **Trigonometric**: `sin(x)`, `cos(x)`, `tan(x)`
+- **Logarithmic**: `log(x)`, `ln(x)`, `exp(x)`
+- **Other**: `sqrt(x)`, `abs(x)`, `floor(x)`, `ceil(x)`, `round(x)`
+- **Parentheses**: Full support for grouping and precedence
+
+## Expression Examples
+
+```javascript
+// Linear functions
+"x"                    // Identity function
+"2*x + 1"             // Linear with slope 2, intercept 1
+
+// Polynomial functions  
+"x^2"                  // Quadratic
+"x^3 - 2*x^2 + x"     // Cubic polynomial
+
+// Trigonometric functions
+"sin(x)"               // Basic sine wave
+"2 * sin(x) + 1"      // Amplitude 2, shifted up by 1
+"sin(2*x)"            // Frequency doubled
+"sin(x) + cos(x)"     // Sum of sine and cosine
+
+// Exponential and logarithmic
+"exp(x)"              // Natural exponential
+"log(x)"              // Natural logarithm  
+"2^x"                 // Powers of 2
+
+// Complex expressions
+"sqrt(x^2 + 1)"       // Hyperbola
+"abs(sin(x))"         // Absolute value of sine
+"x * sin(1/x)"        // Oscillating function
+```
+
+## Range Specifications
+
+- **Simple range**: `"0:10"` (from 0 to 10)
+- **With step**: `"0:10:0.5"` (from 0 to 10 in steps of 0.5)
+- **Negative ranges**: `"-5:5"` (from -5 to 5)
+- **Fractional**: `"-3.14:3.14:0.1"` (pi range with small steps)
+
+## Development
+
+Run tests:
+```bash
+npm test
+npm run test:watch  # Watch mode for development
+```
+
+Run with coverage:
+```bash
+npm run test:unit
+```
+
+## Examples
+
+Generate various mathematical plots:
+
+```bash
+# Trigonometric functions
+node src/lib/main.js --expr "sin(x)" --range "-6.28:6.28"
+node src/lib/main.js --expr "cos(x)" --range "-6.28:6.28" 
+node src/lib/main.js --expr "tan(x)" --range "-1.5:1.5"
+
+# Polynomial functions
+node src/lib/main.js --expr "x^2" --range "-3:3"
+node src/lib/main.js --expr "x^3 - 3*x" --range "-2:2"
+
+# Exponential and logarithmic
+node src/lib/main.js --expr "exp(x)" --range "-2:2"
+node src/lib/main.js --expr "log(x)" --range "0.1:10"
+
+# Complex expressions
+node src/lib/main.js --expr "x * sin(10*x)" --range "-1:1"
+node src/lib/main.js --expr "exp(-x^2)" --range "-3:3"  # Gaussian
+```
+
+## Current Status
+
+✅ **Implemented Features:**
+- Mathematical expression parser with full operator precedence
+- Support for all basic mathematical functions
+- Time series data generation
+- Command line interface with argument parsing
+- Comprehensive error handling and validation
+
+🚧 **In Development:**
+- SVG plot rendering and file output
+- PNG export functionality  
+- Advanced plotting options (colors, labels, multiple series)
+- Interactive plot features
+
+## Roadmap
+
+- [ ] SVG plot rendering engine
+- [ ] PNG export via SVG conversion
+- [ ] Multi-series plotting support
+- [ ] Custom styling and theming
+- [ ] Interactive web-based plotting
+- [ ] Additional mathematical functions
+- [ ] Performance optimizations for large datasets
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+**plot-code-lib** - Transform mathematical expressions into beautiful plots with ease.
