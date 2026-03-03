@@ -1,7 +1,7 @@
 # Multi-Expression Plotting
 
 ## Overview
-Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. Transform the current single-expression limitation into a multi-function visualization platform with automatic color differentiation and legend support.
+Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. Enhance the existing single-expression CLI with multi-function capabilities while maintaining command-line simplicity and structured data output.
 
 ## Acceptance Criteria
 

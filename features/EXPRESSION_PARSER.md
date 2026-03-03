@@ -1,42 +1,42 @@
-# Batch Processing System
+# Interactive Data Pipeline
 
 ## Overview
-Enable batch processing of multiple mathematical expressions through file-based input and automated plot generation. Transform plot-code-lib into a production-ready tool supporting bulk visualization workflows while maintaining the Unix pipeline philosophy.
+Enable plot-code-lib to function as a true data pipeline tool by adding streaming input capabilities and structured output formats. Transform the tool into a composable Unix-style filter that accepts mathematical expression queries from stdin and outputs structured data suitable for further processing.
 
 ## Acceptance Criteria
 
-### Batch Command Interface
-New batch command supporting JSON input files: plot-code-lib batch --input expressions.json --output-dir plots/
-JSON configuration format: [{"expression":"sin(x)","range":"x=0:2*pi","output":"sine.svg","title":"Sine Wave"}]
-Support for mixed plot types including standard plots and parametric curves in single batch operation
-Error handling with --continue-on-error flag ensuring robust batch processing workflows
+### Streaming Input Support
+Standard input support for JSON expression queries: echo '{"expression":"sin(x)","range":"x=0:pi"}' | plot-code-lib pipe
+Batch processing from stdin with newline-delimited JSON: cat expressions.jsonl | plot-code-lib pipe --format csv
+Pipeline mode preserving order and enabling real-time processing of streaming mathematical data
+Error isolation ensuring single malformed inputs do not terminate pipeline processing
 
-### Configuration File Format
-Structured JSON input supporting all existing plot options including title, dimensions, and styling
-Individual plot configuration with expression, range, output file, and optional parameters
-Batch validation ensuring all expressions and parameters are valid before processing begins
-Template generation capability: plot-code-lib batch --template > template.json for configuration assistance
+### Structured Query Language
+JSON query format supporting all plot operations: {"expression":"sin(x)","range":"x=0:2*pi","format":"geojson"}
+Query validation with detailed error reporting for malformed mathematical expressions or invalid ranges
+Default parameter inference allowing minimal queries while supporting full parameter specification
+Template query generation: plot-code-lib pipe --template for documentation and automation
 
-### Parallel Processing Support
-Multi-threaded processing for independent expressions improving throughput on multi-core systems
-Progress reporting with completion percentage and error status for large batch operations
-Memory-efficient processing preventing resource exhaustion during large batch runs
-Graceful error recovery allowing batch continuation when individual plots fail
+### Output Format Control
+Structured output in multiple formats: GeoJSON, CSV, and simplified JSON optimized for downstream tools
+Compact output mode removing whitespace for efficient pipeline data transfer
+Metadata inclusion options controlling coordinate precision and expression documentation
+Silent mode suppressing all non-essential output for clean data pipeline integration
 
-### Pipeline Integration
-Standard input support for streaming workflows: cat expressions.json | plot-code-lib batch --stdin
-Structured progress output compatible with shell scripting and automated monitoring systems
-Exit code handling providing clear success/failure indication for automated workflows
-Directory organization with automatic subdirectory creation for complex output structures
+### Unix Philosophy Integration
+Zero-configuration operation with sensible defaults enabling immediate pipeline integration
+Exit code handling providing clear success/failure indication compatible with shell scripting
+Composable design enabling complex workflows: generate | filter | transform | plot patterns
+Performance optimization for high-throughput batch processing supporting real-time mathematical analysis
 
 ## Technical Implementation
-Batch processing engine with JSON schema validation and parallel execution capabilities
-File system management ensuring proper output directory creation and conflict resolution
-Progress monitoring system with structured logging and error categorization
-Worker thread coordination for optimal CPU utilization during batch processing operations
+StreamingProcessor class handling stdin/stdout pipeline operations with buffered input processing
+JSONSchema validation ensuring robust input parsing and comprehensive error reporting
+Output serialization system supporting multiple formats with configurable precision and metadata inclusion
+Error handling pipeline ensuring graceful degradation and appropriate exit code reporting
 
 ## Mission Alignment
-Scales single-expression tool to production batch processing while maintaining command-line simplicity
-Enables automated mathematical documentation and analysis workflows supporting research applications
-Supports jq philosophy with structured input/output and Unix pipeline compatibility
-Provides foundation for enterprise mathematical visualization automation without compromising core mission
+Realizes the jq for mathematical visualization vision with true pipeline data processing capabilities
+Enables integration into automated mathematical documentation and analysis workflows
+Supports command-line composability while maintaining tool simplicity and reliability
+Provides foundation for real-time mathematical data processing without compromising core CLI functionality
