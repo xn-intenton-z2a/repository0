@@ -1,314 +1,700 @@
-# Mathematical Expression Syntax Reference
+# API Documentation
 
-Complete guide to mathematical expressions supported by plot-code-lib.
+**plot-code-lib** provides a comprehensive JavaScript API for mathematical expression plotting and data generation.
 
-## Overview
+## Table of Contents
 
-plot-code-lib uses [Math.js](https://mathjs.org/) for expression parsing, providing comprehensive mathematical functionality with intuitive syntax.
+- [Core Classes](#core-classes)
+  - [ExpressionParser](#expressionparser)
+  - [TimeSeriesGenerator](#timeseriesgenerator)
+  - [PlotGenerator](#plotgenerator)
+  - [PlotCodeLib](#plotcodelib)
+- [Error Handling](#error-handling)
+- [Data Formats](#data-formats)
+- [Examples](#examples)
 
-## Basic Operators
+## Core Classes
 
-| Operator | Description | Example | Result |
-|----------|-------------|---------|--------|
-| `+` | Addition | `x + 2` | Sum |
-| `-` | Subtraction | `x - 1` | Difference |
-| `*` | Multiplication | `2 * x` | Product |
-| `/` | Division | `x / 3` | Quotient |
-| `^` | Exponentiation | `x^2` | Power |
-| `%` | Modulo | `x % 2` | Remainder |
+### ExpressionParser
 
-## Functions
+Parses and compiles mathematical expressions using MathJS with caching for performance.
 
-### Trigonometric Functions
+#### Constructor
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sin(x)` | Sine | All real numbers | [-1, 1] |
-| `cos(x)` | Cosine | All real numbers | [-1, 1] |
-| `tan(x)` | Tangent | x ≠ π/2 + nπ | All real numbers |
-| `asin(x)` | Arcsine | [-1, 1] | [-π/2, π/2] |
-| `acos(x)` | Arccosine | [-1, 1] | [0, π] |
-| `atan(x)` | Arctangent | All real numbers | (-π/2, π/2) |
-| `atan2(y, x)` | Two-argument arctangent | All real numbers | [-π, π] |
+```javascript
+const parser = new ExpressionParser();
+```
+
+#### Methods
+
+##### `parse(expression)`
+
+Parse and compile a mathematical expression.
+
+**Parameters:**
+- `expression` (string): Mathematical expression (e.g., "sin(x)", "x^2 + 2*x + 1")
+
+**Returns:**
+- Function: Compiled function that takes variables object and returns numeric result
+
+**Throws:**
+- Error: If expression syntax is invalid
+
+**Example:**
+```javascript
+const parser = new ExpressionParser();
+const func = parser.parse("sin(x) + cos(2*x)");
+
+// Evaluate at specific points
+console.log(func({ x: 0 }));        // 1
+console.log(func({ x: Math.PI }));  // -1
+console.log(func({ x: Math.PI/2 })); // 1
+```
+
+**Caching Behavior:**
+The parser automatically caches compiled expressions for performance. Subsequent calls with the same expression return the cached function.
+
+```javascript
+const func1 = parser.parse("x^2");
+const func2 = parser.parse("x^2"); 
+console.log(func1 === func2); // true - same cached reference
+```
+
+---
+
+### TimeSeriesGenerator
+
+Generates coordinate data from mathematical expressions and outputs GeoJSON format.
+
+#### Constructor
+
+```javascript
+const generator = new TimeSeriesGenerator(parser);
+```
+
+**Parameters:**
+- `parser` (ExpressionParser): Expression parser instance
+
+#### Methods
+
+##### `parseRange(rangeSpec)`
+
+Parse range specification into components.
+
+**Parameters:**
+- `rangeSpec` (string): Range specification in format "variable=start:end" or "variable=start:end:step"
+
+**Returns:**
+- Object: `{variable: string, start: number, end: number, step: number}`
+
+**Throws:**
+- Error: If range format is invalid or values cannot be evaluated
 
 **Examples:**
-```bash
-# Basic trigonometric functions
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine.svg
-plot-code-lib plot -e "cos(x) + sin(2*x)" -r "x=0:4*pi" -o trig_combo.svg
+```javascript
+const generator = new TimeSeriesGenerator(parser);
 
-# Inverse trigonometric functions
-plot-code-lib plot -e "asin(x)" -r "x=-1:1" -o arcsine.svg
-plot-code-lib plot -e "atan(x)" -r "x=-5:5" -o arctangent.svg
+// Basic range with automatic step (100 points)
+const range1 = generator.parseRange("x=-1:1");
+// Result: {variable: "x", start: -1, end: 1, step: 0.02}
+
+// Custom step size
+const range2 = generator.parseRange("x=0:10:0.5");
+// Result: {variable: "x", start: 0, end: 10, step: 0.5}
+
+// Mathematical expressions in range
+const range3 = generator.parseRange("t=0:2*pi:pi/20");
+// Result: {variable: "t", start: 0, end: 6.283..., step: 0.157...}
 ```
 
-### Hyperbolic Functions
+##### `generate(expression, rangeSpec)`
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sinh(x)` | Hyperbolic sine | All real numbers | All real numbers |
-| `cosh(x)` | Hyperbolic cosine | All real numbers | [1, ∞) |
-| `tanh(x)` | Hyperbolic tangent | All real numbers | (-1, 1) |
-| `asinh(x)` | Inverse hyperbolic sine | All real numbers | All real numbers |
-| `acosh(x)` | Inverse hyperbolic cosine | [1, ∞) | [0, ∞) |
-| `atanh(x)` | Inverse hyperbolic tangent | (-1, 1) | All real numbers |
+Generate coordinate data from expression and range.
 
-**Examples:**
-```bash
-# Hyperbolic functions
-plot-code-lib plot -e "sinh(x)" -r "x=-3:3" -o sinh.svg
-plot-code-lib plot -e "tanh(x)" -r "x=-5:5" -o tanh.svg
+**Parameters:**
+- `expression` (string): Mathematical expression
+- `rangeSpec` (string): Range specification
+
+**Returns:**
+- Object: GeoJSON Feature with LineString geometry
+
+**Throws:**
+- Error: If no valid data points are generated
+
+**Example:**
+```javascript
+const data = generator.generate("sin(x)", "x=0:2*pi:0.1");
+
+console.log(data);
+// {
+//   type: "Feature",
+//   properties: {
+//     expression: "sin(x)",
+//     range: "x=0:2*pi:0.1"
+//   },
+//   geometry: {
+//     type: "LineString", 
+//     coordinates: [[0, 0], [0.1, 0.0998], [0.2, 0.1987], ...]
+//   }
+// }
 ```
 
-### Exponential and Logarithmic Functions
+**Domain Handling:**
+The generator automatically handles mathematical edge cases:
+- Complex numbers are skipped
+- Infinite values (1/0) are skipped  
+- NaN results are skipped
+- Only finite, real coordinates are included
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `exp(x)` | Natural exponential (e^x) | All real numbers | (0, ∞) |
-| `log(x)` | Natural logarithm | (0, ∞) | All real numbers |
-| `log10(x)` | Base-10 logarithm | (0, ∞) | All real numbers |
-| `log2(x)` | Base-2 logarithm | (0, ∞) | All real numbers |
-| `pow(x, y)` | Power function (x^y) | Depends on y | Varies |
+##### `generateParametric(xExpression, yExpression, rangeSpec)`
 
-**Examples:**
-```bash
-# Exponential functions
-plot-code-lib plot -e "exp(x)" -r "x=-2:3" -o exponential.svg
-plot-code-lib plot -e "exp(-x^2/2)" -r "x=-3:3" -o gaussian.svg
+Generate parametric curve data.
 
-# Logarithmic functions  
-plot-code-lib plot -e "log(x)" -r "x=0.1:10" -o logarithm.svg
-plot-code-lib plot -e "log10(x)" -r "x=0.1:100" -o log10.svg
+**Parameters:**
+- `xExpression` (string): X coordinate expression
+- `yExpression` (string): Y coordinate expression  
+- `rangeSpec` (string): Parameter range specification
+
+**Returns:**
+- Object: GeoJSON Feature with parametric metadata
+
+**Throws:**
+- Error: If no valid data points are generated
+
+**Example:**
+```javascript
+// Generate unit circle
+const circle = generator.generateParametric("cos(t)", "sin(t)", "t=0:2*pi");
+
+console.log(circle);
+// {
+//   type: "Feature", 
+//   properties: {
+//     xExpression: "cos(t)",
+//     yExpression: "sin(t)",
+//     range: "t=0:2*pi",
+//     mode: "parametric"
+//   },
+//   geometry: {
+//     type: "LineString",
+//     coordinates: [[1, 0], [0.999, 0.063], ...]
+//   }
+// }
 ```
 
-### Root and Power Functions
+---
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sqrt(x)` | Square root | [0, ∞) | [0, ∞) |
-| `cbrt(x)` | Cube root | All real numbers | All real numbers |
-| `nthRoot(x, n)` | nth root | Depends on n | Varies |
+### PlotGenerator
 
-**Examples:**
-```bash
-# Root functions
-plot-code-lib plot -e "sqrt(x)" -r "x=0:10" -o square_root.svg
-plot-code-lib plot -e "cbrt(x)" -r "x=-8:8" -o cube_root.svg
+Creates SVG and PNG visualizations from GeoJSON coordinate data.
+
+#### Constructor
+
+```javascript
+const plotter = new PlotGenerator();
 ```
 
-### Rounding and Utility Functions
+#### Properties
 
-| Function | Description | Example |
-|----------|-------------|---------|
-| `round(x)` | Round to nearest integer | `round(3.7)` → 4 |
-| `floor(x)` | Round down | `floor(3.7)` → 3 |
-| `ceil(x)` | Round up | `ceil(3.2)` → 4 |
-| `abs(x)` | Absolute value | `abs(-5)` → 5 |
-| `sign(x)` | Sign function | `sign(-3)` → -1 |
-| `max(a, b, ...)` | Maximum value | `max(2, 5, 1)` → 5 |
-| `min(a, b, ...)` | Minimum value | `min(2, 5, 1)` → 1 |
+- `width` (number): Plot width in pixels (default: 800)
+- `height` (number): Plot height in pixels (default: 600)  
+- `margins` (Object): Plot margins `{top, right, bottom, left}` (default: `{top: 40, right: 40, bottom: 60, left: 80}`)
 
-**Examples:**
-```bash
-# Utility functions
-plot-code-lib plot -e "abs(x)" -r "x=-5:5" -o absolute.svg
-plot-code-lib plot -e "sign(x)" -r "x=-3:3" -o sign.svg
-plot-code-lib plot -e "floor(x)" -r "x=-3:3:0.1" -o floor.svg
+#### Methods
+
+##### `setDimensions(width, height)`
+
+Set plot dimensions.
+
+**Parameters:**
+- `width` (number): Plot width in pixels
+- `height` (number): Plot height in pixels
+
+**Example:**
+```javascript
+const plotter = new PlotGenerator();
+plotter.setDimensions(1200, 800);
+
+console.log(plotter.width);  // 1200
+console.log(plotter.height); // 800
 ```
 
-## Mathematical Constants
+##### `generateSVG(geoJsonData, options)`
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `pi` | 3.14159... | Pi (π) |
-| `e` | 2.71828... | Euler's number |
-| `phi` | 1.61803... | Golden ratio |
-| `tau` | 6.28318... | Tau (2π) |
+Generate SVG plot from GeoJSON data.
 
-**Examples:**
-```bash
-# Using constants
-plot-code-lib plot -e "sin(pi * x)" -r "x=0:4" -o sine_pi.svg
-plot-code-lib plot -e "exp(-x) / e" -r "x=0:5" -o exp_normalized.svg
-plot-code-lib plot -e "cos(tau * x)" -r "x=0:2" -o cosine_tau.svg
+**Parameters:**
+- `geoJsonData` (Object): GeoJSON Feature or FeatureCollection
+- `options` (Object): Plot configuration options
+
+**Options:**
+- `title` (string): Plot title
+- `xLabel` (string): X-axis label  
+- `yLabel` (string): Y-axis label
+
+**Returns:**
+- string: SVG markup
+
+**Throws:**
+- Error: If no coordinate data found in GeoJSON
+
+**Example:**
+```javascript
+const geoJson = generator.generate("x^2", "x=-2:2:0.1");
+const options = {
+  title: "Quadratic Function",
+  xLabel: "Input (x)",
+  yLabel: "Output (y)"
+};
+
+const svgString = plotter.generateSVG(geoJson, options);
+console.log(svgString); // "<svg width="800" height="600" ...>...</svg>"
 ```
 
-## Complex Expressions
+**Multi-Series Support:**
+The plotter supports multiple series by passing a FeatureCollection:
 
-### Function Composition
+```javascript
+const series1 = generator.generate("sin(x)", "x=0:2*pi");
+const series2 = generator.generate("cos(x)", "x=0:2*pi"); 
 
-```bash
-# Nested functions
-plot-code-lib plot -e "sin(cos(x))" -r "x=0:2*pi" -o nested_trig.svg
-plot-code-lib plot -e "exp(sin(x))" -r "x=0:4*pi" -o exp_sin.svg
-plot-code-lib plot -e "log(abs(x) + 1)" -r "x=-5:5" -o log_abs.svg
+const multiSeries = {
+  type: "FeatureCollection",
+  features: [series1, series2]
+};
+
+const svg = plotter.generateSVG(multiSeries, {title: "Sine and Cosine"});
 ```
 
-### Polynomial Expressions
+**Automatic Scaling:**
+The plot generator automatically:
+- Calculates optimal axis ranges from data
+- Creates linear scales for X and Y axes
+- Generates axis ticks and labels
+- Uses distinct colors for multiple series
 
-```bash
-# Linear
-plot-code-lib plot -e "2*x + 1" -r "x=-5:5" -o linear.svg
+##### `generatePNG(svgString)`
 
-# Quadratic
-plot-code-lib plot -e "x^2 - 4*x + 3" -r "x=-1:5" -o quadratic.svg
+Convert SVG to PNG format.
 
-# Cubic
-plot-code-lib plot -e "x^3 - 6*x^2 + 9*x + 1" -r "x=-2:5" -o cubic.svg
+**Parameters:**
+- `svgString` (string): SVG markup
 
-# Higher order
-plot-code-lib plot -e "x^4 - 4*x^3 + 6*x^2 - 4*x + 1" -r "x=-1:3" -o quartic.svg
+**Returns:**
+- Promise<Buffer>: PNG image data
+
+**Throws:**
+- Error: If SVG conversion fails
+
+**Example:**
+```javascript
+const svgString = plotter.generateSVG(geoJson, options);
+const pngBuffer = await plotter.generatePNG(svgString);
+
+// Save to file
+import { writeFileSync } from 'fs';
+writeFileSync('plot.png', pngBuffer);
 ```
 
-### Piecewise Functions
+---
 
-Math.js supports conditional expressions using ternary operators:
+### PlotCodeLib
 
-```bash
-# Step function
-plot-code-lib plot -e "x >= 0 ? 1 : 0" -r "x=-2:2" -o step.svg
+Main application class that integrates all components with CLI interface.
 
-# Absolute value (alternative)
-plot-code-lib plot -e "x >= 0 ? x : -x" -r "x=-5:5" -o abs_alt.svg
+#### Constructor
 
-# Piecewise linear
-plot-code-lib plot -e "x < 0 ? -x : x < 2 ? x : 2" -r "x=-3:4" -o piecewise.svg
+```javascript
+const app = new PlotCodeLib();
 ```
 
-### Oscillations and Waves
+Creates instances of ExpressionParser, TimeSeriesGenerator, and PlotGenerator internally.
 
-```bash
-# Damped oscillation
-plot-code-lib plot -e "sin(5*x) * exp(-x/3)" -r "x=0:15" -o damped.svg
+#### Methods
 
-# Beat frequency
-plot-code-lib plot -e "sin(10*x) + sin(10.5*x)" -r "x=0:20*pi" -o beats.svg
+##### `run()`
 
-# Amplitude modulation
-plot-code-lib plot -e "(1 + 0.5*cos(x)) * sin(10*x)" -r "x=0:4*pi" -o am.svg
+Run the CLI application with Commander.js argument parsing.
 
-# Frequency modulation
-plot-code-lib plot -e "sin(10*x + 2*sin(x))" -r "x=0:4*pi" -o fm.svg
+**Returns:**
+- Promise<void>
+
+**Example:**
+```javascript
+const app = new PlotCodeLib();
+await app.run();
 ```
 
-## Parametric Expressions
+**CLI Commands:**
+The `run()` method sets up three main commands:
+- `plot`: Standard function plots
+- `parametric`: Parametric curve plots  
+- `export`: Data export without visualization
 
-For parametric plots, both x and y expressions use the same parameter variable.
+##### `generatePlot(options)`
 
-### Geometric Curves
+Generate a standard function plot.
 
-```bash
-# Circle
-plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg
+**Parameters:**
+- `options` (Object): CLI options object
 
-# Ellipse  
-plot-code-lib parametric -x "3*cos(t)" -y "2*sin(t)" -r "t=0:2*pi" -o ellipse.svg
+**Options:**
+- `expression` (string): Mathematical expression
+- `range` (string): Variable range specification
+- `output` (string): Output file path (.svg or .png)
+- `title` (string, optional): Plot title
+- `width` (string, optional): Plot width (default: "800")
+- `height` (string, optional): Plot height (default: "600")  
+- `xlabel` (string, optional): X-axis label (default: "x")
+- `ylabel` (string, optional): Y-axis label (default: "y")
 
-# Spiral
-plot-code-lib parametric -x "t*cos(t)" -y "t*sin(t)" -r "t=0:4*pi" -o spiral.svg
+**Returns:**
+- Promise<void>
+
+**Throws:**
+- Error: If file extension is not .svg or .png
+
+**Example:**
+```javascript
+const options = {
+  expression: "sin(x)",
+  range: "x=0:2*pi",
+  output: "sine.svg",
+  title: "Sine Wave",
+  width: "1200",
+  height: "800",
+  xlabel: "Angle (rad)",
+  ylabel: "Amplitude"
+};
+
+await app.generatePlot(options);
+console.log("SVG plot saved to sine.svg");
 ```
 
-### Mathematical Curves
+##### `generateParametricPlot(options)`
 
-```bash
-# Lissajous curves
-plot-code-lib parametric -x "sin(3*t)" -y "sin(2*t)" -r "t=0:2*pi" -o lissajous_3_2.svg
-plot-code-lib parametric -x "sin(5*t)" -y "sin(4*t)" -r "t=0:2*pi" -o lissajous_5_4.svg
+Generate a parametric curve plot.
 
-# Rose curves
-plot-code-lib parametric -x "cos(5*t)*cos(t)" -y "cos(5*t)*sin(t)" -r "t=0:2*pi" -o rose_5.svg
+**Parameters:**
+- `options` (Object): CLI options object
 
-# Cardioid
-plot-code-lib parametric -x "(1+cos(t))*cos(t)" -y "(1+cos(t))*sin(t)" -r "t=0:2*pi" -o cardioid.svg
+**Options:**  
+- `xexpr` (string): X coordinate expression
+- `yexpr` (string): Y coordinate expression
+- `range` (string): Parameter range specification
+- `output` (string): Output file path (.svg or .png)
+- `title`, `width`, `height`, `xlabel`, `ylabel`: Same as `generatePlot()`
 
-# Epicycloid
-plot-code-lib parametric -x "5*cos(t) - cos(5*t)" -y "5*sin(t) - sin(5*t)" -r "t=0:2*pi" -o epicycloid.svg
+**Returns:**
+- Promise<void>
+
+**Example:**
+```javascript
+const options = {
+  xexpr: "cos(t)",
+  yexpr: "sin(t)", 
+  range: "t=0:2*pi",
+  output: "circle.svg",
+  title: "Unit Circle"
+};
+
+await app.generateParametricPlot(options);
 ```
 
-### Complex Parametric Functions
+##### `exportData(options)`
 
-```bash
-# Butterfly curve
-plot-code-lib parametric \
-  -x "sin(t) * (exp(cos(t)) - 2*cos(4*t) - sin(t/12)^5)" \
-  -y "cos(t) * (exp(cos(t)) - 2*cos(4*t) - sin(t/12)^5)" \
-  -r "t=0:12*pi" -o butterfly.svg
+Export coordinate data in specified format.
 
-# Heart curve
-plot-code-lib parametric \
-  -x "16*sin(t)^3" \
-  -y "13*cos(t) - 5*cos(2*t) - 2*cos(3*t) - cos(4*t)" \
-  -r "t=0:2*pi" -o heart.svg
+**Parameters:**
+- `options` (Object): CLI options object
+
+**Options:**
+- `expression` (string): Mathematical expression  
+- `range` (string): Variable range specification
+- `output` (string): Output file path
+- `format` (string): Output format ("geojson", "csv", "json")
+
+**Returns:**
+- Promise<void>
+
+**Example:**
+```javascript
+const options = {
+  expression: "x^2",
+  range: "x=-5:5:0.5", 
+  output: "quadratic.csv",
+  format: "csv"
+};
+
+await app.exportData(options);
+console.log("CSV data exported to quadratic.csv");
 ```
 
-## Advanced Techniques
+**Export Formats:**
 
-### Multi-parameter Expressions
+1. **GeoJSON** (default): Standard geographic data format
+   ```json
+   {
+     "type": "Feature",
+     "properties": {"expression": "sin(x)", "range": "x=0:2*pi"},
+     "geometry": {"type": "LineString", "coordinates": [[0,0], [0.1,0.1]]}
+   }
+   ```
 
-While individual plots use single variables, you can create complex behaviors:
+2. **CSV**: Spreadsheet-compatible format
+   ```csv
+   x,y
+   0,0
+   0.1,0.09983341664682815
+   0.2,0.19866933079506122
+   ```
 
-```bash
-# Frequency sweep
-plot-code-lib plot -e "sin(x^2)" -r "x=0:10" -o chirp.svg
+3. **JSON**: Simple coordinate array format
+   ```json
+   {
+     "expression": "sin(x)",
+     "range": "x=0:2*pi", 
+     "data": [[0,0], [0.1,0.0998], [0.2,0.1987]]
+   }
+   ```
 
-# Envelope functions
-plot-code-lib plot -e "sin(x) / (1 + x^2)" -r "x=-10:10" -o envelope.svg
+---
+
+## Error Handling
+
+All classes implement comprehensive error handling:
+
+### ExpressionParser Errors
+
+```javascript
+try {
+  const func = parser.parse("invalid_syntax(");
+} catch (error) {
+  console.error('Parse Error:', error.message);
+  // "Failed to parse expression "invalid_syntax(": Parenthesis ) expected"
+}
 ```
 
-### Scientific Functions
+### TimeSeriesGenerator Errors
 
-```bash
-# Error function approximation
-plot-code-lib plot -e "2/sqrt(pi) * (x - x^3/3 + x^5/10)" -r "x=-2:2" -o erf_approx.svg
-
-# Sinc function
-plot-code-lib plot -e "x == 0 ? 1 : sin(pi*x)/(pi*x)" -r "x=-5:5" -o sinc.svg
-
-# Gaussian distribution
-plot-code-lib plot -e "exp(-x^2/2) / sqrt(2*pi)" -r "x=-4:4" -o normal.svg
+```javascript
+try {
+  const data = generator.generate("sqrt(x)", "x=-5:5");
+} catch (error) {
+  console.error('Generation Error:', error.message);
+  // "No valid data points generated from expression"
+}
 ```
 
-### Expression Validation
+### Range Parsing Errors
 
-Invalid expressions will produce clear error messages:
-
-```bash
-# Syntax errors
-plot-code-lib plot -e "sin(" -r "x=0:1" -o error.svg
-# Error: Parenthesis ) expected
-
-# Undefined functions
-plot-code-lib plot -e "undefined_func(x)" -r "x=0:1" -o error.svg  
-# Error: Undefined symbol undefined_func
-
-# Domain errors handled gracefully
-plot-code-lib plot -e "log(x)" -r "x=-1:1" -o log.svg
-# Invalid points (x <= 0) automatically skipped
+```javascript
+try {
+  const range = generator.parseRange("invalid_range");
+} catch (error) {
+  console.error('Range Error:', error.message);  
+  // "Invalid range format: invalid_range. Use format: variable=start:end or variable=start:end:step"
+}
 ```
 
-## Performance Tips
+### PlotGenerator Errors
 
-### Optimal Expression Structure
-
-```bash
-# Efficient: pre-compute constants
-plot-code-lib plot -e "sin(3.14159*x)" -r "x=0:4" -o efficient.svg
-
-# Better: use built-in constants
-plot-code-lib plot -e "sin(pi*x)" -r "x=0:4" -o better.svg
-
-# Avoid: repeated complex calculations
-plot-code-lib plot -e "sin(sqrt(2)*pi*x)" -r "x=0:4" -o slower.svg
+```javascript
+try {
+  const svg = plotter.generateSVG({geometry: {coordinates: []}});
+} catch (error) {
+  console.error('Plot Error:', error.message);
+  // "No coordinate data found in GeoJSON"
+}
 ```
 
-### Range Optimization
+### PNG Conversion Errors
 
-```bash
-# High resolution for smooth curves
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:0.01" -o smooth.svg
-
-# Lower resolution for faster generation
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:0.1" -o fast.svg
+```javascript
+try {
+  const png = await plotter.generatePNG("invalid_svg");
+} catch (error) {
+  console.error('PNG Error:', error.message);
+  // "Failed to convert SVG to PNG: ..."
+}
 ```
 
-This comprehensive syntax reference enables you to create sophisticated mathematical visualizations using plot-code-lib's expression system.
+---
+
+## Data Formats
+
+### Input Expression Syntax
+
+Uses **MathJS** syntax for maximum compatibility:
+
+```javascript
+// Arithmetic operators
+"x + 2"           // Addition
+"x - 1"           // Subtraction  
+"2 * x"           // Multiplication
+"x / 3"           // Division
+"x ^ 2"           // Exponentiation
+"x % 3"           // Modulo
+
+// Mathematical functions
+"sin(x)"          // Trigonometric
+"exp(x)"          // Exponential
+"log(x)"          // Natural logarithm
+"sqrt(x)"         // Square root
+"abs(x)"          // Absolute value
+
+// Constants
+"pi"              // π ≈ 3.14159
+"e"               // e ≈ 2.71828
+"phi"             // Golden ratio ≈ 1.618
+
+// Complex expressions
+"sin(x) + cos(2*x)"
+"exp(-x^2 / 2) / sqrt(2*pi)"
+"x >= 0 ? x^2 : -x^2"
+```
+
+### Range Specifications
+
+```javascript
+"x=0:10"          // 100 points from 0 to 10
+"x=0:10:0.5"      // Custom step size
+"t=0:2*pi:0.1"    // Using mathematical expressions
+"x=-pi/2:pi/2"    // Negative and fractional values  
+"x=1e-3:1e3"      // Scientific notation
+```
+
+### GeoJSON Output Format
+
+Standard GeoJSON Feature with LineString geometry:
+
+```javascript
+{
+  "type": "Feature",
+  "properties": {
+    "expression": "sin(x)",
+    "range": "x=0:2*pi:0.1"
+    // For parametric: "xExpression", "yExpression", "mode": "parametric"
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [0, 0],                    // [x, y] coordinate pairs
+      [0.1, 0.09983341664682815],
+      [0.2, 0.19866933079506122],
+      // ... more points
+    ]
+  }
+}
+```
+
+---
+
+## Examples
+
+### Basic Programmatic Usage
+
+```javascript
+import { ExpressionParser, TimeSeriesGenerator, PlotGenerator } from 'plot-code-lib';
+
+// Initialize components
+const parser = new ExpressionParser();
+const generator = new TimeSeriesGenerator(parser);
+const plotter = new PlotGenerator();
+
+// Generate function plot
+const data = generator.generate("sin(x) + 0.5*cos(3*x)", "x=0:2*pi:0.05");
+const svg = plotter.generateSVG(data, {
+  title: "Complex Trigonometric Function",
+  xLabel: "x (radians)", 
+  yLabel: "f(x)"
+});
+
+// Save SVG
+import { writeFileSync } from 'fs';
+writeFileSync('complex-trig.svg', svg);
+```
+
+### Parametric Curves
+
+```javascript
+// Generate heart curve (cardioid)
+const heartData = generator.generateParametric(
+  "16*sin(t)^3", 
+  "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)",
+  "t=0:2*pi:0.05"
+);
+
+plotter.setDimensions(800, 800); // Square aspect ratio
+const heartSvg = plotter.generateSVG(heartData, {
+  title: "Parametric Heart Curve",
+  xlabel: "x",
+  ylabel: "y"
+});
+
+writeFileSync('heart.svg', heartSvg);
+```
+
+### Multi-Series Plots
+
+```javascript
+// Compare multiple functions
+const sine = generator.generate("sin(x)", "x=0:2*pi:0.1");
+const cosine = generator.generate("cos(x)", "x=0:2*pi:0.1"); 
+const tangent = generator.generate("tan(x)", "x=-pi/2:pi/2:0.1");
+
+const multiSeries = {
+  type: "FeatureCollection",
+  features: [sine, cosine, tangent]
+};
+
+const comparisonSvg = plotter.generateSVG(multiSeries, {
+  title: "Trigonometric Functions Comparison"
+});
+
+writeFileSync('trig-comparison.svg', comparisonSvg);
+```
+
+### PNG Generation
+
+```javascript
+// High-resolution PNG for publications
+plotter.setDimensions(1920, 1080);
+
+const data = generator.generate("exp(-x^2/2)/sqrt(2*pi)", "x=-4:4:0.01");
+const svg = plotter.generateSVG(data, {
+  title: "Standard Normal Distribution",
+  xLabel: "Standard Deviations (σ)",
+  yLabel: "Probability Density"
+});
+
+const pngBuffer = await plotter.generatePNG(svg);
+writeFileSync('normal-distribution.png', pngBuffer);
+```
+
+### Data Export Workflows
+
+```javascript
+// Export for analysis in other tools
+const data = generator.generate("sin(2*pi*x) + 0.1*random()", "x=0:10:0.01");
+
+// GeoJSON format (preserves metadata)
+writeFileSync('noisy-sine.geojson', JSON.stringify(data, null, 2));
+
+// Extract coordinates for CSV
+const coordinates = data.geometry.coordinates;
+const csvLines = ['x,y'];
+coordinates.forEach(([x, y]) => csvLines.push(`${x},${y}`));
+writeFileSync('noisy-sine.csv', csvLines.join('\n'));
+
+// Simple JSON format
+const simpleFormat = {
+  expression: data.properties.expression,
+  range: data.properties.range,
+  points: coordinates.length,
+  data: coordinates
+};
+writeFileSync('noisy-sine.json', JSON.stringify(simpleFormat, null, 2));
+```
+
+This comprehensive API documentation covers all public methods, parameters, return values, error conditions, and practical examples for effective use of the plot-code-lib library.
