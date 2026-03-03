@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, test, expect } from "vitest";
+import { writeFileSync } from "fs";
 import { ExpressionParser, TimeSeriesGenerator, PlotGenerator, PlotCodeLib } from "../../src/lib/main.js";
 
 describe("ExpressionParser", () => {
@@ -157,5 +158,12 @@ describe("PlotGenerator", () => {
 describe("PlotCodeLib", () => {
   test("should instantiate without error", () => {
     expect(() => new PlotCodeLib()).not.toThrow();
+  });
+
+  test("should have export functionality", () => {
+    const app = new PlotCodeLib();
+    
+    // Test that the exportData method exists
+    expect(typeof app.exportData).toBe('function');
   });
 });

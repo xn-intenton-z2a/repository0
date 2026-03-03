@@ -385,6 +385,22 @@ class PlotCodeLib {
         }
       });
 
+    program
+      .command('export')
+      .description('Export coordinate data without visualization')
+      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
+      .requiredOption('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')
+      .requiredOption('-o, --output <file>', 'Output file (JSON)')
+      .option('--format <format>', 'Output format (geojson, csv, json)', 'geojson')
+      .action(async (options) => {
+        try {
+          await this.exportData(options);
+        } catch (error) {
+          console.error('Error:', error.message);
+          process.exit(1);
+        }
+      });
+
     await program.parseAsync();
   }
 
@@ -456,6 +472,49 @@ class PlotCodeLib {
     } else {
       throw new Error('Output file must have .svg or .png extension');
     }
+  }
+
+  /**
+   * Export coordinate data in specified format
+   * @param {Object} options - CLI options
+   */
+  async exportData(options) {
+    // Generate time series data
+    const geoJsonData = this.generator.generate(options.expression, options.range);
+    
+    let outputData;
+    let outputString;
+    
+    switch (options.format.toLowerCase()) {
+      case 'geojson':
+        outputData = geoJsonData;
+        outputString = JSON.stringify(outputData, null, 2);
+        break;
+        
+      case 'csv':
+        const coordinates = geoJsonData.geometry.coordinates;
+        const csvLines = ['x,y'];
+        coordinates.forEach(([x, y]) => {
+          csvLines.push(`${x},${y}`);
+        });
+        outputString = csvLines.join('\n');
+        break;
+        
+      case 'json':
+        outputData = {
+          expression: options.expression,
+          range: options.range,
+          data: geoJsonData.geometry.coordinates
+        };
+        outputString = JSON.stringify(outputData, null, 2);
+        break;
+        
+      default:
+        throw new Error('Unsupported format. Use: geojson, csv, or json');
+    }
+    
+    writeFileSync(options.output, outputString);
+    console.log(`${options.format.toUpperCase()} data exported to ${options.output}`);
   }
 }
 

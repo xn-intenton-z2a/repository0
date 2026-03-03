@@ -19,79 +19,76 @@
 npm install -g plot-code-lib
 ```
 
-## Command Line Usage
+## Quick Start
 
-### Standard Function Plots
-
-Generate a sine wave:
+### Basic Function Plot
 ```bash
 plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine-wave.svg --title "Sine Wave"
 ```
 
-Plot a quadratic function:
-```bash
-plot-code-lib plot -e "x^2 - 2*x + 1" -r "x=-2:4:0.1" -o parabola.png --title "Quadratic Function"
-```
-
-### Parametric Plots
-
-Generate a circle:
+### Parametric Plot
 ```bash
 plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg --title "Unit Circle"
 ```
 
-Create a heart shape:
+## Command Line Usage
+
+### Standard Function Plots
+
+Generate mathematical function plots:
 ```bash
-plot-code-lib parametric -x "16*sin(t)^3" -y "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)" -r "t=0:2*pi" -o heart.svg --title "Heart"
+# Basic sine wave
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine-wave.svg --title "Sine Wave"
+
+# Quadratic function
+plot-code-lib plot -e "x^2 - 2*x + 1" -r "x=-2:4:0.1" -o parabola.png --title "Quadratic Function"
+
+# Exponential decay
+plot-code-lib plot -e "exp(-x)" -r "x=0:5:0.1" -o decay.svg --title "Exponential Decay"
+
+# Complex expression with damping
+plot-code-lib plot -e "sin(5*x) * exp(-x/3)" -r "x=0:15:0.1" -o damped-wave.svg --title "Damped Oscillation"
 ```
 
-### Advanced Examples
+### Parametric Plots
 
-Mathematical functions supported:
+Create curves defined by parametric equations:
+```bash
+# Circle
+plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg --title "Unit Circle"
+
+# Heart curve
+plot-code-lib parametric -x "16*sin(t)^3" -y "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)" -r "t=0:2*pi" -o heart.svg --title "Heart Curve"
+
+# Lissajous curve
+plot-code-lib parametric -x "sin(3*t)" -y "sin(2*t)" -r "t=0:2*pi" -o lissajous.svg --title "Lissajous Curve"
+
+# Rose curve
+plot-code-lib parametric -x "cos(5*t)*cos(t)" -y "cos(5*t)*sin(t)" -r "t=0:pi" -o rose.svg --title "Rose Curve"
+```
+
+### Advanced Mathematical Functions
+
 ```bash
 # Polynomials
-plot-code-lib plot -e "x^3 - 3*x^2 + 2*x + 1" -r "x=-2:3" -o cubic.svg
+plot-code-lib plot -e "x^3 - 3*x^2 + 2*x + 1" -r "x=-2:3" -o cubic.svg --title "Cubic Polynomial"
 
-# Exponentials and logarithms  
-plot-code-lib plot -e "exp(x)" -r "x=-2:2:0.1" -o exponential.svg
-plot-code-lib plot -e "log(x)" -r "x=0.1:10:0.1" -o logarithm.svg
+# Logarithmic functions
+plot-code-lib plot -e "log(x)" -r "x=0.1:10:0.1" -o logarithm.svg --title "Natural Logarithm"
 
 # Trigonometric combinations
-plot-code-lib plot -e "sin(x) + cos(2*x)" -r "x=0:4*pi:0.1" -o trig-combo.svg
+plot-code-lib plot -e "sin(x) + cos(2*x)" -r "x=0:4*pi:0.1" -o trig-combo.svg --title "Combined Trig Functions"
 
-# Complex parametric curves
-plot-code-lib parametric -x "sin(3*t)" -y "sin(2*t)" -r "t=0:2*pi" -o lissajous.svg --title "Lissajous Curve"
+# Gaussian distribution
+plot-code-lib plot -e "exp(-x^2/2) / sqrt(2*pi)" -r "x=-4:4" -o gaussian.svg --title "Gaussian Distribution"
+
+# Sigmoid function
+plot-code-lib plot -e "1/(1 + exp(-x))" -r "x=-6:6" -o sigmoid.svg --title "Sigmoid Function"
 ```
 
-### Output Formats
+## Command Options
 
-Generate SVG (vector graphics):
-```bash
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg
-```
-
-Generate PNG (raster graphics):
-```bash
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.png --width 1200 --height 800
-```
-
-### Range Specifications
-
-```bash
-# Automatic step (100 points between start and end)
---range "x=0:10"
-
-# Custom step size  
---range "x=0:10:0.5"
-
-# Using mathematical expressions in ranges
---range "x=0:2*pi:pi/20"
---range "t=-pi/2:pi/2:0.01"
-```
-
-### Command Options
-
-#### plot command
+### plot command
 ```
 plot-code-lib plot [options]
 
@@ -106,7 +103,7 @@ Options:
   --ylabel <label>         Y-axis label (default: "y")
 ```
 
-#### parametric command
+### parametric command
 ```
 plot-code-lib parametric [options]
 
@@ -122,7 +119,63 @@ Options:
   --ylabel <label>         Y-axis label (default: "y")
 ```
 
+### export command
+```
+plot-code-lib export [options]
+
+Options:
+  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)", "x^2")
+  -r, --range <range>      Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")
+  -o, --output <file>      Output file (JSON, CSV)
+  --format <format>        Output format (geojson, csv, json) (default: "geojson")
+```
+
+## Data Export
+
+Export coordinate data without generating visualizations - perfect for data pipelines and analysis workflows:
+
+```bash
+# Export as GeoJSON (standard format)
+plot-code-lib export -e "sin(x)" -r "x=0:2*pi:0.1" -o sine-data.json --format geojson
+
+# Export as CSV for spreadsheet analysis
+plot-code-lib export -e "x^2" -r "x=-5:5:0.5" -o quadratic.csv --format csv
+
+# Export as simple JSON
+plot-code-lib export -e "exp(-x)" -r "x=0:5:0.1" -o decay.json --format json
+```
+
+## Range Specifications
+
+Control the domain and resolution of your plots:
+
+```bash
+# Automatic step (100 points between start and end)
+--range "x=0:10"
+
+# Custom step size  
+--range "x=0:10:0.5"
+
+# Using mathematical expressions in ranges
+--range "x=0:2*pi:pi/20"
+--range "t=-pi/2:pi/2:0.01"
+```
+
+## Output Formats
+
+Generate plots in multiple formats:
+
+```bash
+# SVG (vector graphics) - scalable and web-ready
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg
+
+# PNG (raster graphics) - universal compatibility
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.png --width 1200 --height 800
+```
+
 ## Library Usage
+
+Use plot-code-lib programmatically in your JavaScript projects:
 
 ```javascript
 import { ExpressionParser, TimeSeriesGenerator, PlotGenerator } from 'plot-code-lib';
@@ -156,10 +209,10 @@ const pngBuffer = await plotter.generatePNG(svgMarkup);
 
 ## Data Formats
 
-**plot-code-lib** uses open standards:
+**plot-code-lib** uses open standards for maximum interoperability:
 
 - **Mathematical Expressions**: MathJS syntax for maximum compatibility
-- **Coordinate Data**: GeoJSON LineString format for interoperability  
+- **Coordinate Data**: GeoJSON LineString format for data exchange
 - **Output**: SVG format for scalable visualizations, PNG for universal compatibility
 
 ### Example GeoJSON Output
@@ -178,129 +231,28 @@ const pngBuffer = await plotter.generatePNG(svgMarkup);
 }
 ```
 
-## Examples Gallery
+## Expression Syntax Reference
 
-Here are some example commands and their outputs:
+**Supported Functions:**
+- **Trigonometric:** `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sec`, `csc`, `cot`
+- **Exponential/Logarithmic:** `exp`, `log`, `log10`, `log2`, `sqrt`, `cbrt`
+- **Hyperbolic:** `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
+- **Utility:** `abs`, `sign`, `ceil`, `floor`, `round`, `min`, `max`
 
+**Operators:** `+`, `-`, `*`, `/`, `^`, `%`, `!`
+
+**Constants:** `pi`, `e`, `phi`, `tau`, `i`
+
+**Complex Expressions:**
 ```bash
-# Classic sine wave
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o examples/sine.svg --title "Sine Wave"
+# Conditional expressions
+plot-code-lib plot -e "x >= 0 ? x : -x" -r "x=-5:5" -o absolute.svg
 
-# Parabola with vertex  
-plot-code-lib plot -e "x^2 - 4*x + 3" -r "x=-1:5" -o examples/parabola.png
+# Piecewise functions  
+plot-code-lib plot -e "x < 0 ? x^2 : sin(x)" -r "x=-3:3" -o piecewise.svg
 
-# Exponential decay
-plot-code-lib plot -e "exp(-x)" -r "x=0:5:0.1" -o examples/decay.svg
-
-# Parametric circle
-plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o examples/circle.svg --title "Unit Circle"
-
-# Lissajous curve
-plot-code-lib parametric -x "sin(3*t)" -y "sin(2*t)" -r "t=0:2*pi" -o examples/lissajous.png --title "Lissajous 3:2"
-
-# Complex expression with damping
-plot-code-lib plot -e "sin(5*x) * exp(-x/3)" -r "x=0:15:0.1" -o examples/wave.svg --title "Damped Oscillation"
-```
-
-## Data Formats
-
-**plot-code-lib** uses open standards:
-
-- **Mathematical Expressions**: MathJS syntax for maximum compatibility
-- **Coordinate Data**: GeoJSON LineString format for interoperability  
-- **Output**: SVG format for scalable, web-ready visualizations
-
-### Example GeoJSON Output
-
-```json
-{
-  "type": "Feature",
-  "properties": {
-    "expression": "sin(x)",
-    "range": "x=0:2*pi:0.1"
-  },
-  "geometry": {
-    "type": "LineString", 
-    "coordinates": [[0, 0], [0.1, 0.0998], [0.2, 0.1987], ...]
-  }
-}
-```
-
-## Examples Gallery
-
-Here are some example commands and their outputs:
-
-```bash
-# Classic sine wave
-plot-code-lib -e "sin(x)" -r "x=0:2*pi:0.1" -o examples/sine.svg
-
-# Parabola with vertex  
-plot-code-lib -e "x^2 - 4*x + 3" -r "x=-1:5" -o examples/parabola.svg
-
-# Exponential decay
-plot-code-lib -e "exp(-x)" -r "x=0:5:0.1" -o examples/decay.svg
-
-# Oscillating wave
-plot-code-lib -e "sin(5*x) * exp(-x/3)" -r "x=0:15:0.1" -o examples/wave.svg
-
-# Cubic polynomial
-plot-code-lib -e "x^3 - 6*x^2 + 9*x + 1" -r "x=-2:5" -o examples/cubic.svg
-```
-
-## Agentic Workflows
-
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. The system generates issues, writes code, runs tests, and opens pull requests based on the project mission.
-
-## Documentation
-
-### 📚 Complete Documentation
-
-- **[CLI Examples](./docs/CLI_EXAMPLES.md)** - Comprehensive command-line usage examples and tutorials
-- **[API Reference](./docs/API.md)** - Complete JavaScript library API documentation  
-- **[Expression Syntax](./docs/EXPRESSIONS.md)** - Mathematical expression syntax reference and examples
-
-### 🚀 Quick Reference
-
-**Basic Commands:**
-```bash
-# Standard function plot
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg
-
-# Parametric curve
-plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.png
-
-# With custom styling
-plot-code-lib plot -e "x^2" -r "x=-3:3" -o parabola.svg \
-  --title "Quadratic Function" --width 1200 --height 800
-```
-
-**Supported Expression Syntax:**
-- **Functions:** `sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `abs`, etc.
-- **Operators:** `+`, `-`, `*`, `/`, `^`, `%`
-- **Constants:** `pi`, `e`, `phi`, `tau`
-- **Complex:** `sin(x) * exp(-x/5)`, `x >= 0 ? x : -x`
-
-**Range Specifications:**
-- `x=0:10` - 100 points from 0 to 10
-- `x=0:2*pi:0.01` - Custom step size
-- `t=-pi:pi` - Using mathematical constants
-
-## Examples Gallery
-
-Generate these example plots to explore plot-code-lib capabilities:
-
-```bash
-# Mathematical Functions
-plot-code-lib plot -e "sin(x) * exp(-x/5)" -r "x=0:15" -o damped_sine.svg --title "Damped Sine Wave"
-plot-code-lib plot -e "exp(-x^2/2) / sqrt(2*pi)" -r "x=-4:4" -o gaussian.svg --title "Gaussian Distribution"
-
-# Parametric Art
-plot-code-lib parametric -x "16*sin(t)^3" -y "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)" -r "t=0:2*pi" -o heart.svg --title "Heart Curve"
-plot-code-lib parametric -x "cos(5*t)*cos(t)" -y "cos(5*t)*sin(t)" -r "t=0:pi" -o rose.svg --title "Rose Curve"
-
-# Scientific Plots
-plot-code-lib plot -e "sin(x^2)" -r "x=0:5" -o chirp.svg --title "Chirp Signal"
-plot-code-lib plot -e "1/(1 + exp(-x))" -r "x=-6:6" -o sigmoid.svg --title "Sigmoid Function"
+# Nested functions
+plot-code-lib plot -e "sin(cos(x))" -r "x=0:2*pi" -o nested.svg
 ```
 
 ## Performance & Features
