@@ -27,7 +27,7 @@ test = "npm test"
 start = "npm run start"
 
 [limits]
-feature-issues = 2
+feature-issues = 5
 maintenance-issues = 1
 attempts-per-branch = 3
 attempts-per-issue = 2

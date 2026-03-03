@@ -18,13 +18,13 @@ name: agent-supervisor
 run-name: "agent-supervisor [${{ github.ref_name }}]"
 
 on:
-  schedule:
-    - cron: "*/10 * * * *"
   workflow_run:
     workflows:
       - test
       - agent-flow-transform
       - agent-flow-fix-code
+      - agent-flow-maintain
+      - agent-flow-review
       - ci-automerge
     types:
       - completed
@@ -172,6 +172,21 @@ jobs:
               }
             } catch (err) {
               core.warning(`Stale PR check failed: ${err.message}`);
+            }
+
+            // ─── 3. Successful transform → dispatch review ────────────────
+            try {
+              if (workflowRun && workflowName === 'agent-flow-transform' && conclusion === 'success') {
+                core.info('Transform completed successfully — dispatching review to close resolved issues and enhance new ones.');
+                await github.rest.actions.createWorkflowDispatch({
+                  owner, repo,
+                  workflow_id: 'agent-flow-review.yml',
+                  ref: 'main',
+                  inputs: {},
+                });
+              }
+            } catch (err) {
+              core.warning(`Post-transform review dispatch failed: ${err.message}`);
             }
 
   # ─── Proactive: LLM-driven strategic decisions ───────────────────────

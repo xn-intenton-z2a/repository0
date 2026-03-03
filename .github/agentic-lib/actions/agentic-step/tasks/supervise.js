@@ -76,6 +76,8 @@ async function gatherContext(octokit, repo, config) {
     workflowsSummary,
     schedule: config.schedule,
     supervisor: config.supervisor,
+    featureIssuesWipLimit: config.featureDevelopmentIssuesWipLimit,
+    maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit,
   };
 }
 
@@ -107,6 +109,11 @@ function buildPrompt(ctx, agentInstructions) {
     ctx.recentActivity || "none",
     "",
     `### Schedule: ${ctx.schedule}, Supervisor: ${ctx.supervisor}`,
+    "",
+    `### Issue Limits`,
+    `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,
+    `Maintenance WIP limit: ${ctx.maintenanceIssuesWipLimit}`,
+    `Open issues: ${ctx.issuesSummary.length} (capacity for ${Math.max(0, ctx.featureIssuesWipLimit - ctx.issuesSummary.length)} more)`,
     "",
     "## Available Actions",
     "Pick one or more actions. Output them in the format below.",
