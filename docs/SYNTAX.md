@@ -1,314 +1,452 @@
-# Mathematical Expression Syntax Reference
+# Mathematical Expression Syntax Guide
 
-Complete guide to mathematical expressions supported by plot-code-lib.
+**plot-code-lib** uses MathJS syntax for maximum compatibility and mathematical power. This guide covers all supported functions, operators, and expression patterns.
 
-## Overview
+## Table of Contents
 
-plot-code-lib uses [Math.js](https://mathjs.org/) for expression parsing, providing comprehensive mathematical functionality with intuitive syntax.
+- [Basic Syntax](#basic-syntax)
+- [Arithmetic Operators](#arithmetic-operators)  
+- [Mathematical Functions](#mathematical-functions)
+- [Constants](#constants)
+- [Conditional Expressions](#conditional-expressions)
+- [Complex Expressions](#complex-expressions)
+- [Domain Considerations](#domain-considerations)
+- [Performance Tips](#performance-tips)
 
-## Basic Operators
+---
+
+## Basic Syntax
+
+### Variables
+
+Use single letters or descriptive names for variables:
+
+```bash
+# Standard function variable
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine.svg
+
+# Parametric parameter
+plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg
+
+# Custom variable names  
+plot-code-lib plot -e "sin(theta)" -r "theta=0:2*pi" -o sine-theta.svg
+```
+
+### Function Composition
+
+Functions can be nested and combined freely:
+
+```bash
+# Nested functions
+plot-code-lib plot -e "sin(cos(x))" -r "x=0:2*pi" -o nested.svg
+
+# Function chains  
+plot-code-lib plot -e "sqrt(abs(sin(x)))" -r "x=-2*pi:2*pi" -o chain.svg
+
+# Multiple operations
+plot-code-lib plot -e "exp(-x) * sin(5*x)" -r "x=0:3" -o damped.svg
+```
+
+---
+
+## Arithmetic Operators
+
+### Basic Arithmetic
 
 | Operator | Description | Example | Result |
-|----------|-------------|---------|--------|
-| `+` | Addition | `x + 2` | Sum |
-| `-` | Subtraction | `x - 1` | Difference |
-| `*` | Multiplication | `2 * x` | Product |
-| `/` | Division | `x / 3` | Quotient |
-| `^` | Exponentiation | `x^2` | Power |
-| `%` | Modulo | `x % 2` | Remainder |
+|----------|-------------|---------|---------|
+| `+` | Addition | `x + 2` | Add 2 to x |
+| `-` | Subtraction | `x - 1` | Subtract 1 from x |
+| `*` | Multiplication | `2 * x` | Multiply x by 2 |
+| `/` | Division | `x / 3` | Divide x by 3 |
+| `^` | Exponentiation | `x^2` | x squared |
+| `%` | Modulo | `x % 2*pi` | x modulo 2π |
 
-## Functions
+### Operator Precedence
+
+MathJS follows standard mathematical precedence:
+
+1. **Parentheses**: `()`
+2. **Exponentiation**: `^`  
+3. **Multiplication/Division**: `*`, `/`
+4. **Addition/Subtraction**: `+`, `-`
+
+```bash
+# Precedence examples
+plot-code-lib plot -e "2 + 3 * x^2" -r "x=-2:2" -o precedence.svg    # = 2 + (3 * (x^2))
+plot-code-lib plot -e "(2 + 3) * x^2" -r "x=-2:2" -o parentheses.svg # = 5 * (x^2)
+```
+
+---
+
+## Mathematical Functions
 
 ### Trigonometric Functions
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sin(x)` | Sine | All real numbers | [-1, 1] |
-| `cos(x)` | Cosine | All real numbers | [-1, 1] |
-| `tan(x)` | Tangent | x ≠ π/2 + nπ | All real numbers |
-| `asin(x)` | Arcsine | [-1, 1] | [-π/2, π/2] |
-| `acos(x)` | Arccosine | [-1, 1] | [0, π] |
-| `atan(x)` | Arctangent | All real numbers | (-π/2, π/2) |
-| `atan2(y, x)` | Two-argument arctangent | All real numbers | [-π, π] |
-
-**Examples:**
+#### Basic Trigonometry
 ```bash
-# Basic trigonometric functions
+# Sine, cosine, tangent
 plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine.svg
-plot-code-lib plot -e "cos(x) + sin(2*x)" -r "x=0:4*pi" -o trig_combo.svg
+plot-code-lib plot -e "cos(x)" -r "x=0:2*pi" -o cosine.svg  
+plot-code-lib plot -e "tan(x)" -r "x=-pi/2+0.1:pi/2-0.1" -o tangent.svg
 
-# Inverse trigonometric functions
-plot-code-lib plot -e "asin(x)" -r "x=-1:1" -o arcsine.svg
-plot-code-lib plot -e "atan(x)" -r "x=-5:5" -o arctangent.svg
+# Secant, cosecant, cotangent
+plot-code-lib plot -e "sec(x)" -r "x=-pi/2+0.1:pi/2-0.1" -o secant.svg
+plot-code-lib plot -e "csc(x)" -r "x=0.1:pi-0.1" -o cosecant.svg
+plot-code-lib plot -e "cot(x)" -r "x=0.1:pi-0.1" -o cotangent.svg
 ```
 
-### Hyperbolic Functions
+#### Inverse Trigonometry
+```bash
+# Arc functions (return angles)
+plot-code-lib plot -e "asin(x)" -r "x=-1:1" -o arcsine.svg
+plot-code-lib plot -e "acos(x)" -r "x=-1:1" -o arccosine.svg
+plot-code-lib plot -e "atan(x)" -r "x=-5:5" -o arctangent.svg
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sinh(x)` | Hyperbolic sine | All real numbers | All real numbers |
-| `cosh(x)` | Hyperbolic cosine | All real numbers | [1, ∞) |
-| `tanh(x)` | Hyperbolic tangent | All real numbers | (-1, 1) |
-| `asinh(x)` | Inverse hyperbolic sine | All real numbers | All real numbers |
-| `acosh(x)` | Inverse hyperbolic cosine | [1, ∞) | [0, ∞) |
-| `atanh(x)` | Inverse hyperbolic tangent | (-1, 1) | All real numbers |
+# Two-argument arctangent
+plot-code-lib plot -e "atan2(x, 1)" -r "x=-5:5" -o atan2.svg
+```
 
-**Examples:**
+#### Hyperbolic Functions
 ```bash
 # Hyperbolic functions
 plot-code-lib plot -e "sinh(x)" -r "x=-3:3" -o sinh.svg
-plot-code-lib plot -e "tanh(x)" -r "x=-5:5" -o tanh.svg
+plot-code-lib plot -e "cosh(x)" -r "x=-3:3" -o cosh.svg
+plot-code-lib plot -e "tanh(x)" -r "x=-3:3" -o tanh.svg
+
+# Inverse hyperbolic
+plot-code-lib plot -e "asinh(x)" -r "x=-5:5" -o asinh.svg
+plot-code-lib plot -e "acosh(x)" -r "x=1:5" -o acosh.svg
+plot-code-lib plot -e "atanh(x)" -r "x=-0.99:0.99" -o atanh.svg
 ```
 
 ### Exponential and Logarithmic Functions
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `exp(x)` | Natural exponential (e^x) | All real numbers | (0, ∞) |
-| `log(x)` | Natural logarithm | (0, ∞) | All real numbers |
-| `log10(x)` | Base-10 logarithm | (0, ∞) | All real numbers |
-| `log2(x)` | Base-2 logarithm | (0, ∞) | All real numbers |
-| `pow(x, y)` | Power function (x^y) | Depends on y | Varies |
-
-**Examples:**
 ```bash
 # Exponential functions
-plot-code-lib plot -e "exp(x)" -r "x=-2:3" -o exponential.svg
-plot-code-lib plot -e "exp(-x^2/2)" -r "x=-3:3" -o gaussian.svg
+plot-code-lib plot -e "exp(x)" -r "x=-2:2" -o exponential.svg
+plot-code-lib plot -e "expm1(x)" -r "x=-1:1" -o expm1.svg         # exp(x) - 1
 
 # Logarithmic functions  
-plot-code-lib plot -e "log(x)" -r "x=0.1:10" -o logarithm.svg
-plot-code-lib plot -e "log10(x)" -r "x=0.1:100" -o log10.svg
+plot-code-lib plot -e "log(x)" -r "x=0.1:10" -o natural-log.svg   # Natural logarithm
+plot-code-lib plot -e "log10(x)" -r "x=0.1:100" -o log10.svg      # Base-10 logarithm
+plot-code-lib plot -e "log2(x)" -r "x=0.1:16" -o log2.svg         # Base-2 logarithm
+plot-code-lib plot -e "log1p(x)" -r "x=0:2" -o log1p.svg          # log(1 + x)
 ```
 
-### Root and Power Functions
+### Power and Root Functions
 
-| Function | Description | Domain | Range |
-|----------|-------------|--------|-------|
-| `sqrt(x)` | Square root | [0, ∞) | [0, ∞) |
-| `cbrt(x)` | Cube root | All real numbers | All real numbers |
-| `nthRoot(x, n)` | nth root | Depends on n | Varies |
-
-**Examples:**
 ```bash
-# Root functions
-plot-code-lib plot -e "sqrt(x)" -r "x=0:10" -o square_root.svg
-plot-code-lib plot -e "cbrt(x)" -r "x=-8:8" -o cube_root.svg
+# Square roots and cube roots
+plot-code-lib plot -e "sqrt(x)" -r "x=0:25" -o square-root.svg
+plot-code-lib plot -e "cbrt(x)" -r "x=-8:8" -o cube-root.svg
+
+# nth roots
+plot-code-lib plot -e "nthRoot(x, 3)" -r "x=-8:8" -o nth-root.svg
+plot-code-lib plot -e "x^(1/3)" -r "x=0:8" -o fractional-power.svg
+
+# Power functions
+plot-code-lib plot -e "x^2" -r "x=-3:3" -o quadratic.svg
+plot-code-lib plot -e "x^3" -r "x=-2:2" -o cubic.svg
+plot-code-lib plot -e "x^0.5" -r "x=0:10" -o half-power.svg
 ```
 
-### Rounding and Utility Functions
+### Utility Functions
 
-| Function | Description | Example |
-|----------|-------------|---------|
-| `round(x)` | Round to nearest integer | `round(3.7)` → 4 |
-| `floor(x)` | Round down | `floor(3.7)` → 3 |
-| `ceil(x)` | Round up | `ceil(3.2)` → 4 |
-| `abs(x)` | Absolute value | `abs(-5)` → 5 |
-| `sign(x)` | Sign function | `sign(-3)` → -1 |
-| `max(a, b, ...)` | Maximum value | `max(2, 5, 1)` → 5 |
-| `min(a, b, ...)` | Minimum value | `min(2, 5, 1)` → 1 |
-
-**Examples:**
 ```bash
-# Utility functions
+# Absolute value and sign
 plot-code-lib plot -e "abs(x)" -r "x=-5:5" -o absolute.svg
-plot-code-lib plot -e "sign(x)" -r "x=-3:3" -o sign.svg
-plot-code-lib plot -e "floor(x)" -r "x=-3:3:0.1" -o floor.svg
+plot-code-lib plot -e "sign(x)" -r "x=-5:5" -o sign.svg
+
+# Rounding functions
+plot-code-lib plot -e "ceil(x)" -r "x=-3:3" -o ceiling.svg         # Round up
+plot-code-lib plot -e "floor(x)" -r "x=-3:3" -o floor.svg         # Round down  
+plot-code-lib plot -e "round(x)" -r "x=-3:3" -o round.svg         # Round nearest
+plot-code-lib plot -e "fix(x)" -r "x=-3:3" -o fix.svg             # Round toward zero
+
+# Min/max functions
+plot-code-lib plot -e "min(x, 2)" -r "x=-1:5" -o min-function.svg
+plot-code-lib plot -e "max(x, 0)" -r "x=-2:3" -o max-function.svg
 ```
 
-## Mathematical Constants
+### Special Functions
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `pi` | 3.14159... | Pi (π) |
-| `e` | 2.71828... | Euler's number |
-| `phi` | 1.61803... | Golden ratio |
-| `tau` | 6.28318... | Tau (2π) |
-
-**Examples:**
 ```bash
-# Using constants
-plot-code-lib plot -e "sin(pi * x)" -r "x=0:4" -o sine_pi.svg
-plot-code-lib plot -e "exp(-x) / e" -r "x=0:5" -o exp_normalized.svg
-plot-code-lib plot -e "cos(tau * x)" -r "x=0:2" -o cosine_tau.svg
+# Factorial (integer inputs)
+plot-code-lib plot -e "factorial(x)" -r "x=0:10:1" -o factorial.svg
+
+# Greatest common divisor / Least common multiple
+plot-code-lib plot -e "gcd(x, 6)" -r "x=1:20:1" -o gcd.svg
+plot-code-lib plot -e "lcm(x, 6)" -r "x=1:20:1" -o lcm.svg
+
+# Random function (different each time)
+plot-code-lib plot -e "random()" -r "x=1:100:1" -o random.svg
+plot-code-lib plot -e "random() * x" -r "x=0:10" -o random-scale.svg
 ```
+
+---
+
+## Constants
+
+### Mathematical Constants
+
+| Constant | Description | Approximate Value |
+|----------|-------------|-------------------|
+| `pi` | π (pi) | 3.14159... |
+| `e` | Euler's number | 2.71828... |  
+| `phi` | Golden ratio | 1.61803... |
+| `tau` | 2π | 6.28318... |
+
+```bash
+# Using constants in expressions
+plot-code-lib plot -e "sin(2*pi*x)" -r "x=0:2" -o sine-2hz.svg
+plot-code-lib plot -e "exp(-x/e)" -r "x=0:10" -o exp-decay.svg
+plot-code-lib plot -e "phi^x" -r "x=-2:3" -o golden-ratio.svg
+plot-code-lib plot -e "cos(tau*x)" -r "x=0:1" -o tau-period.svg
+```
+
+### Mathematical Constants (Advanced)
+
+| Constant | Description | Value |
+|----------|-------------|-------|
+| `LN2` | ln(2) | 0.69314... |
+| `LN10` | ln(10) | 2.30258... |  
+| `LOG2E` | log₂(e) | 1.44269... |
+| `LOG10E` | log₁₀(e) | 0.43429... |
+| `SQRT1_2` | √(1/2) | 0.70710... |
+| `SQRT2` | √2 | 1.41421... |
+
+```bash
+# Using advanced constants
+plot-code-lib plot -e "x * LN2" -r "x=0:10" -o ln2-scaling.svg
+plot-code-lib plot -e "SQRT2 * sin(x)" -r "x=0:2*pi" -o sqrt2-amplitude.svg
+```
+
+### Complex Numbers
+
+```bash
+# Imaginary unit (results may be filtered for real plots)
+plot-code-lib plot -e "i^x" -r "x=0:4" -o imaginary-power.svg
+
+# Complex expressions (real parts plotted)
+plot-code-lib plot -e "real(exp(i*x))" -r "x=0:2*pi" -o euler-real.svg
+plot-code-lib plot -e "imag(exp(i*x))" -r "x=0:2*pi" -o euler-imag.svg
+```
+
+---
+
+## Conditional Expressions
+
+### Ternary Operator
+
+Use `condition ? valueIfTrue : valueIfFalse` for piecewise functions:
+
+```bash
+# Absolute value using conditional
+plot-code-lib plot -e "x >= 0 ? x : -x" -r "x=-5:5" -o abs-conditional.svg
+
+# Step function
+plot-code-lib plot -e "x > 0 ? 1 : 0" -r "x=-2:2" -o step-function.svg
+
+# Piecewise quadratic
+plot-code-lib plot -e "x < 0 ? x^2 : -x^2" -r "x=-3:3" -o piecewise-quad.svg
+
+# Clamped function
+plot-code-lib plot -e "x > 2 ? 2 : (x < -2 ? -2 : x)" -r "x=-5:5" -o clamped.svg
+```
+
+### Comparison Operators
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `<` | Less than | `x < 0` |
+| `<=` | Less than or equal | `x <= 1` |
+| `>` | Greater than | `x > 2` |  
+| `>=` | Greater than or equal | `x >= -1` |
+| `==` | Equal to | `x == 0` |
+| `!=` | Not equal to | `x != 1` |
+
+### Logical Operators
+
+```bash
+# AND operator
+plot-code-lib plot -e "(x > -1) and (x < 1) ? x^2 : 0" -r "x=-3:3" -o windowed.svg
+
+# OR operator  
+plot-code-lib plot -e "(x < -1) or (x > 1) ? 1 : 0" -r "x=-3:3" -o outside-window.svg
+
+# NOT operator
+plot-code-lib plot -e "not(x == 0) ? sin(x)/x : 1" -r "x=-5:5" -o sinc-safe.svg
+```
+
+---
 
 ## Complex Expressions
 
 ### Function Composition
 
 ```bash
-# Nested functions
-plot-code-lib plot -e "sin(cos(x))" -r "x=0:2*pi" -o nested_trig.svg
-plot-code-lib plot -e "exp(sin(x))" -r "x=0:4*pi" -o exp_sin.svg
-plot-code-lib plot -e "log(abs(x) + 1)" -r "x=-5:5" -o log_abs.svg
+# Deeply nested functions
+plot-code-lib plot -e "sin(cos(tan(x)))" -r "x=-pi:pi" -o deep-nested.svg
+
+# Multiple function calls
+plot-code-lib plot -e "sin(x) * cos(x) * tan(x/2)" -r "x=0.1:pi-0.1" -o trig-product.svg
+
+# Function of functions
+plot-code-lib plot -e "exp(sin(x)) + log(cos(x) + 2)" -r "x=0:pi/2" -o exp-sin-log-cos.svg
 ```
 
-### Polynomial Expressions
+### Mathematical Series
 
 ```bash
-# Linear
-plot-code-lib plot -e "2*x + 1" -r "x=-5:5" -o linear.svg
+# Taylor series approximations
+plot-code-lib plot -e "x - x^3/6 + x^5/120" -r "x=-3:3" -o sine-taylor.svg
 
-# Quadratic
-plot-code-lib plot -e "x^2 - 4*x + 3" -r "x=-1:5" -o quadratic.svg
+# Fourier series (square wave approximation)
+plot-code-lib plot -e "sin(x) + sin(3*x)/3 + sin(5*x)/5 + sin(7*x)/7" -r "x=0:2*pi" -o fourier-square.svg
 
-# Cubic
-plot-code-lib plot -e "x^3 - 6*x^2 + 9*x + 1" -r "x=-2:5" -o cubic.svg
-
-# Higher order
-plot-code-lib plot -e "x^4 - 4*x^3 + 6*x^2 - 4*x + 1" -r "x=-1:3" -o quartic.svg
+# Geometric series
+plot-code-lib plot -e "1 + x + x^2 + x^3 + x^4 + x^5" -r "x=-0.9:0.9" -o geometric-series.svg
 ```
 
-### Piecewise Functions
-
-Math.js supports conditional expressions using ternary operators:
+### Scientific Formulas
 
 ```bash
-# Step function
-plot-code-lib plot -e "x >= 0 ? 1 : 0" -r "x=-2:2" -o step.svg
+# Gaussian/Normal distribution
+plot-code-lib plot -e "1/sqrt(2*pi) * exp(-0.5*x^2)" -r "x=-4:4" -o gaussian.svg
 
-# Absolute value (alternative)
-plot-code-lib plot -e "x >= 0 ? x : -x" -r "x=-5:5" -o abs_alt.svg
+# Sigmoid function (logistic)
+plot-code-lib plot -e "1/(1 + exp(-x))" -r "x=-6:6" -o sigmoid.svg
 
-# Piecewise linear
-plot-code-lib plot -e "x < 0 ? -x : x < 2 ? x : 2" -r "x=-3:4" -o piecewise.svg
+# Logistic growth model
+plot-code-lib plot -e "100/(1 + 99*exp(-0.3*x))" -r "x=0:20" -o logistic-growth.svg
+
+# Damped harmonic oscillator
+plot-code-lib plot -e "exp(-0.1*x) * cos(2*pi*x)" -r "x=0:20" -o damped-oscillator.svg
+
+# Black body radiation (Wien's law approximation)
+plot-code-lib plot -e "x^3 / (exp(x) - 1)" -r "x=0.1:10" -o planck-distribution.svg
 ```
 
-### Oscillations and Waves
+### Engineering Applications
 
 ```bash
-# Damped oscillation
-plot-code-lib plot -e "sin(5*x) * exp(-x/3)" -r "x=0:15" -o damped.svg
+# RC circuit step response  
+plot-code-lib plot -e "1 - exp(-x/2.2)" -r "x=0:10" -o rc-step-response.svg
 
-# Beat frequency
-plot-code-lib plot -e "sin(10*x) + sin(10.5*x)" -r "x=0:20*pi" -o beats.svg
+# RLC circuit natural response
+plot-code-lib plot -e "exp(-x) * (cos(3*x) + sin(3*x)/3)" -r "x=0:5" -o rlc-response.svg
 
-# Amplitude modulation
-plot-code-lib plot -e "(1 + 0.5*cos(x)) * sin(10*x)" -r "x=0:4*pi" -o am.svg
+# Frequency response magnitude
+plot-code-lib plot -e "1/sqrt(1 + (x/10)^2)" -r "x=0.1:100" -o frequency-response.svg
 
-# Frequency modulation
-plot-code-lib plot -e "sin(10*x + 2*sin(x))" -r "x=0:4*pi" -o fm.svg
+# Bode plot phase
+plot-code-lib plot -e "atan(-x/10) * 180/pi" -r "x=0.1:100" -o bode-phase.svg
 ```
 
-## Parametric Expressions
+---
 
-For parametric plots, both x and y expressions use the same parameter variable.
+## Domain Considerations
 
-### Geometric Curves
+### Function Domains
+
+Many functions have restricted domains. plot-code-lib automatically skips invalid points:
 
 ```bash
-# Circle
-plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg
+# Square root - negative inputs skipped
+plot-code-lib plot -e "sqrt(x)" -r "x=-2:10" -o sqrt-domain.svg
 
-# Ellipse  
-plot-code-lib parametric -x "3*cos(t)" -y "2*sin(t)" -r "t=0:2*pi" -o ellipse.svg
+# Logarithm - non-positive inputs skipped  
+plot-code-lib plot -e "log(x)" -r "x=-1:10" -o log-domain.svg
 
-# Spiral
-plot-code-lib parametric -x "t*cos(t)" -y "t*sin(t)" -r "t=0:4*pi" -o spiral.svg
+# Inverse trig - inputs outside [-1,1] skipped
+plot-code-lib plot -e "asin(x)" -r "x=-2:2" -o asin-domain.svg
+
+# Division by zero - infinite results skipped
+plot-code-lib plot -e "1/x" -r "x=-2:2" -o reciprocal.svg
+
+# Tangent near asymptotes
+plot-code-lib plot -e "tan(x)" -r "x=-2*pi:2*pi" -o tangent-full.svg
 ```
 
-### Mathematical Curves
+### Handling Discontinuities
 
 ```bash
-# Lissajous curves
-plot-code-lib parametric -x "sin(3*t)" -y "sin(2*t)" -r "t=0:2*pi" -o lissajous_3_2.svg
-plot-code-lib parametric -x "sin(5*t)" -y "sin(4*t)" -r "t=0:2*pi" -o lissajous_5_4.svg
+# Step functions with discontinuities
+plot-code-lib plot -e "floor(x)" -r "x=-3:3" -o floor-steps.svg
 
-# Rose curves
-plot-code-lib parametric -x "cos(5*t)*cos(t)" -y "cos(5*t)*sin(t)" -r "t=0:2*pi" -o rose_5.svg
+# Functions with vertical asymptotes
+plot-code-lib plot -e "1/(x-1)" -r "x=-1:3" -o vertical-asymptote.svg
 
-# Cardioid
-plot-code-lib parametric -x "(1+cos(t))*cos(t)" -y "(1+cos(t))*sin(t)" -r "t=0:2*pi" -o cardioid.svg
-
-# Epicycloid
-plot-code-lib parametric -x "5*cos(t) - cos(5*t)" -y "5*sin(t) - sin(5*t)" -r "t=0:2*pi" -o epicycloid.svg
+# Piecewise continuous
+plot-code-lib plot -e "x < 0 ? x^2 : sqrt(x)" -r "x=-2:4" -o piecewise-continuous.svg
 ```
 
-### Complex Parametric Functions
+### Complex Number Filtering
+
+Complex results are automatically filtered out for real-valued plots:
 
 ```bash
-# Butterfly curve
-plot-code-lib parametric \
-  -x "sin(t) * (exp(cos(t)) - 2*cos(4*t) - sin(t/12)^5)" \
-  -y "cos(t) * (exp(cos(t)) - 2*cos(4*t) - sin(t/12)^5)" \
-  -r "t=0:12*pi" -o butterfly.svg
+# Complex results from negative square roots are skipped
+plot-code-lib plot -e "sqrt(x-2)" -r "x=-1:5" -o complex-filtered.svg
 
-# Heart curve
-plot-code-lib parametric \
-  -x "16*sin(t)^3" \
-  -y "13*cos(t) - 5*cos(2*t) - 2*cos(3*t) - cos(4*t)" \
-  -r "t=0:2*pi" -o heart.svg
+# Complex logarithms filtered
+plot-code-lib plot -e "log(x)" -r "x=-2:2" -o log-complex-filtered.svg
+
+# Complex powers
+plot-code-lib plot -e "(-1)^x" -r "x=0:4" -o complex-power.svg
 ```
 
-## Advanced Techniques
-
-### Multi-parameter Expressions
-
-While individual plots use single variables, you can create complex behaviors:
-
-```bash
-# Frequency sweep
-plot-code-lib plot -e "sin(x^2)" -r "x=0:10" -o chirp.svg
-
-# Envelope functions
-plot-code-lib plot -e "sin(x) / (1 + x^2)" -r "x=-10:10" -o envelope.svg
-```
-
-### Scientific Functions
-
-```bash
-# Error function approximation
-plot-code-lib plot -e "2/sqrt(pi) * (x - x^3/3 + x^5/10)" -r "x=-2:2" -o erf_approx.svg
-
-# Sinc function
-plot-code-lib plot -e "x == 0 ? 1 : sin(pi*x)/(pi*x)" -r "x=-5:5" -o sinc.svg
-
-# Gaussian distribution
-plot-code-lib plot -e "exp(-x^2/2) / sqrt(2*pi)" -r "x=-4:4" -o normal.svg
-```
-
-### Expression Validation
-
-Invalid expressions will produce clear error messages:
-
-```bash
-# Syntax errors
-plot-code-lib plot -e "sin(" -r "x=0:1" -o error.svg
-# Error: Parenthesis ) expected
-
-# Undefined functions
-plot-code-lib plot -e "undefined_func(x)" -r "x=0:1" -o error.svg  
-# Error: Undefined symbol undefined_func
-
-# Domain errors handled gracefully
-plot-code-lib plot -e "log(x)" -r "x=-1:1" -o log.svg
-# Invalid points (x <= 0) automatically skipped
-```
+---
 
 ## Performance Tips
 
-### Optimal Expression Structure
+### Optimizing Step Sizes
+
+Choose appropriate step sizes for your functions:
 
 ```bash
-# Efficient: pre-compute constants
-plot-code-lib plot -e "sin(3.14159*x)" -r "x=0:4" -o efficient.svg
+# High-frequency functions need small steps
+plot-code-lib plot -e "sin(50*x)" -r "x=0:1:0.001" -o high-freq-fine.svg
 
-# Better: use built-in constants
-plot-code-lib plot -e "sin(pi*x)" -r "x=0:4" -o better.svg
+# Smooth, low-frequency functions can use larger steps  
+plot-code-lib plot -e "x^2" -r "x=-10:10:0.5" -o quadratic-coarse.svg
 
-# Avoid: repeated complex calculations
-plot-code-lib plot -e "sin(sqrt(2)*pi*x)" -r "x=0:4" -o slower.svg
+# Oscillatory functions need steps smaller than period
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:0.1" -o sine-adequate.svg
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:1" -o sine-too-coarse.svg
 ```
 
-### Range Optimization
+### Function Complexity
+
+Simple expressions evaluate faster:
 
 ```bash
-# High resolution for smooth curves
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:0.01" -o smooth.svg
+# Fast: polynomial
+plot-code-lib plot -e "x^3 - 2*x^2 + x - 1" -r "x=-2:2" -o poly-fast.svg
 
-# Lower resolution for faster generation
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi:0.1" -o fast.svg
+# Moderate: trigonometric
+plot-code-lib plot -e "sin(x) + cos(2*x)" -r "x=0:2*pi" -o trig-moderate.svg
+
+# Slower: nested transcendental
+plot-code-lib plot -e "exp(sin(log(x+1)))" -r "x=0:10" -o nested-slow.svg
 ```
 
-This comprehensive syntax reference enables you to create sophisticated mathematical visualizations using plot-code-lib's expression system.
+### Memory Considerations
+
+Large ranges with small steps create many points:
+
+```bash
+# Reasonable: ~1000 points
+plot-code-lib plot -e "sin(x)" -r "x=0:10:0.01" -o reasonable.svg
+
+# Large: ~100,000 points (slower but detailed)
+plot-code-lib plot -e "sin(100*x)" -r "x=0:10:0.0001" -o very-detailed.svg
+
+# Consider PNG for complex plots with many points
+plot-code-lib plot -e "random()*sin(100*x)" -r "x=0:10:0.0001" -o complex.png
+```
+
+---
+
+This comprehensive syntax guide covers all aspects of mathematical expression writing in plot-code-lib. For more examples, see the [CLI Examples](CLI_EXAMPLES.md) and [API Documentation](api.md).
