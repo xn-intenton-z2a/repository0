@@ -8,16 +8,16 @@ paths:
     path: "MISSION.md"
   librarySourcesFilepath:
     path: "SOURCES.md"
-    permissions: []
-    limit: 0
+    permissions: ["write"]
+    limit: 32
   libraryDocumentsPath:
     path: "library/"
-    permissions: []
-    limit: 0
+    permissions: ["write"]
+    limit: 32
   featuresPath:
     path: "features/"
     permissions: ["write"]
-    limit: 2
+    limit: 4
 
   # Filepaths for engineer workflows
   contributingFilepath:

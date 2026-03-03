@@ -81,7 +81,9 @@ export async function reviewIssue(context) {
     writablePaths: [],
   });
 
-  if (verdict.toUpperCase().startsWith("RESOLVED")) {
+  // Strip leading markdown formatting (e.g., **RESOLVED** or *RESOLVED*)
+  const normalised = verdict.replace(/^[*_`#>\s-]+/, "").toUpperCase();
+  if (normalised.startsWith("RESOLVED")) {
     await octokit.rest.issues.createComment({
       ...repo,
       issue_number: Number(targetIssueNumber),
