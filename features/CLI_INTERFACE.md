@@ -2,7 +2,7 @@
 
 ## Overview
 
-Provide a comprehensive command-line interface that orchestrates all plotting functionality through intuitive arguments and options.
+Provide a comprehensive command-line interface that orchestrates all plotting functionality through intuitive arguments and options, making it the jq of formulae visualisations with pipeline-friendly operations.
 
 ## Acceptance Criteria
 
@@ -15,6 +15,9 @@ The CLI must support:
 - Verbose output: --verbose or -v for debugging
 - Dry run mode: --dry-run to show what would be generated
 - Multiple output formats in single command
+- Data input from stdin for pipeline processing
+- JSON output mode for data extraction and chaining
+- Multiple expressions in single command
 
 ## Implementation Details
 
@@ -25,16 +28,21 @@ Parse command-line arguments using a robust argument parsing library, validate i
 - Orchestrate EXPRESSION_PARSER for mathematical expression processing
 - Configure TIME_SERIES_GENERATOR with range parameters
 - Direct PLOT_GENERATOR for file output operations
+- Enable DATA_PIPELINE for input/output processing in standard formats
 - Provide unified error handling and user feedback
+- Support pipeline operations for jq-like data processing workflows
 
 ## Command Examples
 
 Support command patterns like:
 ```
-node src/lib/main.js --expression "y=sin(x)" --range "x=-pi:pi,y=-2:2" --file output.svg
-node src/lib/main.js --expression "y=x^2" --range "x=-5:5" --file plot.png --verbose  
-node src/lib/main.js --help
-node src/lib/main.js --version
+plot-code-lib --expression "y=sin(x)" --range "x=-pi:pi,y=-2:2" --file output.svg
+plot-code-lib --expression "y=x^2" --range "x=-5:5" --file plot.png --verbose  
+plot-code-lib --expression "y=sin(x),y=cos(x)" --range "x=-pi:pi" --file multi.svg
+echo '{"expression": "y=sin(x)", "range": "x=-pi:pi"}' | plot-code-lib --stdin
+plot-code-lib --expression "y=sin(x)" --output-format json --no-plot
+plot-code-lib --help
+plot-code-lib --version
 ```
 
 ## Error Handling
