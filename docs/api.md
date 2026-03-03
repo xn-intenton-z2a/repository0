@@ -1,142 +1,154 @@
 # API Documentation
 
-**plot-code-lib** provides a comprehensive JavaScript API for programmatic mathematical plotting and data generation. This document covers all classes, methods, and interfaces available for integration into your applications.
+**plot-code-lib** provides a comprehensive JavaScript API for mathematical expression plotting and data generation.
 
 ## Table of Contents
 
-- [ExpressionParser](#expressionparser)
-- [TimeSeriesGenerator](#timeseriesgenerator)
-- [PlotGenerator](#plotgenerator)
-- [PlotCodeLib](#plotcodelib)
-- [Type Definitions](#type-definitions)
+- [Core Classes](#core-classes)
+  - [ExpressionParser](#expressionparser)
+  - [TimeSeriesGenerator](#timeseriesgenerator)
+  - [PlotGenerator](#plotgenerator)
+  - [PlotCodeLib](#plotcodelib)
+- [Error Handling](#error-handling)
+- [Data Formats](#data-formats)
 - [Examples](#examples)
 
----
+## Core Classes
 
-## ExpressionParser
+### ExpressionParser
 
-Mathematical expression parser using MathJS for compilation and evaluation.
+Parses and compiles mathematical expressions using MathJS with caching for performance.
 
-### Constructor
+#### Constructor
 
 ```javascript
-const parser = new ExpressionParser()
+const parser = new ExpressionParser();
 ```
 
-Creates a new expression parser with internal compilation cache for performance optimization.
+#### Methods
 
-### Methods
+##### `parse(expression)`
 
-#### `parse(expression)`
-
-Parse and compile a mathematical expression into an evaluable function.
+Parse and compile a mathematical expression.
 
 **Parameters:**
-- `expression` (string): Mathematical expression using MathJS syntax
+- `expression` (string): Mathematical expression (e.g., "sin(x)", "x^2 + 2*x + 1")
 
 **Returns:**
-- `Function`: Compiled function that accepts variable object and returns result
+- Function: Compiled function that takes variables object and returns numeric result
 
 **Throws:**
-- `Error`: If expression syntax is invalid
+- Error: If expression syntax is invalid
 
 **Example:**
 ```javascript
 const parser = new ExpressionParser();
 const func = parser.parse("sin(x) + cos(2*x)");
-const result = func({ x: Math.PI }); // Evaluates expression at x = π
+
+// Evaluate at specific points
+console.log(func({ x: 0 }));        // 1
+console.log(func({ x: Math.PI }));  // -1
+console.log(func({ x: Math.PI/2 })); // 1
 ```
 
-**Supported Expression Syntax:**
-- **Arithmetic**: `+`, `-`, `*`, `/`, `^`, `%`
-- **Functions**: `sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `abs`, etc.
-- **Constants**: `pi`, `e`, `phi` (golden ratio)
-- **Conditionals**: `x > 0 ? x : -x` (ternary operator)
-- **Complex**: Nested functions like `sin(cos(x^2))`
+**Caching Behavior:**
+The parser automatically caches compiled expressions for performance. Subsequent calls with the same expression return the cached function.
+
+```javascript
+const func1 = parser.parse("x^2");
+const func2 = parser.parse("x^2"); 
+console.log(func1 === func2); // true - same cached reference
+```
 
 ---
 
-## TimeSeriesGenerator
+### TimeSeriesGenerator
 
-Generates coordinate data from mathematical expressions using open standards (GeoJSON format).
+Generates coordinate data from mathematical expressions and outputs GeoJSON format.
 
-### Constructor
+#### Constructor
 
 ```javascript
-const generator = new TimeSeriesGenerator(parser)
+const generator = new TimeSeriesGenerator(parser);
 ```
 
 **Parameters:**
 - `parser` (ExpressionParser): Expression parser instance
 
-### Methods
+#### Methods
 
-#### `parseRange(rangeSpec)`
+##### `parseRange(rangeSpec)`
 
-Parse range specification string into structured range parameters.
+Parse range specification into components.
 
 **Parameters:**
-- `rangeSpec` (string): Range in format `"variable=start:end"` or `"variable=start:end:step"`
+- `rangeSpec` (string): Range specification in format "variable=start:end" or "variable=start:end:step"
 
 **Returns:**
-- `Object`: `{ variable: string, start: number, end: number, step: number }`
+- Object: `{variable: string, start: number, end: number, step: number}`
 
 **Throws:**
-- `Error`: If range format is invalid or values cannot be evaluated
+- Error: If range format is invalid or values cannot be evaluated
 
 **Examples:**
 ```javascript
+const generator = new TimeSeriesGenerator(parser);
+
 // Basic range with automatic step (100 points)
-generator.parseRange("x=0:10"); 
-// → { variable: "x", start: 0, end: 10, step: 0.1 }
+const range1 = generator.parseRange("x=-1:1");
+// Result: {variable: "x", start: -1, end: 1, step: 0.02}
 
 // Custom step size
-generator.parseRange("x=0:2*pi:0.1"); 
-// → { variable: "x", start: 0, end: 6.28..., step: 0.1 }
+const range2 = generator.parseRange("x=0:10:0.5");
+// Result: {variable: "x", start: 0, end: 10, step: 0.5}
 
 // Mathematical expressions in range
-generator.parseRange("t=-pi:pi:pi/50");
-// → { variable: "t", start: -3.14..., end: 3.14..., step: 0.0628... }
+const range3 = generator.parseRange("t=0:2*pi:pi/20");
+// Result: {variable: "t", start: 0, end: 6.283..., step: 0.157...}
 ```
 
-#### `generate(expression, rangeSpec)`
+##### `generate(expression, rangeSpec)`
 
-Generate coordinate data from mathematical expression over specified range.
+Generate coordinate data from expression and range.
 
 **Parameters:**
 - `expression` (string): Mathematical expression
 - `rangeSpec` (string): Range specification
 
 **Returns:**
-- `GeoJsonFeature`: GeoJSON LineString feature with coordinate data
+- Object: GeoJSON Feature with LineString geometry
 
 **Throws:**
-- `Error`: If no valid data points are generated
+- Error: If no valid data points are generated
 
 **Example:**
 ```javascript
 const data = generator.generate("sin(x)", "x=0:2*pi:0.1");
-// Returns GeoJSON feature with sine wave coordinates
+
+console.log(data);
+// {
+//   type: "Feature",
+//   properties: {
+//     expression: "sin(x)",
+//     range: "x=0:2*pi:0.1"
+//   },
+//   geometry: {
+//     type: "LineString", 
+//     coordinates: [[0, 0], [0.1, 0.0998], [0.2, 0.1987], ...]
+//   }
+// }
 ```
 
-**GeoJSON Output Structure:**
-```javascript
-{
-  "type": "Feature",
-  "properties": {
-    "expression": "sin(x)",
-    "range": "x=0:2*pi:0.1"
-  },
-  "geometry": {
-    "type": "LineString",
-    "coordinates": [[0, 0], [0.1, 0.0998], [0.2, 0.1987], ...]
-  }
-}
-```
+**Domain Handling:**
+The generator automatically handles mathematical edge cases:
+- Complex numbers are skipped
+- Infinite values (1/0) are skipped  
+- NaN results are skipped
+- Only finite, real coordinates are included
 
-#### `generateParametric(xExpression, yExpression, rangeSpec)`
+##### `generateParametric(xExpression, yExpression, rangeSpec)`
 
-Generate parametric curve data from separate X and Y expressions.
+Generate parametric curve data.
 
 **Parameters:**
 - `xExpression` (string): X coordinate expression
@@ -144,46 +156,55 @@ Generate parametric curve data from separate X and Y expressions.
 - `rangeSpec` (string): Parameter range specification
 
 **Returns:**
-- `GeoJsonFeature`: GeoJSON LineString feature for parametric curve
+- Object: GeoJSON Feature with parametric metadata
+
+**Throws:**
+- Error: If no valid data points are generated
 
 **Example:**
 ```javascript
 // Generate unit circle
 const circle = generator.generateParametric("cos(t)", "sin(t)", "t=0:2*pi");
 
-// Generate heart curve
-const heart = generator.generateParametric(
-  "16*sin(t)^3", 
-  "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)", 
-  "t=0:2*pi"
-);
+console.log(circle);
+// {
+//   type: "Feature", 
+//   properties: {
+//     xExpression: "cos(t)",
+//     yExpression: "sin(t)",
+//     range: "t=0:2*pi",
+//     mode: "parametric"
+//   },
+//   geometry: {
+//     type: "LineString",
+//     coordinates: [[1, 0], [0.999, 0.063], ...]
+//   }
+// }
 ```
 
 ---
 
-## PlotGenerator
+### PlotGenerator
 
-Creates SVG and PNG visualizations from GeoJSON coordinate data using D3.js.
+Creates SVG and PNG visualizations from GeoJSON coordinate data.
 
-### Constructor
+#### Constructor
 
 ```javascript
-const plotter = new PlotGenerator()
+const plotter = new PlotGenerator();
 ```
 
-Creates plot generator with default dimensions (800×600) and margins.
-
-### Properties
+#### Properties
 
 - `width` (number): Plot width in pixels (default: 800)
 - `height` (number): Plot height in pixels (default: 600)  
-- `margins` (object): Plot margins `{ top: 40, right: 40, bottom: 60, left: 80 }`
+- `margins` (Object): Plot margins `{top, right, bottom, left}` (default: `{top: 40, right: 40, bottom: 60, left: 80}`)
 
-### Methods
+#### Methods
 
-#### `setDimensions(width, height)`
+##### `setDimensions(width, height)`
 
-Configure plot dimensions.
+Set plot dimensions.
 
 **Parameters:**
 - `width` (number): Plot width in pixels
@@ -191,208 +212,379 @@ Configure plot dimensions.
 
 **Example:**
 ```javascript
-plotter.setDimensions(1200, 800); // High resolution plot
+const plotter = new PlotGenerator();
+plotter.setDimensions(1200, 800);
+
+console.log(plotter.width);  // 1200
+console.log(plotter.height); // 800
 ```
 
-#### `generateSVG(geoJsonData, options)`
+##### `generateSVG(geoJsonData, options)`
 
-Generate SVG markup from GeoJSON coordinate data.
+Generate SVG plot from GeoJSON data.
 
 **Parameters:**
-- `geoJsonData` (GeoJsonFeature | FeatureCollection): Coordinate data
-- `options` (object, optional): Plot customization options
+- `geoJsonData` (Object): GeoJSON Feature or FeatureCollection
+- `options` (Object): Plot configuration options
+
+**Options:**
+- `title` (string): Plot title
+- `xLabel` (string): X-axis label  
+- `yLabel` (string): Y-axis label
 
 **Returns:**
-- `string`: Complete SVG markup
+- string: SVG markup
 
 **Throws:**
-- `Error`: If no coordinate data found
-
-**Options Object:**
-```javascript
-{
-  title: "Plot Title",        // Main plot title
-  xLabel: "X Axis Label",     // X-axis label (default: "x")
-  yLabel: "Y Axis Label",     // Y-axis label (default: "y")
-}
-```
+- Error: If no coordinate data found in GeoJSON
 
 **Example:**
 ```javascript
-const svg = plotter.generateSVG(geoJsonData, {
-  title: "Trigonometric Functions",
-  xLabel: "Angle (radians)",
-  yLabel: "Amplitude"
-});
+const geoJson = generator.generate("x^2", "x=-2:2:0.1");
+const options = {
+  title: "Quadratic Function",
+  xLabel: "Input (x)",
+  yLabel: "Output (y)"
+};
+
+const svgString = plotter.generateSVG(geoJson, options);
+console.log(svgString); // "<svg width="800" height="600" ...>...</svg>"
 ```
 
-**SVG Features:**
-- Automatic scaling based on data extent
-- D3.js axis generation with tick marks and labels
-- Multiple curve support with distinct colors
-- Responsive text sizing and positioning
-- Clean, publication-quality output
+**Multi-Series Support:**
+The plotter supports multiple series by passing a FeatureCollection:
 
-#### `generatePNG(svgString)`
+```javascript
+const series1 = generator.generate("sin(x)", "x=0:2*pi");
+const series2 = generator.generate("cos(x)", "x=0:2*pi"); 
 
-Convert SVG markup to PNG format using Sharp library.
+const multiSeries = {
+  type: "FeatureCollection",
+  features: [series1, series2]
+};
+
+const svg = plotter.generateSVG(multiSeries, {title: "Sine and Cosine"});
+```
+
+**Automatic Scaling:**
+The plot generator automatically:
+- Calculates optimal axis ranges from data
+- Creates linear scales for X and Y axes
+- Generates axis ticks and labels
+- Uses distinct colors for multiple series
+
+##### `generatePNG(svgString)`
+
+Convert SVG to PNG format.
 
 **Parameters:**
-- `svgString` (string): Complete SVG markup
+- `svgString` (string): SVG markup
 
 **Returns:**
-- `Promise<Buffer>`: PNG image buffer
+- Promise<Buffer>: PNG image data
 
 **Throws:**
-- `Error`: If SVG conversion fails
+- Error: If SVG conversion fails
 
 **Example:**
 ```javascript
-const svg = plotter.generateSVG(data);
-const pngBuffer = await plotter.generatePNG(svg);
-fs.writeFileSync('output.png', pngBuffer);
+const svgString = plotter.generateSVG(geoJson, options);
+const pngBuffer = await plotter.generatePNG(svgString);
+
+// Save to file
+import { writeFileSync } from 'fs';
+writeFileSync('plot.png', pngBuffer);
 ```
 
 ---
 
-## PlotCodeLib
+### PlotCodeLib
 
-Main application class providing high-level plotting operations and CLI functionality.
+Main application class that integrates all components with CLI interface.
 
-### Constructor
+#### Constructor
 
 ```javascript
-const app = new PlotCodeLib()
+const app = new PlotCodeLib();
 ```
 
-Creates application instance with initialized parser, generator, and plotter components.
+Creates instances of ExpressionParser, TimeSeriesGenerator, and PlotGenerator internally.
 
-### Properties
+#### Methods
 
-- `parser` (ExpressionParser): Expression parser instance
-- `generator` (TimeSeriesGenerator): Time series data generator
-- `plotter` (PlotGenerator): Plot visualization generator
+##### `run()`
 
-### Methods
-
-#### `generatePlot(options)`
-
-Generate standard mathematical function plot.
-
-**Parameters:**
-- `options` (object): Plot generation options
+Run the CLI application with Commander.js argument parsing.
 
 **Returns:**
-- `Promise<void>`: Resolves when plot is saved to file
+- Promise<void>
 
-**Options Object:**
+**Example:**
 ```javascript
-{
-  expression: "sin(x)",        // Required: Mathematical expression
-  range: "x=0:2*pi",          // Required: Variable range
-  output: "output.svg",        // Required: Output file path
-  title: "Plot Title",         // Optional: Plot title
-  width: "800",               // Optional: Plot width (string)
-  height: "600",              // Optional: Plot height (string)
-  xlabel: "x",                // Optional: X-axis label
-  ylabel: "y"                 // Optional: Y-axis label
-}
+const app = new PlotCodeLib();
+await app.run();
 ```
 
-#### `generateParametricPlot(options)`
+**CLI Commands:**
+The `run()` method sets up three main commands:
+- `plot`: Standard function plots
+- `parametric`: Parametric curve plots  
+- `export`: Data export without visualization
 
-Generate parametric curve plot.
+##### `generatePlot(options)`
+
+Generate a standard function plot.
 
 **Parameters:**
-- `options` (object): Parametric plot options
+- `options` (Object): CLI options object
+
+**Options:**
+- `expression` (string): Mathematical expression
+- `range` (string): Variable range specification
+- `output` (string): Output file path (.svg or .png)
+- `title` (string, optional): Plot title
+- `width` (string, optional): Plot width (default: "800")
+- `height` (string, optional): Plot height (default: "600")  
+- `xlabel` (string, optional): X-axis label (default: "x")
+- `ylabel` (string, optional): Y-axis label (default: "y")
 
 **Returns:**
-- `Promise<void>`: Resolves when plot is saved
+- Promise<void>
 
-**Options Object:**
+**Throws:**
+- Error: If file extension is not .svg or .png
+
+**Example:**
 ```javascript
-{
-  xexpr: "cos(t)",            // Required: X coordinate expression
-  yexpr: "sin(t)",            // Required: Y coordinate expression  
-  range: "t=0:2*pi",          // Required: Parameter range
-  output: "circle.svg",        // Required: Output file path
-  title: "Unit Circle",        // Optional: Plot title
-  width: "800",               // Optional: Plot width
-  height: "600",              // Optional: Plot height
-  xlabel: "x",                // Optional: X-axis label
-  ylabel: "y"                 // Optional: Y-axis label
-}
+const options = {
+  expression: "sin(x)",
+  range: "x=0:2*pi",
+  output: "sine.svg",
+  title: "Sine Wave",
+  width: "1200",
+  height: "800",
+  xlabel: "Angle (rad)",
+  ylabel: "Amplitude"
+};
+
+await app.generatePlot(options);
+console.log("SVG plot saved to sine.svg");
 ```
 
-#### `exportData(options)`
+##### `generateParametricPlot(options)`
 
-Export coordinate data in specified format without visualization.
+Generate a parametric curve plot.
 
 **Parameters:**
-- `options` (object): Export options
+- `options` (Object): CLI options object
+
+**Options:**  
+- `xexpr` (string): X coordinate expression
+- `yexpr` (string): Y coordinate expression
+- `range` (string): Parameter range specification
+- `output` (string): Output file path (.svg or .png)
+- `title`, `width`, `height`, `xlabel`, `ylabel`: Same as `generatePlot()`
 
 **Returns:**
-- `Promise<void>`: Resolves when data is exported
+- Promise<void>
 
-**Options Object:**
+**Example:**
 ```javascript
-{
-  expression: "x^2",          // Required: Mathematical expression
-  range: "x=-5:5",            // Required: Variable range  
-  output: "data.json",        // Required: Output file path
-  format: "geojson"           // Optional: "geojson", "csv", "json"
-}
+const options = {
+  xexpr: "cos(t)",
+  yexpr: "sin(t)", 
+  range: "t=0:2*pi",
+  output: "circle.svg",
+  title: "Unit Circle"
+};
+
+await app.generateParametricPlot(options);
+```
+
+##### `exportData(options)`
+
+Export coordinate data in specified format.
+
+**Parameters:**
+- `options` (Object): CLI options object
+
+**Options:**
+- `expression` (string): Mathematical expression  
+- `range` (string): Variable range specification
+- `output` (string): Output file path
+- `format` (string): Output format ("geojson", "csv", "json")
+
+**Returns:**
+- Promise<void>
+
+**Example:**
+```javascript
+const options = {
+  expression: "x^2",
+  range: "x=-5:5:0.5", 
+  output: "quadratic.csv",
+  format: "csv"
+};
+
+await app.exportData(options);
+console.log("CSV data exported to quadratic.csv");
 ```
 
 **Export Formats:**
-- **geojson**: Complete GeoJSON Feature with metadata
-- **csv**: Simple comma-separated values (x,y header)
-- **json**: Simplified JSON with expression metadata
 
-#### `run()`
+1. **GeoJSON** (default): Standard geographic data format
+   ```json
+   {
+     "type": "Feature",
+     "properties": {"expression": "sin(x)", "range": "x=0:2*pi"},
+     "geometry": {"type": "LineString", "coordinates": [[0,0], [0.1,0.1]]}
+   }
+   ```
 
-Execute CLI application with command-line argument parsing.
+2. **CSV**: Spreadsheet-compatible format
+   ```csv
+   x,y
+   0,0
+   0.1,0.09983341664682815
+   0.2,0.19866933079506122
+   ```
 
-**Returns:**
-- `Promise<void>`: Resolves when CLI execution completes
+3. **JSON**: Simple coordinate array format
+   ```json
+   {
+     "expression": "sin(x)",
+     "range": "x=0:2*pi", 
+     "data": [[0,0], [0.1,0.0998], [0.2,0.1987]]
+   }
+   ```
 
-**Usage:**
+---
+
+## Error Handling
+
+All classes implement comprehensive error handling:
+
+### ExpressionParser Errors
+
 ```javascript
-const app = new PlotCodeLib();
-await app.run(); // Processes process.argv automatically
+try {
+  const func = parser.parse("invalid_syntax(");
+} catch (error) {
+  console.error('Parse Error:', error.message);
+  // "Failed to parse expression "invalid_syntax(": Parenthesis ) expected"
+}
+```
+
+### TimeSeriesGenerator Errors
+
+```javascript
+try {
+  const data = generator.generate("sqrt(x)", "x=-5:5");
+} catch (error) {
+  console.error('Generation Error:', error.message);
+  // "No valid data points generated from expression"
+}
+```
+
+### Range Parsing Errors
+
+```javascript
+try {
+  const range = generator.parseRange("invalid_range");
+} catch (error) {
+  console.error('Range Error:', error.message);  
+  // "Invalid range format: invalid_range. Use format: variable=start:end or variable=start:end:step"
+}
+```
+
+### PlotGenerator Errors
+
+```javascript
+try {
+  const svg = plotter.generateSVG({geometry: {coordinates: []}});
+} catch (error) {
+  console.error('Plot Error:', error.message);
+  // "No coordinate data found in GeoJSON"
+}
+```
+
+### PNG Conversion Errors
+
+```javascript
+try {
+  const png = await plotter.generatePNG("invalid_svg");
+} catch (error) {
+  console.error('PNG Error:', error.message);
+  // "Failed to convert SVG to PNG: ..."
+}
 ```
 
 ---
 
-## Type Definitions
+## Data Formats
 
-### GeoJsonFeature
+### Input Expression Syntax
 
-```typescript
-interface GeoJsonFeature {
-  type: "Feature";
-  properties: {
-    expression?: string;
-    range?: string;
-    xExpression?: string;    // For parametric curves
-    yExpression?: string;    // For parametric curves
-    mode?: "parametric";     // For parametric curves
-  };
-  geometry: {
-    type: "LineString";
-    coordinates: [number, number][]; // Array of [x, y] coordinate pairs
-  };
-}
+Uses **MathJS** syntax for maximum compatibility:
+
+```javascript
+// Arithmetic operators
+"x + 2"           // Addition
+"x - 1"           // Subtraction  
+"2 * x"           // Multiplication
+"x / 3"           // Division
+"x ^ 2"           // Exponentiation
+"x % 3"           // Modulo
+
+// Mathematical functions
+"sin(x)"          // Trigonometric
+"exp(x)"          // Exponential
+"log(x)"          // Natural logarithm
+"sqrt(x)"         // Square root
+"abs(x)"          // Absolute value
+
+// Constants
+"pi"              // π ≈ 3.14159
+"e"               // e ≈ 2.71828
+"phi"             // Golden ratio ≈ 1.618
+
+// Complex expressions
+"sin(x) + cos(2*x)"
+"exp(-x^2 / 2) / sqrt(2*pi)"
+"x >= 0 ? x^2 : -x^2"
 ```
 
-### Range
+### Range Specifications
 
-```typescript
-interface Range {
-  variable: string;  // Variable name (e.g., "x", "t")
-  start: number;     // Range start value
-  end: number;       // Range end value
-  step: number;      // Step size between points
+```javascript
+"x=0:10"          // 100 points from 0 to 10
+"x=0:10:0.5"      // Custom step size
+"t=0:2*pi:0.1"    // Using mathematical expressions
+"x=-pi/2:pi/2"    // Negative and fractional values  
+"x=1e-3:1e3"      // Scientific notation
+```
+
+### GeoJSON Output Format
+
+Standard GeoJSON Feature with LineString geometry:
+
+```javascript
+{
+  "type": "Feature",
+  "properties": {
+    "expression": "sin(x)",
+    "range": "x=0:2*pi:0.1"
+    // For parametric: "xExpression", "yExpression", "mode": "parametric"
+  },
+  "geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [0, 0],                    // [x, y] coordinate pairs
+      [0.1, 0.09983341664682815],
+      [0.2, 0.19866933079506122],
+      // ... more points
+    ]
+  }
 }
 ```
 
@@ -400,238 +592,109 @@ interface Range {
 
 ## Examples
 
-### Basic Library Usage
+### Basic Programmatic Usage
 
 ```javascript
 import { ExpressionParser, TimeSeriesGenerator, PlotGenerator } from 'plot-code-lib';
-import fs from 'fs';
 
-// 1. Parse mathematical expressions
+// Initialize components
 const parser = new ExpressionParser();
-const quadratic = parser.parse("x^2 - 4*x + 3");
-console.log(quadratic({ x: 2 })); // → -1
-
-// 2. Generate coordinate data
 const generator = new TimeSeriesGenerator(parser);
-const data = generator.generate("sin(x) + 0.5*cos(3*x)", "x=0:2*pi:0.1");
-
-// 3. Create visualization
 const plotter = new PlotGenerator();
-plotter.setDimensions(1200, 800);
+
+// Generate function plot
+const data = generator.generate("sin(x) + 0.5*cos(3*x)", "x=0:2*pi:0.05");
 const svg = plotter.generateSVG(data, {
   title: "Complex Trigonometric Function",
-  xLabel: "Angle (radians)",
-  yLabel: "Amplitude"
+  xLabel: "x (radians)", 
+  yLabel: "f(x)"
 });
 
-// 4. Save to file
-fs.writeFileSync('complex-trig.svg', svg);
-```
-
-### Multiple Function Comparison
-
-```javascript
-// Generate multiple datasets
-const sine = generator.generate("sin(x)", "x=0:2*pi:0.05");
-const cosine = generator.generate("cos(x)", "x=0:2*pi:0.05");
-const tangent = generator.generate("tan(x)", "x=-pi/2+0.1:pi/2-0.1:0.05");
-
-// Create feature collection
-const featureCollection = {
-  type: "FeatureCollection",
-  features: [sine, cosine, tangent]
-};
-
-// Plot all functions together
-const svg = plotter.generateSVG(featureCollection, {
-  title: "Trigonometric Function Comparison"
-});
+// Save SVG
+import { writeFileSync } from 'fs';
+writeFileSync('complex-trig.svg', svg);
 ```
 
 ### Parametric Curves
 
 ```javascript
-// Rose curve (mathematical flower)
-const rose = generator.generateParametric(
-  "cos(5*t) * cos(t)", 
-  "cos(5*t) * sin(t)", 
-  "t=0:pi:0.01"
+// Generate heart curve (cardioid)
+const heartData = generator.generateParametric(
+  "16*sin(t)^3", 
+  "13*cos(t)-5*cos(2*t)-2*cos(3*t)-cos(4*t)",
+  "t=0:2*pi:0.05"
 );
 
-// Lissajous curve  
-const lissajous = generator.generateParametric(
-  "sin(3*t)", 
-  "sin(2*t)", 
-  "t=0:2*pi:0.01"
-);
+plotter.setDimensions(800, 800); // Square aspect ratio
+const heartSvg = plotter.generateSVG(heartData, {
+  title: "Parametric Heart Curve",
+  xlabel: "x",
+  ylabel: "y"
+});
 
-// Create high-resolution plots
-plotter.setDimensions(1920, 1080);
-const roseSvg = plotter.generateSVG(rose, { title: "Rose Curve" });
-const lissajousSvg = plotter.generateSVG(lissajous, { title: "Lissajous Curve" });
+writeFileSync('heart.svg', heartSvg);
 ```
 
-### Data Export Pipeline
+### Multi-Series Plots
 
 ```javascript
-// Export data in different formats
-const expression = "exp(-x/2) * sin(5*x)";
-const range = "x=0:10:0.01";
+// Compare multiple functions
+const sine = generator.generate("sin(x)", "x=0:2*pi:0.1");
+const cosine = generator.generate("cos(x)", "x=0:2*pi:0.1"); 
+const tangent = generator.generate("tan(x)", "x=-pi/2:pi/2:0.1");
 
-// Generate raw data
-const data = generator.generate(expression, range);
-
-// Export as GeoJSON (standard format)
-fs.writeFileSync('data.geojson', JSON.stringify(data, null, 2));
-
-// Export as CSV for spreadsheet analysis
-const csvLines = ['x,y'];
-data.geometry.coordinates.forEach(([x, y]) => {
-  csvLines.push(`${x},${y}`);
-});
-fs.writeFileSync('data.csv', csvLines.join('\n'));
-
-// Export as simple JSON
-const simpleJson = {
-  expression: expression,
-  range: range,
-  points: data.geometry.coordinates.length,
-  data: data.geometry.coordinates
+const multiSeries = {
+  type: "FeatureCollection",
+  features: [sine, cosine, tangent]
 };
-fs.writeFileSync('data.json', JSON.stringify(simpleJson, null, 2));
-```
 
-### Error Handling
-
-```javascript
-try {
-  // Invalid expression
-  const func = parser.parse("invalid_function(x)");
-} catch (error) {
-  console.error("Expression error:", error.message);
-}
-
-try {
-  // Invalid range
-  const data = generator.generate("sin(x)", "invalid_range");
-} catch (error) {
-  console.error("Range error:", error.message);
-}
-
-try {
-  // Domain issues (e.g., log of negative numbers)
-  const data = generator.generate("log(x)", "x=-5:5");
-  // Will succeed but skip invalid points
-  console.log(`Generated ${data.geometry.coordinates.length} valid points`);
-} catch (error) {
-  console.error("Generation error:", error.message);
-}
-```
-
-### Performance Optimization
-
-```javascript
-// Cache parser for repeated use
-const parser = new ExpressionParser();
-const expressions = ["sin(x)", "cos(x)", "tan(x)", "sin(x)"];
-
-// First parse caches the compiled expression
-expressions.forEach(expr => {
-  const func = parser.parse(expr); // "sin(x)" reuses cached version
+const comparisonSvg = plotter.generateSVG(multiSeries, {
+  title: "Trigonometric Functions Comparison"
 });
 
-// Optimize range for smooth curves
-const highFreq = generator.generate("sin(50*x)", "x=0:1:0.001"); // Small step for high frequency
-const lowFreq = generator.generate("sin(0.5*x)", "x=0:10:0.1");   // Larger step for low frequency
+writeFileSync('trig-comparison.svg', comparisonSvg);
+```
 
-// Batch processing
-const functions = ["x^2", "x^3", "sqrt(x)", "log(x)"];
-const plots = functions.map(expr => {
-  const data = generator.generate(expr, "x=0.1:10:0.1");
-  return plotter.generateSVG(data, { title: `Function: ${expr}` });
+### PNG Generation
+
+```javascript
+// High-resolution PNG for publications
+plotter.setDimensions(1920, 1080);
+
+const data = generator.generate("exp(-x^2/2)/sqrt(2*pi)", "x=-4:4:0.01");
+const svg = plotter.generateSVG(data, {
+  title: "Standard Normal Distribution",
+  xLabel: "Standard Deviations (σ)",
+  yLabel: "Probability Density"
 });
+
+const pngBuffer = await plotter.generatePNG(svg);
+writeFileSync('normal-distribution.png', pngBuffer);
 ```
 
----
-
-## Integration Patterns
-
-### Web Application Integration
+### Data Export Workflows
 
 ```javascript
-// Express.js route for dynamic plot generation
-app.post('/api/plot', async (req, res) => {
-  try {
-    const { expression, range, format } = req.body;
-    
-    const generator = new TimeSeriesGenerator(new ExpressionParser());
-    const data = generator.generate(expression, range);
-    
-    if (format === 'svg') {
-      const plotter = new PlotGenerator();
-      const svg = plotter.generateSVG(data);
-      res.setHeader('Content-Type', 'image/svg+xml');
-      res.send(svg);
-    } else {
-      res.json(data);
-    }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
+// Export for analysis in other tools
+const data = generator.generate("sin(2*pi*x) + 0.1*random()", "x=0:10:0.01");
+
+// GeoJSON format (preserves metadata)
+writeFileSync('noisy-sine.geojson', JSON.stringify(data, null, 2));
+
+// Extract coordinates for CSV
+const coordinates = data.geometry.coordinates;
+const csvLines = ['x,y'];
+coordinates.forEach(([x, y]) => csvLines.push(`${x},${y}`));
+writeFileSync('noisy-sine.csv', csvLines.join('\n'));
+
+// Simple JSON format
+const simpleFormat = {
+  expression: data.properties.expression,
+  range: data.properties.range,
+  points: coordinates.length,
+  data: coordinates
+};
+writeFileSync('noisy-sine.json', JSON.stringify(simpleFormat, null, 2));
 ```
 
-### React Component Integration
-
-```javascript
-import { useEffect, useState } from 'react';
-import { ExpressionParser, TimeSeriesGenerator, PlotGenerator } from 'plot-code-lib';
-
-function MathPlot({ expression, range, title }) {
-  const [svgContent, setSvgContent] = useState('');
-  
-  useEffect(() => {
-    const parser = new ExpressionParser();
-    const generator = new TimeSeriesGenerator(parser);
-    const plotter = new PlotGenerator();
-    
-    try {
-      const data = generator.generate(expression, range);
-      const svg = plotter.generateSVG(data, { title });
-      setSvgContent(svg);
-    } catch (error) {
-      console.error('Plot generation error:', error);
-    }
-  }, [expression, range, title]);
-  
-  return <div dangerouslySetInnerHTML={{ __html: svgContent }} />;
-}
-```
-
-### Node.js Batch Processing
-
-```javascript
-// Generate multiple plots from configuration
-const configurations = [
-  { expr: "sin(x)", range: "x=0:2*pi", title: "Sine Wave" },
-  { expr: "cos(x)", range: "x=0:2*pi", title: "Cosine Wave" },
-  { expr: "tan(x)", range: "x=-pi/2+0.1:pi/2-0.1", title: "Tangent Function" }
-];
-
-const parser = new ExpressionParser();
-const generator = new TimeSeriesGenerator(parser);
-const plotter = new PlotGenerator();
-
-await Promise.all(configurations.map(async (config, index) => {
-  const data = generator.generate(config.expr, config.range);
-  const svg = plotter.generateSVG(data, { title: config.title });
-  const png = await plotter.generatePNG(svg);
-  
-  fs.writeFileSync(`plot-${index}.svg`, svg);
-  fs.writeFileSync(`plot-${index}.png`, png);
-}));
-```
-
----
-
-This API documentation provides comprehensive coverage of all public interfaces, methods, and usage patterns for plot-code-lib. For additional examples and use cases, see the [CLI documentation](./README.md) and [examples directory](../examples/).
+This comprehensive API documentation covers all public methods, parameters, return values, error conditions, and practical examples for effective use of the plot-code-lib library.

@@ -85,8 +85,10 @@ async function run() {
       github: github.context,
     };
 
-    // Run the task
+    // Run the task (measure wall-clock duration for cost tracking)
+    const startTime = Date.now();
     const result = await handler(context);
+    const durationMs = Date.now() - startTime;
 
     // Set outputs
     core.setOutput("result", result.outcome || "completed");
@@ -108,6 +110,7 @@ async function run() {
         inputTokens: result.inputTokens,
         outputTokens: result.outputTokens,
         cost: result.cost,
+        durationMs,
         model: result.model || model,
         details: result.details,
         workflowUrl: `${process.env.GITHUB_SERVER_URL}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
