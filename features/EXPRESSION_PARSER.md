@@ -1,42 +1,42 @@
-# Multi-Function Plotting
+# Multi-Expression Comparative Plotting
 
 ## Overview
-Enable simultaneous plotting of multiple mathematical expressions for comparative visualization and analysis. Transform plot-code-lib from single-function tool to powerful comparative mathematical visualization platform with professional styling and legend generation.
+Enable simultaneous plotting of multiple mathematical expressions for comparative visualization and analysis. Extend the existing single-expression plotting to support overlay comparisons with automatic legend generation and professional styling.
 
 ## Acceptance Criteria
 
-### Multi-Expression Interface
-Enhanced plot command supporting comma-separated expression lists for comparative mathematical analysis
-Command syntax: plot-code-lib plot -e "sin(x),cos(x),x^2/10" -r "x=0:2*pi" -o comparison.svg
-Automatic color assignment from professional palette ensuring visual distinction between plotted functions
-Function-specific metadata preservation in GeoJSON FeatureCollection format for mathematical traceability
+### Multi-Expression Command Interface
+Enhanced plot command supporting comma-separated expression lists: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" -o comparison.svg
+Automatic color assignment using distinct colors from accessibility-friendly palette for function identification
+Function-specific metadata preservation in GeoJSON FeatureCollection format with individual function properties
+Shared domain optimization ensuring all expressions display appropriately within common coordinate boundaries
 
-### Advanced Visualization Features
-Automatic legend generation with mathematical expression labels for function identification and documentation
-Color-blind accessible default palette ensuring inclusive mathematical visualization for diverse user accessibility
-Professional styling with configurable line weights, patterns, and visual differentiation for publication-quality output
-Automatic scaling optimization ensuring all functions display appropriately within shared coordinate boundaries
+### Legend and Labeling System
+Automatic legend generation positioned to avoid overlap with plotted functions and axes
+Mathematical expression labels rendered with proper typography including Greek letters and mathematical symbols
+Configurable legend placement options: top-left, top-right, bottom-left, bottom-right, or disabled
+Legend styling consistent with plot styling including font sizes and color scheme matching
 
-### Comparative Analysis Tools
-Multi-function coordinate generation producing GeoJSON FeatureCollection outputs for mathematical software integration
-Function domain validation ensuring proper mathematical evaluation across different expression types and ranges
-Mathematical accuracy preservation across multiple function domains with appropriate scaling and precision handling
-Export capabilities maintaining individual function metadata for further analysis in external mathematical tools
+### Advanced Multi-Function Features
+Individual expression styling options using JSON configuration: --styles '{"sin(x)":{"color":"red","width":2}}'
+Domain validation across multiple expressions ensuring mathematical accuracy and proper evaluation ranges
+Function-specific error handling allowing individual expression failures without breaking entire plot
+Export capabilities producing FeatureCollection with individual function metadata for analysis tools
 
-### Professional Output Standards
-Publication-ready multi-function plots suitable for academic papers, research documentation, and educational materials
-Grid customization options supporting mathematical coordinate system requirements with appropriate scaling
-Mathematical notation support in legends ensuring proper function identification using standard mathematical typography
-Advanced layout optimization ensuring clear visual separation and readability of overlapping mathematical functions
+### Comparative Analysis Output
+Multi-expression coordinate export maintaining individual function identification in data formats
+GeoJSON FeatureCollection output with properties distinguishing each mathematical expression function
+CSV export with function identifier column enabling comparative analysis in spreadsheet applications
+Structured JSON output suitable for programmatic analysis and integration with mathematical software tools
 
 ## Technical Implementation
-Extend TimeSeriesGenerator class supporting expression arrays and FeatureCollection generation for multi-function output
-Enhanced PlotGenerator with multi-line SVG rendering capabilities and professional color palette management system
-Automatic domain optimization algorithms ensuring complete function visualization within shared plot coordinate boundaries
-Legend generation system with mathematical expression rendering and professional typography for publication standards
+Extend TimeSeriesGenerator to support expression arrays producing GeoJSON FeatureCollection outputs
+Enhanced PlotGenerator with multi-line rendering and automatic color palette management system
+Legend rendering system integrated with SVG generation supporting mathematical expression typography
+Domain optimization algorithms ensuring optimal visualization of multiple functions with different ranges
 
 ## Mission Alignment
-Enhances core jq philosophy by enabling powerful mathematical function comparison within single command interface
-Transforms basic visualization tool into sophisticated comparative analysis platform for mathematical research applications
-Maintains CLI simplicity while providing advanced multi-function visualization capabilities for educational purposes
-Supports mathematical documentation workflows requiring professional comparative function visualization and analysis
+Transforms basic single-function tool into comparative analysis platform maintaining command-line simplicity
+Enables mathematical function comparison supporting educational and research documentation requirements
+Supports jq philosophy by providing structured multi-function data suitable for pipeline processing
+Maintains focus on core visualization mission while expanding analytical capabilities for mathematical research
