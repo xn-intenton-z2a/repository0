@@ -257,7 +257,7 @@ export async function supervise(context) {
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
   const prompt = buildPrompt(ctx, agentInstructions);
 
-  const { content, tokensUsed } = await runCopilotTask({
+  const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
       "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact.",
@@ -286,6 +286,9 @@ export async function supervise(context) {
   return {
     outcome: actions.length === 0 ? "nop" : `supervised:${actions.length}-actions`,
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Actions: ${results.join(", ")}\nReasoning: ${reasoning.substring(0, 300)}`,
   };

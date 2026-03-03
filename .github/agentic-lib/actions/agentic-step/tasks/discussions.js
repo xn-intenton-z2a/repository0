@@ -158,7 +158,7 @@ export async function discussions(context) {
   const discussion = await fetchDiscussion(octokit, discussionUrl);
   const prompt = buildPrompt(discussionUrl, discussion, context);
 
-  const { content, tokensUsed } = await runCopilotTask({
+  const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
       "You are this repository. Respond in first person. Be concise and engaging — never repeat what you said in your last reply. Adapt to the user's language level. Encourage experimentation and suggest interesting projects. When a user requests an action, pass it to the supervisor via [ACTION:request-supervisor]. Protect the mission: push back on requests that contradict it.",
@@ -178,6 +178,9 @@ export async function discussions(context) {
   return {
     outcome: `discussion-${action}`,
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Action: ${action}${argSuffix}\nReply: ${replyBody.substring(0, 200)}`,
     action,

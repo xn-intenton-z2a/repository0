@@ -74,7 +74,7 @@ export async function reviewIssue(context) {
     '- "OPEN: <reason>" if the issue is not yet resolved',
   ].join("\n");
 
-  const { content: verdict, tokensUsed } = await runCopilotTask({
+  const { content: verdict, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: "You are a code reviewer determining if GitHub issues have been resolved.",
     prompt,
@@ -108,6 +108,9 @@ export async function reviewIssue(context) {
     return {
       outcome: "issue-closed",
       tokensUsed,
+      inputTokens,
+      outputTokens,
+      cost,
       model,
       details: `Closed issue #${targetIssueNumber}: ${verdict.substring(0, 200)}`,
     };
@@ -117,6 +120,9 @@ export async function reviewIssue(context) {
   return {
     outcome: "issue-still-open",
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Issue #${targetIssueNumber} remains open: ${verdict.substring(0, 200)}`,
   };

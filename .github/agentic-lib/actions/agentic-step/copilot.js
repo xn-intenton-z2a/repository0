@@ -76,12 +76,27 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
       core.warning(`[copilot] Auth check failed: ${authErr.message}`);
     }
 
+    // Accumulate usage from assistant.usage events (tokens are NOT on the sendAndWait response)
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalCost = 0;
+
     // Register wildcard event handler for ALL events
     session.on((event) => {
       const eventType = event?.type || "unknown";
       if (eventType === "assistant.message") {
         const preview = event?.data?.content?.substring(0, 100) || "(no content)";
         core.info(`[copilot] event=${eventType}: ${preview}...`);
+      } else if (eventType === "assistant.usage") {
+        const d = event?.data || {};
+        const input = d.inputTokens || 0;
+        const output = d.outputTokens || 0;
+        const cacheRead = d.cacheReadTokens || 0;
+        const cost = d.cost || 0;
+        totalInputTokens += input;
+        totalOutputTokens += output;
+        totalCost += cost;
+        core.info(`[copilot] event=${eventType}: model=${d.model} input=${input} output=${output} cacheRead=${cacheRead} cost=${cost}`);
       } else if (eventType === "session.idle") {
         core.info(`[copilot] event=${eventType}`);
       } else if (eventType === "session.error") {
@@ -94,10 +109,10 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
     core.info("[copilot] Sending prompt and waiting for idle...");
     const response = await session.sendAndWait({ prompt }, 600000);
     core.info(`[copilot] sendAndWait resolved`);
-    const tokensUsed = response?.data?.usage?.totalTokens || 0;
+    const tokensUsed = totalInputTokens + totalOutputTokens;
     const content = response?.data?.content || "";
 
-    return { content, tokensUsed };
+    return { content, tokensUsed, inputTokens: totalInputTokens, outputTokens: totalOutputTokens, cost: totalCost };
   } finally {
     await client.stop();
   }

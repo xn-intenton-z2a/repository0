@@ -59,7 +59,7 @@ export async function enhanceIssue(context) {
     "Output ONLY the new issue body text, no markdown code fences.",
   ].join("\n");
 
-  const { content: enhancedBody, tokensUsed } = await runCopilotTask({
+  const { content: enhancedBody, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.",
     prompt,
@@ -96,6 +96,9 @@ export async function enhanceIssue(context) {
   return {
     outcome: "issue-enhanced",
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Enhanced issue #${issueNumber} with acceptance criteria`,
   };

@@ -53,7 +53,7 @@ export async function fixCode(context) {
     "- Make minimal changes to fix the failing tests",
   ].join("\n");
 
-  const { tokensUsed } = await runCopilotTask({
+  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
     prompt,
@@ -65,6 +65,9 @@ export async function fixCode(context) {
   return {
     outcome: "fix-applied",
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Applied fix for ${failedChecks.length} failing check(s) on PR #${prNumber}`,
   };

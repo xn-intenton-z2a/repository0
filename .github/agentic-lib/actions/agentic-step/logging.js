@@ -19,7 +19,10 @@ import * as core from "@actions/core";
  * @param {string} [options.issueNumber] - Related issue number
  * @param {string} [options.prNumber] - Related PR number
  * @param {string} [options.commitUrl] - URL to the commit
- * @param {number} [options.tokensUsed] - Tokens consumed
+ * @param {number} [options.tokensUsed] - Total tokens consumed (input + output)
+ * @param {number} [options.inputTokens] - Input tokens consumed
+ * @param {number} [options.outputTokens] - Output tokens consumed
+ * @param {number} [options.cost] - Cost reported by Copilot SDK
  * @param {string} [options.model] - Model used
  * @param {string} [options.details] - Additional details
  * @param {string} [options.workflowUrl] - URL to the workflow run
@@ -32,6 +35,9 @@ export function logActivity({
   prNumber,
   commitUrl,
   tokensUsed,
+  inputTokens,
+  outputTokens,
+  cost,
   model,
   details,
   workflowUrl,
@@ -48,7 +54,8 @@ export function logActivity({
   if (prNumber) parts.push(`**PR:** #${prNumber}`);
   if (commitUrl) parts.push(`**Commit:** [${commitUrl}](${commitUrl})`);
   if (model) parts.push(`**Model:** ${model}`);
-  if (tokensUsed !== undefined) parts.push(`**Tokens:** ${tokensUsed}`);
+  if (tokensUsed) parts.push(`**Tokens:** ${tokensUsed} (in: ${inputTokens || 0}, out: ${outputTokens || 0})`);
+  if (cost) parts.push(`**Cost:** ${cost}`);
   if (workflowUrl) parts.push(`**Workflow:** [${workflowUrl}](${workflowUrl})`);
   if (details) {
     parts.push("");

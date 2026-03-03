@@ -50,7 +50,7 @@ export async function maintainLibrary(context) {
     `- Maximum ${libraryLimit} library documents`,
   ].join("\n");
 
-  const { tokensUsed } = await runCopilotTask({
+  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
       "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.",
@@ -61,6 +61,9 @@ export async function maintainLibrary(context) {
   return {
     outcome: "library-maintained",
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: `Maintained library (${libraryDocs.length} docs, limit ${libraryLimit})`,
   };

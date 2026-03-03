@@ -85,7 +85,7 @@ export async function transform(context) {
 
   core.info(`Transform prompt length: ${prompt.length} chars`);
 
-  const { content: resultContent, tokensUsed } = await runCopilotTask({
+  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
       "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
@@ -98,6 +98,9 @@ export async function transform(context) {
   return {
     outcome: "transformed",
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     details: resultContent.substring(0, 500),
   };
@@ -207,6 +210,9 @@ async function transformTdd({
   return {
     outcome: "transformed-tdd",
     tokensUsed: totalTokens,
+    inputTokens: (phase1.inputTokens || 0) + (phase2.inputTokens || 0),
+    outputTokens: (phase1.outputTokens || 0) + (phase2.outputTokens || 0),
+    cost: (phase1.cost || 0) + (phase2.cost || 0),
     model,
     details: `TDD transformation: Phase 1 (failing test) + Phase 2 (implementation). ${testResult.substring(0, 200)}`,
   };

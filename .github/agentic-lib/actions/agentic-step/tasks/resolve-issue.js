@@ -78,7 +78,7 @@ export async function resolveIssue(context) {
     contributing ? `\n## Contributing Guidelines\n${contributing}` : "",
   ].join("\n");
 
-  const { content: resultContent, tokensUsed } = await runCopilotTask({
+  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.`,
     prompt,
@@ -91,6 +91,9 @@ export async function resolveIssue(context) {
     outcome: "code-generated",
     prNumber: null,
     tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
     model,
     commitUrl: null,
     details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,

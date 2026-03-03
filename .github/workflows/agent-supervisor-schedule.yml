@@ -48,7 +48,7 @@ jobs:
               weekly: '0 6 * * 1',
               daily: '0 6 * * *',
               hourly: '0 * * * *',
-              continuous: '*/10 * * * *',
+              continuous: '*/15 * * * *',
             };
 
             let content = fs.readFileSync(workflowPath, 'utf8');
