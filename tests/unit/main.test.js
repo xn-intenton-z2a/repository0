@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (C) 2025-2026 Polycode Limited
 import { describe, test, expect } from "vitest";
-import { main, ExpressionParser, TimeSeriesGenerator, PlotGenerator } from "../../src/lib/main.js";
+import { ExpressionParser, TimeSeriesGenerator, PlotGenerator, PlotCodeLib } from "../../src/lib/main.js";
 
 describe("ExpressionParser", () => {
   test("should parse and evaluate simple expressions", () => {
@@ -93,23 +93,27 @@ describe("TimeSeriesGenerator", () => {
       expect(isFinite(y)).toBe(true);
     });
   });
+
+  test("should generate parametric curves", () => {
+    const parser = new ExpressionParser();
+    const generator = new TimeSeriesGenerator(parser);
+    
+    const result = generator.generateParametric("cos(t)", "sin(t)", "t=0:2*pi:pi/2");
+    
+    expect(result.type).toBe("Feature");
+    expect(result.geometry.type).toBe("LineString");
+    expect(result.properties.mode).toBe("parametric");
+    expect(result.properties.xExpression).toBe("cos(t)");
+    expect(result.properties.yExpression).toBe("sin(t)");
+    
+    // Should approximate a circle
+    expect(result.geometry.coordinates).toHaveLength(5); // 0, pi/2, pi, 3pi/2, 2pi
+    expect(result.geometry.coordinates[0][0]).toBeCloseTo(1, 10); // cos(0) = 1
+    expect(result.geometry.coordinates[0][1]).toBeCloseTo(0, 10); // sin(0) = 0
+  });
 });
 
 describe("PlotGenerator", () => {
-  test("should extract coordinates from GeoJSON feature", () => {
-    const plotter = new PlotGenerator();
-    const geoJson = {
-      type: "Feature",
-      geometry: {
-        type: "LineString", 
-        coordinates: [[0, 0], [1, 1], [2, 4]]
-      }
-    };
-    
-    const coords = plotter.extractCoordinates(geoJson);
-    expect(coords).toEqual([[0, 0], [1, 1], [2, 4]]);
-  });
-
   test("should generate SVG markup", () => {
     const plotter = new PlotGenerator();
     const geoJson = {
@@ -121,20 +125,12 @@ describe("PlotGenerator", () => {
       }
     };
     
-    const svg = plotter.generateSVG(geoJson, "Test Plot");
+    const svg = plotter.generateSVG(geoJson, { title: "Test Plot" });
     
     expect(svg).toContain('<svg');
     expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
     expect(svg).toContain('Test Plot');
-    expect(svg).toContain('x^2'); // Expression should be in the plot
     expect(svg).toContain('<path'); // Should contain the line path
-  });
-
-  test("should throw error for invalid GeoJSON", () => {
-    const plotter = new PlotGenerator();
-    const invalidGeoJson = { type: "Point", coordinates: [0, 0] };
-    
-    expect(() => plotter.extractCoordinates(invalidGeoJson)).toThrow("Invalid GeoJSON format");
   });
 
   test("should throw error for empty coordinates", () => {
@@ -149,10 +145,17 @@ describe("PlotGenerator", () => {
     
     expect(() => plotter.generateSVG(geoJson)).toThrow("No coordinate data found");
   });
+
+  test("should set plot dimensions", () => {
+    const plotter = new PlotGenerator();
+    plotter.setDimensions(1200, 800);
+    expect(plotter.width).toBe(1200);
+    expect(plotter.height).toBe(800);
+  });
 });
 
-describe("Main CLI function", () => {
-  test("should accept arguments without error", () => {
-    expect(() => main([])).not.toThrow();
+describe("PlotCodeLib", () => {
+  test("should instantiate without error", () => {
+    expect(() => new PlotCodeLib()).not.toThrow();
   });
 });

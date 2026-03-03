@@ -13,15 +13,25 @@
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
-  "keywords": ["plot", "math", "visualization", "cli", "svg", "png", "expressions", "charts"],
+  "keywords": [
+    "plot",
+    "math",
+    "visualization",
+    "cli",
+    "svg",
+    "png",
+    "expressions",
+    "charts"
+  ],
   "author": "Polycode Limited",
   "license": "MIT",
   "dependencies": {
     "@xn-intenton-z2a/agentic-lib": "^7.1.31",
     "commander": "^12.0.0",
-    "mathjs": "^13.0.0",
     "d3": "^7.9.0",
-    "jsdom": "^25.0.0"
+    "jsdom": "^25.0.0",
+    "mathjs": "^13.0.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",

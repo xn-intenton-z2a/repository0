@@ -13,6 +13,7 @@ import { axisLeft, axisBottom } from "d3-axis";
 import { JSDOM } from "jsdom";
 import { writeFileSync } from "fs";
 import { extname } from "path";
+import sharp from "sharp";
 
 /**
  * Mathematical expression parser using MathJS
@@ -67,42 +68,53 @@ class TimeSeriesGenerator {
 
     const [, variable, startStr, endStr, stepStr] = match;
     
-    const start = evaluate(startStr);
-    const end = evaluate(endStr);
-    const step = stepStr ? evaluate(stepStr) : (end - start) / 100;
-
-    return { variable, start, end, step };
+    try {
+      const start = evaluate(startStr);
+      const end = evaluate(endStr);
+      const step = stepStr ? evaluate(stepStr) : (end - start) / 100; // Default 100 points
+      
+      return { variable, start, end, step };
+    } catch (error) {
+      throw new Error(`Invalid range values in "${rangeSpec}": ${error.message}`);
+    }
   }
 
   /**
-   * Generate coordinate data from mathematical expression and range
-   * @param {string} expression - Mathematical expression 
+   * Generate coordinate data from expression and range
+   * @param {string} expression - Mathematical expression
    * @param {string} rangeSpec - Range specification
    * @returns {Object} - GeoJSON LineString feature
    */
   generate(expression, rangeSpec) {
     const range = this.parseRange(rangeSpec);
     const func = this.parser.parse(expression);
-    
     const coordinates = [];
+    
     for (let value = range.start; value <= range.end; value += range.step) {
-      const variables = { [range.variable]: value };
-      
       try {
+        const variables = {};
+        variables[range.variable] = value;
         const result = func(variables);
-        if (typeof result === 'number' && !isNaN(result) && isFinite(result)) {
+        
+        // Handle complex numbers and invalid results
+        if (typeof result === 'object' && result.im !== undefined) {
+          // Skip complex numbers for now
+          continue;
+        }
+        
+        if (isFinite(result)) {
           coordinates.push([value, result]);
         }
       } catch (error) {
-        // Skip invalid evaluations
+        // Skip invalid points
         continue;
       }
     }
-
+    
     if (coordinates.length === 0) {
-      throw new Error(`No valid data points generated for expression "${expression}" with range "${rangeSpec}"`);
+      throw new Error('No valid data points generated from expression');
     }
-
+    
     return {
       type: "Feature",
       properties: {
@@ -115,302 +127,345 @@ class TimeSeriesGenerator {
       }
     };
   }
+
+  /**
+   * Generate parametric curve data
+   * @param {string} xExpression - X coordinate expression
+   * @param {string} yExpression - Y coordinate expression  
+   * @param {string} rangeSpec - Parameter range specification
+   * @returns {Object} - GeoJSON LineString feature
+   */
+  generateParametric(xExpression, yExpression, rangeSpec) {
+    const range = this.parseRange(rangeSpec);
+    const xFunc = this.parser.parse(xExpression);
+    const yFunc = this.parser.parse(yExpression);
+    const coordinates = [];
+    
+    for (let value = range.start; value <= range.end; value += range.step) {
+      try {
+        const variables = {};
+        variables[range.variable] = value;
+        
+        const x = xFunc(variables);
+        const y = yFunc(variables);
+        
+        if (isFinite(x) && isFinite(y)) {
+          coordinates.push([x, y]);
+        }
+      } catch (error) {
+        // Skip invalid points
+        continue;
+      }
+    }
+    
+    if (coordinates.length === 0) {
+      throw new Error('No valid data points generated from parametric expressions');
+    }
+    
+    return {
+      type: "Feature",
+      properties: {
+        xExpression: xExpression,
+        yExpression: yExpression,
+        range: rangeSpec,
+        mode: "parametric"
+      },
+      geometry: {
+        type: "LineString",
+        coordinates: coordinates
+      }
+    };
+  }
 }
 
 /**
- * Plot generator for SVG output using D3.js
+ * Plot generator that creates SVG and PNG visualizations
  */
 class PlotGenerator {
   constructor() {
     this.width = 800;
     this.height = 600;
-    this.margin = { top: 50, right: 50, bottom: 80, left: 80 };
+    this.margins = { top: 40, right: 40, bottom: 60, left: 80 };
   }
 
   /**
-   * Extract coordinates from GeoJSON feature
-   * @param {Object} geoJson - GeoJSON feature with LineString geometry
-   * @returns {Array} - Array of [x, y] coordinate pairs
+   * Set plot dimensions
+   * @param {number} width - Plot width
+   * @param {number} height - Plot height
    */
-  extractCoordinates(geoJson) {
-    if (geoJson.type === "Feature" && geoJson.geometry.type === "LineString") {
-      return geoJson.geometry.coordinates;
-    }
-    if (geoJson.type === "FeatureCollection") {
-      return geoJson.features.flatMap(feature => 
-        feature.geometry.type === "LineString" ? feature.geometry.coordinates : []
-      );
-    }
-    throw new Error("Invalid GeoJSON format. Expected Feature with LineString or FeatureCollection");
+  setDimensions(width, height) {
+    this.width = width;
+    this.height = height;
   }
 
   /**
    * Generate SVG plot from GeoJSON data
-   * @param {Object} geoJson - GeoJSON data
-   * @param {string} title - Plot title (optional)
-   * @returns {string} - SVG markup
+   * @param {Object} geoJsonData - GeoJSON feature or feature collection
+   * @param {Object} options - Plot options
+   * @returns {string} - SVG string
    */
-  generateSVG(geoJson, title = "Mathematical Function Plot") {
-    const coordinates = this.extractCoordinates(geoJson);
+  generateSVG(geoJsonData, options = {}) {
+    const dom = new JSDOM();
+    global.document = dom.window.document;
     
-    if (coordinates.length === 0) {
-      throw new Error("No coordinate data found in GeoJSON");
-    }
-
-    // Calculate data bounds
-    const xExtent = [
-      Math.min(...coordinates.map(d => d[0])),
-      Math.max(...coordinates.map(d => d[0]))
-    ];
-    const yExtent = [
-      Math.min(...coordinates.map(d => d[1])),
-      Math.max(...coordinates.map(d => d[1]))
-    ];
-
-    // Add padding to extents
-    const xPadding = (xExtent[1] - xExtent[0]) * 0.1;
-    const yPadding = (yExtent[1] - yExtent[0]) * 0.1;
-    xExtent[0] -= xPadding;
-    xExtent[1] += xPadding;
-    yExtent[0] -= yPadding;
-    yExtent[1] += yPadding;
-
-    // Create virtual DOM
-    const dom = new JSDOM(`<!DOCTYPE html><html><body></body></html>`);
-    const document = dom.window.document;
-    
-    // Create SVG
-    const svg = select(document.body)
+    const svg = select(dom.window.document.body)
       .append("svg")
       .attr("width", this.width)
       .attr("height", this.height)
       .attr("xmlns", "http://www.w3.org/2000/svg");
-
-    // Create scales
+      
+    const plotWidth = this.width - this.margins.left - this.margins.right;
+    const plotHeight = this.height - this.margins.top - this.margins.bottom;
+    
+    const g = svg.append("g")
+      .attr("transform", `translate(${this.margins.left},${this.margins.top})`);
+    
+    // Extract coordinates from GeoJSON
+    let allCoordinates = [];
+    const features = geoJsonData.type === "FeatureCollection" ? geoJsonData.features : [geoJsonData];
+    
+    features.forEach(feature => {
+      if (feature.geometry.type === "LineString") {
+        allCoordinates = allCoordinates.concat(feature.geometry.coordinates);
+      }
+    });
+    
+    if (allCoordinates.length === 0) {
+      throw new Error('No coordinate data found in GeoJSON');
+    }
+    
+    // Calculate scales
+    const xExtent = [
+      Math.min(...allCoordinates.map(d => d[0])),
+      Math.max(...allCoordinates.map(d => d[0]))
+    ];
+    const yExtent = [
+      Math.min(...allCoordinates.map(d => d[1])),
+      Math.max(...allCoordinates.map(d => d[1]))
+    ];
+    
     const xScale = scaleLinear()
       .domain(xExtent)
-      .range([this.margin.left, this.width - this.margin.right]);
-
+      .range([0, plotWidth]);
+      
     const yScale = scaleLinear()
       .domain(yExtent)
-      .range([this.height - this.margin.bottom, this.margin.top]);
-
-    // Add background
-    svg.append("rect")
-      .attr("width", this.width)
-      .attr("height", this.height)
-      .attr("fill", "white");
-
-    // Add grid lines
-    const xTicks = xScale.ticks(10);
-    const yTicks = yScale.ticks(8);
-
-    // X grid lines
-    svg.selectAll(".x-grid")
-      .data(xTicks)
-      .enter()
-      .append("line")
-      .attr("class", "x-grid")
-      .attr("x1", d => xScale(d))
-      .attr("x2", d => xScale(d))
-      .attr("y1", this.margin.top)
-      .attr("y2", this.height - this.margin.bottom)
-      .attr("stroke", "#e0e0e0")
-      .attr("stroke-width", 1);
-
-    // Y grid lines  
-    svg.selectAll(".y-grid")
-      .data(yTicks)
-      .enter()
-      .append("line")
-      .attr("class", "y-grid")
-      .attr("x1", this.margin.left)
-      .attr("x2", this.width - this.margin.right)
-      .attr("y1", d => yScale(d))
-      .attr("y2", d => yScale(d))
-      .attr("stroke", "#e0e0e0")
-      .attr("stroke-width", 1);
-
+      .range([plotHeight, 0]);
+    
     // Add axes
-    svg.append("g")
-      .attr("transform", `translate(${this.margin.left}, 0)`)
-      .call(axisLeft(yScale))
-      .selectAll("text")
-      .style("font-family", "Arial, sans-serif")
-      .style("font-size", "12px");
-
-    svg.append("g")
-      .attr("transform", `translate(0, ${this.height - this.margin.bottom})`)
-      .call(axisBottom(xScale))
-      .selectAll("text")
-      .style("font-family", "Arial, sans-serif")
-      .style("font-size", "12px");
-
+    const xAxis = axisBottom(xScale);
+    const yAxis = axisLeft(yScale);
+    
+    g.append("g")
+      .attr("transform", `translate(0,${plotHeight})`)
+      .call(xAxis);
+      
+    g.append("g")
+      .call(yAxis);
+    
     // Add axis labels
-    svg.append("text")
+    g.append("text")
+      .attr("transform", `translate(${plotWidth / 2}, ${plotHeight + 40})`)
+      .style("text-anchor", "middle")
+      .style("font-size", "14px")
+      .text(options.xLabel || "x");
+      
+    g.append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 + 20)
-      .attr("x", 0 - (this.height / 2))
+      .attr("y", 0 - this.margins.left + 20)
+      .attr("x", 0 - (plotHeight / 2))
       .style("text-anchor", "middle")
-      .style("font-family", "Arial, sans-serif")
       .style("font-size", "14px")
-      .text("y");
-
-    svg.append("text")             
-      .attr("transform", `translate(${this.width/2}, ${this.height - 10})`)
-      .style("text-anchor", "middle")
-      .style("font-family", "Arial, sans-serif")
-      .style("font-size", "14px")
-      .text("x");
-
+      .text(options.yLabel || "y");
+    
     // Add title
-    svg.append("text")
-      .attr("x", this.width / 2)             
-      .attr("y", 30)
-      .attr("text-anchor", "middle")  
-      .style("font-size", "18px")
-      .style("font-family", "Arial, sans-serif")
-      .style("font-weight", "bold")
-      .text(title);
-
-    // Create line generator
-    const lineGenerator = line()
-      .x(d => xScale(d[0]))
-      .y(d => yScale(d[1]));
-
-    // Add the line
-    svg.append("path")
-      .datum(coordinates)
-      .attr("fill", "none")
-      .attr("stroke", "#2563eb")
-      .attr("stroke-width", 2)
-      .attr("d", lineGenerator);
-
-    // Add expression label if available
-    if (geoJson.type === "Feature" && geoJson.properties?.expression) {
+    if (options.title) {
       svg.append("text")
-        .attr("x", this.width - this.margin.right - 10)
-        .attr("y", this.margin.top + 20)
-        .attr("text-anchor", "end")
-        .style("font-family", "monospace")
-        .style("font-size", "14px")
-        .style("fill", "#2563eb")
-        .text(geoJson.properties.expression);
+        .attr("x", this.width / 2)
+        .attr("y", 25)
+        .style("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text(options.title);
     }
+    
+    // Draw lines for each feature
+    const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"];
+    features.forEach((feature, i) => {
+      const lineGenerator = line()
+        .x(d => xScale(d[0]))
+        .y(d => yScale(d[1]));
+      
+      g.append("path")
+        .datum(feature.geometry.coordinates)
+        .attr("fill", "none")
+        .attr("stroke", colors[i % colors.length])
+        .attr("stroke-width", 2)
+        .attr("d", lineGenerator);
+    });
+    
+    return dom.window.document.body.innerHTML;
+  }
 
-    return document.body.innerHTML;
+  /**
+   * Generate PNG from SVG
+   * @param {string} svgString - SVG string
+   * @returns {Buffer} - PNG buffer
+   */
+  async generatePNG(svgString) {
+    try {
+      return await sharp(Buffer.from(svgString))
+        .png()
+        .toBuffer();
+    } catch (error) {
+      throw new Error(`Failed to convert SVG to PNG: ${error.message}`);
+    }
   }
 }
 
 /**
- * Command Line Interface
+ * Main CLI application
  */
-class CLI {
+class PlotCodeLib {
   constructor() {
     this.parser = new ExpressionParser();
     this.generator = new TimeSeriesGenerator(this.parser);
     this.plotter = new PlotGenerator();
-    this.program = new Command();
-    this.setupCommands();
   }
 
-  setupCommands() {
-    this.program
+  /**
+   * Run the CLI application
+   */
+  async run() {
+    const program = new Command();
+    
+    program
       .name('plot-code-lib')
       .description('Generate mathematical plots from expressions')
       .version('0.1.0');
 
-    this.program
+    program
       .command('plot')
       .description('Generate a plot from a mathematical expression')
-      .option('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
-      .option('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')
-      .option('-o, --output <file>', 'Output file path (SVG format)', 'output.svg')
-      .option('-t, --title [title]', 'Plot title')
+      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
+      .requiredOption('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')
+      .requiredOption('-o, --output <file>', 'Output file (SVG or PNG)')
+      .option('-t, --title <title>', 'Plot title')
+      .option('-w, --width <width>', 'Plot width', '800')
+      .option('-h, --height <height>', 'Plot height', '600')
+      .option('--xlabel <label>', 'X-axis label', 'x')
+      .option('--ylabel <label>', 'Y-axis label', 'y')
       .action(async (options) => {
-        await this.handlePlotCommand(options);
-      });
-
-    // Default action for backward compatibility
-    this.program
-      .option('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
-      .option('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')  
-      .option('-o, --output <file>', 'Output file path (SVG format)', 'output.svg')
-      .option('-t, --title [title]', 'Plot title')
-      .action(async (options) => {
-        if (options.expression && options.range) {
-          await this.handlePlotCommand(options);
-        } else {
-          this.program.help();
+        try {
+          await this.generatePlot(options);
+        } catch (error) {
+          console.error('Error:', error.message);
+          process.exit(1);
         }
       });
+
+    program
+      .command('parametric')
+      .description('Generate a parametric plot')
+      .requiredOption('-x, --xexpr <expr>', 'X coordinate expression (e.g., "cos(t)")')
+      .requiredOption('-y, --yexpr <expr>', 'Y coordinate expression (e.g., "sin(t)")')
+      .requiredOption('-r, --range <range>', 'Parameter range (e.g., "t=0:2*pi")')
+      .requiredOption('-o, --output <file>', 'Output file (SVG or PNG)')
+      .option('-t, --title <title>', 'Plot title')
+      .option('-w, --width <width>', 'Plot width', '800')
+      .option('-h, --height <height>', 'Plot height', '600')
+      .option('--xlabel <label>', 'X-axis label', 'x')
+      .option('--ylabel <label>', 'Y-axis label', 'y')
+      .action(async (options) => {
+        try {
+          await this.generateParametricPlot(options);
+        } catch (error) {
+          console.error('Error:', error.message);
+          process.exit(1);
+        }
+      });
+
+    await program.parseAsync();
   }
 
-  async handlePlotCommand(options) {
-    try {
-      const { expression, range, output, title } = options;
-
-      if (!expression) {
-        throw new Error('Expression is required. Use --expression "sin(x)" or -e "sin(x)"');
-      }
-
-      if (!range) {
-        throw new Error('Range is required. Use --range "x=-1:1" or -r "x=-1:1"');
-      }
-
-      console.log(`Generating plot for expression: ${expression}`);
-      console.log(`Range: ${range}`);
-      
-      // Generate time series data
-      const geoJsonData = this.generator.generate(expression, range);
-      console.log(`Generated ${geoJsonData.geometry.coordinates.length} data points`);
-      
-      // Generate plot
-      const plotTitle = title || `${expression}`;
-      const svgContent = this.plotter.generateSVG(geoJsonData, plotTitle);
-      
-      // Save to file
-      if (extname(output) !== '.svg') {
-        throw new Error('Only SVG output is currently supported. Use .svg file extension.');
-      }
-      
-      writeFileSync(output, svgContent);
-      console.log(`Plot saved to: ${output}`);
-      
-    } catch (error) {
-      console.error('Error:', error.message);
-      process.exit(1);
-    }
-  }
-
-  async run(args) {
-    if (args.length === 0) {
-      this.program.outputHelp();
-      return;
-    }
+  /**
+   * Generate a standard plot
+   * @param {Object} options - CLI options
+   */
+  async generatePlot(options) {
+    this.plotter.setDimensions(parseInt(options.width), parseInt(options.height));
     
-    await this.program.parseAsync(['node', 'plot-code-lib', ...args]);
+    // Generate time series data
+    const geoJsonData = this.generator.generate(options.expression, options.range);
+    
+    // Create plot options
+    const plotOptions = {
+      title: options.title,
+      xLabel: options.xlabel,
+      yLabel: options.ylabel
+    };
+    
+    // Generate SVG
+    const svgString = this.plotter.generateSVG(geoJsonData, plotOptions);
+    
+    // Determine output format and write file
+    const outputExt = extname(options.output).toLowerCase();
+    
+    if (outputExt === '.svg') {
+      writeFileSync(options.output, svgString);
+      console.log(`SVG plot saved to ${options.output}`);
+    } else if (outputExt === '.png') {
+      const pngBuffer = await this.plotter.generatePNG(svgString);
+      writeFileSync(options.output, pngBuffer);
+      console.log(`PNG plot saved to ${options.output}`);
+    } else {
+      throw new Error('Output file must have .svg or .png extension');
+    }
+  }
+
+  /**
+   * Generate a parametric plot
+   * @param {Object} options - CLI options
+   */
+  async generateParametricPlot(options) {
+    this.plotter.setDimensions(parseInt(options.width), parseInt(options.height));
+    
+    // Generate parametric time series data
+    const geoJsonData = this.generator.generateParametric(options.xexpr, options.yexpr, options.range);
+    
+    // Create plot options
+    const plotOptions = {
+      title: options.title,
+      xLabel: options.xlabel,
+      yLabel: options.ylabel
+    };
+    
+    // Generate SVG
+    const svgString = this.plotter.generateSVG(geoJsonData, plotOptions);
+    
+    // Determine output format and write file
+    const outputExt = extname(options.output).toLowerCase();
+    
+    if (outputExt === '.svg') {
+      writeFileSync(options.output, svgString);
+      console.log(`Parametric SVG plot saved to ${options.output}`);
+    } else if (outputExt === '.png') {
+      const pngBuffer = await this.plotter.generatePNG(svgString);
+      writeFileSync(options.output, pngBuffer);
+      console.log(`Parametric PNG plot saved to ${options.output}`);
+    } else {
+      throw new Error('Output file must have .svg or .png extension');
+    }
   }
 }
 
-/**
- * Main function for programmatic use
- */
-export function main(args) {
-  const cli = new CLI();
-  return cli.run(args);
-}
-
-/**
- * CLI entry point
- */
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args).catch(error => {
+// Run the application if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const app = new PlotCodeLib();
+  app.run().catch(error => {
     console.error('Fatal error:', error.message);
     process.exit(1);
   });
 }
 
-// Export classes for library use
-export { ExpressionParser, TimeSeriesGenerator, PlotGenerator };
+export { ExpressionParser, TimeSeriesGenerator, PlotGenerator, PlotCodeLib };
