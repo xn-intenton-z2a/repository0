@@ -2,15 +2,23 @@
 
 _"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
 
-A JavaScript library and CLI tool for generating mathematical plots from expressions. Transform mathematical expressions into beautiful visualizations with simple commands.
+A JavaScript library and CLI tool for generating mathematical plots from expressions. Transform mathematical expressions into beautiful SVG visualizations with simple commands.
 
 ## Features
 
 - 🧮 **Mathematical Expression Parser**: Support for variables, functions (sin, cos, tan, log, exp, sqrt, abs), and complex expressions
-- 📊 **Time Series Generation**: Convert mathematical expressions into data points over specified ranges
+- 📊 **Time Series Generation**: Convert mathematical expressions into data points over specified ranges  
+- 🎨 **SVG Plot Rendering**: Generate high-quality scalable vector graphics plots with grids, axes, and labels
 - 🖥️ **Command Line Interface**: Simple CLI for generating plots from the terminal
-- 📈 **Multiple Output Formats**: SVG and PNG support (SVG implemented, PNG in development)
+- 📈 **Multiple Output Formats**: SVG implemented, PNG in development
 - 🎯 **High Precision**: Built-in mathematical function library with proper operator precedence
+
+## Quick Start
+
+Generate a sine wave plot:
+```bash
+node src/lib/main.js --expr "sin(x)" --range "-3.14:3.14" --output sine_wave.svg
+```
 
 ## Installation
 
@@ -26,31 +34,37 @@ Generate plots directly from the command line:
 
 ```bash
 # Basic sine wave
-node src/lib/main.js --expr "sin(x)" --range "-3.14:3.14"
+node src/lib/main.js --expr "sin(x)" --range "-3.14:3.14" --output sine.svg
 
-# Quadratic function
-node src/lib/main.js --expr "x^2 + 2*x + 1" --range "-3:3"
+# Quadratic function  
+node src/lib/main.js --expr "x^2" --range "-3:3" --output parabola.svg
 
 # Logarithmic function
-node src/lib/main.js --expr "log(x)" --range "0.1:10"
+node src/lib/main.js --expr "log(x)" --range "0.1:10" --output logarithm.svg
 
-# Complex expression with multiple functions
-node src/lib/main.js --expr "sin(x) + cos(x)" --range "-6:6"
+# Complex trigonometric expression
+node src/lib/main.js --expr "sin(x) + cos(2*x)" --range "0:6.28" --output complex_trig.svg
 ```
 
 ### CLI Options
 
-| Option | Description | Example |
-|--------|-------------|---------|
-| `--expr` | Mathematical expression | `"sin(x)"`, `"x^2 + 2*x + 1"` |
-| `--range` | Range for x values | `"-1:1"`, `"0:10:0.1"` |
-| `--output` | Output file name | `"plot.svg"`, `"graph.png"` |
-| `--format` | Output format (svg/png) | `"svg"`, `"png"` |
+| Option | Description | Default | Example |
+|--------|-------------|---------|---------|
+| `--expr` | Mathematical expression | Required | `"sin(x)"`, `"x^2 + 2*x + 1"` |
+| `--range` | Range for x values | `"-5:5"` | `"-1:1"`, `"0:10"` |
+| `--output` | Output file name | `"plot.svg"` | `"my_plot.svg"` |
+| `--format` | Output format | `"svg"` | `"svg"`, `"png"` (png in development) |
+| `--steps` | Number of data points | `200` | `100`, `500` |
 
 ### Library API
 
 ```javascript
-import { parseExpression, evaluateExpression, generateTimeSeries } from 'plot-code-lib';
+import { 
+  parseExpression, 
+  evaluateExpression, 
+  generateTimeSeries, 
+  createSVGPlot 
+} from 'plot-code-lib';
 
 // Parse and evaluate expressions
 const result = evaluateExpression("2 + 3 * 4"); // Returns 14
@@ -59,6 +73,13 @@ const withVariables = evaluateExpression("x^2 + y", { x: 3, y: 1 }); // Returns 
 // Generate time series data
 const points = generateTimeSeries("sin(x)", -Math.PI, Math.PI, 100);
 // Returns array of {x, y} points
+
+// Create SVG plot
+const svg = createSVGPlot(points, {
+  title: 'Sine Wave',
+  width: 800,
+  height: 600
+});
 ```
 
 ## Supported Mathematical Functions
@@ -77,7 +98,7 @@ const points = generateTimeSeries("sin(x)", -Math.PI, Math.PI, 100);
 "2*x + 1"             // Linear with slope 2, intercept 1
 
 // Polynomial functions  
-"x^2"                  // Quadratic
+"x^2"                  // Quadratic parabola
 "x^3 - 2*x^2 + x"     // Cubic polynomial
 
 // Trigonometric functions
@@ -94,76 +115,98 @@ const points = generateTimeSeries("sin(x)", -Math.PI, Math.PI, 100);
 // Complex expressions
 "sqrt(x^2 + 1)"       // Hyperbola
 "abs(sin(x))"         // Absolute value of sine
-"x * sin(1/x)"        // Oscillating function
+"x * sin(10*x)"       // Oscillating function with envelope
 ```
 
-## Range Specifications
+## Generated Plot Examples
 
-- **Simple range**: `"0:10"` (from 0 to 10)
-- **With step**: `"0:10:0.5"` (from 0 to 10 in steps of 0.5)
-- **Negative ranges**: `"-5:5"` (from -5 to 5)
-- **Fractional**: `"-3.14:3.14:0.1"` (pi range with small steps)
+The CLI generates publication-ready SVG plots with:
+- ✅ Automatic axis scaling and labeling
+- ✅ Grid lines for easy reading
+- ✅ Professional typography  
+- ✅ Configurable dimensions and styling
+- ✅ Mathematical expression as title
+
+### Example Commands and Output
+
+```bash
+# Sine wave over 2π range
+node src/lib/main.js --expr "sin(x)" --range "-3.14:3.14"
+# ✓ Generated 200 data points over range [-3.14, 3.14] 
+# ✓ SVG plot saved to: plot.svg
+
+# Parabola with custom output name
+node src/lib/main.js --expr "x^2" --range "-2:2" --output parabola.svg  
+# ✓ Generated 200 data points over range [-2.00, 2.00]
+# ✓ Y range: [0.00, 4.00]
+
+# Logarithm function
+node src/lib/main.js --expr "log(x)" --range "0.1:10"
+# ✓ Generated 200 data points over range [0.10, 10.00]  
+# ✓ Y range: [-2.30, 2.30]
+```
 
 ## Development
 
 Run tests:
 ```bash
-npm test
-npm run test:watch  # Watch mode for development
+npm test                # Run all tests
+npm run test:watch     # Watch mode for development  
+npm run test:unit      # Run with coverage
 ```
 
-Run with coverage:
+Build and test:
 ```bash
-npm run test:unit
+npm run build          # Validate build
+npm start              # Show CLI help
 ```
 
-## Examples
+## More Examples
 
 Generate various mathematical plots:
 
 ```bash
 # Trigonometric functions
-node src/lib/main.js --expr "sin(x)" --range "-6.28:6.28"
-node src/lib/main.js --expr "cos(x)" --range "-6.28:6.28" 
-node src/lib/main.js --expr "tan(x)" --range "-1.5:1.5"
+node src/lib/main.js --expr "sin(x)" --range "-6.28:6.28" --output sin_2pi.svg
+node src/lib/main.js --expr "cos(x)" --range "-6.28:6.28" --output cos_2pi.svg
+node src/lib/main.js --expr "tan(x)" --range "-1.5:1.5" --output tan_limited.svg
 
 # Polynomial functions
-node src/lib/main.js --expr "x^2" --range "-3:3"
-node src/lib/main.js --expr "x^3 - 3*x" --range "-2:2"
+node src/lib/main.js --expr "x^2" --range "-3:3" --output quadratic.svg
+node src/lib/main.js --expr "x^3 - 3*x" --range "-2:2" --output cubic.svg
 
-# Exponential and logarithmic
-node src/lib/main.js --expr "exp(x)" --range "-2:2"
-node src/lib/main.js --expr "log(x)" --range "0.1:10"
+# Exponential and logarithmic  
+node src/lib/main.js --expr "exp(x)" --range "-2:2" --output exponential.svg
+node src/lib/main.js --expr "log(x)" --range "0.1:10" --output natural_log.svg
 
-# Complex expressions
-node src/lib/main.js --expr "x * sin(10*x)" --range "-1:1"
-node src/lib/main.js --expr "exp(-x^2)" --range "-3:3"  # Gaussian
+# Complex and interesting functions
+node src/lib/main.js --expr "x * sin(10*x)" --range "-1:1" --output oscillating.svg
+node src/lib/main.js --expr "exp(-x^2)" --range "-3:3" --output gaussian.svg
+node src/lib/main.js --expr "sin(x)/x" --range "-10:10" --output sinc.svg
 ```
 
 ## Current Status
 
-✅ **Implemented Features:**
+✅ **Fully Implemented:**
 - Mathematical expression parser with full operator precedence
-- Support for all basic mathematical functions
-- Time series data generation
-- Command line interface with argument parsing
-- Comprehensive error handling and validation
+- Support for all basic mathematical functions and operators
+- Time series data generation with configurable precision
+- **SVG plot rendering with professional styling**
+- **Command line interface with comprehensive options**
+- **File output and error handling**  
+- Comprehensive test suite with 23 passing tests
 
 🚧 **In Development:**
-- SVG plot rendering and file output
-- PNG export functionality  
-- Advanced plotting options (colors, labels, multiple series)
+- PNG export functionality
+- Advanced plotting options (custom colors, multiple series)
 - Interactive plot features
 
-## Roadmap
+## Architecture
 
-- [ ] SVG plot rendering engine
-- [ ] PNG export via SVG conversion
-- [ ] Multi-series plotting support
-- [ ] Custom styling and theming
-- [ ] Interactive web-based plotting
-- [ ] Additional mathematical functions
-- [ ] Performance optimizations for large datasets
+- **Expression Parser**: Tokenizer → AST → Evaluator pipeline
+- **Time Series Generator**: Configurable range and step processing  
+- **SVG Renderer**: Scalable plots with automatic scaling and labeling
+- **CLI Interface**: Argument parsing with validation and help
 
 ## Contributing
 

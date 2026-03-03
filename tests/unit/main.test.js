@@ -5,18 +5,19 @@ import {
   main, 
   parseExpression, 
   evaluateExpression, 
-  generateTimeSeries 
+  generateTimeSeries,
+  createSVGPlot
 } from "../../src/lib/main.js";
 
 describe("Main Output", () => {
-  test("should terminate without error", () => {
+  test("should terminate without error", async () => {
     process.argv = ["node", "src/lib/main.js"];
-    main([]);
+    await main([]);
   });
 
-  test("should handle --expr argument", () => {
+  test("should handle --expr argument", async () => {
     process.argv = ["node", "src/lib/main.js"];
-    main(["--expr", "x^2"]);
+    await main(["--expr", "x^2"]);
   });
 });
 
@@ -124,5 +125,61 @@ describe("Time Series Generation", () => {
     const points = generateTimeSeries("x^2 + 2*x + 1", -1, 1, 3);
     expect(points).toHaveLength(3);
     expect(points[1]).toEqual({ x: 0, y: 1 }); // (0)^2 + 2*(0) + 1 = 1
+  });
+});
+
+describe("SVG Plot Generation", () => {
+  test("should create valid SVG for simple data", () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 2, y: 4 }
+    ];
+    
+    const svg = createSVGPlot(points);
+    
+    expect(svg).toContain('<?xml version="1.0"');
+    expect(svg).toContain('<svg width="800" height="600"');
+    expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
+    expect(svg).toContain('</svg>');
+  });
+
+  test("should handle custom options", () => {
+    const points = [{ x: 0, y: 1 }, { x: 1, y: 2 }];
+    const options = {
+      width: 400,
+      height: 300,
+      title: 'Test Plot',
+      strokeColor: '#ff0000'
+    };
+    
+    const svg = createSVGPlot(points, options);
+    
+    expect(svg).toContain('width="400"');
+    expect(svg).toContain('height="300"');
+    expect(svg).toContain('Test Plot');
+    expect(svg).toContain('#ff0000');
+  });
+
+  test("should throw error for empty data", () => {
+    expect(() => createSVGPlot([])).toThrow('No valid data points to plot');
+  });
+
+  test("should handle single data point", () => {
+    const points = [{ x: 5, y: 10 }];
+    const svg = createSVGPlot(points);
+    
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('</svg>');
+  });
+
+  test("should include grid lines and axes", () => {
+    const points = generateTimeSeries("x^2", -1, 1, 5);
+    const svg = createSVGPlot(points);
+    
+    expect(svg).toContain('Grid lines');
+    expect(svg).toContain('X-axis');
+    expect(svg).toContain('Y-axis');
+    expect(svg).toContain('line x1=');
   });
 });
