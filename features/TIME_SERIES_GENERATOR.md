@@ -1,36 +1,38 @@
-# Time Series Data Generation
+# Multi-Mode Coordinate Data Generation
 
 ## Overview
-Generate coordinate data points from mathematical expressions using GeoJSON specification as the standard format. Convert continuous mathematical functions into discrete coordinate arrays suitable for plotting and geospatial analysis.
+Generate coordinate data points from mathematical expressions in multiple modes using GeoJSON specification. Support standard functions, parametric curves, and polar coordinates with automatic conversion to unified coordinate format suitable for plotting.
 
 ## Acceptance Criteria
 
-### Range Specification
-- Accept range parameters in format: "x=start:end:step" or "x=start:end"
-- Support inclusive ranges with automatic step calculation
+### Universal Range Processing
+- Parse standard ranges: "x=start:end:step" or "x=start:end"
 - Handle parametric ranges: "t=0:2*pi:0.1" for parametric curves
-- Default to 1000 points when step size not specified
-- Validate range parameters for mathematical consistency
+- Support polar ranges: "theta=0:2*pi" for polar coordinates
+- Multi-variable ranges for complex expressions
+- Automatic step size calculation with intelligent defaults
 
-### Data Point Generation  
-- Generate coordinate pairs (x, y) from MathJS expression evaluation
-- Support parametric generation: t -> (x(t), y(t)) coordinate pairs
-- Handle polar coordinates: r(θ), θ -> (x, y) conversion
-- Implement adaptive sampling for curves with high curvature
-- Detect and handle mathematical discontinuities gracefully
+### Multi-Mode Coordinate Generation
+- Standard function mode: y = f(x) with direct coordinate pairs
+- Parametric mode: t -> (x(t), y(t)) coordinate generation
+- Polar mode: (r(θ), θ) -> (x, y) Cartesian conversion
+- Multi-function mode: generate FeatureCollection from expression arrays
+- Complex expression support with real/imaginary component handling
 
-### GeoJSON Output Format
-Use GeoJSON LineString specification for coordinate data:
-- Coordinates array: [[x1, y1], [x2, y2], ...]
-- Include metadata properties: expression, range, timestamp
-- Support FeatureCollection for multiple function plots
-- Maintain coordinate precision to 6 decimal places minimum
+### Intelligent Sampling and Quality
+- Adaptive sampling for high-curvature regions and discontinuities
+- Detect mathematical singularities and domain boundaries
+- Skip invalid points (NaN, Infinity) with graceful continuation
+- Optimize point density for smooth curve representation
+- Memory-efficient streaming for large datasets
 
-### Advanced Features
-- Multi-function support: generate data for expression arrays
-- Parametric curve support: x(t), y(t) parameter equations
-- Polar coordinate conversion: r(θ) to Cartesian coordinates
-- Complex function support: real and imaginary components
+### Enhanced GeoJSON Output
+Generate GeoJSON with rich metadata:
+- Standard LineString for single functions
+- FeatureCollection for multi-function plots
+- Embedded properties: expression, mode, range, timestamp, point count
+- Coordinate precision optimized for mathematical accuracy
+- Support for function-specific metadata and styling hints
 
 ### Performance Optimization
 - Efficient bulk evaluation using MathJS compile-once strategy

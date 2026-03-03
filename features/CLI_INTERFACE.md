@@ -12,32 +12,32 @@ Provide a comprehensive CLI using Commander.js that makes mathematical plotting 
 - Auto-format detection from file extension (.svg/.png)
 - Help and version information: --help, --version, plot-code-lib --help
 
-### Mathematical Expression Interface
-- Accept MathJS expressions as primary input format
-- Support parametric mode: --parametric --x "cos(t)" --y "sin(t)" --range "t=0:2*pi"
+### Multi-Mode Mathematical Interface
+- Standard function mode: --expression "sin(x)" --range "x=0:2*pi" (default)
+- Parametric curve mode: --parametric --x "cos(t)" --y "sin(t)" --range "t=0:2*pi"
 - Polar coordinate mode: --polar --r "1+cos(theta)" --range "theta=0:2*pi"  
-- Multi-function plotting: --expressions "sin(x),cos(x),tan(x)"
-- Expression validation with clear error messages
+- Multi-function overlay: --expressions "sin(x),cos(x),tan(x)" --range "x=0:2*pi"
+- Expression validation with clear error messages and suggestions
 
-### Output and Formatting Options
-- Multiple format generation: --format svg,png for batch output
+### Dual Format Output Support
+- SVG vector output: --output plot.svg (default, scalable)
+- PNG raster output: --output plot.png (with configurable DPI)
+- Batch format generation: --formats svg,png for multiple outputs
 - Plot dimensions: --width 1024 --height 768 (maintains aspect ratio)
+- PNG resolution control: --dpi 96|150|300
+
+### Advanced Plotting Features  
 - Styling themes: --theme scientific|minimal|colorful
 - Grid control: --grid, --no-grid for axis grid display
-- DPI setting for PNG: --dpi 96|150|300
+- Auto-scaling: --auto-range for optimal viewing bounds
+- Custom ranges: multi-dimensional support for parametric plots
+- Legend generation for multi-function plots with color coding
 
-### Unix Integration Features
+### Pipeline and Batch Processing
 - Standard input support: echo "sin(x)" | plot-code-lib --range "x=0:10"
 - Batch processing from file: --input expressions.txt --output-dir ./plots/
 - Progress reporting: --verbose for detailed operation logging
 - Quiet mode: --quiet to suppress non-essential output
-- Proper exit codes: 0 success, 1 input error, 2 file error
-
-### Advanced CLI Features
-- Configuration file support: --config plot.config.json
-- Range auto-detection: --auto-range for optimal viewing bounds  
-- Interactive mode: --interactive for step-by-step plot building
-- Dry run mode: --dry-run to show operations without execution
 - Template generation: --template sine|parabola|circle for quick starts
 
 ## Technical Requirements

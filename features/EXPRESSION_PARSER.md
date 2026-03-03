@@ -1,34 +1,36 @@
-# Mathematical Expression Parser
+# Advanced Mathematical Expression Engine
 
 ## Overview
-Implement a robust mathematical expression parser using MathJS syntax as the standard. Convert string-based mathematical formulae into evaluable JavaScript functions that form the foundation for transforming mathematical expressions into plottable data points.
+Implement a comprehensive mathematical expression parser using MathJS as the foundation, supporting multiple plotting modes including standard functions, parametric curves, and polar coordinates with intelligent expression validation and optimization.
 
 ## Acceptance Criteria
 
-### Expression Standard
-- Use MathJS expression syntax as the open standard for mathematical expressions
-- Support MathJS function library: sin, cos, tan, sqrt, log, ln, exp, abs, pow, min, max
-- Handle MathJS constants: pi, e, i (imaginary unit)
-- Accept MathJS operators: +, -, *, /, ^, mod, parentheses
+### Comprehensive Expression Support
+- Standard MathJS function library: sin, cos, tan, sqrt, log, ln, exp, abs, pow, min, max
+- Mathematical constants: pi, e, i (imaginary unit), with precision optimization
+- Full operator support: +, -, *, /, ^, mod, parentheses, with precedence handling
+- Implicit multiplication normalization: 2x -> 2*x, 3sin(x) -> 3*sin(x)
 
-### Core Expression Support  
-- Parse single-variable functions: f(x) = sin(x), x^2 + 2*x + 1
-- Support parametric expressions: x = t*cos(t), y = t*sin(t)
-- Handle multi-variable expressions: z = sin(x) + cos(y)
-- Validate expression syntax with MathJS parser
-- Provide meaningful error messages with position information
+### Multi-Mode Expression Processing
+- Single-variable functions: f(x) = sin(x), x^2 + 2*x + 1
+- Parametric expressions: separate x(t) and y(t) compilation
+- Polar expressions: r(θ) with automatic Cartesian conversion
+- Multi-function arrays: [sin(x), cos(x), tan(x)] with batch compilation
+- Complex expressions with real and imaginary component separation
 
-### Input Processing
-- Accept expressions in MathJS mathematical notation
-- Support implicit multiplication where MathJS allows: 2x becomes 2*x
-- Handle function composition: sin(cos(x)), exp(x^2)
-- Process complex expressions: (sin(x) + cos(y)) / sqrt(x^2 + y^2)
+### Performance and Caching Optimization
+- Expression compilation caching for repeated evaluations
+- Batch evaluation support for coordinate array generation
+- Memory-efficient evaluation for large datasets
+- Pre-compiled expression objects for parametric and polar modes
+- Domain validation and error recovery for mathematical edge cases
 
-### Output Generation
-- Return compiled MathJS expression object for evaluation
-- Maintain numerical precision suitable for plotting
-- Support evaluation with variable substitution
-- Handle domain restrictions and undefined values gracefully
+### Enhanced Error Handling and Validation
+- Syntax validation with precise error positioning
+- Mathematical domain checking (sqrt of negatives, log of zero)
+- Suggested corrections for common expression mistakes
+- Runtime error recovery with graceful degradation
+- Expression complexity analysis for performance warnings
 
 ### Error Handling
 - Detect syntax errors using MathJS validation

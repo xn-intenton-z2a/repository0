@@ -1,30 +1,37 @@
-# SVG and PNG Plot Visualization  
+# Dual Format Plot Visualization Engine
 
 ## Overview
-Generate publication-quality mathematical plots in SVG and PNG formats from GeoJSON coordinate data. Render mathematical visualizations using D3.js with precise coordinate system representation and customizable styling.
+Generate publication-quality mathematical plots in both SVG vector and PNG raster formats from GeoJSON coordinate data. Render mathematical visualizations using D3.js with precise coordinate system representation and customizable styling for different use cases.
 
 ## Acceptance Criteria
 
-### Input Data Processing
-- Accept GeoJSON LineString and FeatureCollection data
-- Parse coordinate arrays into plottable data points
-- Support multiple function overlays from FeatureCollection
-- Handle large coordinate datasets efficiently (>10k points)
-- Preserve mathematical coordinate precision during rendering
+### Universal Input Processing
+- Accept GeoJSON LineString for single functions
+- Process GeoJSON FeatureCollection for multi-function plots  
+- Handle parametric curves with proper coordinate transformation
+- Support polar coordinate data conversion to Cartesian display
+- Efficiently process large coordinate datasets (>10k points)
 
-### SVG Output Generation
+### SVG Vector Generation
 - Generate scalable SVG plots with embedded coordinate system
-- Include proper mathematical axis scaling and labeling  
+- Include proper mathematical axis scaling and labeling
 - Support scientific notation for extreme value ranges
-- Embed plot metadata and generation parameters in SVG comments
-- Maintain vector precision for publication-quality output
+- Embed plot metadata and generation parameters as SVG comments
+- Maintain vector precision for publication and web use
 
-### PNG Raster Export
-- Convert SVG to PNG using headless browser rendering
-- Support configurable resolution: 96, 150, 300 DPI options
-- Maintain aspect ratio consistency between formats
-- Include embedded metadata in PNG EXIF where supported
-- Optimize file size while preserving visual quality
+### PNG Raster Export Implementation
+- Convert SVG to PNG using JSDOM and Canvas API integration
+- Support configurable resolution: 96, 150, 300 DPI settings
+- Maintain consistent aspect ratio between SVG and PNG formats
+- Implement efficient memory management for large plots
+- Optimize PNG compression while preserving visual fidelity
+
+### Multi-Function Plot Support
+- Render multiple functions with automatic color assignment
+- Generate legends for multi-function plots with labels
+- Support function-specific styling and line properties
+- Handle overlapping functions with proper z-ordering
+- Provide color-blind accessible palette options
 
 ### Mathematical Accuracy Features
 - Automatic axis range calculation with padding
