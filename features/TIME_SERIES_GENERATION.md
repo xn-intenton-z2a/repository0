@@ -1,38 +1,45 @@
-# Time Series Data Generation
+# Advanced Time Series Generation
 
 ## Overview
 
-Generate time series data from mathematical expressions and specified ranges. This feature converts expressions like `y=sin(x)` with ranges like `x=-2*pi:2*pi` into arrays of coordinate points that can be plotted or exported.
+Intelligent time series generation system with adaptive sampling, multiple coordinate systems, and robust data export capabilities. Converts mathematical expressions into high-fidelity coordinate datasets optimized for visualization and analysis.
 
 ## Acceptance Criteria
 
-### Range Parsing
-- Parse range syntax: `x=start:end` and `x=start:step:end`
-- Support multiple variable ranges: `x=-1:1,y=-1:1`
-- Handle different coordinate systems: cartesian `(x,y)` and polar `(r,theta)`
-- Default to reasonable ranges when not specified
+### Intelligent Sampling
+- Adaptive point density based on function complexity and curvature
+- Custom sampling algorithms: uniform, logarithmic, chebyshev nodes
+- Discontinuity detection with automatic domain splitting  
+- Singularity handling for functions with poles or asymptotes
 
-### Data Generation
-- Generate coordinate pairs from expression and range
-- Support parametric equations: `x=f(t), y=g(t)`
-- Handle implicit equations when possible
-- Generate sufficient data points for smooth curves (adaptive sampling)
+### Multi-Variable Support
+- Parametric equations: `x=cos(t), y=sin(t)` with parameter ranges
+- Implicit curve tracing: `x^2 + y^2 = 1` using numerical methods
+- Multi-valued functions: `y = ±sqrt(1-x^2)` with branch handling
+- Vector field generation for differential equation visualization
 
-### Output Formats
-- Export to JSON format with standard structure
-- Support CSV export for compatibility with other tools
-- Include metadata: expression used, range, coordinate system
-- Maintain precision for numerical calculations
+### Coordinate System Support
+- Cartesian coordinates with automatic axis optimization
+- Polar coordinate system: `r=f(theta)` with proper conversion
+- Cylindrical and spherical projections to 2D
+- Custom coordinate transformations with Jacobian handling
 
-### Performance
-- Handle large datasets efficiently (10k+ points)
-- Implement adaptive sampling for complex functions
-- Provide progress feedback for long calculations
+### Data Export Standards
+- GeoJSON format for geographic compatibility
+- HDF5 support for large scientific datasets
+- Apache Arrow format for high-performance analytics
+- Time series formats: InfluxDB line protocol, OpenTSDB
+
+### Numerical Robustness
+- IEEE 754 compliance with proper NaN and infinity handling
+- Arbitrary precision arithmetic for critical calculations
+- Error propagation analysis for uncertainty quantification
+- Numerical stability assessment and warnings
 
 ## Implementation Notes
 
-Build on the Expression Parser feature to evaluate mathematical functions. Use standard formats like GeoJSON or simple coordinate arrays for output compatibility.
+Implement pluggable sampling strategies with automatic selection based on function characteristics. Use established numerical libraries for robust computation. Design for extensibility with custom coordinate systems.
 
 ## API Design
 
-Export functions like `generateTimeSeries(expression, ranges, options)` that return structured data objects with points and metadata.
+Create flexible generation pipeline: `generateSeries(expression, domain, options)` with customizable sampling, coordinate systems, and output formats.

@@ -1,33 +1,46 @@
-# Mathematical Expression Parser
+# Advanced Expression Parser
 
 ## Overview
 
-Core mathematical expression parsing engine that converts string expressions into evaluable functions. This is the foundation feature that enables the library to process mathematical formulae like `y=sin(x)` or `r=cos(theta)` and evaluate them across specified ranges.
+Sophisticated mathematical expression parsing system supporting complex mathematical notation, symbolic computation, and extensible function libraries. Enables processing of advanced mathematical expressions beyond basic arithmetic and trigonometric functions.
 
 ## Acceptance Criteria
 
-### Expression Syntax Support
-- Parse basic arithmetic operations: `+`, `-`, `*`, `/`, `^` (power)
-- Support mathematical functions: `sin`, `cos`, `tan`, `log`, `ln`, `sqrt`, `abs`
-- Handle constants: `pi`, `e`
-- Support variables: `x`, `y`, `t`, `theta`, `r`
-- Parse equations in format: `y=f(x)` or `r=f(theta)`
+### Extended Mathematical Syntax
+- Advanced functions: hyperbolic functions, Bessel functions, gamma function
+- Special constants: golden ratio, Euler-Mascheroni constant, Catalan constant  
+- Complex number support: `i`, `j` notation with rectangular and polar forms
+- Vector operations: dot product, cross product, vector magnitude
+- Matrix operations: determinant, trace, eigenvalues for small matrices
 
-### Function Evaluation
-- Convert parsed expressions into JavaScript functions
-- Evaluate expressions for given input values
-- Return numeric results for valid mathematical operations
-- Handle domain errors gracefully (e.g., sqrt of negative numbers)
+### Symbolic Computation Features
+- Automatic differentiation: compute derivatives symbolically
+- Expression simplification: algebraic manipulation and reduction
+- Limit evaluation: symbolic limits at critical points
+- Series expansion: Taylor and Laurent series around specified points
 
-### Input Validation
-- Detect invalid syntax and provide meaningful error messages
-- Validate variable names and function names
-- Check for balanced parentheses and proper operator placement
+### Domain-Specific Extensions
+- Statistical distributions: normal, exponential, chi-squared with parameters
+- Signal processing: Fourier transforms, convolution, filtering functions
+- Probability functions: permutations, combinations, probability density functions
+- Number theory: prime testing, greatest common divisor, modular arithmetic
+
+### Advanced Parsing Capabilities
+- LaTeX mathematical notation input and interpretation
+- MathML parsing for web-based mathematical content
+- Unit-aware calculations with dimensional analysis
+- Piecewise function definitions with conditional expressions
+
+### Performance and Accuracy
+- Compiled expression evaluation for repeated computations
+- Arbitrary precision arithmetic mode for critical calculations
+- Automatic expression optimization and common subexpression elimination
+- Numerical stability analysis with condition number estimation
 
 ## Implementation Notes
 
-Use existing JavaScript mathematical expression libraries like `math.js` or `expr-eval` rather than building a parser from scratch. Focus on creating a clean API that integrates well with the time series generation feature.
+Integrate with established computer algebra systems like SymPy (via WebAssembly) or math.js extended mode. Implement modular architecture allowing custom function registration and domain-specific extensions.
 
 ## API Design
 
-Export a `parseExpression(expressionString)` function that returns an evaluable function object with metadata about variables used.
+Design extensible parser architecture: `createParser(options)` with pluggable function libraries, custom operator definitions, and multiple input format support.
