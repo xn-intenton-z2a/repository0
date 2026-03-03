@@ -35,7 +35,7 @@ import { parse as parseToml } from "smol-toml";
  */
 
 // Keys whose paths are writable by agents
-const WRITABLE_KEYS = ["source", "tests", "features", "dependencies", "docs", "readme"];
+const WRITABLE_KEYS = ["source", "tests", "features", "dependencies", "docs", "readme", "examples"];
 
 // Default paths — every key that task handlers might access
 const PATH_DEFAULTS = {
@@ -44,6 +44,7 @@ const PATH_DEFAULTS = {
   tests: "tests/unit/",
   features: "features/",
   docs: "docs/",
+  examples: "examples/",
   readme: "README.md",
   dependencies: "package.json",
   library: "library/",

@@ -1,25 +1,20 @@
 {
-  "name": "plot-code-lib",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "A JavaScript library and CLI tool for generating mathematical plots from expressions",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
-  "bin": {
-    "plot-code": "src/lib/main.js"
-  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "test:watch": "vitest --watch tests/unit/*.test.js",
-    "start": "node src/lib/main.js",
-    "plot": "node src/lib/main.js"
+    "start": "node src/lib/main.js"
   },
-  "keywords": ["math", "plotting", "visualization", "expression", "cli", "svg", "png"],
-  "author": "Polycode Limited",
+  "keywords": [],
+  "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.34"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.35"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
