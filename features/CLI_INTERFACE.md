@@ -5,85 +5,63 @@ Provide a comprehensive CLI using Commander.js that makes mathematical plotting 
 
 ## Acceptance Criteria
 
-### Core Command Structure
-- Main command: `plot-code-lib` with expression and range arguments
-- Required options: --expression "sin(x)" --range "x=0:2*pi"
-- Output specification: --output filename.svg or --output filename.png
-- Auto-format detection from file extension (.svg/.png)
-- Help and version information: --help, --version, plot-code-lib --help
+### Current Implementation Status
+- IMPLEMENTED: Basic plot command with --expression, --range, --output options
+- IMPLEMENTED: Parametric plotting with separate x/y expressions
+- IMPLEMENTED: SVG and PNG output format auto-detection from file extension
+- IMPLEMENTED: Plot customization: --title, --width, --height, --xlabel, --ylabel
+- MISSING: Polar coordinate mode and multi-function overlay
+- MISSING: Batch processing and pipeline input capabilities
 
-### Multi-Mode Mathematical Interface
-- Standard function mode: --expression "sin(x)" --range "x=0:2*pi" (default)
-- Parametric curve mode: --parametric --x "cos(t)" --y "sin(t)" --range "t=0:2*pi"
-- Polar coordinate mode: --polar --r "1+cos(theta)" --range "theta=0:2*pi"  
-- Multi-function overlay: --expressions "sin(x),cos(x),tan(x)" --range "x=0:2*pi"
-- Expression validation with clear error messages and suggestions
+### Core Command Structure 
+- Main commands: `plot-code-lib plot` and `plot-code-lib parametric`
+- Standard plotting: plot -e "sin(x)" -r "x=0:2*pi" -o plot.svg
+- Parametric plotting: parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg
+- Output format detection from .svg or .png extension
+- Help and version: --help, --version
 
-### Dual Format Output Support
-- SVG vector output: --output plot.svg (default, scalable)
-- PNG raster output: --output plot.png (with configurable DPI)
-- Batch format generation: --formats svg,png for multiple outputs
-- Plot dimensions: --width 1024 --height 768 (maintains aspect ratio)
-- PNG resolution control: --dpi 96|150|300
+### Essential Missing Features for Mission Alignment
+- Polar coordinate mode: --polar command for r(theta) expressions
+- Multi-function plotting: --expressions flag for overlaying multiple functions
+- Pipeline integration: stdin support for expression input
+- Batch processing: --input file for processing multiple expressions
+- Data export: --format geojson for exporting coordinate data
 
-### Advanced Plotting Features  
-- Styling themes: --theme scientific|minimal|colorful
-- Grid control: --grid, --no-grid for axis grid display
-- Auto-scaling: --auto-range for optimal viewing bounds
-- Custom ranges: multi-dimensional support for parametric plots
-- Legend generation for multi-function plots with color coding
+### Output and Styling Capabilities
+- SVG vector output (default, scalable for publication)
+- PNG raster output with Sharp-based conversion
+- Configurable dimensions with --width and --height
+- Axis labeling with --xlabel and --ylabel options
+- Plot titles with --title option
 
-### Pipeline and Batch Processing
-- Standard input support: echo "sin(x)" | plot-code-lib --range "x=0:10"
-- Batch processing from file: --input expressions.txt --output-dir ./plots/
-- Progress reporting: --verbose for detailed operation logging
-- Quiet mode: --quiet to suppress non-essential output
-- Template generation: --template sine|parabola|circle for quick starts
+### Performance and Usability
+- Fast expression evaluation using MathJS compilation
+- Error handling for invalid expressions and mathematical domain errors
+- Cross-platform compatibility (Node.js 24+)
+- Memory-efficient coordinate generation for large ranges
 
-## Technical Requirements
-- Use Commander.js v9+ as the CLI framework
-- Support both short (-e) and long (--expression) option formats
-- Implement proper argument validation and type checking
-- Cross-platform compatibility: Windows, macOS, Linux
-- Tab completion support using Commander.js completion features
+## Technical Implementation
+- Uses Commander.js v12 for CLI framework
+- MathJS integration for expression parsing and evaluation
+- D3.js for SVG generation with proper mathematical scaling
+- Sharp library for high-quality PNG conversion
+- GeoJSON coordinate format for data interchange
 
-## Error Handling Strategy
-- Validate mathematical expressions before processing
-- Check file write permissions before plot generation
-- Provide corrective suggestions for common input mistakes
-- Clear error messages with examples of correct usage
-- Graceful handling of mathematical domain errors
-
-## Performance Considerations
-- Stream processing for large coordinate datasets
-- Progress callbacks for long-running operations
-- Memory usage reporting in verbose mode
-- Timeout handling for complex expression evaluation
-- Efficient file I/O for batch processing operations
-
-## Command Examples
+## Current Command Examples
 ```bash
 # Basic function plotting
-plot-code-lib --expression "sin(x)" --range "x=0:10" --output sine.svg
+plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine.svg
 
-# Parametric curve plotting  
-plot-code-lib --parametric --x "cos(t)" --y "sin(t)" --range "t=0:2*pi" --output circle.png
+# Parametric curve (circle)
+plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.png
 
-# Multiple function overlay
-plot-code-lib --expressions "sin(x),cos(x)" --range "x=0:4*pi" --output trig.svg
-
-# Polar coordinate plotting
-plot-code-lib --polar --r "1+cos(theta)" --range "theta=0:2*pi" --output cardioid.svg
-
-# Batch processing with styling
-plot-code-lib --input functions.txt --output-dir ./plots/ --theme scientific --format svg,png
-
-# Pipeline integration
-echo "x^2" | plot-code-lib --range "x=-5:5" --output parabola.svg --quiet
+# Customized plot with labels and dimensions
+plot-code-lib plot -e "x^2" -r "x=-5:5" -o parabola.svg --title "Parabola" --width 1200 --height 800
 ```
 
-## Integration with Mission
-- Showcase all library features through CLI demonstrations
-- Generate example commands and outputs for README.md documentation
-- Provide template commands for common mathematical visualization tasks
-- Enable "jq-like" pipeline workflows for mathematical data processing
+## Priority Enhancements Needed
+1. Add polar coordinate plotting capability
+2. Implement multi-function overlay support
+3. Add pipeline input from stdin for jq-like workflows
+4. Support batch processing from input files
+5. Enable GeoJSON data export for coordinate sharing
