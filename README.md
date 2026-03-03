@@ -82,36 +82,201 @@ plot-code-lib -e 'r=sin(3*theta)' -r 'theta=0:π'
 plot-code-lib -e 'r=theta' -r 'theta=0:6π'
 ```
 
-## 🎯 Examples
+## 🎯 Live Examples
+
+> **These examples show real output from the CLI using `--dry-run` mode**
 
 ### 🌊 Sine Wave
+**Command:**
 ```bash
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' \\
-  --title 'Beautiful Sine Wave' -f sine.svg
+plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' --dry-run
 ```
 
-### 📈 Parabola
+**Output:**
+```
+📐 Expression: y=sin(x)
+📊 Range: x=[-6.283185307179586, 6.283185307179586], y=[-2, 2]
+🔍 Dry run mode - would generate 1000 points
+📁 Would save to: output.svg
+📏 Dimensions: 800x600px
+```
+
+### 📈 Quadratic Function
+**Command:**
 ```bash
-plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' \\
-  --width 600 --height 400 -f parabola.png
+plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' --dry-run
+```
+
+**Output:**
+```
+📐 Expression: y=x^2
+📊 Range: x=[-5, 5], y=[0, 25]
+🔍 Dry run mode - would generate 1000 points
+📁 Would save to: output.svg
+📏 Dimensions: 800x600px
 ```
 
 ### 🌀 Parametric Spiral
+**Command:**
 ```bash
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:10π' \\
-  --points 2000 --title 'Archimedean Spiral' -f spiral.svg
+plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:6π' --dry-run
+```
+
+**Output:**
+```
+📐 Expression: x=t*cos(t),y=t*sin(t)
+📊 Range: t=[0, 18.84955592153876], y=[-10, 10]
+🔍 Dry run mode - would generate 1000 points
+📁 Would save to: output.svg
+📏 Dimensions: 800x600px
 ```
 
 ### 🌹 Polar Rose
+**Command:**
 ```bash
-plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' \\
-  --title 'Four-Petaled Rose' -f rose.svg
+plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' --dry-run
+```
+
+**Output:**
+```
+📐 Expression: r=sin(4*theta)
+📊 Range: theta=[0, 6.283185307179586], y=[-10, 10]
+🔍 Dry run mode - would generate 1000 points
+📁 Would save to: output.svg
+📏 Dimensions: 800x600px
 ```
 
 ### 📊 Multiple Functions
+**Command:**
 ```bash
+plot-code-lib -e 'y=sin(x),y=cos(x)' -r 'x=-π:π,y=-1.5:1.5' --dry-run
+```
+
+**Output:**
+```
+📐 Expression: y=sin(x),y=cos(x)
+📊 Range: x=[-3.141592653589793, 3.141592653589793], y=[-1.5, 1.5]
+🔍 Dry run mode - would generate 1000 points
+📁 Would save to: output.svg
+📏 Dimensions: 800x600px
+```
+
+## 🎨 Production Examples
+
+### Generate Actual Plots
+Remove `--dry-run` to create actual files:
+
+```bash
+# Beautiful sine wave
+plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' \\
+  --title 'Beautiful Sine Wave' -f sine.svg
+
+# Quadratic function as PNG
+plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' \\
+  --width 600 --height 400 -f parabola.png
+
+# Detailed parametric spiral
+plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:10π' \\
+  --points 2000 --title 'Archimedean Spiral' -f spiral.svg
+
+# Four-petaled rose
+plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' \\
+  --title 'Four-Petaled Rose' -f rose.svg
+
+# Trigonometric comparison
 plot-code-lib -e 'y=sin(x),y=cos(x)' -r 'x=-π:π,y=-1.5:1.5' \\
   --title 'Trigonometric Comparison' -f trig.svg
+```
+
+## 🚀 Complete Feature Showcase
+
+> **Comprehensive demonstration of all library capabilities**
+
+### ⚙️ All CLI Options in Action
+```bash
+# Full-featured command showcasing all options
+plot-code-lib \\
+  --expression 'y=sin(x)*exp(-x/10)' \\
+  --range 'x=0:20,y=-1:1' \\
+  --file 'damped-sine.png' \\
+  --width 1200 \\
+  --height 800 \\
+  --points 2000 \\
+  --format 'png' \\
+  --title 'Damped Sine Wave' \\
+  --dry-run
+```
+
+### 📊 Expression Type Coverage
+
+#### Cartesian Plots (y = f(x))
+```bash
+# Trigonometric
+plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π' --dry-run
+
+# Polynomial  
+plot-code-lib -e 'y=x^3-3*x^2+2*x' -r 'x=-2:4' --dry-run
+
+# Exponential/Logarithmic
+plot-code-lib -e 'y=log(x)' -r 'x=0.1:10,y=-3:3' --dry-run
+
+# Piecewise/Complex
+plot-code-lib -e 'y=abs(x)*sin(x)' -r 'x=-10:10' --dry-run
+```
+
+#### Parametric Plots (x = f(t), y = g(t))
+```bash
+# Circle
+plot-code-lib -e 'x=cos(t),y=sin(t)' -r 't=0:2π' --dry-run
+
+# Ellipse
+plot-code-lib -e 'x=3*cos(t),y=2*sin(t)' -r 't=0:2π' --dry-run
+
+# Cycloid
+plot-code-lib -e 'x=t-sin(t),y=1-cos(t)' -r 't=0:4π' --dry-run
+
+# Lissajous curve
+plot-code-lib -e 'x=sin(3*t),y=cos(2*t)' -r 't=0:2π' --dry-run
+```
+
+#### Polar Plots (r = f(θ))
+```bash
+# Circle in polar
+plot-code-lib -e 'r=2' -r 'theta=0:2π' --dry-run
+
+# Rose curves
+plot-code-lib -e 'r=sin(3*theta)' -r 'theta=0:π' --dry-run
+plot-code-lib -e 'r=cos(5*theta)' -r 'theta=0:π' --dry-run
+
+# Cardioid
+plot-code-lib -e 'r=1+cos(theta)' -r 'theta=0:2π' --dry-run
+
+# Spiral
+plot-code-lib -e 'r=theta' -r 'theta=0:6π' --dry-run
+```
+
+### 🎨 Output Format Demonstration
+```bash
+# SVG (vector graphics)
+plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' -f vector.svg --dry-run
+
+# PNG (raster graphics)  
+plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' -f raster.png --dry-run
+
+# Custom dimensions
+plot-code-lib -e 'y=x^2' -w 1920 -h 1080 --dry-run
+```
+
+### 🔧 Advanced Range Parsing
+```bash
+# Mathematical constants
+plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' --dry-run
+
+# Complex expressions in ranges
+plot-code-lib -e 'y=cos(x)' -r 'x=-2*pi:2*pi,y=-1.5:1.5' --dry-run
+
+# Multiple variable ranges
+plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:4*pi' --dry-run
 ```
 
 ## 🧮 Mathematical Functions

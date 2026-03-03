@@ -35,7 +35,13 @@ export function main(args = []) {
         
         // Parse the range
         const ranges = parseRange(options.range);
-        console.log(`📊 Range: x=[${ranges.x.min}, ${ranges.x.max}], y=[${ranges.y.min}, ${ranges.y.max}]`);
+        
+        // Display ranges appropriately based on expression type
+        const rangeKeys = Object.keys(ranges);
+        const rangeDisplay = rangeKeys.map(key => 
+          `${key}=[${ranges[key].min}, ${ranges[key].max}]`
+        ).join(', ');
+        console.log(`📊 Range: ${rangeDisplay}`);
         
         if (options.dryRun) {
           console.log(`🔍 Dry run mode - would generate ${options.points} points`);
