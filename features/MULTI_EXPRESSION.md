@@ -1,43 +1,43 @@
 # Multi-Expression Plotting
 
 ## Overview
-Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. This core enhancement transforms plot-code-lib from a single-function tool into a comprehensive comparative analysis platform.
+Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. This enhancement transforms plot-code-lib from a single-function tool into a comprehensive comparative analysis platform while maintaining command-line simplicity.
 
 ## Acceptance Criteria
 
 ### Multi-Expression Command Interface
-Enhanced plot command supporting comma-separated expressions enabling comparison workflows
-Expression syntax: plot-code-lib plot -e "sin(x),cos(x),x/2" -r "x=-pi:pi" -o comparison.svg
-Automatic color assignment from predefined palette ensuring distinct visualization per function
-Shared coordinate system with unified axis scaling accommodating all expression ranges
-Individual expression validation allowing partial success when expressions have domain issues
+CLI accepts comma-separated expressions: plot-code-lib plot -e "sin(x),cos(x),x/2" -r "x=-pi:pi" -o comparison.svg
+Each expression automatically assigned unique color from predefined palette: blue, orange, green, red, purple, brown
+Shared coordinate system with unified axis scaling encompassing all expression ranges
+Individual expression validation allowing partial success when some expressions have domain issues
+Console warnings for failed expressions while continuing with successful ones
 
-### Legend and Function Identification
-Automatic legend generation with expression labels positioned to avoid plot content overlap
-Color-coded legend entries matching corresponding function line colors for clear identification
-Configurable legend positioning: --legend top-left, top-right, bottom-left, bottom-right, none
-Mathematical expression formatting in legend preserving proper notation and readability
+### Legend Generation
+Automatic legend positioned by default in top-right corner avoiding plot content overlap
+Optional legend positioning via --legend flag: top-left, top-right, bottom-left, bottom-right, none
+Legend entries show expression text exactly as entered with color-coded line samples
+Mathematical notation preserved in legend labels without escaping or transformation
 
-### Enhanced Data Export
-Multi-expression export as GeoJSON FeatureCollection maintaining function separation
-CSV export with function identifier column enabling spreadsheet analysis of multiple datasets
-Individual expression metadata preservation including source expression and evaluation parameters
-Structured coordinate output enabling downstream analysis and processing workflows
+### Multi-Function Data Export
+GeoJSON export returns FeatureCollection with separate Feature per expression
+CSV export includes expression_id column identifying which function generated each coordinate pair
+JSON export preserves individual expression metadata including source text and evaluation parameters
+Export format maintains compatibility with existing single-expression output structure
 
-### Error Handling and Robustness
-Individual expression error isolation preventing single function failure from terminating plot
-Warning messages for expressions producing no valid data points while continuing with successful ones
-Domain validation across multiple expressions ensuring mathematical accuracy and completeness
-Graceful expression parsing error handling with informative messages and partial results
+### Error Handling
+Individual expression parsing errors logged as warnings without stopping execution
+Invalid expressions skipped with clear error messages identifying problematic syntax
+Domain errors for specific data points handled gracefully with coordinate skipping
+Plot generation continues successfully if at least one expression produces valid data
 
 ## Technical Implementation
-TimeSeriesGenerator enhancement to accept expression arrays and return FeatureCollection format
-PlotGenerator modification supporting multiple line rendering with automatic color palette cycling
-Legend rendering system integrated with existing D3.js SVG generation maintaining plot quality
-Expression validation pipeline ensuring individual error handling without affecting other functions
+Enhance TimeSeriesGenerator.generate() to accept expression arrays and return FeatureCollection
+Modify PlotGenerator.generateSVG() to render multiple LineString features with color cycling
+Add legend rendering module integrated with D3.js SVG generation pipeline
+Implement expression validation wrapper preventing individual failures from affecting others
 
 ## Mission Alignment
-Transforms single-function tool into comprehensive comparative analysis platform supporting mathematical education
-Maintains command-line simplicity while significantly expanding analytical capabilities for research workflows
-Supports multi-function comparison requirements while preserving jq philosophy with structured data output
-Enables complex mathematical analysis workflows without compromising tool accessibility or performance
+Supports mathematical comparison workflows essential for educational and research applications
+Maintains jq philosophy with structured multi-function data output suitable for downstream processing
+Preserves command-line simplicity while significantly expanding analytical capabilities
+Enables complex mathematical analysis without compromising tool accessibility or performance

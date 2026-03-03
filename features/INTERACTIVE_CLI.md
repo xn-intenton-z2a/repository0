@@ -6,37 +6,37 @@ Add interactive mode enabling mathematical expression exploration with immediate
 ## Acceptance Criteria
 
 ### Interactive Command Mode
-Interactive REPL supporting immediate expression evaluation with real-time plot generation
-Command syntax: plot-code-lib interactive enabling exploratory mathematical analysis
-Expression history with up/down arrow navigation supporting iterative refinement workflows
-Automatic plot refresh on expression or range modification enabling immediate visual feedback
+Interactive REPL launched via: plot-code-lib interactive
+Immediate expression evaluation with plot generation: > plot sin(x) -r x=0:2*pi
+Expression history navigation using up/down arrow keys with persistent session storage
+Built-in commands: help, history, clear, export, quit for session management
 
 ### Real-time Plot Preview
-Lightweight ASCII plot preview in terminal enabling quick visual validation without file output
-Optional live SVG preview in browser with automatic refresh supporting visual exploration workflows
-Expression syntax validation with real-time feedback preventing invalid mathematical operations
-Smart default range detection based on expression characteristics supporting seamless exploration
+ASCII plot preview displayed directly in terminal for immediate feedback without file creation
+Optional SVG file auto-generation with --auto-save flag creating timestamped plot files
+Expression syntax validation with immediate error feedback before plot generation attempt
+Smart range detection analyzing expression characteristics to suggest optimal visualization bounds
 
-### Expression Discovery Features
-Built-in function help system displaying available mathematical functions with usage examples
-Expression templates and examples for common mathematical functions supporting educational workflows
-Variable range suggestions based on expression type enabling optimal visualization automatically
-Mathematical constant reference including pi, e, golden ratio supporting advanced mathematical exploration
+### Mathematical Function Discovery
+Built-in help system: help functions displays available mathematical functions with brief descriptions
+Expression template library: templates command shows common mathematical function examples
+Mathematical constant reference: constants command lists available constants with values
+Function documentation: help sin provides detailed syntax and usage examples for specific functions
 
-### Session Management
-Expression history persistence across sessions enabling reproducible mathematical exploration
-Bookmark favorite expressions with custom names supporting personalized mathematical libraries
-Export session history to executable CLI commands supporting automation and documentation workflows
-Plot comparison mode showing multiple expressions from history enabling comparative mathematical analysis
+### Session Management and Export  
+Expression history persistence across sessions stored in user configuration directory
+Session bookmarking: bookmark "golden_spiral" saves current expression with custom name
+Batch export functionality: export session generates executable CLI commands from history
+Plot comparison mode: compare displays multiple previous expressions overlaid on single plot
 
 ## Technical Implementation
-Interactive shell using readline interface with expression parsing and validation pipeline
-ASCII plotting library for terminal preview maintaining cross-platform compatibility requirements
-Browser integration using temporary HTTP server for live SVG preview supporting rich visualization
-Session storage using JSON format maintaining expression history and user preferences
+Interactive shell using Node.js readline interface with command parsing and validation
+ASCII plotting via lightweight terminal graphics library maintaining cross-platform compatibility
+Session state management using JSON configuration files in user home directory
+Integration with existing PlotGenerator for seamless transition from interactive to file output
 
 ## Mission Alignment
-Enhances jq philosophy with interactive exploration capabilities supporting mathematical discovery workflows
-Supports educational applications enabling students to experiment with mathematical concepts interactively
+Enhances jq philosophy with interactive exploration supporting mathematical discovery workflows
+Supports educational applications enabling experimentation with mathematical concepts
 Maintains command-line accessibility while adding interactive capabilities for enhanced productivity
-Enables rapid mathematical prototyping without compromising batch processing and automation capabilities
+Enables rapid mathematical prototyping complementing batch processing and automation workflows

@@ -6,37 +6,37 @@ Enable plot-code-lib to read and visualize data from external files supporting C
 ## Acceptance Criteria
 
 ### File Format Support
-CSV file reading with automatic column type detection supporting numeric and categorical data
-JSON file parsing with nested object navigation supporting complex data structures
-TSV and delimited file support with configurable separators supporting diverse data formats
-Excel file reading capability through standard libraries supporting business data workflows
+CSV file reading with automatic header detection and numeric type inference
+JSON file parsing supporting both array-of-objects and nested object structures
+TSV file support with tab delimiter detection and configurable alternative separators via --delimiter flag
+Basic error handling for malformed files with helpful error messages and line number reporting
 
-### Column-based Plotting
-Column selection syntax enabling x/y axis mapping from tabular data: --xcol time --ycol value
-Multi-column plotting supporting comparative analysis across data series with automatic legend generation
-Data filtering capabilities using simple expressions supporting subset visualization and analysis
-Automatic data type inference with numeric conversion supporting mixed-type datasets
+### Column-Based Plotting
+Column selection syntax: plot-code-lib data -f data.csv --xcol time --ycol temperature -o temp-plot.svg
+Multi-column plotting: --ycol "temp,humidity,pressure" creates multiple series with automatic legend
+Data filtering via --filter flag supporting simple expressions: "temperature > 20"
+Automatic numeric conversion with fallback handling for mixed-type columns
 
 ### Data Processing Pipeline
-Built-in data transformation functions including moving averages, normalization, and scaling operations
-Date/time parsing with automatic axis formatting supporting temporal data visualization workflows
-Missing data handling with interpolation options supporting real-world dataset requirements
-Data export capabilities preserving transformations in standard formats supporting downstream analysis
+Built-in transformations accessible via --transform flag: moving-average, normalize, scale
+Date/time column recognition with automatic axis formatting for temporal data visualization
+Missing data handling with options: skip-rows, interpolate-linear, fill-zero via --missing-data flag
+Processed data export maintaining original format with computed columns added
 
-### Integration with Mathematical Expressions
-Hybrid mode combining file data with mathematical expressions enabling model overlay visualization
-Expression evaluation using file data as variables supporting custom calculation and analysis
-Data-driven range detection automatically setting axis bounds based on dataset characteristics
-Statistical summary generation including min, max, mean, standard deviation supporting data exploration
+### Mathematical Expression Integration
+Hybrid plotting combining file data with mathematical expressions on same coordinate system
+Expression evaluation using column data as variables: plot-code-lib data -f data.csv -e "sin(time)" --overlay
+Automatic axis range detection from data bounds with optional manual override
+Statistical summary output including basic descriptive statistics for numeric columns
 
 ## Technical Implementation
-FileReader class supporting multiple formats with unified data structure output interface
-DataProcessor module handling transformations and statistical operations with configurable precision
-Column mapping system integrating with existing PlotGenerator maintaining visual consistency
-Expression evaluator enhancement supporting data variables alongside mathematical functions
+FileReader class with format detection supporting CSV, JSON, TSV parsing via standard libraries
+DataProcessor module handling column operations, filtering, and transformation pipelines
+Integration with existing TimeSeriesGenerator for unified coordinate data generation
+Column mapping system compatible with current PlotGenerator multi-series rendering
 
 ## Mission Alignment
-Expands jq philosophy to real-world data visualization while maintaining mathematical expression focus
-Supports practical data analysis workflows without compromising core mathematical visualization capabilities
-Enables scientific and business applications requiring both mathematical modeling and data visualization
-Maintains command-line simplicity while significantly expanding data processing and visualization scope
+Extends jq philosophy to real-world data processing while preserving mathematical expression focus
+Supports scientific workflow requirements combining empirical data with theoretical mathematical models
+Maintains command-line simplicity and Unix tool composability for data pipeline integration
+Enables practical applications requiring both data analysis and mathematical modeling capabilities

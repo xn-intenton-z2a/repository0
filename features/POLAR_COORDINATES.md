@@ -1,43 +1,42 @@
 # Polar Coordinate Support
 
 ## Overview
-Add polar coordinate plotting capability enabling visualization of mathematical expressions in polar form. Expand mathematical visualization scope with specialized polar plotting while maintaining existing interface simplicity.
+Add polar coordinate plotting capability enabling visualization of mathematical expressions in polar form. Expands mathematical visualization scope with specialized polar plotting while maintaining existing interface simplicity.
 
 ## Acceptance Criteria
 
 ### Polar Command Interface
-New polar command for polar expressions supporting natural polar syntax
-Command syntax: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
-Support for polar variables theta and r enabling intuitive polar expression specification
-Range specification using theta parameter with automatic degree conversion support
-Standard output formats SVG and PNG maintaining compatibility with existing plotting pipeline
+New polar subcommand: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
+Support theta variable in expressions with automatic recognition of polar coordinate context
+Range specification accepts both radians and degree notation with automatic conversion
+Compatible output formats SVG and PNG maintaining feature parity with standard plotting
 
-### Polar-to-Cartesian Transformation
-High-precision coordinate transformation using x = r*cos(theta), y = r*sin(theta) formulas
-Automatic polar expression evaluation ensuring proper r-value calculation from theta input
-Domain validation preventing invalid polar coordinates and handling mathematical edge cases
-Coordinate system scaling ensuring proper aspect ratio and circular symmetry preservation
+### Coordinate Transformation
+High-precision polar-to-cartesian conversion: x = r*cos(theta), y = r*sin(theta)
+Automatic r-value calculation from theta input through expression evaluation
+Domain validation prevents invalid polar coordinates and handles division by zero gracefully
+Aspect ratio preservation ensures circular symmetry in rendered polar plots
 
-### Polar Grid Visualization
-Concentric circle grid with radial angle lines providing polar coordinate reference system
-Configurable polar grid density supporting precise coordinate reading and mathematical analysis
-Angular axis labels with degree or radian notation based on input range specification
-Grid styling consistent with existing plot aesthetics while highlighting polar coordinate nature
+### Polar Grid System
+Concentric circle grid with radial lines at 30-degree intervals by default
+Optional grid density control via --grid-density flag accepting values: sparse, normal, dense
+Angular labels in radians by default with --degrees flag for degree notation
+Grid styling matches existing cartesian grid aesthetics with polar-specific enhancements
 
-### Specialized Polar Functions
-Support for common polar curves including cardioids, limaçons, rose curves, spirals, and lemniscates
-Expression examples supporting "1+cos(theta)", "sin(2*theta)", "theta", "1/(1+cos(theta))"
-Automatic range optimization for polar functions ensuring complete curve visualization
-Mathematical constant support including pi, e, and other constants within polar expressions
+### Polar Function Library
+Built-in support for common polar curves: cardioids, rose curves, spirals, limacons
+Expression examples: "1+cos(theta)" (cardioid), "sin(2*theta)" (rose), "theta" (spiral)
+Automatic range optimization ensuring complete curve visualization within plot boundaries
+Full MathJS constant support including pi, e, and mathematical functions in polar expressions
 
 ## Technical Implementation
-PolarPlotGenerator class extending existing PlotGenerator with polar-specific rendering capabilities
-Coordinate transformation module ensuring mathematical precision in polar-to-Cartesian conversion
-Polar grid rendering system using D3.js with specialized circular and radial line generation
-Expression evaluation enhancement supporting theta variable and polar mathematical operations
+Create PolarPlotGenerator extending PlotGenerator with polar-specific coordinate transformation
+Implement theta variable recognition in ExpressionParser for polar coordinate context
+Add polar grid rendering using D3.js with circular and radial line generation
+Integrate polar coordinate transformation with existing SVG and PNG export pipeline
 
 ## Mission Alignment
-Expands mathematical visualization capabilities while maintaining core command-line interface simplicity
-Supports educational and scientific applications requiring specialized polar coordinate visualization
-Enables comprehensive mathematical curve analysis without compromising tool accessibility
-Preserves jq philosophy with structured coordinate output suitable for further data processing
+Expands mathematical visualization capabilities supporting educational polar coordinate curriculum
+Enables scientific applications requiring specialized polar plots while maintaining CLI simplicity
+Preserves jq philosophy with GeoJSON coordinate output suitable for geographic analysis tools
+Supports advanced mathematical curve analysis without compromising tool accessibility
