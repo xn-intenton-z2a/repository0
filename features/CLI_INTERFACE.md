@@ -1,42 +1,42 @@
-# Batch Processing and Pipeline Integration
+# Multi-Expression Plotting
 
 ## Overview
-Extend plot-code-lib with comprehensive batch processing capabilities to achieve the jq philosophy for mathematical visualizations. Enable automated workflows and pipeline integration for mathematical analysis beyond the current single-expression commands.
+Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. Transform the current single-expression limitation into a multi-function visualization platform with automatic color differentiation and legend support.
 
 ## Acceptance Criteria
 
-### Batch Processing Commands
-New batch command supporting multiple expressions: plot-code-lib batch --input expressions.json --output-dir plots/
-JSON expression file format: [{"expression":"sin(x)","range":"x=0:2*pi","output":"sine.svg","title":"Sine Wave"}]
-Support for mixed plot types including standard functions and parametric curves in single batch operation
-Error handling with --continue-on-error flag ensuring robust batch workflows and partial failure recovery
+### Multi-Expression Command Interface
+Enhanced plot command supporting comma-separated expressions: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" -o comparison.svg
+Automatic color assignment from predefined palette ensuring distinct visualization of each function
+Shared coordinate system with unified axis scaling accommodating all expression ranges automatically
+Individual expression validation allowing partial success when some expressions have domain issues
 
-### Pipeline Integration Features  
-Standard input support enabling streaming workflows: echo '{"expression":"sin(x)","range":"x=0:2*pi"}' | plot-code-lib batch --stdin
-Standard output coordinate streaming without file overhead for pipeline data processing
-Unix-style data flow compatible with shell scripting and mathematical analysis automation
-Structured JSON output format for programmatic processing and integration with external analysis tools
+### Legend and Function Identification
+Automatic legend generation with expression labels positioned to avoid overlap with plot content
+Color-coded legend entries matching corresponding function line colors for clear identification
+Configurable legend position via --legend option: top-left, top-right, bottom-left, bottom-right, none
+Mathematical expression formatting in legend labels preserving proper notation and readability
 
-### Automation and Workflow Support
-Template generation command producing batch configuration files: plot-code-lib template --expressions 5 > batch.json
-Pre-validation of all batch expressions ensuring early error detection before processing begins
-Progress reporting with clear success/failure indicators for large batch operation monitoring
-Parallel processing support for independent expressions improving performance on multi-core systems
+### Enhanced Data Export
+Multi-expression export maintaining function separation in GeoJSON FeatureCollection format
+CSV export with function identifier column allowing spreadsheet analysis of multiple datasets
+Individual expression metadata preservation including source expression and evaluation parameters
+Structured coordinate output enabling downstream analysis and processing workflows
 
-### Advanced Batch Features
-Directory recursion for processing multiple batch files: plot-code-lib batch --recursive data/
-Conditional expression processing based on file existence or timestamp validation
-Output format templating supporting dynamic file naming patterns and organization schemes
-Summary reporting with detailed statistics including processing times and error categorization
+### Error Handling and Robustness
+Individual expression error isolation preventing single function failure from terminating entire plot
+Warning messages for expressions producing no valid data points while continuing with successful ones
+Domain validation across multiple expressions ensuring mathematical accuracy and completeness
+Graceful handling of expression parsing errors with informative error messages and partial results
 
 ## Technical Implementation
-CLI extension with batch subcommand supporting file-based and stdin operation modes
-JSON schema validation for expression file format ensuring robust batch processing workflows
-Worker thread parallelization for independent expression processing and improved throughput
-Streaming output handlers for coordinate data and structured progress reporting systems
+TimeSeriesGenerator modification to accept expression arrays and return FeatureCollection format
+PlotGenerator enhancement supporting multiple line rendering with automatic color palette cycling
+Legend rendering system integrated with existing D3.js SVG generation maintaining plot quality
+Expression validation pipeline ensuring individual error handling without affecting other functions
 
 ## Mission Alignment
-Enhances jq philosophy by enabling batch mathematical coordinate transformation workflows
-Supports automated mathematical documentation requiring consistent multi-plot generation
-Provides foundation for shell scripting integration enabling pipeline-based analysis automation
-Maintains Unix composability while scaling single-expression tool to enterprise batch processing
+Transforms basic single-function tool into comprehensive comparative analysis platform
+Maintains command-line simplicity while significantly expanding analytical capabilities
+Supports mathematical education and research requiring multi-function comparison workflows
+Preserves jq philosophy with structured multi-function data suitable for pipeline processing

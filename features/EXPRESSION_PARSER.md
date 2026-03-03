@@ -1,42 +1,42 @@
-# Multi-Expression Comparative Plotting  
+# Batch Processing System
 
 ## Overview
-Enable simultaneous plotting of multiple mathematical expressions for comparative visualization and analysis. Transform the current single-expression plotting into a powerful comparison platform with automatic legend generation and professional multi-function styling.
+Enable batch processing of multiple mathematical expressions through file-based input and automated plot generation. Transform plot-code-lib into a production-ready tool supporting bulk visualization workflows while maintaining the Unix pipeline philosophy.
 
 ## Acceptance Criteria
 
-### Multi-Expression Command Interface
-Enhanced plot command supporting comma-separated expressions: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" -o comparison.svg
-Automatic color assignment from accessibility-friendly palette ensuring clear function identification
-Shared domain optimization ensuring all expressions display appropriately within unified coordinate boundaries
-Function-specific metadata preservation in GeoJSON FeatureCollection format for programmatic analysis
+### Batch Command Interface
+New batch command supporting JSON input files: plot-code-lib batch --input expressions.json --output-dir plots/
+JSON configuration format: [{"expression":"sin(x)","range":"x=0:2*pi","output":"sine.svg","title":"Sine Wave"}]
+Support for mixed plot types including standard plots and parametric curves in single batch operation
+Error handling with --continue-on-error flag ensuring robust batch processing workflows
 
-### Legend and Labeling System
-Automatic legend generation with intelligent positioning avoiding overlap with plotted functions and axes
-Mathematical expression labels with proper typography including Greek letters and mathematical symbols
-Configurable legend placement: top-left, top-right, bottom-left, bottom-right, or disabled
-Legend styling consistent with plot theme including font sizes and color scheme coordination
+### Configuration File Format
+Structured JSON input supporting all existing plot options including title, dimensions, and styling
+Individual plot configuration with expression, range, output file, and optional parameters
+Batch validation ensuring all expressions and parameters are valid before processing begins
+Template generation capability: plot-code-lib batch --template > template.json for configuration assistance
 
-### Advanced Multi-Function Features
-Individual expression styling via JSON configuration: --styles '{"sin(x)":{"color":"red","width":2},"cos(x)":{"dash":"5,5"}}'
-Domain validation across multiple expressions ensuring mathematical accuracy across evaluation ranges
-Function-specific error handling allowing individual expression failures without plot termination
-Smart axis scaling accommodating different function ranges while maintaining readability
+### Parallel Processing Support
+Multi-threaded processing for independent expressions improving throughput on multi-core systems
+Progress reporting with completion percentage and error status for large batch operations
+Memory-efficient processing preventing resource exhaustion during large batch runs
+Graceful error recovery allowing batch continuation when individual plots fail
 
-### Comparative Analysis Output
-Multi-expression coordinate export maintaining function identification across all data formats
-GeoJSON FeatureCollection output with properties distinguishing each mathematical expression
-CSV export with function identifier columns enabling comparative spreadsheet analysis
-Structured JSON output optimized for programmatic analysis and mathematical software integration
+### Pipeline Integration
+Standard input support for streaming workflows: cat expressions.json | plot-code-lib batch --stdin
+Structured progress output compatible with shell scripting and automated monitoring systems
+Exit code handling providing clear success/failure indication for automated workflows
+Directory organization with automatic subdirectory creation for complex output structures
 
 ## Technical Implementation
-TimeSeriesGenerator extension supporting expression arrays with FeatureCollection output format
-PlotGenerator enhancement with multi-line rendering and automatic color palette management
-Legend rendering system integrated with SVG generation and mathematical typography support
-Domain optimization algorithms ensuring balanced visualization across multiple function ranges
+Batch processing engine with JSON schema validation and parallel execution capabilities
+File system management ensuring proper output directory creation and conflict resolution
+Progress monitoring system with structured logging and error categorization
+Worker thread coordination for optimal CPU utilization during batch processing operations
 
 ## Mission Alignment
-Transforms single-function tool into comprehensive comparative analysis platform maintaining CLI simplicity
-Enables mathematical function comparison supporting educational and research documentation workflows
-Supports jq philosophy with structured multi-function data suitable for pipeline processing
-Expands analytical capabilities while preserving focus on core mathematical visualization mission
+Scales single-expression tool to production batch processing while maintaining command-line simplicity
+Enables automated mathematical documentation and analysis workflows supporting research applications
+Supports jq philosophy with structured input/output and Unix pipeline compatibility
+Provides foundation for enterprise mathematical visualization automation without compromising core mission

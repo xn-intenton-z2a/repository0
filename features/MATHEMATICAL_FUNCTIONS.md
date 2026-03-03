@@ -1,42 +1,42 @@
-# Advanced Mathematical Function Types
+# Polar Coordinate Plotting
 
 ## Overview
-Expand plot-code-lib beyond current basic expressions to support specialized mathematical function types including polar coordinates, piecewise functions, and domain-specific operations. Leverage existing MathJS foundation to enable comprehensive scientific and educational mathematical visualization.
+Add polar coordinate plotting capability to plot-code-lib enabling visualization of mathematical expressions in polar form. Implement specialized polar plotting command with automatic polar-to-Cartesian transformation and proper polar grid visualization.
 
 ## Acceptance Criteria
 
-### Polar Coordinate Plotting  
-New polar command for polar coordinate expressions: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
-High-precision polar-to-Cartesian transformation: x = r*cos(theta), y = r*sin(theta) 
-Support for specialized polar expressions including rose curves, spirals, cardioids, and lemniscates
-Polar grid overlay with concentric circles and radial lines providing enhanced coordinate visualization
+### Polar Command Interface
+New polar command for polar expressions: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
+Support for polar variables theta and r enabling natural polar expression syntax
+Range specification using theta parameter: -r "theta=0:2*pi" or -r "theta=0:360" with automatic degree conversion
+Standard output formats (SVG, PNG) maintaining compatibility with existing plotting pipeline
 
-### Piecewise and Conditional Functions
-Enhanced expression support for piecewise functions using MathJS conditional syntax and logical operators
-Discontinuous function visualization with intelligent gap handling and boundary identification
-Examples: plot-code-lib plot -e "x >= 0 ? sqrt(x) : 0" -r "x=-1:4" -o piecewise.svg
-Visual discontinuity indicators using configurable line styles and gap rendering for mathematical clarity
+### Polar-to-Cartesian Transformation
+High-precision coordinate transformation: x = r*cos(theta), y = r*sin(theta) using mathematical accuracy
+Automatic handling of polar expression evaluation ensuring proper r-value calculation from theta input
+Domain validation preventing invalid polar coordinates and handling mathematical edge cases
+Coordinate system scaling ensuring proper aspect ratio and circular symmetry preservation
 
-### Advanced Function Library Extensions
-Statistical function support including normal distribution, error functions, and probability density functions
-Mathematical special functions: gamma, beta, Bessel functions for scientific and engineering applications  
-Enhanced trigonometric support including inverse and hyperbolic functions with proper domain handling
-Logarithmic and exponential function enhancements with automatic domain restriction detection
+### Polar Grid Visualization
+Concentric circle grid with radial angle lines providing polar coordinate reference system
+Configurable polar grid density supporting precise coordinate reading and mathematical analysis
+Angular axis labels with degree or radian notation based on input range specification
+Grid styling consistent with existing plot aesthetics while highlighting polar coordinate nature
 
-### Domain Validation and Mathematical Accuracy
-Automatic domain restriction detection for functions with limited ranges (log, sqrt, inverse trig, etc.)
-Mathematical singularity detection with appropriate visualization handling for undefined regions
-Function evaluation error recovery ensuring robust partial plots when domain restrictions apply
-Advanced range optimization accounting for function limitations and mathematical constraints
+### Specialized Polar Functions
+Support for common polar curves: cardioids, limaçons, rose curves, spirals, and lemniscates
+Expression examples: "1+cos(theta)", "sin(2*theta)", "theta", "1/(1+cos(theta))"
+Automatic range optimization for polar functions ensuring complete curve visualization
+Mathematical constant support: pi, e, and other constants within polar expressions
 
 ## Technical Implementation
-ExpressionParser extension supporting enhanced MathJS function library and conditional syntax
-Polar coordinate transformation module with mathematical precision and specialized plot generation  
-Domain validation system ensuring proper function evaluation across complex expression types
-TimeSeriesGenerator enhancement supporting coordinate transformations and domain-aware generation
+New PolarPlotGenerator class extending existing PlotGenerator with polar-specific rendering
+Coordinate transformation module ensuring mathematical precision in polar-to-Cartesian conversion
+Polar grid rendering system using D3.js with specialized circular and radial line generation
+Expression evaluation enhancement supporting theta variable and polar mathematical operations
 
 ## Mission Alignment
-Extends core mathematical visualization while maintaining command-line interface simplicity and accessibility
-Supports advanced educational and research applications requiring specialized mathematical function visualization
-Enables scientific computing visualization without compromising ease of use or jq philosophy principles
-Provides comprehensive mathematical expression foundation aligning with professional analysis requirements
+Expands mathematical visualization capabilities while maintaining core command-line interface simplicity
+Supports educational and scientific applications requiring specialized polar coordinate visualization
+Enables comprehensive mathematical curve analysis without compromising tool accessibility
+Preserves jq philosophy with structured coordinate output suitable for further data processing
