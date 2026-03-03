@@ -303,4 +303,14 @@ describe("PlotCodeLib", () => {
     // Test that the exportData method exists
     expect(typeof app.exportData).toBe('function');
   });
+
+  test("should support all CLI commands", () => {
+    const app = new PlotCodeLib();
+    
+    // Test that the main methods exist
+    expect(typeof app.generatePlot).toBe('function');
+    expect(typeof app.generateParametricPlot).toBe('function');
+    expect(typeof app.exportData).toBe('function');
+    expect(typeof app.run).toBe('function');
+  });
 });

@@ -569,6 +569,20 @@ class PlotCodeLib {
         }
       });
 
+    program
+      .command('demo')
+      .description('Generate comprehensive demonstration examples showcasing all capabilities')
+      .action(async () => {
+        try {
+          console.log('🎯 Running plot-code-lib comprehensive demonstration...\n');
+          const { execSync } = await import('child_process');
+          execSync('node src/demo.js', { stdio: 'inherit' });
+        } catch (error) {
+          console.error('Error running demo:', error.message);
+          process.exit(1);
+        }
+      });
+
     await program.parseAsync();
   }
 

@@ -24,6 +24,22 @@ npm install -g plot-code-lib
 
 ## Quick Start
 
+### Try the Interactive Demo
+```bash
+# Generate 28+ comprehensive examples showcasing all features
+plot-code-lib demo
+# or
+npm run demo
+```
+
+This creates a `demo-output/` directory with examples including:
+- 📊 Basic function plots (sine, quadratic, exponential)
+- 🌈 Multi-expression comparisons with legends  
+- 🎨 Parametric mathematical art (hearts, spirals, roses)
+- 📈 Scientific functions (Gaussian, sigmoid, Fourier series)
+- 📁 Data exports (GeoJSON, CSV, JSON formats)
+- ⚙️ Engineering applications (damped oscillations, step response)
+
 ### Basic Function Plot
 ```bash
 plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine-wave.svg --title "Sine Wave"
@@ -242,19 +258,6 @@ Options:
   --ylabel <label>         Y-axis label (default: "y")
 ```
 
-**Examples:**
-```bash  
-# Ellipse
-plot-code-lib parametric -x "2*cos(t)" -y "sin(t)" -r "t=0:2*pi" -o ellipse.svg
-
-# Hypotrochoid (spirograph pattern)
-plot-code-lib parametric \
-  -x "(R-r)*cos(t) + d*cos((R-r)/r*t)" \
-  -y "(R-r)*sin(t) - d*sin((R-r)/r*t)" \
-  -r "t=0:2*pi" -o spirograph.svg \
-  --width 600 --height 600
-```
-
 ### export command
 Export coordinate data without creating visualizations - perfect for data pipelines.
 
@@ -266,6 +269,19 @@ Options:
   -r, --range <range>      Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")
   -o, --output <file>      Output file 
   --format <format>        Output format: geojson, csv, json (default: "geojson")
+```
+
+**Examples:**
+```bash  
+# Ellipse
+plot-code-lib parametric -x "2*cos(t)" -y "sin(t)" -r "t=0:2*pi" -o ellipse.svg
+
+# Hypotrochoid (spirograph pattern)
+plot-code-lib parametric \
+  -x "(R-r)*cos(t) + d*cos((R-r)/r*t)" \
+  -y "(R-r)*sin(t) - d*sin((R-r)/r*t)" \
+  -r "t=0:2*pi" -o spirograph.svg \
+  --width 600 --height 600
 ```
 
 **Examples:**
