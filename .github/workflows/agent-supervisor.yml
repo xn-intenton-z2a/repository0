@@ -18,6 +18,8 @@ name: agent-supervisor
 run-name: "agent-supervisor [${{ github.ref_name }}]"
 
 on:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_run:
     workflows:
       - test
