@@ -27,7 +27,8 @@
   "dependencies": {
     "@xn-intenton-z2a/agentic-lib": "^7.1.35",
     "commander": "^12.0.0",
-    "mathjs": "^13.2.0"
+    "mathjs": "^13.2.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",

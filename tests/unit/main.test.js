@@ -3,7 +3,7 @@
 // tests/unit/main.test.js
 
 import { describe, it, expect } from 'vitest';
-import { parseRange, generateTimeSeries, generateSVGPlot } from '../../src/lib/main.js';
+import { parseRange, generateTimeSeries, generateSVGPlot, generatePNGPlot } from '../../src/lib/main.js';
 
 describe('parseRange', () => {
   it('should parse single variable range', () => {
@@ -154,5 +154,32 @@ describe('generateSVGPlot', () => {
     expect(svg).toContain('class="grid"');
     expect(svg).toContain('class="axis"');
     expect(svg).toContain('class="axis-label"');
+  });
+});
+
+describe('generatePNGPlot', () => {
+  it('should generate PNG buffer from points', async () => {
+    const points = [
+      { x: 0, y: 0 },
+      { x: 1, y: 1 },
+      { x: 2, y: 4 }
+    ];
+    
+    const pngBuffer = await generatePNGPlot(points);
+    
+    expect(pngBuffer).toBeInstanceOf(Buffer);
+    expect(pngBuffer.length).toBeGreaterThan(0);
+    
+    // Check PNG signature (first 8 bytes)
+    const pngSignature = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+    expect(pngBuffer.subarray(0, 8)).toEqual(pngSignature);
+  });
+
+  it('should generate PNG with custom options', async () => {
+    const points = [{ x: 0, y: 0 }, { x: 1, y: 1 }];
+    const pngBuffer = await generatePNGPlot(points, { title: 'Test PNG' });
+    
+    expect(pngBuffer).toBeInstanceOf(Buffer);
+    expect(pngBuffer.length).toBeGreaterThan(0);
   });
 });

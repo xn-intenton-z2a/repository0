@@ -5,9 +5,10 @@
 
 import { fileURLToPath } from "url";
 import { writeFileSync, mkdirSync } from "fs";
-import { dirname } from "path";
+import { dirname, extname } from "path";
 import { Command } from "commander";
 import { evaluate, parser } from "mathjs";
+import sharp from "sharp";
 
 /**
  * Parse range string like "x=-10:10,y=-5:5" into range object
@@ -206,6 +207,24 @@ export function generateSVGPlot(points, options = {}) {
 }
 
 /**
+ * Generate PNG plot from time series data
+ * @param {Array} points - Array of {x, y} points
+ * @param {Object} options - Plot options
+ * @returns {Buffer} PNG image buffer
+ */
+export async function generatePNGPlot(points, options = {}) {
+  // Generate SVG first
+  const svg = generateSVGPlot(points, options);
+  
+  // Convert SVG to PNG using sharp
+  const pngBuffer = await sharp(Buffer.from(svg))
+    .png()
+    .toBuffer();
+    
+  return pngBuffer;
+}
+
+/**
  * Main function to handle CLI commands
  * @param {Array} args - Command line arguments
  */
@@ -225,7 +244,7 @@ export function main(args) {
     .option('-f, --file <path>', 'Output file path', 'output.svg')
     .option('-s, --steps <number>', 'Number of calculation steps', '100')
     .option('-t, --title <title>', 'Plot title')
-    .action((options) => {
+    .action(async (options) => {
       try {
         console.log(`Generating plot for expression: ${options.expression}`);
         console.log(`Range: ${options.range}`);
@@ -242,15 +261,23 @@ export function main(args) {
         // Generate plot title
         const title = options.title || `Plot: ${options.expression}`;
         
-        // Generate SVG
-        const svg = generateSVGPlot(points, { title });
+        // Determine output format based on file extension
+        const fileExt = extname(options.file).toLowerCase();
         
         // Ensure output directory exists
         const outputDir = dirname(options.file);
         mkdirSync(outputDir, { recursive: true });
         
-        // Write file
-        writeFileSync(options.file, svg, 'utf8');
+        if (fileExt === '.png') {
+          // Generate PNG
+          const pngBuffer = await generatePNGPlot(points, { title });
+          writeFileSync(options.file, pngBuffer);
+        } else {
+          // Default to SVG
+          const svg = generateSVGPlot(points, { title });
+          writeFileSync(options.file, svg, 'utf8');
+        }
+        
         console.log(`Plot saved to: ${options.file}`);
         
       } catch (error) {
@@ -266,17 +293,20 @@ export function main(args) {
     .action(() => {
       console.log('Example commands:');
       console.log('');
-      console.log('  # Basic sine wave');
+      console.log('  # Basic sine wave (SVG)');
       console.log('  plot-code-lib plot --expression "y=sin(x)" --range "x=-10:10" --file sine.svg');
       console.log('');
-      console.log('  # Cosine with custom range');  
-      console.log('  plot-code-lib plot --expression "cos(x)" --range "x=-6.28:6.28" --file cosine.svg');
+      console.log('  # Cosine with custom range (PNG)');  
+      console.log('  plot-code-lib plot --expression "cos(x)" --range "x=-6.28:6.28" --file cosine.png');
       console.log('');
-      console.log('  # Quadratic function');
-      console.log('  plot-code-lib plot --expression "x^2" --range "x=-5:5" --file quadratic.svg');
+      console.log('  # Quadratic function with title');
+      console.log('  plot-code-lib plot --expression "x^2" --range "x=-5:5" --file quadratic.svg --title "Parabola"');
       console.log('');
       console.log('  # Complex expression');
-      console.log('  plot-code-lib plot --expression "sin(x) * cos(x/2)" --range "x=-12:12" --file complex.svg');
+      console.log('  plot-code-lib plot --expression "sin(x) * cos(x/2)" --range "x=-12:12" --file complex.png');
+      console.log('');
+      console.log('  # High resolution plot');
+      console.log('  plot-code-lib plot --expression "exp(-x^2/4)*sin(3*x)" --range "x=-4:4" --steps 200 --file detailed.svg');
     });
   
   // If no args provided, show help
