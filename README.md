@@ -7,13 +7,14 @@
 ## Features
 
 - 🔢 **Mathematical Expression Parser**: Support for MathJS syntax including trigonometric functions, polynomials, and complex expressions
-- 📊 **Time Series Generation**: Convert continuous mathematical functions into discrete coordinate arrays using GeoJSON specification  
+- 📊 **Multi-Expression Plotting**: Compare multiple functions on the same plot with automatic legend generation  
 - 🎨 **Dual Format Rendering**: Generate both SVG vector graphics and PNG raster images using D3.js and Sharp
 - 🖥️ **Command Line Interface**: Intuitive CLI with Unix-style options using Commander.js
 - 📐 **Multiple Plot Types**: Standard function plots and parametric curves
 - 🎯 **Flexible Range Specification**: Support for custom ranges, step sizes, and mathematical expressions in parameters
-- 📁 **Data Export**: Export coordinate data in GeoJSON, CSV, and JSON formats
+- 📁 **Data Export**: Export coordinate data in GeoJSON, CSV, and JSON formats with multi-expression support
 - 🔧 **Programmatic API**: Full JavaScript library for integration into other projects
+- 📊 **Time Series Generation**: Convert continuous mathematical functions into discrete coordinate arrays using GeoJSON specification
 
 ## Installation
 
@@ -26,6 +27,16 @@ npm install -g plot-code-lib
 ### Basic Function Plot
 ```bash
 plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine-wave.svg --title "Sine Wave"
+```
+
+### Multi-Expression Comparison
+```bash
+plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=-pi:pi" -o trig-comparison.svg --title "Trigonometric Functions"
+```
+
+### Custom Expression Labels  
+```bash
+plot-code-lib plot -e "Linear:x,Quadratic:x^2,Cubic:x^3" -r "x=-2:2" -o polynomials.png --title "Polynomial Functions"
 ```
 
 ### Parametric Plot
@@ -46,6 +57,15 @@ Generate mathematical function plots:
 ```bash
 # Basic sine wave
 plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine-wave.svg --title "Sine Wave"
+
+# Multiple trigonometric functions with legend
+plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=-pi:pi" -o trig-comparison.svg --title "Trigonometric Functions"
+
+# Custom expression labels for cleaner legends
+plot-code-lib plot -e "Linear:x,Quadratic:x^2,Cubic:x^3" -r "x=-2:2" -o polynomials.png --title "Polynomial Functions"
+
+# Multi-expression with no legend (clean plot)
+plot-code-lib plot -e "sin(x),cos(x)" -r "x=0:2*pi" -o clean-trig.svg --no-legend --title "Clean Comparison"
 
 # Quadratic function
 plot-code-lib plot -e "x^2 - 2*x + 1" -r "x=-2:4:0.1" -o parabola.png --title "Quadratic Function"
@@ -130,6 +150,12 @@ Export and process mathematical data for analysis:
 # Generate coordinate data as GeoJSON (default)
 plot-code-lib export -e "sin(x)" -r "x=0:2*pi:0.1" -o sine-data.json --format geojson
 
+# Multi-expression CSV export with expression_name column
+plot-code-lib export -e "sin(x),cos(x)" -r "x=0:2*pi:0.1" -o trig-data.csv --format csv
+
+# Export with custom labels for analysis
+plot-code-lib export -e "Growth:exp(x),Decay:exp(-x)" -r "x=0:3:0.5" -o exponential-data.json --format json
+
 # Export as CSV for spreadsheet analysis
 plot-code-lib export -e "x^2" -r "x=-5:5:0.5" -o quadratic.csv --format csv
 
@@ -171,7 +197,7 @@ Generate standard mathematical function plots.
 plot-code-lib plot [options]
 
 Options:
-  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)", "x^2")
+  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)" or "sin(x),cos(x)" for multiple)
   -r, --range <range>      Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")  
   -o, --output <file>      Output file (SVG or PNG)
   -t, --title <title>      Plot title
@@ -179,12 +205,19 @@ Options:
   -h, --height <height>    Plot height (default: 600)
   --xlabel <label>         X-axis label (default: "x")
   --ylabel <label>         Y-axis label (default: "y")
+  --no-legend              Disable legend generation for multi-expression plots
 ```
 
 **Examples:**
 ```bash
 # Basic quadratic function
 plot-code-lib plot -e "x^2 - 4*x + 3" -r "x=-1:5" -o parabola.svg
+
+# Multi-expression comparison with legend
+plot-code-lib plot -e "sin(x),cos(x),sin(x+pi/4)" -r "x=0:2*pi" -o phase-comparison.svg --title "Phase Shift Comparison"
+
+# Custom labels for cleaner legend
+plot-code-lib plot -e "Fast:sin(5*x),Slow:sin(x/2)" -r "x=0:4*pi" -o frequency-comparison.svg
 
 # Trigonometric with custom labels
 plot-code-lib plot -e "sin(2*pi*x)" -r "x=0:2" -o wave.svg \
@@ -229,7 +262,7 @@ Export coordinate data without creating visualizations - perfect for data pipeli
 plot-code-lib export [options]
 
 Options:
-  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)", "x^2")
+  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)" or "sin(x),cos(x)" for multiple)
   -r, --range <range>      Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")
   -o, --output <file>      Output file 
   --format <format>        Output format: geojson, csv, json (default: "geojson")
@@ -239,6 +272,12 @@ Options:
 ```bash
 # GeoJSON format (geographic standard)
 plot-code-lib export -e "cos(x)" -r "x=0:pi" -o cosine.geojson --format geojson
+
+# Multi-expression CSV with expression_name column
+plot-code-lib export -e "sin(x),cos(x)" -r "x=0:2*pi:0.1" -o trig-data.csv --format csv
+
+# Custom labels in JSON export
+plot-code-lib export -e "Growth:exp(x),Decay:exp(-x)" -r "x=0:3:0.5" -o exponential.json --format json
 
 # CSV format (spreadsheet compatible)  
 plot-code-lib export -e "x^3" -r "x=-2:2:0.1" -o cubic.csv --format csv

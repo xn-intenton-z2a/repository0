@@ -45,6 +45,32 @@ class ExpressionParser {
       throw new Error(`Failed to parse expression "${expression}": ${error.message}`);
     }
   }
+
+  /**
+   * Parse multiple expressions from comma-separated string
+   * @param {string} expressionString - Comma-separated expressions or single expression
+   * @returns {Array} - Array of {expression, label, func} objects
+   */
+  parseMultiple(expressionString) {
+    const expressions = expressionString.split(',').map(expr => expr.trim());
+    const results = [];
+
+    for (const expr of expressions) {
+      // Support "label:expression" syntax for custom legend entries
+      const labelMatch = expr.match(/^(.+?):(.+)$/);
+      const expression = labelMatch ? labelMatch[2].trim() : expr;
+      const label = labelMatch ? labelMatch[1].trim() : expression;
+
+      try {
+        const func = this.parse(expression);
+        results.push({ expression, label, func });
+      } catch (error) {
+        throw new Error(`Failed to parse expression "${expression}": ${error.message}`);
+      }
+    }
+
+    return results;
+  }
 }
 
 /**
@@ -129,6 +155,76 @@ class TimeSeriesGenerator {
   }
 
   /**
+   * Generate coordinate data from multiple expressions
+   * @param {string} expressionString - Comma-separated expressions or single expression
+   * @param {string} rangeSpec - Range specification
+   * @returns {Object} - GeoJSON FeatureCollection
+   */
+  generateMultiple(expressionString, rangeSpec) {
+    const range = this.parseRange(rangeSpec);
+    const expressions = this.parser.parseMultiple(expressionString);
+    const features = [];
+
+    // Predefined color palette optimized for accessibility and print compatibility
+    const colors = [
+      "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", 
+      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+    ];
+
+    for (let i = 0; i < expressions.length; i++) {
+      const { expression, label, func } = expressions[i];
+      const coordinates = [];
+
+      for (let value = range.start; value <= range.end; value += range.step) {
+        try {
+          const variables = {};
+          variables[range.variable] = value;
+          const result = func(variables);
+          
+          // Handle complex numbers and invalid results
+          if (typeof result === 'object' && result.im !== undefined) {
+            // Skip complex numbers for now
+            continue;
+          }
+          
+          if (isFinite(result)) {
+            coordinates.push([value, result]);
+          }
+        } catch (error) {
+          // Skip invalid points
+          continue;
+        }
+      }
+      
+      if (coordinates.length > 0) {
+        features.push({
+          type: "Feature",
+          properties: {
+            expression: expression,
+            label: label,
+            range: rangeSpec,
+            color: colors[i % colors.length],
+            index: i
+          },
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates
+          }
+        });
+      }
+    }
+    
+    if (features.length === 0) {
+      throw new Error('No valid data points generated from any expressions');
+    }
+    
+    return {
+      type: "FeatureCollection",
+      features: features
+    };
+  }
+
+  /**
    * Generate parametric curve data
    * @param {string} xExpression - X coordinate expression
    * @param {string} yExpression - Y coordinate expression  
@@ -186,6 +282,10 @@ class PlotGenerator {
     this.width = 800;
     this.height = 600;
     this.margins = { top: 40, right: 40, bottom: 60, left: 80 };
+    this.colors = [
+      "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", 
+      "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+    ];
   }
 
   /**
@@ -234,7 +334,7 @@ class PlotGenerator {
       throw new Error('No coordinate data found in GeoJSON');
     }
     
-    // Calculate scales
+    // Calculate scales with unified axis scaling
     const xExtent = [
       Math.min(...allCoordinates.map(d => d[0])),
       Math.max(...allCoordinates.map(d => d[0]))
@@ -289,22 +389,89 @@ class PlotGenerator {
         .text(options.title);
     }
     
-    // Draw lines for each feature
-    const colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"];
+    // Draw lines for each feature with color assignment
     features.forEach((feature, i) => {
       const lineGenerator = line()
         .x(d => xScale(d[0]))
         .y(d => yScale(d[1]));
       
+      const color = feature.properties?.color || this.colors[i % this.colors.length];
+      
       g.append("path")
         .datum(feature.geometry.coordinates)
         .attr("fill", "none")
-        .attr("stroke", colors[i % colors.length])
+        .attr("stroke", color)
         .attr("stroke-width", 2)
+        .style("shape-rendering", "geometricPrecision") // SVG anti-aliasing
         .attr("d", lineGenerator);
     });
     
+    // Add legend for multi-expression plots
+    if (features.length > 1 && !options.noLegend) {
+      this.addLegend(svg, features, options);
+    }
+    
     return dom.window.document.body.innerHTML;
+  }
+
+  /**
+   * Add legend to SVG plot
+   * @param {Object} svg - D3 SVG selection
+   * @param {Array} features - GeoJSON features
+   * @param {Object} options - Plot options
+   */
+  addLegend(svg, features, options) {
+    const legend = svg.append("g")
+      .attr("class", "legend");
+    
+    // Calculate legend position using intelligent placement algorithm
+    const legendWidth = 200;
+    const legendHeight = features.length * 20 + 20;
+    let legendX, legendY;
+    
+    // Default positioning (top-right)
+    legendX = this.width - legendWidth - 20;
+    legendY = 60;
+    
+    // Adjust if legend would overlap with plot area
+    if (legendX < this.margins.left + 20) {
+      legendX = this.margins.left + 20;
+    }
+    
+    // Add legend background
+    legend.append("rect")
+      .attr("x", legendX - 10)
+      .attr("y", legendY - 10)
+      .attr("width", legendWidth)
+      .attr("height", legendHeight)
+      .attr("fill", "white")
+      .attr("stroke", "#ccc")
+      .attr("stroke-width", 1)
+      .style("opacity", 0.9);
+    
+    // Add legend items
+    features.forEach((feature, i) => {
+      const legendItem = legend.append("g")
+        .attr("transform", `translate(${legendX}, ${legendY + i * 20})`);
+      
+      // Legend line
+      legendItem.append("line")
+        .attr("x1", 0)
+        .attr("x2", 20)
+        .attr("y1", 0)
+        .attr("y2", 0)
+        .attr("stroke", feature.properties?.color || this.colors[i % this.colors.length])
+        .attr("stroke-width", 2);
+      
+      // Legend text
+      legendItem.append("text")
+        .attr("x", 25)
+        .attr("y", 0)
+        .attr("dy", "0.35em")
+        .style("font-size", "12px")
+        .style("font-family", "sans-serif")
+        .text(feature.properties?.label || feature.properties?.expression || `Function ${i + 1}`);
+    });
   }
 
   /**
@@ -347,7 +514,7 @@ class PlotCodeLib {
     program
       .command('plot')
       .description('Generate a plot from a mathematical expression')
-      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
+      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)" or "sin(x),cos(x)" for multiple)')
       .requiredOption('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')
       .requiredOption('-o, --output <file>', 'Output file (SVG or PNG)')
       .option('-t, --title <title>', 'Plot title')
@@ -355,6 +522,7 @@ class PlotCodeLib {
       .option('-h, --height <height>', 'Plot height', '600')
       .option('--xlabel <label>', 'X-axis label', 'x')
       .option('--ylabel <label>', 'Y-axis label', 'y')
+      .option('--no-legend', 'Disable legend generation for multi-expression plots')
       .action(async (options) => {
         try {
           await this.generatePlot(options);
@@ -388,7 +556,7 @@ class PlotCodeLib {
     program
       .command('export')
       .description('Export coordinate data without visualization')
-      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)", "x^2")')
+      .requiredOption('-e, --expression <expr>', 'Mathematical expression (e.g., "sin(x)" or "sin(x),cos(x)" for multiple)')
       .requiredOption('-r, --range <range>', 'Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1")')
       .requiredOption('-o, --output <file>', 'Output file (JSON)')
       .option('--format <format>', 'Output format (geojson, csv, json)', 'geojson')
@@ -411,14 +579,24 @@ class PlotCodeLib {
   async generatePlot(options) {
     this.plotter.setDimensions(parseInt(options.width), parseInt(options.height));
     
-    // Generate time series data
-    const geoJsonData = this.generator.generate(options.expression, options.range);
+    // Detect multi-expression plotting
+    const isMultiExpression = options.expression.includes(',');
+    let geoJsonData;
+    
+    if (isMultiExpression) {
+      // Generate multi-expression data
+      geoJsonData = this.generator.generateMultiple(options.expression, options.range);
+    } else {
+      // Generate single expression data for backward compatibility
+      geoJsonData = this.generator.generate(options.expression, options.range);
+    }
     
     // Create plot options
     const plotOptions = {
       title: options.title,
       xLabel: options.xlabel,
-      yLabel: options.ylabel
+      yLabel: options.ylabel,
+      noLegend: options.legend === false // Handle --no-legend flag
     };
     
     // Generate SVG
@@ -429,11 +607,13 @@ class PlotCodeLib {
     
     if (outputExt === '.svg') {
       writeFileSync(options.output, svgString);
-      console.log(`SVG plot saved to ${options.output}`);
+      const expressionCount = isMultiExpression ? options.expression.split(',').length : 1;
+      console.log(`SVG plot with ${expressionCount} expression(s) saved to ${options.output}`);
     } else if (outputExt === '.png') {
       const pngBuffer = await this.plotter.generatePNG(svgString);
       writeFileSync(options.output, pngBuffer);
-      console.log(`PNG plot saved to ${options.output}`);
+      const expressionCount = isMultiExpression ? options.expression.split(',').length : 1;
+      console.log(`PNG plot with ${expressionCount} expression(s) saved to ${options.output}`);
     } else {
       throw new Error('Output file must have .svg or .png extension');
     }
@@ -479,8 +659,17 @@ class PlotCodeLib {
    * @param {Object} options - CLI options
    */
   async exportData(options) {
-    // Generate time series data
-    const geoJsonData = this.generator.generate(options.expression, options.range);
+    // Detect multi-expression export
+    const isMultiExpression = options.expression.includes(',');
+    let geoJsonData;
+    
+    if (isMultiExpression) {
+      // Generate multi-expression data
+      geoJsonData = this.generator.generateMultiple(options.expression, options.range);
+    } else {
+      // Generate single expression data for backward compatibility
+      geoJsonData = this.generator.generate(options.expression, options.range);
+    }
     
     let outputData;
     let outputString;
@@ -492,20 +681,47 @@ class PlotCodeLib {
         break;
         
       case 'csv':
-        const coordinates = geoJsonData.geometry.coordinates;
-        const csvLines = ['x,y'];
-        coordinates.forEach(([x, y]) => {
-          csvLines.push(`${x},${y}`);
-        });
-        outputString = csvLines.join('\n');
+        if (isMultiExpression) {
+          // Multi-expression CSV export with expression_name column
+          const csvLines = ['x,y,expression_name'];
+          geoJsonData.features.forEach(feature => {
+            const expressionName = feature.properties.label;
+            feature.geometry.coordinates.forEach(([x, y]) => {
+              csvLines.push(`${x},${y},${expressionName}`);
+            });
+          });
+          outputString = csvLines.join('\n');
+        } else {
+          // Single expression CSV export (backward compatible)
+          const coordinates = geoJsonData.geometry.coordinates;
+          const csvLines = ['x,y'];
+          coordinates.forEach(([x, y]) => {
+            csvLines.push(`${x},${y}`);
+          });
+          outputString = csvLines.join('\n');
+        }
         break;
         
       case 'json':
-        outputData = {
-          expression: options.expression,
-          range: options.range,
-          data: geoJsonData.geometry.coordinates
-        };
+        if (isMultiExpression) {
+          // Multi-expression JSON export with metadata
+          outputData = {
+            expressions: geoJsonData.features.map(f => f.properties.expression),
+            range: options.range,
+            data: geoJsonData.features.map(f => ({
+              expression: f.properties.expression,
+              label: f.properties.label,
+              coordinates: f.geometry.coordinates
+            }))
+          };
+        } else {
+          // Single expression JSON export (backward compatible)
+          outputData = {
+            expression: options.expression,
+            range: options.range,
+            data: geoJsonData.geometry.coordinates
+          };
+        }
         outputString = JSON.stringify(outputData, null, 2);
         break;
         
@@ -514,7 +730,8 @@ class PlotCodeLib {
     }
     
     writeFileSync(options.output, outputString);
-    console.log(`${options.format.toUpperCase()} data exported to ${options.output}`);
+    const expressionCount = isMultiExpression ? options.expression.split(',').length : 1;
+    console.log(`${options.format.toUpperCase()} data with ${expressionCount} expression(s) exported to ${options.output}`);
   }
 }
 

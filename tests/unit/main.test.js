@@ -30,6 +30,44 @@ describe("ExpressionParser", () => {
     const parser = new ExpressionParser();
     expect(() => parser.parse("invalid_expression(")).toThrow();
   });
+
+  test("should parse multiple expressions from comma-separated string", () => {
+    const parser = new ExpressionParser();
+    const results = parser.parseMultiple("sin(x),cos(x),x^2");
+    
+    expect(results).toHaveLength(3);
+    expect(results[0].expression).toBe("sin(x)");
+    expect(results[0].label).toBe("sin(x)");
+    expect(results[1].expression).toBe("cos(x)");
+    expect(results[1].label).toBe("cos(x)");
+    expect(results[2].expression).toBe("x^2");
+    expect(results[2].label).toBe("x^2");
+    
+    // Test functions work
+    expect(results[0].func({ x: 0 })).toBe(0);
+    expect(results[1].func({ x: 0 })).toBe(1);
+    expect(results[2].func({ x: 2 })).toBe(4);
+  });
+
+  test("should support expression aliasing with label:expression syntax", () => {
+    const parser = new ExpressionParser();
+    const results = parser.parseMultiple("Sine:sin(x),Square:x^2");
+    
+    expect(results).toHaveLength(2);
+    expect(results[0].expression).toBe("sin(x)");
+    expect(results[0].label).toBe("Sine");
+    expect(results[1].expression).toBe("x^2");
+    expect(results[1].label).toBe("Square");
+  });
+
+  test("should handle single expression in parseMultiple", () => {
+    const parser = new ExpressionParser();
+    const results = parser.parseMultiple("sin(x)");
+    
+    expect(results).toHaveLength(1);
+    expect(results[0].expression).toBe("sin(x)");
+    expect(results[0].label).toBe("sin(x)");
+  });
 });
 
 describe("TimeSeriesGenerator", () => {
@@ -45,6 +83,40 @@ describe("TimeSeriesGenerator", () => {
     expect(result.geometry.coordinates[0]).toEqual([-1, 1]);
     expect(result.geometry.coordinates[2]).toEqual([0, 0]);
     expect(result.properties.expression).toBe("x^2");
+  });
+
+  test("should generate FeatureCollection from multiple expressions", () => {
+    const parser = new ExpressionParser();
+    const generator = new TimeSeriesGenerator(parser);
+    
+    const result = generator.generateMultiple("sin(x),cos(x)", "x=0:pi:pi/4");
+    
+    expect(result.type).toBe("FeatureCollection");
+    expect(result.features).toHaveLength(2);
+    
+    expect(result.features[0].properties.expression).toBe("sin(x)");
+    expect(result.features[0].properties.label).toBe("sin(x)");
+    expect(result.features[0].properties.color).toBe("#1f77b4");
+    
+    expect(result.features[1].properties.expression).toBe("cos(x)");
+    expect(result.features[1].properties.label).toBe("cos(x)");
+    expect(result.features[1].properties.color).toBe("#ff7f0e");
+  });
+
+  test("should handle expression aliasing in generateMultiple", () => {
+    const parser = new ExpressionParser();
+    const generator = new TimeSeriesGenerator(parser);
+    
+    const result = generator.generateMultiple("Sine Wave:sin(x),Cosine Wave:cos(x)", "x=0:pi:pi/2");
+    
+    expect(result.type).toBe("FeatureCollection");
+    expect(result.features).toHaveLength(2);
+    
+    expect(result.features[0].properties.expression).toBe("sin(x)");
+    expect(result.features[0].properties.label).toBe("Sine Wave");
+    
+    expect(result.features[1].properties.expression).toBe("cos(x)");
+    expect(result.features[1].properties.label).toBe("Cosine Wave");
   });
 
   test("should parse range specifications correctly", () => {
@@ -132,6 +204,71 @@ describe("PlotGenerator", () => {
     expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
     expect(svg).toContain('Test Plot');
     expect(svg).toContain('<path'); // Should contain the line path
+  });
+
+  test("should generate SVG with legend for multi-expression plots", () => {
+    const plotter = new PlotGenerator();
+    const geoJson = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { expression: "sin(x)", label: "sin(x)", color: "#1f77b4" },
+          geometry: {
+            type: "LineString",
+            coordinates: [[0, 0], [1, 0.84], [2, 0.91]]
+          }
+        },
+        {
+          type: "Feature",
+          properties: { expression: "cos(x)", label: "cos(x)", color: "#ff7f0e" },
+          geometry: {
+            type: "LineString",
+            coordinates: [[0, 1], [1, 0.54], [2, -0.42]]
+          }
+        }
+      ]
+    };
+    
+    const svg = plotter.generateSVG(geoJson, { title: "Multi-Expression Plot" });
+    
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('Multi-Expression Plot');
+    expect(svg).toContain('class="legend"'); // Should contain legend
+    expect(svg).toContain('sin(x)'); // Should contain legend text
+    expect(svg).toContain('cos(x)'); // Should contain legend text
+    expect(svg).toContain('#1f77b4'); // Should use specified colors
+    expect(svg).toContain('#ff7f0e');
+  });
+
+  test("should suppress legend when noLegend option is true", () => {
+    const plotter = new PlotGenerator();
+    const geoJson = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { expression: "sin(x)", label: "sin(x)" },
+          geometry: {
+            type: "LineString",
+            coordinates: [[0, 0], [1, 0.84]]
+          }
+        },
+        {
+          type: "Feature",
+          properties: { expression: "cos(x)", label: "cos(x)" },
+          geometry: {
+            type: "LineString",
+            coordinates: [[0, 1], [1, 0.54]]
+          }
+        }
+      ]
+    };
+    
+    const svg = plotter.generateSVG(geoJson, { noLegend: true });
+    
+    expect(svg).toContain('<svg');
+    expect(svg).not.toContain('class="legend"'); // Should not contain legend
   });
 
   test("should throw error for empty coordinates", () => {
