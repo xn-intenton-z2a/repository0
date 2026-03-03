@@ -240,3 +240,24 @@ Maintained features (4 existing, limit 4)
 Maintained library (0 docs, limit 32)
 
 ---
+## transform at 2026-03-03T13:22:10.918Z
+
+**Outcome:** transformed
+**Model:** claude-sonnet-4
+**Tokens:** 0
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22624776580](https://github.com/xn-intenton-z2a/repository0/actions/runs/22624776580)
+
+Perfect! I have successfully transformed this repository by:
+
+## Summary of Changes
+
+**✅ Addressed Issue #2457**: Added comprehensive CLI examples and usage documentation to README.md
+
+**Key Improvements Made:**
+
+1. **Expanded Features Section** - Added data export and programmatic API capabilities
+2. **Enhanced Quick Start** - Added data export example alongside plot examples  
+3. **Comprehensive Command Line Usage** - Added 20+ practical examples covering:
+   - Advanced mathematical functions 
+
+---
