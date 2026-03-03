@@ -1,76 +1,66 @@
-# Multi-Mode Coordinate Data Generation
+# Advanced Mathematical Coordinate Systems
 
 ## Overview
-Generate coordinate data points from mathematical expressions using GeoJSON specification. Support standard functions and parametric curves with automatic conversion to unified coordinate format suitable for plotting.
+Extend mathematical visualization beyond standard Cartesian coordinates to support polar, 3D projection, and specialized mathematical coordinate systems. Enable complex mathematical visualizations while maintaining the simple CLI interface philosophy.
 
 ## Acceptance Criteria
 
-### Current Implementation Status
-- IMPLEMENTED: Standard function mode y = f(x) with coordinate pair generation
-- IMPLEMENTED: Parametric mode t -> (x(t), y(t)) coordinate generation  
-- IMPLEMENTED: Range parsing for "variable=start:end" and "variable=start:end:step"
-- IMPLEMENTED: GeoJSON LineString output with metadata properties
-- IMPLEMENTED: Mathematical error handling and invalid point skipping
-- MISSING: Polar coordinate mode (r(θ), θ) -> (x, y) conversion
-- MISSING: Multi-function FeatureCollection generation
+### Polar Coordinate System Support
+Polar coordinate plotting with r(theta) expressions generating Cartesian output
+Command interface: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
+Automatic conversion from polar (r, θ) to Cartesian (x, y) coordinates  
+Support for complex polar expressions including rose curves, spirals, and lemniscates
 
-### Universal Range Processing
-- Parse standard ranges: "x=start:end:step" or "x=start:end" (IMPLEMENTED)
-- Handle parametric ranges: "t=0:2*pi:0.1" for parametric curves (IMPLEMENTED)
-- Automatic step size calculation with intelligent defaults (100 points) (IMPLEMENTED)
-- Support MathJS expressions in range bounds (e.g., "x=0:2*pi") (IMPLEMENTED)
+### Multi-Function Overlay Capabilities
+Multi-function plotting with expression arrays for comparative visualization
+Command syntax: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" -o trig_comparison.svg
+Automatic color assignment and legend generation for function identification
+Function-specific styling options for line patterns, thickness, and visual differentiation
 
-### Multi-Mode Coordinate Generation
-- Standard function mode: y = f(x) coordinate pairs (IMPLEMENTED)
-- Parametric mode: t -> (x(t), y(t)) coordinate generation (IMPLEMENTED)
-- Invalid point handling: skip NaN, Infinity with graceful continuation (IMPLEMENTED)
-- Complex number handling: skip complex results for real coordinate plots (IMPLEMENTED)
+### 3D Mathematical Projection
+3D surface plotting with z=f(x,y) expressions projected to 2D visualization
+Parametric 3D curves with x(t), y(t), z(t) expressions using orthographic projection  
+Contour line generation for 3D surfaces at specified elevation intervals
+Isometric and perspective projection options for enhanced 3D visualization
 
-### GeoJSON Output Format
-Generate GeoJSON with comprehensive metadata (IMPLEMENTED):
-- LineString geometry for single function coordinate sequences
-- Properties include: expression, range, timestamp, point count
-- Parametric mode properties: xExpression, yExpression, mode: "parametric"  
-- Coordinate precision optimized for mathematical accuracy
+### Specialized Mathematical Systems
+Implicit function plotting for curves defined by F(x,y)=0 equations
+Differential equation visualization using slope field and solution curve rendering
+Complex number plotting with real/imaginary coordinate transformation
+Mathematical domain-specific visualizations: phase portraits, vector fields, fractals
 
-### Performance Optimization
-- Efficient bulk evaluation using MathJS compile strategy (IMPLEMENTED)
-- Memory-efficient coordinate generation with direct array building (IMPLEMENTED)
-- Expression compilation caching via ExpressionParser integration (IMPLEMENTED)
-- Error recovery for mathematical domain violations (IMPLEMENTED)
+## Technical Implementation
+Extend existing coordinate generation with polar-to-Cartesian transformation
+3D coordinate projection algorithms using linear algebra transformations
+Implicit curve plotting using marching squares or similar contour algorithms
+Enhanced GeoJSON metadata for coordinate system identification and parameters
 
-## Technical Requirements
-- Outputs GeoJSON-compliant coordinate structures (IMPLEMENTED)
-- Integrates with MathJS expression evaluator through ExpressionParser (IMPLEMENTED) 
-- Supports functional y=f(x) and parametric x(t),y(t) modes (IMPLEMENTED)
-- Comprehensive input validation and mathematical error handling (IMPLEMENTED)
+## Command Interface Extensions
+```bash
+# Polar coordinate plotting
+plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
+plot-code-lib polar -e "theta" -r "theta=0:6*pi" -o spiral.png
 
-## Current GeoJSON Structure
-```json
-{
-  "type": "Feature",
-  "geometry": {
-    "type": "LineString", 
-    "coordinates": [[x1, y1], [x2, y2]]
-  },
-  "properties": {
-    "expression": "sin(x)",
-    "range": "x=0:2*pi"
-  }
-}
+# Multi-function comparison plots  
+plot-code-lib plot -e "sin(x),cos(x)" -r "x=0:2*pi" -o trig_compare.svg --legend
+plot-code-lib plot -e "x^2,x^3,sqrt(x)" -r "x=0:3" -o power_functions.png
+
+# 3D surface projections
+plot-code-lib surface -e "sin(sqrt(x^2+y^2))" -r "x=-5:5,y=-5:5" -o ripple.svg
+plot-code-lib parametric3d -x "cos(t)" -y "sin(t)" -z "t" -r "t=0:4*pi" -o helix.png
+
+# Implicit curve plotting
+plot-code-lib implicit -e "x^2 + y^2 - 1" -r "x=-2:2,y=-2:2" -o circle.svg
 ```
 
-## Current Usage Examples
-```javascript
-// Implemented functionality
-generator.generate("sin(x)", "x=0:2*pi")           // Sine wave GeoJSON
-generator.generate("x^2", "x=-10:10:0.5")          // Parabola coordinates  
-generator.generateParametric("cos(t)", "sin(t)", "t=0:2*pi") // Unit circle
-```
+## Advanced Visualization Features
+Automatic legend generation for multi-function plots with mathematical notation
+Color-blind accessible palette options for inclusive mathematical visualization
+Mathematical annotation support including LaTeX-style equation rendering
+Grid customization with logarithmic, polar, and custom grid systems
 
-## Priority Enhancements Needed
-1. Add polar coordinate generation: generatePolar("1+cos(theta)", "theta=0:2*pi")
-2. Implement multi-function FeatureCollection support for overlay plots
-3. Add adaptive sampling for high-curvature regions and discontinuities  
-4. Enhanced metadata embedding (timestamp, point count, generation parameters)
-5. Streaming coordinate generation for very large datasets
+## Mission Alignment
+Extends "jq of formulae visualizations" to advanced mathematical domains
+Maintains simple CLI interface while supporting complex mathematical concepts
+Enables sophisticated mathematical visualization without abandoning usability principles
+Provides foundation for advanced mathematical research and educational applications

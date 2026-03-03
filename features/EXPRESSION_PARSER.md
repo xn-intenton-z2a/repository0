@@ -1,72 +1,65 @@
-# Advanced Mathematical Expression Engine
+# Data Export and Pipeline Integration
 
 ## Overview
-Provide comprehensive mathematical expression parsing using MathJS as the foundation, supporting standard functions and parametric curves with intelligent expression validation and caching for optimal performance.
+Transform plot-code-lib into a true "jq for mathematical visualizations" by providing comprehensive data export capabilities and Unix pipeline integration. Enable mathematical coordinate data to flow seamlessly between tools and formats.
 
 ## Acceptance Criteria
 
-### Current Implementation Status  
-- IMPLEMENTED: Core MathJS integration with expression compilation caching
-- IMPLEMENTED: Standard mathematical functions (sin, cos, tan, sqrt, log, exp, etc.)
-- IMPLEMENTED: Mathematical constants (pi, e) with high precision
-- IMPLEMENTED: Full operator support (+, -, *, /, ^, parentheses) with precedence
-- IMPLEMENTED: Expression validation with error handling and domain checking
-- MISSING: Polar coordinate expression processing
-- MISSING: Multi-function array compilation and batch evaluation
+### GeoJSON Data Export Pipeline
+Command flag --export-data to output coordinate data without rendering plots
+Standard output streaming for Unix pipeline integration with other tools
+Multi-format coordinate export: GeoJSON, CSV, TSV for data interchange  
+Structured metadata embedding including expression, range, and generation parameters
 
-### Comprehensive Expression Support
-- MathJS function library: sin, cos, tan, sqrt, log, ln, exp, abs, pow, min, max
-- Mathematical constants: pi, e with precision optimization  
-- Full operator support: +, -, *, /, ^, mod, parentheses with precedence handling
-- Expression compilation with caching for repeated evaluations
-- Domain validation and mathematical error recovery
+### Pipeline Input and Batch Processing
+Standard input support for expression lists enabling batch mathematical processing
+File-based batch processing with --input flag for processing expression files
+Unix-style stdin/stdout data flow compatible with shell scripting workflows
+Error handling with --continue-on-error for robust batch operations
 
-### Expression Processing Modes
-- Single-variable functions: f(x) = sin(x), x^2 + 2*x + 1 (IMPLEMENTED)
-- Parametric expressions: separate x(t) and y(t) compilation (IMPLEMENTED)
-- Multi-function support: parse and compile expression arrays (NEEDS IMPLEMENTATION)
-- Complex number handling with real component extraction (PARTIALLY IMPLEMENTED)
+### Mathematical Data Standards Compliance
+GeoJSON LineString format for single function coordinate sequences
+GeoJSON FeatureCollection format for multi-function coordinate datasets
+CSV export with x,y coordinate columns plus metadata headers
+TSV format for spreadsheet and data analysis tool compatibility
 
-### Performance and Caching
-- Expression compilation caching using Map for repeated evaluations (IMPLEMENTED)
-- Efficient batch evaluation for coordinate array generation (IMPLEMENTED)
-- Memory-efficient evaluation for large datasets (IMPLEMENTED)
-- Error recovery for mathematical edge cases (domain violations, infinity) (IMPLEMENTED)
-
-### Enhanced Error Handling
-- Syntax validation with MathJS parse verification (IMPLEMENTED)
-- Mathematical domain checking (sqrt negatives, log zero) (IMPLEMENTED)
-- Runtime error recovery with graceful point skipping (IMPLEMENTED)
-- Clear error messages for invalid expressions (IMPLEMENTED)
+### Advanced Coordinate Generation
+Multi-function coordinate generation producing FeatureCollection outputs  
+Metadata-rich coordinate datasets including timestamps and generation parameters
+Streaming coordinate output for memory efficiency with large mathematical datasets
+Mathematical domain validation ensuring clean coordinate data export
 
 ## Technical Requirements
-- Uses MathJS v13+ as the core expression engine  
-- Implements expression compilation caching for performance
-- Supports both real number and complex number domains
-- Integrates seamlessly with coordinate generation pipeline
+Extend existing TimeSeriesGenerator with export-focused methods
+Implement streaming JSON output for memory-efficient large dataset processing
+CSV/TSV export using standard formatting compatible with R, Python pandas, Excel
+Standard input parsing for batch expression processing workflows
 
-## MathJS Integration Details
-- Uses parse() and compile() functions for optimized evaluation
-- Implements variable scope management for parametric expressions
-- Leverages MathJS error handling for robust parsing
-- Maintains compiled expression cache using Map data structure
+## Command Interface Design
+```bash
+# Export coordinate data without plotting
+plot-code-lib export -e "sin(x)" -r "x=0:2*pi" --format geojson > sine_data.json
+plot-code-lib export -e "sin(x)" -r "x=0:2*pi" --format csv > sine_data.csv
 
-## Current Usage Examples
-```javascript
-// Implemented functionality
-parser.parse("sin(x)")                    // Sine function compilation
-parser.parse("x^2 - 4*x + 3")            // Quadratic polynomial  
-parser.parse("sqrt(x^2 + y^2)")          // Multi-variable function
-parser.parse("e^(-x^2/2)")               // Exponential with constants
+# Pipeline integration with standard input
+echo "sin(x)" | plot-code-lib batch-plot -r "x=0:2*pi" -o plots/
+cat expressions.txt | plot-code-lib batch-export --format csv > all_data.csv
 
-// Caching behavior  
-const func1 = parser.parse("sin(x)");    // Compiles and caches
-const func2 = parser.parse("sin(x)");    // Returns cached version
+# Multi-function coordinate generation
+plot-code-lib export -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" --format geojson > trig_functions.json
 ```
 
-## Priority Enhancements Needed
-1. Add polar coordinate expression support r(theta) 
-2. Implement multi-function array compilation for overlay plots
-3. Add implicit multiplication handling (2x -> 2*x)
-4. Enhanced complex number support for advanced mathematical domains
-5. Expression complexity analysis for performance warnings
+## Pipeline Integration Examples
+```bash
+# Generate data, process with jq, plot result
+plot-code-lib export -e "x^2" -r "x=-5:5" --format geojson | jq '.geometry.coordinates | map(select(.[1] < 10))' | plot-code-lib plot-from-json -o filtered.svg
+
+# Combine with other CLI tools
+plot-code-lib export -e "sin(x)" -r "x=0:2*pi" --format csv | awk 'NR>1{print $1,$2*2}' | plot-code-lib plot-from-csv -o doubled_sine.png
+```
+
+## Mission Alignment  
+Transforms plot-code-lib from visualization tool to mathematical data processing pipeline
+Enables jq-like workflows for mathematical coordinate transformation and filtering
+Provides foundation for complex mathematical data workflows in shell environments
+Maintains Unix philosophy of composable tools with single responsibilities
