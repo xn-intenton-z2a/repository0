@@ -1,364 +1,79 @@
-# plot-code-lib
+# repo
 
-_"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-**plot-code-lib** is a JavaScript library and CLI tool designed to transform mathematical expressions into beautiful plots. It reads expressions in a simple syntax and generates time series data, then creates stunning SVG and PNG visualizations.
+## Getting Started
 
-## 🚀 Features
+1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
+2. **Configure GitHub** — see [Setup](#setup) below
+3. **Push to main** — the autonomous workflows take over from here
 
-- **📐 Expression Parsing**: Support for mathematical expressions with intuitive syntax
-- **📊 Multiple Plot Types**: Cartesian, parametric, and polar coordinate systems
-- **🎨 Beautiful Output**: Generate SVG and PNG plots with customizable dimensions
-- **🔧 CLI Interface**: Simple command-line tool with comprehensive options
-- **📏 Flexible Ranges**: Support for mathematical expressions in ranges (π, 2π, etc.)
-- **⚡ Fast Rendering**: Efficient data generation with configurable point counts
+The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
-## 📦 Installation
+## Setup
+
+### Required Secrets
+
+Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
+
+| Secret | How to create | Purpose |
+|--------|---------------|---------|
+| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
+
+### Repository Settings
+
+| Setting | Where | Value |
+|---------|-------|-------|
+| GitHub Actions | Settings → Actions → General | Allow all actions |
+| Workflow permissions | Settings → Actions → General | Read and write permissions |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
+| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
+
+### Optional: Branch Protection
+
+For production repositories, consider adding branch protection on `main`:
+- Require pull request reviews before merging
+- Require status checks to pass (select the `test` workflow)
+
+## How It Works
+
+```
+MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
+                                                    ↑                          |
+                                                    +——————————————————————————+
+```
+
+The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+
+## Configuration
+
+Edit `agentic-lib.toml` to tune the system:
+
+```toml
+[schedule]
+supervisor = "daily"    # off | weekly | daily | hourly | continuous
+
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+
+[limits]
+feature-issues = 2      # max concurrent feature issues
+attempts-per-issue = 2   # max retries per issue
+```
+
+## Updating
+
+The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
 
 ```bash
-npm install plot-code-lib
+npx @xn-intenton-z2a/agentic-lib@latest init
 ```
 
-## 🔨 Usage
-
-### Command Line Interface
-
-#### Basic Usage
-```bash
-# Simple sine wave
-plot-code-lib -e 'y=sin(x)' -f sine.svg
-
-# Quadratic function with custom range
-plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' -f parabola.png
-```
-
-#### Advanced Examples
-```bash
-# Parametric spiral
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:10π' -f spiral.svg
-
-# Polar rose
-plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' -f rose.svg
-
-# Multiple functions with custom styling
-plot-code-lib -e 'y=sin(x),y=cos(x)' -r 'x=-π:π,y=-1.5:1.5' \\
-  --width 1200 --height 800 --title 'Trigonometric Functions' -f trig.svg
-```
-
-### CLI Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-e, --expression <expr>` | Mathematical expression to plot | `y=sin(x)` |
-| `-r, --range <range>` | Range for variables | `x=-10:10,y=-10:10` |
-| `-f, --file <path>` | Output file path (.svg or .png) | `output.svg` |
-| `-w, --width <pixels>` | Plot width in pixels | `800` |
-| `-h, --height <pixels>` | Plot height in pixels | `600` |
-| `--points <number>` | Number of data points | `1000` |
-| `--format <format>` | Output format (svg\\|png) | `svg` |
-| `--title <title>` | Plot title | |
-| `--dry-run` | Show what would be done | |
-
-### Expression Formats
-
-#### Cartesian (y = f(x))
-```bash
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π'
-plot-code-lib -e 'y=x^2 + 2*x + 1' -r 'x=-10:10'
-plot-code-lib -e 'y=log(x)' -r 'x=0.1:10'
-```
-
-#### Parametric (x = f(t), y = g(t))
-```bash
-plot-code-lib -e 'x=cos(t),y=sin(t)' -r 't=0:2π'
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:6π'
-plot-code-lib -e 'x=3*cos(t),y=2*sin(t)' -r 't=0:2π'
-```
-
-#### Polar (r = f(θ))
-```bash
-plot-code-lib -e 'r=1+cos(theta)' -r 'theta=0:2π'
-plot-code-lib -e 'r=sin(3*theta)' -r 'theta=0:π'
-plot-code-lib -e 'r=theta' -r 'theta=0:6π'
-```
-
-## 🎯 Live Examples
-
-> **These examples show real output from the CLI using `--dry-run` mode**
-
-### 🌊 Sine Wave
-**Command:**
-```bash
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' --dry-run
-```
-
-**Output:**
-```
-📐 Expression: y=sin(x)
-📊 Range: x=[-6.283185307179586, 6.283185307179586], y=[-2, 2]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-### 📈 Quadratic Function
-**Command:**
-```bash
-plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' --dry-run
-```
-
-**Output:**
-```
-📐 Expression: y=x^2
-📊 Range: x=[-5, 5], y=[0, 25]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-### 🌀 Parametric Spiral
-**Command:**
-```bash
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:6π' --dry-run
-```
-
-**Output:**
-```
-📐 Expression: x=t*cos(t),y=t*sin(t)
-📊 Range: t=[0, 18.84955592153876], y=[-10, 10]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-### 🌹 Polar Rose
-**Command:**
-```bash
-plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' --dry-run
-```
-
-**Output:**
-```
-📐 Expression: r=sin(4*theta)
-📊 Range: theta=[0, 6.283185307179586], y=[-10, 10]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-### 📊 Multiple Functions
-**Command:**
-```bash
-plot-code-lib -e 'y=sin(x),y=cos(x)' -r 'x=-π:π,y=-1.5:1.5' --dry-run
-```
-
-**Output:**
-```
-📐 Expression: y=sin(x),y=cos(x)
-📊 Range: x=[-3.141592653589793, 3.141592653589793], y=[-1.5, 1.5]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-## 🎨 Production Examples
-
-### Generate Actual Plots
-Remove `--dry-run` to create actual files:
-
-```bash
-# Beautiful sine wave
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' \\
-  --title 'Beautiful Sine Wave' -f sine.svg
-
-# Quadratic function as PNG
-plot-code-lib -e 'y=x^2' -r 'x=-5:5,y=0:25' \\
-  --width 600 --height 400 -f parabola.png
-
-# Detailed parametric spiral
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:10π' \\
-  --points 2000 --title 'Archimedean Spiral' -f spiral.svg
-
-# Four-petaled rose
-plot-code-lib -e 'r=sin(4*theta)' -r 'theta=0:2π' \\
-  --title 'Four-Petaled Rose' -f rose.svg
-
-# Trigonometric comparison
-plot-code-lib -e 'y=sin(x),y=cos(x)' -r 'x=-π:π,y=-1.5:1.5' \\
-  --title 'Trigonometric Comparison' -f trig.svg
-```
-
-## 🚀 Complete Feature Showcase
-
-> **Comprehensive demonstration of all library capabilities**
-
-### ⚙️ All CLI Options in Action
-```bash
-# Full-featured command showcasing all options
-plot-code-lib \\
-  --expression 'y=sin(x)*exp(-x/10)' \\
-  --range 'x=0:20,y=-1:1' \\
-  --file 'damped-sine.png' \\
-  --width 1200 \\
-  --height 800 \\
-  --points 2000 \\
-  --format 'png' \\
-  --title 'Damped Sine Wave' \\
-  --dry-run
-```
-
-### 📊 Expression Type Coverage
-
-#### Cartesian Plots (y = f(x))
-```bash
-# Trigonometric
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π' --dry-run
-
-# Polynomial  
-plot-code-lib -e 'y=x^3-3*x^2+2*x' -r 'x=-2:4' --dry-run
-
-# Exponential/Logarithmic
-plot-code-lib -e 'y=log(x)' -r 'x=0.1:10,y=-3:3' --dry-run
-
-# Piecewise/Complex
-plot-code-lib -e 'y=abs(x)*sin(x)' -r 'x=-10:10' --dry-run
-```
-
-#### Parametric Plots (x = f(t), y = g(t))
-```bash
-# Circle
-plot-code-lib -e 'x=cos(t),y=sin(t)' -r 't=0:2π' --dry-run
-
-# Ellipse
-plot-code-lib -e 'x=3*cos(t),y=2*sin(t)' -r 't=0:2π' --dry-run
-
-# Cycloid
-plot-code-lib -e 'x=t-sin(t),y=1-cos(t)' -r 't=0:4π' --dry-run
-
-# Lissajous curve
-plot-code-lib -e 'x=sin(3*t),y=cos(2*t)' -r 't=0:2π' --dry-run
-```
-
-#### Polar Plots (r = f(θ))
-```bash
-# Circle in polar
-plot-code-lib -e 'r=2' -r 'theta=0:2π' --dry-run
-
-# Rose curves
-plot-code-lib -e 'r=sin(3*theta)' -r 'theta=0:π' --dry-run
-plot-code-lib -e 'r=cos(5*theta)' -r 'theta=0:π' --dry-run
-
-# Cardioid
-plot-code-lib -e 'r=1+cos(theta)' -r 'theta=0:2π' --dry-run
-
-# Spiral
-plot-code-lib -e 'r=theta' -r 'theta=0:6π' --dry-run
-```
-
-### 🎨 Output Format Demonstration
-```bash
-# SVG (vector graphics)
-plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' -f vector.svg --dry-run
-
-# PNG (raster graphics)  
-plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' -f raster.png --dry-run
-
-# Custom dimensions
-plot-code-lib -e 'y=x^2' -w 1920 -h 1080 --dry-run
-```
-
-### 🔧 Advanced Range Parsing
-```bash
-# Mathematical constants
-plot-code-lib -e 'y=sin(x)' -r 'x=-π:π' --dry-run
-
-# Complex expressions in ranges
-plot-code-lib -e 'y=cos(x)' -r 'x=-2*pi:2*pi,y=-1.5:1.5' --dry-run
-
-# Multiple variable ranges
-plot-code-lib -e 'x=t*cos(t),y=t*sin(t)' -r 't=0:4*pi' --dry-run
-```
-
-## 🧮 Mathematical Functions
-
-Supported functions include:
-- **Trigonometric**: `sin(x)`, `cos(x)`, `tan(x)`, `sec(x)`, `csc(x)`, `cot(x)`
-- **Inverse Trig**: `asin(x)`, `acos(x)`, `atan(x)`, `atan2(y,x)`
-- **Hyperbolic**: `sinh(x)`, `cosh(x)`, `tanh(x)`
-- **Logarithmic**: `log(x)`, `log10(x)`, `log2(x)`, `ln(x)`
-- **Exponential**: `exp(x)`, `sqrt(x)`, `cbrt(x)`, `pow(x,y)`
-- **Constants**: `pi`, `e`, `π`
-
-## 📋 Range Specification
-
-Ranges support mathematical expressions:
-```bash
--r 'x=-π:π'              # Pi notation
--r 'x=-2*pi:2*pi'        # Mathematical expressions
--r 'x=0:10,y=-5:5'       # Multiple variables
--r 't=0:4π'              # Parametric ranges
--r 'theta=0:2π'          # Polar ranges
-```
-
-## 🎨 Output Formats
-
-### SVG (Vector Graphics)
-- Scalable and crisp at any size
-- Smaller file sizes for simple plots
-- Ideal for web and print
-
-### PNG (Raster Graphics)
-- Fixed resolution
-- Good for complex visualizations
-- Compatible with all image viewers
-
-## 🔧 JavaScript API
-
-```javascript
-import { ExpressionPlotter, parseExpression, parseRange } from 'plot-code-lib';
-
-// Parse expression
-const expr = parseExpression('y=sin(x)');
-const ranges = parseRange('x=-2π:2π,y=-2:2');
-
-// Create plotter
-const plotter = new ExpressionPlotter({
-  width: 800,
-  height: 600,
-  title: 'My Plot'
-});
-
-// Generate plot
-await plotter.plot(expr, ranges, {
-  points: 1000,
-  outputFile: 'output.svg'
-});
-```
-
-## 🧪 Dry Run Mode
-
-Test your commands without generating files:
-```bash
-plot-code-lib -e 'y=sin(x)' -r 'x=-2π:2π' --dry-run
-```
-
-Output:
-```
-📐 Expression: y=sin(x)
-📊 Range: x=[-6.28, 6.28], y=[-10, 10]
-🔍 Dry run mode - would generate 1000 points
-📁 Would save to: output.svg
-📏 Dimensions: 800x600px
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [contributing guidelines](CONTRIBUTING.md) for details.
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-**plot-code-lib** - Transform mathematical expressions into beautiful plots. Be the jq of formulae visualisations! ✨
+## Links
+
+- [MISSION.md](MISSION.md) — your project goals
+- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
+- [intentïon website](https://xn--intenton-z2a.com)

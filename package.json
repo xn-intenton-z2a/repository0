@@ -1,56 +1,20 @@
 {
-  "name": "plot-code-lib",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "Transform mathematical expressions into beautiful plots - be the jq of formulae visualisations",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
-  "exports": {
-    ".": "./src/lib/main.js",
-    "./plotter": "./src/lib/plotter.js",
-    "./parser": "./src/lib/expression-parser.js",
-    "./range": "./src/lib/range-parser.js"
-  },
-  "bin": {
-    "plot-code-lib": "src/lib/main.js"
-  },
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "test:watch": "vitest tests/unit/*.test.js",
-    "start": "node src/lib/main.js",
-    "examples": "node src/lib/main.js examples",
-    "demo": "node src/lib/main.js -e 'y=sin(x)' -r 'x=-2π:2π,y=-2:2' --title 'Demo Plot' -f demo.svg",
-    "api-example": "node examples/api-usage.js"
+    "start": "node src/lib/main.js"
   },
-  "keywords": [
-    "plotting",
-    "mathematics", 
-    "visualization",
-    "cli",
-    "svg",
-    "png",
-    "expressions",
-    "graphing",
-    "parametric",
-    "polar",
-    "cartesian",
-    "math",
-    "charts",
-    "mathjs",
-    "d3",
-    "formulas",
-    "functions"
-  ],
+  "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.29",
-    "canvas": "^3.2.1",
-    "commander": "^14.0.3",
-    "d3": "^7.9.0",
-    "jsdom": "^28.1.0",
-    "mathjs": "^15.1.1"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.30"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
