@@ -1,79 +1,170 @@
-# repo
+# plot-code-lib
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+> "Be a go-to plot library with a CLI, be the jq of formulae visualisations."
 
-## Getting Started
+**plot-code-lib** is a JavaScript library and CLI tool that transforms mathematical expressions into beautiful SVG plots. Generate publication-quality visualizations from command line with intuitive syntax following Unix philosophy principles.
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+## Features
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
+- 🔢 **Mathematical Expression Parser**: Support for MathJS syntax including trigonometric functions, polynomials, and complex expressions
+- 📊 **Time Series Generation**: Convert continuous mathematical functions into discrete coordinate arrays using GeoJSON specification
+- 🎨 **SVG Plot Rendering**: Generate publication-quality mathematical plots with D3.js
+- 🖥️ **Command Line Interface**: Intuitive CLI with Unix-style options using Commander.js
+- 📐 **Flexible Range Specification**: Support for custom ranges, step sizes, and parametric expressions
 
-## Setup
-
-### Required Secrets
-
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
-
-### Repository Settings
-
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
-
-### Optional: Branch Protection
-
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
-
-## How It Works
-
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
-```
-
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
-
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-feature-issues = 2      # max concurrent feature issues
-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+## Installation
 
 ```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
+npm install -g plot-code-lib
 ```
 
-## Links
+## Command Line Usage
 
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+### Basic Plotting
+
+Generate a sine wave:
+```bash
+plot-code-lib --expression "sin(x)" --range "x=0:2*pi:0.1" --output sine-wave.svg
+```
+
+Plot a quadratic function:
+```bash
+plot-code-lib --expression "x^2 - 2*x + 1" --range "x=-2:4:0.1" --output parabola.svg --title "Quadratic Function"
+```
+
+### Advanced Examples
+
+Plot multiple trigonometric functions:
+```bash
+# Cosine wave with custom step size
+plot-code-lib -e "cos(x)" -r "x=-pi:pi:0.05" -o cosine.svg
+
+# Tangent function with limited range
+plot-code-lib -e "tan(x)" -r "x=-pi/4:pi/4:0.01" -o tangent.svg
+
+# Complex expression
+plot-code-lib -e "sin(x) * exp(-x/5)" -r "x=0:10:0.1" -o damped-sine.svg -t "Damped Sine Wave"
+```
+
+Mathematical functions supported:
+```bash
+# Polynomials
+plot-code-lib -e "x^3 - 3*x^2 + 2*x + 1" -r "x=-2:3" -o cubic.svg
+
+# Exponentials and logarithms  
+plot-code-lib -e "exp(x)" -r "x=-2:2:0.1" -o exponential.svg
+plot-code-lib -e "log(x)" -r "x=0.1:10:0.1" -o logarithm.svg
+
+# Trigonometric combinations
+plot-code-lib -e "sin(x) + cos(2*x)" -r "x=0:4*pi:0.1" -o trig-combo.svg
+
+# Square roots and powers
+plot-code-lib -e "sqrt(x)" -r "x=0:10:0.1" -o square-root.svg
+```
+
+### Range Specifications
+
+```bash
+# Automatic step (100 points between start and end)
+--range "x=0:10"
+
+# Custom step size  
+--range "x=0:10:0.5"
+
+# Using mathematical expressions in ranges
+--range "x=0:2*pi:pi/20"
+--range "t=-pi/2:pi/2:0.01"
+```
+
+### Command Options
+
+```
+Usage: plot-code-lib [options] [command]
+
+Options:
+  -e, --expression <expr>  Mathematical expression (e.g., "sin(x)", "x^2")
+  -r, --range <range>      Variable range (e.g., "x=-1:1", "x=0:2*pi:0.1") 
+  -o, --output <file>      Output file path (SVG format) (default: "output.svg")
+  -t, --title [title]      Plot title
+  -h, --help              Display help for command
+```
+
+## Library Usage
+
+```javascript
+import { ExpressionParser, TimeSeriesGenerator, PlotGenerator } from 'plot-code-lib';
+
+// Parse mathematical expressions
+const parser = new ExpressionParser();
+const func = parser.parse("sin(x) + cos(2*x)");
+console.log(func({ x: Math.PI })); // Evaluate at x = π
+
+// Generate time series data (GeoJSON format)
+const generator = new TimeSeriesGenerator(parser);
+const geoJsonData = generator.generate("x^2", "x=-5:5:0.5");
+
+// Create SVG plots
+const plotter = new PlotGenerator();
+const svgMarkup = plotter.generateSVG(geoJsonData, "Quadratic Function");
+```
+
+## Data Formats
+
+**plot-code-lib** uses open standards:
+
+- **Mathematical Expressions**: MathJS syntax for maximum compatibility
+- **Coordinate Data**: GeoJSON LineString format for interoperability  
+- **Output**: SVG format for scalable, web-ready visualizations
+
+### Example GeoJSON Output
+
+```json
+{
+  "type": "Feature",
+  "properties": {
+    "expression": "sin(x)",
+    "range": "x=0:2*pi:0.1"
+  },
+  "geometry": {
+    "type": "LineString", 
+    "coordinates": [[0, 0], [0.1, 0.0998], [0.2, 0.1987], ...]
+  }
+}
+```
+
+## Examples Gallery
+
+Here are some example commands and their outputs:
+
+```bash
+# Classic sine wave
+plot-code-lib -e "sin(x)" -r "x=0:2*pi:0.1" -o examples/sine.svg
+
+# Parabola with vertex  
+plot-code-lib -e "x^2 - 4*x + 3" -r "x=-1:5" -o examples/parabola.svg
+
+# Exponential decay
+plot-code-lib -e "exp(-x)" -r "x=0:5:0.1" -o examples/decay.svg
+
+# Oscillating wave
+plot-code-lib -e "sin(5*x) * exp(-x/3)" -r "x=0:15:0.1" -o examples/wave.svg
+
+# Cubic polynomial
+plot-code-lib -e "x^3 - 6*x^2 + 9*x + 1" -r "x=-2:5" -o examples/cubic.svg
+```
+
+## Agentic Workflows
+
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. The system generates issues, writes code, runs tests, and opens pull requests based on the project mission.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and contribution guidelines.
+
+## License
+
+MIT License - see [LICENSE](./LICENSE) for details.
+
+---
+
+**plot-code-lib** — Transform mathematical expressions into beautiful visualizations with the simplicity of command line tools.
