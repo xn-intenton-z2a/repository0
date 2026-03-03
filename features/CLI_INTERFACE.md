@@ -1,57 +1,44 @@
-# Command Line Interface
+# Data Export Pipeline Integration
 
 ## Overview
-Production-ready CLI tool using Commander.js that transforms mathematical expressions into publication-quality plots. Implements the jq philosophy for mathematical visualization with intuitive Unix-style command patterns.
+Transform plot-code-lib into a true jq for mathematical visualizations by providing comprehensive data export capabilities and Unix pipeline integration. Enable mathematical coordinate data to flow seamlessly between tools and formats without requiring plot generation.
 
 ## Acceptance Criteria
 
-### Core Commands IMPLEMENTED
-Standard plotting with comprehensive options:
-- plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o output.svg
-- plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.png
+### GeoJSON Data Export
+New export command: plot-code-lib export -e "sin(x)" -r "x=0:2*pi" --format geojson
+Standard output streaming for Unix pipeline integration with other mathematical tools
+Multi-format coordinate export supporting GeoJSON, CSV, and TSV formats
+Structured metadata embedding including expression, range, and generation parameters
 
-Automatic output format detection from file extension (.svg/.png)
-Full customization: --title, --width, --height, --xlabel, --ylabel
-Range specifications: "x=start:end" or "x=start:end:step" with MathJS evaluation
-Expression validation with clear error messages
+### Pipeline Input and Batch Processing  
+Standard input support for expression lists enabling batch mathematical processing workflows
+File-based batch processing with --input flag for processing multiple expression files
+Unix-style stdin/stdout data flow compatible with shell scripting and automation
+Error handling with --continue-on-error flag for robust batch operation workflows
 
-### Production Quality Features IMPLEMENTED  
-Commander.js v12 integration with proper help system
-Cross-platform Node.js 24+ compatibility
-Memory-efficient coordinate generation for large datasets
-Sharp library PNG conversion maintaining aspect ratios
-Error handling for mathematical domain violations and invalid syntax
+### Mathematical Data Standards Compliance
+GeoJSON LineString format for single function coordinate sequences with proper geometry structure
+GeoJSON FeatureCollection format for multi-function coordinate datasets with feature arrays
+CSV export with x,y coordinate columns plus metadata headers for spreadsheet compatibility
+TSV format export for seamless data analysis tool integration with R, Python pandas, Excel
 
-### Advanced Mathematical Support IMPLEMENTED
-MathJS expression engine supporting full mathematical function library
-Mathematical constants (pi, e) with high precision
-Complex operator precedence and parentheses handling
-Parametric curve generation with separate x(t) and y(t) expressions
-GeoJSON coordinate output format for data interchange
+### Advanced Coordinate Generation Pipeline
+Multi-function coordinate generation producing FeatureCollection outputs for comparative analysis
+Metadata-rich coordinate datasets including timestamps, expressions, and generation parameters  
+Streaming coordinate output for memory efficiency with large mathematical datasets
+Mathematical domain validation ensuring clean coordinate data export without rendering overhead
 
-## Technical Implementation
-Built on proven libraries: Commander.js, MathJS, D3.js, Sharp
-Expression compilation caching for performance optimization
-SVG generation using D3.js with mathematically accurate scaling
-Robust range parsing supporting mathematical expressions in bounds
-Domain validation preventing crashes on mathematical edge cases
+## Command Interface Design
+Essential commands for mathematical data pipeline workflows:
 
-## Current Working Examples
-```bash
-# Standard function plots
-plot-code-lib plot -e "sin(x)" -r "x=0:2*pi" -o sine.svg
-plot-code-lib plot -e "x^2 - 4*x + 3" -r "x=-2:6" -o quadratic.png
-
-# Parametric curves  
-plot-code-lib parametric -x "cos(t)" -y "sin(t)" -r "t=0:2*pi" -o circle.svg
-plot-code-lib parametric -x "t" -y "t^2" -r "t=-3:3:0.1" -o parabola.png
-
-# Publication ready plots
-plot-code-lib plot -e "exp(-x^2/2)" -r "x=-4:4" -o gaussian.svg --title "Gaussian Distribution" --width 1200 --height 800 --xlabel "Standard Deviations" --ylabel "Probability Density"
-```
+export - Generate coordinate data without visualization overhead
+batch-export - Process multiple expressions for automated mathematical analysis  
+batch-plot - Generate multiple plots from expression lists for documentation workflows
+plot-from-json - Create visualizations from external GeoJSON coordinate sources
 
 ## Mission Alignment
-Fully implements core mission: "Be the jq of formulae visualisations"
-Transforms expressions to coordinate data to publication plots
-Provides Unix-style command interface with composable options
-Ready for production mathematical visualization workflows
+Transforms plot-code-lib from visualization tool to comprehensive mathematical data processing pipeline
+Enables true jq-like workflows for mathematical coordinate transformation and analysis
+Provides foundation for complex mathematical data workflows in shell environments
+Maintains Unix philosophy of composable tools with single focused responsibilities

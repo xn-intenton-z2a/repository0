@@ -1,73 +1,48 @@
-# Publication Quality Plot Generation
+# Polar Coordinate System Support
 
 ## Overview
-Generate publication-ready mathematical visualizations in both SVG vector and PNG raster formats using D3.js rendering engine. Transform GeoJSON coordinate data into mathematically accurate plots with professional styling and precision scaling.
+Extend mathematical visualization beyond Cartesian coordinates to support polar coordinate systems with r(theta) expressions. Enable visualization of complex polar curves including spirals, rose patterns, and cardioids while maintaining the simple CLI interface philosophy.
 
 ## Acceptance Criteria
 
-### Dual Format Output IMPLEMENTED
-SVG vector generation with embedded coordinate systems for scalable publication use
-PNG raster export via Sharp library maintaining consistent aspect ratios and high quality
-Automatic format detection from file extension (.svg/.png)
-Professional mathematical axis generation using D3 scale functions
+### Polar Expression Interface
+New polar command: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg  
+Automatic conversion from polar (r, θ) coordinates to Cartesian (x, y) for visualization
+Support for complex polar mathematical expressions including rose curves, spirals, and lemniscates
+Mathematical domain validation ensuring proper polar coordinate handling and edge case management
 
-### Mathematical Visualization IMPLEMENTED  
-Multi-function plotting with automatic color assignment from professional palette
-Precise coordinate transformation with D3.js scaleLinear functions
-Automatic axis range calculation with intelligent padding for visual clarity
-Proportional coordinate systems maintaining mathematical accuracy
-Grid lines and tick marks at mathematically appropriate intervals
+### Advanced Polar Curve Support
+Rose curve generation with expressions like "cos(k*theta)" enabling petal pattern visualization
+Spiral curve support including Archimedean spirals with "a*theta" and logarithmic spirals
+Cardioid and limaçon generation with "a*(1±cos(theta))" expressions for heart-shaped curves
+Complex polar function composition supporting mathematical research and educational visualization
 
-### Production Styling IMPLEMENTED
-Professional color palette: ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b"]
-Configurable plot dimensions with --width and --height options
-Axis labeling system with --xlabel, --ylabel, and --title support
-Consistent typography with 14px axis labels and 16px bold titles
-Proper margin calculations for axis labels and titles
+### Polar Coordinate Visualization
+Automatic polar grid overlay option showing radial and angular grid lines for mathematical clarity
+Polar axis labeling with radius and angle annotations supporting mathematical education requirements
+Professional polar coordinate styling maintaining mathematical accuracy while ensuring visual appeal
+Polar plot export in both SVG and PNG formats preserving mathematical precision and publication quality
 
-### GeoJSON Processing IMPLEMENTED
-Universal input processing from GeoJSON LineString coordinates
-Multi-function support via GeoJSON FeatureCollection processing
-Efficient coordinate dataset processing with D3 line generators
-Parametric curve rendering with coordinate transformation pipeline
+### Mathematical Accuracy and Performance
+High-precision polar-to-Cartesian coordinate transformation algorithms ensuring mathematical correctness
+Efficient coordinate generation for complex polar expressions with smooth curve rendering
+Domain handling for undefined polar regions including negative radius and infinite values
+Memory-efficient processing for high-resolution polar plots with thousands of coordinate points
 
 ## Technical Implementation
-D3.js v7+ integration for all mathematical rendering operations
-JSDOM server-side SVG generation for CLI compatibility
-Sharp library integration for high-quality PNG conversion
-Professional axis generation using axisBottom() and axisLeft()
-Smooth curve rendering using D3 line() path generators
+Extend TimeSeriesGenerator with polar coordinate transformation methods and validation algorithms
+Enhanced mathematical domain handling for polar coordinate edge cases and singularities
+Polar grid generation system with radial and angular grid line calculation algorithms
+Professional polar visualization styling with mathematical accuracy preservation across coordinate systems
 
-## Mathematical Accuracy Features
-Extreme value range support with automatic scaling algorithms
-Domain validation preventing rendering failures on mathematical edge cases
-Memory-efficient coordinate processing for large datasets
-Precision scaling maintaining mathematical relationships in visual output
-
-## Current Working Examples
-```javascript
-// Publication ready outputs
-plotter.generateSVG(geoJsonData, {
-  title: "Trigonometric Functions", 
-  width: 1200, 
-  height: 800,
-  xLabel: "Angle (radians)",
-  yLabel: "Amplitude"
-})
-
-// Multi-function overlay plots
-plotter.generateSVG(featureCollection, {
-  title: "Function Comparison",
-  width: 800,
-  height: 600  
-})
-
-// High-quality PNG conversion
-await plotter.generatePNG(svgString)
-```
+## Advanced Polar Features  
+Multi-polar function overlay capability enabling comparative polar mathematical analysis
+Polar coordinate metadata preservation in GeoJSON output for mathematical software integration
+Automatic polar coordinate range optimization ensuring complete curve visualization within plot boundaries
+Complex polar mathematical function support including piecewise polar functions and conditional expressions
 
 ## Mission Alignment
-Delivers core mission capability: mathematical expressions to publication-quality plots
-Professional output suitable for academic papers, presentations, and technical documentation  
-Maintains mathematical accuracy while providing visual clarity
-Supports both vector and raster output for diverse publication requirements
+Extends jq of formulae visualizations philosophy to advanced polar coordinate mathematical domains
+Maintains simple CLI interface while supporting sophisticated polar coordinate mathematical concepts
+Enables specialized mathematical visualization without abandoning core usability and simplicity principles
+Provides foundation for advanced mathematical research and educational applications requiring polar coordinates

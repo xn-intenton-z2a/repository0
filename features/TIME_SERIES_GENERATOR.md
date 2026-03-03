@@ -1,66 +1,48 @@
-# Advanced Mathematical Coordinate Systems
+# 3D Surface Projection and Visualization
 
 ## Overview
-Extend mathematical visualization beyond standard Cartesian coordinates to support polar, 3D projection, and specialized mathematical coordinate systems. Enable complex mathematical visualizations while maintaining the simple CLI interface philosophy.
+Extend plot-code-lib beyond 2D visualization to support 3D mathematical surface plotting with z=f(x,y) expressions projected to 2D visualization. Enable sophisticated 3D mathematical analysis through orthographic and perspective projection while maintaining CLI simplicity.
 
 ## Acceptance Criteria
 
-### Polar Coordinate System Support
-Polar coordinate plotting with r(theta) expressions generating Cartesian output
-Command interface: plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
-Automatic conversion from polar (r, θ) to Cartesian (x, y) coordinates  
-Support for complex polar expressions including rose curves, spirals, and lemniscates
+### 3D Surface Mathematical Interface  
+New surface command: plot-code-lib surface -e "sin(sqrt(x^2+y^2))" -r "x=-5:5,y=-5:5" -o ripple.svg
+Dual-variable range specification supporting independent x and y coordinate ranges for surface generation
+Mathematical domain validation ensuring proper 3D coordinate handling across surface parameter spaces
+Automatic surface sampling with intelligent point density for smooth surface representation and performance
 
-### Multi-Function Overlay Capabilities
-Multi-function plotting with expression arrays for comparative visualization
-Command syntax: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=0:2*pi" -o trig_comparison.svg
-Automatic color assignment and legend generation for function identification
-Function-specific styling options for line patterns, thickness, and visual differentiation
+### Parametric 3D Curve Support
+Parametric 3D command: plot-code-lib parametric3d -x "cos(t)" -y "sin(t)" -z "t" -r "t=0:4*pi" -o helix.png  
+Three-dimensional parametric curve generation with separate x(t), y(t), z(t) expression support
+3D curve projection algorithms using orthographic and perspective transformation matrices
+Complex 3D mathematical curve support including helixes, knots, and space-filling curves
 
-### 3D Mathematical Projection
-3D surface plotting with z=f(x,y) expressions projected to 2D visualization
-Parametric 3D curves with x(t), y(t), z(t) expressions using orthographic projection  
-Contour line generation for 3D surfaces at specified elevation intervals
-Isometric and perspective projection options for enhanced 3D visualization
+### 3D Projection and Visualization Algorithms
+Orthographic projection implementation providing mathematically accurate 3D-to-2D coordinate transformation
+Isometric projection support enabling clear 3D surface visualization with preserved mathematical relationships
+Perspective projection with configurable viewing angles for enhanced 3D surface depth perception
+Contour line generation for 3D surfaces at specified elevation intervals enabling topographic analysis
 
-### Specialized Mathematical Systems
-Implicit function plotting for curves defined by F(x,y)=0 equations
-Differential equation visualization using slope field and solution curve rendering
-Complex number plotting with real/imaginary coordinate transformation
-Mathematical domain-specific visualizations: phase portraits, vector fields, fractals
+### Advanced 3D Mathematical Features
+3D surface mesh generation with wireframe and filled polygon rendering options for comprehensive analysis
+Automatic 3D coordinate range optimization ensuring complete surface visualization within projection boundaries
+3D surface normal calculation for lighting effects and mathematical surface analysis applications
+Multi-surface overlay capability enabling comparative 3D mathematical function analysis workflows
 
 ## Technical Implementation
-Extend existing coordinate generation with polar-to-Cartesian transformation
-3D coordinate projection algorithms using linear algebra transformations
-Implicit curve plotting using marching squares or similar contour algorithms
-Enhanced GeoJSON metadata for coordinate system identification and parameters
+Enhanced TimeSeriesGenerator with 3D coordinate generation and surface sampling algorithms
+3D-to-2D projection matrix mathematics using linear algebra transformation techniques
+Surface mesh generation algorithms with efficient polygon tessellation for smooth surface rendering
+Professional 3D visualization styling with depth cueing and perspective-appropriate visual effects
 
-## Command Interface Extensions
-```bash
-# Polar coordinate plotting
-plot-code-lib polar -e "1+cos(theta)" -r "theta=0:2*pi" -o cardioid.svg
-plot-code-lib polar -e "theta" -r "theta=0:6*pi" -o spiral.png
-
-# Multi-function comparison plots  
-plot-code-lib plot -e "sin(x),cos(x)" -r "x=0:2*pi" -o trig_compare.svg --legend
-plot-code-lib plot -e "x^2,x^3,sqrt(x)" -r "x=0:3" -o power_functions.png
-
-# 3D surface projections
-plot-code-lib surface -e "sin(sqrt(x^2+y^2))" -r "x=-5:5,y=-5:5" -o ripple.svg
-plot-code-lib parametric3d -x "cos(t)" -y "sin(t)" -z "t" -r "t=0:4*pi" -o helix.png
-
-# Implicit curve plotting
-plot-code-lib implicit -e "x^2 + y^2 - 1" -r "x=-2:2,y=-2:2" -o circle.svg
-```
-
-## Advanced Visualization Features
-Automatic legend generation for multi-function plots with mathematical notation
-Color-blind accessible palette options for inclusive mathematical visualization
-Mathematical annotation support including LaTeX-style equation rendering
-Grid customization with logarithmic, polar, and custom grid systems
+## Mathematical 3D Applications
+Scientific visualization support for mathematical research including wave equations and heat distribution
+Engineering visualization capabilities for 3D mathematical modeling and analysis workflows
+Educational 3D mathematical visualization enabling clear understanding of complex mathematical concepts
+Research-grade 3D surface analysis with mathematical accuracy preservation across projection transformations
 
 ## Mission Alignment
-Extends "jq of formulae visualizations" to advanced mathematical domains
-Maintains simple CLI interface while supporting complex mathematical concepts
-Enables sophisticated mathematical visualization without abandoning usability principles
-Provides foundation for advanced mathematical research and educational applications
+Extends jq of formulae visualizations to sophisticated 3D mathematical domains and research applications
+Maintains simple CLI interface philosophy while enabling advanced 3D mathematical visualization capabilities
+Provides foundation for mathematical research and educational applications requiring 3D surface analysis
+Enables complex mathematical visualization without compromising core usability and accessibility principles
