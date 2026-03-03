@@ -1,42 +1,42 @@
 # Multi-Expression Plotting
 
 ## Overview
-Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. Transform plot-code-lib from single-function to multi-function comparison tool while preserving jq-style simplicity and structured data output.
+Enable simultaneous plotting of multiple mathematical expressions on the same coordinate system for comparative analysis. Essential for mathematical education, function comparison, and analytical workflows while maintaining command-line simplicity.
 
 ## Acceptance Criteria
 
 ### Multi-Expression Command Interface
 CLI accepts comma-separated expressions: plot-code-lib plot -e "sin(x),cos(x),tan(x)" -r "x=-pi:pi" -o comparison.svg
-Each expression automatically assigned unique color from palette: blue, orange, green, red, purple, brown
+Each expression automatically assigned unique color from predefined palette
 Shared coordinate system with unified axis scaling encompassing all expression ranges
-Individual expression validation with graceful failure handling for invalid expressions
+Individual expression validation with graceful failure handling for malformed expressions
 
 ### Legend and Visual Styling
-Automatic legend generation in top-right corner with color-coded line samples
-Legend entries show expression text exactly as provided without transformation
-Optional legend positioning via --legend-position flag: top-left, top-right, bottom-left, bottom-right, none
-Consistent line styling with 2px stroke width and anti-aliasing
+Automatic legend generation showing expression text and corresponding line color
+Legend positioned to avoid overlapping with plot data using intelligent placement algorithm
+Consistent line styling with 2px stroke width and SVG anti-aliasing
+Color palette optimized for accessibility and print compatibility
 
 ### Multi-Function Data Export
 GeoJSON export returns FeatureCollection with separate Feature per expression
-Each Feature includes expression metadata in properties field
-CSV export includes expression_name column for data identification
-Maintains compatibility with existing single-expression export structure
+Each Feature includes expression metadata and color assignment in properties field
+CSV export includes expression_name column for downstream analysis and processing
+JSON export maintains array structure with expression metadata for programmatic access
 
-### Error Handling and Robustness
-Individual expression parsing errors logged as warnings without stopping execution
-Domain errors for data points handled gracefully with coordinate skipping
-Plot generation succeeds if at least one expression produces valid data
-Clear error messages identifying problematic expressions with line numbers
+### Command Enhancement
+Extend existing plot command to detect comma-separated expressions in -e parameter
+Maintain backward compatibility with single expression usage
+Add --no-legend flag to disable legend generation for clean plots
+Support expression aliasing via "label:expression" syntax for custom legend entries
 
 ## Technical Implementation
-Extend TimeSeriesGenerator.generate() to accept expression array and return FeatureCollection
-Enhance PlotGenerator.generateSVG() for multiple LineString features with color cycling
-Add legend rendering component integrated with existing D3.js SVG pipeline
-Implement robust expression validation preventing individual failures from affecting batch
+Modify ExpressionParser to validate array of expressions and return compilation results
+Extend TimeSeriesGenerator.generate() to process expression array and return FeatureCollection
+Enhance PlotGenerator.generateSVG() for multiple LineString features with automatic color assignment
+Add LegendRenderer component with intelligent positioning and collision avoidance
 
 ## Mission Alignment
-Enables mathematical function comparison essential for educational and analytical workflows
-Preserves jq philosophy with structured multi-expression output for downstream processing
-Maintains command-line simplicity while expanding core mathematical visualization capabilities
-Supports comparative analysis without compromising performance or accessibility
+Core functionality for mathematical education and comparative analysis
+Maintains jq philosophy with structured multi-expression output for data pipelines
+Essential for scientific visualization workflows requiring function comparison
+Builds upon existing single-expression foundation without breaking changes
