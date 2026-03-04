@@ -1,44 +1,49 @@
 # plot-code-lib
 
-_"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
+> _"Be a go-to plot library with a CLI, be the jq of formulae visualisations."_
 
-A JavaScript library and CLI tool for transforming mathematical expressions into beautiful plots. Generate SVG and PNG visualizations from mathematical formulas with a simple, intuitive command-line interface.
+A JavaScript library and CLI tool for transforming mathematical expressions into beautiful SVG and PNG plots. Built for developers who need quick, scriptable mathematical visualizations.
 
-## Features
-
-✨ **Mathematical Expression Parsing**: Support for a wide range of mathematical functions and operations using mathjs  
-📈 **Multiple Output Formats**: Generate both SVG and PNG plots  
-🎛️ **Configurable Ranges**: Specify custom x and y value ranges  
-⚙️ **High Resolution**: Adjustable step count for smooth curves  
-🎨 **Customizable Styling**: Custom titles, colors, and dimensions  
-🖥️ **CLI Interface**: Simple command-line interface inspired by jq's philosophy  
-
-## Installation
+## 🚀 Quick Start
 
 ```bash
-# Global installation
+# Install globally for CLI usage
 npm install -g @xn-intenton-z2a/plot-code-lib
 
-# Or use directly with npx
-npx @xn-intenton-z2a/plot-code-lib plot --expression "sin(x)" --file sine.svg
-```
-
-## Quick Start
-
-```bash
-# Generate a sine wave plot
+# Basic sine wave
 plot-code-lib plot --expression "y=sin(x)" --range "x=-10:10" --file sine.svg
 
-# Create a PNG instead of SVG
-plot-code-lib plot --expression "cos(x)" --range "x=-6.28:6.28" --file cosine.png
+# Quadratic function as PNG
+plot-code-lib plot --expression "x^2" --range "x=-3:3" --file parabola.png --title "Parabola"
 
-# Complex mathematical expressions
-plot-code-lib plot --expression "exp(-x^2/4)*sin(3*x)" --range "x=-4:4" --file damped.svg
+# Complex expression with high resolution
+plot-code-lib plot --expression "exp(-x^2/2)*cos(4*x)" --range "x=-4:4" --steps 200 --file gaussian.svg
 ```
 
-## CLI Usage
+## 📦 Installation
 
-### Basic Syntax
+### CLI Usage
+```bash
+npm install -g @xn-intenton-z2a/plot-code-lib
+```
+
+### Library Usage
+```bash
+npm install @xn-intenton-z2a/plot-code-lib
+```
+
+## 🎯 Features
+
+- **Mathematical Expression Parsing**: Supports standard mathematical notation using mathjs
+- **Time Series Generation**: Convert expressions into structured data points
+- **Dual Output Formats**: Generate both SVG (vector) and PNG (raster) plots
+- **Customizable Styling**: Axes, grids, titles, colors, and dimensions
+- **CLI Interface**: Terminal-friendly commands with comprehensive options
+- **Library API**: Use as a JavaScript module in your own projects
+
+## 📋 Command Line Interface
+
+### Basic Usage
 
 ```bash
 plot-code-lib plot [options]
@@ -46,177 +51,155 @@ plot-code-lib plot [options]
 
 ### Options
 
-- `-e, --expression <expr>`: Mathematical expression (default: "y=sin(x)")
-- `-r, --range <range>`: Variable ranges (default: "x=-10:10,y=-5:5")
-- `-f, --file <path>`: Output file path (default: "output.svg")
-- `-s, --steps <number>`: Number of calculation steps (default: "100")
-- `-t, --title <title>`: Plot title
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--expression <expr>` | `-e` | Mathematical expression | `y=sin(x)` |
+| `--range <range>` | `-r` | Variable ranges | `x=-10:10,y=-5:5` |
+| `--file <path>` | `-f` | Output file path | `output.svg` |
+| `--steps <number>` | `-s` | Number of calculation steps | `100` |
+| `--title <title>` | `-t` | Plot title | (auto-generated) |
 
-### Expression Formats
-
-The tool supports multiple expression formats:
-
-```bash
-# Explicit format: y = f(x)
---expression "y=sin(x)"
-
-# Implicit format: f(x) only
---expression "sin(x)"
-
-# Complex expressions
---expression "y=sin(x)*cos(x/2)+exp(-x^2/8)"
-```
-
-### Range Specification
-
-Ranges are specified as comma-separated variable assignments:
+### Examples Command
 
 ```bash
-# Single variable range
---range "x=-10:10"
-
-# Multiple variables (y range affects plot scaling)  
---range "x=-5:5,y=-2:2"
-
-# Decimal ranges
---range "x=-3.14:3.14"
+plot-code-lib examples
 ```
 
-### Output Formats
+Shows built-in usage examples with various mathematical functions.
 
-The output format is automatically determined by the file extension:
-
-- `.svg` → SVG vector format
-- `.png` → PNG raster format
-
-## Examples
-
-### Basic Functions
-
-```bash
-# Sine wave
-plot-code-lib plot --expression "sin(x)" --range "x=-10:10" --file examples/sine.svg
-
-# Cosine wave  
-plot-code-lib plot --expression "cos(x)" --range "x=-6.28:6.28" --file examples/cosine.png
-
-# Quadratic function
-plot-code-lib plot --expression "x^2" --range "x=-5:5" --file examples/quadratic.svg --title "Parabola"
-
-# Tangent function
-plot-code-lib plot --expression "tan(x/2)" --range "x=-6:6" --file examples/tangent.png
-```
-
-### Advanced Expressions
-
-```bash
-# Complex trigonometric
-plot-code-lib plot --expression "sin(x) * cos(x/2)" --range "x=-12:12" --file examples/complex.svg
-
-# Damped oscillation
-plot-code-lib plot --expression "exp(-x^2/4)*sin(3*x)" --range "x=-4:4" --file examples/damped.svg
-
-# High resolution plot
-plot-code-lib plot --expression "exp(-x^2/8)*sin(2*x)" --steps 200 --range "x=-8:8" --file examples/detailed.svg
-```
-
-## Mathematical Functions
-
-The tool supports all mathematical functions available in [mathjs](https://mathjs.org/docs/expressions/functions.html):
-
-**Trigonometric**: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`  
-**Exponential/Logarithmic**: `exp`, `log`, `log10`, `log2`, `sqrt`, `cbrt`  
-**Power/Root**: `pow`, `sqrt`, `nthRoot`  
-**Constants**: `pi`, `e`, `i`, `Infinity`  
-**Operations**: `+`, `-`, `*`, `/`, `^`, `%`, `!`
-
-### Example Expressions
-
-```javascript
-"sin(x)"                    // Simple sine
-"x^2 + 2*x + 1"            // Polynomial
-"exp(-x^2/2) / sqrt(2*pi)" // Gaussian
-"sin(x) + cos(2*x)"        // Superposition
-"log(abs(x) + 1)"          // Logarithmic
-"tan(pi*x/4)"              // Scaled tangent
-```
-
-## Library API
-
-You can also use plot-code-lib programmatically:
+## 🔧 Library API
 
 ```javascript
 import { parseRange, generateTimeSeries, generateSVGPlot, generatePNGPlot } from '@xn-intenton-z2a/plot-code-lib';
 
-// Parse range specification
-const ranges = parseRange('x=-10:10');
+// Parse range string
+const ranges = parseRange('x=-5:5,y=-2:2');
 
 // Generate data points
 const points = generateTimeSeries('sin(x)', ranges, 100);
 
-// Generate SVG
-const svg = generateSVGPlot(points, { title: 'My Plot' });
+// Create SVG plot
+const svg = generateSVGPlot(points, { 
+  title: 'Sine Wave',
+  strokeColor: '#ff6b6b'
+});
 
-// Generate PNG (returns Buffer)
-const pngBuffer = await generatePNGPlot(points, { title: 'My Plot' });
+// Create PNG plot (async)
+const pngBuffer = await generatePNGPlot(points, { 
+  title: 'Sine Wave',
+  width: 1200,
+  height: 800
+});
 ```
 
-### API Reference
+## 📊 Expression Examples
 
-#### `parseRange(rangeStr)`
-Parses a range string like "x=-10:10,y=-5:5" into a range object.
-
-#### `generateTimeSeries(expression, ranges, steps)`
-Generates time series data points from a mathematical expression.
-
-#### `generateSVGPlot(points, options)`
-Creates SVG plot from data points with customizable styling.
-
-#### `generatePNGPlot(points, options)`
-Creates PNG plot from data points (async function).
-
-## Examples Directory
-
-The `examples/` directory contains sample plots generated by the tool:
-
-- `sine.svg` - Basic sine wave  
-- `cosine.png` - Cosine wave in PNG format
-- `quadratic.svg` - Parabolic function
-- `complex.svg` - Complex trigonometric expression
-- `damped.svg` - Damped oscillation
-- `tangent.png` - Tangent function
-- `detailed.svg` - High-resolution plot (200 steps)
-
-## Development
+### Basic Functions
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/plot-code-lib.git
-cd plot-code-lib
+# Trigonometric functions
+plot-code-lib plot -e "sin(x)" -r "x=-6.28:6.28" -f trig_sine.svg
+plot-code-lib plot -e "cos(x)" -r "x=-6.28:6.28" -f trig_cosine.svg
+plot-code-lib plot -e "tan(x)" -r "x=-1.5:1.5" -f trig_tangent.svg
 
-# Install dependencies
-npm install
+# Polynomial functions  
+plot-code-lib plot -e "x^2" -r "x=-5:5" -f poly_quadratic.svg
+plot-code-lib plot -e "x^3 - 3*x" -r "x=-3:3" -f poly_cubic.svg
 
-# Run tests
-npm test
-
-# Test CLI locally
-node src/lib/main.js plot --expression "sin(x)" --file test.svg
+# Exponential and logarithmic
+plot-code-lib plot -e "exp(x)" -r "x=-2:2" -f exp_function.svg
+plot-code-lib plot -e "log(x)" -r "x=0.1:10" -f log_function.svg
 ```
 
-## Contributing
+### Advanced Functions
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+```bash
+# Damped oscillation
+plot-code-lib plot -e "exp(-x/4)*sin(3*x)" -r "x=0:12" -f damped_oscillation.svg
 
-## License
+# Gaussian function
+plot-code-lib plot -e "exp(-x^2/2)" -r "x=-4:4" -f gaussian.svg
 
-MIT License - see [LICENSE](LICENSE) for details.
+# Modulated sine wave
+plot-code-lib plot -e "sin(x)*cos(x/3)" -r "x=-15:15" -f modulated_sine.svg
 
-## Related
+# Rational function
+plot-code-lib plot -e "1/(1+x^2)" -r "x=-5:5" -f rational_function.svg
+```
 
-- [mathjs](https://mathjs.org/) - Mathematical expression evaluator
-- [sharp](https://sharp.pixelplumbing.com/) - High-performance image processing
+### High-Resolution Plots
+
+```bash
+# Detailed plot with 500 points
+plot-code-lib plot -e "sin(10*x)*exp(-x^2/4)" -r "x=-3:3" -s 500 -f high_res.svg
+
+# Large range visualization
+plot-code-lib plot -e "sin(x)/x" -r "x=-20:20" -s 400 -f sinc_function.svg
+```
+
+## 🎨 Output Formats
+
+### SVG (Vector Graphics)
+- Scalable without quality loss
+- Perfect for web and print
+- Editable with text editors
+- Smaller file sizes for simple plots
+
+### PNG (Raster Graphics)
+- Fixed resolution
+- Universal compatibility
+- Good for screenshots and presentations
+- Generated from SVG using Sharp
+
+## 🔍 Expression Syntax
+
+Supports the complete mathjs expression syntax:
+
+**Basic Operations**: `+`, `-`, `*`, `/`, `^`, `%`
+
+**Functions**: `sin`, `cos`, `tan`, `exp`, `log`, `sqrt`, `abs`, `floor`, `ceil`, `round`
+
+**Constants**: `pi`, `e`
+
+**Examples**:
+- `sin(x)` - sine function
+- `x^2 + 2*x + 1` - quadratic polynomial
+- `exp(-x^2/2)/sqrt(2*pi)` - Gaussian distribution
+- `abs(sin(x))` - absolute value of sine
+
+## 🏗️ Project Structure
+
+```
+plot-code-lib/
+├── src/lib/main.js          # Main library and CLI
+├── tests/unit/main.test.js  # Unit tests
+├── examples/                # Generated example plots
+├── features/                # Feature documentation
+└── package.json             # Project configuration
+```
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm run test:unit
+```
+
+## 🤝 Contributing
+
+This is a template repository demonstrating agentic-lib workflows. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file.
+
+## 🏷️ Version
+
+Current version: 0.1.0
 
 ---
 
-**plot-code-lib** - Transform mathematical expressions into beautiful visualizations with the simplicity of command-line tools like jq.
+**Built with**: JavaScript (ES modules), mathjs, Sharp, Commander.js
