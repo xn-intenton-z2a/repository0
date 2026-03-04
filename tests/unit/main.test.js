@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseArgs, parseExpression, buildEvaluator, generateTimeSeries, generateSVG } from '../../src/lib/main.js';
+import fs from 'fs/promises';
+import { parseArgs, parseExpression, buildEvaluator, generateTimeSeries, generateSVG, cli } from '../../src/lib/main.js';
 
 describe('main lib', () => {
   it('parses args', () => {
@@ -36,5 +37,15 @@ describe('main lib', () => {
     const svg = generateSVG(series, { width: 300, height: 150 });
     assert.ok(svg.includes('<svg'));
     assert.ok(svg.includes('<path'));
+  });
+
+  it('cli writes an svg file when --file is provided', async () => {
+    const outPath = 'examples/test-output.svg';
+    await fs.rm(outPath).catch(() => {});
+    const code = await cli(['--expression', 'y=sin(x)', '--range', '0:6.28318', '--file', outPath, '--points', '50', '--width', '300', '--height', '150']);
+    assert.strictEqual(code, 0);
+    const content = await fs.readFile(outPath, 'utf8');
+    assert.ok(content.includes('<svg'));
+    await fs.rm(outPath).catch(() => {});
   });
 });
