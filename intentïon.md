@@ -16,3 +16,14 @@ What changed:
 - tests/unit/run-tests.js — lightweight Node test runner used by npm test to validate func
 
 ---
+## transform at 2026-03-04T21:30:18.000Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 157537 (in: 154654, out: 2883)
+**Duration:** 69s (~1.2 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22690162115](https://github.com/xn-intenton-z2a/repository0/actions/runs/22690162115)
+
+Updated README.md with CLI usage, examples, programmatic usage, and mission notes; ran tests to verify behavior — all tests passed.
+
+---
