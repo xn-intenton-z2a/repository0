@@ -288,3 +288,21 @@ Maintained features (0 existing, limit 4)
 Maintained library (0 docs, limit 32)
 
 ---
+## transform at 2026-03-04T14:18:40.144Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 258946 (in: 252525, out: 6421)
+**Duration:** 135s (~2.2 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22673251443](https://github.com/xn-intenton-z2a/repository0/actions/runs/22673251443)
+
+Changes made
+- Implemented PNG output support and rasterization using sharp.
+  - Added svgToPng(svg, width, height) to src/lib/main.js.
+  - runCLI now supports --format png or writing to .png files (converts SVG to PNG and writes binary).
+  - saveFile updated to write binary files and ensure directories exist.
+  - Help text updated to mention png support.
+- Added unit test that validates svgToPng produces a valid PNG buffer.
+  - tests/unit/main.test.js extended with an async test checking PNG si
+
+---

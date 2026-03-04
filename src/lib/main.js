@@ -4,6 +4,8 @@
 // src/lib/main.js
 
 import fs from "fs";
+import path from "path";
+import sharp from "sharp";
 
 export function parseArgs(argv) {
   const out = {};
@@ -157,12 +159,23 @@ export function generateSVG(points, opts = {}) {
   return svg;
 }
 
-export function saveFile(path, content) {
-  fs.writeFileSync(path, content, "utf8");
+export async function svgToPng(svg, width = 800, height = 600) {
+  if (!svg) throw new Error('svg required');
+  const buf = Buffer.from(svg);
+  // Use sharp to rasterize SVG to PNG
+  const png = await sharp(buf).png().toBuffer();
+  return png;
+}
+
+export function saveFile(pathStr, content, binary = false) {
+  const dir = pathStr.includes('/') ? pathStr.replace(/\/[^/]*$/,'') : '.';
+  if (dir && dir !== '' && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (binary) fs.writeFileSync(pathStr, content);
+  else fs.writeFileSync(pathStr, content, "utf8");
 }
 
 export function helpText() {
-  return `plot-code-lib\n\nUsage:\n  --expression, -e   Expression to plot, e.g. "y=sin(x)" or "sin(x)"\n  --range, -r        x range as min:max (default -10:10)\n  --file, -f         Output file path (default: examples/output.svg)\n  --format           svg (default) or png (png requires external tool)\n  --points           Number of points to sample (default 200)\n  --width            Width in pixels (default 800)\n  --height           Height in pixels (default 600)\n  --bg               Background color (default white)\n  --stroke           Stroke color (default black)\n  --fill             Fill color for path (default none)\n  --stroke-width     Stroke width (default 2)\n`;
+  return `plot-code-lib\n\nUsage:\n  --expression, -e   Expression to plot, e.g. "y=sin(x)" or "sin(x)"\n  --range, -r        x range as min:max (default -10:10)\n  --file, -f         Output file path (default: examples/output.svg)\n  --format           svg (default) or png (png requires sharp)\n  --points           Number of points to sample (default 200)\n  --width            Width in pixels (default 800)\n  --height           Height in pixels (default 600)\n  --bg               Background color (default white)\n  --stroke           Stroke color (default black)\n  --fill             Fill color for path (default none)\n  --stroke-width     Stroke width (default 2)\n`;
 }
 
 export async function runCLI(argv = process.argv.slice(2)) {
@@ -194,12 +207,16 @@ export async function runCLI(argv = process.argv.slice(2)) {
     fill: args.fill,
     strokeWidth: args.strokeWidth
   });
+
   const outFile = args.file || "examples/output.svg";
+  const format = (args.format || path.extname(outFile).replace('.', '') || 'svg').toLowerCase();
   try {
-    // ensure directory
-    const dir = outFile.includes('/') ? outFile.replace(/\/[^/]*$/, '') : '.';
-    if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    saveFile(outFile, svg);
+    if (format === 'png' || outFile.endsWith('.png')) {
+      const png = await svgToPng(svg, args.width || 800, args.height || 600);
+      saveFile(outFile, png, true);
+    } else {
+      saveFile(outFile, svg, false);
+    }
     console.log(`Wrote ${outFile}`);
     return 0;
   } catch (e) {
@@ -209,7 +226,7 @@ export async function runCLI(argv = process.argv.slice(2)) {
 }
 
 // allow running as a script
-if (process.argv[1] && process.argv[1].endsWith("main.js") && !process.env.JEST_WORKER_ID) {
+if (process.argv[1] && (process.argv[1].endsWith("main.js") || process.argv[1].endsWith("/main.js")) && !process.env.JEST_WORKER_ID) {
   // top-level invocation
   runCLI().then((code) => process.exit(code));
 }
