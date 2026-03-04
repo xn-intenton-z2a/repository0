@@ -6,7 +6,7 @@
 import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
+
 
 export function parseArgs(argv) {
   const out = {};
@@ -166,11 +166,17 @@ export function generateSVG(points, opts = {}) {
 }
 
 export async function generatePNG(svg, opts = {}) {
-  // use sharp to convert svg to png buffer
+  // use sharp to convert svg to png buffer; require dynamically so tests don't fail when sharp isn't installed
   const width = opts.width || 800;
   const height = opts.height || 400;
+  let sharp;
   try {
-    const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+    sharp = await import('sharp');
+  } catch (err) {
+    throw new Error('sharp is not available; install sharp to generate PNGs');
+  }
+  try {
+    const buf = await sharp.default(Buffer.from(svg)).png().toBuffer();
     return buf;
   } catch (err) {
     throw new Error(`PNG generation failed: ${err.message}`);

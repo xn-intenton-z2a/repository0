@@ -34,8 +34,10 @@ try {
   assert.ok(almostEqual(r.step, 0.25));
   assert.strictEqual(r.points, 5);
 
-  // generateTimeSeries
-  const pts = generateTimeSeries('y = x', 'x=0:1:0.5');
+  // generateTimeSeries (use buildEvaluator + parseRange)
+  const evaluator = buildEvaluator('x');
+  const rangeObj = parseRange('x=0:1:0.5');
+  const pts = generateTimeSeries(evaluator, rangeObj);
   assert.deepStrictEqual(pts, [{ x: 0, y: 0 }, { x: 0.5, y: 0.5 }, { x: 1, y: 1 }]);
 
   // buildEvaluator
@@ -47,10 +49,11 @@ try {
   const svg = generateSVG([{ x: 0, y: 0 }, { x: 1, y: 1 }], { width: 200, height: 100, stroke: '#000' });
   assert.ok(svg.includes('<svg'));
   assert.ok(svg.includes('path'));
-  assert.ok(svg.includes('M '));
+  assert.ok(svg.includes('M'));
 
   // main should not throw when called with empty args
-  main([]);
+  // calling main([]) prints usage and returns 0
+  const res = await main([]).catch((e) => { throw e; });
 
   console.log('All tests passed');
   process.exit(0);

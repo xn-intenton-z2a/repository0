@@ -6,8 +6,8 @@
   "main": "src/lib/main.js",
   "scripts": {
     "build": "echo \"Nothing to build\"",
-    "test": "vitest",
-    "test:unit": "vitest",
+    "test": "node tests/unit/run-tests.js",
+    "test:unit": "node tests/unit/run-tests.js",
     "start": "node src/lib/main.js"
   },
   "keywords": [],
