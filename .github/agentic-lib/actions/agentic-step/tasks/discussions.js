@@ -100,6 +100,8 @@ function buildPrompt(discussionUrl, discussion, context) {
     contributing ? `### Contributing\n${contributing}` : "",
     `### Current Features\n${featureNames.join(", ") || "none"}`,
     recentActivity ? `### Recent Activity\n${recentActivity}` : "",
+    config.configToml ? `### Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
+    config.packageJson ? `### Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
     "",
     "## Actions",
     "Include exactly one action tag in your response. Only mention actions to the user when relevant.",

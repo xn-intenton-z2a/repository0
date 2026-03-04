@@ -1,75 +1,79 @@
-# plot-code-lib
+# repo
 
-plot-code-lib is a small JavaScript library and CLI for generating plots from mathematical expressions. It aims to be "the jq of formula visualisations": take a simple expression + range and produce time-series data and a visualisation (SVG/PNG).
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-This repository provides a minimal, usable CLI in `src/lib/main.js` that parses expressions like `y=sin(x)`, samples them across a numeric range and produces an SVG plot.
+## Getting Started
 
-Quick features
-- Parse simple mathematical expressions (supports ^ for power, common Math functions like sin/cos/log/exp)
-- Specify range with `x=start:end[:step]` (defaults to ~200 samples)
-- Generate SVG output (default) and write to file
-- Simple programmatic API: import and call main(argv)
+1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
+2. **Configure GitHub** — see [Setup](#setup) below
+3. **Push to main** — the autonomous workflows take over from here
 
-Install / run
+The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
-Requirements: Node.js 24+ (uses ES modules)
+## Setup
 
-Run the built-in test to validate basic SVG generation:
+### Required Secrets
 
-  npm test
+Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
 
-CLI usage
+| Secret | How to create | Purpose |
+|--------|---------------|---------|
+| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
 
-The CLI supports the following options:
-  --expression, --expr, --e   Expression to plot (e.g. "y=sin(x)")  [required]
-  --range, --r                Range in the form x=start:end[:step] (default: x=0:6.283:0.1)
-  --file, --o                 Output file path (defaults to examples/plot.svg)
-  --format, --f               Output format (svg by default)
-  --width, --w                Image width in pixels (default 800)
-  --height, --h               Image height in pixels (default 400)
+### Repository Settings
 
-Examples
+| Setting | Where | Value |
+|---------|-------|-------|
+| GitHub Actions | Settings → Actions → General | Allow all actions |
+| Workflow permissions | Settings → Actions → General | Read and write permissions |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
+| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
 
-Generate an SVG for the sine function over 0..2π and write to examples/sin.svg:
+### Optional: Branch Protection
 
-  node src/lib/main.js --expression "y=sin(x)" --range "x=0:6.283:0.01" --file examples/sin.svg --format svg
+For production repositories, consider adding branch protection on `main`:
+- Require pull request reviews before merging
+- Require status checks to pass (select the `test` workflow)
 
-Generate a plot for y = x^2 over -2..2:
+## How It Works
 
-  node src/lib/main.js --expression "y=x^2" --range "x=-2:2:0.01" --file examples/quad.svg
-
-Use a plain expression (without the `y=`) — the CLI accepts `sin(x)` and `y=sin(x)` equally:
-
-  node src/lib/main.js --expression "sin(x)" --range "x=0:6.283" --file examples/sin2.svg
-
-Programmatic usage
-
-Import and call main(argv) from code (used by the test harness):
-
-```js
-import { main } from './src/lib/main.js';
-await main(['--expression','y=sin(x)','--range','x=0:6.283:0.01','--file','examples/sin.svg']);
+```
+MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
+                                                    ↑                          |
+                                                    +——————————————————————————+
 ```
 
-How expressions are interpreted
+The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
 
-- If the expression contains `=`, the RHS is used (e.g. `y=sin(x)` becomes `sin(x)`).
-- `^` is translated to `**` for powers (e.g. `x^2` → `x**2`).
-- Common math functions are prefixed with `Math.` automatically (sin,cos,tan,abs,log,exp,sqrt,min,max,pow,floor,ceil, etc.).
-- The evaluator creates a Function('x', `return (${expr});`) and is used to compute numeric values for each sample.
+## Configuration
 
-Output
+Edit `agentic-lib.toml` to tune the system:
 
-By default, the CLI produces a simple SVG containing axes and a stroked path representing the sampled points. The file written is an SVG string; future work can extend PNG output by rasterizing the SVG with a rendering backend.
+```toml
+[schedule]
+supervisor = "daily"    # off | weekly | daily | hourly | continuous
 
-Testing
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
 
-A basic unit test exists at `tests/unit/main.test.js` and a simple runner `npm test` that executes a smoke test which generates an SVG and validates it contains `<svg>` and `<path>`.
+[limits]
+feature-issues = 2      # max concurrent feature issues
+attempts-per-issue = 2   # max retries per issue
+```
 
-Contributing
+## Updating
 
-See CONTRIBUTING.md for contribution guidelines. Keep changes minimal and aligned with the mission: make the library a small, dependable tool for turning expressions into visuals.
+The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
 
-Mission alignment
+```bash
+npx @xn-intenton-z2a/agentic-lib@latest init
+```
 
-This change completes the core CLI path for expression -> time series -> SVG output, enabling the repository to act as a baseline plot generation tool. Subsequent work should add richer parsing (named variables, multiple series), PNG export, and better axis/grid annotations.
+## Links
+
+- [MISSION.md](MISSION.md) — your project goals
+- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
+- [intentïon website](https://xn--intenton-z2a.com)

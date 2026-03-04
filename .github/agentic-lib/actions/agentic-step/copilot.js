@@ -171,15 +171,25 @@ export function scanDirectory(dirPath, extensions, options = {}) {
  *
  * @param {string[]} writablePaths
  * @param {string[]} [readOnlyPaths=[]]
+ * @param {Object} [contextFiles] - Optional raw file contents to include
+ * @param {string} [contextFiles.configToml] - Raw agentic-lib.toml text
+ * @param {string} [contextFiles.packageJson] - Raw package.json text
  * @returns {string}
  */
-export function formatPathsSection(writablePaths, readOnlyPaths = []) {
-  return [
+export function formatPathsSection(writablePaths, readOnlyPaths = [], contextFiles) {
+  const lines = [
     "## File Paths",
     "### Writable (you may modify these)",
     writablePaths.length > 0 ? writablePaths.map((p) => `- ${p}`).join("\n") : "- (none)",
     "",
     "### Read-Only (for context only, do NOT modify)",
     readOnlyPaths.length > 0 ? readOnlyPaths.map((p) => `- ${p}`).join("\n") : "- (none)",
-  ].join("\n");
+  ];
+  if (contextFiles?.configToml) {
+    lines.push("", "### Configuration (agentic-lib.toml)", "```toml", contextFiles.configToml, "```");
+  }
+  if (contextFiles?.packageJson) {
+    lines.push("", "### Dependencies (package.json)", "```json", contextFiles.packageJson, "```");
+  }
+  return lines.join("\n");
 }

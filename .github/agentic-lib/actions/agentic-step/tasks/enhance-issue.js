@@ -49,6 +49,8 @@ export async function enhanceIssue(context) {
     "",
     contributing ? `## Contributing Guidelines\n${contributing.substring(0, 1000)}` : "",
     features.length > 0 ? `## Related Features\n${features.map((f) => f.content).join("\n---\n")}` : "",
+    config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
+    config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
     "",
     "## Your Task",
     "Write an enhanced version of this issue body that includes:",
