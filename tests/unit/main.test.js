@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseArgs, parseExpression, buildEvaluator, parseRange, generateSeries, renderSVG } from '../../src/lib/main.js';
+import { parseArgs, parseExpression, buildEvaluator, parseRange, generateTimeSeries, renderSVG } from '../../src/lib/main.js';
 
 describe('CLI plot main', () => {
   it('parses args', () => {
@@ -37,7 +37,7 @@ describe('CLI plot main', () => {
   it('generates series and renders svg', () => {
     const evalFn = buildEvaluator('x');
     const range = parseRange('0:1:3');
-    const series = generateSeries(evalFn, range);
+    const series = generateTimeSeries(evalFn, range);
     expect(series.length).toBe(3);
     expect(series[0].x).toBeCloseTo(0);
     expect(series[2].x).toBeCloseTo(1);

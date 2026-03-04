@@ -161,3 +161,22 @@ nod
 Updated README.md with clearer CLI examples and added examples/sine.svg demonstrating output.
 
 ---
+## transform at 2026-03-04T11:16:19.164Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 172393 (in: 169105, out: 3288)
+**Duration:** 71s (~1.2 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22666947029](https://github.com/xn-intenton-z2a/repository0/actions/runs/22666947029)
+
+Done — implemented CLI plotting functionality, updated tests, and improved README.
+
+What changed
+- src/lib/main.js — implemented expression parsing, safe evaluator, range parsing, time-series generation, SVG renderer, file output, and CLI entry.
+- tests/unit/main.test.js — updated to use current exported function names and added coverage for parsing, evaluator, range parsing, series generation, and SVG output.
+- README.md — added CLI usage example and options.
+
+Validation
+- Ran tests: npm test -
+
+---
