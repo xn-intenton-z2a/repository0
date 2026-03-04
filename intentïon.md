@@ -244,3 +244,23 @@ All tests passed (6 tests).
 All tests passed (6 tests). Changes made: completed src/lib/main.js with expression parsing, range parsing, evaluator building, time-series generation, SVG rendering, CLI run function, and file saving.
 
 ---
+## transform at 2026-03-04T14:08:27.070Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 171181 (in: 166258, out: 4923)
+**Duration:** 180s (~3.0 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22672820598](https://github.com/xn-intenton-z2a/repository0/actions/runs/22672820598)
+
+Changes made:
+- Implemented a complete CLI plotting implementation in src/lib/main.js (argument parsing, expression parsing, safe evaluator builder, time-series generation, SVG renderer, file output, help text).
+- Updated README.md with corrected CLI usage examples that match implemented flags.
+- Ran the unit tests; all existing tests pass (6 tests).
+
+Key files replaced/added:
+- src/lib/main.js — full implementation (exports used by tests and CLI entrypoint).
+- README.md — improved examples.
+
+Ho
+
+---

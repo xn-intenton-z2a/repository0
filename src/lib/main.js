@@ -162,21 +162,7 @@ export function saveFile(path, content) {
 }
 
 export function helpText() {
-  return `plot-code-lib
-
-Usage:
-  --expression, -e   Expression to plot, e.g. "y=sin(x)" or "sin(x)"
-  --range, -r        x range as min:max (default -10:10)
-  --file, -f         Output file path (default: output.svg)
-  --format           svg (default) or png (png requires external tool)
-  --points           Number of points to sample (default 200)
-  --width            Width in pixels (default 800)
-  --height           Height in pixels (default 600)
-  --bg               Background color (default white)
-  --stroke           Stroke color (default black)
-  --fill             Fill color for path (default none)
-  --stroke-width     Stroke width (default 2)
-`;
+  return `plot-code-lib\n\nUsage:\n  --expression, -e   Expression to plot, e.g. "y=sin(x)" or "sin(x)"\n  --range, -r        x range as min:max (default -10:10)\n  --file, -f         Output file path (default: examples/output.svg)\n  --format           svg (default) or png (png requires external tool)\n  --points           Number of points to sample (default 200)\n  --width            Width in pixels (default 800)\n  --height           Height in pixels (default 600)\n  --bg               Background color (default white)\n  --stroke           Stroke color (default black)\n  --fill             Fill color for path (default none)\n  --stroke-width     Stroke width (default 2)\n`;
 }
 
 export async function runCLI(argv = process.argv.slice(2)) {
