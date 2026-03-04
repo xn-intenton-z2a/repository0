@@ -19,6 +19,8 @@ import { parse as parseToml } from "smol-toml";
 /**
  * @typedef {Object} AgenticConfig
  * @property {string} schedule - Schedule identifier
+ * @property {string} supervisor - Supervisor frequency (off | weekly | daily | hourly | continuous)
+ * @property {string} model - Copilot SDK model for LLM requests
  * @property {Object<string, PathConfig>} paths - Mapped paths with permissions
  * @property {string} buildScript - Build command
  * @property {string} testScript - Test command
@@ -119,6 +121,7 @@ export function loadConfig(configPath) {
   return {
     schedule: toml.schedule?.tier || "schedule-1",
     supervisor: toml.schedule?.supervisor || "daily",
+    model: toml.schedule?.model || "gpt-5-mini",
     paths,
     buildScript: execution.build || "npm run build",
     testScript: execution.test || "npm test",

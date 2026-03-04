@@ -4,6 +4,7 @@
 #
 # Daily lifecycle: update agentic-lib, run init, test, PR, automerge.
 # Keeps the repository current with the latest SDK infrastructure.
+# Can also set supervisor schedule and model on init.
 
 name: init
 run-name: "init [${{ github.ref_name }}]"
@@ -32,6 +33,28 @@ on:
         type: string
         required: false
         default: ""
+      schedule:
+        description: "Supervisor schedule (leave empty to keep current)"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - "off"
+          - "weekly"
+          - "daily"
+          - "hourly"
+          - "continuous"
+      model:
+        description: "Copilot SDK model for LLM requests (leave empty to keep current)"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - gpt-5-mini
+          - claude-sonnet-4
+          - gpt-4.1
 
 permissions: write-all
 
@@ -49,10 +72,16 @@ jobs:
           echo "dry-run=${DRY_RUN:-false}" >> $GITHUB_OUTPUT
           MISSION='${{ inputs.mission }}'
           echo "mission=${MISSION}" >> $GITHUB_OUTPUT
+          SCHEDULE='${{ inputs.schedule }}'
+          echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
     outputs:
       mode: ${{ steps.normalise.outputs.mode }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
       mission: ${{ steps.normalise.outputs.mission }}
+      schedule: ${{ steps.normalise.outputs.schedule }}
+      model: ${{ steps.normalise.outputs.model }}
 
   init:
     needs: params
@@ -121,3 +150,13 @@ jobs:
             --label automerge \
             --base main \
             --head "$BRANCH"
+
+  # Configure schedule after init completes (if schedule parameter provided)
+  configure-schedule:
+    needs: [params, init]
+    if: needs.params.outputs.schedule != ''
+    uses: ./.github/workflows/agent-supervisor-schedule.yml
+    with:
+      frequency: ${{ needs.params.outputs.schedule }}
+      model: ${{ needs.params.outputs.model }}
+    secrets: inherit
