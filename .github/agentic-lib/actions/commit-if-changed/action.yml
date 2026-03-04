@@ -28,7 +28,15 @@ runs:
         git add -A
         if git diff --cached --quiet; then
           echo "No changes to commit"
+        elif git diff --cached --name-only | grep -qvE '(intentïon\.md|intention\.md)$'; then
+          # At least one non-log file changed — proceed with commit
+          true
         else
+          echo "Only log files changed — skipping commit"
+          git reset HEAD -- . > /dev/null 2>&1
+          exit 0
+        fi
+        if ! git diff --cached --quiet; then
           git commit -m "${{ inputs.commit-message }}"
           REF="${{ inputs.push-ref }}"
           MAX_RETRIES=3

@@ -1,6 +1,3 @@
-# Which agentic-lib workflow schedule should be used?
-schedule: schedule-1
-
 # Mapping for from symbolic keys to filepaths for access by agentic-lib workflows with limits and access permissions
 paths:
   # Filepaths for elaborator workflows

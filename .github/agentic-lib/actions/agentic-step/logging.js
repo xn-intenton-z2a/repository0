@@ -5,7 +5,7 @@
 // Appends structured entries to the intentïon.md activity log,
 // including commit URLs and safety-check outcomes.
 
-import { writeFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
+import { writeFileSync, readFileSync, appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import * as core from "@actions/core";
 
@@ -73,8 +73,20 @@ export function logActivity({
 
   const entry = parts.join("\n");
 
+  const MAX_ENTRIES = 30;
+
   if (existsSync(filepath)) {
-    appendFileSync(filepath, entry);
+    // Rotate: keep only the header + last MAX_ENTRIES entries
+    const existing = readFileSync(filepath, "utf8");
+    const sections = existing.split("\n## ");
+    if (sections.length > MAX_ENTRIES + 1) {
+      // sections[0] is the header, sections[1..] are entries (prefixed with "## " after split)
+      const header = sections[0];
+      const kept = sections.slice(-(MAX_ENTRIES));
+      writeFileSync(filepath, header + "\n## " + kept.join("\n## ") + entry);
+    } else {
+      appendFileSync(filepath, entry);
+    }
   } else {
     writeFileSync(filepath, `# intentïon Activity Log\n${entry}`);
   }
