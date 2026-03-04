@@ -429,3 +429,21 @@ What changed
 - tests/unit/main.test.js — Rewritten to use node:test and assert t
 
 ---
+## transform at 2026-03-04T17:55:48.891Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 274031 (in: 267894, out: 6137)
+**Duration:** 146s (~2.4 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22682055343](https://github.com/xn-intenton-z2a/repository0/actions/runs/22682055343)
+
+Done — implemented a working CLI core, SVG plot generation, and docs updates.
+
+Changes:
+- src/lib/main.js — complete implementation: arg parsing, expression parsing/sanitizing, evaluator builder (supports Math functions and ^), series generator, SVG renderer, file output and help.
+- README.md and docs/CLI_INTERFACE.md — added usage examples and options.
+
+Validation: tests pass (npm test) and an example command to try:
+node src/lib/main.js --expression "sin(x)" --range "-6.28:6.28" --file out.svg
+
+---

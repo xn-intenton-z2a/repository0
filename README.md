@@ -1,17 +1,18 @@
 # plot-code-lib
 
-plot-code-lib is a small library and CLI for generating simple plots from mathematical expressions.
+plot-code-lib is a small library and CLI for generating plots from mathematical expressions. It aims to be a lightweight "jq of formulae visualisations": take a formula, sample it over a range and emit a plot (SVG by default).
 
-Usage examples:
+Quick example
 
-- Generate an SVG and save to file:
+  node src/lib/main.js --expression "sin(x)" --range "-6.28:6.28" --file examples/sin.svg
 
-  node src/lib/main.js --expression "y=sin(x)" --range "-6.28:6.28" --points 200 --file examples/sin.svg --width 800 --height 400 --stroke "#0077cc"
+This will write an SVG named `examples/sin.svg` (created by the library). The CLI supports:
 
-- Quick sample (smaller image):
+- --expression, -e  Expression to plot (e.g. "sin(x)")
+- --range, -r       Range for x as "min:max" (default -10:10)
+- --points          Number of sample points (default 200)
+- --width           Output width in pixels (default 800)
+- --height          Output height in pixels (default 400)
+- --file, -f        Output filename (SVG). If omitted, SVG is printed to stdout.
 
-  node src/lib/main.js -e "sin(x)" -r "-3.14:3.14" -f examples/sin-small.svg --width 400 --height 200
-
-The library exposes functions for parsing arguments, building an evaluator, generating a time series and rendering SVG.
-
-See tests in tests/unit for examples of using the library programmatically.
+See docs/CLI_INTERFACE.md and features/ for more on expression parsing, sampling and SVG generation.
