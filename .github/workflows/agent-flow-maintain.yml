@@ -13,7 +13,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "33 7 * * 1" # Weekly on Monday at 07:33 UTC
+    - cron: "33 7 * * 1"
   workflow_dispatch:
     inputs:
       step:

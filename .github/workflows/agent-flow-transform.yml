@@ -13,7 +13,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: '23 */11 * * *'
+    - cron: "33 8 * * 1"
   workflow_dispatch:
     inputs:
       model:

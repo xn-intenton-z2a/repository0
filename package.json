@@ -1,39 +1,20 @@
 {
-  "name": "@xn-intenton-z2a/plot-code-lib",
+  "name": "repo",
   "version": "0.1.0",
-  "description": "Transform mathematical expressions into beautiful SVG and PNG plots - the jq of formula visualizations. CLI tool and JavaScript library.",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
-  "bin": {
-    "plot-code-lib": "src/lib/main.js"
-  },
   "scripts": {
-    "build": "echo \"Nothing to build - pure JavaScript library\"",
+    "build": "echo \"Nothing to build\"",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js",
-    "examples": "node scripts/generate-examples.js",
-    "demo": "node src/lib/main.js examples",
-    "demo:sine": "node src/lib/main.js plot --expression 'sin(x)' --range 'x=-10:10' --file examples/demo_sine_quick.svg --title 'Quick Demo: sin(x)'",
-    "demo:png": "node src/lib/main.js plot --expression 'x^2' --range 'x=-3:3' --file examples/demo_quad_quick.png --title 'Quick Demo: x²'",
-    "showcase": "npm run examples && echo 'Generated comprehensive examples in examples/ directory'"
+    "start": "node src/lib/main.js"
   },
-  "keywords": [
-    "plotting",
-    "mathematical-expressions",
-    "cli",
-    "svg",
-    "png",
-    "visualization",
-    "time-series"
-  ],
+  "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.35",
-    "commander": "^12.0.0",
-    "mathjs": "^13.2.0",
-    "sharp": "^0.34.5"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.38"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
