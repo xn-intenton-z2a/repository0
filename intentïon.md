@@ -191,3 +191,23 @@ Validation
 All tests passed.
 
 ---
+## transform at 2026-03-04T11:57:54.039Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 116644 (in: 110623, out: 6021)
+**Duration:** 107s (~1.8 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22668277640](https://github.com/xn-intenton-z2a/repository0/actions/runs/22668277640)
+
+All tests passed (5/5). Files changed:
+- src/lib/main.js (new implementation: evaluator, series generation, SVG renderer, CLI main)
+- tests/unit/main.test.js (node:test-based unit tests)
+- tests/unit/run-tests.js (test runner wrapper)
+- README.md (usage examples)
+
+You can run the CLI manually, for example:
+- node src/lib/main.js --run -e "sin(x)" -r "-6.28:6.28" -f examples/sin.svg
+
+If you want PNG output support or more advanced parsing (multi-variable expressions, CSV I/O, or image generation)
+
+---

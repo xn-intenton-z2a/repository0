@@ -1,48 +1,40 @@
-import { describe, it, expect } from 'vitest';
-import { parseArgs, parseExpression, buildEvaluator, parseRange, generateTimeSeries, renderSVG } from '../../src/lib/main.js';
+import test from 'node:test';
+import assert from 'node:assert';
+import { parseArgs, parseExpression, buildEvaluator, parseRange, generateSeries, renderSVG } from '../../src/lib/main.js';
 
-describe('CLI plot main', () => {
-  it('parses args', () => {
-    const argv = ['--expression', 'y=sin(x)', '--range', '-3.14:3.14:5', '--file', 'out.svg', '--width', '300', '--height', '200'];
-    const out = parseArgs(argv);
-    expect(out.expression).toBe('y=sin(x)');
-    expect(out.range).toBe('-3.14:3.14:5');
-    expect(out.file).toBe('out.svg');
-    expect(out.width).toBe(300);
-    expect(out.height).toBe(200);
-  });
+test('parses args', () => {
+  const a = parseArgs(['--expression', 'y=sin(x)', '--range', 'x=-1:1', '--points', '50']);
+  assert.strictEqual(a.expression, 'y=sin(x)');
+  assert.strictEqual(a.range, 'x=-1:1');
+  assert.strictEqual(a.points, 50);
+});
 
-  it('parses expression', () => {
-    expect(parseExpression('y = x * 2')).toBe('x * 2');
-    expect(parseExpression('sin(x)')).toBe('sin(x)');
-  });
+test('parses expression', () => {
+  assert.strictEqual(parseExpression('y=sin(x)'), 'sin(x)');
+  assert.strictEqual(parseExpression(' sin(x) '), 'sin(x)');
+});
 
-  it('builds evaluator and computes values', () => {
-    const evalFn = buildEvaluator('sin(x)');
-    expect(typeof evalFn).toBe('function');
-    const v = evalFn(Math.PI / 2);
-    expect(Math.abs(v - 1)).toBeLessThan(1e-9);
-  });
+test('builds evaluator and computes values', () => {
+  const fn = buildEvaluator('sin(x)');
+  const v0 = fn(0);
+  assert.strictEqual(Number(v0.toFixed(6)), 0);
+  const v1 = buildEvaluator('x * 2')(3);
+  assert.strictEqual(v1, 6);
+});
 
-  it('parses ranges', () => {
-    expect(parseRange('-1:1').start).toBe(-1);
-    const r = parseRange('-1:1:5');
-    expect(r.points).toBe(5);
-    const r2 = parseRange('x=-2:2:10');
-    expect(r2.varName).toBe('x');
-    expect(r2.start).toBe(-2);
-    expect(r2.stop).toBe(2);
-  });
+test('parses range', () => {
+  const r = parseRange('x=-2:2');
+  assert.strictEqual(r.x.min, -2);
+  assert.strictEqual(r.x.max, 2);
+  const s = parseRange('-5:5');
+  assert.strictEqual(s.x.min, -5);
+});
 
-  it('generates series and renders svg', () => {
-    const evalFn = buildEvaluator('x');
-    const range = parseRange('0:1:3');
-    const series = generateTimeSeries(evalFn, range);
-    expect(series.length).toBe(3);
-    expect(series[0].x).toBeCloseTo(0);
-    expect(series[2].x).toBeCloseTo(1);
-    const svg = renderSVG(series, { width: 200, height: 100, stroke: 'red' });
-    expect(svg).toContain('<svg');
-    expect(svg).toContain('path');
-  });
+test('generates series and renders svg', () => {
+  const fn = buildEvaluator('x');
+  const series = generateSeries(fn, { min: 0, max: 1 }, 5);
+  assert.strictEqual(series.length, 5);
+  const svg = renderSVG(series, 200, 100, { stroke: '#f00' });
+  assert.ok(svg.includes('<svg'));
+  assert.ok(svg.includes('polyline'));
 });
