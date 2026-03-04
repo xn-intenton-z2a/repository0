@@ -119,7 +119,6 @@ export function loadConfig(configPath) {
   const bot = toml.bot || {};
 
   return {
-    schedule: toml.schedule?.tier || "schedule-1",
     supervisor: toml.schedule?.supervisor || "daily",
     model: toml.schedule?.model || "gpt-5-mini",
     paths,

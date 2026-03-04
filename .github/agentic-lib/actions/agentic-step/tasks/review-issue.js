@@ -17,21 +17,41 @@ import { runCopilotTask, scanDirectory } from "../copilot.js";
 export async function reviewIssue(context) {
   const { octokit, repo, config, issueNumber, instructions, model } = context;
 
-  // If no specific issue, review the oldest open automated issue
+  // If no specific issue, review the oldest open automated issue that hasn't been recently reviewed
   let targetIssueNumber = issueNumber;
   if (!targetIssueNumber) {
     const { data: openIssues } = await octokit.rest.issues.listForRepo({
       ...repo,
       state: "open",
       labels: "automated",
-      per_page: 1,
+      per_page: 5,
       sort: "created",
       direction: "asc",
     });
     if (openIssues.length === 0) {
       return { outcome: "nop", details: "No open automated issues to review" };
     }
-    targetIssueNumber = openIssues[0].number;
+    // Try each issue, skipping ones that already have a recent automated review comment
+    for (const candidate of openIssues) {
+      const { data: comments } = await octokit.rest.issues.listComments({
+        ...repo,
+        issue_number: candidate.number,
+        per_page: 5,
+        sort: "created",
+        direction: "desc",
+      });
+      const hasRecentReview = comments.some(
+        (c) => c.body?.includes("**Automated Review Result:**") && Date.now() - new Date(c.created_at).getTime() < 86400000,
+      );
+      if (!hasRecentReview) {
+        targetIssueNumber = candidate.number;
+        break;
+      }
+    }
+    // Fall back to the oldest if all have been recently reviewed
+    if (!targetIssueNumber) {
+      targetIssueNumber = openIssues[0].number;
+    }
   }
 
   const { data: issue } = await octokit.rest.issues.get({

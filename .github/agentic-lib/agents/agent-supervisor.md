@@ -29,7 +29,9 @@ You are the supervisor of an autonomous coding repository. Your job is to advanc
 - **set-schedule:\<frequency\>** — Change the supervisor schedule. Use `weekly` when mission is substantially achieved, `continuous` to ramp up for active development.
 - **nop** — When everything is running optimally: transform is active, issues are flowing, no failures.
 
-## Guidelines
+## Stale Issue Detection
+
+When open issues with the `automated` label lack the `ready` label and are more than 1 day old, and review has run without adding labels, use `github:label-issue` to add the `ready` label directly. Don't wait for review to fix itself — if issues are stuck without `ready` for more than a cycle, label them so transform can pick them up.
 
 ## Mission Lifecycle
 
