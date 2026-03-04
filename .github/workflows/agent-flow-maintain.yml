@@ -29,10 +29,10 @@ on:
         description: "Copilot SDK model to use"
         type: choice
         required: false
-        default: "claude-sonnet-4"
+        default: "gpt-5-mini"
         options:
-          - claude-sonnet-4
           - gpt-5-mini
+          - claude-sonnet-4
           - gpt-4.1
 
 permissions:
@@ -53,7 +53,7 @@ jobs:
           STEP='${{ inputs.step }}'
           echo "step=${STEP:-all}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
-          echo "model=${MODEL:-claude-sonnet-4}" >> $GITHUB_OUTPUT
+          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
     outputs:
       step: ${{ steps.normalise.outputs.step }}
       model: ${{ steps.normalise.outputs.model }}
