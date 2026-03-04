@@ -5,7 +5,6 @@
 
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 
 export function parseArgs(argv) {
   const out = {};
@@ -162,6 +161,13 @@ export function generateSVG(points, opts = {}) {
 export async function svgToPng(svg, width = 800, height = 600) {
   if (!svg) throw new Error('svg required');
   const buf = Buffer.from(svg);
+  // Lazy-load sharp so tests run without installing sharp when PNG not required
+  let sharp;
+  try {
+    sharp = (await import('sharp')).default;
+  } catch (e) {
+    throw new Error('sharp module is required for PNG output. Install sharp or use SVG output.');
+  }
   // Use sharp to rasterize SVG to PNG
   const png = await sharp(buf).png().toBuffer();
   return png;
