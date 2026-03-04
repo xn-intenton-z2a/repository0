@@ -61,3 +61,28 @@ All tests passed (npm test).
 All tests passed.
 
 ---
+## transform at 2026-03-04T09:03:36.389Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 55538 (in: 51421, out: 4117)
+**Duration:** 74s (~1.2 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22662324594](https://github.com/xn-intenton-z2a/repository0/actions/runs/22662324594)
+
+Placing CLI usage docs, README examples, an examples SVG, and a small package.json update (adds a bin entry) to make the CLI discoverable. Files and their full contents below.
+
+File: package.json
+```
+{
+  "name": "plot-code-lib",
+  "version": "0.1.0",
+  "description": "A small library and CLI to turn math expressions into time-series plots (SVG/PNG).",
+  "type": "module",
+  "main": "src/lib/main.js",
+  "bin": {
+    "plot-code": "src/lib/main.js"
+  },
+  "scripts": {
+    "build": "echo \"Nothing to
+
+---
