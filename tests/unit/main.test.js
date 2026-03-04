@@ -1,40 +1,57 @@
 import test from 'node:test';
-import assert from 'node:assert';
-import { parseArgs, parseExpression, buildEvaluator, parseRange, generateSeries, renderSVG } from '../../src/lib/main.js';
+import assert from 'node:assert/strict';
+import { parseArgs, parseExpression, buildEvaluator, parseRange, generateTimeSeries, generateSVG } from '../../src/lib/main.js';
 
-test('parses args', () => {
-  const a = parseArgs(['--expression', 'y=sin(x)', '--range', 'x=-1:1', '--points', '50']);
-  assert.strictEqual(a.expression, 'y=sin(x)');
-  assert.strictEqual(a.range, 'x=-1:1');
-  assert.strictEqual(a.points, 50);
+test('parseArgs collects flags', () => {
+  const argv = ['--expression', 'y=sin(x)', '--range', 'x=-1:1', '--file', 'out.svg', '--points', '50', '--width', '400', '--height', '300', '--bg', 'red', '--stroke', 'blue', '--fill', 'none', '--stroke-width', '1'];
+  const o = parseArgs(argv);
+  assert.equal(o.expression, 'y=sin(x)');
+  assert.equal(o.range, 'x=-1:1');
+  assert.equal(o.file, 'out.svg');
+  assert.equal(o.points, 50);
+  assert.equal(o.width, 400);
+  assert.equal(o.height, 300);
+  assert.equal(o.bg, 'red');
+  assert.equal(o.stroke, 'blue');
+  assert.equal(o.fill, 'none');
+  assert.equal(o.strokeWidth, 1);
 });
 
-test('parses expression', () => {
-  assert.strictEqual(parseExpression('y=sin(x)'), 'sin(x)');
-  assert.strictEqual(parseExpression(' sin(x) '), 'sin(x)');
+test('parseExpression strips left-hand side', () => {
+  assert.equal(parseExpression('y=sin(x)'), 'sin(x)');
+  assert.equal(parseExpression(' sin(x) '), 'sin(x)');
+  assert.equal(parseExpression(''), null);
 });
 
-test('builds evaluator and computes values', () => {
+test('buildEvaluator creates function and evaluates', () => {
   const fn = buildEvaluator('sin(x)');
-  const v0 = fn(0);
-  assert.strictEqual(Number(v0.toFixed(6)), 0);
-  const v1 = buildEvaluator('x * 2')(3);
-  assert.strictEqual(v1, 6);
+  assert.equal(typeof fn, 'function');
+  assert.ok(Math.abs(fn(0) - 0) < 1e-9);
+  assert.ok(Math.abs(fn(Math.PI / 2) - 1) < 1e-9);
 });
 
-test('parses range', () => {
-  const r = parseRange('x=-2:2');
-  assert.strictEqual(r.x.min, -2);
-  assert.strictEqual(r.x.max, 2);
-  const s = parseRange('-5:5');
-  assert.strictEqual(s.x.min, -5);
+test('parseRange handles simple inputs', () => {
+  assert.deepEqual(parseRange('x=-1:1'), { xMin: -1, xMax: 1 });
+  assert.deepEqual(parseRange('-2:2'), { xMin: -2, xMax: 2 });
+  assert.deepEqual(parseRange(), { xMin: -10, xMax: 10 });
 });
 
-test('generates series and renders svg', () => {
+test('generateTimeSeries produces correct number of points and numeric Ys', () => {
   const fn = buildEvaluator('x');
-  const series = generateSeries(fn, { min: 0, max: 1 }, 5);
-  assert.strictEqual(series.length, 5);
-  const svg = renderSVG(series, 200, 100, { stroke: '#f00' });
+  const pts = generateTimeSeries(fn, { xMin: 0, xMax: 1 }, 5);
+  assert.equal(pts.length, 5);
+  assert.ok(Math.abs(pts[0].x - 0) < 1e-9);
+  assert.ok(Math.abs(pts[4].x - 1) < 1e-9);
+  for (const p of pts) {
+    assert.equal(Number.isFinite(p.y), true);
+  }
+});
+
+test('generateSVG returns an svg string containing path', () => {
+  const fn = buildEvaluator('sin(x)');
+  const pts = generateTimeSeries(fn, { xMin: 0, xMax: Math.PI * 2 }, 50);
+  const svg = generateSVG(pts, { width: 200, height: 100, stroke: 'black' });
+  assert.equal(typeof svg, 'string');
   assert.ok(svg.includes('<svg'));
-  assert.ok(svg.includes('polyline'));
+  assert.ok(svg.includes('<path'));
 });
