@@ -8,6 +8,7 @@
 [schedule]
 tier = "schedule-1"               # schedule-1 through schedule-4
 supervisor = "daily"              # off | weekly | daily | hourly | continuous
+model = "gpt-5-mini"              # gpt-5-mini | claude-sonnet-4 | gpt-4.1
 
 [paths]
 mission = "MISSION.md"
