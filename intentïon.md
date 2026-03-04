@@ -150,3 +150,14 @@ You can run the CLI manually, for example:
 nod
 
 ---
+## transform at 2026-03-04T10:50:31.313Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 218095 (in: 210205, out: 7890)
+**Duration:** 140s (~2.3 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22666031866](https://github.com/xn-intenton-z2a/repository0/actions/runs/22666031866)
+
+Updated README.md with clearer CLI examples and added examples/sine.svg demonstrating output.
+
+---
