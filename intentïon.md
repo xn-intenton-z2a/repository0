@@ -407,3 +407,25 @@ All tests passed (5).
 All tests passed (6 tests). The evaluator, time-series generator, SVG generator, and CLI file output are implemented and validated; an example SVG was created during tests at examples/test-output.svg (cleaned up after test).
 
 ---
+## transform at 2026-03-04T17:51:56.025Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 368124 (in: 359804, out: 8320)
+**Duration:** 164s (~2.7 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22681905835](https://github.com/xn-intenton-z2a/repository0/actions/runs/22681905835)
+
+Done — implemented a working CLI plotting core and tests.
+
+What changed
+- src/lib/main.js — Full implementation:
+  - Argument parsing (parseArgs)
+  - Expression parsing (parseExpression)
+  - Safe evaluator builder (buildEvaluator) supporting Math functions and ^ → ** power operator
+  - Range parsing (parseRange)
+  - Time-series generation (generateSeries)
+  - Simple SVG generation (generateSVG)
+  - File save and CLI entry (main)
+- tests/unit/main.test.js — Rewritten to use node:test and assert t
+
+---

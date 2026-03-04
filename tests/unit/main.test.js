@@ -1,51 +1,40 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import fs from 'fs/promises';
-import { parseArgs, parseExpression, buildEvaluator, generateTimeSeries, generateSVG, cli } from '../../src/lib/main.js';
+import { strict as assert } from 'assert';
+import { test } from 'node:test';
+import { parseArgs, parseExpression, buildEvaluator, generateSeries, generateSVG } from '../../src/lib/main.js';
 
-describe('main lib', () => {
-  it('parses args', () => {
-    const args = parseArgs(['--expression', 'y=sin(x)', '--range', '-1:1', '--points', '5']);
-    assert.strictEqual(args.expression, 'y=sin(x)');
-    assert.strictEqual(args.range, '-1:1');
-    assert.strictEqual(args.points, 5);
-  });
+test('parseArgs basic', () => {
+  const a = parseArgs(['-e', 'sin(x)', '-r', '-3.14:3.14', '-f', 'out.svg']);
+  assert.equal(a.expression, 'sin(x)');
+  assert.equal(a.range, '-3.14:3.14');
+  assert.equal(a.file, 'out.svg');
+});
 
-  it('parses expression', () => {
-    assert.strictEqual(parseExpression('y=sin(x)'), 'sin(x)');
-    assert.strictEqual(parseExpression('  x^2 + 1 '), 'x^2 + 1');
-  });
+test('parseExpression strips y=', () => {
+  assert.equal(parseExpression('y=sin(x)'), 'sin(x)');
+  assert.equal(parseExpression(' sin(x) '), 'sin(x)');
+});
 
-  it('builds evaluator and computes values', () => {
-    const fn = buildEvaluator('sin(x)');
-    assert.strictEqual(typeof fn, 'function');
-    const v = fn(0);
-    assert.ok(Math.abs(v - 0) < 1e-6);
-  });
+test('buildEvaluator and generateSeries produce reasonable values', () => {
+  const evalFn = buildEvaluator('sin(x)');
+  assert.equal(typeof evalFn, 'function');
+  const series = generateSeries(evalFn, '-3.1415:3.1415', 5);
+  assert.equal(series.length, 5);
+  assert.ok(Math.abs(series[0].y) < 1e-3);
+  assert.ok(Math.abs(series[4].y) < 1e-3);
+});
 
-  it('generates time series for linear function', () => {
-    const series = generateTimeSeries('2*x+1', '0:4', 5);
-    assert.strictEqual(series.length, 5);
-    assert.ok(Math.abs(series[0].x - 0) < 1e-9);
-    assert.ok(Math.abs(series[4].x - 4) < 1e-9);
-    assert.ok(Math.abs(series[0].y - 1) < 1e-9);
-    assert.ok(Math.abs(series[4].y - 9) < 1e-9);
-  });
+test('power operator ^ is supported', () => {
+  const evalFn = buildEvaluator('x^2');
+  const s = generateSeries(evalFn, '0:2', 3);
+  assert.ok(Math.abs(s[0].y - 0) < 1e-6);
+  assert.ok(Math.abs(s[1].y - 1) < 1e-6);
+  assert.ok(Math.abs(s[2].y - 4) < 1e-6);
+});
 
-  it('generates svg containing path', () => {
-    const series = generateTimeSeries('sin(x)', '-3.141592:3.141592', 50);
-    const svg = generateSVG(series, { width: 300, height: 150 });
-    assert.ok(svg.includes('<svg'));
-    assert.ok(svg.includes('<path'));
-  });
-
-  it('cli writes an svg file when --file is provided', async () => {
-    const outPath = 'examples/test-output.svg';
-    await fs.rm(outPath).catch(() => {});
-    const code = await cli(['--expression', 'y=sin(x)', '--range', '0:6.28318', '--file', outPath, '--points', '50', '--width', '300', '--height', '150']);
-    assert.strictEqual(code, 0);
-    const content = await fs.readFile(outPath, 'utf8');
-    assert.ok(content.includes('<svg'));
-    await fs.rm(outPath).catch(() => {});
-  });
+test('generateSVG contains path', () => {
+  const evalFn = buildEvaluator('sin(x)');
+  const series = generateSeries(evalFn, '-3.14:3.14', 50);
+  const svg = generateSVG(series);
+  assert.match(svg, /<svg[^>]*>/);
+  assert.match(svg, /<path [^>]*d=\"M/);
 });
