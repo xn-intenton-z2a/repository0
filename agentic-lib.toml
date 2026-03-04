@@ -7,8 +7,8 @@
 
 [schedule]
 tier = "schedule-1"               # schedule-1 through schedule-4
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "claude-sonnet-4"
+supervisor = "off"              # off | weekly | daily | hourly | continuous
+model = "gpt-5-mini"
 
 [paths]
 mission = "MISSION.md"
