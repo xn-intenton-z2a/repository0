@@ -70,12 +70,15 @@ const MATH_NAMES = [
   "E",
   "sign"
 ];
+
 export function buildEvaluator(expr) {
   if (!expr) return null;
   const safeExpr = expr;
   const prelude = `const { ${MATH_NAMES.join(",")} } = Math;`;
   const fnBody = prelude + `\nreturn (${safeExpr});`;
   try {
+    // create a function of x that evaluates the expression in a Math-prelude scope
+    /* eslint-disable no-new-func */
     return Function("x", fnBody);
   } catch (e) {
     throw new Error(`Invalid expression: ${e.message}`);
@@ -83,156 +86,146 @@ export function buildEvaluator(expr) {
 }
 
 export function parseRange(rangeStr) {
-  // support forms like "x=-1:1" or "-1:1" or similar
-  if (!rangeStr) return { xMin: -10, xMax: 10 };
-  const s = rangeStr.trim();
-  const raw = s.includes("=") ? s.split("=")[1] : s;
-  const parts = raw.split(":");
-  if (parts.length !== 2) return { xMin: -10, xMax: 10 };
-  const a = Number(parts[0]);
-  const b = Number(parts[1]);
-  if (Number.isFinite(a) && Number.isFinite(b)) return { xMin: a, xMax: b };
-  return { xMin: -10, xMax: 10 };
+  if (!rangeStr) return null;
+  const parts = String(rangeStr).split(":");
+  if (parts.length !== 2) throw new Error(`Range must be in format min:max, got '${rangeStr}'`);
+  const min = Number(parts[0]);
+  const max = Number(parts[1]);
+  if (!Number.isFinite(min) || !Number.isFinite(max)) throw new Error(`Range values must be numbers`);
+  if (min === max) throw new Error("Range min and max must differ");
+  return { min, max };
 }
 
-export function generateTimeSeries(evaluator, range = { xMin: -10, xMax: 10 }, points = 200) {
-  if (typeof evaluator !== "function") throw new Error("Evaluator must be a function");
-  const { xMin, xMax } = range;
-  const pts = Math.max(2, Number(points) || 200);
-  const res = [];
-  for (let i = 0; i < pts; i++) {
-    const t = i / (pts - 1);
-    const x = xMin + t * (xMax - xMin);
+export function generateTimeSeries(expr, rangeStr, points = 200) {
+  const parsed = parseExpression(expr);
+  if (!parsed) throw new Error("No expression provided");
+  const range = parseRange(rangeStr);
+  if (!range) throw new Error("No range provided");
+  const fn = buildEvaluator(parsed);
+  const out = [];
+  const step = (range.max - range.min) / (points - 1);
+  for (let i = 0; i < points; i++) {
+    const x = range.min + step * i;
     let y;
     try {
-      const v = evaluator(x);
-      y = typeof v === "number" && Number.isFinite(v) ? v : NaN;
+      y = fn(x);
+      if (typeof y !== "number" || !Number.isFinite(y)) {
+        y = NaN;
+      }
     } catch (e) {
       y = NaN;
     }
-    res.push({ x, y });
+    out.push({ x, y });
   }
-  return res;
+  return out;
 }
 
-export function extents(points) {
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
-    minX = Math.min(minX, p.x);
-    maxX = Math.max(maxX, p.x);
-    minY = Math.min(minY, p.y);
-    maxY = Math.max(maxY, p.y);
+function niceNumber(v) {
+  return Number.isFinite(v) ? +v.toFixed(6) : v;
+}
+
+export function generateSVG(points, options = {}) {
+  const width = options.width || 800;
+  const height = options.height || 400;
+  const margin = 40;
+  const bg = options.bg || "#ffffff";
+  const stroke = options.stroke || "#1f77b4";
+  const strokeWidth = options.strokeWidth || 2;
+  if (!Array.isArray(points) || points.length === 0) {
+    throw new Error("No points to plot");
   }
-  if (minX === Infinity) return null;
-  return { minX, maxX, minY, maxY };
-}
-
-export function generateSVG(points, opts = {}) {
-  const width = opts.width || 800;
-  const height = opts.height || 600;
-  const bg = opts.bg || "white";
-  const stroke = opts.stroke || "black";
-  const strokeWidth = opts.strokeWidth || 2;
-  const fill = opts.fill || "none";
-
-  const ext = extents(points) || { minX: 0, maxX: 1, minY: -1, maxY: 1 };
-  // add small padding
-  const padX = (ext.maxX - ext.minX) * 0.05 || 1;
-  const padY = (ext.maxY - ext.minY) * 0.05 || 1;
-  const minX = ext.minX - padX;
-  const maxX = ext.maxX + padX;
-  const minY = ext.minY - padY;
-  const maxY = ext.maxY + padY;
-
-  const scaleX = (x) => ((x - minX) / (maxX - minX)) * width;
-  const scaleY = (y) => height - ((y - minY) / (maxY - minY)) * height;
-
-  const pathPoints = points
-    .map((p) => (Number.isFinite(p.y) ? `${scaleX(p.x)},${scaleY(p.y)}` : null))
-    .filter(Boolean);
-
-  const d = pathPoints.length ? `M ${pathPoints.join(" L ")}` : "";
-
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"${width}\" height=\"${height}\" viewBox=\"0 0 ${width} ${height}\">\n  <rect width=\"100%\" height=\"100%\" fill=\"${bg}\"/>\n  <path d=\"${d}\" fill=\"${fill}\" stroke=\"${stroke}\" stroke-width=\"${strokeWidth}\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>\n</svg>\n`;
-  return svg;
-}
-
-export async function svgToPng(svg, width = 800, height = 600) {
-  if (!svg) throw new Error('svg required');
-  const buf = Buffer.from(svg);
-  // Lazy-load sharp so tests run without installing sharp when PNG not required
-  let sharp;
-  try {
-    sharp = (await import('sharp')).default;
-  } catch (e) {
-    throw new Error('sharp module is required for PNG output. Install sharp or use SVG output.');
+  const xs = points.map(p => p.x).filter(Number.isFinite);
+  const ys = points.map(p => p.y).filter(Number.isFinite);
+  const xMin = Math.min(...xs);
+  const xMax = Math.max(...xs);
+  const yMin = Math.min(...ys);
+  const yMax = Math.max(...ys);
+  const xScale = v => {
+    return margin + ((v - xMin) / (xMax - xMin)) * (width - margin * 2);
+  };
+  const yScale = v => {
+    // flip y for SVG coordinate system
+    return margin + (1 - (v - yMin) / (yMax - yMin)) * (height - margin * 2);
+  };
+  const pathParts = [];
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    if (!Number.isFinite(p.y)) continue;
+    const sx = xScale(p.x);
+    const sy = yScale(p.y);
+    pathParts.push(`${i === 0 ? 'M' : 'L'} ${sx.toFixed(2)} ${sy.toFixed(2)}`);
   }
-  // Use sharp to rasterize SVG to PNG
-  const png = await sharp(buf).png().toBuffer();
-  return png;
+  const path = pathParts.join(' ');
+
+  const xTicks = 5;
+  const yTicks = 5;
+  const xTickVals = Array.from({ length: xTicks }, (_, i) => xMin + (i / (xTicks - 1)) * (xMax - xMin));
+  const yTickVals = Array.from({ length: yTicks }, (_, i) => yMin + (i / (yTicks - 1)) * (yMax - yMin));
+
+  const svg = [];
+  svg.push(`<?xml version="1.0" encoding="UTF-8"?>`);
+  svg.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`);
+  svg.push(`<rect width="100%" height="100%" fill="${bg}"/>`);
+
+  // axes
+  svg.push(`<g stroke="#333" stroke-width="1" fill="none">`);
+  // x axis
+  svg.push(`<line x1="${margin}" y1="${height - margin}" x2="${width - margin}" y2="${height - margin}"/>`);
+  // y axis
+  svg.push(`<line x1="${margin}" y1="${margin}" x2="${margin}" y2="${height - margin}"/>`);
+  svg.push(`</g>`);
+
+  // ticks and labels
+  svg.push(`<g fill="#333" font-size="10">`);
+  for (const v of xTickVals) {
+    const tx = xScale(v);
+    svg.push(`<line x1="${tx}" y1="${height - margin}" x2="${tx}" y2="${height - margin + 6}" stroke="#333"/>`);
+    svg.push(`<text x="${tx}" y="${height - margin + 18}" text-anchor="middle">${niceNumber(v)}</text>`);
+  }
+  for (const v of yTickVals) {
+    const ty = yScale(v);
+    svg.push(`<line x1="${margin - 6}" y1="${ty}" x2="${margin}" y2="${ty}" stroke="#333"/>`);
+    svg.push(`<text x="${margin - 10}" y="${ty + 4}" text-anchor="end">${niceNumber(v)}</text>`);
+  }
+  svg.push(`</g>`);
+
+  // path
+  svg.push(`<path d="${path}" stroke="${stroke}" stroke-width="${strokeWidth}" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`);
+
+  svg.push(`</svg>`);
+  return svg.join('\n');
 }
 
-export function saveFile(pathStr, content, binary = false) {
-  const dir = pathStr.includes('/') ? pathStr.replace(/\/[^/]*$/,'') : '.';
-  if (dir && dir !== '' && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (binary) fs.writeFileSync(pathStr, content);
-  else fs.writeFileSync(pathStr, content, "utf8");
-}
-
-export function helpText() {
-  return `plot-code-lib\n\nUsage:\n  --expression, -e   Expression to plot, e.g. "y=sin(x)" or "sin(x)"\n  --range, -r        x range as min:max (default -10:10)\n  --file, -f         Output file path (default: examples/output.svg)\n  --format           svg (default) or png (png requires sharp)\n  --points           Number of points to sample (default 200)\n  --width            Width in pixels (default 800)\n  --height           Height in pixels (default 600)\n  --bg               Background color (default white)\n  --stroke           Stroke color (default black)\n  --fill             Fill color for path (default none)\n  --stroke-width     Stroke width (default 2)\n`;
-}
-
-export async function runCLI(argv = process.argv.slice(2)) {
+export async function cli(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
-  if (args.help) {
-    console.log(helpText());
+  if (args.help || !args.expression || !args.range) {
+    const help = [`Usage: plot --expression "y=sin(x)" --range "-6.28:6.28" --file output.svg`, `Options:`, `  --expression, -e   Expression to plot (e.g. "y=sin(x)")`, `  --range, -r        Range as min:max (e.g. "-1:1")`, `  --file, -f         Output file (defaults to stdout)`, `  --points           Number of sample points (default 200)`, `  --width            SVG width in pixels (default 800)`, `  --height           SVG height in pixels (default 400)`, `  --bg               Background color`, `  --stroke           Stroke color`, `  --stroke-width     Stroke width`].join('\n');
+    // eslint-disable-next-line no-console
+    console.log(help);
     return 0;
   }
-  const exprRaw = parseExpression(args.expression || "");
-  if (!exprRaw) {
-    console.error("No expression provided. Use --expression \"y=sin(x)\"");
-    console.log(helpText());
-    return 1;
-  }
-  let evaluator;
-  try {
-    evaluator = buildEvaluator(exprRaw);
-  } catch (e) {
-    console.error("Failed to build evaluator:", e.message);
-    return 2;
-  }
-  const range = parseRange(args.range);
-  const pts = generateTimeSeries(evaluator, range, args.points || 200);
-  const svg = generateSVG(pts, {
-    width: args.width || 800,
-    height: args.height || 600,
-    bg: args.bg,
-    stroke: args.stroke,
-    fill: args.fill,
-    strokeWidth: args.strokeWidth
-  });
-
-  const outFile = args.file || "examples/output.svg";
-  const format = (args.format || path.extname(outFile).replace('.', '') || 'svg').toLowerCase();
-  try {
-    if (format === 'png' || outFile.endsWith('.png')) {
-      const png = await svgToPng(svg, args.width || 800, args.height || 600);
-      saveFile(outFile, png, true);
-    } else {
-      saveFile(outFile, svg, false);
-    }
+  const pointsN = args.points || 200;
+  const series = generateTimeSeries(args.expression, args.range, pointsN);
+  const svg = generateSVG(series, { width: args.width, height: args.height, bg: args.bg, stroke: args.stroke, strokeWidth: args.strokeWidth });
+  const outFile = args.file;
+  if (outFile) {
+    await fs.promises.mkdir(path.dirname(outFile), { recursive: true });
+    await fs.promises.writeFile(outFile, svg, "utf8");
+    // eslint-disable-next-line no-console
     console.log(`Wrote ${outFile}`);
     return 0;
-  } catch (e) {
-    console.error("Failed to write output:", e.message);
-    return 3;
   }
+  // print to stdout
+  // eslint-disable-next-line no-console
+  console.log(svg);
+  return 0;
 }
 
-// allow running as a script
-if (process.argv[1] && (process.argv[1].endsWith("main.js") || process.argv[1].endsWith("/main.js")) && !process.env.JEST_WORKER_ID) {
-  // top-level invocation
-  runCLI().then((code) => process.exit(code));
+if (process.argv[1] && process.argv[1].endsWith('main.js') && process.argv[0].includes('node')) {
+  // invoked directly
+  /* eslint-disable no-console */
+  cli().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
 }
