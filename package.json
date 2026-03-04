@@ -1,21 +1,20 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "plot-code-lib - generate plots from math expressions",
+  "description": "",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
     "build": "echo \"Nothing to build\"",
-    "test": "node tests/unit/run-tests.js",
-    "test:unit": "node tests/unit/run-tests.js",
+    "test": "vitest --run tests/unit/*.test.js",
+    "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.39",
-    "sharp": "^0.32.0"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.40"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.0",
