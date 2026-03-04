@@ -33,3 +33,20 @@ Summary of changes made
 - Updated package.json test script
 
 ---
+## transform at 2026-03-04T04:40:20.789Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 160866 (in: 155408, out: 5458)
+**Duration:** 134s (~2.2 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22655300285](https://github.com/xn-intenton-z2a/repository0/actions/runs/22655300285)
+
+Done — updated README with CLI examples and added docs/examples/sin.svg demonstrating a sine plot; ran tests to verify all unit tests still pass.
+
+Summary of changes:
+- Overwrote README.md with CLI usage, examples, and instructions (now references docs/examples/)
+- Added docs/examples/sin.svg (example output SVG)
+
+All tests passed (npm test).
+
+---
