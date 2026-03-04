@@ -10,15 +10,7 @@
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
     "start": "node src/lib/main.js"
   },
-  "keywords": [
-    "plotting",
-    "mathematical-expressions",
-    "cli",
-    "svg",
-    "png",
-    "visualization",
-    "time-series"
-  ],
+  "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
