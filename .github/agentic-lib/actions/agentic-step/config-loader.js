@@ -61,6 +61,22 @@ const LIMIT_DEFAULTS = {
 };
 
 /**
+ * Read package.json from the project root, returning empty string if not found.
+ * @param {string} tomlPath - Path to the TOML config (used to derive project root)
+ * @param {string} depsRelPath - Relative path to package.json (from config)
+ * @returns {string} Raw package.json content or empty string
+ */
+function readPackageJson(tomlPath, depsRelPath) {
+  try {
+    const projectRoot = dirname(tomlPath);
+    const pkgPath = join(projectRoot, depsRelPath);
+    return existsSync(pkgPath) ? readFileSync(pkgPath, "utf8") : "";
+  } catch {
+    return "";
+  }
+}
+
+/**
  * Load configuration from agentic-lib.toml.
  *
  * If configPath ends in .toml, it is used directly.
@@ -85,7 +101,8 @@ export function loadConfig(configPath) {
     throw new Error(`Config file not found: ${tomlPath}. Create agentic-lib.toml in the project root.`);
   }
 
-  const toml = parseToml(readFileSync(tomlPath, "utf8"));
+  const rawToml = readFileSync(tomlPath, "utf8");
+  const toml = parseToml(rawToml);
 
   // Merge TOML paths with defaults, normalising library-sources → librarySources
   const rawPaths = { ...toml.paths };
@@ -136,6 +153,8 @@ export function loadConfig(configPath) {
     tdd: toml.tdd === true,
     writablePaths,
     readOnlyPaths,
+    configToml: rawToml,
+    packageJson: readPackageJson(tomlPath, mergedPaths.dependencies),
   };
 }
 

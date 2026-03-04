@@ -44,7 +44,7 @@ export async function maintainLibrary(context) {
     "2. Create or update library documents based on the source content.",
     "3. Remove library documents that no longer have corresponding sources.",
     "",
-    formatPathsSection(writablePaths, config.readOnlyPaths),
+    formatPathsSection(writablePaths, config.readOnlyPaths, config),
     "",
     "## Constraints",
     `- Maximum ${libraryLimit} library documents`,

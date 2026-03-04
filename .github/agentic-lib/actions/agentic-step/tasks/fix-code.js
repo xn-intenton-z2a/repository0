@@ -46,7 +46,7 @@ export async function fixCode(context) {
     "## Failing Checks",
     failureDetails,
     "",
-    formatPathsSection(writablePaths, readOnlyPaths),
+    formatPathsSection(writablePaths, readOnlyPaths, config),
     "",
     "## Constraints",
     `- Run \`${testCommand}\` to validate your fixes`,

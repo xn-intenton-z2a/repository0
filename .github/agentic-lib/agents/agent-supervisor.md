@@ -23,6 +23,7 @@ You are the supervisor of an autonomous coding repository. Your job is to advanc
 - **dispatch:agent-flow-fix-code** — When a specific PR has failing checks. Always include the pr-number.
 - **dispatch:agent-flow-maintain** — When features are below their limit AND no maintain appears in the last 3 workflow runs.
 - **dispatch:agent-discussions-bot** — When you want to proactively engage in discussions or respond to a user request.
+- **dispatch:ci-automerge** — When open PRs with the `automerge` label appear ready to merge but no merge activity shows in recent runs. Recovery action — ci-automerge normally fires on event triggers.
 - **github:label-issue** — When an issue needs better categorisation for prioritisation.
 - **github:close-issue** — When an issue is clearly resolved or no longer relevant.
 - **respond:discussions** — When replying to a user request that came through the discussions bot. Include the discussion URL and a clear message.

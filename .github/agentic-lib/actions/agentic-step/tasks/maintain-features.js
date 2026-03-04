@@ -55,7 +55,7 @@ export async function maintainFeatures(context) {
     `2. If there are fewer than ${featureLimit} features, create new features aligned with the mission.`,
     "3. Ensure each feature has clear, testable acceptance criteria.",
     "",
-    formatPathsSection(writablePaths, config.readOnlyPaths),
+    formatPathsSection(writablePaths, config.readOnlyPaths, config),
     "",
     "## Constraints",
     `- Maximum ${featureLimit} feature files`,

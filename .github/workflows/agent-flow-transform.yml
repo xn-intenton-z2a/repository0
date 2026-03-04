@@ -12,8 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  schedule:
-    - cron: "33 8 * * 1"
   workflow_dispatch:
     inputs:
       model:
