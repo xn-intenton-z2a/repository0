@@ -109,6 +109,8 @@ jobs:
         run: npm update @xn-intenton-z2a/agentic-lib
 
       - name: Run init
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           FLAGS="init"
           if [ "$INIT_MODE" = "reseed" ]; then FLAGS="$FLAGS --reseed"; fi
