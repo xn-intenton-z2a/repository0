@@ -26,7 +26,7 @@ on:
         required: false
         default: "true"
   schedule:
-    - cron: '53 */4 * * *'
+    - cron: "03 8,9 * * 1"
 
 env:
   pullRequestLabel: "automerge"

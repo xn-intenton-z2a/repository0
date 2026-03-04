@@ -132,6 +132,10 @@ function buildPrompt(ctx, agentInstructions) {
     "",
     "### Communication",
     "- `respond:discussions | message: <text> | discussion-url: <url>` — Reply via discussions bot",
+    "",
+    "### Schedule Control",
+    "- `set-schedule:<frequency>` — Change supervisor schedule (off, weekly, daily, hourly, continuous). Use `set-schedule:weekly` when mission is substantially complete, `set-schedule:continuous` to ramp up.",
+    "",
     "- `nop` — No action needed this cycle",
     "",
     "## Output Format",
@@ -235,8 +239,24 @@ const ACTION_HANDLERS = {
   "respond:discussions": executeRespondDiscussions,
 };
 
+async function executeSetSchedule(octokit, repo, frequency) {
+  const valid = ["off", "weekly", "daily", "hourly", "continuous"];
+  if (!valid.includes(frequency)) {
+    return `skipped:invalid-frequency:${frequency}`;
+  }
+  core.info(`Setting supervisor schedule to: ${frequency}`);
+  await octokit.rest.actions.createWorkflowDispatch({
+    ...repo,
+    workflow_id: "agent-supervisor-schedule.yml",
+    ref: "main",
+    inputs: { frequency },
+  });
+  return `set-schedule:${frequency}`;
+}
+
 async function executeAction(octokit, repo, action, params) {
   if (action.startsWith("dispatch:")) return executeDispatch(octokit, repo, action, params);
+  if (action.startsWith("set-schedule:")) return executeSetSchedule(octokit, repo, action.replace("set-schedule:", ""));
   if (action === "nop") return "nop";
   const handler = ACTION_HANDLERS[action];
   if (handler) return handler(octokit, repo, params);

@@ -12,7 +12,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "47 8 */3 * *" # Every 3 days at 08:47 UTC
+    - cron: "47 8 */3 * *"
   workflow_dispatch:
     inputs:
       step:

@@ -23,7 +23,7 @@ on:
       - created
       - edited
   schedule:
-    - cron: "7 12 */28 * *" # schedule-1: every 28 days
+    - cron: "7 12 */28 * *"
   workflow_dispatch:
     inputs:
       discussion-url:
