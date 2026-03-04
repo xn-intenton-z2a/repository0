@@ -97,3 +97,18 @@ File: package.json
 All tests passed.
 
 ---
+## transform at 2026-03-04T09:35:16.805Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 153593 (in: 144933, out: 8660)
+**Duration:** 155s (~2.6 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22663367452](https://github.com/xn-intenton-z2a/repository0/actions/runs/22663367452)
+
+Changes implemented:
+- Added full CLI plotting implementation (SVG & PNG) in src/lib/main.js, including parsing for width/height/bg/stroke/fill/stroke-width, range parsing, evaluator, time-series generator, SVG renderer, and PNG conversion using sharp.
+- Added unit tests in tests/unit/main.test.js covering arg parsing, evaluator, SVG generation, PNG buffer validation, and main() file writing.
+- Updated package.json to include sharp and use vitest for tests.
+- Updated README.md with CLI examples.
+
+---

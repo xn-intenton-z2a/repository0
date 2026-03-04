@@ -1,43 +1,24 @@
 # plot-code-lib
 
-plot-code-lib is a small library and CLI for generating plots from mathematical expressions. It transforms a simple expression and a numeric range into a time-series and can render SVG plots. This repository implements a lightweight expression parser, a time-series generator, and an SVG renderer accessible from the command line.
+plot-code-lib is a small library and CLI to generate plots from mathematical expressions.
 
-Highlights
-- Parse expressions like `y=sin(x)` or `sin(x)` and evaluate them safely using Math functions
-- Specify ranges like `x=0:6.283:0.01` (start:stop:step) or `x=0:6.283`
-- Generate SVG plot files from the CLI
-- Examples are stored in the `docs/examples/` directory
+Examples:
 
-Quick CLI examples
+- Generate an SVG of y = sin(x):
 
-Generate an SVG of y = sin(x):
+  node src/lib/main.js --expression "y=sin(x)" --range "x=-3.14:3.14:p200" --file out.svg --format svg --width 800 --height 400 --bg white --stroke black --fill none
 
-  node src/lib/main.js --expression "y=sin(x)" --range "x=0:6.283:0.01" --file docs/examples/sin.svg --points 1000
+- Generate a PNG instead of SVG:
 
-Generate an SVG of y = x^2 on range 0..1:
+  node src/lib/main.js --expression "y=sin(x)" --range "x=-3.14:3.14:p200" --file out.png --format png --width 1024 --height 512 --bg white --stroke #007ACC --fill none --stroke-width 2
 
-  node src/lib/main.js -e "y = x * x" -r "x=0:1:0.01" -f docs/examples/quad.svg --points 101
+The CLI accepts:
 
-Notes on PNG output
+--expression | -e   : expression like "y=sin(x)" or "sin(x)"
+--range      | -r   : range like "x=0:6.28:p200" (pN sets point count) or "x=0:10:0.1" (step)
+--file       | -f   : output file path
+--format           : svg or png (defaults to svg)
+--width --height   : image size
+--bg --stroke --fill --stroke-width : styling options
 
-This version produces SVG output; converting SVG to PNG is outside the scope of the lightweight runtime to avoid native dependencies. To obtain PNGs, use common tools such as `rsvg-convert`, `inkscape`, or `sharp` in your environment:
-
-  rsvg-convert -o docs/examples/sin.png docs/examples/sin.svg
-
-Examples
-
-- `docs/examples/sin.svg` — Example sine wave produced by the library (included in this repository)
-
-Development
-
-- Run the unit tests:
-
-  npm test
-
-- Start the CLI directly:
-
-  npm start -- --expression "y=sin(x)" --range "x=0:6.283" --file out.svg
-
-Contributing
-
-Follow the contributing guidelines in the repository for making changes. This project aims to be the jq of formula visualisations: small, scriptable, and composable.
+This repository includes unit tests for parser, SVG generation and PNG conversion.

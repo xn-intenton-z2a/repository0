@@ -6,6 +6,7 @@
 import { fileURLToPath } from "url";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 export function parseArgs(argv) {
   const out = {};
@@ -22,6 +23,18 @@ export function parseArgs(argv) {
       out.format = args[++i];
     } else if (a === "--points") {
       out.points = Number(args[++i]);
+    } else if (a === "--width") {
+      out.width = Number(args[++i]);
+    } else if (a === "--height") {
+      out.height = Number(args[++i]);
+    } else if (a === "--bg") {
+      out.bg = args[++i];
+    } else if (a === "--stroke") {
+      out.stroke = args[++i];
+    } else if (a === "--fill") {
+      out.fill = args[++i];
+    } else if (a === "--stroke-width") {
+      out.strokeWidth = Number(args[++i]);
     } else if (a === "--help" || a === "-h") {
       out.help = true;
     }
@@ -79,71 +92,139 @@ export function parseRange(rangeStr, defaultPoints = 200) {
   let points = defaultPoints;
   let step;
   if (parts[2]) {
-    step = Number(parts[2]);
-    points = Math.max(2, Math.ceil((stop - start) / step) + 1);
+    // parts[2] can be step or points if prefixed with 'p'
+    if (parts[2].startsWith("p")) {
+      points = Number(parts[2].slice(1)) || defaultPoints;
+      step = (stop - start) / Math.max(points - 1, 1);
+    } else {
+      step = Number(parts[2]);
+      points = Math.max(Math.ceil((stop - start) / step) + 1, 2);
+    }
   } else {
-    step = (stop - start) / (points - 1);
+    points = defaultPoints;
+    step = (stop - start) / Math.max(points - 1, 1);
   }
   return { varName, start, stop, step, points };
 }
 
-export function generateTimeSeries(expr, rangeSpec, points = 200) {
-  const expression = parseExpression(expr);
-  const range = typeof rangeSpec === "string" ? parseRange(rangeSpec, points) : rangeSpec;
-  const fn = buildEvaluator(expression);
-  const out = [];
-  for (let i = 0; i < range.points; i++) {
-    const x = range.start + i * range.step;
+export function generateTimeSeries(evaluator, rangeObj) {
+  const pts = [];
+  for (let i = 0; i < rangeObj.points; i++) {
+    const x = rangeObj.start + i * rangeObj.step;
     let y;
     try {
-      y = fn(x);
-    } catch (e) {
+      y = evaluator(x);
+      if (!Number.isFinite(y)) y = NaN;
+    } catch (err) {
       y = NaN;
     }
-    if (typeof y !== "number" || !Number.isFinite(y)) continue;
-    out.push({ x, y });
+    pts.push({ x, y });
   }
-  return out;
+  return pts;
 }
 
-export function generateSVG(points, opts = { width: 800, height: 400, stroke: "#007acc", fill: "none", strokeWidth: 2 }) {
-  if (!points || points.length === 0) return "<svg/>";
-  const xs = points.map((p) => p.x);
-  const ys = points.map((p) => p.y);
+export function generateSVG(points, opts = {}) {
+  const width = opts.width || 800;
+  const height = opts.height || 400;
+  const bg = opts.bg || "transparent";
+  const stroke = opts.stroke || "black";
+  const fill = opts.fill || "none";
+  const strokeWidth = opts.strokeWidth != null ? opts.strokeWidth : 2;
+
+  // compute bounds
+  const xs = points.map((p) => p.x).filter((v) => Number.isFinite(v));
+  const ys = points.map((p) => p.y).filter((v) => Number.isFinite(v));
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
-  const width = opts.width,
-    height = opts.height,
-    pad = 20;
-  const scaleX = (x) => pad + ((x - minX) / (maxX - minX || 1)) * (width - 2 * pad);
-  const scaleY = (y) => pad + (1 - (y - minY) / (maxY - minY || 1)) * (height - 2 * pad);
+  const dx = maxX - minX || 1;
+  const dy = maxY - minY || 1;
+
+  function sx(x) {
+    return ((x - minX) / dx) * width;
+  }
+  function sy(y) {
+    return height - ((y - minY) / dy) * height;
+  }
+
   const path = points
-    .map((p, i) => (i === 0 ? `M ${scaleX(p.x)} ${scaleY(p.y)}` : `L ${scaleX(p.x)} ${scaleY(p.y)}`))
+    .map((p, i) => {
+      if (!Number.isFinite(p.y)) return null;
+      const cmd = i === 0 ? "M" : "L";
+      return `${cmd}${sx(p.x).toFixed(2)},${sy(p.y).toFixed(2)}`;
+    })
+    .filter(Boolean)
     .join(" ");
-  const svg = `<?xml version="1.0"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n  <rect width="100%" height="100%" fill="${opts.bg || "white"}"/>\n  <path d="${path}" fill="${opts.fill}" stroke="${opts.stroke}" stroke-width="${opts.strokeWidth}" stroke-linejoin="round" stroke-linecap="round"/>\n</svg>\n`;
+
+  const svg = `<?xml version="1.0" encoding="utf-8"?>\n` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n` +
+    (bg && bg !== 'transparent' ? `<rect width="100%" height="100%" fill="${bg}"/>\n` : '') +
+    `<path d="${path}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" stroke-linecap="round"/>\n` +
+    `</svg>`;
   return svg;
 }
 
-export function main(args) {
-  const parsed = parseArgs(args);
-  if (!parsed || parsed.help || (!parsed.expression && !parsed.file)) {
-    console.log('Usage: --expression "<expr>" --range "x=0:6.283" --file output.svg --points 200');
-    return;
-  }
-  const points = generateTimeSeries(parsed.expression, parsed.range, parsed.points || 200);
-  const svg = generateSVG(points);
-  if (parsed.file) {
-    const outPath = path.resolve(parsed.file);
-    fs.writeFileSync(outPath, svg, "utf8");
-    console.log(`Wrote ${outPath}`);
-  } else {
-    console.log(svg);
+export async function generatePNG(svg, opts = {}) {
+  // use sharp to convert svg to png buffer
+  const width = opts.width || 800;
+  const height = opts.height || 400;
+  try {
+    const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+    return buf;
+  } catch (err) {
+    throw new Error(`PNG generation failed: ${err.message}`);
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  main(args);
+export function usage() {
+  return `Usage: node main.js --expression "y=sin(x)" --range "x=-3.14:3.14:p200" --file out.svg --format svg|png --width 800 --height 400 --bg white --stroke black --fill none --stroke-width 2`;
+}
+
+export async function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  if (args.help || !args.expression) {
+    console.log(usage());
+    return 0;
+  }
+  const expr = parseExpression(args.expression);
+  if (!expr) throw new Error('No expression provided');
+  const evaluator = buildEvaluator(expr);
+  const range = parseRange(args.range, args.points || 200);
+  const pts = generateTimeSeries(evaluator, range);
+
+  const opts = {
+    width: args.width || 800,
+    height: args.height || 400,
+    bg: args.bg,
+    stroke: args.stroke,
+    fill: args.fill,
+    strokeWidth: args.strokeWidth
+  };
+
+  const svg = generateSVG(pts, opts);
+
+  const outFile = args.file || (args.format === 'png' ? 'out.png' : 'out.svg');
+  const format = (args.format || path.extname(outFile).slice(1) || 'svg').toLowerCase();
+
+  if (format === 'svg') {
+    fs.writeFileSync(outFile, svg, 'utf8');
+    console.log(`Wrote ${outFile}`);
+    return 0;
+  } else if (format === 'png') {
+    const buf = await generatePNG(svg, opts);
+    fs.writeFileSync(outFile, buf);
+    console.log(`Wrote ${outFile}`);
+    return 0;
+  } else {
+    throw new Error(`Unsupported format: ${format}`);
+  }
+}
+
+// If run directly
+if (process.argv[1].endsWith(path.basename(fileURLToPath(import.meta.url)))) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
 }
