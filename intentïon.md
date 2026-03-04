@@ -40,3 +40,20 @@ What changed (high level):
 Tests:
 
 ---
+## transform at 2026-03-04T22:33:19.949Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 74702 (in: 70521, out: 4181)
+**Duration:** 83s (~1.4 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22692520046](https://github.com/xn-intenton-z2a/repository0/actions/runs/22692520046)
+
+Done — added unit tests and an expanded README.
+
+Files changed:
+- tests/unit/plot.test.js (new tests for parseRange, prepareExpression, generateSeries, createSVG)
+- README.md (new CLI usage examples and notes)
+
+I attempted to run npm test but vitest is not installed in this environment (npm test failed with "vitest: not found"); run `npm install` locally or in CI and then `npm test` to validate.
+
+---
