@@ -130,3 +130,23 @@ Summary of changes
   - Updated test scripts to run the included node-based tes
 
 ---
+## transform at 2026-03-04T10:24:57.990Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 376297 (in: 364682, out: 11615)
+**Duration:** 244s (~4.1 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22665081459](https://github.com/xn-intenton-z2a/repository0/actions/runs/22665081459)
+
+All tests passed. Changes made:
+- Implemented a complete CLI plotting library at src/lib/main.js:
+  - parseArgs, parseExpression, buildEvaluator
+  - parseRange (supports start:stop:points and start:stop:step and x=... forms)
+  - generateTimeSeries, renderSVG/generateSVG, saveFile, main (async)
+  - Exports compatible with existing tests (generateTimeSeries, generateSVG, main)
+- Added unit tests at tests/unit/main.test.js (vitest) for core functions.
+
+You can run the CLI manually, for example:
+nod
+
+---

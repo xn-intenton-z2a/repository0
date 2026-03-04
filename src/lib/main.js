@@ -3,10 +3,7 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
-import { fileURLToPath } from "url";
 import fs from "fs";
-import path from "path";
-
 
 export function parseArgs(argv) {
   const out = {};
@@ -72,50 +69,67 @@ const MATH_NAMES = [
   "sign"
 ];
 export function buildEvaluator(expr) {
+  if (!expr) return null;
   const safeExpr = expr;
-  const prelude = "const { " + MATH_NAMES.join(",") + " } = Math;";
-  const fnBody = prelude + "return (" + safeExpr + ");";
-  return Function("x", fnBody);
+  const prelude = `const { ${MATH_NAMES.join(",")} } = Math;`;
+  const fnBody = prelude + `\nreturn (${safeExpr});`;
+  try {
+    return Function("x", fnBody);
+  } catch (e) {
+    throw new Error(`Invalid expression: ${e.message}`);
+  }
 }
 
 export function parseRange(rangeStr, defaultPoints = 200) {
-  if (!rangeStr)
-    return { varName: "x", start: 0, stop: 1, step: 1 / defaultPoints, points: defaultPoints };
+  // Accept formats: "x=start:stop[:points]" or "start:stop[:points]" or the third part as step
+  if (!rangeStr) return { varName: "x", start: 0, stop: 1, points: defaultPoints, step: (1 / (defaultPoints - 1)) };
+  let s = rangeStr.trim();
   let varName = "x";
-  let body = rangeStr;
-  if (rangeStr.includes("=")) {
-    [varName, body] = rangeStr.split("=").map((s) => s.trim());
+  // If key=val style like x=0:1:0.25
+  if (s.includes("=")) {
+    const [maybeName, rest] = s.split("=").map((p) => p.trim());
+    if (/^[a-zA-Z]+$/.test(maybeName)) varName = maybeName;
+    s = rest;
   }
-  const parts = body.split(":").map((s) => s.trim()).filter(Boolean);
-  const start = Number(parts[0] || 0);
-  const stop = Number(parts[1] ?? (start + 1));
+  // If leading like x:0:1
+  if (/^[a-zA-Z]:/.test(s)) {
+    varName = s[0];
+    s = s.slice(2);
+  }
+  const parts = s.split(":").map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return { varName: "x", start: 0, stop: 1, points: defaultPoints, step: (1 / (defaultPoints - 1)) };
+  const start = Number(parts[0]);
+  const stop = Number(parts[1]);
   let points = defaultPoints;
-  let step;
-  if (parts[2]) {
-    // parts[2] can be step or points if prefixed with 'p'
-    if (parts[2].startsWith("p")) {
-      points = Number(parts[2].slice(1)) || defaultPoints;
-      step = (stop - start) / Math.max(points - 1, 1);
-    } else {
-      step = Number(parts[2]);
-      points = Math.max(Math.ceil((stop - start) / step) + 1, 2);
+  let step = (stop - start) / Math.max(1, points - 1);
+  if (parts.length >= 3) {
+    const third = parts[2];
+    const v = Number(third);
+    if (third.includes('.') || (v > 0 && v < 1)) {
+      // treat as step size
+      step = v;
+      points = Math.floor(Math.abs((stop - start) / step)) + 1;
+    } else if (!Number.isNaN(v)) {
+      // treat as number of points
+      points = Math.max(2, Math.floor(v));
+      step = (stop - start) / Math.max(1, points - 1);
     }
-  } else {
-    points = defaultPoints;
-    step = (stop - start) / Math.max(points - 1, 1);
   }
-  return { varName, start, stop, step, points };
+  return { varName, start, stop, points, step };
 }
 
-export function generateTimeSeries(evaluator, rangeObj) {
+export function generateTimeSeries(evaluator, range) {
   const pts = [];
-  for (let i = 0; i < rangeObj.points; i++) {
-    const x = rangeObj.start + i * rangeObj.step;
+  const { start, stop, points } = range;
+  const n = Math.max(2, points || 200);
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    const x = start + t * (stop - start);
     let y;
     try {
       y = evaluator(x);
-      if (!Number.isFinite(y)) y = NaN;
-    } catch (err) {
+      if (!isFinite(y) || y === null || y === undefined) y = NaN;
+    } catch (e) {
       y = NaN;
     }
     pts.push({ x, y });
@@ -123,114 +137,93 @@ export function generateTimeSeries(evaluator, rangeObj) {
   return pts;
 }
 
-export function generateSVG(points, opts = {}) {
+export function bounds(points) {
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const p of points) {
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
+    if (p.x < minX) minX = p.x;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.y > maxY) maxY = p.y;
+  }
+  if (minX === Infinity) minX = 0;
+  if (maxX === -Infinity) maxX = 1;
+  if (minY === Infinity) minY = 0;
+  if (maxY === -Infinity) maxY = 1;
+  if (minY === maxY) {
+    minY -= 1;
+    maxY += 1;
+  }
+  return { minX, maxX, minY, maxY };
+}
+
+export function renderSVG(points, opts = {}) {
   const width = opts.width || 800;
   const height = opts.height || 400;
-  const bg = opts.bg || "transparent";
+  const bg = opts.bg || "white";
   const stroke = opts.stroke || "black";
   const fill = opts.fill || "none";
   const strokeWidth = opts.strokeWidth != null ? opts.strokeWidth : 2;
+  const m = { left: 40, right: 20, top: 20, bottom: 40 };
+  const innerW = width - m.left - m.right;
+  const innerH = height - m.top - m.bottom;
 
-  // compute bounds
-  const xs = points.map((p) => p.x).filter((v) => Number.isFinite(v));
-  const ys = points.map((p) => p.y).filter((v) => Number.isFinite(v));
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minY = Math.min(...ys);
-  const maxY = Math.max(...ys);
-  const dx = maxX - minX || 1;
-  const dy = maxY - minY || 1;
+  const b = bounds(points);
+  const scaleX = (x) => m.left + ((x - b.minX) / (b.maxX - b.minX)) * innerW;
+  const scaleY = (y) => m.top + innerH - ((y - b.minY) / (b.maxY - b.minY)) * innerH;
 
-  function sx(x) {
-    return ((x - minX) / dx) * width;
+  const pathParts = [];
+  for (const p of points) {
+    if (!Number.isFinite(p.y)) {
+      pathParts.push("M NaN NaN");
+      continue;
+    }
+    const sx = scaleX(p.x);
+    const sy = scaleY(p.y);
+    if (pathParts.length === 0 || pathParts[pathParts.length - 1].startsWith("M NaN")) {
+      pathParts.push(`M ${sx.toFixed(2)} ${sy.toFixed(2)}`);
+    } else {
+      pathParts.push(`L ${sx.toFixed(2)} ${sy.toFixed(2)}`);
+    }
   }
-  function sy(y) {
-    return height - ((y - minY) / dy) * height;
-  }
+  const path = pathParts.join(" ");
 
-  const path = points
-    .map((p, i) => {
-      if (!Number.isFinite(p.y)) return null;
-      const cmd = i === 0 ? "M" : "L";
-      return `${cmd}${sx(p.x).toFixed(2)},${sy(p.y).toFixed(2)}`;
-    })
-    .filter(Boolean)
-    .join(" ");
-
-  const svg = `<?xml version="1.0" encoding="utf-8"?>\n` +
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">\n` +
-    (bg && bg !== 'transparent' ? `<rect width="100%" height="100%" fill="${bg}"/>\n` : '') +
-    `<path d="${path}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" stroke-linecap="round"/>\n` +
+    `<rect width="100%" height="100%" fill="${bg}" />\n` +
+    `<path d="${path}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round" stroke-linecap="round" />\n` +
     `</svg>`;
   return svg;
 }
 
-export async function generatePNG(svg, opts = {}) {
-  // use sharp to convert svg to png buffer; require dynamically so tests don't fail when sharp isn't installed
-  const width = opts.width || 800;
-  const height = opts.height || 400;
-  let sharp;
-  try {
-    sharp = await import('sharp');
-  } catch (err) {
-    throw new Error('sharp is not available; install sharp to generate PNGs');
-  }
-  try {
-    const buf = await sharp.default(Buffer.from(svg)).png().toBuffer();
-    return buf;
-  } catch (err) {
-    throw new Error(`PNG generation failed: ${err.message}`);
-  }
-}
-
-export function usage() {
-  return `Usage: node main.js --expression "y=sin(x)" --range "x=-3.14:3.14:p200" --file out.svg --format svg|png --width 800 --height 400 --bg white --stroke black --fill none --stroke-width 2`;
+export function saveFile(filePath, content) {
+  fs.writeFileSync(filePath, content, "utf8");
 }
 
 export async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   if (args.help || !args.expression) {
-    console.log(usage());
+    const help = `Usage: plot-code-lib --expression "y=sin(x)" --range "-3.14:3.14" --file output.svg\n`;
+    console.log(help);
     return 0;
   }
   const expr = parseExpression(args.expression);
-  if (!expr) throw new Error('No expression provided');
-  const evaluator = buildEvaluator(expr);
   const range = parseRange(args.range, args.points || 200);
-  const pts = generateTimeSeries(evaluator, range);
-
-  const opts = {
-    width: args.width || 800,
-    height: args.height || 400,
-    bg: args.bg,
-    stroke: args.stroke,
-    fill: args.fill,
-    strokeWidth: args.strokeWidth
-  };
-
-  const svg = generateSVG(pts, opts);
-
-  const outFile = args.file || (args.format === 'png' ? 'out.png' : 'out.svg');
-  const format = (args.format || path.extname(outFile).slice(1) || 'svg').toLowerCase();
-
-  if (format === 'svg') {
-    fs.writeFileSync(outFile, svg, 'utf8');
-    console.log(`Wrote ${outFile}`);
-    return 0;
-  } else if (format === 'png') {
-    const buf = await generatePNG(svg, opts);
-    fs.writeFileSync(outFile, buf);
-    console.log(`Wrote ${outFile}`);
-    return 0;
-  } else {
-    throw new Error(`Unsupported format: ${format}`);
-  }
+  const evaluator = buildEvaluator(expr);
+  const series = generateTimeSeries(evaluator, range);
+  const svg = renderSVG(series, { width: args.width, height: args.height, bg: args.bg, stroke: args.stroke, fill: args.fill, strokeWidth: args.strokeWidth });
+  const outFile = args.file || `plot.${args.format || 'svg'}`;
+  saveFile(outFile, svg);
+  console.log(`Wrote ${outFile}`);
+  return 0;
 }
 
-// If run directly
-if (process.argv[1].endsWith(path.basename(fileURLToPath(import.meta.url)))) {
-  main().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+// If run as CLI
+if (process.argv[1] && process.argv[1].endsWith('src/lib/main.js')) {
+  // do not await to keep CLI simple
+  main();
 }
+
+export const generateSVG = renderSVG;
+
+export default { parseArgs, parseExpression, buildEvaluator, parseRange, generateTimeSeries, renderSVG, generateSVG, main };
