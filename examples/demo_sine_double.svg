@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .plot-line { fill: none; stroke: #2563eb; stroke-width: 2px; }
+      .axis { stroke: #666; stroke-width: 1px; }
+      .grid { stroke: #e5e7eb; stroke-width: 0.5px; }
+      .axis-label { font-family: Arial, sans-serif; font-size: 12px; fill: #374151; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1f2937; text-anchor: middle; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#ffffff"/>
+  
+  <!-- Grid lines -->
+  <line x1="60" y1="40" x2="60" y2="540" class="grid"/>
+  <line x1="200" y1="40" x2="200" y2="540" class="grid"/>
+  <line x1="340" y1="40" x2="340" y2="540" class="grid"/>
+  <line x1="480" y1="40" x2="480" y2="540" class="grid"/>
+  <line x1="620" y1="40" x2="620" y2="540" class="grid"/>
+  <line x1="760" y1="40" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="540" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="440" x2="760" y2="440" class="grid"/>
+  <line x1="60" y1="340" x2="760" y2="340" class="grid"/>
+  <line x1="60" y1="240" x2="760" y2="240" class="grid"/>
+  <line x1="60" y1="140" x2="760" y2="140" class="grid"/>
+  <line x1="60" y1="40" x2="760" y2="40" class="grid"/>
+  
+  <!-- Axes -->
+  <line x1="60" y1="540" x2="760" y2="540" class="axis"/>
+  <line x1="60" y1="40" x2="60" y2="540" class="axis"/>
+  
+  <!-- Axis labels -->
+  <text x="60" y="560" class="axis-label">-6.9</text>
+  <text x="200" y="560" class="axis-label">-4.1</text>
+  <text x="340" y="560" class="axis-label">-1.4</text>
+  <text x="480" y="560" class="axis-label">1.4</text>
+  <text x="620" y="560" class="axis-label">4.1</text>
+  <text x="760" y="560" class="axis-label">6.9</text>
+  <text x="50" y="545" class="axis-label" text-anchor="end">-1.1</text>
+  <text x="50" y="445" class="axis-label" text-anchor="end">-0.7</text>
+  <text x="50" y="345" class="axis-label" text-anchor="end">-0.2</text>
+  <text x="50" y="245" class="axis-label" text-anchor="end">0.2</text>
+  <text x="50" y="145" class="axis-label" text-anchor="end">0.7</text>
+  <text x="50" y="45" class="axis-label" text-anchor="end">1.1</text>
+  
+  <!-- Plot line -->
+  <path d="M 91.82 288.55 L 98.18 232.01 L 104.55 179.11 L 110.91 133.18 L 117.27 97.08 L 123.64 73.10 L 130.00 62.73 L 136.36 66.62 L 142.73 84.54 L 149.09 115.36 L 155.45 157.13 L 161.82 207.25 L 168.18 262.56 L 174.55 319.60 L 180.91 374.77 L 187.27 424.63 L 193.64 466.03 L 200.00 496.39 L 206.36 513.79 L 212.73 517.14 L 219.09 506.23 L 225.45 481.76 L 231.82 445.24 L 238.18 398.98 L 244.55 345.88 L 250.91 289.27 L 257.27 232.71 L 263.64 179.75 L 270.00 133.70 L 276.36 97.47 L 282.73 73.32 L 289.09 62.77 L 295.45 66.49 L 301.82 84.23 L 308.18 114.89 L 314.55 156.55 L 320.91 206.58 L 327.27 261.84 L 333.64 318.88 L 340.00 374.10 L 346.36 424.04 L 352.73 465.57 L 359.09 496.08 L 365.45 513.65 L 371.82 517.19 L 378.18 506.46 L 384.55 482.15 L 390.91 445.77 L 397.27 399.62 L 403.64 346.59 L 410.00 290.00 L 416.36 233.41 L 422.73 180.38 L 429.09 134.23 L 435.45 97.85 L 441.82 73.54 L 448.18 62.81 L 454.55 66.35 L 460.91 83.92 L 467.27 114.43 L 473.64 155.96 L 480.00 205.90 L 486.36 261.12 L 492.73 318.16 L 499.09 373.42 L 505.45 423.45 L 511.82 465.11 L 518.18 495.77 L 524.55 513.51 L 530.91 517.23 L 537.27 506.68 L 543.64 482.53 L 550.00 446.30 L 556.36 400.25 L 562.73 347.29 L 569.09 290.73 L 575.45 234.12 L 581.82 181.02 L 588.18 134.76 L 594.55 98.24 L 600.91 73.77 L 607.27 62.86 L 613.64 66.21 L 620.00 83.61 L 626.36 113.97 L 632.73 155.37 L 639.09 205.23 L 645.45 260.40 L 651.82 317.44 L 658.18 372.75 L 664.55 422.87 L 670.91 464.64 L 677.27 495.46 L 683.64 513.38 L 690.00 517.27 L 696.36 506.90 L 702.73 482.92 L 709.09 446.82 L 715.45 400.89 L 721.82 347.99 L 728.18 291.45" class="plot-line"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" class="title">f(x) = sin(2x)</text>
+</svg>

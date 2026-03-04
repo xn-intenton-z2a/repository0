@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .plot-line { fill: none; stroke: #2563eb; stroke-width: 2px; }
+      .axis { stroke: #666; stroke-width: 1px; }
+      .grid { stroke: #e5e7eb; stroke-width: 0.5px; }
+      .axis-label { font-family: Arial, sans-serif; font-size: 12px; fill: #374151; text-anchor: middle; }
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #1f2937; text-anchor: middle; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="#ffffff"/>
+  
+  <!-- Grid lines -->
+  <line x1="60" y1="40" x2="60" y2="540" class="grid"/>
+  <line x1="200" y1="40" x2="200" y2="540" class="grid"/>
+  <line x1="340" y1="40" x2="340" y2="540" class="grid"/>
+  <line x1="480" y1="40" x2="480" y2="540" class="grid"/>
+  <line x1="620" y1="40" x2="620" y2="540" class="grid"/>
+  <line x1="760" y1="40" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="540" x2="760" y2="540" class="grid"/>
+  <line x1="60" y1="440" x2="760" y2="440" class="grid"/>
+  <line x1="60" y1="340" x2="760" y2="340" class="grid"/>
+  <line x1="60" y1="240" x2="760" y2="240" class="grid"/>
+  <line x1="60" y1="140" x2="760" y2="140" class="grid"/>
+  <line x1="60" y1="40" x2="760" y2="40" class="grid"/>
+  
+  <!-- Axes -->
+  <line x1="60" y1="540" x2="760" y2="540" class="axis"/>
+  <line x1="60" y1="40" x2="60" y2="540" class="axis"/>
+  
+  <!-- Axis labels -->
+  <text x="60" y="560" class="axis-label">-0.5</text>
+  <text x="200" y="560" class="axis-label">1.7</text>
+  <text x="340" y="560" class="axis-label">3.9</text>
+  <text x="480" y="560" class="axis-label">6.1</text>
+  <text x="620" y="560" class="axis-label">8.3</text>
+  <text x="760" y="560" class="axis-label">10.5</text>
+  <text x="50" y="545" class="axis-label" text-anchor="end">-0.0</text>
+  <text x="50" y="445" class="axis-label" text-anchor="end">0.2</text>
+  <text x="50" y="345" class="axis-label" text-anchor="end">0.4</text>
+  <text x="50" y="245" class="axis-label" text-anchor="end">0.6</text>
+  <text x="50" y="145" class="axis-label" text-anchor="end">0.8</text>
+  <text x="50" y="45" class="axis-label" text-anchor="end">1.0</text>
+  
+  <!-- Plot line -->
+  <path d="M 91.82 62.73 L 98.18 85.05 L 104.55 106.28 L 110.91 126.47 L 117.27 145.68 L 123.64 163.95 L 130.00 181.34 L 136.36 197.87 L 142.73 213.60 L 149.09 228.56 L 155.45 242.79 L 161.82 256.33 L 168.18 269.20 L 174.55 281.45 L 180.91 293.10 L 187.27 304.19 L 193.64 314.73 L 200.00 324.76 L 206.36 334.30 L 212.73 343.37 L 219.09 352.00 L 225.45 360.21 L 231.82 368.02 L 238.18 375.45 L 244.55 382.52 L 250.91 389.24 L 257.27 395.64 L 263.64 401.72 L 270.00 407.51 L 276.36 413.01 L 282.73 418.25 L 289.09 423.23 L 295.45 427.96 L 301.82 432.47 L 308.18 436.75 L 314.55 440.83 L 320.91 444.71 L 327.27 448.40 L 333.64 451.91 L 340.00 455.25 L 346.36 458.42 L 352.73 461.44 L 359.09 464.32 L 365.45 467.05 L 371.82 469.65 L 378.18 472.12 L 384.55 474.47 L 390.91 476.71 L 397.27 478.84 L 403.64 480.87 L 410.00 482.79 L 416.36 484.62 L 422.73 486.37 L 429.09 488.02 L 435.45 489.60 L 441.82 491.10 L 448.18 492.53 L 454.55 493.88 L 460.91 495.18 L 467.27 496.40 L 473.64 497.57 L 480.00 498.68 L 486.36 499.74 L 492.73 500.75 L 499.09 501.70 L 505.45 502.61 L 511.82 503.48 L 518.18 504.30 L 524.55 505.08 L 530.91 505.83 L 537.27 506.54 L 543.64 507.21 L 550.00 507.85 L 556.36 508.46 L 562.73 509.04 L 569.09 509.59 L 575.45 510.12 L 581.82 510.62 L 588.18 511.09 L 594.55 511.54 L 600.91 511.97 L 607.27 512.38 L 613.64 512.77 L 620.00 513.14 L 626.36 513.49 L 632.73 513.83 L 639.09 514.15 L 645.45 514.45 L 651.82 514.74 L 658.18 515.01 L 664.55 515.27 L 670.91 515.52 L 677.27 515.76 L 683.64 515.98 L 690.00 516.19 L 696.36 516.40 L 702.73 516.59 L 709.09 516.77 L 715.45 516.95 L 721.82 517.11 L 728.18 517.27" class="plot-line"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" class="title">f(x) = e^(-x/2)</text>
+</svg>
