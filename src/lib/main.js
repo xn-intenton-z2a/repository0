@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
-// Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
 import { plotFromArgs } from "./plot.js";
 
 export async function main(argv = []) {
-  // Simple CLI argument parsing
+  // Simple CLI argument parsing into a key map
   const args = {};
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -23,8 +22,15 @@ export async function main(argv = []) {
     }
   }
 
+  if (args.help || args.h) {
+    console.log("Usage: node src/lib/main.js --expression \"y=sin(x)\" --range \"x=0:6.283:200\" --file output.svg --format svg");
+    return;
+  }
+
   try {
-    await plotFromArgs(args);
+    const res = await plotFromArgs(args);
+    if (res && res.file) console.log(`Wrote ${res.file}`);
+    else if (res && res.svg) console.log(res.svg);
   } catch (err) {
     console.error("Error:", err.message || err);
     process.exitCode = 2;

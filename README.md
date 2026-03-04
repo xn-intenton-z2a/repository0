@@ -1,29 +1,26 @@
 # plot-code-lib
 
-plot-code-lib is a small library and CLI to generate plots from mathematical expressions.
+plot-code-lib is a small library and CLI for generating plots from mathematical expressions.
 
-## Features added
-
-- Expression parsing and evaluation using mathjs
-- Time-series generation across an x-range
-- SVG plot generation (axes + polyline)
-- CLI: --expression, --range, --file, --format
-- Example SVG saved to examples/
+Features implemented in this milestone:
+- Parse simple range syntax: x=start:end[:count]
+- Parse simple expressions like `y=sin(x)` or `sin(x)` using mathjs
+- Generate time-series points for x and y
+- Produce SVG plots and save to a file via CLI
 
 Usage examples:
 
-- Generate an SVG of sin(x):
+- Generate an SVG of y = sin(x) from 0 to 2π:
 
-  node src/lib/main.js --expression "y=sin(x)" --range "x=-3.14159:3.14159:400" --file examples/sin.svg --format svg
+  node src/lib/main.js --expression "y=sin(x)" --range "x=0:6.283185307:400" --file examples/sin.svg --format svg
 
 - Print SVG to stdout:
 
-  node src/lib/main.js --expression "sin(x)" --range "x=-1:1:200"
+  node src/lib/main.js --expression "sin(x)" --range "x=-3.14:3.14:200"
 
-The CLI supports:
-- --expression (or --expr): mathematical expression, e.g. "y=sin(x)" or "sin(x)"
-- --range: x=start:end[:count], e.g. "x=-1:1:200"
-- --file: output file (SVG)
-- --format: svg (png not implemented in this runtime)
+Notes:
+- This version supports SVG output. PNG export may be added in a future release.
 
-Examples are saved to the examples/ directory.
+Run tests:
+
+  npm test
