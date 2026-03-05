@@ -1,44 +1,36 @@
 # Hamming Distance Library
 
-A small JavaScript library providing Hamming distance functions for strings and integers.
+Small JavaScript library providing Hamming distance utilities for strings and integers.
+
+## Install
+
+This repository is a template; to use the library in another project, copy the `src/lib/main.js` file or install the package when published.
 
 ## API
 
+Named exports from `src/lib/main.js`:
+
 - `hammingDistance(a, b)`
-  - Computes the Hamming distance between two strings by comparing Unicode code points (not UTF-16 code units).
-  - Throws `TypeError` if inputs are not strings.
-  - Throws `RangeError` if the strings have different lengths (in code points).
+  - Compares two strings by Unicode code points and returns the number of positions where characters differ.
+  - Throws `TypeError` if either argument is not a string.
+  - Throws `RangeError` if the strings have different code point lengths.
 
 - `hammingDistanceBits(x, y)`
-  - Computes the Hamming distance between two non-negative integers (counts differing bits).
-  - Accepts `Number` (integer) or `BigInt` inputs.
-  - Throws `TypeError` for non-integer arguments.
-  - Throws `RangeError` for negative integers.
+  - Compares two non-negative integers (Number or BigInt) and returns the count of differing bits.
+  - Throws `TypeError` if arguments are not integer Numbers or BigInts.
+  - Throws `RangeError` if any argument is negative.
 
-## Usage
+## Examples
 
-Import the functions:
-
-```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
 console.log(hammingDistance('karolin', 'kathrin')); // 3
 console.log(hammingDistance('', '')); // 0
 
 console.log(hammingDistanceBits(1, 4)); // 2
-console.log(hammingDistanceBits(0, 0)); // 0
-console.log(hammingDistanceBits(1n, 4n)); // 2 (BigInt)
-```
+console.log(hammingDistanceBits(0n, 0n)); // 0
 
 ## Notes
 
-- Unicode: the library compares Unicode code points (Array.from) to avoid counting surrogate pairs incorrectly.
-- Integer support: Numbers are converted to BigInt internally to correctly compute bit differences for values beyond 32 bits.
-
-## Running tests
-
-Run:
-
-```bash
-npm test
-```
+- Unicode-aware: uses code point iteration so emoji and other surrogate-pair characters are treated as single characters.
+- Supports BigInt for large integer bit comparisons.
