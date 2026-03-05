@@ -130,12 +130,11 @@ function buildPrompt(ctx, agentInstructions) {
     "Pick one or more actions. Output them in the format below.",
     "",
     "### Workflow Dispatches",
-    "- `dispatch:agent-flow-transform | issue-number: <N>` — Pick up issue #N, generate code, open PR. Always specify the issue-number of the oldest ready issue.",
-    "- `dispatch:agent-flow-maintain` — Refresh feature definitions and library docs",
-    "- `dispatch:agent-flow-review` — Close resolved issues, enhance issue criteria",
-    "- `dispatch:agent-flow-fix-code | pr-number: <N>` — Fix a failing PR",
-    "- `dispatch:agent-discussions-bot` — Proactively post in discussions",
-    "- `dispatch:ci-automerge` — Merge open PRs with the automerge label if checks pass",
+    "- `dispatch:agentic-lib-workflow | mode: dev-only | issue-number: <N>` — Pick up issue #N, generate code, open PR. Always specify the issue-number of the oldest ready issue.",
+    "- `dispatch:agentic-lib-workflow | mode: maintain-only` — Refresh feature definitions and library docs",
+    "- `dispatch:agentic-lib-workflow | mode: review-only` — Close resolved issues, enhance issue criteria",
+    "- `dispatch:agentic-lib-workflow | mode: pr-cleanup-only` — Merge open PRs with the automerge label if checks pass",
+    "- `dispatch:agentic-lib-bot` — Proactively post in discussions",
     "",
     "### GitHub API Actions",
     "- `github:create-issue | title: <text> | labels: <comma-separated>` — Create a new issue",
@@ -197,20 +196,20 @@ async function executeDispatch(octokit, repo, actionName, params) {
   if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
 
   // Guard: skip transform dispatch if one is already running
-  if (workflowFile === "agent-flow-transform.yml") {
+  if (workflowFile === "agentic-lib-workflow.yml") {
     try {
       const { data: runs } = await octokit.rest.actions.listWorkflowRuns({
         ...repo,
-        workflow_id: "agent-flow-transform.yml",
+        workflow_id: "agentic-lib-workflow.yml",
         status: "in_progress",
         per_page: 1,
       });
       if (runs.total_count > 0) {
-        core.info("Transform workflow already running — skipping dispatch");
-        return "skipped:transform-already-running";
+        core.info("Workflow already running — skipping dispatch");
+        return "skipped:workflow-already-running";
       }
     } catch (err) {
-      core.warning(`Could not check transform status: ${err.message}`);
+      core.warning(`Could not check workflow status: ${err.message}`);
     }
   }
 
@@ -257,7 +256,7 @@ async function executeRespondDiscussions(octokit, repo, params) {
     if (url) inputs["discussion-url"] = url;
     await octokit.rest.actions.createWorkflowDispatch({
       ...repo,
-      workflow_id: "agent-discussions-bot.yml",
+      workflow_id: "agentic-lib-bot.yml",
       ref: "main",
       inputs,
     });
@@ -281,7 +280,7 @@ async function executeSetSchedule(octokit, repo, frequency) {
   core.info(`Setting supervisor schedule to: ${frequency}`);
   await octokit.rest.actions.createWorkflowDispatch({
     ...repo,
-    workflow_id: "agent-supervisor-schedule.yml",
+    workflow_id: "agentic-lib-schedule.yml",
     ref: "main",
     inputs: { frequency },
   });

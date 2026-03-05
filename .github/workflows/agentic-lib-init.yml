@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# .github/workflows/init.yml
+# .github/workflows/agentic-lib-init.yml
 #
-# Daily lifecycle: update agentic-lib, run init, test, PR, automerge.
-# Keeps the repository current with the latest SDK infrastructure.
-# Can also set supervisor schedule and model on init.
+# Self-contained init: update agentic-lib, purge, push to main [skip ci].
+# Does NOT create a PR. Does NOT trigger any other workflow.
+# Closes hanging init PRs before running.
 
-name: init
-run-name: "init [${{ github.ref_name }}]"
+name: agentic-lib-init
+run-name: "agentic-lib-init [${{ github.ref_name }}]"
 
 on:
   schedule:
@@ -114,17 +114,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
 
-      - name: Create init branch
+      - name: Close hanging init PRs
+        if: env.INIT_MODE == 'purge'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          BRANCH="agentic-lib-init-$(date -u +%Y%m%d)"
-          git checkout -b "$BRANCH"
-          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          # Close any open PRs from previous init runs
+          gh pr list --state open --json number,headRefName \
+            --jq '.[] | select(.headRefName | startswith("agentic-lib-init-")) | .number' \
+            | while read -r pr_num; do
+                echo "Closing hanging init PR #${pr_num}"
+                gh pr close "$pr_num" --delete-branch || true
+              done
 
       - name: Update agentic-lib to latest
         run: npm update @xn-intenton-z2a/agentic-lib
@@ -152,11 +160,62 @@ jobs:
 
       - run: npm test
 
-      - name: Commit and push
+      - name: Update schedule (if requested)
+        if: needs.params.outputs.schedule != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const frequency = '${{ needs.params.outputs.schedule }}';
+            const model = '${{ needs.params.outputs.model || 'gpt-5-mini' }}';
+            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
+            const tomlPath = 'agentic-lib.toml';
+
+            const SCHEDULE_MAP = {
+              off: null,
+              weekly: '0 6 * * 1',
+              daily: '0 6 * * *',
+              hourly: '0 * * * *',
+              continuous: '*/15 * * * *',
+            };
+
+            if (fs.existsSync(workflowPath)) {
+              let content = fs.readFileSync(workflowPath, 'utf8');
+              const cron = SCHEDULE_MAP[frequency];
+              content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
+              if (cron) {
+                const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
+                content = content.replace(/\non:\n/, `\non:${scheduleBlock}`);
+              }
+              const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
+              const stampRegex = /^# Schedule updated: .*/m;
+              if (stampRegex.test(content)) {
+                content = content.replace(stampRegex, dateStamp);
+              } else {
+                content = content.replace(/^(# .*\n)+/m, (match) => match + dateStamp + '\n');
+              }
+              fs.writeFileSync(workflowPath, content);
+              core.info(`Updated schedule to: ${frequency}`);
+            }
+
+            if (fs.existsSync(tomlPath)) {
+              let toml = fs.readFileSync(tomlPath, 'utf8');
+              const scheduleModelRegex = /(\[schedule\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
+              if (scheduleModelRegex.test(toml)) {
+                toml = toml.replace(scheduleModelRegex, `$1model = "${model}"`);
+              }
+              const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^\s*supervisor\s*=\s*"[^"]*")/m;
+              if (scheduleSupervisorRegex.test(toml)) {
+                toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
+              }
+              fs.writeFileSync(tomlPath, toml);
+              core.info(`Updated agentic-lib.toml: model=${model}, supervisor=${frequency}`);
+            }
+
+      - name: Commit and push to main [skip ci]
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Use the WORKFLOW_TOKEN owner's identity so GitHub re-registers cron schedules
           TOKEN_USER=$(gh api /user --jq '.login')
           TOKEN_ID=$(gh api /user --jq '.id')
           git config user.name "${TOKEN_USER}"
@@ -164,27 +223,5 @@ jobs:
           git add -A
           git diff --cached --quiet && echo "No changes" && exit 0
           VERSION=$(npx @xn-intenton-z2a/agentic-lib version 2>/dev/null || echo "latest")
-          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION})"
-          git push origin "$BRANCH"
-
-      - name: Create PR
-        if: success()
-        env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        run: |
-          gh pr create \
-            --title "init ${INIT_MODE} ($(date -u +%Y-%m-%d))" \
-            --body "Nightly init ${INIT_MODE}. Auto-labelled for automerge." \
-            --label automerge \
-            --base main \
-            --head "$BRANCH"
-
-  # Configure schedule after init completes (if schedule parameter provided)
-  configure-schedule:
-    needs: [params, init]
-    if: needs.params.outputs.schedule != ''
-    uses: ./.github/workflows/agent-supervisor-schedule.yml
-    with:
-      frequency: ${{ needs.params.outputs.schedule }}
-      model: ${{ needs.params.outputs.model }}
-    secrets: inherit
+          git commit -m "init ${INIT_MODE} (agentic-lib@${VERSION}) [skip ci]"
+          git push origin main
