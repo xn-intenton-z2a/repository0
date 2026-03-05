@@ -4,8 +4,6 @@ This repository is powered by [intentïon agentic-lib](https://github.com/xn-int
 
 ## Getting Started
 
-123
-
 1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
 2. **Configure GitHub** — see [Setup](#setup) below
 3. **Push to main** — the autonomous workflows take over from here
