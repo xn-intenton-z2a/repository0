@@ -190,3 +190,27 @@ Next steps (suggested):
 If you'd l
 
 ---
+## transform at 2026-03-05T11:30:51.803Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 70455 (in: 66742, out: 3713)
+**Duration:** 64s (~1.1 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22715808577](https://github.com/xn-intenton-z2a/repository0/actions/runs/22715808577)
+
+Done — tests added, docs created, README updated, and tests passed.
+
+Files changed/added:
+- tests/unit/main.test.js (new tests for Unicode, edge cases, BigInt, errors)
+- README.md (usage and API examples)
+- docs/examples/example-output.txt (example outputs)
+- docs/evidence/results.json (machine-readable test result summary)
+- docs/reports/walkthrough.md (short usage walkthrough)
+- docs/examples/.gitkeep
+
+Command run:
+- npm test — all tests passed
+
+If you'd like, next steps can include adding CI 
+
+---
