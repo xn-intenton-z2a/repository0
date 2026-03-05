@@ -1,13 +1,15 @@
-Quick walkthrough demonstrating usage and expected outputs:
+Walkthrough: Using the Hamming distance library
 
-1) String Hamming distance (Unicode-aware):
-   hammingDistance('karolin', 'kathrin') => 3
+1. Import the functions from the library entrypoint:
+   import { hammingDistance, hammingDistanceBits } from './src/lib/main.js'
 
-2) Empty strings:
-   hammingDistance('', '') => 0
+2. Compute string Hamming distance (Unicode-aware):
+   hammingDistance('karolin', 'kathrin') // => 3
 
-3) Bit Hamming distance:
-   hammingDistanceBits(1, 4) => 2
-   hammingDistanceBits(0, 0) => 0
+3. Compute bit Hamming distance:
+   hammingDistanceBits(1, 4) // => 2
 
-These examples are captured in docs/examples and docs/evidence for automated consumption.
+Notes:
+- Strings are compared by Unicode code points (Array.from is used internally).
+- For precomposed vs combining sequences, lengths may differ and a RangeError will be thrown; normalize inputs if desired with String.prototype.normalize('NFC').
+- hammingDistanceBits accepts Number or BigInt; large bit indices are safe when using BigInt.

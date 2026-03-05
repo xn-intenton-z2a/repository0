@@ -112,3 +112,21 @@ Files added/modified
 - Added: tests/unit/run-te
 
 ---
+## transform at 2026-03-05T09:19:02.688Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 153759 (in: 150002, out: 3757)
+**Duration:** 105s (~1.7 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22710855807](https://github.com/xn-intenton-z2a/repository0/actions/runs/22710855807)
+
+All tests passed and documentation + example/evidence artifacts added. Files updated/created:
+- README.md (updated)
+- docs/examples/usage.txt
+- docs/examples/usage.json
+- docs/evidence/results.json
+- docs/reports/walkthrough.txt
+
+You can run tests locally with: npm test.
+
+---

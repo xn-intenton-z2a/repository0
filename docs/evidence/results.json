@@ -1,11 +1,12 @@
 {
   "hammingDistance": [
-    {"a": "karolin", "b": "kathrin", "result": 3},
-    {"a": "", "b": "", "result": 0}
+    {"a":"karolin","b":"kathrin","result":3},
+    {"a":"","b":"","result":0},
+    {"a":"a𐐷b","b":"a𐐶b","result":1}
   ],
   "hammingDistanceBits": [
-    {"x": 1, "y": 4, "result": 2},
-    {"x": 0, "y": 0, "result": 0},
-    {"x": "0n", "y": "1n<<65n", "result": 1}
+    {"x":1,"y":4,"result":2},
+    {"x":0,"y":0,"result":0},
+    {"x":"0n","y":"1n<<65n","result":1}
   ]
 }
