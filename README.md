@@ -1,19 +1,22 @@
 # Hamming Distance Library
 
-A small JavaScript library providing Unicode-aware Hamming distance functions for strings and integers.
+A small JavaScript library that provides Unicode-aware Hamming distance functions for strings and bitwise Hamming distance for integers.
 
-Features
+## Installation
 
-- hammingDistance(a, b): computes the Hamming distance between two strings using Unicode code points (not UTF-16 code units).
-- hammingDistanceBits(x, y): computes the Hamming distance between two non-negative integers by comparing differing bits.
+Install from source or include this module in your project. Requires Node.js >= 24 (ESM).
 
-Installation
+## API
 
-Install the package (when published) or use directly from source.
+Named exports (from `src/lib/main.js`):
 
-Usage
+- `hammingDistance(a, b)` - Compute the Hamming distance between two strings of equal length. Comparisons are performed on Unicode code points (not UTF-16 code units). Throws `TypeError` for non-string inputs and `RangeError` for unequal-length strings.
 
-Import the functions and call them:
+- `hammingDistanceBits(x, y)` - Compute the Hamming distance between two non-negative integers. Accepts `Number` (integer) or `BigInt`. Throws `TypeError` for non-integer-like inputs and `RangeError` for negative integers.
+
+## Examples
+
+Importing (ESM):
 
 ```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
@@ -24,30 +27,15 @@ console.log(hammingDistance('', '')); // 0
 console.log(hammingDistanceBits(1, 4)); // 2
 console.log(hammingDistanceBits(0, 0)); // 0
 
-// Unicode-aware example (astral code points)
-console.log(hammingDistance('a𝔘b', 'a𝔘c')); // 1
-
-// BigInt support
-console.log(hammingDistanceBits(2n ** 65n, 0n)); // 1
+// Unicode example with emojis
+console.log(hammingDistance('\u{1F600}\u{1F601}', '\u{1F600}\u{1F602}')); // 1
 ```
 
-API
+## Notes
 
-- hammingDistance(a: string, b: string): number
-  - Throws TypeError if either argument is not a string.
-  - Throws RangeError if the strings have different lengths (in Unicode code points).
+- The string comparison uses Array.from(...) to iterate by Unicode code points so supplementary characters like emoji are handled as single positions.
+- For large integers or when precise bit semantics are required, prefer passing BigInt values.
 
-- hammingDistanceBits(x: number|bigint, y: number|bigint): number
-  - Accepts Number (integer-like) or BigInt values.
-  - Throws TypeError for wrong types or non-integer numbers.
-  - Throws RangeError for negative integers.
+## License
 
-Testing
-
-Run the unit tests with:
-
-```bash
-npm test
-```
-
-License: MIT
+MIT

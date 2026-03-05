@@ -1,17 +1,12 @@
-# Hamming Library Usage Walkthrough
+# Hamming Library Usage Report
 
-This short walkthrough demonstrates using the library functions and captures example outputs.
+This short report demonstrates the library usage and sample outputs.
 
-1. Strings (Unicode-aware)
+Examples:
 
-- Input: 'karolin', 'kathrin' -> Output: 3
-- Input: '', '' -> Output: 0
-- Input: 'a😊b', 'a😢b' -> Output: 1
+- Hamming distance between 'karolin' and 'kathrin' is 3.
+- Empty strings produce 0.
+- Unicode surrogate-pair characters (emoji) are treated as single code points so comparisons are by visual character position, not UTF-16 code units.
+- Bitwise Hamming distance works with Number or BigInt values and properly counts differing bits.
 
-2. Bits (integers / BigInt)
-
-- Input: 1, 4 -> Output: 2
-- Input: 0, 0 -> Output: 0
-- BigInt: 1n << 60n, 0n -> Output: 1
-
-These examples are also included in docs/examples and a machine-readable summary in docs/evidence.
+See `docs/examples/hamming_examples.txt` and `docs/evidence/hamming_results.json` for machine-readable examples and sample outputs.

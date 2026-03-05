@@ -1,0 +1,12 @@
+{
+  "string_examples": [
+    { "a": "karolin", "b": "kathrin", "distance": 3 },
+    { "a": "", "b": "", "distance": 0 },
+    { "a": "\u{1F600}\u{1F601}", "b": "\u{1F600}\u{1F602}", "distance": 1 }
+  ],
+  "bit_examples": [
+    { "x": 1, "y": 4, "distance": 2 },
+    { "x": 0, "y": 0, "distance": 0 },
+    { "x": "2n**64n + 1n", "y": "2n**64n", "distance": 1 }
+  ]
+}

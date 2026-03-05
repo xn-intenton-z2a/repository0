@@ -1,7 +1,7 @@
-hammingDistance('karolin', 'kathrin') = 3
-hammingDistance('', '') = 0
-hammingDistance('a😊b', 'a😢b') = 1
+hammingDistance('karolin','kathrin') -> 3
+hammingDistance('','') -> 0
+hammingDistance('\u{1F600}\u{1F601}','\u{1F600}\u{1F602}') -> 1
 
-hammingDistanceBits(1, 4) = 2
-hammingDistanceBits(0, 0) = 0
-hammingDistanceBits(1n << 60n, 0n) = 1
+hammingDistanceBits(1,4) -> 2
+hammingDistanceBits(0,0) -> 0
+hammingDistanceBits(2n**64n + 1n, 2n**64n) -> 1
