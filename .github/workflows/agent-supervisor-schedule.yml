@@ -94,6 +94,20 @@ jobs:
               );
             }
 
+            // Always stamp the file with current date so the commit is never empty
+            // (GitHub re-registers cron schedules on push)
+            const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
+            const stampRegex = /^# Schedule updated: .*/m;
+            if (stampRegex.test(content)) {
+              content = content.replace(stampRegex, dateStamp);
+            } else {
+              // Insert after the header comment block
+              content = content.replace(
+                /^(# .*\n)+/m,
+                (match) => match + dateStamp + '\n'
+              );
+            }
+
             fs.writeFileSync(workflowPath, content);
             core.info(`Updated supervisor schedule to: ${frequency} (cron: ${cron || 'none'})`);
 
@@ -146,3 +160,9 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "supervisor: set schedule to ${FREQUENCY}, model to ${MODEL:-gpt-5-mini}"
           git push origin main
+
+      - name: Dispatch supervisor
+        if: inputs.frequency != 'off'
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY

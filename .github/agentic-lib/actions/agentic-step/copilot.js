@@ -6,6 +6,7 @@
 
 import { CopilotClient, approveAll } from "@github/copilot-sdk";
 import { readFileSync, readdirSync, existsSync } from "fs";
+import { join } from "path";
 import { createAgentTools } from "./tools.js";
 import * as core from "@actions/core";
 
@@ -157,10 +158,10 @@ export function scanDirectory(dirPath, extensions, options = {}) {
     .slice(0, fileLimit)
     .map((f) => {
       try {
-        const content = readFileSync(`${dirPath}${f}`, "utf8");
+        const content = readFileSync(join(dirPath, f), "utf8");
         return { name: f, content: contentLimit ? content.substring(0, contentLimit) : content };
       } catch (err) {
-        core.debug(`[scanDirectory] ${dirPath}${f}: ${err.message}`);
+        core.debug(`[scanDirectory] ${join(dirPath, f)}: ${err.message}`);
         return { name: f, content: "" };
       }
     });

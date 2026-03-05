@@ -15,7 +15,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
 export async function transform(context) {
-  const { config, instructions, writablePaths, testCommand, model, octokit, repo } = context;
+  const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber } = context;
 
   // Read mission (required)
   const mission = readOptionalFile(config.paths.mission.path);
@@ -26,7 +26,7 @@ export async function transform(context) {
 
   const features = scanDirectory(config.paths.features.path, ".md");
   const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    contentLimit: 2000,
+    contentLimit: 5000,
     recursive: true,
   });
 
@@ -35,6 +35,20 @@ export async function transform(context) {
     state: "open",
     per_page: 20,
   });
+
+  // Fetch target issue if specified
+  let targetIssue = null;
+  if (issueNumber) {
+    try {
+      const { data: issue } = await octokit.rest.issues.get({
+        ...repo,
+        issue_number: Number(issueNumber),
+      });
+      targetIssue = issue;
+    } catch (err) {
+      core.warning(`Could not fetch target issue #${issueNumber}: ${err.message}`);
+    }
+  }
 
   const agentInstructions =
     instructions || "Transform the repository toward its mission by identifying the next best action.";
@@ -60,17 +74,27 @@ export async function transform(context) {
     "## Instructions",
     agentInstructions,
     "",
+    ...(targetIssue
+      ? [
+          `## Target Issue #${targetIssue.number}: ${targetIssue.title}`,
+          targetIssue.body || "(no description)",
+          `Labels: ${targetIssue.labels.map((l) => l.name).join(", ") || "none"}`,
+          "",
+          "**Focus your transformation on resolving this specific issue.**",
+          "",
+        ]
+      : []),
     "## Mission",
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
+    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 2000)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, 10).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, 20).map((i) => `- #${i.number}: ${i.title}`),
     "",
     "## Output Artifacts",
     "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
@@ -90,7 +114,13 @@ export async function transform(context) {
 
   core.info(`Transform prompt length: ${prompt.length} chars`);
 
-  const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const {
+    content: resultContent,
+    tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
+  } = await runCopilotTask({
     model,
     systemMessage:
       "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
@@ -145,13 +175,13 @@ async function transformTdd({
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 500)}`),
+    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 2000)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, 10).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, 20).map((i) => `- #${i.number}: ${i.title}`),
     "",
     formatPathsSection(writablePaths, readOnlyPaths, _config),
     "",
