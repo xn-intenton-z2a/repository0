@@ -1,20 +1,18 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# .github/workflows/agent-supervisor-schedule.yml
+# .github/workflows/agentic-lib-schedule.yml
 #
-# Changes the agent-supervisor's cron schedule by editing the workflow file
+# Changes the agentic-lib-workflow's cron schedule by editing the workflow file
 # directly and pushing to main. Also updates the model setting in agentic-lib.toml.
-# This is the control plane for how often the supervisor runs proactively
-# and which LLM model is used.
 
-name: agent-supervisor-schedule
-run-name: "agent-supervisor-schedule → ${{ inputs.frequency }} (${{ inputs.model }})"
+name: agentic-lib-schedule
+run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }})"
 
 on:
   workflow_call:
     inputs:
       frequency:
-        description: "How often the supervisor should run"
+        description: "How often the workflow should run"
         required: true
         type: string
       model:
@@ -25,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       frequency:
-        description: "How often the supervisor should run"
+        description: "How often the workflow should run"
         required: true
         type: choice
         options:
@@ -56,14 +54,14 @@ jobs:
           ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
-      - name: Update supervisor schedule and model
+      - name: Update workflow schedule and model
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const frequency = '${{ inputs.frequency }}';
             const model = '${{ inputs.model || 'gpt-5-mini' }}';
-            const workflowPath = '.github/workflows/agent-supervisor.yml';
+            const workflowPath = '.github/workflows/agentic-lib-workflow.yml';
             const tomlPath = 'agentic-lib.toml';
 
             const SCHEDULE_MAP = {
@@ -74,34 +72,28 @@ jobs:
               continuous: '*/15 * * * *',
             };
 
-            // Update agent-supervisor.yml schedule
+            // Update agentic-lib-workflow.yml schedule
             let content = fs.readFileSync(workflowPath, 'utf8');
             const cron = SCHEDULE_MAP[frequency];
 
-            // Remove any existing schedule block (between 'on:' triggers)
-            // The schedule block looks like:
-            //   schedule:
-            //     - cron: "..."
+            // Remove any existing schedule block
             content = content.replace(/\n  schedule:\n    - cron: "[^"]*"\n/g, '\n');
 
             if (cron) {
               // Insert schedule block after the 'on:' line
               const scheduleBlock = `\n  schedule:\n    - cron: "${cron}"\n`;
-              // Insert before workflow_run or workflow_dispatch (whichever comes first after 'on:')
               content = content.replace(
                 /\non:\n/,
                 `\non:${scheduleBlock}`
               );
             }
 
-            // Always stamp the file with current date so the commit is never empty
-            // (GitHub re-registers cron schedules on push)
+            // Stamp the file with current date so the commit is never empty
             const dateStamp = `# Schedule updated: ${new Date().toISOString()}`;
             const stampRegex = /^# Schedule updated: .*/m;
             if (stampRegex.test(content)) {
               content = content.replace(stampRegex, dateStamp);
             } else {
-              // Insert after the header comment block
               content = content.replace(
                 /^(# .*\n)+/m,
                 (match) => match + dateStamp + '\n'
@@ -109,31 +101,24 @@ jobs:
             }
 
             fs.writeFileSync(workflowPath, content);
-            core.info(`Updated supervisor schedule to: ${frequency} (cron: ${cron || 'none'})`);
+            core.info(`Updated workflow schedule to: ${frequency} (cron: ${cron || 'none'})`);
 
             // Update agentic-lib.toml with model and supervisor settings
             if (fs.existsSync(tomlPath)) {
               let toml = fs.readFileSync(tomlPath, 'utf8');
 
-              // Update model setting within [schedule] section
-              // Match model line that appears after [schedule] but before any other section
-              // Allow optional leading whitespace for robustness
               const scheduleModelRegex = /(\[schedule\][^\[]*?)(^\s*model\s*=\s*"[^"]*")/m;
               if (scheduleModelRegex.test(toml)) {
-                // Model exists in schedule section - update it
                 toml = toml.replace(scheduleModelRegex, `$1model = "${model}"`);
               } else if (toml.match(/^\[schedule\]/m)) {
-                // No model in schedule section - add it after supervisor line (or after section header)
                 const supervisorLineRegex = /^(\s*supervisor\s*=\s*"[^"]*")(\s*#.*)?$/m;
                 if (supervisorLineRegex.test(toml)) {
                   toml = toml.replace(supervisorLineRegex, `$1$2\nmodel = "${model}"`);
                 } else {
-                  // Add after [schedule] header (handle optional trailing content)
                   toml = toml.replace(/^(\[schedule\].*)$/m, `$1\nmodel = "${model}"`);
                 }
               }
 
-              // Update supervisor setting within [schedule] section
               const scheduleSupervisorRegex = /(\[schedule\][^\[]*?)(^\s*supervisor\s*=\s*"[^"]*")/m;
               if (scheduleSupervisorRegex.test(toml)) {
                 toml = toml.replace(scheduleSupervisorRegex, `$1supervisor = "${frequency}"`);
@@ -149,20 +134,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Use the WORKFLOW_TOKEN owner's identity so GitHub re-registers cron schedules
           TOKEN_USER=$(gh api /user --jq '.login')
           TOKEN_ID=$(gh api /user --jq '.id')
           git config user.name "${TOKEN_USER}"
           git config user.email "${TOKEN_ID}+${TOKEN_USER}@users.noreply.github.com"
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
-          git add .github/workflows/agent-supervisor.yml agentic-lib.toml
+          git add .github/workflows/agentic-lib-workflow.yml agentic-lib.toml
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "supervisor: set schedule to ${FREQUENCY}, model to ${MODEL:-gpt-5-mini}"
+          git commit -m "schedule: set to ${FREQUENCY}, model ${MODEL:-gpt-5-mini}"
           git push origin main
-
-      - name: Dispatch supervisor
-        if: inputs.frequency != 'off'
-        env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        run: gh workflow run agent-supervisor.yml --repo $GITHUB_REPOSITORY
