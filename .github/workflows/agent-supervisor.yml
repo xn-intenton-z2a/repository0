@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agent-supervisor.yml
-# Schedule updated: 2026-03-05T13:55:59.290Z
+# Schedule updated: 2026-03-05T13:59:17.256Z
 #
 # Supervisor: reactive + proactive orchestration.
 #
@@ -22,6 +22,8 @@ concurrency:
   cancel-in-progress: false
 
 on:
+  schedule:
+    - cron: "0 * * * *"
   workflow_run:
     workflows:
       - test
