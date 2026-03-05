@@ -1,30 +1,23 @@
 # Hamming Distance Library
 
-A small JavaScript library exporting Hamming distance functions with Unicode-aware string handling and integer bit comparisons.
+A small JavaScript library providing Hamming distance utilities for Unicode strings and integers (including BigInt).
 
-## Installation
+Features
+- hammingDistance(a, b): Unicode-aware Hamming distance between two strings (compares code points).
+- hammingDistanceBits(x, y): Hamming distance between non-negative integers (Number or BigInt), counts differing bits.
 
-This repository is a library template; install dependencies with:
+Installation
+
+This repository is a template; install dev dependencies and run tests:
 
 ```bash
 npm install
+npm test
 ```
 
-## API
+Usage
 
-Named exports from `src/lib/main.js`:
-
-- `hammingDistance(a, b)`
-  - Computes the Hamming distance between two strings by Unicode code points.
-  - Throws `TypeError` if either argument is not a string.
-  - Throws `RangeError` if the strings differ in length (in Unicode code points).
-
-- `hammingDistanceBits(x, y)`
-  - Computes the Hamming distance between two non-negative integers (counts differing bits).
-  - Accepts `Number` integers or `BigInt` values.
-  - Throws `TypeError` for non-integer arguments, `RangeError` for negative values.
-
-## Examples
+Import the functions as named exports:
 
 ```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
@@ -33,19 +26,29 @@ console.log(hammingDistance('karolin', 'kathrin')); // 3
 console.log(hammingDistance('', '')); // 0
 
 console.log(hammingDistanceBits(1, 4)); // 2
-console.log(hammingDistanceBits(0n, 0n)); // 0
+console.log(hammingDistanceBits(0n, 1n << 70n)); // 1
 ```
 
-## Notes on Unicode
+API
 
-This library compares Unicode code points (using the string iterator / Array.from). It does not normalize strings; if you want canonical equivalence (for example, comparing precomposed and decomposed accents), normalize inputs with `String.prototype.normalize()` before calling `hammingDistance`.
+hammingDistance(a, b)
+- Arguments: a (string), b (string)
+- Returns: number — count of positions where Unicode code points differ
+- Errors:
+  - TypeError if either argument is not a string
+  - RangeError if strings have different length in Unicode code points
 
-## Running tests
+hammingDistanceBits(x, y)
+- Arguments: x (Number|BigInt), y (Number|BigInt)
+- Returns: number — count of differing bits
+- Errors:
+  - TypeError if arguments are not integer-like (Number integers or BigInt)
+  - RangeError if either integer is negative
 
-```bash
-npm test
-```
+Notes
+- Unicode handling compares code points (e.g., emoji and astral characters are handled correctly).
+- The implementation normalizes numeric inputs to BigInt for reliable bitwise differences on large integers.
 
-## License
+Contributing
 
-MIT
+Follow repository guidelines in CONTRIBUTING.md. Add tests for new edge cases and update docs in `docs/`.

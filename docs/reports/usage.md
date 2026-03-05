@@ -1,12 +1,12 @@
-# Hamming Library Usage Report
+Hamming Distance Library — Usage Report
 
-This short report demonstrates the library usage and sample outputs.
+This report demonstrates simple usage and example outputs.
 
-Examples:
+Examples
 
-- Hamming distance between 'karolin' and 'kathrin' is 3.
-- Empty strings produce 0.
-- Unicode surrogate-pair characters (emoji) are treated as single code points so comparisons are by visual character position, not UTF-16 code units.
-- Bitwise Hamming distance works with Number or BigInt values and properly counts differing bits.
+- hammingDistance('karolin','kathrin') -> 3
+- hammingDistance('','') -> 0
+- hammingDistanceBits(1,4) -> 2
+- hammingDistanceBits(0n, 1n<<70n) -> 1
 
-See `docs/examples/hamming_examples.txt` and `docs/evidence/hamming_results.json` for machine-readable examples and sample outputs.
+These results were produced using the library's exports in `src/lib/main.js` and verified by unit tests in `tests/unit/main.test.js`.
