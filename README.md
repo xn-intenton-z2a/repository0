@@ -1,22 +1,30 @@
 # Hamming Distance Library
 
-A small JavaScript library that provides Unicode-aware Hamming distance functions for strings and bitwise Hamming distance for integers.
+A small JavaScript library exporting Hamming distance functions with Unicode-aware string handling and integer bit comparisons.
 
 ## Installation
 
-Install from source or include this module in your project. Requires Node.js >= 24 (ESM).
+This repository is a library template; install dependencies with:
+
+```bash
+npm install
+```
 
 ## API
 
-Named exports (from `src/lib/main.js`):
+Named exports from `src/lib/main.js`:
 
-- `hammingDistance(a, b)` - Compute the Hamming distance between two strings of equal length. Comparisons are performed on Unicode code points (not UTF-16 code units). Throws `TypeError` for non-string inputs and `RangeError` for unequal-length strings.
+- `hammingDistance(a, b)`
+  - Computes the Hamming distance between two strings by Unicode code points.
+  - Throws `TypeError` if either argument is not a string.
+  - Throws `RangeError` if the strings differ in length (in Unicode code points).
 
-- `hammingDistanceBits(x, y)` - Compute the Hamming distance between two non-negative integers. Accepts `Number` (integer) or `BigInt`. Throws `TypeError` for non-integer-like inputs and `RangeError` for negative integers.
+- `hammingDistanceBits(x, y)`
+  - Computes the Hamming distance between two non-negative integers (counts differing bits).
+  - Accepts `Number` integers or `BigInt` values.
+  - Throws `TypeError` for non-integer arguments, `RangeError` for negative values.
 
 ## Examples
-
-Importing (ESM):
 
 ```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
@@ -25,16 +33,18 @@ console.log(hammingDistance('karolin', 'kathrin')); // 3
 console.log(hammingDistance('', '')); // 0
 
 console.log(hammingDistanceBits(1, 4)); // 2
-console.log(hammingDistanceBits(0, 0)); // 0
-
-// Unicode example with emojis
-console.log(hammingDistance('\u{1F600}\u{1F601}', '\u{1F600}\u{1F602}')); // 1
+console.log(hammingDistanceBits(0n, 0n)); // 0
 ```
 
-## Notes
+## Notes on Unicode
 
-- The string comparison uses Array.from(...) to iterate by Unicode code points so supplementary characters like emoji are handled as single positions.
-- For large integers or when precise bit semantics are required, prefer passing BigInt values.
+This library compares Unicode code points (using the string iterator / Array.from). It does not normalize strings; if you want canonical equivalence (for example, comparing precomposed and decomposed accents), normalize inputs with `String.prototype.normalize()` before calling `hammingDistance`.
+
+## Running tests
+
+```bash
+npm test
+```
 
 ## License
 
