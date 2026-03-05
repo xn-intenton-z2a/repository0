@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# .github/workflows/agent-discussions-bot.yml
+# .github/workflows/agentic-lib-bot.yml
 #
-# Responds to GitHub Discussions using the Copilot SDK.
-# Creates features, seeds repositories, provides status updates.
+# Discussions bot: responds to GitHub Discussions using the Copilot SDK.
+# Checks thread + repo context, responds, and can escalate to the main
+# workflow by dispatching agentic-lib-workflow.yml with a message parameter.
 
-name: agent-discussions-bot
-run-name: "agent-discussions-bot [${{ github.ref_name }}]"
+name: agentic-lib-bot
+run-name: "agentic-lib-bot [${{ github.ref_name }}]"
 concurrency:
   group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
   cancel-in-progress: false
@@ -25,7 +26,7 @@ on:
   workflow_dispatch:
     inputs:
       discussion-url:
-        description: "Discussion URL to respond to (required for supervisor-dispatched runs)"
+        description: "Discussion URL to respond to"
         type: string
         required: false
         default: ""
@@ -43,6 +44,7 @@ permissions:
   contents: read
   issues: write
   discussions: write
+  actions: write
 
 env:
   configPath: ".github/agentic-lib/agents/agentic-lib.yml"

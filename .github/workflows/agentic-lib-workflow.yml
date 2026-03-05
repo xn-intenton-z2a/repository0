@@ -1,0 +1,702 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2025-2026 Polycode Limited
+# .github/workflows/agentic-lib-workflow.yml
+#
+# Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
+# Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
+# agent-flow-maintain, agent-flow-fix-code, and ci-automerge.
+
+name: agentic-lib-workflow
+run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
+concurrency:
+  group: agentic-lib-workflow
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Copilot SDK model to use"
+        type: choice
+        required: false
+        default: "gpt-5-mini"
+        options:
+          - gpt-5-mini
+          - claude-sonnet-4
+          - gpt-4.1
+      mode:
+        description: "Run mode"
+        type: choice
+        required: false
+        default: "full"
+        options:
+          - full
+          - dev-only
+          - maintain-only
+          - review-only
+          - pr-cleanup-only
+      message:
+        description: "Message from bot or human (context for supervisor)"
+        type: string
+        required: false
+        default: ""
+      issue-number:
+        description: "Target specific issue (dev-only mode)"
+        type: string
+        required: false
+        default: ""
+      schedule:
+        description: "Change schedule frequency after this run"
+        type: choice
+        required: false
+        default: ""
+        options:
+          - ""
+          - "off"
+          - "weekly"
+          - "daily"
+          - "hourly"
+          - "continuous"
+      pr-number:
+        description: "Target specific PR for fix"
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  pull-requests: write
+  checks: read
+  discussions: write
+
+env:
+  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
+  maxFixAttempts: "3"
+  stalePrDays: "3"
+
+jobs:
+  # ─── Normalise inputs ──────────────────────────────────────────────
+  params:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Normalise params
+        id: normalise
+        shell: bash
+        run: |
+          MODEL='${{ inputs.model }}'
+          echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+          MODE='${{ inputs.mode }}'
+          echo "mode=${MODE:-full}" >> $GITHUB_OUTPUT
+          echo "message=${{ inputs.message }}" >> $GITHUB_OUTPUT
+          ISSUE='${{ inputs.issue-number }}'
+          echo "issue-number=${ISSUE}" >> $GITHUB_OUTPUT
+          SCHEDULE='${{ inputs.schedule }}'
+          echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
+          PR='${{ inputs.pr-number }}'
+          echo "pr-number=${PR}" >> $GITHUB_OUTPUT
+    outputs:
+      model: ${{ steps.normalise.outputs.model }}
+      mode: ${{ steps.normalise.outputs.mode }}
+      message: ${{ steps.normalise.outputs.message }}
+      issue-number: ${{ steps.normalise.outputs.issue-number }}
+      schedule: ${{ steps.normalise.outputs.schedule }}
+      pr-number: ${{ steps.normalise.outputs.pr-number }}
+
+  # ─── PR Cleanup: merge/close/delete stale PRs and branches ─────────
+  pr-cleanup:
+    needs: params
+    if: needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'pr-cleanup-only'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR cleanup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const stalePrDays = parseInt(process.env.stalePrDays) || 3;
+            const prCutoff = new Date(Date.now() - stalePrDays * 24 * 60 * 60 * 1000);
+            let mergedPRs = [];
+            let closedPRs = [];
+
+            // List open PRs with automerge label
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 20,
+            });
+
+            for (const pr of openPRs) {
+              const hasAutomerge = pr.labels.some(l => l.name === 'automerge');
+              if (!hasAutomerge) continue;
+
+              const { data: fullPr } = await github.rest.pulls.get({
+                owner, repo, pull_number: pr.number,
+              });
+
+              if (fullPr.mergeable && fullPr.mergeable_state === 'clean') {
+                // Merge it
+                try {
+                  await github.rest.pulls.merge({
+                    owner, repo, pull_number: pr.number, merge_method: 'squash',
+                  });
+                  core.info(`Merged PR #${pr.number}`);
+                  // Delete branch
+                  try {
+                    await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pr.head.ref}` });
+                  } catch (e) { core.info(`Could not delete branch: ${e.message}`); }
+
+                  // Label associated issue
+                  const branchPrefix = 'agentic-lib-issue-';
+                  if (pr.head.ref.startsWith(branchPrefix)) {
+                    const issueNum = parseInt(pr.head.ref.replace(branchPrefix, ''));
+                    if (issueNum) {
+                      try {
+                        await github.rest.issues.addLabels({ owner, repo, issue_number: issueNum, labels: ['merged'] });
+                        await github.rest.issues.removeLabel({ owner, repo, issue_number: issueNum, name: 'in-progress' });
+                      } catch (e) { /* label may not exist */ }
+                    }
+                  }
+                  mergedPRs.push(pr.number);
+                } catch (e) {
+                  core.warning(`Could not merge PR #${pr.number}: ${e.message}`);
+                }
+              } else if (fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false) {
+                const isStale = new Date(pr.updated_at) < prCutoff;
+                if (isStale) {
+                  // Close stale conflicting PR
+                  core.info(`Closing stale conflicting PR #${pr.number}`);
+                  await github.rest.pulls.update({ owner, repo, pull_number: pr.number, state: 'closed' });
+                  try {
+                    await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pr.head.ref}` });
+                  } catch (e) { /* branch may already be gone */ }
+                  closedPRs.push(pr.number);
+                } else {
+                  // Remove automerge label from conflicting but fresh PR
+                  try {
+                    await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' });
+                    await github.rest.issues.createComment({ owner, repo, issue_number: pr.number,
+                      body: 'Automerge label removed — PR has conflicts. Resolve and re-add label to retry.' });
+                  } catch (e) { /* label may not exist */ }
+                }
+              }
+              // If unstable/unknown: skip, next run handles
+            }
+            core.setOutput('merged-prs', JSON.stringify(mergedPRs));
+            core.setOutput('closed-prs', JSON.stringify(closedPRs));
+        id: cleanup
+    outputs:
+      merged-prs: ${{ steps.cleanup.outputs.merged-prs }}
+      closed-prs: ${{ steps.cleanup.outputs.closed-prs }}
+
+  # ─── Telemetry: gather repo state for supervisor ───────────────────
+  telemetry:
+    needs: params
+    if: needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gather telemetry
+        id: gather
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Open issues
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', per_page: 20,
+              labels: 'automated',
+            });
+            const issuesSummary = issues.map(i => ({
+              number: i.number, title: i.title,
+              labels: i.labels.map(l => l.name),
+            }));
+
+            // Open PRs
+            const { data: prs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 10,
+            });
+            const prsSummary = prs.map(p => ({
+              number: p.number, title: p.title, branch: p.head.ref,
+              labels: p.labels.map(l => l.name),
+            }));
+
+            // Recent workflow runs
+            const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+              owner, repo, per_page: 10,
+            });
+            const runsSummary = runs.workflow_runs.map(r => ({
+              name: r.name, status: r.status, conclusion: r.conclusion,
+              created: r.created_at,
+            }));
+
+            // Read local files
+            let mission = '';
+            try { mission = fs.readFileSync('MISSION.md', 'utf8').slice(0, 2000); } catch (e) {}
+            let features = [];
+            try {
+              const featDir = 'features/';
+              if (fs.existsSync(featDir)) {
+                features = fs.readdirSync(featDir).filter(f => f.endsWith('.md'));
+              }
+            } catch (e) {}
+
+            // Message from bot/human
+            const message = '${{ needs.params.outputs.message }}';
+
+            const telemetry = {
+              issues: issuesSummary,
+              prs: prsSummary,
+              recentRuns: runsSummary,
+              mission: mission.slice(0, 500),
+              featureFiles: features,
+              message: message || null,
+            };
+
+            // Write to file for downstream jobs
+            fs.writeFileSync('/tmp/telemetry.json', JSON.stringify(telemetry, null, 2));
+            // Set as output (truncated for GitHub output limits)
+            const summary = JSON.stringify(telemetry);
+            core.setOutput('telemetry', summary.slice(0, 60000));
+    outputs:
+      telemetry: ${{ steps.gather.outputs.telemetry }}
+
+  # ─── Supervisor: LLM decides what to do ─────────────────────────────
+  supervisor:
+    needs: [params, pr-cleanup, telemetry]
+    if: |
+      always() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Run supervisor
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "supervise"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-supervisor.md"
+          model: ${{ needs.params.outputs.model }}
+
+  # ─── Maintain: features + library (push to main) ───────────────────
+  maintain:
+    needs: [params, supervisor]
+    if: |
+      always() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'maintain-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
+          echo "featuresWritablePaths=${FEATURES}" >> $GITHUB_OUTPUT
+          echo "libraryWritablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
+
+      - name: Maintain features
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "maintain-features"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-maintain-features.md"
+          writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Maintain library
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "maintain-library"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-maintain-library.md"
+          writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Commit and push changes
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-step: maintain features and library"
+          push-ref: ${{ github.ref_name }}
+
+  # ─── Fix stuck PRs with failing checks ─────────────────────────────
+  fix-stuck:
+    needs: [params, supervisor]
+    if: |
+      always() &&
+      needs.params.outputs.mode == 'full' &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Find and fix stuck PRs
+        uses: actions/github-script@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const maxFixAttempts = parseInt(process.env.maxFixAttempts) || 3;
+            const prNumber = '${{ needs.params.outputs.pr-number }}';
+
+            // If specific PR requested, use that
+            if (prNumber) {
+              core.info(`Specific PR requested: #${prNumber}`);
+              core.exportVariable('FIX_PR_NUMBER', prNumber);
+              return;
+            }
+
+            // Find PRs with failing checks on agentic branches
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 10,
+            });
+
+            for (const pr of openPRs) {
+              const hasAutomerge = pr.labels.some(l => l.name === 'automerge');
+              if (!hasAutomerge) continue;
+              if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
+
+              // Check if checks are failing
+              const { data: checkRuns } = await github.rest.checks.listForRef({
+                owner, repo, ref: pr.head.sha,
+              });
+              const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
+              if (!hasFailing) continue;
+
+              // Check fix attempt count
+              const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: 'agentic-lib-workflow.yml',
+                branch: pr.head.ref, per_page: maxFixAttempts + 1,
+              });
+              if (fixRuns.total_count >= maxFixAttempts) {
+                core.info(`PR #${pr.number} exceeded fix attempts. Removing automerge.`);
+                try { await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' }); } catch (e) {}
+                continue;
+              }
+
+              core.info(`Will attempt to fix PR #${pr.number}`);
+              core.exportVariable('FIX_PR_NUMBER', String(pr.number));
+              break;
+            }
+
+      - name: Checkout PR branch and fix
+        if: env.FIX_PR_NUMBER != ''
+        run: |
+          gh pr checkout ${{ env.FIX_PR_NUMBER }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix failing code
+        if: env.FIX_PR_NUMBER != ''
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "fix-code"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
+          pr-number: ${{ env.FIX_PR_NUMBER }}
+          test-command: "npm test"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Commit and push fixes
+        if: env.FIX_PR_NUMBER != ''
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-step: fix failing tests"
+
+  # ─── Review: close resolved issues, enhance with criteria ──────────
+  review-features:
+    needs: [params, maintain]
+    if: |
+      always() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'review-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Review issues
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "review-issue"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-review-issue.md"
+          model: ${{ needs.params.outputs.model }}
+
+      - name: Enhance issues
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "enhance-issue"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
+          model: ${{ needs.params.outputs.model }}
+
+  # ─── Dev: sequential issue resolution ──────────────────────────────
+  dev:
+    needs: [params, review-features]
+    if: |
+      always() &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
+      needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install agentic-step dependencies
+        working-directory: .github/agentic-lib/actions/agentic-step
+        run: npm ci
+
+      - name: Load config
+        id: config
+        run: |
+          CONFIG="${{ env.configPath }}"
+          SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG")
+          TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG")
+          FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
+          DOCS=$(yq -r '.paths.documentationPath.path // "docs/"' "$CONFIG")
+          LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
+          SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
+          README=$(yq -r '.paths.readmeFilepath.path // "README.md"' "$CONFIG")
+          DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG")
+          echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
+
+      - name: Find target issue
+        id: issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const specificIssue = '${{ needs.params.outputs.issue-number }}';
+            if (specificIssue) {
+              core.setOutput('issue-number', specificIssue);
+              return;
+            }
+            // Find oldest open issue with 'ready' label
+            const { data: issues } = await github.rest.issues.listForRepo({
+              ...context.repo, state: 'open', labels: 'ready',
+              sort: 'created', direction: 'asc', per_page: 1,
+            });
+            if (issues.length > 0) {
+              core.setOutput('issue-number', String(issues[0].number));
+              core.info(`Targeting issue #${issues[0].number}: ${issues[0].title}`);
+            } else {
+              core.setOutput('issue-number', '');
+              core.info('No ready issues found');
+            }
+
+      - name: Create branch
+        if: steps.issue.outputs.issue-number != ''
+        id: branch
+        run: |
+          ISSUE_NUMBER="${{ steps.issue.outputs.issue-number }}"
+          BRANCH="agentic-lib-issue-${ISSUE_NUMBER}"
+          git checkout -b "${BRANCH}" 2>/dev/null || git checkout "${BRANCH}"
+          echo "branchName=${BRANCH}" >> $GITHUB_OUTPUT
+
+      - name: Run transformation
+        if: steps.issue.outputs.issue-number != ''
+        uses: ./.github/agentic-lib/actions/agentic-step
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        with:
+          task: "transform"
+          config: ${{ env.configPath }}
+          instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
+          test-command: "npm test"
+          model: ${{ needs.params.outputs.model }}
+          issue-number: ${{ steps.issue.outputs.issue-number }}
+          writable-paths: ${{ steps.config.outputs.writablePaths }}
+
+      - name: Commit and push
+        if: steps.issue.outputs.issue-number != ''
+        uses: ./.github/agentic-lib/actions/commit-if-changed
+        with:
+          commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
+          push-ref: ${{ steps.branch.outputs.branchName }}
+
+      - name: Create PR and attempt merge
+        if: steps.issue.outputs.issue-number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branchName = '${{ steps.branch.outputs.branchName }}';
+            const issueNumber = '${{ steps.issue.outputs.issue-number }}';
+
+            if (!branchName) return;
+
+            // Check if branch has commits ahead of main
+            try {
+              const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+                owner, repo, basehead: `main...${branchName}`,
+              });
+              if (comparison.ahead_by === 0) {
+                core.info('Branch has no new commits — skipping');
+                return;
+              }
+            } catch (err) {
+              core.info(`Branch comparison failed: ${err.message}`);
+              return;
+            }
+
+            // Check if PR already exists
+            const { data: existingPRs } = await github.rest.pulls.list({
+              owner, repo, state: 'open',
+              head: `${owner}:${branchName}`, per_page: 1,
+            });
+
+            let prNumber;
+            if (existingPRs.length > 0) {
+              prNumber = existingPRs[0].number;
+              core.info(`PR already exists: #${prNumber}`);
+            } else {
+              const { data: pr } = await github.rest.pulls.create({
+                owner, repo,
+                title: `fix: resolve issue #${issueNumber}`,
+                body: `Closes #${issueNumber}\n\nAutomated transformation.`,
+                head: branchName, base: 'main',
+              });
+              prNumber = pr.number;
+              core.info(`Created PR #${prNumber}`);
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: prNumber, labels: ['automerge'],
+              });
+            }
+
+            // Wait briefly for checks to register
+            await new Promise(r => setTimeout(r, 10000));
+
+            // Attempt merge
+            for (let attempt = 0; attempt < 2; attempt++) {
+              const { data: fullPr } = await github.rest.pulls.get({
+                owner, repo, pull_number: prNumber,
+              });
+
+              if (fullPr.mergeable && fullPr.mergeable_state === 'clean') {
+                try {
+                  await github.rest.pulls.merge({
+                    owner, repo, pull_number: prNumber, merge_method: 'squash',
+                  });
+                  core.info(`Merged PR #${prNumber}`);
+                  try {
+                    await github.rest.git.deleteRef({ owner, repo, ref: `heads/${branchName}` });
+                  } catch (e) {}
+                  if (issueNumber) {
+                    try {
+                      await github.rest.issues.addLabels({ owner, repo, issue_number: parseInt(issueNumber), labels: ['merged'] });
+                      await github.rest.issues.removeLabel({ owner, repo, issue_number: parseInt(issueNumber), name: 'in-progress' });
+                    } catch (e) {}
+                  }
+                  return;
+                } catch (e) {
+                  core.info(`Merge attempt ${attempt + 1} failed: ${e.message}`);
+                }
+              } else if (fullPr.mergeable_state === 'unstable' || fullPr.mergeable === null) {
+                core.info(`PR not ready yet (${fullPr.mergeable_state}), waiting...`);
+                await new Promise(r => setTimeout(r, 15000));
+              } else {
+                core.info(`PR not mergeable: ${fullPr.mergeable_state}`);
+                break;
+              }
+            }
+            core.info(`PR #${prNumber} left open for next run`);
+
+  # ─── Post-merge: stats, schedule, mission check ────────────────────
+  post-merge:
+    needs: [params, dev, pr-cleanup]
+    if: always() && needs.params.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Summary
+        run: |
+          echo "## agentic-lib-workflow run summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Mode: ${{ needs.params.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Model: ${{ needs.params.outputs.model }}" >> $GITHUB_STEP_SUMMARY
+
+  # ─── Schedule change (if requested) ────────────────────────────────
+  update-schedule:
+    needs: [params, dev]
+    if: always() && needs.params.outputs.schedule != '' && needs.params.result == 'success'
+    uses: ./.github/workflows/agentic-lib-schedule.yml
+    with:
+      frequency: ${{ needs.params.outputs.schedule }}
+      model: ${{ needs.params.outputs.model }}
+    secrets: inherit

@@ -1,20 +1,19 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
-# .github/workflows/test.yml
+# .github/workflows/agentic-lib-test.yml
 #
-# Starter test workflow seeded by agentic-lib init.
-#
-# This file is part of the example suite for `agentic-lib` see: https://github.com/xn-intenton-z2a/agentic-lib
-# This file is licensed under the MIT License. For details, see LICENSE-MIT
+# Test workflow seeded by agentic-lib init.
+# Also callable via workflow_call from the main pipeline.
 
-name: test
-run-name: "test [${{ github.ref_name }}]"
+name: agentic-lib-test
+run-name: "agentic-lib-test [${{ github.ref_name }}]"
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
   workflow_dispatch:
 
 jobs:
