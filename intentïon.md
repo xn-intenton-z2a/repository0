@@ -36,3 +36,26 @@ If you want, I can run npm install here then re-run tests; confirm and I'll
 All tests passed: 11 tests across 1 file. Files added/updated: src/lib/main.js, tests/unit/main.test.js, README.md, docs/examples/*, docs/evidence/*, docs/reports/*.
 
 ---
+## transform at 2026-03-05T04:38:21.403Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 63209 (in: 58636, out: 4573)
+**Duration:** 91s (~1.5 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22702515630](https://github.com/xn-intenton-z2a/repository0/actions/runs/22702515630)
+
+Created tests, README, and example/evidence docs; ran the test suite.
+
+- Added tests: tests/unit/main.test.js
+- Updated README.md with API and usage examples
+- Added docs/examples/hamming_examples.txt
+- Added docs/evidence/results.json
+- Added docs/reports/usage.md
+
+Test run summary:
+- 11 tests passed (tests/unit/main.test.js)
+- All unit tests green
+
+If you'd like, commit these changes and push to a branch, or I can add more examples and CI configuration next.
+
+---
