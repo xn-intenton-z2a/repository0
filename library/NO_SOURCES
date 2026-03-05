@@ -1,0 +1,153 @@
+NORMALISED_EXTRACT
+
+This repository's SOURCES.md contains no external URLs or technical references. The following extract is the actionable, technical guidance for how the maintain-library workflow expects sources to be provided and how to transform entries into library/ documents.
+
+Key technical points (exact, prescriptive):
+
+1) Required per-source metadata fields and types (one entry per line in SOURCES.md or a block list):
+   - url: (string, absolute URL, required)
+   - title: (string, short human-readable title, required)
+   - type: (string enum: "api", "paper", "doc", "tutorial", "repo", "other", required)
+   - date_retrieved: (ISO8601 UTC string, required)
+   - description: (string, 1-3 sentence summary, optional but recommended)
+   - tags: (comma-separated strings, optional)
+   - fingerprint: (hex SHA256 of the fetched content, optional but recommended)
+
+2) Source normalization rules (apply before deduplication):
+   - Normalize URLs by removing default ports (http:80, https:443), lowercasing host, and trimming trailing slashes.
+   - Resolve HTTP redirects and record final canonical URL in url_final field when fetched.
+   - Fetch content using GET with headers: Accept: text/*,application/*; User-Agent: agentic-lib-crawler/1.0
+   - Calculate fingerprint: SHA256(content_bytes) and store hex lowercase.
+
+3) Deduplication and uniqueness rules:
+   - Primary dedup key: fingerprint if present, else normalized url_final, else normalized url.
+   - If fingerprint matches existing library document, update existing document by appending new source metadata to Attribution block and set retrieval date to most recent.
+   - If URL normalization matches existing document but fingerprint differs, keep both but mark as "related" and include cross-reference metadata.
+
+4) Library document naming and limits:
+   - File name: SCREAMING_SNAKECASE, 1-2 words recommended, characters allowed: A-Z, 0-9, underscore. Example: "AZURE_DOCS".
+   - Max library documents: 32 (enforced by agentic-lib configuration). New documents beyond limit must be reviewed; prefer updating existing docs.
+
+5) Required structure of library document (plaintext file in library/):
+   - Header line: DOCUMENT_NAME (SCREAMING_SNAKECASE)
+   - Section: NORMALISED_EXTRACT (concise technical extract)
+   - Section: TABLE_OF_CONTENTS (list of items)
+   - Section: DETAILED_ITEMS (one item per TOC entry with concrete technical details)
+   - Section: SUPPLEMENTARY_DETAILS (specs, encodings, file/path rules)
+   - Section: REFERENCE_DETAILS (API signatures, config fields, method names where applicable)
+   - Section: DETAILED_DIGEST (raw source snippet + retrieval timestamp)
+   - Section: ATTRIBUTION (source URL or file path, crawler user-agent, byte size)
+
+6) Content encoding and file system conventions:
+   - Files must be UTF-8 without BOM.
+   - Line endings: LF only (\n).
+   - Maximum file size: 512 KiB per document recommended to keep processing fast.
+   - Use no embedded binary data; store large binaries externally and reference via URL and fingerprint.
+
+7) Automation and transformation pipeline (step-by-step):
+   - Step 1: Read SOURCES.md and parse entries; accept two formats: single-line YAML-like key=value pairs, or JSON-per-line.
+   - Step 2: For each entry, fetch URL and record HTTP status, content-type, content-length, and final URL after redirects.
+   - Step 3: Compute fingerprint SHA256(content_bytes).
+   - Step 4: Normalize metadata and deduplicate against existing library/*. If new, compute canonical DOCUMENT_NAME and create file following structure above.
+   - Step 5: Save document into library/ and commit with git with Co-authored-by trailer.
+
+8) Minimal commit metadata required when creating/updating library docs:
+   - Commit message: "Add/Update library document: DOCUMENT_NAME\n\nSources: <url>\nRetrieved: <date_retrieved>\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+
+9) Troubleshooting checks and commands (concrete):
+   - Verify SOURCES.md exists and is UTF-8: file -b --mime-encoding SOURCES.md
+   - Get byte size: wc -c SOURCES.md
+   - Test fetch: curl -fSL --max-time 30 -H "User-Agent: agentic-lib-crawler/1.0" <url> -o /tmp/source.html
+   - Compute fingerprint locally: sha256sum /tmp/source.html | cut -d' ' -f1
+   - Validate library document count: ls library | wc -l (must be <=32)
+
+TABLE_OF_CONTENTS
+
+1. Required Source Metadata
+2. Normalization and Fingerprinting
+3. Deduplication Rules
+4. Library Document Naming and Structure
+5. Encoding and FS Conventions
+6. Pipeline Steps (Fetch → Fingerprint → Create)
+7. Commit and CI Metadata
+8. Troubleshooting Commands
+9. Detailed Digest and Attribution
+
+DETAILED_ITEMS
+
+1) Required Source Metadata
+   - url: absolute URL used for GET; must begin with https:// or http://.
+   - title: 5-80 characters.
+   - type: one of the enumerated types; used for categorization and search.
+   - date_retrieved: format YYYY-MM-DDTHH:MM:SSZ (RFC3339/ISO8601 UTC).
+   - description: plain text; avoid >500 characters.
+   - tags: used for search and grouping; stored as lowercased tokens.
+   - fingerprint: lowercase hex SHA256(content).
+
+2) Normalization and Fingerprinting
+   - URL normalization pseudo-steps:
+     1. Parse URL according to RFC3986.
+     2. Lowercase scheme and host.
+     3. Remove default port numbers.
+     4. Remove fragment (#...) entirely.
+     5. Sort query parameters lexicographically by key; keep values intact.
+   - Fetch settings:
+     - HTTP method: GET.
+     - Headers: Accept: text/*,application/*; User-Agent: agentic-lib-crawler/1.0
+     - Timeout: 30s.
+     - Follow redirects up to 10 hops.
+   - Fingerprint: SHA256 of response body bytes after decoding transfer-encoding; do NOT normalize HTML prior to hashing.
+
+3) Deduplication Rules (implementation-ready)
+   - If fingerprint exists in library index table, update Attribution and append retrieval metadata.
+   - If only URL matches, attempt to fetch and compute fingerprint; if fingerprint differs, mark as related and store both.
+
+SUPPLEMENTARY_DETAILS
+
+- Configuration values (taken from agentic-lib.toml in this repo):
+  - library path: library/
+  - library-sources: SOURCES.md
+  - library-limit: 32
+  - model default: gpt-5-mini
+  - node engine: >=24.0.0
+
+- File storage constraints:
+  - Use UTF-8; limit 512 KiB per document; store larger items externally.
+
+- Recommended HTTP client settings:
+  - maxRedirects: 10
+  - timeoutMs: 30000
+  - headers: { "User-Agent": "agentic-lib-crawler/1.0", "Accept": "text/*,application/*" }
+
+REFERENCE_DETAILS
+
+- Exact filename rule: DOCUMENT_NAME must match regex ^[A-Z0-9_]{1,64}$ and contain at most one underscore (prefer single token). Prefer 1-2 words.
+- Commit trailer: Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+- Retrieve date format: ISO8601 UTC e.g., 2026-03-05T22:25:25Z
+- Example curl for fetching and verifying:
+  curl -fSL --max-time 30 -H "User-Agent: agentic-lib-crawler/1.0" "<url>" -o /tmp/source.html && sha256sum /tmp/source.html | awk '{print $1}'
+
+DETAILED_DIGEST
+
+Source file path: SOURCES.md
+Retrieval timestamp: 2026-03-05T22:25:25.718Z
+Raw content:
+# Sources
+
+Reference material and documentation sources for this project.
+
+Add URLs, papers, API docs, or other reference material here.
+The maintain-library workflow will process these into `library/` documents.
+
+ATTRIBUTION
+
+Crawler: agentic-lib-crawler/1.0
+Repository path: /home/runner/work/repository0/repository0/SOURCES.md
+Data size (bytes): 213
+
+NOTES
+
+- Because SOURCES.md currently contains no URLs, create entries following the Required Source Metadata schema to populate the library.
+- New library documents must be created only when they are distinct by fingerprint or canonical URL; prefer updating existing documents to stay within the 32-document limit.
+
+END
