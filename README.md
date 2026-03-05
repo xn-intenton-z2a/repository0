@@ -1,36 +1,47 @@
 # Hamming Distance Library
 
-Small JavaScript library providing Hamming distance utilities for strings and integers.
+A small JavaScript library exporting Hamming distance functions.
 
-## Install
+Features
+- hammingDistance(a, b): compute Hamming distance between two strings (compares Unicode code points)
+- hammingDistanceBits(x, y): compute Hamming distance between two non-negative integers (Number or BigInt)
 
-This repository is a template; to use the library in another project, copy the `src/lib/main.js` file or install the package when published.
+Usage
 
-## API
+Import named functions from the module:
 
-Named exports from `src/lib/main.js`:
-
-- `hammingDistance(a, b)`
-  - Compares two strings by Unicode code points and returns the number of positions where characters differ.
-  - Throws `TypeError` if either argument is not a string.
-  - Throws `RangeError` if the strings have different code point lengths.
-
-- `hammingDistanceBits(x, y)`
-  - Compares two non-negative integers (Number or BigInt) and returns the count of differing bits.
-  - Throws `TypeError` if arguments are not integer Numbers or BigInts.
-  - Throws `RangeError` if any argument is negative.
-
-## Examples
-
+```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
+// Strings (Unicode-aware)
 console.log(hammingDistance('karolin', 'kathrin')); // 3
 console.log(hammingDistance('', '')); // 0
 
+// Bits
 console.log(hammingDistanceBits(1, 4)); // 2
-console.log(hammingDistanceBits(0n, 0n)); // 0
+console.log(hammingDistanceBits(0, 0)); // 0
 
-## Notes
+// BigInt
+console.log(hammingDistanceBits(1n, 4n)); // 2
+```
 
-- Unicode-aware: uses code point iteration so emoji and other surrogate-pair characters are treated as single characters.
-- Supports BigInt for large integer bit comparisons.
+API
+
+- hammingDistance(a: string, b: string): number
+  - Throws TypeError if either argument is not a string
+  - Throws RangeError if strings have different length in Unicode code points
+
+- hammingDistanceBits(x: number|bigint, y: number|bigint): number
+  - Accepts integer Number values or BigInt
+  - Throws TypeError if arguments are not integers (or BigInt)
+  - Throws RangeError if numbers are negative
+
+Development
+
+Run tests:
+
+```bash
+npm test
+```
+
+License: MIT

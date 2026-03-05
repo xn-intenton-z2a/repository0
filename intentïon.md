@@ -34,3 +34,19 @@ Summary of changes made:
 - README.md — API docs and examp
 
 ---
+## transform at 2026-03-05T00:54:52.701Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 34931 (in: 29853, out: 5078)
+**Duration:** 101s (~1.7 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22696919556](https://github.com/xn-intenton-z2a/repository0/actions/runs/22696919556)
+
+Tests could not be run because the test runner (vitest) is not installed in the environment: sh: 1: vitest: not found. Locally or in CI run `npm install` then `npm test` to execute the suite.
+
+Summary of changes made (files updated/added):
+- Overwrote: src/lib/main.js — implemented full Unicode-aware hammingDistance and robust hammingDistanceBits (Number + BigInt, validation).
+- Added tests: tests/unit/main.test.js — comprehensive unit tests covering normal, edge, Unicode and error cases.
+- Adde
+
+---
