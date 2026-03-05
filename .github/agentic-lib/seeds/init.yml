@@ -28,8 +28,25 @@ on:
         type: boolean
         required: false
         default: false
-      mission:
-        description: "Mission text for MISSION.md (leave empty to use seed default)"
+      mission-seed:
+        description: "Mission seed name (purge only)"
+        type: choice
+        required: false
+        default: "hamming-distance"
+        options:
+          - hamming-distance
+          - fizz-buzz
+          - roman-numerals
+          - lunar-lander
+          - string-utils
+          - dense-encoding
+          - plot-code-lib
+          - cron-engine
+          - owl-ontology
+          - time-series-lab
+          - empty
+      mission-text:
+        description: "Freeform mission text for MISSION.md (overrides mission-seed if provided)"
         type: string
         required: false
         default: ""
@@ -70,8 +87,10 @@ jobs:
           echo "mode=${MODE:-update}" >> $GITHUB_OUTPUT
           DRY_RUN='${{ inputs.dry-run }}'
           echo "dry-run=${DRY_RUN:-false}" >> $GITHUB_OUTPUT
-          MISSION='${{ inputs.mission }}'
-          echo "mission=${MISSION}" >> $GITHUB_OUTPUT
+          MISSION_SEED='${{ inputs.mission-seed }}'
+          echo "mission-seed=${MISSION_SEED:-hamming-distance}" >> $GITHUB_OUTPUT
+          MISSION_TEXT='${{ inputs.mission-text }}'
+          echo "mission-text=${MISSION_TEXT}" >> $GITHUB_OUTPUT
           SCHEDULE='${{ inputs.schedule }}'
           echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
           MODEL='${{ inputs.model }}'
@@ -79,7 +98,8 @@ jobs:
     outputs:
       mode: ${{ steps.normalise.outputs.mode }}
       dry-run: ${{ steps.normalise.outputs.dry-run }}
-      mission: ${{ steps.normalise.outputs.mission }}
+      mission-seed: ${{ steps.normalise.outputs.mission-seed }}
+      mission-text: ${{ steps.normalise.outputs.mission-text }}
       schedule: ${{ steps.normalise.outputs.schedule }}
       model: ${{ steps.normalise.outputs.model }}
 
@@ -89,7 +109,8 @@ jobs:
     env:
       INIT_MODE: ${{ needs.params.outputs.mode }}
       INIT_DRY_RUN: ${{ needs.params.outputs.dry-run }}
-      INIT_MISSION: ${{ needs.params.outputs.mission }}
+      INIT_MISSION_SEED: ${{ needs.params.outputs.mission-seed }}
+      INIT_MISSION_TEXT: ${{ needs.params.outputs.mission-text }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,15 +135,15 @@ jobs:
         run: |
           FLAGS="init"
           if [ "$INIT_MODE" = "reseed" ]; then FLAGS="$FLAGS --reseed"; fi
-          if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge"; fi
+          if [ "$INIT_MODE" = "purge" ]; then FLAGS="$FLAGS --purge --mission $INIT_MISSION_SEED"; fi
           if [ "$INIT_DRY_RUN" = "true" ]; then FLAGS="$FLAGS --dry-run"; fi
           npx @xn-intenton-z2a/agentic-lib $FLAGS
 
-      - name: Write mission (if provided)
-        if: env.INIT_MISSION != ''
+      - name: Write mission text (if provided, overrides seed)
+        if: env.INIT_MISSION_TEXT != ''
         run: |
-          printf '# Mission\n\n%s\n' "$INIT_MISSION" > MISSION.md
-          echo "Wrote custom mission to MISSION.md"
+          printf '# Mission\n\n%s\n' "$INIT_MISSION_TEXT" > MISSION.md
+          echo "Wrote custom mission text to MISSION.md"
 
       - run: npm install
 

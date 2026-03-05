@@ -40,13 +40,29 @@ When open issues with the `automated` label lack the `ready` label and are more 
 When recent workflow runs show an init completion, the repository has a fresh or updated mission.
 Dispatch the discussions bot to announce the new mission to the community.
 
-### Mission Complete
-When the recent activity log shows the transform agent declaring the mission substantially complete
-(all features implemented, tests passing, examples generated), take these steps together:
-1. `dispatch:agent-discussions-bot` — announce completion in the discussions thread
-2. `set-schedule:weekly` — reduce to weekly maintenance check-ins
+### Mission Accomplished (bounded missions)
+When ALL of the following conditions are met, the mission is accomplished:
+1. All open issues are closed
+2. Tests pass (CI gates commits, so this is usually the case)
+3. The MISSION.md acceptance criteria are all satisfied
+4. Evidence artifacts exist under `docs/` (example outputs, test results, or walkthroughs)
 
-Do NOT use `set-schedule:off` — the repository still needs periodic review for regressions and user requests.
+When all conditions are met:
+1. `dispatch:agent-discussions-bot` — announce mission accomplished in the discussions thread
+2. `set-schedule:off` — stop the supervisor. The mission is done.
+3. Log `mission-accomplished` in the activity log.
+
+### Ongoing Missions
+If MISSION.md explicitly says "do not set schedule to off" or "ongoing mission", the mission never completes.
+Instead, when activity is healthy, use `set-schedule:weekly` or `set-schedule:daily` to keep the pipeline running.
+Never use `set-schedule:off` for ongoing missions.
+
+### Mission Substantially Complete (bounded, but minor gaps)
+When the transform agent has implemented all major features but minor polish remains
+(e.g. missing README examples, incomplete edge case coverage):
+1. `dispatch:agent-discussions-bot` — announce near-completion in the discussions thread
+2. `set-schedule:weekly` — reduce to weekly maintenance check-ins
+3. Check that `docs/` contains evidence of the library working before declaring done
 
 ## Guidelines
 
