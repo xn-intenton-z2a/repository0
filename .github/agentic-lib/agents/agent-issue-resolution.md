@@ -11,3 +11,13 @@ of the codebase's primary purpose.
 Do as much as you can all at once.
 
 Follow the linting guidelines and the formatting guidelines from the included config.
+
+## Evidence Gathering
+
+When implementing features, also produce evidence artifacts under `docs/`:
+- Example output files demonstrating the feature works (images, data files, text) → `docs/examples/`
+- Machine-readable results (JSON/CSV) for downstream consumers (stats dashboards, infographics) → `docs/evidence/`
+- Summary walkthroughs showing usage with real output → `docs/reports/`
+
+Design the library API with hooks that make evidence capture easy: return structured result objects,
+support `outputFile` options where appropriate, and emit results that observers can record.
