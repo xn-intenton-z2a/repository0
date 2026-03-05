@@ -1,54 +1,42 @@
 # Hamming Distance Library
 
-A small JavaScript library providing Hamming distance utilities for Unicode strings and integers (including BigInt).
+A small JavaScript library exporting Unicode-aware Hamming distance functions.
 
 Features
-- hammingDistance(a, b): Unicode-aware Hamming distance between two strings (compares code points).
-- hammingDistanceBits(x, y): Hamming distance between non-negative integers (Number or BigInt), counts differing bits.
-
-Installation
-
-This repository is a template; install dev dependencies and run tests:
-
-```bash
-npm install
-npm test
-```
+- hammingDistance(a, b): compares two strings by Unicode code points and returns the number of differing positions.
+- hammingDistanceBits(x, y): counts differing bits between two non-negative integers (Number or BigInt).
 
 Usage
 
-Import the functions as named exports:
+Import the functions:
 
 ```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
+```
 
-console.log(hammingDistance('karolin', 'kathrin')); // 3
-console.log(hammingDistance('', '')); // 0
+Examples
 
-console.log(hammingDistanceBits(1, 4)); // 2
-console.log(hammingDistanceBits(0n, 1n << 70n)); // 1
+```js
+hammingDistance('karolin', 'kathrin'); // 3
+hammingDistance('', ''); // 0
+
+hammingDistanceBits(1, 4); // 2
+hammingDistanceBits(0n, 1n << 65n); // 1
 ```
 
 API
 
-hammingDistance(a, b)
-- Arguments: a (string), b (string)
-- Returns: number — count of positions where Unicode code points differ
-- Errors:
-  - TypeError if either argument is not a string
-  - RangeError if strings have different length in Unicode code points
+- hammingDistance(a: string, b: string): number
+  - Throws TypeError if inputs are not strings.
+  - Throws RangeError if the strings differ in length when counted as Unicode code points.
 
-hammingDistanceBits(x, y)
-- Arguments: x (Number|BigInt), y (Number|BigInt)
-- Returns: number — count of differing bits
-- Errors:
-  - TypeError if arguments are not integer-like (Number integers or BigInt)
-  - RangeError if either integer is negative
+- hammingDistanceBits(x: number|bigint, y: number|bigint): number
+  - Throws TypeError if inputs are not integer-like (Number integers or BigInt).
+  - Throws RangeError if inputs are negative.
+  - Accepts Number values but uses BigInt internally for safe bit operations on large integers.
 
-Notes
-- Unicode handling compares code points (e.g., emoji and astral characters are handled correctly).
-- The implementation normalizes numeric inputs to BigInt for reliable bitwise differences on large integers.
+Unicode notes
 
-Contributing
+Strings are compared by Unicode code points (Array.from) rather than UTF-16 code units. This means surrogate pairs and astral characters are treated as single positions. Note that precomposed and decomposed forms (e.g., 'é' vs 'e\u0301') have different code point sequences and may have different lengths.
 
-Follow repository guidelines in CONTRIBUTING.md. Add tests for new edge cases and update docs in `docs/`.
+License: MIT

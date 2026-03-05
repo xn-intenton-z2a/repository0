@@ -1,7 +1,4 @@
-Example outputs
-
-$ node -e "import('./src/lib/main.js').then(m=>{console.log('karolin vs kathrin ->', m.hammingDistance('karolin','kathrin')); console.log('empty ->', m.hammingDistance('','')); console.log('1 vs 4 bits ->', m.hammingDistanceBits(1,4));})"
-
-karolin vs kathrin -> 3
-empty -> 0
-1 vs 4 bits -> 2
+hammingDistance("karolin", "kathrin") => 3
+hammingDistance("", "") => 0
+hammingDistanceBits(1, 4) => 2
+hammingDistanceBits(0n, 1n << 65n) => 1

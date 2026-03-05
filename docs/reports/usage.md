@@ -1,12 +1,12 @@
-Hamming Distance Library — Usage Report
+# Usage walkthrough
 
-This report demonstrates simple usage and example outputs.
+This file demonstrates calling the library functions and the expected outputs.
 
 Examples
 
-- hammingDistance('karolin','kathrin') -> 3
-- hammingDistance('','') -> 0
-- hammingDistanceBits(1,4) -> 2
-- hammingDistanceBits(0n, 1n<<70n) -> 1
+- hammingDistance('karolin', 'kathrin') -> 3
+- hammingDistance('', '') -> 0
+- hammingDistanceBits(1, 4) -> 2
+- hammingDistanceBits(0n, 1n << 65n) -> 1
 
-These results were produced using the library's exports in `src/lib/main.js` and verified by unit tests in `tests/unit/main.test.js`.
+These results are also available as machine-readable JSON in docs/evidence/results.json and as a brief text example in docs/examples/hamming_examples.txt.

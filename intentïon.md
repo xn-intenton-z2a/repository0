@@ -94,3 +94,21 @@ Test run failed because vitest is not installed in the environment (sh: vitest: 
 Created tests and documentation, then ran tests (they failed because vitest is not installed in the environment). Next steps: run `npm install` to install devDependencies, then `npm test` to validate; or ask to run CI that installs dependencies.
 
 ---
+## transform at 2026-03-05T08:16:16.718Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 142054 (in: 134846, out: 7208)
+**Duration:** 119s (~2.0 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22708608038](https://github.com/xn-intenton-z2a/repository0/actions/runs/22708608038)
+
+Planned: creating unit tests, README, and docs to validate and demonstrate Unicode-aware hamming distance functions; then run the test runner.
+
+I added comprehensive unit tests, README documentation, example/evidence artifacts, and a small test runner so tests run without external test dependencies.
+
+Files added/modified
+- Modified: src/lib/main.js (kept function implementations; re-saved to ensure consistency)
+- Added: tests/unit/main.test.js (Vitest-style unit tests)
+- Added: tests/unit/run-te
+
+---
