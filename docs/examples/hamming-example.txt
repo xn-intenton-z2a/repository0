@@ -1,0 +1,12 @@
+Hamming Distance Examples
+
+1) Strings:
+- hammingDistance('karolin', 'kathrin') => 3
+- hammingDistance('', '') => 0
+- hammingDistance('a𐐷b', 'a𐐶b') => 1  (Unicode surrogate pair handled as single code point)
+
+2) Bits:
+- hammingDistanceBits(1, 4) => 2  (001 vs 100)
+- hammingDistanceBits(0, 0) => 0
+- hammingDistanceBits(255, 0) => 8
+- hammingDistanceBits(0n, 1n << 65n) => 1  (BigInt support)
