@@ -1,79 +1,49 @@
-# repo
+# Hamming Distance Library
 
-This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
+A small JavaScript library exporting Hamming distance functions.
 
-## Getting Started
+Features
+- hammingDistance(a, b): Unicode-aware Hamming distance between two strings (compares code points).
+- hammingDistanceBits(x, y): Hamming distance between two non-negative integers (counts differing bits). Accepts Number (integer) or BigInt.
 
-1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
-2. **Configure GitHub** — see [Setup](#setup) below
-3. **Push to main** — the autonomous workflows take over from here
+Installation
 
-The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
+This repository is set up as a template. Install dev dependencies and run tests:
 
-## Setup
+npm install
+npm test
 
-### Required Secrets
+API
 
-Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
+import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
-| Secret | How to create | Purpose |
-|--------|---------------|---------|
-| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
-| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
+hammingDistance(a, b)
+- a, b: strings
+- Compares by Unicode code points (uses Array.from internally).
+- Throws TypeError if inputs are not strings.
+- Throws RangeError if strings have different lengths (in code points).
+- Returns a non-negative integer.
 
-### Repository Settings
+hammingDistanceBits(x, y)
+- x, y: integer Number or BigInt
+- Throws TypeError for non-integer inputs.
+- Throws RangeError for negative integers.
+- Returns number of differing bits (Number)
 
-| Setting | Where | Value |
-|---------|-------|-------|
-| GitHub Actions | Settings → Actions → General | Allow all actions |
-| Workflow permissions | Settings → Actions → General | Read and write permissions |
-| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
-| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
+Examples
 
-### Optional: Branch Protection
+import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
-For production repositories, consider adding branch protection on `main`:
-- Require pull request reviews before merging
-- Require status checks to pass (select the `test` workflow)
+console.log(hammingDistance('karolin', 'kathrin')) // 3
+console.log(hammingDistance('', '')) // 0
 
-## How It Works
+console.log(hammingDistanceBits(1, 4)) // 2
+console.log(hammingDistanceBits(0, 0)) // 0
 
-```
-MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
-                                                    ↑                          |
-                                                    +——————————————————————————+
-```
+Unicode example:
+console.log(hammingDistance('a😊b', 'a😢b')) // 1
 
-The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
+BigInt example:
+console.log(hammingDistanceBits(1n << 60n, 0n)) // 1
 
-## Configuration
-
-Edit `agentic-lib.toml` to tune the system:
-
-```toml
-[schedule]
-supervisor = "daily"    # off | weekly | daily | hourly | continuous
-
-[paths]
-mission = "MISSION.md"
-source = "src/lib/"
-tests = "tests/unit/"
-
-[limits]
-feature-issues = 2      # max concurrent feature issues
-attempts-per-issue = 2   # max retries per issue
-```
-
-## Updating
-
-The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
-
-```bash
-npx @xn-intenton-z2a/agentic-lib@latest init
-```
-
-## Links
-
-- [MISSION.md](MISSION.md) — your project goals
-- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
-- [intentïon website](https://xn--intenton-z2a.com)
+License: MIT
