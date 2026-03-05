@@ -14,6 +14,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      issue-number:
+        description: "Issue number to target (optional)"
+        type: string
+        required: false
+        default: ""
       model:
         description: "Copilot SDK model to use"
         type: choice
@@ -53,6 +58,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine branch name
+        id: branch
+        shell: bash
+        run: |
+          ISSUE_NUMBER="${{ inputs.issue-number }}"
+          if [ -n "$ISSUE_NUMBER" ]; then
+            BRANCH="agentic-lib-issue-${ISSUE_NUMBER}"
+          else
+            BRANCH="agentic-lib-transform-${{ github.run_id }}"
+          fi
+          git checkout -b "${BRANCH}" 2>/dev/null || git checkout "${BRANCH}"
+          echo "branchName=${BRANCH}" >> $GITHUB_OUTPUT
+          echo "issueNumber=${ISSUE_NUMBER}" >> $GITHUB_OUTPUT
+
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
@@ -86,10 +105,97 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
           test-command: "npm test"
           model: ${{ needs.params.outputs.model }}
+          issue-number: ${{ inputs.issue-number }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push changes
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform"
-          push-ref: ${{ github.ref_name }}
+          push-ref: ${{ steps.branch.outputs.branchName }}
+    outputs:
+      branchName: ${{ steps.branch.outputs.branchName }}
+      issueNumber: ${{ steps.branch.outputs.issueNumber }}
+
+  create-pr:
+    needs: [params, transform]
+    if: always() && needs.transform.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR if branch has changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branchName = '${{ needs.transform.outputs.branchName }}';
+            const issueNumber = '${{ needs.transform.outputs.issueNumber }}';
+
+            if (!branchName) {
+              core.info('No branch name — skipping PR creation');
+              return;
+            }
+
+            // Check if branch has commits ahead of main
+            try {
+              const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+                owner, repo,
+                basehead: `main...${branchName}`,
+              });
+              if (comparison.ahead_by === 0) {
+                core.info('Branch has no new commits — skipping PR creation');
+                return;
+              }
+            } catch (err) {
+              core.info(`Branch comparison failed (branch may not exist): ${err.message}`);
+              return;
+            }
+
+            // Check if PR already exists for this branch
+            const { data: existingPRs } = await github.rest.pulls.list({
+              owner, repo,
+              state: 'open',
+              head: `${owner}:${branchName}`,
+              per_page: 1,
+            });
+            if (existingPRs.length > 0) {
+              core.info(`PR already exists: #${existingPRs[0].number}`);
+              return;
+            }
+
+            // Create PR
+            const title = issueNumber
+              ? `fix: resolve issue #${issueNumber}`
+              : `agentic-step: transform (run ${context.runId})`;
+            const body = issueNumber
+              ? `Closes #${issueNumber}\n\nAutomated transformation targeting issue #${issueNumber}.`
+              : `Automated transformation run.`;
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner, repo,
+              title,
+              body,
+              head: branchName,
+              base: 'main',
+            });
+            core.info(`Created PR #${pr.number}: ${pr.html_url}`);
+
+            // Add automerge label
+            await github.rest.issues.addLabels({
+              owner, repo,
+              issue_number: pr.number,
+              labels: ['automerge'],
+            });
+
+            // Add in-progress label to issue if specified
+            if (issueNumber) {
+              try {
+                await github.rest.issues.addLabels({
+                  owner, repo,
+                  issue_number: parseInt(issueNumber),
+                  labels: ['in-progress'],
+                });
+              } catch (err) {
+                core.warning(`Could not label issue #${issueNumber}: ${err.message}`);
+              }
+            }

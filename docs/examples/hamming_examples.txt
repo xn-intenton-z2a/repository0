@@ -1,7 +1,0 @@
-hammingDistance("karolin", "kathrin") => 3
-hammingDistance("", "") => 0
-hammingDistance("a\u{1D11E}c", "a\u{1D11F}c") => 1
-
-hammingDistanceBits(1, 4) => 2
-hammingDistanceBits(0, 0) => 0
-hammingDistanceBits(0n, 0n) => 0

@@ -6,7 +6,35 @@
 // generates fixes using the Copilot SDK, and pushes a commit.
 
 import * as core from "@actions/core";
+import { execSync } from "child_process";
 import { runCopilotTask, formatPathsSection } from "../copilot.js";
+
+/**
+ * Extract run_id from a check run's details_url.
+ * e.g. "https://github.com/owner/repo/actions/runs/12345" → "12345"
+ */
+function extractRunId(detailsUrl) {
+  if (!detailsUrl) return null;
+  const match = detailsUrl.match(/\/runs\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+/**
+ * Fetch actual test output from a GitHub Actions run log.
+ */
+function fetchRunLog(runId) {
+  try {
+    const output = execSync(`gh run view ${runId} --log-failed`, {
+      encoding: "utf8",
+      timeout: 30000,
+      env: { ...process.env },
+    });
+    return output.substring(0, 8000);
+  } catch (err) {
+    core.debug(`[fix-code] Could not fetch log for run ${runId}: ${err.message}`);
+    return null;
+  }
+}
 
 /**
  * Fix failing code on a pull request.
@@ -31,7 +59,19 @@ export async function fixCode(context) {
     return { outcome: "nop", details: "No failing checks found" };
   }
 
-  const failureDetails = failedChecks.map((cr) => `**${cr.name}:** ${cr.output?.summary || "Failed"}`).join("\n");
+  // Build detailed failure information with actual test logs where possible
+  const failureDetails = failedChecks
+    .map((cr) => {
+      const runId = extractRunId(cr.details_url);
+      let logContent = null;
+      if (runId) {
+        logContent = fetchRunLog(runId);
+      }
+      const detail = logContent || cr.output?.summary || "Failed";
+      return `**${cr.name}:**\n${detail}`;
+    })
+    .join("\n\n");
+
   const agentInstructions = instructions || "Fix the failing tests by modifying the source code.";
   const readOnlyPaths = config.readOnlyPaths;
 

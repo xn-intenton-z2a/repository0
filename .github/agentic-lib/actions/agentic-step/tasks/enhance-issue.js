@@ -4,26 +4,18 @@
 //
 // Takes an issue and enhances it with clear, testable acceptance criteria
 // so that the resolve-issue task can implement it effectively.
+// Supports batch mode: when no issueNumber is provided, enhances up to 3 issues.
 
 import * as core from "@actions/core";
 import { isIssueResolved } from "../safety.js";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 
 /**
- * Enhance a GitHub issue with testable acceptance criteria.
- *
- * @param {Object} context - Task context from index.js
- * @returns {Promise<Object>} Result with outcome, tokensUsed, model
+ * Enhance a single GitHub issue with testable acceptance criteria.
  */
-export async function enhanceIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
-
-  if (!issueNumber) {
-    throw new Error("enhance-issue task requires issue-number input");
-  }
-
+async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model }) {
   if (await isIssueResolved(octokit, repo, issueNumber)) {
-    return { outcome: "nop", details: "Issue already resolved" };
+    return { outcome: "nop", details: `Issue #${issueNumber} already resolved` };
   }
 
   const { data: issue } = await octokit.rest.issues.get({
@@ -32,11 +24,11 @@ export async function enhanceIssue(context) {
   });
 
   if (issue.labels.some((l) => l.name === "ready")) {
-    return { outcome: "nop", details: "Issue already has ready label" };
+    return { outcome: "nop", details: `Issue #${issueNumber} already has ready label` };
   }
 
   const contributing = readOptionalFile(config.paths.contributing.path);
-  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: 500 });
+  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: 2000 });
 
   const agentInstructions = instructions || "Enhance this issue with clear, testable acceptance criteria.";
 
@@ -61,7 +53,13 @@ export async function enhanceIssue(context) {
     "Output ONLY the new issue body text, no markdown code fences.",
   ].join("\n");
 
-  const { content: enhancedBody, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const {
+    content: enhancedBody,
+    tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
+  } = await runCopilotTask({
     model,
     systemMessage: "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.",
     prompt,
@@ -103,5 +101,74 @@ export async function enhanceIssue(context) {
     cost,
     model,
     details: `Enhanced issue #${issueNumber} with acceptance criteria`,
+  };
+}
+
+/**
+ * Enhance a GitHub issue with testable acceptance criteria.
+ * When no issueNumber is provided, enhances up to 3 unready automated issues.
+ *
+ * @param {Object} context - Task context from index.js
+ * @returns {Promise<Object>} Result with outcome, tokensUsed, model
+ */
+export async function enhanceIssue(context) {
+  const { octokit, repo, config, issueNumber, instructions, model } = context;
+
+  // Single issue mode
+  if (issueNumber) {
+    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model });
+  }
+
+  // Batch mode: find up to 3 unready automated issues
+  const { data: openIssues } = await octokit.rest.issues.listForRepo({
+    ...repo,
+    state: "open",
+    labels: "automated",
+    per_page: 20,
+    sort: "created",
+    direction: "asc",
+  });
+  const unready = openIssues.filter((i) => !i.labels.some((l) => l.name === "ready")).slice(0, 3);
+
+  if (unready.length === 0) {
+    return { outcome: "nop", details: "No unready automated issues to enhance" };
+  }
+
+  const results = [];
+  let totalTokens = 0;
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let totalCost = 0;
+
+  for (const issue of unready) {
+    core.info(`Batch enhancing issue #${issue.number} (${results.length + 1}/${unready.length})`);
+    const result = await enhanceSingleIssue({
+      octokit,
+      repo,
+      config,
+      issueNumber: issue.number,
+      instructions,
+      model,
+    });
+    results.push(result);
+    totalTokens += result.tokensUsed || 0;
+    totalInputTokens += result.inputTokens || 0;
+    totalOutputTokens += result.outputTokens || 0;
+    totalCost += result.cost || 0;
+  }
+
+  const enhanced = results.filter((r) => r.outcome === "issue-enhanced").length;
+
+  return {
+    outcome: enhanced > 0 ? "issues-enhanced" : "nop",
+    tokensUsed: totalTokens,
+    inputTokens: totalInputTokens,
+    outputTokens: totalOutputTokens,
+    cost: totalCost,
+    model,
+    details: `Batch enhanced ${enhanced}/${results.length} issues. ${results
+      .map((r) => r.details)
+      .join("; ")
+      .substring(0, 500)}`,
   };
 }

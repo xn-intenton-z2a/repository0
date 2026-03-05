@@ -64,6 +64,10 @@ When the transform agent has implemented all major features but minor polish rem
 2. `set-schedule:weekly` — reduce to weekly maintenance check-ins
 3. Check that `docs/` contains evidence of the library working before declaring done
 
+## Prerequisites
+
+- The `set-schedule` action requires a `WORKFLOW_TOKEN` secret (classic PAT with `workflow` scope) to push workflow file changes to main.
+
 ## Guidelines
 
 - Pick multiple actions when appropriate — concurrent work is encouraged.

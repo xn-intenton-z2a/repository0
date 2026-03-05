@@ -16,10 +16,11 @@
 
 name: agent-supervisor
 run-name: "agent-supervisor [${{ github.ref_name }}]"
+concurrency:
+  group: agentic-lib-supervisor
+  cancel-in-progress: false
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
   workflow_run:
     workflows:
       - test
@@ -52,7 +53,7 @@ permissions:
   discussions: write
 
 env:
-  maxFixAttempts: "3"
+  maxFixAttempts: "3"  # Corresponds to limits.attempts-per-branch in agentic-lib.toml
   stalePrDays: "3"
   configPath: ".github/agentic-lib/agents/agentic-lib.yml"
 
@@ -192,7 +193,36 @@ jobs:
               core.warning(`Post-transform review dispatch failed: ${err.message}`);
             }
 
-            // ─── 4. Successful init → dispatch discussions bot to announce new mission ───
+            // ─── 4. Stuck automerge recovery ─────────────────────────────────
+            try {
+              const { data: openPRs2 } = await github.rest.pulls.list({
+                owner, repo, state: 'open',
+                per_page: 10,
+              });
+              for (const pr of openPRs2) {
+                const hasAutomerge = pr.labels.some(l => l.name === 'automerge');
+                if (!hasAutomerge) continue;
+
+                const { data: fullPr } = await github.rest.pulls.get({
+                  owner, repo, pull_number: pr.number,
+                });
+
+                if (fullPr.mergeable_state === 'clean' && fullPr.mergeable === true) {
+                  core.info(`PR #${pr.number} is clean and mergeable but stuck — dispatching ci-automerge.`);
+                  await github.rest.actions.createWorkflowDispatch({
+                    owner, repo,
+                    workflow_id: 'ci-automerge.yml',
+                    ref: 'main',
+                    inputs: {},
+                  });
+                  break; // One dispatch per evaluate cycle
+                }
+              }
+            } catch (err) {
+              core.warning(`Stuck automerge check failed: ${err.message}`);
+            }
+
+            // ─── 5. Successful init → dispatch discussions bot to announce new mission ───
             try {
               if (workflowRun && workflowName === 'init' && conclusion === 'success') {
                 core.info('Init completed successfully — dispatching discussions bot to announce.');
