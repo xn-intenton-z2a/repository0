@@ -14,11 +14,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.49"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.51"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.0",
-    "vitest": "^4.0.0"
+    "@vitest/coverage-v8": "^4.0.18",
+    "vitest": "^4.0.18"
   },
   "engines": {
     "node": ">=24.0.0"
