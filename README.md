@@ -1,49 +1,44 @@
 # Hamming Distance Library
 
-A small JavaScript library exporting Hamming distance functions.
+A small JavaScript library providing Hamming distance utilities: Unicode-aware string Hamming distance and integer bit Hamming distance.
 
-Features
-- hammingDistance(a, b): Unicode-aware Hamming distance between two strings (compares code points).
-- hammingDistanceBits(x, y): Hamming distance between two non-negative integers (counts differing bits). Accepts Number (integer) or BigInt.
+## Installation
 
-Installation
+This repository is a small module; install dependencies and run tests:
 
-This repository is set up as a template. Install dev dependencies and run tests:
-
+```bash
 npm install
 npm test
+```
 
-API
+## API
 
+Named exports (ES Modules):
+
+- `hammingDistance(a, b)`
+  - Computes the Hamming distance between two strings `a` and `b` by Unicode code points.
+  - Throws `TypeError` if inputs are not strings.
+  - Throws `RangeError` if strings have different lengths (in code points).
+
+- `hammingDistanceBits(x, y)`
+  - Computes the Hamming distance between two non-negative integers `x` and `y` by counting differing bits.
+  - Accepts `Number` (integer) or `BigInt` values.
+  - Throws `TypeError` for non-integer numeric inputs.
+  - Throws `RangeError` for negative values.
+
+## Examples
+
+```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
-hammingDistance(a, b)
-- a, b: strings
-- Compares by Unicode code points (uses Array.from internally).
-- Throws TypeError if inputs are not strings.
-- Throws RangeError if strings have different lengths (in code points).
-- Returns a non-negative integer.
+console.log(hammingDistance('karolin', 'kathrin')); // 3
+console.log(hammingDistance('', '')); // 0
 
-hammingDistanceBits(x, y)
-- x, y: integer Number or BigInt
-- Throws TypeError for non-integer inputs.
-- Throws RangeError for negative integers.
-- Returns number of differing bits (Number)
+console.log(hammingDistanceBits(1, 4)); // 2 (0b001 vs 0b100)
+console.log(hammingDistanceBits(0, 0)); // 0
+```
 
-Examples
+## Notes
 
-import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
-
-console.log(hammingDistance('karolin', 'kathrin')) // 3
-console.log(hammingDistance('', '')) // 0
-
-console.log(hammingDistanceBits(1, 4)) // 2
-console.log(hammingDistanceBits(0, 0)) // 0
-
-Unicode example:
-console.log(hammingDistance('a😊b', 'a😢b')) // 1
-
-BigInt example:
-console.log(hammingDistanceBits(1n << 60n, 0n)) // 1
-
-License: MIT
+- The string comparison is Unicode-aware: it compares by code points, not UTF-16 code units, so supplementary characters are handled correctly.
+- Use `BigInt` for very large integers to avoid precision issues with Number.

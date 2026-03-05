@@ -3,7 +3,7 @@
 // Copyright (C) 2025-2026 Polycode Limited
 // src/lib/main.js
 
-import { fileURLToPath } from "url";
+import { fileURLToPath } from 'url';
 
 export function hammingDistance(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') {

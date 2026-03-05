@@ -1,0 +1,7 @@
+{
+  "examples": [
+    {"call":"hammingDistance(\"karolin\", \"kathrin\")","result":3},
+    {"call":"hammingDistance(\"\", \"\")","result":0},
+    {"call":"hammingDistanceBits(1,4)","result":2}
+  ]
+}

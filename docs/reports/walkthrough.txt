@@ -1,0 +1,13 @@
+Quick walkthrough demonstrating usage and expected outputs:
+
+1) String Hamming distance (Unicode-aware):
+   hammingDistance('karolin', 'kathrin') => 3
+
+2) Empty strings:
+   hammingDistance('', '') => 0
+
+3) Bit Hamming distance:
+   hammingDistanceBits(1, 4) => 2
+   hammingDistanceBits(0, 0) => 0
+
+These examples are captured in docs/examples and docs/evidence for automated consumption.

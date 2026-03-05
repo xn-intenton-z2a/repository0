@@ -1,12 +1,12 @@
 {
-  "string_examples": [
+  "stringSamples": [
     {"a":"karolin","b":"kathrin","distance":3},
     {"a":"","b":"","distance":0},
-    {"a":"a😊b","b":"a😢b","distance":1}
+    {"a":"\u{1F600}","b":"\u{1F601}","distance":1}
   ],
-  "bit_examples": [
+  "bitSamples": [
     {"x":1,"y":4,"distance":2},
     {"x":0,"y":0,"distance":0},
-    {"x":"1n<<60n","y":0,"distance":1}
+    {"x":1024,"y":0,"distance":1}
   ]
 }
