@@ -1,0 +1,152 @@
+TITLE: SOURCES_INDEX
+
+NORMALISED_EXTRACT
+
+Purpose and core actionable rules
+1. SOURCES.md is the canonical repository source list located at repository root (path: ./SOURCES.md). It must contain one source entry per non-empty line; lines beginning with # are comments and ignored by processors.
+2. Each source entry should be a canonical absolute URL (prefer HTTPS). Prefer direct links to API docs, PDFs, raw documentation, or specific pages rather than homepages or search results.
+3. Optional inline metadata may follow the URL separated by a single tab character: URL<TAB>title<TAB>comma-separated-tags. Example fields: retrieval_date, content_type, notes are supported when present.
+4. Deduplication rules: normalize by removing trailing slash, lowercasing host, and stripping UTM/query tracking parameters before checking against existing library documents. If a normalized URL already exists in library/, the maintain-library workflow updates that document rather than creating a duplicate.
+5. Processing contract: maintain-library will try to fetch each URL, extract textual content and metadata, and write a new file in library/ named using a stable slug: host + path slugified. If fetching fails, workflow records the error and leaves the source entry unchanged.
+6. Limits and quotas: the repository configuration (agentic-lib.toml) sets library-limit (default 32). If adding sources would exceed this limit the workflow rejects new additions; manage sources to stay within the configured max.
+
+TABLE_OF_CONTENTS
+
+1. Purpose and core actionable rules
+2. Source formatting and metadata fields
+3. Normalization and deduplication
+4. Maintain-library processing behavior
+5. Configuration values and their exact effects
+6. Fetching and error-handling requirements
+7. Best practices for source selection
+8. Troubleshooting steps and remediation
+
+DETAILED CONTENT
+
+1. Purpose and core actionable rules
+- Location: ./SOURCES.md at repository root. Only this file is consumed by the maintain-library workflow.
+- Line handling: ignore blank lines and lines starting with '#'. Treat remaining lines as source entries.
+
+2. Source formatting and metadata fields
+- Required: absolute URL (HTTPS strongly preferred).
+- Optional metadata: fields separated by tabs. Supported fields in order: title, tags (comma-separated), retrieval_date (ISO 8601), content_type (MIME), notes.
+- Example canonical entry format (no quoting, single-line): https://example.org/docs/api.html<TAB>Example API Docs<TAB>api,reference
+
+3. Normalization and deduplication
+- Normalization steps before dedup check:
+  a) Lowercase scheme and host.
+  b) Remove trailing slash from path.
+  c) Strip common tracking query parameters: utm_*, fbclid, gclid, ref, ref_src.
+  d) Percent-decode path segments where safe, then re-encode minimal necessary characters.
+- Deduplication: check normalized URL against library documents' recorded source_url metadata; if match, update existing document instead of creating a new file.
+
+4. Maintain-library processing behavior
+- Fetch policy: GET request with Accept: text/*, application/json, application/pdf; follow redirects up to 5 hops; timeout 30s.
+- Retries: up to 3 attempts with exponential backoff (initial delay 1s, then 2s, then 4s).
+- Content extraction: for HTML, extract visible text and metadata (title, meta description, canonical link); for JSON, save raw JSON and extract top-level keys; for PDF, run text extraction; for other binary types, store metadata and raw bytes only.
+- Output files: placed under library/ with filename pattern: {HOSTNAME}__{SLUG}{.ext}. Record metadata header in the file top with keys: source_url, retrieval_date (ISO 8601), content_type, content_length_bytes, sha256_hex.
+- Metadata persistence: maintain a manifest index file library/manifest.json mapping source_url -> document filename, last_retrieved, size, sha256.
+
+5. Configuration values and their exact effects
+- agentic-lib.toml [paths].library = "library/" defines where output documents are written.
+- agentic-lib.toml [paths].library-sources = "SOURCES.md" defines source list path.
+- agentic-lib.toml [limits].library-limit = 32 enforces the maximum number of library documents; the workflow will abort new additions beyond this limit.
+- agentic-lib.toml [execution] commands (build/test/start) are informational; they do not change how sources are processed by maintain-library.
+
+6. Fetching and error-handling requirements
+- HTTP status handling: 200 OK proceeds; 3xx handled by redirect policy; 4xx records permanent failure (no retry beyond configured attempts); 5xx retried up to retry limit.
+- Invalid content type: if Content-Type is absent or unexpected, inspect response body first 512 bytes; if binary, store raw and set content_type=application/octet-stream.
+- Large files: if content-length > 10 MiB, store only metadata and a 2 MiB sample unless explicit override is present in metadata.
+- Failure remediation: log error with URL, HTTP status, final URL after redirects, error message, and timestamp. Add a retrieval_note in manifest.
+
+7. Best practices for source selection
+- Prefer canonical or raw documentation pages (direct API docs, raw spec files, GitHub raw files) over landing pages.
+- Include explicit titles and tags when possible to aid downstream categorization.
+- Avoid private or paywalled links unless credentials are managed by CI secrets; workflows will not accept credentials from SOURCES.md.
+
+8. Troubleshooting steps and remediation
+- If a source is unreachable: confirm URL, test with curl from CI runner, check robots.txt and rate limits.
+- If duplicate documents are created: verify normalization rules and clean existing manifest entries; update the existing library doc rather than adding a new source line.
+- If the library-limit is reached: remove stale or low-value entries from SOURCES.md and library/manifest.json, then re-run the workflow.
+
+SUPPLEMENTARY DETAILS
+
+Exact names and file locations
+- Sources file: ./SOURCES.md
+- Library output directory: ./library/
+- Manifest file (recommended): ./library/manifest.json with schema: { "source_url": { "filename": "...", "last_retrieved": "ISO8601", "size_bytes": N, "sha256": "hex", "content_type": "mime" } }
+
+Fetch and storage parameters
+- HTTP timeout: 30s
+- Redirect limit: 5
+- Retry attempts: 3 with exponential backoff
+- Max stored file for automatic full-text extraction: 10 MiB
+- Sampling policy for large files: retain first and last 1 MiB when >10 MiB unless override
+- Hash algorithm: SHA-256 (hex lowercase)
+
+Processing metadata header (exact keys written at file top)
+- source_url: original URL as listed
+- retrieved_at: ISO 8601 UTC timestamp
+- content_type: MIME type detected
+- content_length_bytes: integer
+- sha256: hex
+- extractor: string naming the extraction tool and version
+
+REFERENCE DETAILS (configuration and implementation patterns)
+
+agentic-lib.toml relevant keys and effects (literal values expected)
+- [paths]
+  mission = "MISSION.md"
+  source = "src/lib/"
+  tests = "tests/unit/"
+  library = "library/"
+  docs = "docs/"
+  examples = "examples/"
+  readme = "README.md"
+  dependencies = "package.json"
+  contributing = "CONTRIBUTING.md"
+  library-sources = "SOURCES.md"
+
+- [limits]
+  feature-issues = 5
+  maintenance-issues = 1
+  attempts-per-branch = 3
+  attempts-per-issue = 2
+  features-limit = 4
+  library-limit = 32
+
+Maintain-library processing pseudocode (exact behavior implementers must match):
+- for each line in read_lines("SOURCES.md"):
+    if line.strip() == "" or line.lstrip().startswith("#"): continue
+    url, optional_metadata = split_line_tab_fields(line)
+    normalized = normalize_url(url)
+    if normalized in manifest: target_file = manifest[normalized].filename; update_existing = true
+    else: ensure_manifest_count_below_limit(); target_file = generate_slug_filename(normalized)
+    fetch_result = fetch_with_retries(url, timeout=30, redirects=5, retries=3)
+    if fetch_result.success:
+      content, content_type = extract_content(fetch_result)
+      sha = sha256(content)
+      write_file_with_header(library/ + target_file, header_keys + content)
+      manifest[normalized] = { filename: target_file, last_retrieved: now_iso(), size_bytes: len(content), sha256: sha, content_type: content_type }
+    else:
+      manifest[normalized].retrieval_note = fetch_result.error
+
+Best-practice examples (patterns only, not quoted code)
+- Use explicit tags to group sources: api, spec, tutorial, example, third-party
+- Provide retrieval_date when pinning a specific revision or snapshot
+- Use raw content URLs for GitHub-hosted markdown (raw.githubusercontent.com) for stable ingestion
+
+DIGEST
+
+Most valuable technical content extracted from SOURCES.md: The repository uses a single, canonical file at path ./SOURCES.md to list external reference materials for automated ingestion by the maintain-library workflow; entries must be one-per-line, comments start with #, and the workflow enforces normalization, deduplication, fetch policies, size limits, and a configurable library document cap.
+
+Retrieval date: 2026-03-05T23:29:30.828Z
+
+ATTRIBUTION AND CRAWL METADATA
+
+Source: local file ./SOURCES.md
+Lines read: 7
+Approximate bytes read: ~200
+Document created: library/SOURCES_INDEX
+
+END
