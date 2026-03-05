@@ -1,0 +1,11 @@
+Example outputs for hammingDistance and hammingDistanceBits
+
+hammingDistance('karolin', 'kathrin') => 3
+hammingDistance('', '') => 0
+(hammingDistance('a','bb') throws RangeError)
+hammingDistance('a𐐷b', 'a𐐶b') => 1
+
+hammingDistanceBits(1, 4) => 2
+hammingDistanceBits(0, 0) => 0
+hammingDistanceBits(0n, 1n << 65n) => 1
+hammingDistanceBits(255, 0) => 8

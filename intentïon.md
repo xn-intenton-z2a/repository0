@@ -130,3 +130,14 @@ All tests passed and documentation + example/evidence artifacts added. Files upd
 You can run tests locally with: npm test.
 
 ---
+## transform at 2026-03-05T10:07:14.174Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 80568 (in: 78363, out: 2205)
+**Duration:** 51s (~0.8 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22712759509](https://github.com/xn-intenton-z2a/repository0/actions/runs/22712759509)
+
+Done — README and docs artifacts added (examples, evidence JSON, and a usage walkthrough). Run `npm test` locally to verify; tests in tests/unit already exercise Unicode, edge, and error cases.
+
+---

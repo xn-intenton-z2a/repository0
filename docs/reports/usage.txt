@@ -1,0 +1,15 @@
+Walkthrough: Using the Hamming Distance library
+
+1. Import the functions:
+   import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
+
+2. Call with string inputs (Unicode-aware):
+   const d = hammingDistance('karolin', 'kathrin'); // 3
+
+3. Call with integer inputs (Number or BigInt):
+   const bits = hammingDistanceBits(1, 4); // 2
+
+4. Run the bundled tests:
+   npm test
+
+The tests exercise normal, edge, and error cases including Unicode surrogate pairs, precomposed vs decomposed sequences, BigInt inputs, and negative/invalid inputs.
