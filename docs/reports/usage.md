@@ -1,12 +1,15 @@
-# Usage walkthrough
+# Hamming Library Usage Report
 
-This file demonstrates calling the library functions and the expected outputs.
+This brief report demonstrates usage and sample outputs from the hamming distance library.
 
-Examples
+Examples executed manually or via the test harness are captured in `docs/examples/hamming_examples.txt` and machine-readable results are in `docs/evidence/results.json`.
 
-- hammingDistance('karolin', 'kathrin') -> 3
-- hammingDistance('', '') -> 0
-- hammingDistanceBits(1, 4) -> 2
-- hammingDistanceBits(0n, 1n << 65n) -> 1
+Key checks (acceptance criteria):
 
-These results are also available as machine-readable JSON in docs/evidence/results.json and as a brief text example in docs/examples/hamming_examples.txt.
+- hammingDistance("karolin", "kathrin") => 3
+- hammingDistance("", "") => 0
+- hammingDistance("a", "bb") => RangeError thrown
+- hammingDistanceBits(1, 4) => 2
+- hammingDistanceBits(0, 0) => 0
+
+Run `npm test` to execute the unit tests and reproduce the output recorded here.

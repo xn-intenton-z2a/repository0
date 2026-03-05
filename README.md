@@ -1,61 +1,56 @@
 # Hamming Distance Library
 
-A small JavaScript library providing Unicode-aware Hamming distance functions for strings and bitwise Hamming distance for integers.
+A small JavaScript library that exports Unicode-aware Hamming distance functions for strings and integers.
 
-Features
-- hammingDistance(a, b): compute Hamming distance between two strings by Unicode code points. Throws TypeError for non-strings and RangeError for unequal lengths (in code points).
-- hammingDistanceBits(x, y): compute Hamming distance between two non-negative integers (Number or BigInt). Throws TypeError for non-integer inputs and RangeError for negative integers.
+## Installation
 
-Usage (ES modules)
+Install from source or use within a project that includes this module. This repository is a lightweight module (ESM).
 
+## API
+
+Named exports (from `src/lib/main.js`):
+
+- `hammingDistance(a, b)`
+  - Computes the Hamming distance between two strings `a` and `b` treating Unicode code points correctly (not UTF-16 code units).
+  - Parameters: `a` (string), `b` (string)
+  - Returns: number (non-negative integer)
+  - Throws: `TypeError` if arguments are not strings. `RangeError` if strings have different lengths in Unicode code points.
+
+- `hammingDistanceBits(x, y)`
+  - Computes the Hamming distance between two non-negative integers by counting differing bits.
+  - Parameters: `x` (`Number` or `BigInt` integer), `y` (`Number` or `BigInt` integer)
+  - Returns: number (count of differing bits)
+  - Throws: `TypeError` if arguments are not integer-like; `RangeError` if negative values are passed.
+
+## Examples
+
+```js
 import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
 
-Examples
+console.log(hammingDistance('karolin', 'kathrin')); // 3
+console.log(hammingDistance('', '')); // 0
 
-- Basic string example:
+console.log(hammingDistanceBits(1, 4)); // 2 (001 vs 100)
+console.log(hammingDistanceBits(0n, 0n)); // 0
 
-const d = hammingDistance('karolin', 'kathrin');
-// d === 3
+// Unicode-aware example (musical G clef is a single code point)
+console.log(hammingDistance('a\u{1D11E}c', 'a\u{1D11F}c')); // 1
+```
 
-- Empty strings:
+## Running tests
 
-hammingDistance('', ''); // 0
+This repository provides a small test harness. Run:
 
-- Unequal-length strings throw:
-
-try {
-  hammingDistance('a', 'bb');
-} catch (e) {
-  // RangeError
-}
-
-- Unicode-aware (compares code points, not UTF-16 units):
-
-hammingDistance('a𐐷b', 'a𐐶b'); // 1
-
-- Bitwise Hamming distance:
-
-hammingDistanceBits(1, 4); // 2 (001 vs 100)
-
-hammingDistanceBits(0n, 1n << 65n); // 1 (BigInt support)
-
-API
-
-- hammingDistance(a: string, b: string): number
-  - Throws TypeError if either argument is not a string.
-  - Throws RangeError if strings have different lengths when interpreted as Unicode code points.
-
-- hammingDistanceBits(x: number | BigInt, y: number | BigInt): number
-  - Accepts Number (integer) or BigInt.
-  - Throws TypeError for non-integer or non-BigInt inputs.
-  - Throws RangeError for negative integers.
-
-Notes on Unicode
-
-This library compares Unicode code points using Array.from(...) so surrogate pairs (e.g., emoji and historic scripts) are treated as single characters. Note that canonically equivalent but differently composed Unicode sequences (precomposed vs combining marks) are treated as different sequences of code points and therefore may have different lengths.
-
-Running tests
-
+```bash
 npm test
+```
 
-License: MIT
+All unit tests are under `tests/unit/` and the runner is `tests/unit/run-tests.js`.
+
+## Contributing
+
+Contributions should follow the repository's contributing guidelines.
+
+## License
+
+MIT

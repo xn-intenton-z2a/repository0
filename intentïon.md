@@ -163,3 +163,30 @@ Done — tests pass and documentation/evidence files were added under docs/examp
 All tests passed. The library already implemented Unicode-aware hammingDistance and hammingDistanceBits, with comprehensive unit tests and README examples.
 
 ---
+## transform at 2026-03-05T11:15:31.836Z
+
+**Outcome:** transformed
+**Model:** gpt-5-mini
+**Token Count:** 234934 (in: 229581, out: 5353)
+**Duration:** 107s (~1.8 GitHub Actions min)
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22715244827](https://github.com/xn-intenton-z2a/repository0/actions/runs/22715244827)
+
+All tests passed ✅
+
+Summary of changes made:
+- Added a lightweight test runner and comprehensive unit tests:
+  - tests/unit/run-tests.js
+  - tests/unit/main.test.js
+- Updated documentation and examples:
+  - README.md (API, examples, test instructions)
+  - docs/examples/hamming_examples.txt
+  - docs/evidence/results.json
+  - docs/reports/usage.md
+
+Next steps (suggested):
+- Optionally switch to Vitest for richer test reporting and coverage.
+- Add CI workflow to run npm test on push/PR.
+
+If you'd l
+
+---
