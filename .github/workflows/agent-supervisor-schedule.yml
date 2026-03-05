@@ -132,9 +132,14 @@ jobs:
             }
 
       - name: Commit and push
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Use the WORKFLOW_TOKEN owner's identity so GitHub re-registers cron schedules
+          TOKEN_USER=$(gh api /user --jq '.login')
+          TOKEN_ID=$(gh api /user --jq '.id')
+          git config user.name "${TOKEN_USER}"
+          git config user.email "${TOKEN_ID}+${TOKEN_USER}@users.noreply.github.com"
           FREQUENCY="${{ inputs.frequency }}"
           MODEL="${{ inputs.model }}"
           git add .github/workflows/agent-supervisor.yml agentic-lib.toml
