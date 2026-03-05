@@ -92,29 +92,11 @@ jobs:
         with:
           node-version: "24"
 
-      - name: Find issue to enhance
-        id: find-issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: issues } = await github.rest.issues.listForRepo({
-              ...context.repo,
-              state: 'open',
-              labels: 'automated',
-              per_page: 20,
-              sort: 'created',
-              direction: 'asc',
-            });
-            const unready = issues.filter(i => !i.labels.some(l => l.name === 'ready'));
-            core.setOutput('issueNumber', unready.length > 0 ? String(unready[0].number) : '');
-
       - name: Install agentic-step dependencies
-        if: steps.find-issue.outputs.issueNumber != ''
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
-      - name: Enhance issue
-        if: steps.find-issue.outputs.issueNumber != ''
+      - name: Enhance issues (batch)
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -123,5 +105,4 @@ jobs:
           task: "enhance-issue"
           config: ${{ env.configPath }}
           instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
-          issue-number: ${{ steps.find-issue.outputs.issueNumber }}
           model: ${{ needs.params.outputs.model }}

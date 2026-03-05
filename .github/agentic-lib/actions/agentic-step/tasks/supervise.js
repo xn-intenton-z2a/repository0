@@ -29,16 +29,16 @@ async function gatherContext(octokit, repo, config) {
     ...repo,
     state: "open",
     per_page: 20,
-    sort: "updated",
-    direction: "desc",
+    sort: "created",
+    direction: "asc",
   });
-  const issuesSummary = openIssues
-    .filter((i) => !i.pull_request)
-    .map((i) => {
-      const age = Math.floor((Date.now() - new Date(i.created_at).getTime()) / 86400000);
-      const labels = i.labels.map((l) => l.name).join(", ");
-      return `#${i.number}: ${i.title} [${labels || "no labels"}] (${age}d old)`;
-    });
+  const issuesOnly = openIssues.filter((i) => !i.pull_request);
+  const oldestReadyIssue = issuesOnly.find((i) => i.labels.some((l) => l.name === "ready"));
+  const issuesSummary = issuesOnly.map((i) => {
+    const age = Math.floor((Date.now() - new Date(i.created_at).getTime()) / 86400000);
+    const labels = i.labels.map((l) => l.name).join(", ");
+    return `#${i.number}: ${i.title} [${labels || "no labels"}] (${age}d old)`;
+  });
 
   const { data: openPRs } = await octokit.rest.pulls.list({
     ...repo,
@@ -72,6 +72,7 @@ async function gatherContext(octokit, repo, config) {
     libraryNames,
     libraryLimit,
     issuesSummary,
+    oldestReadyIssue,
     prsSummary,
     workflowsSummary,
     supervisor: config.supervisor,
@@ -117,6 +118,9 @@ function buildPrompt(ctx, agentInstructions) {
     "```",
     "",
     ...(ctx.packageJson ? ["### Dependencies (package.json)", "```json", ctx.packageJson, "```", ""] : []),
+    ...(ctx.oldestReadyIssue
+      ? [`### Oldest Ready Issue`, `#${ctx.oldestReadyIssue.number}: ${ctx.oldestReadyIssue.title}`, ""]
+      : []),
     `### Issue Limits`,
     `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,
     `Maintenance WIP limit: ${ctx.maintenanceIssuesWipLimit}`,
@@ -126,7 +130,7 @@ function buildPrompt(ctx, agentInstructions) {
     "Pick one or more actions. Output them in the format below.",
     "",
     "### Workflow Dispatches",
-    "- `dispatch:agent-flow-transform` — Pick up next issue, generate code, open PR",
+    "- `dispatch:agent-flow-transform | issue-number: <N>` — Pick up issue #N, generate code, open PR. Always specify the issue-number of the oldest ready issue.",
     "- `dispatch:agent-flow-maintain` — Refresh feature definitions and library docs",
     "- `dispatch:agent-flow-review` — Close resolved issues, enhance issue criteria",
     "- `dispatch:agent-flow-fix-code | pr-number: <N>` — Fix a failing PR",
@@ -190,6 +194,26 @@ async function executeDispatch(octokit, repo, actionName, params) {
   const workflowFile = actionName.replace("dispatch:", "") + ".yml";
   const inputs = {};
   if (params["pr-number"]) inputs["pr-number"] = params["pr-number"];
+  if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
+
+  // Guard: skip transform dispatch if one is already running
+  if (workflowFile === "agent-flow-transform.yml") {
+    try {
+      const { data: runs } = await octokit.rest.actions.listWorkflowRuns({
+        ...repo,
+        workflow_id: "agent-flow-transform.yml",
+        status: "in_progress",
+        per_page: 1,
+      });
+      if (runs.total_count > 0) {
+        core.info("Transform workflow already running — skipping dispatch");
+        return "skipped:transform-already-running";
+      }
+    } catch (err) {
+      core.warning(`Could not check transform status: ${err.message}`);
+    }
+  }
+
   core.info(`Dispatching workflow: ${workflowFile}`);
   await octokit.rest.actions.createWorkflowDispatch({ ...repo, workflow_id: workflowFile, ref: "main", inputs });
   return `dispatched:${workflowFile}`;
@@ -229,11 +253,13 @@ async function executeRespondDiscussions(octokit, repo, params) {
   const url = params["discussion-url"] || "";
   if (message) {
     core.info(`Dispatching discussions bot with response: ${message.substring(0, 100)}`);
+    const inputs = { message };
+    if (url) inputs["discussion-url"] = url;
     await octokit.rest.actions.createWorkflowDispatch({
       ...repo,
       workflow_id: "agent-discussions-bot.yml",
       ref: "main",
-      inputs: {},
+      inputs,
     });
     return `respond-discussions:${url || "no-url"}`;
   }

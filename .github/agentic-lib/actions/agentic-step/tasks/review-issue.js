@@ -4,56 +4,24 @@
 //
 // Checks open issues against the current codebase to determine
 // if they have been resolved, and closes them if so.
+// Supports batch mode: when no issueNumber is provided, reviews up to 3 issues.
 
 import * as core from "@actions/core";
 import { runCopilotTask, scanDirectory } from "../copilot.js";
 
 /**
- * Review open issues and close those that have been resolved.
+ * Review a single issue against the current codebase.
  *
- * @param {Object} context - Task context from index.js
+ * @param {Object} params
+ * @param {Object} params.octokit - GitHub API client
+ * @param {Object} params.repo - { owner, repo }
+ * @param {Object} params.config - Loaded config
+ * @param {number} params.targetIssueNumber - Issue number to review
+ * @param {string} params.instructions - Agent instructions
+ * @param {string} params.model - Model name
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
-export async function reviewIssue(context) {
-  const { octokit, repo, config, issueNumber, instructions, model } = context;
-
-  // If no specific issue, review the oldest open automated issue that hasn't been recently reviewed
-  let targetIssueNumber = issueNumber;
-  if (!targetIssueNumber) {
-    const { data: openIssues } = await octokit.rest.issues.listForRepo({
-      ...repo,
-      state: "open",
-      labels: "automated",
-      per_page: 5,
-      sort: "created",
-      direction: "asc",
-    });
-    if (openIssues.length === 0) {
-      return { outcome: "nop", details: "No open automated issues to review" };
-    }
-    // Try each issue, skipping ones that already have a recent automated review comment
-    for (const candidate of openIssues) {
-      const { data: comments } = await octokit.rest.issues.listComments({
-        ...repo,
-        issue_number: candidate.number,
-        per_page: 5,
-        sort: "created",
-        direction: "desc",
-      });
-      const hasRecentReview = comments.some(
-        (c) => c.body?.includes("**Automated Review Result:**") && Date.now() - new Date(c.created_at).getTime() < 86400000,
-      );
-      if (!hasRecentReview) {
-        targetIssueNumber = candidate.number;
-        break;
-      }
-    }
-    // Fall back to the oldest if all have been recently reviewed
-    if (!targetIssueNumber) {
-      targetIssueNumber = openIssues[0].number;
-    }
-  }
-
+async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model }) {
   const { data: issue } = await octokit.rest.issues.get({
     ...repo,
     issue_number: Number(targetIssueNumber),
@@ -64,12 +32,18 @@ export async function reviewIssue(context) {
   }
 
   const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    contentLimit: 2000,
+    contentLimit: 5000,
+    fileLimit: 20,
     recursive: true,
   });
   const testFiles = scanDirectory(config.paths.tests.path, [".test.js", ".test.ts"], {
-    contentLimit: 2000,
+    contentLimit: 5000,
+    fileLimit: 20,
     recursive: true,
+  });
+  const docsFiles = scanDirectory(config.paths.documentation?.path || "docs/", [".md"], {
+    fileLimit: 10,
+    contentLimit: 2000,
   });
 
   const agentInstructions = instructions || "Review whether this issue has been resolved by the current codebase.";
@@ -87,6 +61,9 @@ export async function reviewIssue(context) {
     `## Current Tests (${testFiles.length} files)`,
     ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
+    ...(docsFiles.length > 0
+      ? [`## Documentation (${docsFiles.length} files)`, ...docsFiles.map((f) => `- ${f.name}`), ""]
+      : []),
     config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
     config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
     "",
@@ -97,7 +74,13 @@ export async function reviewIssue(context) {
     '- "OPEN: <reason>" if the issue is not yet resolved',
   ].join("\n");
 
-  const { content: verdict, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const {
+    content: verdict,
+    tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
+  } = await runCopilotTask({
     model,
     systemMessage: "You are a code reviewer determining if GitHub issues have been resolved.",
     prompt,
@@ -148,5 +131,100 @@ export async function reviewIssue(context) {
     cost,
     model,
     details: `Issue #${targetIssueNumber} remains open: ${verdict.substring(0, 200)}`,
+  };
+}
+
+/**
+ * Find unreviewed automated issues (no recent automated review comment).
+ */
+async function findUnreviewedIssues(octokit, repo, limit) {
+  const { data: openIssues } = await octokit.rest.issues.listForRepo({
+    ...repo,
+    state: "open",
+    labels: "automated",
+    per_page: limit + 5,
+    sort: "created",
+    direction: "asc",
+  });
+  if (openIssues.length === 0) return [];
+
+  const unreviewed = [];
+  for (const candidate of openIssues) {
+    if (unreviewed.length >= limit) break;
+    const { data: comments } = await octokit.rest.issues.listComments({
+      ...repo,
+      issue_number: candidate.number,
+      per_page: 5,
+      sort: "created",
+      direction: "desc",
+    });
+    const hasRecentReview = comments.some(
+      (c) =>
+        c.body?.includes("**Automated Review Result:**") && Date.now() - new Date(c.created_at).getTime() < 86400000,
+    );
+    if (!hasRecentReview) {
+      unreviewed.push(candidate.number);
+    }
+  }
+
+  // Fall back to oldest if all have been recently reviewed
+  if (unreviewed.length === 0 && openIssues.length > 0) {
+    unreviewed.push(openIssues[0].number);
+  }
+
+  return unreviewed;
+}
+
+/**
+ * Review open issues and close those that have been resolved.
+ * When no issueNumber is provided, reviews up to 3 issues in batch mode.
+ *
+ * @param {Object} context - Task context from index.js
+ * @returns {Promise<Object>} Result with outcome, tokensUsed, model
+ */
+export async function reviewIssue(context) {
+  const { octokit, repo, config, issueNumber, instructions, model } = context;
+
+  // Single issue mode
+  if (issueNumber) {
+    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model });
+  }
+
+  // Batch mode: find up to 3 unreviewed issues
+  const issueNumbers = await findUnreviewedIssues(octokit, repo, 3);
+  if (issueNumbers.length === 0) {
+    return { outcome: "nop", details: "No open automated issues to review" };
+  }
+
+  const results = [];
+  let totalTokens = 0;
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let totalCost = 0;
+
+  for (const num of issueNumbers) {
+    core.info(`Batch reviewing issue #${num} (${results.length + 1}/${issueNumbers.length})`);
+    const result = await reviewSingleIssue({ octokit, repo, config, targetIssueNumber: num, instructions, model });
+    results.push(result);
+    totalTokens += result.tokensUsed || 0;
+    totalInputTokens += result.inputTokens || 0;
+    totalOutputTokens += result.outputTokens || 0;
+    totalCost += result.cost || 0;
+  }
+
+  const closed = results.filter((r) => r.outcome === "issue-closed").length;
+  const reviewed = results.length;
+
+  return {
+    outcome: closed > 0 ? "issues-closed" : "issues-reviewed",
+    tokensUsed: totalTokens,
+    inputTokens: totalInputTokens,
+    outputTokens: totalOutputTokens,
+    cost: totalCost,
+    model,
+    details: `Batch reviewed ${reviewed} issues, closed ${closed}. ${results
+      .map((r) => r.details)
+      .join("; ")
+      .substring(0, 500)}`,
   };
 }

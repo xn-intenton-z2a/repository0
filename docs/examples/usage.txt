@@ -1,7 +1,0 @@
-hammingDistance('karolin', 'kathrin') => 3
-hammingDistance('', '') => 0
-hammingDistance('a𐐷b', 'a𐐶b') => 1
-
-hammingDistanceBits(1, 4) => 2
-hammingDistanceBits(0, 0) => 0
-hammingDistanceBits(0n, 1n << 65n) => 1
