@@ -1,0 +1,148 @@
+DOCUMENT: ROMAN_CONVERTER
+
+NORMALISED EXTRACT
+
+Table of Contents
+1. API signatures and behavior
+2. Input validation rules and error messages
+3. Integer to Roman conversion algorithm (toRoman)
+4. Roman to integer conversion algorithm (fromRoman)
+5. Validation regex and canonical form rules
+6. Data structures and constants
+7. Edge cases and allowed range
+8. Complexity and performance
+
+1. API signatures and behavior
+- toRoman(n: number) -> string
+  - Accepts an integer n. Returns a Roman numeral string in standard subtractive notation.
+  - Throws TypeError("toRoman: input must be an integer") if input is not an integer.
+  - Throws RangeError("toRoman: input must be in range 1..3999") if n < 1 or n > 3999.
+
+- fromRoman(s: string) -> number
+  - Accepts a Roman numeral string. Returns an integer value (1..3999) parsed from the canonical Roman form.
+  - Throws TypeError("fromRoman: input must be a string") if input is not a string.
+  - Trims and uppercases input internally; empty or whitespace-only strings raise TypeError("fromRoman: input must be a non-empty Roman numeral string").
+  - If the string does not match the strict canonical pattern, throws TypeError("fromRoman: invalid Roman numeral string").
+
+2. Input validation rules and error messages
+- toRoman: require Number.isInteger(n). If false, throw TypeError with exact message.
+- toRoman: enforce inclusive range 1..3999; if outside, throw RangeError with exact message.
+- fromRoman: require typeof s === 'string'; then trim and uppercase. If trimmed length === 0, throw TypeError with exact message.
+- fromRoman: validate against canonical regex (see section 5); if fails, throw TypeError("fromRoman: invalid Roman numeral string").
+
+3. Integer to Roman conversion algorithm (toRoman)
+- Use ordered parallel arrays:
+  values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+  symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+- Algorithm (imperative greedy loop):
+  - Initialize result = empty string, index i = 0.
+  - While n > 0:
+    - times = Math.floor(n / values[i])
+    - If times > 0, append symbols[i] repeated times to result, and subtract values[i] * times from n.
+    - Increment i.
+  - Return result.
+- Produces standard subtractive Roman numerals (e.g., 4 -> IV, 9 -> IX, 40 -> XL, 90 -> XC, 400 -> CD, 900 -> CM).
+
+4. Roman to integer conversion algorithm (fromRoman)
+- Precondition: str is trimmed and uppercased, validated against canonical regex.
+- map = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 }
+- Iterative parse with lookahead:
+  - total = 0
+  - Iterate i from 0 to str.length - 1:
+    - value = map[str[i]]
+    - next = map[str[i+1]] if exists else 0
+    - If next > value:
+      - total += next - value
+      - i += 1 (skip the next char)
+    - Else:
+      - total += value
+  - Return total
+- This algorithm relies on prior strict validation to guarantee canonical subtractive pairs and prevent ambiguous/nonstandard inputs.
+
+5. Validation regex and canonical form rules
+- Canonical Roman numeral regex used to validate 1..3999 strictly:
+  ^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$
+- Rules enforced by regex:
+  - Thousands: 0..3 M characters only (0..3000)
+  - Hundreds: allow 900 (CM), 400 (CD), or D?C{0,3} (0..800)
+  - Tens: allow 90 (XC), 40 (XL), or L?X{0,3}
+  - Units: allow 9 (IX), 4 (IV), or V?I{0,3}
+- This enforces canonical subtractive notation and prevents invalid forms like IIV, VX, or nonstandard repetitions.
+
+6. Data structures and constants
+- values array and symbols array are parallel and ordered highest-to-lowest when converting integers to Roman.
+- map object provides single-character value lookup for parsing.
+- Exact constants:
+  values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+  symbols = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+  map = { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 }
+  validRomanRegex = ^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$
+
+7. Edge cases and allowed range
+- Allowed numeric input: integer in range 1..3999 inclusive.
+- toRoman(0) or toRoman(4000) should raise RangeError.
+- fromRoman must accept mixed-case and whitespaced input by trimming and uppercasing, but still rejects non-canonical forms.
+- Empty or non-string inputs to fromRoman throw an error.
+- The implementation assumes standard Roman numeral conventions and does not support overline (multiples of 1000 beyond 3999).
+
+8. Complexity and performance
+- toRoman: O(k) where k is number of symbol groups appended; in worst case k is proportional to number (bounded constant because max 3999), effectively O(1) for this domain.
+- fromRoman: O(L) where L is length of the input string (<= 15 for canonical 3999 as 'MMMCMXCIX'), so effectively O(1) and very fast.
+
+SUPPLEMENTARY DETAILS
+- Implementation language: modern JavaScript (ES module). Exported functions: toRoman, fromRoman, main.
+- Execution entry: main(args) prints provided args; CLI guard uses import.meta.url file URL comparison.
+- Error types used: TypeError for invalid types/strings, RangeError for numeric range violations.
+- Canonicalization: input to fromRoman is .trim().toUpperCase() before validation and parsing.
+- Safety: Strict regex validation protects parser from malformed subtractive sequences and prevents incorrect totals.
+
+REFERENCE DETAILS (Exact specifications and patterns)
+- Function: toRoman(n: number) -> string
+  - Preconditions: Number.isInteger(n) === true; 1 <= n <= 3999
+  - Throws:
+    - TypeError with message "toRoman: input must be an integer" if not integer
+    - RangeError with message "toRoman: input must be in range 1..3999" if out of range
+  - Implementation constants:
+    - values = [1000,900,500,400,100,90,50,40,10,9,5,4,1]
+    - symbols = ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+  - Pattern: greedy subtraction loop using integer division and repeated symbol concatenation.
+
+- Function: fromRoman(s: string) -> number
+  - Preconditions: typeof s === 'string', trimmed length > 0, passes validRomanRegex
+  - Throws:
+    - TypeError with message "fromRoman: input must be a string" if not a string
+    - TypeError with message "fromRoman: input must be a non-empty Roman numeral string" if empty after trim
+    - TypeError with message "fromRoman: invalid Roman numeral string" if regex fails
+  - Validation regex (exact): ^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$
+  - Parser map (exact): { I:1, V:5, X:10, L:50, C:100, D:500, M:1000 }
+  - Parsing pattern: iterate characters; if next value > current, add (next - current) and skip next; else add current.
+
+BEST PRACTICES AND IMPLEMENTATION PATTERNS
+- Validate inputs early and surface precise error messages to aid calling code in handling invalid data.
+- Use the canonical regex to reject ambiguous or nonstandard numerals before parsing.
+- For bidirectional correctness, optionally assert round-trip: fromRoman(toRoman(n)) === n for 1..3999 unit tests.
+- For user-facing APIs, convert thrown errors into domain-specific errors or result objects as required by higher-level application error handling.
+- Avoid supporting nonstandard extensions (e.g., additive forms like IIII) unless explicitly required; document any deviations.
+
+TROUBLESHOOTING
+- Symptom: fromRoman("IIV") returns unexpected result or no exception.
+  - Cause: missing or wrong validation regex. Ensure exact regex is used and applied to trimmed uppercase input.
+- Symptom: toRoman(0) returns empty string instead of throwing.
+  - Cause: range check missing or incorrect. Ensure code checks n < 1 or n > 3999 and throws RangeError with exact message.
+- Symptom: fromRoman accepts lowercase with spaces incorrectly.
+  - Fix: call .trim().toUpperCase() before validation and parsing.
+
+DETAILED DIGEST (source excerpt and retrieval)
+- Source excerpt: "Implemented roman numeral converter functions in src/lib/main.js for issue #2587" extracted from SOURCES.md and confirmed by reading src/lib/main.js; functions implement toRoman and fromRoman with strict validation and canonical forms.
+- Retrieval date: 2026-03-06
+- Files read:
+  - SOURCES.md: contains the source note line above.
+  - src/lib/main.js: contains exact implementations; key artifacts copied into this document: values array, symbols array, validation regex, map, error messages, and algorithm descriptions.
+
+ATTRIBUTION
+- Author/Repository: repository0 (local repository files)
+- Source paths: SOURCES.md; src/lib/main.js
+- Issue referenced: #2587
+- Data size retrieved (approximate): SOURCES.md ~80 bytes; src/lib/main.js ~2400 bytes
+
+END OF DOCUMENT
