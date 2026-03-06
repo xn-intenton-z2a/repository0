@@ -1,13 +1,6 @@
-#!/usr/bin/env node
 // SPDX-License-Identifier: MIT
 // src/lib/main.js
 // Compact cron engine implementing parseCron, nextRun, nextRuns, matches, toString
-
-/**
- * Parse cron expressions (5-field or 6-field with seconds), compute next run times,
- * check matches, and convert parsed form back to canonical string.
- * All computations use local time (Date getters/setters) so behavior follows host timezone.
- */
 
 export { parseCron, nextRun, nextRuns, matches, toString };
 
@@ -21,15 +14,10 @@ const SPECIALS = {
   '@hourly': '0 * * * *'
 };
 
-function ensureString(expr) {
-  if (typeof expr === 'string') return expr.trim();
-  if (expr && expr.original) return expr.original;
-  throw new TypeError('expression must be a string or parsed cron object');
-}
-
 function expandSpecial(expr) {
   const e = expr.trim();
-  return SPECIALS[e.toLowerCase()] || e;
+  const low = e.toLowerCase();
+  return SPECIALS[low] || e;
 }
 
 function parseIntStrict(s, label) {
@@ -75,17 +63,17 @@ function normalizeParsed(p) {
   const parsed = {
     original: p.original || p.string || '',
     string: p.string || p.original || '',
-    hasSeconds: !!p.hasSeconds
+    secondsPresent: !!p.secondsPresent
   };
-  parsed.seconds = p.seconds ? Array.from(new Set(p.seconds)).sort((a,b)=>a-b) : undefined;
+  parsed.seconds = p.secondsPresent ? Array.from(new Set(p.seconds)).sort((a,b)=>a-b) : undefined;
   parsed.minutes = Array.from(new Set(p.minutes)).sort((a,b)=>a-b);
   parsed.hours = Array.from(new Set(p.hours)).sort((a,b)=>a-b);
   parsed.dayOfMonth = Array.from(new Set(p.dayOfMonth)).sort((a,b)=>a-b);
   parsed.month = Array.from(new Set(p.month)).sort((a,b)=>a-b);
   parsed.dayOfWeek = Array.from(new Set((p.dayOfWeek||[]).map(d => d === 7 ? 0 : d))).sort((a,b)=>a-b);
   // convenience aliases
-  parsed.minute = parsed.minutes;
-  parsed.hour = parsed.hours;
+  parsed.minutes = parsed.minutes;
+  parsed.hours = parsed.hours;
   parsed.day = parsed.dayOfMonth;
   return parsed;
 }
@@ -97,14 +85,14 @@ function normalizeParsed(p) {
  */
 function parseCron(expr) {
   if (typeof expr !== 'string') throw new TypeError('expression must be a string');
-  let s = expandSpecial(expr);
-  const fields = s.split(/\s+/).filter(Boolean);
-  let hasSeconds = false;
-  if (fields.length === 6) hasSeconds = true;
-  else if (fields.length === 5) hasSeconds = false;
-  else throw new Error('expected 5 fields');
+  const expanded = expandSpecial(expr);
+  const fields = expanded.split(/\s+/).filter(Boolean);
+  let secondsPresent = false;
+  if (fields.length === 6) secondsPresent = true;
+  else if (fields.length === 5) secondsPresent = false;
+  else throw new Error(`expected 5 or 6 fields in cron expression, got ${fields.length}`);
 
-  const f = hasSeconds ? fields.slice() : ['0', ...fields];
+  const f = secondsPresent ? fields.slice() : ['0', ...fields];
   // f: [sec,min,hour,dom,mon,dow]
   const sec = parseField(f[0], 0, 59, 'seconds');
   const min = parseField(f[1], 0, 59, 'minutes');
@@ -116,9 +104,9 @@ function parseCron(expr) {
 
   const parsed = {
     original: expr,
-    string: s,
-    hasSeconds,
-    seconds: hasSeconds ? sec : undefined,
+    string: expanded,
+    secondsPresent,
+    seconds: secondsPresent ? sec : undefined,
     minutes: min,
     hours: hour,
     dayOfMonth: dom,
@@ -128,160 +116,94 @@ function parseCron(expr) {
   return normalizeParsed(parsed);
 }
 
+function isFullRange(arr, min, max) {
+  if (!Array.isArray(arr)) return false;
+  if (arr.length !== (max - min + 1)) return false;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] !== min + i) return false;
+  }
+  return true;
+}
+
 function canonicalField(arr, min, max) {
   if (!Array.isArray(arr)) return '*';
-  // if full range
-  if (arr.length === (max - min + 1) && arr[0] === min && arr[arr.length-1] === max) return '*';
+  if (isFullRange(arr, min, max)) return '*';
   return arr.join(',');
 }
 
-/**
- * toString(parsedOrExpr) -> canonical cron string
- */
-function toString(parsedOrExpr) {
-  const p = typeof parsedOrExpr === 'string' ? parseCron(parsedOrExpr) : normalizeParsed(parsedOrExpr);
-  const secPart = p.hasSeconds ? canonicalField(p.seconds || [0], 0, 59) : null;
-  const parts = [];
-  if (p.hasSeconds) parts.push(secPart);
-  parts.push(canonicalField(p.minutes, 0, 59));
-  parts.push(canonicalField(p.hours, 0, 23));
-  parts.push(canonicalField(p.dayOfMonth, 1, 31));
-  parts.push(canonicalField(p.month, 1, 12));
-  parts.push(canonicalField(p.dayOfWeek, 0, 6));
-  return parts.join(' ');
+function toString(input) {
+  const p = typeof input === 'string' ? parseCron(input) : input;
+  if (!p || typeof p !== 'object') throw new TypeError('toString expects parsed object or string');
+  const secTok = p.secondsPresent ? canonicalField(p.seconds, 0, 59) : undefined;
+  const minTok = canonicalField(p.minutes, 0, 59);
+  const hourTok = canonicalField(p.hours, 0, 23);
+  const domTok = canonicalField(p.dayOfMonth, 1, 31);
+  const monTok = canonicalField(p.month, 1, 12);
+  const dowTok = canonicalField(p.dayOfWeek, 0, 6);
+  if (p.secondsPresent) return `${secTok} ${minTok} ${hourTok} ${domTok} ${monTok} ${dowTok}`;
+  return `${minTok} ${hourTok} ${domTok} ${monTok} ${dowTok}`;
 }
 
-function isFullRange(arr, min, max) {
-  return Array.isArray(arr) && arr.length === (max - min + 1) && arr[0] === min && arr[arr.length-1] === max;
-}
-
-/**
- * matches(expressionOrParsed, date) -> boolean
- * Date must match schedule in local time. If seconds are not present in schedule, seconds are ignored.
- * Day-of-month and day-of-week follow cron semantics: if either field is restricted (not *), a match occurs when either matches; if both are * then always match.
- */
-function matches(expressionOrParsed, date) {
-  if (!(date instanceof Date)) throw new TypeError('date must be a Date');
-  const parsed = typeof expressionOrParsed === 'string' ? parseCron(expressionOrParsed) : normalizeParsed(expressionOrParsed);
-  const s = parsed.hasSeconds ? date.getSeconds() : undefined;
-  const m = date.getMinutes();
-  const h = date.getHours();
+function matches(parsedOrExpr, date) {
+  const p = typeof parsedOrExpr === 'string' ? parseCron(parsedOrExpr) : parsedOrExpr;
+  if (!p || typeof p !== 'object') throw new TypeError('matches expects parsed object or string');
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) throw new TypeError('date must be a valid Date');
+  const sec = date.getSeconds();
+  const min = date.getMinutes();
+  const hour = date.getHours();
   const dom = date.getDate();
   const mon = date.getMonth() + 1;
   const dow = date.getDay();
 
-  if (parsed.hasSeconds) {
-    if (!parsed.seconds.includes(s)) return false;
+  if (p.secondsPresent) {
+    if (!p.seconds.includes(sec)) return false;
+  } else {
+    // when seconds not present, schedule is anchored at second 0
+    if (sec !== 0) return false;
   }
-  if (!parsed.minutes.includes(m)) return false;
-  if (!parsed.hours.includes(h)) return false;
-  if (!parsed.month.includes(mon)) return false;
+  if (!p.minutes.includes(min)) return false;
+  if (!p.hours.includes(hour)) return false;
+  if (!p.month.includes(mon)) return false;
 
-  const domIsAny = isFullRange(parsed.dayOfMonth, 1, 31);
-  const dowIsAny = isFullRange(parsed.dayOfWeek, 0, 6);
-
-  if (domIsAny && dowIsAny) return true;
-  const domMatches = parsed.dayOfMonth.includes(dom);
-  const dowMatches = parsed.dayOfWeek.includes(dow);
-  if (!domIsAny && !dowIsAny) {
-    // either field matching is sufficient
-    return domMatches || dowMatches;
-  }
-  if (!domIsAny) return domMatches;
-  return dowMatches;
+  const domAny = isFullRange(p.dayOfMonth, 1, 31);
+  const dowAny = isFullRange(p.dayOfWeek, 0, 6);
+  const domMatch = p.dayOfMonth.includes(dom);
+  const dowMatch = p.dayOfWeek.includes(dow);
+  if (domAny && dowAny) return true;
+  if (domAny) return dowMatch;
+  if (dowAny) return domMatch;
+  return domMatch || dowMatch;
 }
 
-/**
- * nextRun(expressionOrParsed, after?) -> Date
- * Finds the next Date strictly after 'after' (defaults to now) that matches the schedule.
- * Uses local time arithmetic and a bounded search (default horizon 5 years).
- */
-function nextRun(expressionOrParsed, after = new Date()) {
-  const parsed = typeof expressionOrParsed === 'string' ? parseCron(expressionOrParsed) : normalizeParsed(expressionOrParsed);
-  if (!(after instanceof Date)) throw new TypeError('after must be a Date');
-  // Start strictly after 'after'
-  const hasSeconds = !!parsed.hasSeconds;
-  const stepSec = hasSeconds ? 1 : 60; // step in seconds
-  const startMs = after.getTime();
-  const horizonYears = 5;
-  const horizonMs = horizonYears * 365 * 24 * 3600 * 1000;
-  const limit = startMs + horizonMs;
-
-  // candidate starts at after + stepSec
-  let candidate = new Date(startMs + stepSec*1000);
-
-  while (candidate.getTime() <= limit) {
-    // If candidate matches schedule, return
-    try {
-      if (matches(parsed, candidate)) return candidate;
-    } catch (e) {
-      // If invalid local time caused Date methods to misbehave, skip forward
-    }
-    // advance candidate by stepSec seconds
-    candidate = new Date(candidate.getTime() + stepSec*1000);
+function nextRun(parsedOrExpr, after) {
+  const p = typeof parsedOrExpr === 'string' ? parseCron(parsedOrExpr) : parsedOrExpr;
+  if (!p || typeof p !== 'object') throw new TypeError('nextRun expects parsed object or string');
+  const anchor = after ? new Date(after) : new Date();
+  if (Number.isNaN(anchor.getTime())) throw new TypeError('after must be a valid Date');
+  // search strictly after anchor
+  const stepMs = p.secondsPresent ? 1000 : 60000; // step by second or minute
+  let candidateTime = anchor.getTime() + stepMs;
+  // search up to 5 years ahead
+  const maxTime = anchor.getTime() + 5 * 366 * 24 * 60 * 60 * 1000;
+  while (candidateTime <= maxTime) {
+    const d = new Date(candidateTime);
+    // ensure the constructed local components correspond to intended local fields (reject invalid dates created by overflow)
+    // nothing extra needed because we compare using getters
+    if (matches(p, d)) return d;
+    candidateTime += stepMs;
   }
-  throw new Error(`no run found within ${horizonYears} years for schedule '${parsed.string || parsed.original || ''}'`);
+  throw new Error('no matching run found within 5 years');
 }
 
-function nextRuns(expressionOrParsed, count, after = new Date()) {
+function nextRuns(parsedOrExpr, count, after) {
   if (!Number.isInteger(count) || count <= 0) throw new TypeError('count must be a positive integer');
   const results = [];
-  let anchor = new Date(after instanceof Date ? after.getTime() : new Date().getTime());
+  let anchor = after ? new Date(after) : new Date();
   for (let i = 0; i < count; i++) {
-    const nxt = nextRun(expressionOrParsed, anchor);
+    const nxt = nextRun(parsedOrExpr, anchor);
     results.push(nxt);
-    // set anchor to the found time so next search finds strictly later instants
+    // set anchor to the found time to get strictly after next
     anchor = new Date(nxt.getTime());
   }
   return results;
-}
-
-// If module run directly, provide minimal CLI. Keep side-effects small.
-if (new URL(import.meta.url).pathname === process.argv[1]) {
-  // simple CLI dispatch
-  const argv = process.argv.slice(2);
-  (async () => {
-    try {
-      const cmd = argv[0];
-      if (!cmd) throw new Error('command required: parse|next|next-n|matches|tostring');
-      if (cmd === 'parse') {
-        const expr = argv[1];
-        console.log(JSON.stringify(parseCron(expr), null, 2));
-        process.exit(0);
-      }
-      if (cmd === 'next') {
-        const expr = argv[1];
-        const afterArg = argv.find(a=>a.startsWith('--after='));
-        const after = afterArg ? new Date(afterArg.split('=')[1]) : new Date();
-        const d = nextRun(expr, after);
-        console.log(d.toISOString());
-        process.exit(0);
-      }
-      if (cmd === 'next-n') {
-        const expr = argv[1];
-        const cnt = Number(argv[2] || 1);
-        const afterArg = argv.find(a=>a.startsWith('--after='));
-        const after = afterArg ? new Date(afterArg.split('=')[1]) : new Date();
-        const arr = nextRuns(expr, cnt, after);
-        console.log(JSON.stringify(arr.map(d=>d.toISOString()), null, 2));
-        process.exit(0);
-      }
-      if (cmd === 'matches') {
-        const expr = argv[1];
-        const iso = argv[2];
-        const d = new Date(iso);
-        console.log(matches(expr, d) ? 'true' : 'false');
-        process.exit(0);
-      }
-      if (cmd === 'tostring') {
-        const expr = argv[1];
-        console.log(toString(expr));
-        process.exit(0);
-      }
-      throw new Error(`unknown command '${cmd}'`);
-    } catch (err) {
-      console.error('Error:', err && err.message ? err.message : String(err));
-      process.exit(2);
-    }
-  })();
 }
