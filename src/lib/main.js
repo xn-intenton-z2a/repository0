@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: MIT
+// src/lib/main.js
 // Compact cron engine implementing parseCron, nextRun, nextRuns, matches, toString
-// All times are computed in UTC for determinism in library functions; CLI prints ISO strings (local offset if desired).
 
-export { parseCron, nextRun, nextRuns, matches, toString, main };
+/**
+ * Parse cron expressions (5-field or 6-field with seconds), compute next run times,
+ * check matches, and convert parsed form back to canonical string.
+ * All computations use local time (Date getters/setters) so behavior follows host timezone.
+ */
 
-export function main(argv = process.argv.slice(2)) {
-  // Minimal main used by tests; when invoked as CLI actual runner prints next runs.
-  // Keep this side-effect free for tests.
-  return { argv };
-}
+export { parseCron, nextRun, nextRuns, matches, toString };
 
 const SPECIALS = {
   '@yearly': '0 0 1 1 *',
@@ -32,10 +32,10 @@ function expandSpecial(expr) {
   return SPECIALS[e.toLowerCase()] || e;
 }
 
-function parseInteger(str, label) {
-  if (str === undefined || str === null) throw new Error(`${label} missing`);
-  if (!/^\d+$/.test(str)) throw new Error(`${label} '${str}' is not a valid integer`);
-  return Number(str);
+function parseIntStrict(s, label) {
+  if (s === undefined || s === null) throw new Error(`${label} missing`);
+  if (!/^\d+$/.test(String(s))) throw new Error(`${label} '${s}' is not a valid integer`);
+  return Number(s);
 }
 
 function parseField(fieldStr, min, max, fieldName) {
@@ -44,23 +44,24 @@ function parseField(fieldStr, min, max, fieldName) {
   const vals = new Set();
   for (const part of parts) {
     const [base, stepPart] = part.split('/');
-    const step = stepPart === undefined ? 1 : parseInteger(stepPart, `${fieldName} step`);
-    if (step <= 0) throw new Error(`${fieldName} step must be a positive integer`);
+    const step = stepPart === undefined ? 1 : parseIntStrict(stepPart, `${fieldName} step`);
+    if (!Number.isInteger(step) || step <= 0) throw new Error(`${fieldName} step must be a positive integer`);
     if (base === '*') {
       for (let v = min; v <= max; v += step) vals.add(v);
       continue;
     }
     if (base.includes('-')) {
       const [aStr, bStr] = base.split('-');
-      const a = parseInteger(aStr, `${fieldName} range start`);
-      const b = parseInteger(bStr, `${fieldName} range end`);
+      if (bStr === undefined || bStr === '') throw new Error(`malformed range in field '${fieldName}': '${base}'`);
+      const a = parseIntStrict(aStr, `${fieldName} range start`);
+      const b = parseIntStrict(bStr, `${fieldName} range end`);
       if (a > b) throw new Error(`${fieldName} range start ${a} greater than end ${b}`);
       if (a < min || b > max) throw new Error(`${fieldName} range ${a}-${b} out of bounds ${min}-${max}`);
       for (let v = a; v <= b; v += step) vals.add(v);
       continue;
     }
-    const n = parseInteger(base, `${fieldName} value`);
-    if (n < min || n > max) throw new Error(`${fieldName} value ${n} out of range ${min}..${max}`);
+    const n = parseIntStrict(base, `${fieldName} value`);
+    if (n < min || n > max) throw new Error(`${fieldName} value ${n} out of range ${min}-${max}`);
     if (step !== 1) {
       for (let v = n; v <= max; v += step) vals.add(v);
     } else {
@@ -71,18 +72,29 @@ function parseField(fieldStr, min, max, fieldName) {
 }
 
 function normalizeParsed(p) {
-  // ensure arrays and hasSeconds flag
-  const parsed = { original: p.original || p.string || '', hasSeconds: !!p.hasSeconds };
+  const parsed = {
+    original: p.original || p.string || '',
+    string: p.string || p.original || '',
+    hasSeconds: !!p.hasSeconds
+  };
   parsed.seconds = p.seconds ? Array.from(new Set(p.seconds)).sort((a,b)=>a-b) : undefined;
   parsed.minutes = Array.from(new Set(p.minutes)).sort((a,b)=>a-b);
   parsed.hours = Array.from(new Set(p.hours)).sort((a,b)=>a-b);
   parsed.dayOfMonth = Array.from(new Set(p.dayOfMonth)).sort((a,b)=>a-b);
   parsed.month = Array.from(new Set(p.month)).sort((a,b)=>a-b);
-  // normalize dayOfWeek mapping 7->0
   parsed.dayOfWeek = Array.from(new Set((p.dayOfWeek||[]).map(d => d === 7 ? 0 : d))).sort((a,b)=>a-b);
+  // convenience aliases
+  parsed.minute = parsed.minutes;
+  parsed.hour = parsed.hours;
+  parsed.day = parsed.dayOfMonth;
   return parsed;
 }
 
+/**
+ * parseCron(expression) -> parsed object
+ * Supports 5-field and 6-field (seconds) crons, lists, ranges, steps, and special macros.
+ * Throws descriptive Errors for invalid syntax or out-of-range values.
+ */
 function parseCron(expr) {
   if (typeof expr !== 'string') throw new TypeError('expression must be a string');
   let s = expandSpecial(expr);
@@ -90,7 +102,7 @@ function parseCron(expr) {
   let hasSeconds = false;
   if (fields.length === 6) hasSeconds = true;
   else if (fields.length === 5) hasSeconds = false;
-  else throw new Error(`expected 5 fields`);
+  else throw new Error('expected 5 fields');
 
   const f = hasSeconds ? fields.slice() : ['0', ...fields];
   // f: [sec,min,hour,dom,mon,dow]
@@ -104,6 +116,7 @@ function parseCron(expr) {
 
   const parsed = {
     original: expr,
+    string: s,
     hasSeconds,
     seconds: hasSeconds ? sec : undefined,
     minutes: min,
@@ -112,207 +125,163 @@ function parseCron(expr) {
     month: mon,
     dayOfWeek: dow
   };
-  const norm = normalizeParsed(parsed);
-  // provide backward-compatible singular property names used by older tests
-  norm.minute = norm.minutes;
-  norm.hour = norm.hours;
-  norm.month = norm.months || norm.month;
-  norm.dayOfWeek = norm.dayOfWeek;
-  norm.dayOfMonth = norm.dayOfMonth;
-  norm.seconds = norm.seconds;
-  return norm;
+  return normalizeParsed(parsed);
 }
 
-function toString(parsed) {
-  const p = typeof parsed === 'string' ? parseCron(parsed) : normalizeParsed(parsed);
-  const sec = p.hasSeconds ? (p.seconds || [0]).join(',') : null;
+function canonicalField(arr, min, max) {
+  if (!Array.isArray(arr)) return '*';
+  // if full range
+  if (arr.length === (max - min + 1) && arr[0] === min && arr[arr.length-1] === max) return '*';
+  return arr.join(',');
+}
+
+/**
+ * toString(parsedOrExpr) -> canonical cron string
+ */
+function toString(parsedOrExpr) {
+  const p = typeof parsedOrExpr === 'string' ? parseCron(parsedOrExpr) : normalizeParsed(parsedOrExpr);
+  const secPart = p.hasSeconds ? canonicalField(p.seconds || [0], 0, 59) : null;
   const parts = [];
-  if (p.hasSeconds) parts.push((p.seconds||[0]).join(','));
-  parts.push((p.minutes||[0]).join(','));
-  parts.push((p.hours||[0]).join(','));
-  parts.push((p.dayOfMonth||[1]).join(','));
-  parts.push((p.month||[1]).join(','));
-  parts.push((p.dayOfWeek||[0]).join(','));
+  if (p.hasSeconds) parts.push(secPart);
+  parts.push(canonicalField(p.minutes, 0, 59));
+  parts.push(canonicalField(p.hours, 0, 23));
+  parts.push(canonicalField(p.dayOfMonth, 1, 31));
+  parts.push(canonicalField(p.month, 1, 12));
+  parts.push(canonicalField(p.dayOfWeek, 0, 6));
   return parts.join(' ');
 }
 
-// helpers for searching
-function nextOrSame(sorted, val) {
-  for (const v of sorted) if (v >= val) return {value: v, wrapped: false};
-  return {value: sorted[0], wrapped: true};
+function isFullRange(arr, min, max) {
+  return Array.isArray(arr) && arr.length === (max - min + 1) && arr[0] === min && arr[arr.length-1] === max;
 }
 
-function dateToComponentsUTC(d) {
-  return {
-    year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate(),
-    hour: d.getUTCHours(), minute: d.getUTCMinutes(), second: d.getUTCSeconds()
-  };
-}
+/**
+ * matches(expressionOrParsed, date) -> boolean
+ * Date must match schedule in local time. If seconds are not present in schedule, seconds are ignored.
+ * Day-of-month and day-of-week follow cron semantics: if either field is restricted (not *), a match occurs when either matches; if both are * then always match.
+ */
+function matches(expressionOrParsed, date) {
+  if (!(date instanceof Date)) throw new TypeError('date must be a Date');
+  const parsed = typeof expressionOrParsed === 'string' ? parseCron(expressionOrParsed) : normalizeParsed(expressionOrParsed);
+  const s = parsed.hasSeconds ? date.getSeconds() : undefined;
+  const m = date.getMinutes();
+  const h = date.getHours();
+  const dom = date.getDate();
+  const mon = date.getMonth() + 1;
+  const dow = date.getDay();
 
-function componentsToDateUTC(year, month, day, hour, minute, second) {
-  // month 1-12 to Date month index
-  const dt = new Date(Date.UTC(year, month - 1, day, hour, minute, second, 0));
-  return dt;
-}
-
-function monthDaysUTC(year, month) {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate(); // day 0 of next month
-}
-
-function matchesParsed(parsed, date) {
-  const c = dateToComponentsUTC(date);
-  if (!parsed.month.includes(c.month)) return false;
-  if (!parsed.hours.includes(c.hour)) return false;
-  if (!parsed.minutes.includes(c.minute)) return false;
   if (parsed.hasSeconds) {
-    if (!parsed.seconds.includes(c.second)) return false;
+    if (!parsed.seconds.includes(s)) return false;
   }
-  const domMatch = parsed.dayOfMonth.includes(c.day);
-  const dow = new Date(Date.UTC(c.year, c.month -1, c.day)).getUTCDay();
-  const dowMatch = parsed.dayOfWeek.includes(dow);
-  // cron semantics: day-of-month OR day-of-week
-  return domMatch || dowMatch;
+  if (!parsed.minutes.includes(m)) return false;
+  if (!parsed.hours.includes(h)) return false;
+  if (!parsed.month.includes(mon)) return false;
+
+  const domIsAny = isFullRange(parsed.dayOfMonth, 1, 31);
+  const dowIsAny = isFullRange(parsed.dayOfWeek, 0, 6);
+
+  if (domIsAny && dowIsAny) return true;
+  const domMatches = parsed.dayOfMonth.includes(dom);
+  const dowMatches = parsed.dayOfWeek.includes(dow);
+  if (!domIsAny && !dowIsAny) {
+    // either field matching is sufficient
+    return domMatches || dowMatches;
+  }
+  if (!domIsAny) return domMatches;
+  return dowMatches;
 }
 
-function nextRun(exprOrParsed, after) {
-  const parsed = typeof exprOrParsed === 'string' ? parseCron(exprOrParsed) : normalizeParsed(exprOrParsed);
-  const start = after ? new Date(after) : new Date();
-  if (Number.isNaN(start.getTime())) throw new Error('invalid after date');
-  // strict > start
-  // start point is start + 1sec if hasSeconds else start + 60sec
-  let cursorMs = start.getTime();
-  cursorMs += parsed.hasSeconds ? 1000 : 60000;
-  let cursor = new Date(cursorMs);
+/**
+ * nextRun(expressionOrParsed, after?) -> Date
+ * Finds the next Date strictly after 'after' (defaults to now) that matches the schedule.
+ * Uses local time arithmetic and a bounded search (default horizon 5 years).
+ */
+function nextRun(expressionOrParsed, after = new Date()) {
+  const parsed = typeof expressionOrParsed === 'string' ? parseCron(expressionOrParsed) : normalizeParsed(expressionOrParsed);
+  if (!(after instanceof Date)) throw new TypeError('after must be a Date');
+  // Start strictly after 'after'
+  const hasSeconds = !!parsed.hasSeconds;
+  const stepSec = hasSeconds ? 1 : 60; // step in seconds
+  const startMs = after.getTime();
+  const horizonYears = 5;
+  const horizonMs = horizonYears * 365 * 24 * 3600 * 1000;
+  const limit = startMs + horizonMs;
 
-  const limitYear = start.getUTCFullYear() + 6; // search up to 5 years ahead
-  while (cursor.getUTCFullYear() <= limitYear) {
-    const c = dateToComponentsUTC(cursor);
-    // month
-    const monNext = nextOrSame(parsed.month, c.month);
-    let year = c.year;
-    let month = monNext.value;
-    if (monNext.wrapped) {
-      year += 1;
-    }
-    // find day in month that satisfies dom OR dow, starting from current day if same month/year
-    const daysInMonth = monthDaysUTC(year, month);
-    let dayStart = 1;
-    if (year === c.year && month === c.month) dayStart = c.day;
+  // candidate starts at after + stepSec
+  let candidate = new Date(startMs + stepSec*1000);
 
-    let foundDay = null;
-    for (let d = dayStart; d <= daysInMonth; d++) {
-      const domMatch = parsed.dayOfMonth.includes(d);
-      const dow = new Date(Date.UTC(year, month -1, d)).getUTCDay();
-      const dowMatch = parsed.dayOfWeek.includes(dow);
-      if (domMatch || dowMatch) {
-        foundDay = d; break;
-      }
+  while (candidate.getTime() <= limit) {
+    // If candidate matches schedule, return
+    try {
+      if (matches(parsed, candidate)) return candidate;
+    } catch (e) {
+      // If invalid local time caused Date methods to misbehave, skip forward
     }
-    if (!foundDay) {
-      // advance to next allowed month
-      cursor = componentsToDateUTC(year, month % 12 + 1, 1, 0, 0, 0);
-      continue;
-    }
-    // hours
-    let hourStart = 0;
-    if (year === c.year && month === c.month && foundDay === c.day) hourStart = c.hour;
-    const hourNext = nextOrSame(parsed.hours, hourStart);
-    let hour = hourNext.value;
-    if (hourNext.wrapped && hourStart > hour) {
-      // need to advance day
-      const nextDay = foundDay + 1;
-      cursor = componentsToDateUTC(year, month, nextDay, 0, 0, 0);
-      continue;
-    }
-    // minutes
-    let minuteStart = 0;
-    if (year === c.year && month === c.month && foundDay === c.day && hour === c.hour) minuteStart = c.minute;
-    const minNext = nextOrSame(parsed.minutes, minuteStart);
-    let minute = minNext.value;
-    if (minNext.wrapped && minuteStart > minute) {
-      // advance hour
-      cursor = componentsToDateUTC(year, month, foundDay, hour + 1, 0, 0);
-      continue;
-    }
-    // seconds
-    let second = 0;
-    if (parsed.hasSeconds) {
-      let secondStart = 0;
-      if (year === c.year && month === c.month && foundDay === c.day && hour === c.hour && minute === c.minute) secondStart = c.second;
-      const secNext = nextOrSame(parsed.seconds, secondStart);
-      second = secNext.value;
-      if (secNext.wrapped && secondStart > second) {
-        // advance minute
-        cursor = componentsToDateUTC(year, month, foundDay, hour, minute + 1, 0);
-        continue;
-      }
-    } else {
-      second = 0;
-      if (!(year === c.year && month === c.month && foundDay === c.day && hour === c.hour && minute >= c.minute)) {
-        // it's OK
-      }
-    }
-    const candidate = componentsToDateUTC(year, month, foundDay, hour, minute, second);
-    if (candidate.getTime() > start.getTime()) {
-      // final check: matchesParsed
-      if (matchesParsed(parsed, candidate)) return candidate;
-      // else advance
-      cursor = new Date(candidate.getTime() + (parsed.hasSeconds ? 1000 : 60000));
-      continue;
-    }
-    // otherwise advance cursor
-    cursor = new Date(candidate.getTime() + (parsed.hasSeconds ? 1000 : 60000));
+    // advance candidate by stepSec seconds
+    candidate = new Date(candidate.getTime() + stepSec*1000);
   }
-  throw new Error('no run found within 5 years');
+  throw new Error(`no run found within ${horizonYears} years for schedule '${parsed.string || parsed.original || ''}'`);
 }
 
-function nextRuns(exprOrParsed, count, after) {
-  if (!Number.isInteger(count) || count <= 0) throw new Error('count must be positive integer');
-  const runs = [];
-  let afterDate = after ? new Date(after) : new Date();
+function nextRuns(expressionOrParsed, count, after = new Date()) {
+  if (!Number.isInteger(count) || count <= 0) throw new TypeError('count must be a positive integer');
+  const results = [];
+  let anchor = new Date(after instanceof Date ? after.getTime() : new Date().getTime());
   for (let i = 0; i < count; i++) {
-    const nr = nextRun(exprOrParsed, afterDate);
-    runs.push(nr);
-    afterDate = nr;
+    const nxt = nextRun(expressionOrParsed, anchor);
+    results.push(nxt);
+    // set anchor to the found time so next search finds strictly later instants
+    anchor = new Date(nxt.getTime());
   }
-  return runs;
+  return results;
 }
 
-function matches(exprOrParsed, date) {
-  if (!(date instanceof Date)) date = new Date(date);
-  if (Number.isNaN(date.getTime())) throw new Error('invalid date');
-  const parsed = typeof exprOrParsed === 'string' ? parseCron(exprOrParsed) : normalizeParsed(exprOrParsed);
-  return matchesParsed(parsed, date);
-}
-
-// CLI
-if (process.argv[1] && process.argv[1].endsWith('/src/lib/main.js') || process.argv[1] === undefined) {
-  // allow running as node src/lib/main.js
-  if (import.meta.url && process.argv[1] !== undefined && process.argv[1] !== '' && !process.env._COPILOT_CLI_NO_RUN) {
-    // proceed only when directly executed
-  }
-}
-
-if (process.argv[1] === process.argv[1] /* trivial to appease bundlers */ && process.argv[1] && process.argv[1].endsWith('/src/lib/main.js') ) {
-  // not reliable in some bundles; provide a lightweight CLI when invoked directly
-  // simple parse: node src/lib/main.js "expr" [--count N] [--after ISO]
+// If module run directly, provide minimal CLI. Keep side-effects small.
+if (new URL(import.meta.url).pathname === process.argv[1]) {
+  // simple CLI dispatch
+  const argv = process.argv.slice(2);
   (async () => {
     try {
-      const args = process.argv.slice(2);
-      if (args.length === 0) return;
-      let expr = args[0];
-      let count = 1;
-      let after;
-      for (let i = 1; i < args.length; i++) {
-        if (args[i] === '--count' && args[i+1]) { count = Number(args[i+1]); i++; }
-        else if (args[i] === '--after' && args[i+1]) { after = new Date(args[i+1]); i++; }
+      const cmd = argv[0];
+      if (!cmd) throw new Error('command required: parse|next|next-n|matches|tostring');
+      if (cmd === 'parse') {
+        const expr = argv[1];
+        console.log(JSON.stringify(parseCron(expr), null, 2));
+        process.exit(0);
       }
-      const runs = nextRuns(expr, count, after);
-      for (const r of runs) console.log(r.toISOString());
-      process.exit(0);
+      if (cmd === 'next') {
+        const expr = argv[1];
+        const afterArg = argv.find(a=>a.startsWith('--after='));
+        const after = afterArg ? new Date(afterArg.split('=')[1]) : new Date();
+        const d = nextRun(expr, after);
+        console.log(d.toISOString());
+        process.exit(0);
+      }
+      if (cmd === 'next-n') {
+        const expr = argv[1];
+        const cnt = Number(argv[2] || 1);
+        const afterArg = argv.find(a=>a.startsWith('--after='));
+        const after = afterArg ? new Date(afterArg.split('=')[1]) : new Date();
+        const arr = nextRuns(expr, cnt, after);
+        console.log(JSON.stringify(arr.map(d=>d.toISOString()), null, 2));
+        process.exit(0);
+      }
+      if (cmd === 'matches') {
+        const expr = argv[1];
+        const iso = argv[2];
+        const d = new Date(iso);
+        console.log(matches(expr, d) ? 'true' : 'false');
+        process.exit(0);
+      }
+      if (cmd === 'tostring') {
+        const expr = argv[1];
+        console.log(toString(expr));
+        process.exit(0);
+      }
+      throw new Error(`unknown command '${cmd}'`);
     } catch (err) {
-      console.error(err && err.message ? err.message : String(err));
-      process.exit(1);
+      console.error('Error:', err && err.message ? err.message : String(err));
+      process.exit(2);
     }
   })();
 }
