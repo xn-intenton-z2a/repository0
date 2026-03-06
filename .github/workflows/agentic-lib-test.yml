@@ -4,6 +4,9 @@
 #
 # Test workflow seeded by agentic-lib init.
 # Also callable via workflow_call from the main pipeline.
+#
+# In agentic-lib: push/pull_request triggers are commented out.
+# During init:
 
 name: agentic-lib-test
 run-name: "agentic-lib-test [${{ github.ref_name }}]"
@@ -28,5 +31,9 @@ jobs:
           cache: "npm"
 
       - run: npm ci
+
+      - name: Install sub-project dependencies (agentic-lib dev only)
+        if: hashFiles('src/actions/agentic-step/package.json') != ''
+        run: cd src/actions/agentic-step && npm ci
 
       - run: npm test

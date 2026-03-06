@@ -1,12 +1,12 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: GPL-3.0-only
 # Copyright (C) 2025-2026 Polycode Limited
 # agentic-lib.toml — Configuration for agentic-lib workflows
 #
-# This file controls how agentic workflows operate on your repository.
-# Place it at the root of your project.
+# Locally: paths point to test/ so dry-run workflows operate on test fixtures.
+# During init:
 
 [schedule]
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 model = "gpt-5-mini"              # gpt-5-mini | claude-sonnet-4 | gpt-4.1
 
 [paths]
@@ -28,11 +28,11 @@ test = "npm test"
 start = "npm run start"
 
 [limits]
-feature-issues = 5
+feature-issues = 2
 maintenance-issues = 1
 attempts-per-branch = 3
 attempts-per-issue = 2
-features-limit = 4
+features-limit = 2
 library-limit = 32
 
 [bot]

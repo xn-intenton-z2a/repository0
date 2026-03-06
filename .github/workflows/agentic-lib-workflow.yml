@@ -5,16 +5,37 @@
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
 # agent-flow-maintain, agent-flow-fix-code, and ci-automerge.
+#
+# In agentic-lib: schedule is commented out, dry-run defaults to true.
+# During init:
 
 name: agentic-lib-workflow
 run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
-concurrency:
-  group: agentic-lib-workflow
-  cancel-in-progress: false
+#concurrency:
+#  group: agentic-lib-workflow
+#  cancel-in-progress: false
 
 on:
   schedule:
     - cron: "0 6 * * 1"
+  workflow_call:
+    inputs:
+      model:
+        type: string
+        required: false
+        default: "gpt-5-mini"
+      mode:
+        type: string
+        required: false
+        default: "full"
+      dry-run:
+        type: string
+        required: false
+        default: "true"
+      config-path:
+        type: string
+        required: false
+        default: ""
   workflow_dispatch:
     inputs:
       model:
@@ -64,6 +85,11 @@ on:
         type: string
         required: false
         default: ""
+      dry-run:
+        description: "Skip all push/PR/merge operations"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   actions: write
@@ -74,7 +100,7 @@ permissions:
   discussions: write
 
 env:
-  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
+  configPath: "agentic-lib.toml"
   maxFixAttempts: "3"
   stalePrDays: "3"
 
@@ -98,6 +124,10 @@ jobs:
           echo "schedule=${SCHEDULE}" >> $GITHUB_OUTPUT
           PR='${{ inputs.pr-number }}'
           echo "pr-number=${PR}" >> $GITHUB_OUTPUT
+          DRY_RUN='${{ inputs.dry-run }}'
+          echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT
+          CONFIG='${{ inputs.config-path }}'
+          echo "config-path=${CONFIG:-${{ env.configPath }}}" >> $GITHUB_OUTPUT
     outputs:
       model: ${{ steps.normalise.outputs.model }}
       mode: ${{ steps.normalise.outputs.mode }}
@@ -105,11 +135,15 @@ jobs:
       issue-number: ${{ steps.normalise.outputs.issue-number }}
       schedule: ${{ steps.normalise.outputs.schedule }}
       pr-number: ${{ steps.normalise.outputs.pr-number }}
+      dry-run: ${{ steps.normalise.outputs.dry-run }}
+      config-path: ${{ steps.normalise.outputs.config-path }}
 
   # ─── PR Cleanup: merge/close/delete stale PRs and branches ─────────
   pr-cleanup:
     needs: params
-    if: needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'pr-cleanup-only'
+    if: |
+      needs.params.outputs.dry-run != 'true' &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'pr-cleanup-only')
     runs-on: ubuntu-latest
     steps:
       - name: PR cleanup
@@ -194,7 +228,9 @@ jobs:
   # ─── Telemetry: gather repo state for supervisor ───────────────────
   telemetry:
     needs: params
-    if: needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
+    if: |
+      needs.params.outputs.dry-run != 'true' &&
+      (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -271,6 +307,7 @@ jobs:
     needs: [params, pr-cleanup, telemetry]
     if: |
       always() &&
+      needs.params.outputs.dry-run != 'true' &&
       (needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only') &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -280,6 +317,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
@@ -292,7 +333,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "supervise"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-supervisor.md"
           model: ${{ needs.params.outputs.model }}
 
@@ -313,6 +354,10 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
@@ -320,7 +365,7 @@ jobs:
       - name: Load config
         id: config
         run: |
-          CONFIG="${{ env.configPath }}"
+          CONFIG="${{ needs.params.outputs.config-path }}"
           FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
           LIBRARY=$(yq -r '.paths.libraryDocumentsPath.path // "library/"' "$CONFIG")
           SOURCES=$(yq -r '.paths.librarySourcesFilepath.path // "SOURCES.md"' "$CONFIG")
@@ -334,7 +379,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-features"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-maintain-features.md"
           writable-paths: ${{ steps.config.outputs.featuresWritablePaths }}
           model: ${{ needs.params.outputs.model }}
@@ -346,12 +391,13 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "maintain-library"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-maintain-library.md"
           writable-paths: ${{ steps.config.outputs.libraryWritablePaths }}
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push changes
+        if: needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: maintain features and library"
@@ -362,6 +408,7 @@ jobs:
     needs: [params, supervisor]
     if: |
       always() &&
+      needs.params.outputs.dry-run != 'true' &&
       needs.params.outputs.mode == 'full' &&
       needs.params.result == 'success'
     runs-on: ubuntu-latest
@@ -376,6 +423,10 @@ jobs:
 
       - name: Install project dependencies
         run: npm ci
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
@@ -447,7 +498,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "fix-code"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
           pr-number: ${{ env.FIX_PR_NUMBER }}
           test-command: "npm test"
@@ -474,6 +525,10 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
@@ -485,7 +540,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "review-issue"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-review-issue.md"
           model: ${{ needs.params.outputs.model }}
 
@@ -496,7 +551,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "enhance-issue"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-ready-issue.md"
           model: ${{ needs.params.outputs.model }}
 
@@ -521,6 +576,10 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
+
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
@@ -528,7 +587,7 @@ jobs:
       - name: Load config
         id: config
         run: |
-          CONFIG="${{ env.configPath }}"
+          CONFIG="${{ needs.params.outputs.config-path }}"
           SOURCE=$(yq -r '.paths.targetSourcePath.path // "src/lib/"' "$CONFIG")
           TESTS=$(yq -r '.paths.targetTestsPath.path // "tests/unit/"' "$CONFIG")
           FEATURES=$(yq -r '.paths.featuresPath.path // "features/"' "$CONFIG")
@@ -579,7 +638,7 @@ jobs:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
         with:
           task: "transform"
-          config: ${{ env.configPath }}
+          config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
           test-command: "npm test"
           model: ${{ needs.params.outputs.model }}
@@ -587,14 +646,14 @@ jobs:
           writable-paths: ${{ steps.config.outputs.writablePaths }}
 
       - name: Commit and push
-        if: steps.issue.outputs.issue-number != ''
+        if: steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
       - name: Create PR and attempt merge
-        if: steps.issue.outputs.issue-number != ''
+        if: steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -696,11 +755,12 @@ jobs:
           echo "## agentic-lib-workflow run summary" >> $GITHUB_STEP_SUMMARY
           echo "- Mode: ${{ needs.params.outputs.mode }}" >> $GITHUB_STEP_SUMMARY
           echo "- Model: ${{ needs.params.outputs.model }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Dry-run: ${{ needs.params.outputs.dry-run }}" >> $GITHUB_STEP_SUMMARY
 
   # ─── Schedule change (if requested) ────────────────────────────────
   update-schedule:
     needs: [params, dev]
-    if: always() && needs.params.outputs.schedule != '' && needs.params.result == 'success'
+    if: always() && needs.params.outputs.dry-run != 'true' && needs.params.outputs.schedule != '' && needs.params.result == 'success'
     uses: ./.github/workflows/agentic-lib-schedule.yml
     with:
       frequency: ${{ needs.params.outputs.schedule }}

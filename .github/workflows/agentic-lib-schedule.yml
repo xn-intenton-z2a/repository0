@@ -4,6 +4,8 @@
 #
 # Changes the agentic-lib-workflow's cron schedule by editing the workflow file
 # directly and pushing to main. Also updates the model setting in agentic-lib.toml.
+#
+# No trigger changes needed — uses workflow_call and workflow_dispatch only.
 
 name: agentic-lib-schedule
 run-name: "agentic-lib-schedule -> ${{ inputs.frequency }} (${{ inputs.model }})"
@@ -20,6 +22,11 @@ on:
         required: false
         type: string
         default: "gpt-5-mini"
+      dry-run:
+        description: "Skip commit and push"
+        required: false
+        type: string
+        default: "false"
   workflow_dispatch:
     inputs:
       frequency:
@@ -41,6 +48,11 @@ on:
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
+      dry-run:
+        description: "Skip commit and push"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -50,6 +62,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: inputs.dry-run == 'true' || inputs.dry-run == true
+      - uses: actions/checkout@v4
+        if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
           ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
@@ -131,6 +146,7 @@ jobs:
             }
 
       - name: Commit and push
+        if: inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |

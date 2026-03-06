@@ -5,12 +5,15 @@
 # Discussions bot: responds to GitHub Discussions using the Copilot SDK.
 # Checks thread + repo context, responds, and can escalate to the main
 # workflow by dispatching agentic-lib-workflow.yml with a message parameter.
+#
+# In agentic-lib: discussion triggers are commented out, dry-run defaults to true.
+# During init:
 
 name: agentic-lib-bot
 run-name: "agentic-lib-bot [${{ github.ref_name }}]"
-concurrency:
-  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
-  cancel-in-progress: false
+#concurrency:
+#  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
+#  cancel-in-progress: false
 
 on:
   discussion:
@@ -23,6 +26,16 @@ on:
     types:
       - created
       - edited
+  workflow_call:
+    inputs:
+      discussion-url:
+        type: string
+        required: false
+        default: ""
+      model:
+        type: string
+        required: false
+        default: "gpt-5-mini"
   workflow_dispatch:
     inputs:
       discussion-url:
@@ -39,6 +52,11 @@ on:
           - gpt-5-mini
           - claude-sonnet-4
           - gpt-4.1
+      dry-run:
+        description: "Skip all push/PR/merge operations"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -47,7 +65,7 @@ permissions:
   actions: write
 
 env:
-  configPath: ".github/agentic-lib/agents/agentic-lib.yml"
+  configPath: "agentic-lib.toml"
 
 jobs:
   params:
@@ -59,8 +77,11 @@ jobs:
         run: |
           MODEL='${{ inputs.model }}'
           echo "model=${MODEL:-gpt-5-mini}" >> $GITHUB_OUTPUT
+          DRY_RUN='${{ inputs.dry-run }}'
+          echo "dry-run=${DRY_RUN:-true}" >> $GITHUB_OUTPUT
     outputs:
       model: ${{ steps.normalise.outputs.model }}
+      dry-run: ${{ steps.normalise.outputs.dry-run }}
 
   respond:
     needs: params
@@ -73,6 +94,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+
+      - name: Self-init (agentic-lib dev only)
+        if: hashFiles('scripts/self-init.sh') != '' && hashFiles('.github/agentic-lib/actions/agentic-step/package.json') == ''
+        run: bash scripts/self-init.sh
 
       - name: Install agentic-step dependencies
         working-directory: .github/agentic-lib/actions/agentic-step

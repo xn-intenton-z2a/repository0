@@ -40,15 +40,23 @@ runs:
           git commit -m "${{ inputs.commit-message }}"
           REF="${{ inputs.push-ref }}"
           MAX_RETRIES=3
+          REMOTE_REF_EXISTS=""
+          if [ -n "$REF" ]; then
+            git ls-remote --exit-code origin "$REF" > /dev/null 2>&1 && REMOTE_REF_EXISTS="true"
+          else
+            REMOTE_REF_EXISTS="true"
+          fi
           for attempt in $(seq 1 $MAX_RETRIES); do
             if [ -n "$REF" ]; then
-              git pull --rebase origin "$REF" || {
-                echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
-                git rebase --abort 2>/dev/null || true
-                sleep $((attempt * 2))
-                continue
-              }
-              git push origin "$REF" && break
+              if [ "$REMOTE_REF_EXISTS" = "true" ]; then
+                git pull --rebase origin "$REF" || {
+                  echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
+                  git rebase --abort 2>/dev/null || true
+                  sleep $((attempt * 2))
+                  continue
+                }
+              fi
+              git push origin "$REF" && { REMOTE_REF_EXISTS="true"; break; }
             else
               git pull --rebase || {
                 echo "Rebase conflict on attempt $attempt — aborting rebase and retrying"
