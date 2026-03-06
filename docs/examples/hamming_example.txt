@@ -1,0 +1,3 @@
+hammingDistance('karolin', 'kathrin') = 3
+hammingDistance('', '') = 0
+hammingDistanceBits(1, 4) = 2
