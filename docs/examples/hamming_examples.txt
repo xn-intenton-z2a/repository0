@@ -1,0 +1,6 @@
+Examples of hammingDistanceBits outputs
+
+1 and 4 (Numbers): 2
+1n and 4n (BigInt): 2
+1 (Number) and 4n (BigInt): 2
+0 and 0: 0

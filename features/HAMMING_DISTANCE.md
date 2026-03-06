@@ -32,77 +32,30 @@ Functions
 2. hammingDistanceBits(x, y)
 
 - Signature: hammingDistanceBits(x, y) -> number
-- Description: Compute the number of differing bits between two inputs. Supported input combinations fall into three modes:
-  a) Integer mode: both x and y are Number or BigInt representing non-negative integers. Mixed Number/BigInt calls are allowed; Numbers are coerced to BigInt when either operand is BigInt.
-  b) Buffer mode: both x and y are Buffer, Uint8Array, or ArrayBuffer. In this mode the function computes per-byte XOR and sums per-byte popcounts.
-  c) Fixed-width integer arrays may be represented as Uint8Array/ArrayBuffer and are handled by buffer mode.
-- Returns: number — count of bit positions that differ across the operands.
+- Description: Compute the number of differing bits between two non-negative integer values or between two equal-length byte sequences.
+
+- Supported input types and coercion rules:
+  - Numbers (JavaScript Number): must be integers, non-negative, and safe integers (Number.isSafeInteger). Two Number inputs take the fast Number path which uses 32-bit chunk operations for performance while remaining correct up to Number.MAX_SAFE_INTEGER.
+  - BigInt: supports arbitrary non-negative integers beyond Number.MAX_SAFE_INTEGER. When either input is a BigInt, the other may be a Number — if the Number is a safe integer it will be coerced to BigInt; if the Number is unsafe a RangeError is thrown and the caller should use BigInt values explicitly.
+  - Byte sequences (Uint8Array or ArrayBuffer): legacy behavior preserved — compare byte-by-byte and count differing bits using a popcount table. Buffer instances (Node) are supported via the Uint8Array subtype handling.
+
 - Validation and errors:
-  - If types do not match one of the supported modes, throw TypeError describing the supported signatures (Number/BigInt or Buffer/Uint8Array/ArrayBuffer).
-  - Integer mode:
-    - Accept Number or BigInt. If either operand is a Number and Number.isSafeInteger(value) is false, throw RangeError suggesting use of BigInt for large integers.
-    - After coercion, if either integer is negative, throw RangeError.
-  - Buffer mode:
-    - Accept Buffer, Uint8Array, or ArrayBuffer. Convert ArrayBuffer to Uint8Array view when necessary.
-    - If the two buffers have different byte lengths, throw RangeError.
-- Behavior examples:
-  - hammingDistanceBits(1, 4) returns 2 (binary: 001 vs 100)
-  - hammingDistanceBits(1n, 4n) returns 2
-  - hammingDistanceBits(0, 0) returns 0
-  - hammingDistanceBits(new Uint8Array([0b10100000]), new Uint8Array([0b00100001])) returns 3
+  - Non-numeric, non-byte-sequence inputs throw TypeError.
+  - Negative values (Number < 0 or any negative BigInt) throw RangeError.
+  - Number values greater than Number.MAX_SAFE_INTEGER (unsafe) must be passed as BigInt; attempting to pass an unsafe Number throws RangeError.
+  - For byte-sequence inputs, lengths must match or a RangeError is thrown.
+
+- Return value:
+  - Always returns a finite Number (JavaScript Number) representing the count of differing bits.
+
+- Examples:
+  - hammingDistanceBits(1, 4) -> 2
+  - hammingDistanceBits(1n, 4n) -> 2
+  - hammingDistanceBits(1, 4n) -> 2 (Number coerced to BigInt)
+  - hammingDistanceBits(0n, 0n) -> 0
+  - hammingDistanceBits(new Uint8Array([0b00000001]), new Uint8Array([0b00000100])) -> 2
+
 - Implementation notes:
-  - Integer mode:
-    - Prefer Number-based bit operations when both operands are Numbers within safe integer range for performance.
-    - If BigInt is involved (or Numbers coerced due to size), use BigInt XOR and count set bits with an adapted Brian Kernighan algorithm for BigInt: while (xor !== 0n) { xor &= xor - 1n; count++; }.
-  - Buffer mode:
-    - Iterate bytes, compute byteXor = byteA ^ byteB, and use a small constant-time popcount table or Brian Kernighan on Numbers (0-255) to sum differing bits.
-  - Keep code paths separate to preserve performance for common Number-based use cases, while providing correct behavior for BigInt and buffer inputs.
-
-Exports
-
-- Export both functions as named exports from src/lib/main.js so other modules can import { hammingDistance, hammingDistanceBits } from the library.
-
-# Tests and Examples
-
-Unit tests must be comprehensive and live under tests/unit/ per repository conventions. Tests should cover:
-
-- String cases:
-  - Typical ASCII strings and multi-codepoint characters (emoji, combining accents)
-  - Normalization examples where equivalent sequences compare equal (e.g., e + combining accent vs precomposed é)
-  - Unequal-length strings raising RangeError and wrong types raising TypeError
-- Integer cases:
-  - Number-based examples including 1 vs 4, 0 vs 0, large safe integers
-  - BigInt examples and mixed Number/BigInt combinations
-  - Negative integers and non-integer numbers should raise RangeError/TypeError as appropriate
-  - Numbers greater than Number.MAX_SAFE_INTEGER should throw RangeError unless caller uses BigInt
-- Buffer cases:
-  - Equal-length buffers with expected differing bit counts
-  - Different-length buffers should raise RangeError
-  - Accept Buffer, Uint8Array and ArrayBuffer
-
-Provide README examples showing usage, NFC-normalization note, BigInt guidance, and buffer-based examples.
-
-# Acceptance Criteria
-
-The feature is complete when the following are satisfied and testable:
-
-- hammingDistance("karolin", "kathrin") returns 3
-- hammingDistance("", "") returns 0
-- hammingDistance("a", "bb") throws RangeError
-- hammingDistance("e\u0301", "é") returns 0 (normalization)
-- hammingDistanceBits(1, 4) returns 2
-- hammingDistanceBits(1n, 4n) returns 2
-- hammingDistanceBits(1, 4n) returns 2 (mixed coercion)
-- hammingDistanceBits(0, 0) returns 0
-- hammingDistanceBits(new Uint8Array([1,2,3]), new Uint8Array([1,2,3])) returns 0
-- Passing Number > Number.MAX_SAFE_INTEGER without BigInt throws RangeError
-- Negative inputs throw RangeError
-- Non-numeric/non-buffer inputs throw TypeError
-- Both functions are exported as named exports from src/lib/main.js
-- All unit tests pass
-
-# Implementation notes and constraints
-
-- Implementation fits entirely in src/lib/main.js and tests in tests/unit/. Do not add new runtime dependencies.
-- Keep code clear and minimal; prefer branching on input types and implementing small, well-tested helpers for popcount and buffer handling.
-- Update README.md with usage examples and API documentation reflecting normalization and BigInt/buffer support.
+  - Fast Number path splits 64-bit Number range into 32-bit chunks and uses a precomputed POPCOUNT table for bytes to avoid performance regressions.
+  - BigInt path uses Kernighan's algorithm adapted for BigInt: while (v !== 0n) { v &= v - 1n; count++; }
+  - The API intentionally enforces explicitness around unsafe Numbers to avoid silent precision bugs — prefer BigInt for very large integers.
