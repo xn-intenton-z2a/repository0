@@ -1,0 +1,10 @@
+{
+  "string_examples": [
+    {"a":"karolin","b":"kathrin","distance":3},
+    {"a":"1011101","b":"1001001","distance":2}
+  ],
+  "binary_examples": [
+    {"a":93,"b":73,"distance":2},
+    {"a":0,"b":15,"distance":4}
+  ]
+}
