@@ -1,71 +1,66 @@
-# HAMMING_CLI
+# BIGINT_SUPPORT
 
 # Overview
 
-Provide a concise, testable command-line interface for the repository's Hamming utilities so users can compute Hamming distances directly from the shell or scripts. The CLI is implemented in the existing entrypoint file src/lib/main.js and must be a minimal, dependency-free shim that delegates to the library functions hammingDistance and hammingDistanceBits exported by src/lib/main.js.
+Add and formalize explicit BigInt support and clear integer coercion rules for the repository's hammingDistanceBits API so callers can compute bitwise Hamming distances for arbitrarily large non-negative integers safely and predictably. This feature documents calling conventions, validation rules, and examples, and requires tests and README examples demonstrating BigInt and mixed-type usage.
 
 # Specification
 
 Purpose
-- Expose two subcommands: string and bits.
-- string computes Unicode-safe Hamming distance between two input strings.
-- bits computes bitwise Hamming distance between two non-negative integers or between two hex-encoded byte sequences.
+- Ensure hammingDistanceBits accepts and correctly processes BigInt inputs alongside Number and byte-sequence inputs.
+- Define coercion and error rules when mixing Number and BigInt inputs, and when Number inputs exceed safe integer limits.
+- Provide tests and README examples covering BigInt, mixed-type, and byte-sequence scenarios.
 
-Invocation
-- node src/lib/main.js string A B
-  - Computes the hammingDistance between A and B and writes the numeric result to stdout followed by a newline.
-- node src/lib/main.js bits X Y
-  - If X and Y are decimal integer literals, parse them as integers (allow BigInt notation with trailing n) and compute hammingDistanceBits.
-  - If X and Y are hex byte strings prefixed with 0x or of even length, interpret them as byte sequences and compute bitwise Hamming distance across the byte sequences.
-- node src/lib/main.js --help
-  - Writes a short usage summary and exits with code 0.
+API behavior
+- Signature: hammingDistanceBits(x, y) -> number
+- Supported input types:
+  - BigInt: arbitrary non-negative integer values; preferred for very large integers.
+  - Number: integer Numbers which must be non-negative and safe integers (Number.isSafeInteger).
+  - Byte-sequence: Uint8Array, ArrayBuffer, or Buffer of equal length.
+- Coercion rules:
+  - If either x or y is a BigInt, coerce the other to BigInt where possible: safe Number values are converted to BigInt automatically.
+  - If a Number is provided that is not a safe integer (Number.isSafeInteger returns false), throw RangeError and require the caller to pass a BigInt instead.
+  - Byte-sequence inputs are not coerced to integers; they must be both byte sequences and of equal length.
 
-Output formats
-- Default: single-line textual integer printed to stdout (e.g., 3).
-- JSON mode: passing --json prints a JSON object {"command":"string","a":"...","b":"...","distance":N} and exits 0 for success.
+Validation and errors
+- TypeError: when inputs are not one of the supported types (BigInt, Number, Uint8Array/ArrayBuffer/Buffer).
+- RangeError: when any numeric input is negative, when Numbers are unsafe and not coercible, or when byte-sequence lengths differ.
+- Behavior must be deterministic and explicit: do not silently truncate or accept unsafe Numbers.
 
-Validation and exit codes
-- On successful computation: exit code 0.
-- On input type errors (e.g., non-string for string command, invalid integer syntax): write a clear error to stderr and exit 2.
-- On domain errors (e.g., unequal string code point lengths, negative integers, byte-sequence length mismatch): write a clear error to stderr and exit 3.
-- On unexpected errors: write an error to stderr and exit 1.
-
-Behavior details
-- The string subcommand must use the library's hammingDistance implementation which normalizes both inputs to NFC and compares by Unicode code points.
-- The bits subcommand must reuse hammingDistanceBits from the library; it should accept Number, BigInt literal notation, or hex byte sequences and apply the same validation rules as the library.
-- The CLI must not implement separate core logic; it only parses arguments, validates basic surface syntax, coerces inputs according to the library rules, invokes the library functions and formats the result.
+Algorithm and performance notes
+- BigInt path: use repeated v &= v - 1n (Kernighan) on the XOR result to count set bits; loop until zero to count differing bits.
+- Number path: when both operands are Numbers and safe integers, use fast 32/53-bit chunking or convert to Uint8Array and use a popcount table for bytes; ensure correctness up to Number.MAX_SAFE_INTEGER.
+- Byte-sequence path: XOR each byte pair and sum popcount results using a small precomputed 256-entry table.
+- Always return a JavaScript Number representing the count of differing bits.
 
 Examples
-- node src/lib/main.js string karolin kathrin
-  - Outputs 3
-- node src/lib/main.js string "e\u0301" "é"
-  - Outputs 0
-- node src/lib/main.js bits 1 4
-  - Outputs 2
-- node src/lib/main.js bits 0x01 0x04
-  - Outputs 2
-- node src/lib/main.js --help
-  - Outputs usage summary and exits 0
+- hammingDistanceBits(1, 4) -> 2
+- hammingDistanceBits(1n, 4n) -> 2
+- hammingDistanceBits(1, 4n) -> 2 (Number coerced to BigInt)
+- hammingDistanceBits(9007199254740993, 9007199254740994) throws RangeError (Number unsafe; use BigInt)
+- hammingDistanceBits(9007199254740993n, 9007199254740994n) -> valid result
+- hammingDistanceBits(new Uint8Array([1]), new Uint8Array([4])) -> 2
 
 Acceptance criteria
-- Running node src/lib/main.js string karolin kathrin prints 3 and exits 0.
-- Running node src/lib/main.js string "" "" prints 0 and exits 0.
-- Running node src/lib/main.js string a bb prints a clear RangeError-style message on stderr and exits 3.
-- Running node src/lib/main.js bits 1 4 prints 2 and exits 0.
-- Running node src/lib/main.js bits 0 0 prints 0 and exits 0.
-- Running node src/lib/main.js bits 1n 4n prints 2 and exits 0 if BigInt literals are provided.
-- --json mode prints a valid JSON object with distance and original inputs.
-- A unit test exercising main with process.argv simulation verifies stdout, stderr and exit codes for the above cases.
+- hammingDistanceBits accepts BigInt inputs and returns correct bit-difference counts for large integers beyond Number.MAX_SAFE_INTEGER.
+- Passing an unsafe Number (beyond safe integer range) throws RangeError with a clear message advising to use BigInt.
+- Mixing BigInt and safe Number works by coercing Number to BigInt and returning the correct result.
+- Byte-sequence behavior is unchanged and still throws RangeError for unequal lengths.
+- Unit tests cover BigInt-only, mixed BigInt/Number, unsafe Number rejection, and byte-sequence scenarios.
 
 Tests and files to update
-- Add tests/unit/cli.test.js (or update existing tests) to call main with simulated argv and assert stdout/stderr and exit codes; tests should be minimal and rely on the exported library functions for correctness.
-- Update README.md examples to include the CLI usage lines above.
+- Update or add tests/unit/main.test.js to include cases:
+  - BigInt inputs (large values beyond Number.MAX_SAFE_INTEGER)
+  - Mixed BigInt and safe Number
+  - Unsafe Number inputs causing RangeError
+  - Byte-sequence comparisons unchanged
+- Update README.md to document BigInt usage and mixed-type rules with short examples.
 
 Implementation notes
-- Keep the CLI code minimal in src/lib/main.js: parse args, perform light validation, call exported functions, write outputs, set process.exitCode instead of calling process.exit directly in tests.
-- Avoid adding dependencies; use only built-in Node APIs.
+- Make the minimal implementation changes in src/lib/main.js: add BigInt coercion logic, explicit unsafe Number checks, and reuse existing byte-sequence handling code path.
+- Keep external dependencies nil; use only built-in JavaScript and Node APIs.
+- Use clear, actionable error messages (TypeError for types, RangeError for domain violations) matching the repository's existing conventions.
 
 Compatibility with mission
-- Realizes the mission by providing an accessible CLI surface for the Hamming distance library and encourages discoverability and scripting use.
-
+- Directly advances the mission by enabling accurate bitwise Hamming computations on arbitrarily large integers while preserving Unicode-safe string behavior and existing byte-sequence semantics.
 
