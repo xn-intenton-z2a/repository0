@@ -1,0 +1,160 @@
+REPOSITORY0
+
+NORMALISED_EXTRACT
+
+Table of Contents
+1. Project Overview
+2. Paths and Entry Points
+3. npm Scripts and Exact Commands
+4. Testing and Coverage
+5. agentic-lib Configuration (agentic-lib.toml key settings)
+6. Distributed Files and Restrictions
+7. Git Commit Trailer and Commit Rules
+8. Recommended Run & Troubleshooting Steps
+9. Supplementary Technical Specifications
+10. Reference Details (exact config values, commands, and patterns)
+11. Digest (source excerpt and retrieval date)
+
+1) Project Overview
+- Package name: @xn-intenton-z2a/repository0 (package.json name: "repo", version 0.1.0).
+- Entry point: src/lib/main.js
+- Purpose: template repository demonstrating agentic-lib workflows; main focus file: src/lib/main.js; tests in tests/unit/ guard main.js behaviour.
+- Primary dependency: @xn-intenton-z2a/agentic-lib version ^7.1.60
+- Node engine requirement: node >= 24.0.0
+
+2) Paths and Entry Points
+- Main executable path: src/lib/main.js (run with: node src/lib/main.js)
+- Tests folder: tests/unit/ (unit tests named *.test.js)
+- Config: agentic-lib.toml at project root governs agent/workflow behavior and path mappings.
+- Library documents live in library/ and are produced from SOURCES.md.
+
+3) npm Scripts and Exact Commands
+- "build": echo "Nothing to build"
+- "test": vitest --run tests/unit/*.test.js
+- "test:unit": vitest --run --coverage tests/unit/*.test.js
+- "start": node src/lib/main.js
+- Use exact script names above when invoking via npm (npm test, npm run test:unit, npm start).
+
+4) Testing and Coverage
+- Test runner: vitest ^4.0.18 with coverage plugin @vitest/coverage-v8 ^4.0.18
+- Unit test invocation: npm run test:unit expands to: vitest --run --coverage tests/unit/*.test.js
+- Ensure tests target files in tests/unit/*.test.js; CI should run npm test which runs vitest --run tests/unit/*.test.js
+
+5) agentic-lib Configuration (key settings from agentic-lib.toml)
+- schedule.supervisor = "off"
+- paths.mapping (explicit):
+  mission = "MISSION.md"
+  source = "src/lib/"
+  tests = "tests/unit/"
+  features = "features/"
+  library = "library/"
+  docs = "docs/"
+  examples = "examples/"
+  readme = "README.md"
+  dependencies = "package.json"
+  contributing = "CONTRIBUTING.md"
+  library-sources = "SOURCES.md"
+- execution commands:
+  build = "npm run build"
+  test = "npm test"
+  start = "npm run start"
+- limits: feature-issues=2, maintenance-issues=1, attempts-per-branch=3, attempts-per-issue=2, features-limit=2, library-limit=32
+- tuning defaults: model = "gpt-5-mini", infinite-sessions = false
+
+6) Distributed Files and Restrictions (implementation-critical)
+- Many workflow and agent files are distributed from agentic-lib. Local edits to distributed files will be overwritten by npx @xn-intenton-z2a/agentic-lib init --purge.
+- Do not permanently edit distributed files unless you control agentic-lib source. Key distributed locations include .github/workflows/, .github/agentic-lib/, and specific seed files listed in agentic-lib.toml comments.
+
+7) Git Commit Trailer and Commit Rules
+- All commits created by this assistant MUST include the trailer line exactly as below (append to commit message body):
+  Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+- Branch naming guidance: claude/<short-description> (policy in repo docs)
+- Do not rewrite history or delete branches without explicit permission.
+
+8) Recommended Run & Troubleshooting Steps
+- Prerequisites: Node.js >= 24.0.0, npm installed.
+- Install dependencies: npm ci or npm install
+- Run tests locally: npm test (unit) or npm run test:unit for coverage
+- If vitest fails to start: ensure Node >=24 and reinstall node_modules (rm -rf node_modules package-lock.json && npm ci).
+- If a script prints "Nothing to build" that indicates intentionally empty build step; no build artifacts expected.
+- For failing unit tests: run vitest with --reporter verbose by invoking directly: npx vitest --run tests/unit/*.test.js --reporter verbose
+
+9) Supplementary Technical Specifications
+- package.json exact dependency entries:
+  "dependencies": { "@xn-intenton-z2a/agentic-lib": "^7.1.60" }
+  "devDependencies": { "@vitest/coverage-v8": "^4.0.18", "vitest": "^4.0.18" }
+- engines field: "node": ">=24.0.0"
+- Test file pattern: tests/unit/*.test.js — vitest glob is used literally in scripts; avoid alternative glob expansions unless updating scripts.
+- Library limit: 32 (agentic-lib.toml tuning)
+
+10) Reference Details (exact config values, commands, and patterns)
+- Exact npm script strings (copy/paste safe):
+  build: "echo \"Nothing to build\""
+  test: "vitest --run tests/unit/*.test.js"
+  test:unit: "vitest --run --coverage tests/unit/*.test.js"
+  start: "node src/lib/main.js"
+- agentic-lib.toml key-value pairs (exact):
+  [schedule]
+  supervisor = "off"
+
+  [paths]
+  mission = "MISSION.md"
+  source = "src/lib/"
+  tests = "tests/unit/"
+  features = "features/"
+  library = "library/"
+  docs = "docs/"
+  examples = "examples/"
+  readme = "README.md"
+  dependencies = "package.json"
+  contributing = "CONTRIBUTING.md"
+  library-sources = "SOURCES.md"
+
+  [execution]
+  build = "npm run build"
+  test = "npm test"
+  start = "npm run start"
+
+  [limits]
+  feature-issues = 2
+  maintenance-issues = 1
+  attempts-per-branch = 3
+  attempts-per-issue = 2
+  features-limit = 2
+  library-limit = 32
+
+- Co-authored-by trailer exact string (must exist in commit body):
+  Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+11) Digest (source excerpt and retrieval date)
+- Source: https://github.com/xn-intenton-z2a/repository0 (SOURCES.md entry)
+- Date retrieved: 2026-03-06
+- Extracted core technical facts: entry point, scripts, Node engine, vitest usage, agentic-lib mappings, distributed-file policy, commit trailer requirement.
+
+SUPPLEMENTARY DETAILS
+- Minimal change policy: "Make absolutely minimal modifications" — local agents and workflows enforce small, surgical edits.
+- Plan file policy: When substantial work begins, create a plan.md in session workspace and do not implement until user confirms (relevant for autonomous flows).
+- Session DB usage: repo tooling supports todos/todo_deps tables for task tracking (refer to agentic-lib docs in repository).
+
+TROUBLESHOOTING CHECKLIST (stepwise)
+1. Confirm Node version: node --version (must be >= v24.0.0)
+2. Clean install: rm -rf node_modules package-lock.json && npm ci
+3. Run unit tests: npm run test:unit ; if failures, run npx vitest --run tests/unit/*.test.js --reporter verbose to get stack traces.
+4. Verify main entry runs: node src/lib/main.js ; if syntax errors, run node --check src/lib/main.js to get parse errors.
+5. If agentic-lib distributed files cause unexpected behaviors, re-initialize from source: npx @xn-intenton-z2a/agentic-lib init --purge (note: this will overwrite distributed files).
+
+REFERENCE SNIPPETS (exact, copyable)
+- npm test: vitest --run tests/unit/*.test.js
+- npm run test:unit: vitest --run --coverage tests/unit/*.test.js
+- node engine requirement: ">=24.0.0"
+- dependency: "@xn-intenton-z2a/agentic-lib": "^7.1.60"
+
+DIGEST_SUMMARY
+This repository is a templated agentic-lib demonstration: primary implementation in src/lib/main.js, unit tests under tests/unit/, vitest for testing, agentic-lib.toml providing workflow and path mapping, and strict rules about distributed files and commit trailers. Use Node >=24 and the exact npm scripts listed above to run and test the project.
+
+ATTRIBUTION
+- Source URL: https://github.com/xn-intenton-z2a/repository0
+- Retrieved on: 2026-03-06
+- Data size obtained while crawling: 334471606 bytes
+
+END
