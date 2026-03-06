@@ -15,19 +15,20 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
  */
 export async function maintainFeatures(context) {
   const { config, instructions, writablePaths, model, octokit, repo } = context;
+  const t = config.tuning || {};
 
   const mission = readOptionalFile(config.paths.mission.path);
   const featuresPath = config.paths.features.path;
   const featureLimit = config.paths.features.limit;
-  const features = scanDirectory(featuresPath, ".md");
+  const features = scanDirectory(featuresPath, ".md", { fileLimit: t.featuresScan || 10 });
   const libraryDocs = scanDirectory(config.paths.library.path, ".md", {
-    contentLimit: 1000,
+    contentLimit: t.documentSummary || 1000,
   });
 
   const { data: closedIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "closed",
-    per_page: 20,
+    per_page: t.issuesScan || 20,
     sort: "updated",
     direction: "desc",
   });
@@ -48,7 +49,7 @@ export async function maintainFeatures(context) {
     ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
     "",
     `## Recently Closed Issues (${closedIssues.length})`,
-    ...closedIssues.slice(0, 10).map((i) => `- #${i.number}: ${i.title}`),
+    ...closedIssues.slice(0, Math.floor((t.issuesScan || 20) / 2)).map((i) => `- #${i.number}: ${i.title}`),
     "",
     "## Your Task",
     `1. Review each existing feature — if it is already implemented or irrelevant, delete it.`,
@@ -68,6 +69,7 @@ export async function maintainFeatures(context) {
       "You are a feature lifecycle manager. Create, update, and prune feature specification files to keep the project focused on its mission.",
     prompt,
     writablePaths,
+    tuning: t,
   });
 
   return {

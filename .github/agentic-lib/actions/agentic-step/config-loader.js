@@ -60,6 +60,40 @@ const LIMIT_DEFAULTS = {
   library: 32,
 };
 
+// Tuning profiles: min (fast/cheap), recommended (balanced), max (thorough)
+const TUNING_PROFILES = {
+  min: {
+    reasoningEffort: "low",
+    infiniteSessions: false,
+    featuresScan: 3,
+    sourceScan: 3,
+    sourceContent: 1000,
+    issuesScan: 5,
+    documentSummary: 500,
+    discussionComments: 5,
+  },
+  recommended: {
+    reasoningEffort: "medium",
+    infiniteSessions: true,
+    featuresScan: 10,
+    sourceScan: 10,
+    sourceContent: 5000,
+    issuesScan: 20,
+    documentSummary: 2000,
+    discussionComments: 10,
+  },
+  max: {
+    reasoningEffort: "high",
+    infiniteSessions: true,
+    featuresScan: 50,
+    sourceScan: 50,
+    sourceContent: 20000,
+    issuesScan: 100,
+    documentSummary: 10000,
+    discussionComments: 25,
+  },
+};
+
 /**
  * Read package.json from the project root, returning empty string if not found.
  * @param {string} tomlPath - Path to the TOML config (used to derive project root)
@@ -74,6 +108,33 @@ function readPackageJson(tomlPath, depsRelPath) {
   } catch {
     return "";
   }
+}
+
+/**
+ * Resolve tuning configuration: start from profile defaults, apply explicit overrides.
+ */
+function resolveTuning(tuningSection) {
+  const profileName = tuningSection.profile || "recommended";
+  const profile = TUNING_PROFILES[profileName] || TUNING_PROFILES.recommended;
+  const tuning = { ...profile };
+
+  if (tuningSection["reasoning-effort"]) tuning.reasoningEffort = tuningSection["reasoning-effort"];
+  if (tuningSection["infinite-sessions"] === true || tuningSection["infinite-sessions"] === false) {
+    tuning.infiniteSessions = tuningSection["infinite-sessions"];
+  }
+  const numericOverrides = {
+    "features-scan": "featuresScan",
+    "source-scan": "sourceScan",
+    "source-content": "sourceContent",
+    "issues-scan": "issuesScan",
+    "document-summary": "documentSummary",
+    "discussion-comments": "discussionComments",
+  };
+  for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
+    if (tuningSection[tomlKey] > 0) tuning[jsKey] = tuningSection[tomlKey];
+  }
+
+  return tuning;
 }
 
 /**
@@ -132,12 +193,15 @@ export function loadConfig(configPath) {
   paths.features.limit = limits["features-limit"] || LIMIT_DEFAULTS.features;
   paths.library.limit = limits["library-limit"] || LIMIT_DEFAULTS.library;
 
+  const tuning = resolveTuning(toml.tuning || {});
+
   const execution = toml.execution || {};
   const bot = toml.bot || {};
 
   return {
     supervisor: toml.schedule?.supervisor || "daily",
-    model: toml.schedule?.model || "gpt-5-mini",
+    model: toml.tuning?.model || toml.schedule?.model || "gpt-5-mini",
+    tuning,
     paths,
     buildScript: execution.build || "npm run build",
     testScript: execution.test || "npm test",

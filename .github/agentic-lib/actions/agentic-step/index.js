@@ -96,7 +96,7 @@ async function run() {
     if (result.tokensUsed) core.setOutput("tokens-used", String(result.tokensUsed));
     if (result.model) core.setOutput("model", result.model);
 
-    // Log to intentïon.md
+    // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     const intentionFilepath = config.intentionBot?.intentionFilepath;
     if (intentionFilepath) {
       logActivity({

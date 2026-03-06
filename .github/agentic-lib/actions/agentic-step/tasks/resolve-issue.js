@@ -78,11 +78,13 @@ export async function resolveIssue(context) {
     contributing ? `\n## Contributing Guidelines\n${contributing}` : "",
   ].join("\n");
 
+  const t = config.tuning || {};
   const { content: resultContent, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: `You are an autonomous coding agent resolving GitHub issue #${issueNumber}. Write clean, tested code. Only modify files listed under "Writable" paths. Read-only paths are for context only.`,
     prompt,
     writablePaths,
+    tuning: t,
   });
 
   core.info(`Copilot SDK response received (${tokensUsed} tokens)`);

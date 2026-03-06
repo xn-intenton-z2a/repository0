@@ -16,6 +16,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
  */
 export async function maintainLibrary(context) {
   const { config, instructions, writablePaths, model } = context;
+  const t = config.tuning || {};
 
   const sources = readOptionalFile(config.paths.librarySources.path);
   if (!sources.trim()) {
@@ -25,7 +26,7 @@ export async function maintainLibrary(context) {
 
   const libraryPath = config.paths.library.path;
   const libraryLimit = config.paths.library.limit;
-  const libraryDocs = scanDirectory(libraryPath, ".md", { contentLimit: 500 });
+  const libraryDocs = scanDirectory(libraryPath, ".md", { contentLimit: t.documentSummary || 500 });
 
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
 
@@ -56,6 +57,7 @@ export async function maintainLibrary(context) {
       "You are a knowledge librarian. Maintain a library of technical documents extracted from web sources.",
     prompt,
     writablePaths,
+    tuning: t,
   });
 
   return {

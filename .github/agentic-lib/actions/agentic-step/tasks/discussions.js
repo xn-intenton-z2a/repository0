@@ -11,7 +11,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 
 const BOT_LOGINS = ["github-actions[bot]", "github-actions"];
 
-async function fetchDiscussion(octokit, discussionUrl) {
+async function fetchDiscussion(octokit, discussionUrl, commentsLimit = 10) {
   const urlMatch = discussionUrl.match(/github\.com\/([^/]+)\/([^/]+)\/discussions\/(\d+)/);
   if (!urlMatch) {
     core.warning(`Could not parse discussion URL: ${discussionUrl}`);
@@ -26,7 +26,7 @@ async function fetchDiscussion(octokit, discussionUrl) {
           id
           title
           body
-          comments(last: 10) {
+          comments(last: ${commentsLimit}) {
             nodes {
               body
               author { login }
@@ -53,7 +53,7 @@ async function fetchDiscussion(octokit, discussionUrl) {
   }
 }
 
-function buildPrompt(discussionUrl, discussion, context) {
+function buildPrompt(discussionUrl, discussion, context, t) {
   const { config, instructions } = context;
   const { title, body, comments } = discussion;
 
@@ -63,7 +63,7 @@ function buildPrompt(discussionUrl, discussion, context) {
   const lastBotReply = botReplies.length > 0 ? botReplies[botReplies.length - 1] : null;
 
   const mission = readOptionalFile(config.paths.mission.path);
-  const contributing = readOptionalFile(config.paths.contributing.path, 1000);
+  const contributing = readOptionalFile(config.paths.contributing.path, t.documentSummary || 1000);
   const featuresPath = config.paths.features.path;
   const featureNames = existsSync(featuresPath)
     ? scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""))
@@ -152,20 +152,21 @@ async function postReply(octokit, nodeId, replyBody) {
  */
 export async function discussions(context) {
   const { octokit, model, discussionUrl } = context;
+  const t = context.config?.tuning || {};
 
   if (!discussionUrl) {
     throw new Error("discussions task requires discussion-url input");
   }
 
-  const discussion = await fetchDiscussion(octokit, discussionUrl);
-  const prompt = buildPrompt(discussionUrl, discussion, context);
-
+  const discussion = await fetchDiscussion(octokit, discussionUrl, t.discussionComments || 10);
+  const prompt = buildPrompt(discussionUrl, discussion, context, t);
   const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
       "You are this repository. Respond in first person. Be concise and engaging — never repeat what you said in your last reply. Adapt to the user's language level. Encourage experimentation and suggest interesting projects. When a user requests an action, pass it to the supervisor via [ACTION:request-supervisor]. Protect the mission: push back on requests that contradict it.",
     prompt,
     writablePaths: [],
+    tuning: t,
   });
 
   const actionMatch = content.match(/\[ACTION:(\S+?)\](.+)?/);

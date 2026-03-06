@@ -93,11 +93,13 @@ export async function fixCode(context) {
     "- Make minimal changes to fix the failing tests",
   ].join("\n");
 
+  const t = config.tuning || {};
   const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
     prompt,
     writablePaths,
+    tuning: t,
   });
 
   core.info(`Copilot SDK fix response received (${tokensUsed} tokens)`);

@@ -48,11 +48,12 @@ export function buildClientOptions(githubToken) {
  * @param {string} options.prompt - The prompt to send
  * @param {string[]} options.writablePaths - Paths the agent may modify
  * @param {string} [options.githubToken] - Optional token; falls back to COPILOT_GITHUB_TOKEN env var.
+ * @param {Object} [options.tuning] - Tuning config (reasoningEffort, infiniteSessions)
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
-export async function runCopilotTask({ model, systemMessage, prompt, writablePaths, githubToken }) {
+export async function runCopilotTask({ model, systemMessage, prompt, writablePaths, githubToken, tuning }) {
   core.info(
-    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length})`,
+    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, tuning=${tuning?.reasoningEffort || "default"})`,
   );
 
   const clientOptions = buildClientOptions(githubToken);
@@ -60,13 +61,20 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
 
   try {
     core.info("[copilot] Creating session...");
-    const session = await client.createSession({
+    const sessionConfig = {
       model,
       systemMessage: { content: systemMessage },
       tools: createAgentTools(writablePaths),
       onPermissionRequest: approveAll,
       workingDirectory: process.cwd(),
-    });
+    };
+    if (tuning?.reasoningEffort) {
+      sessionConfig.reasoningEffort = tuning.reasoningEffort;
+    }
+    if (tuning?.infiniteSessions === true) {
+      sessionConfig.infiniteSessions = {};
+    }
+    const session = await client.createSession(sessionConfig);
     core.info(`[copilot] Session created: ${session.sessionId}`);
 
     // Check auth status now that client is connected

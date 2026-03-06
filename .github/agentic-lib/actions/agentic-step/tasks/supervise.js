@@ -9,7 +9,7 @@ import * as core from "@actions/core";
 import { existsSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 
-async function gatherContext(octokit, repo, config) {
+async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
   const recentActivity = readOptionalFile(config.intentionBot.intentionFilepath).split("\n").slice(-20).join("\n");
 
@@ -28,7 +28,7 @@ async function gatherContext(octokit, repo, config) {
   const { data: openIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "open",
-    per_page: 20,
+    per_page: t.issuesScan || 20,
     sort: "created",
     direction: "asc",
   });
@@ -305,8 +305,9 @@ async function executeAction(octokit, repo, action, params) {
  */
 export async function supervise(context) {
   const { octokit, repo, config, instructions, model } = context;
+  const t = config.tuning || {};
 
-  const ctx = await gatherContext(octokit, repo, config);
+  const ctx = await gatherContext(octokit, repo, config, t);
   const agentInstructions = instructions || "You are the supervisor. Decide what actions to take.";
   const prompt = buildPrompt(ctx, agentInstructions);
 
@@ -316,6 +317,7 @@ export async function supervise(context) {
       "You are the supervisor of an autonomous coding repository. Your job is to advance the mission by choosing which workflows to dispatch and which GitHub actions to take. Pick multiple actions when appropriate. Be strategic — consider what's already in progress, what's blocked, and what will make the most impact.",
     prompt,
     writablePaths: [],
+    tuning: t,
   });
 
   const actions = parseActions(content);

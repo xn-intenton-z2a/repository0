@@ -16,6 +16,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
  */
 export async function transform(context) {
   const { config, instructions, writablePaths, testCommand, model, octokit, repo, issueNumber } = context;
+  const t = config.tuning || {};
 
   // Read mission (required)
   const mission = readOptionalFile(config.paths.mission.path);
@@ -24,16 +25,17 @@ export async function transform(context) {
     return { outcome: "nop", details: "No mission file found" };
   }
 
-  const features = scanDirectory(config.paths.features.path, ".md");
+  const features = scanDirectory(config.paths.features.path, ".md", { fileLimit: t.featuresScan || 10 });
   const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    contentLimit: 5000,
+    fileLimit: t.sourceScan || 10,
+    contentLimit: t.sourceContent || 5000,
     recursive: true,
   });
 
   const { data: openIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "open",
-    per_page: 20,
+    per_page: t.issuesScan || 20,
   });
 
   // Fetch target issue if specified
@@ -67,6 +69,7 @@ export async function transform(context) {
       features,
       sourceFiles,
       openIssues,
+      tuning: t,
     });
   }
 
@@ -88,13 +91,13 @@ export async function transform(context) {
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 2000)}`),
+    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, t.documentSummary || 2000)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, 20).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, t.issuesScan || 20).map((i) => `- #${i.number}: ${i.title}`),
     "",
     "## Output Artifacts",
     "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
@@ -126,6 +129,7 @@ export async function transform(context) {
       "You are an autonomous code transformation agent. Your goal is to advance the repository toward its mission by making the most impactful change possible in a single step.",
     prompt,
     writablePaths,
+    tuning: t,
   });
 
   core.info(`Transformation step completed (${tokensUsed} tokens)`);
@@ -155,6 +159,7 @@ async function transformTdd({
   features,
   sourceFiles,
   openIssues,
+  tuning: t,
 }) {
   let totalTokens = 0;
 
@@ -175,13 +180,13 @@ async function transformTdd({
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, 2000)}`),
+    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, t.documentSummary || 2000)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, 20).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, t.issuesScan || 20).map((i) => `- #${i.number}: ${i.title}`),
     "",
     formatPathsSection(writablePaths, readOnlyPaths, _config),
     "",
@@ -197,6 +202,7 @@ async function transformTdd({
       "You are a TDD agent. In this phase, write ONLY a failing test that captures the next feature requirement. Do not write implementation code.",
     prompt: testPrompt,
     writablePaths,
+    tuning: t,
   });
   totalTokens += phase1.tokensUsed;
   const testResult = phase1.content;
@@ -242,6 +248,7 @@ async function transformTdd({
       "You are a TDD agent. A failing test was written in Phase 1. Write the minimum implementation to make it pass. Do not modify the test.",
     prompt: implPrompt,
     writablePaths,
+    tuning: t,
   });
   totalTokens += phase2.tokensUsed;
 

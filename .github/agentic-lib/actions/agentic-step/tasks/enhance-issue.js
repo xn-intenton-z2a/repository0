@@ -13,7 +13,7 @@ import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 /**
  * Enhance a single GitHub issue with testable acceptance criteria.
  */
-async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model }) {
+async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t }) {
   if (await isIssueResolved(octokit, repo, issueNumber)) {
     return { outcome: "nop", details: `Issue #${issueNumber} already resolved` };
   }
@@ -28,7 +28,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
   }
 
   const contributing = readOptionalFile(config.paths.contributing.path);
-  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: 2000 });
+  const features = scanDirectory(config.paths.features.path, ".md", { contentLimit: t.documentSummary || 2000 });
 
   const agentInstructions = instructions || "Enhance this issue with clear, testable acceptance criteria.";
 
@@ -39,7 +39,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     `## Issue #${issueNumber}: ${issue.title}`,
     issue.body || "(no description)",
     "",
-    contributing ? `## Contributing Guidelines\n${contributing.substring(0, 1000)}` : "",
+    contributing ? `## Contributing Guidelines\n${contributing.substring(0, t.documentSummary || 2000)}` : "",
     features.length > 0 ? `## Related Features\n${features.map((f) => f.content).join("\n---\n")}` : "",
     config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
     config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
@@ -64,6 +64,7 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
     systemMessage: "You are a requirements analyst. Enhance GitHub issues with clear, testable acceptance criteria.",
     prompt,
     writablePaths: [],
+    tuning: t,
   });
 
   if (enhancedBody.trim()) {
@@ -113,10 +114,11 @@ async function enhanceSingleIssue({ octokit, repo, config, issueNumber, instruct
  */
 export async function enhanceIssue(context) {
   const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model });
+    return enhanceSingleIssue({ octokit, repo, config, issueNumber, instructions, model, tuning: t });
   }
 
   // Batch mode: find up to 3 unready automated issues
@@ -149,6 +151,7 @@ export async function enhanceIssue(context) {
       issueNumber: issue.number,
       instructions,
       model,
+      tuning: t,
     });
     results.push(result);
     totalTokens += result.tokensUsed || 0;

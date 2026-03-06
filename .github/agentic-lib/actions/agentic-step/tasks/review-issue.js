@@ -21,7 +21,7 @@ import { runCopilotTask, scanDirectory } from "../copilot.js";
  * @param {string} params.model - Model name
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
  */
-async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model }) {
+async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, instructions, model, tuning: t }) {
   const { data: issue } = await octokit.rest.issues.get({
     ...repo,
     issue_number: Number(targetIssueNumber),
@@ -32,18 +32,18 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
   }
 
   const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
-    contentLimit: 5000,
-    fileLimit: 20,
+    contentLimit: t.sourceContent || 5000,
+    fileLimit: t.sourceScan || 20,
     recursive: true,
   });
   const testFiles = scanDirectory(config.paths.tests.path, [".test.js", ".test.ts"], {
-    contentLimit: 5000,
-    fileLimit: 20,
+    contentLimit: t.sourceContent || 5000,
+    fileLimit: t.sourceScan || 20,
     recursive: true,
   });
   const docsFiles = scanDirectory(config.paths.documentation?.path || "docs/", [".md"], {
-    fileLimit: 10,
-    contentLimit: 2000,
+    fileLimit: t.featuresScan || 10,
+    contentLimit: t.documentSummary || 2000,
   });
 
   const agentInstructions = instructions || "Review whether this issue has been resolved by the current codebase.";
@@ -85,6 +85,7 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     systemMessage: "You are a code reviewer determining if GitHub issues have been resolved.",
     prompt,
     writablePaths: [],
+    tuning: t,
   });
 
   // Strip leading markdown formatting (e.g., **RESOLVED** or *RESOLVED*)
@@ -184,10 +185,11 @@ async function findUnreviewedIssues(octokit, repo, limit) {
  */
 export async function reviewIssue(context) {
   const { octokit, repo, config, issueNumber, instructions, model } = context;
+  const t = config.tuning || {};
 
   // Single issue mode
   if (issueNumber) {
-    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model });
+    return reviewSingleIssue({ octokit, repo, config, targetIssueNumber: issueNumber, instructions, model, tuning: t });
   }
 
   // Batch mode: find up to 3 unreviewed issues
@@ -204,7 +206,9 @@ export async function reviewIssue(context) {
 
   for (const num of issueNumbers) {
     core.info(`Batch reviewing issue #${num} (${results.length + 1}/${issueNumbers.length})`);
-    const result = await reviewSingleIssue({ octokit, repo, config, targetIssueNumber: num, instructions, model });
+    const result = await reviewSingleIssue({
+      octokit, repo, config, targetIssueNumber: num, instructions, model, tuning: t,
+    });
     results.push(result);
     totalTokens += result.tokensUsed || 0;
     totalInputTokens += result.inputTokens || 0;

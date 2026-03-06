@@ -26,6 +26,11 @@ runs:
         git config --local user.email 'action@github.com'
         git config --local user.name 'GitHub Actions[bot]'
         git add -A
+        # Unstage log files on non-default branches to avoid merge conflicts
+        REF="${{ inputs.push-ref }}"
+        if [ -n "$REF" ] && [ "$REF" != "main" ] && [ "$REF" != "master" ]; then
+          git reset HEAD -- 'intentïon.md' 'intention.md' 2>/dev/null || true
+        fi
         if git diff --cached --quiet; then
           echo "No changes to commit"
         elif git diff --cached --name-only | grep -qvE '(intentïon\.md|intention\.md)$'; then
