@@ -1,0 +1,161 @@
+NORMALISED EXTRACT
+
+This document extracts the highest-value technical details from the repository source at https://github.com/xn-intenton-z2a/repository0 and presents actionable implementation specs, configuration options, commands, and troubleshooting steps for integrating and operating the agentic-lib template.
+
+TABLE OF CONTENTS
+1. Entry point and runtime
+2. Scripts, tests and commands
+3. Configuration: agentic-lib.toml (keys and effects)
+4. Package manifest (package.json) exact fields
+5. Key files and distributed mapping
+6. Development workflow and CI agents
+7. Repository patterns and naming conventions
+8. Best practices (security, tests, automated changes)
+9. Troubleshooting and step-by-step commands
+10. Reference details: exact specifications and values
+
+DETAILED CONTENT
+
+1. Entry point and runtime
+Entry point: src/lib/main.js
+Node engine constraint: node >= 24.0.0 (package.json "engines" field)
+Main module type: ES modules (package.json "type": "module")
+Behavioral implication: import/export syntax required; use node v24+ runtime for compatibility.
+
+2. Scripts, tests and commands
+Exact npm scripts (package.json):
+- build: echo "Nothing to build"
+- test: vitest --run tests/unit/*.test.js
+- test:unit: vitest --run --coverage tests/unit/*.test.js
+- start: node src/lib/main.js
+Execution patterns:
+- Run unit tests: npm run test:unit
+- Run all tests: npm test
+- Start app: npm start
+Vitest usage: tests live in tests/unit/*.test.js; use --run to run in CI-friendly mode.
+
+3. Configuration: agentic-lib.toml (keys and effects)
+agentic-lib.toml snapshot (key=value semantics):
+- [schedule]
+  supervisor = "continuous"  # allowed: off | weekly | daily | hourly | continuous
+  model = "gpt-5-mini"       # default model used by agentic workflows
+- [paths]
+  mission = "MISSION.md"
+  source = "src/lib/"
+  tests = "tests/unit/"
+  features = "features/"
+  library = "library/"
+  docs = "docs/"
+  examples = "examples/"
+  readme = "README.md"
+  dependencies = "package.json"
+  contributing = "CONTRIBUTING.md"
+  library-sources = "SOURCES.md"
+- [execution]
+  build = "npm run build"
+  test = "npm test"
+  start = "npm run start"
+- [limits]
+  feature-issues = 2
+  maintenance-issues = 1
+  attempts-per-branch = 3
+  attempts-per-issue = 2
+  features-limit = 2
+  library-limit = 32
+- [tuning]
+  profile = "recommended"
+  model = "gpt-5-mini"
+  infinite-sessions = false
+Implementation effects:
+- Changing supervisor controls automated schedule frequency for agent workflows; set to "off" to disable.
+- Paths define canonical locations for scans and generated artifacts; editing these changes where agents read/write.
+- Limits control agentic-lib operational limits (features, attempts); tune for CI/scale needs.
+
+4. Package manifest (package.json) exact fields
+- name: "repo"
+- version: "0.1.0"
+- type: "module"
+- main: "src/lib/main.js"
+- engines.node: ">=24.0.0"
+- dependencies: "@xn-intenton-z2a/agentic-lib": "^7.1.59"
+- devDependencies: "vitest": "^4.0.18", "@vitest/coverage-v8": "^4.0.18"
+Implications: Keep agentic-lib dependency aligned to avoid runner mismatches; Node 24+ required.
+
+5. Key files and distributed mapping
+- src/lib/main.js — primary evolving logic; intended modification target for autonomous workflows
+- tests/unit/main.test.js — guardrail tests for main.js
+- .github/workflows and .github/agentic-lib contain distributed workflow scaffolding sourced from agentic-lib upstream (do not permanently change locally; fix upstream if needed)
+- agentic-lib.toml — local orchestration config for agentic workflows
+- SOURCES.md — list of external sources processed into the library/ directory
+
+6. Development workflow and CI agents
+- Typical local commands: npm install, npm test, npm run test:unit, npm start
+- CI entrypoint: workflows in .github/workflows reference agentic-lib provided workflow seeds; keep least-privilege in workflow permissions
+- Agentic agents use model set in agentic-lib.toml and follow limits; changes to the model or schedule immediately change agent runtime behaviour
+
+7. Repository patterns and naming conventions
+- ES module style (import/export)
+- Tests organized under tests/unit/ and run by Vitest
+- npm script names use colon convention for variants (e.g., test:unit)
+- Branch naming guidance: claude/<short-description> for agentic changes
+
+8. Best practices
+- Security: do not commit secrets or tokens; use GitHub Actions secrets instead
+- Automated changes: review agent-generated PRs thoroughly; avoid weakening tests
+- Tests: preserve guardrail tests under tests/unit/ to prevent drift
+- Formatting: minimal formatting changes; do not reformat unrelated files
+
+9. Troubleshooting and step-by-step commands
+- If tests fail locally:
+  1) Run npm run test:unit to get coverage-enabled detailed failures.
+  2) Inspect tests/unit/main.test.js and src/lib/main.js for mismatches.
+  3) Run vitest directly with verbose flags, if needed.
+- If node version mismatch occurs: confirm node --version >= 24.0.0 or use nvm to switch.
+- If agentic workflows behave unexpectedly: check agentic-lib.toml schedule and model keys, and verify workflow files in .github/agentic-lib are up to date with upstream.
+
+10. Reference details: exact specifications and values
+- package.json scripts (exact strings): see section 2 and 4 above for exact command strings.
+- agentic-lib.toml keys and allowed values: supervisor (off|weekly|daily|hourly|continuous), model (string), profile (min|recommended|max), infinite-sessions (true|false), paths (file path strings), limits (integers)
+- Entry point filename: src/lib/main.js (string literal; used by npm start and package main)
+- Tests path glob: tests/unit/*.test.js (used by Vitest in scripts)
+- Node engine semver: ">=24.0.0"
+
+SUPPLEMENTARY DETAILS
+
+Essential technical specs:
+- Runtime: Node.js >=24 (ES module support and modern V8 features expected)
+- Test harness: Vitest; use versions in devDependencies to match CI
+- Agent runtime: model selection via agentic-lib.toml (default gpt-5-mini)
+- Distributed artifact handling: files under .github/agentic-lib and workflows are generated from upstream agentic-lib; do not edit without updating upstream templates.
+
+CONCRETE IMPLEMENTATION PATTERNS AND BEST PRACTICES
+
+- To add a new feature:
+  1) Create new source under src/lib/ with ES module exports.
+  2) Add unit tests under tests/unit/ corresponding to behaviour.
+  3) Run npm run test:unit locally, address failures, then open PR.
+  4) Ensure agentic-lib.toml paths include any new directories if agents must scan them.
+
+- To adjust agent schedule: set [schedule].supervisor in agentic-lib.toml to one of allowed values; commit and push to trigger changed agent cadence.
+
+TROUBLESHOOTING CHECKLIST
+
+- Node version issue: node --version -> if <24, use nvm install 24 && nvm use 24
+- Vitest failures: run npm run test:unit; increase verbosity with vitest --run --reporter verbose
+- Upstream template drift: run npx @xn-intenton-z2a/agentic-lib init --purge to re-sync distributed files (note: this overwrites distributed files)
+
+DETAILED DIGEST
+
+Source: https://github.com/xn-intenton-z2a/repository0
+Retrieved: 2026-03-06
+Most valuable technical content extracted:
+- Project is an agentic-lib template with main entry src/lib/main.js and guarded by tests in tests/unit/main.test.js.
+- agentic-lib.toml centralizes agent scheduling, paths, execution commands and limits; supervisor=continuous and model=gpt-5-mini by default.
+- package.json requires Node >=24, uses ES modules, and uses Vitest for tests; key dependency @xn-intenton-z2a/agentic-lib ^7.1.59.
+
+ATTRIBUTION
+Source URL: https://github.com/xn-intenton-z2a/repository0
+Author/maintainer: xn-intenton-z2a (as repository owner on GitHub)
+Data obtained during crawl: 334425686 bytes
+
+END OF DOCUMENT
