@@ -141,15 +141,15 @@ jobs:
       INIT_MISSION_SEED: ${{ needs.params.outputs.mission-seed }}
       INIT_MISSION_TEXT: ${{ needs.params.outputs.mission-text }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.params.outputs.dry-run == 'true'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: needs.params.outputs.dry-run != 'true'
         with:
           ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -204,7 +204,7 @@ jobs:
 
       - name: Update schedule (if requested)
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.schedule != '' && needs.params.outputs.dry-run != 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');

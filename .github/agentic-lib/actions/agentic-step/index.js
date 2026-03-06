@@ -8,7 +8,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { loadConfig, getWritablePaths } from "./config-loader.js";
-import { logActivity } from "./logging.js";
+import { logActivity, generateClosingNotes } from "./logging.js";
 import { readFileSync } from "fs";
 
 // Task implementations
@@ -43,7 +43,7 @@ async function run() {
     const issueNumber = core.getInput("issue-number");
     const prNumber = core.getInput("pr-number");
     const writablePathsOverride = core.getInput("writable-paths");
-    const testCommand = core.getInput("test-command");
+    const testCommandInput = core.getInput("test-command");
     const discussionUrl = core.getInput("discussion-url");
     const model = core.getInput("model");
 
@@ -52,6 +52,7 @@ async function run() {
     // Load config
     const config = loadConfig(configPath);
     const writablePaths = getWritablePaths(config, writablePathsOverride);
+    const testCommand = testCommandInput || config.testScript;
 
     // Load instructions if provided
     let instructions = "";
@@ -98,6 +99,33 @@ async function run() {
     if (result.action) core.setOutput("action", result.action);
     if (result.actionArg) core.setOutput("action-arg", result.actionArg);
 
+    // Compute limits status for enriched logging
+    const limitsStatus = [
+      { name: "transformation-budget", valueNum: 0, capacityNum: config.transformationBudget || 0, value: `0/${config.transformationBudget || 0}`, remaining: `${config.transformationBudget || 0} remaining`, status: "" },
+      { name: "max-feature-issues", valueNum: 0, capacityNum: config.featureDevelopmentIssuesWipLimit, value: `?/${config.featureDevelopmentIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "max-maintenance-issues", valueNum: 0, capacityNum: config.maintenanceIssuesWipLimit, value: `?/${config.maintenanceIssuesWipLimit}`, remaining: "?", status: "" },
+      { name: "max-attempts-per-issue", valueNum: 0, capacityNum: config.attemptsPerIssue, value: `?/${config.attemptsPerIssue}`, remaining: "?", status: task === "resolve-issue" ? "" : "n/a" },
+      { name: "max-attempts-per-branch", valueNum: 0, capacityNum: config.attemptsPerBranch, value: `?/${config.attemptsPerBranch}`, remaining: "?", status: task === "fix-code" ? "" : "n/a" },
+      { name: "features", valueNum: 0, capacityNum: config.paths?.features?.limit || 4, value: `?/${config.paths?.features?.limit || 4}`, remaining: "?", status: ["maintain-features", "transform"].includes(task) ? "" : "n/a" },
+      { name: "library", valueNum: 0, capacityNum: config.paths?.library?.limit || 32, value: `?/${config.paths?.library?.limit || 32}`, remaining: "?", status: task === "maintain-library" ? "" : "n/a" },
+    ];
+
+    // Merge task-reported limits if available
+    if (result.limitsStatus) {
+      for (const reported of result.limitsStatus) {
+        const existing = limitsStatus.find((ls) => ls.name === reported.name);
+        if (existing) Object.assign(existing, reported);
+      }
+    }
+
+    const closingNotes = result.closingNotes || generateClosingNotes(limitsStatus);
+    const profileName = config.tuning?.profileName || "unknown";
+
+    // Transformation cost: 1 for code-changing tasks, 0 otherwise
+    const COST_TASKS = ["transform", "fix-code"];
+    const isNop = result.outcome === "nop" || result.outcome === "error";
+    const transformationCost = COST_TASKS.includes(task) && !isNop ? 1 : 0;
+
     // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     const intentionFilepath = config.intentionBot?.intentionFilepath;
     if (intentionFilepath) {
@@ -116,6 +144,13 @@ async function run() {
         model: result.model || model,
         details: result.details,
         workflowUrl: `${process.env.GITHUB_SERVER_URL}/${github.context.repo.owner}/${github.context.repo.repo}/actions/runs/${github.context.runId}`,
+        profile: profileName,
+        changes: result.changes,
+        contextNotes: result.contextNotes,
+        limitsStatus,
+        promptBudget: result.promptBudget,
+        closingNotes,
+        transformationCost,
       });
     }
 

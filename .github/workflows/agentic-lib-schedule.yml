@@ -61,16 +61,16 @@ jobs:
   update-schedule:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: inputs.dry-run == 'true' || inputs.dry-run == true
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: inputs.dry-run != 'true' && inputs.dry-run != true
         with:
           ref: main
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Update workflow schedule and model
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');

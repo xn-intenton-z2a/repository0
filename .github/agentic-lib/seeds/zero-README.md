@@ -60,8 +60,8 @@ source = "src/lib/"
 tests = "tests/unit/"
 
 [limits]
-feature-issues = 2      # max concurrent feature issues
-attempts-per-issue = 2   # max retries per issue
+max-feature-issues = 2      # max concurrent feature issues
+max-attempts-per-issue = 2   # max retries per issue
 ```
 
 ## Updating

@@ -6,12 +6,22 @@
 // asks the Copilot SDK to choose multiple concurrent actions, then dispatches them.
 
 import * as core from "@actions/core";
-import { existsSync } from "fs";
-import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
+import { existsSync, readFileSync } from "fs";
+import { runCopilotTask, readOptionalFile, scanDirectory, filterIssues } from "../copilot.js";
 
 async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
   const recentActivity = readOptionalFile(config.intentionBot.intentionFilepath).split("\n").slice(-20).join("\n");
+
+  // Check mission-complete signal
+  const missionComplete = existsSync("MISSION_COMPLETE.md");
+  let missionCompleteInfo = "";
+  if (missionComplete) {
+    missionCompleteInfo = readFileSync("MISSION_COMPLETE.md", "utf8").substring(0, 500);
+  }
+
+  // Check transformation budget
+  const transformationBudget = config.transformationBudget || 0;
 
   // Extract discussion URL from recent activity for supervisor reporting
   const discussionUrlMatch = recentActivity.match(/https:\/\/github\.com\/[^/]+\/[^/]+\/discussions\/\d+/);
@@ -37,8 +47,9 @@ async function gatherContext(octokit, repo, config, t) {
     direction: "asc",
   });
   const issuesOnly = openIssues.filter((i) => !i.pull_request);
-  const oldestReadyIssue = issuesOnly.find((i) => i.labels.some((l) => l.name === "ready"));
-  const issuesSummary = issuesOnly.map((i) => {
+  const filteredIssues = filterIssues(issuesOnly, { staleDays: t.staleDays || 30 });
+  const oldestReadyIssue = filteredIssues.find((i) => i.labels.some((l) => l.name === "ready"));
+  const issuesSummary = filteredIssues.map((i) => {
     const age = Math.floor((Date.now() - new Date(i.created_at).getTime()) / 86400000);
     const labels = i.labels.map((l) => l.name).join(", ");
     return `#${i.number}: ${i.title} [${labels || "no labels"}] (${age}d old)`;
@@ -85,6 +96,9 @@ async function gatherContext(octokit, repo, config, t) {
     featureIssuesWipLimit: config.featureDevelopmentIssuesWipLimit,
     maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit,
     activeDiscussionUrl,
+    missionComplete,
+    missionCompleteInfo,
+    transformationBudget,
   };
 }
 
@@ -126,6 +140,18 @@ function buildPrompt(ctx, agentInstructions) {
     ...(ctx.activeDiscussionUrl ? [`### Active Discussion`, `${ctx.activeDiscussionUrl}`, ""] : []),
     ...(ctx.oldestReadyIssue
       ? [`### Oldest Ready Issue`, `#${ctx.oldestReadyIssue.number}: ${ctx.oldestReadyIssue.title}`, ""]
+      : []),
+    ...(ctx.missionComplete
+      ? [
+          `### Mission Status: COMPLETE`,
+          ctx.missionCompleteInfo,
+          "Transformation budget is frozen — no transform, maintain, or fix-code dispatches allowed.",
+          "You may still: review/close issues, respond to discussions, adjust schedule.",
+          "",
+        ]
+      : []),
+    ...(ctx.transformationBudget > 0
+      ? [`### Transformation Budget: ${ctx.transformationBudget} cycles per run`, ""]
       : []),
     `### Issue Limits`,
     `Feature development WIP limit: ${ctx.featureIssuesWipLimit}`,

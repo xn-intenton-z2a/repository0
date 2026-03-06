@@ -6,6 +6,7 @@
 // that provides context for feature generation and issue resolution.
 
 import * as core from "@actions/core";
+import { existsSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
 
 /**
@@ -17,6 +18,12 @@ import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } f
 export async function maintainLibrary(context) {
   const { config, instructions, writablePaths, model } = context;
   const t = config.tuning || {};
+
+  // Check mission-complete signal
+  if (existsSync("MISSION_COMPLETE.md")) {
+    core.info("Mission is complete — skipping library maintenance");
+    return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
+  }
 
   const sources = readOptionalFile(config.paths.librarySources.path);
   if (!sources.trim()) {

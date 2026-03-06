@@ -5,7 +5,7 @@
 // Extracts repeated patterns from the 8 task handlers into reusable functions.
 
 import { CopilotClient, approveAll } from "@github/copilot-sdk";
-import { readFileSync, readdirSync, existsSync } from "fs";
+import { readFileSync, readdirSync, existsSync, statSync } from "fs";
 import { join } from "path";
 import { createAgentTools } from "./tools.js";
 import * as core from "@actions/core";
@@ -14,6 +14,144 @@ import * as core from "@actions/core";
 // Updated from Copilot SDK ModelInfo.supportedReasoningEfforts (v0.1.30).
 // When in doubt, omit reasoning-effort — the SDK uses its default.
 const MODELS_SUPPORTING_REASONING_EFFORT = new Set(["gpt-5-mini", "o4-mini"]);
+
+/**
+ * Strip noise from source code that has zero information value.
+ * Removes license headers, collapses blank lines, strips linter directives.
+ *
+ * @param {string} raw - Raw source code
+ * @returns {string} Cleaned source code
+ */
+export function cleanSource(raw) {
+  let cleaned = raw;
+  cleaned = cleaned.replace(/^\/\/\s*SPDX-License-Identifier:.*\n/gm, "");
+  cleaned = cleaned.replace(/^\/\/\s*Copyright.*\n/gm, "");
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+  cleaned = cleaned.replace(/^\s*\/\/\s*eslint-disable.*\n/gm, "");
+  cleaned = cleaned.replace(/^\s*\/\*\s*eslint-disable[\s\S]*?\*\/\s*\n/gm, "");
+  return cleaned.trimStart();
+}
+
+/**
+ * Generate a structural outline of a source file using regex-based extraction.
+ * Captures imports, exports, function/class declarations with line numbers.
+ *
+ * @param {string} raw - Raw source code
+ * @param {string} filePath - File path for the header line
+ * @returns {string} Structural outline
+ */
+export function generateOutline(raw, filePath) {
+  const lines = raw.split("\n");
+  const sizeKB = (raw.length / 1024).toFixed(1);
+  const parts = [`// file: ${filePath} (${lines.length} lines, ${sizeKB}KB)`];
+
+  const importSources = [];
+  for (const l of lines) {
+    const m = l.match(/^import\s.*from\s+["']([^"']+)["']/);
+    if (m) importSources.push(m[1]);
+  }
+  if (importSources.length > 0) parts.push(`// imports: ${importSources.join(", ")}`);
+
+  const exportNames = [];
+  for (const l of lines) {
+    const m = l.match(/^export\s+(?:default\s+)?(?:async\s+)?(?:function|class|const|let|var)\s+(\w+)/);
+    if (m) exportNames.push(m[1]);
+  }
+  if (exportNames.length > 0) parts.push(`// exports: ${exportNames.join(", ")}`);
+
+  parts.push("//");
+
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    const funcMatch = l.match(/^(export\s+)?(async\s+)?function\s+(\w+)\s*\(/);
+    if (funcMatch) {
+      parts.push(`// function ${funcMatch[3]}() — line ${i + 1}`);
+      continue;
+    }
+    const classMatch = l.match(/^(export\s+)?(default\s+)?class\s+(\w+)/);
+    if (classMatch) {
+      parts.push(`// class ${classMatch[3]} — line ${i + 1}`);
+      continue;
+    }
+    const methodMatch = l.match(/^\s+(async\s+)?(\w+)\s*\([^)]*\)\s*\{/);
+    if (methodMatch && !["if", "for", "while", "switch", "catch", "try"].includes(methodMatch[2])) {
+      parts.push(`//   ${methodMatch[2]}() — line ${i + 1}`);
+    }
+  }
+
+  return parts.join("\n");
+}
+
+/**
+ * Filter issues by recency and label quality.
+ *
+ * @param {Array} issues - GitHub issue objects
+ * @param {Object} [options]
+ * @param {number} [options.staleDays=30] - Issues older than this with no activity are excluded
+ * @param {boolean} [options.excludeBotOnly=true] - Exclude issues with only bot labels
+ * @returns {Array} Filtered issues
+ */
+export function filterIssues(issues, options = {}) {
+  const { staleDays = 30, excludeBotOnly = true } = options;
+  const cutoff = Date.now() - staleDays * 86400000;
+
+  return issues.filter((issue) => {
+    const lastActivity = new Date(issue.updated_at || issue.created_at).getTime();
+    if (lastActivity < cutoff) return false;
+
+    if (excludeBotOnly) {
+      const labels = (issue.labels || []).map((l) => (typeof l === "string" ? l : l.name));
+      const botLabels = ["automated", "stale", "bot", "wontfix"];
+      if (labels.length > 0 && labels.every((l) => botLabels.includes(l))) return false;
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Create a compact summary of an issue for inclusion in prompts.
+ *
+ * @param {Object} issue - GitHub issue object
+ * @param {number} [bodyLimit=500] - Max chars for issue body
+ * @returns {string} Compact issue summary
+ */
+export function summariseIssue(issue, bodyLimit = 500) {
+  const labels = (issue.labels || []).map((l) => (typeof l === "string" ? l : l.name)).join(", ") || "no labels";
+  const age = Math.floor((Date.now() - new Date(issue.created_at).getTime()) / 86400000);
+  const body = (issue.body || "").substring(0, bodyLimit).replace(/\n+/g, " ").trim();
+  return `#${issue.number}: ${issue.title} [${labels}] (${age}d old)${body ? `\n  ${body}` : ""}`;
+}
+
+/**
+ * Extract a structured summary from a feature markdown file.
+ *
+ * @param {string} content - Feature file content
+ * @param {string} fileName - Feature file name
+ * @returns {string} Structured feature summary
+ */
+export function extractFeatureSummary(content, fileName) {
+  const lines = content.split("\n");
+  const title = lines.find((l) => l.startsWith("#"))?.replace(/^#+\s*/, "") || fileName;
+  const checked = (content.match(/- \[x\]/gi) || []).length;
+  const unchecked = (content.match(/- \[ \]/g) || []).length;
+  const total = checked + unchecked;
+
+  const parts = [`Feature: ${title}`];
+  if (total > 0) {
+    parts.push(`Status: ${checked}/${total} items complete`);
+    const remaining = [];
+    for (const line of lines) {
+      if (/- \[ \]/.test(line)) {
+        remaining.push(line.replace(/^[\s-]*\[ \]\s*/, "").trim());
+      }
+    }
+    if (remaining.length > 0) {
+      parts.push(`Remaining: ${remaining.map((r) => `[ ] ${r}`).join(", ")}`);
+    }
+  }
+  return parts.join("\n");
+}
 
 /**
  * Build the CopilotClient options for authentication.
@@ -218,17 +356,31 @@ export function readOptionalFile(filePath, limit) {
  * @param {number} [options.fileLimit=10] - Max files to return
  * @param {number} [options.contentLimit] - Max chars per file content
  * @param {boolean} [options.recursive=false] - Scan recursively
+ * @param {boolean} [options.sortByMtime=false] - Sort files by modification time (most recent first)
+ * @param {boolean} [options.clean=false] - Strip source noise (license headers, blank lines, linter directives)
+ * @param {boolean} [options.outline=false] - Generate structural outline when content exceeds limit
  * @returns {Array<{name: string, content: string}>}
  */
 export function scanDirectory(dirPath, extensions, options = {}) {
-  const { fileLimit = 10, contentLimit, recursive = false } = options;
+  const { fileLimit = 10, contentLimit, recursive = false, sortByMtime = false, clean = false, outline = false } = options;
   const exts = Array.isArray(extensions) ? extensions : [extensions];
 
   if (!existsSync(dirPath)) return [];
 
   const allFiles = readdirSync(dirPath, recursive ? { recursive: true } : undefined).filter((f) =>
-    exts.some((ext) => f.endsWith(ext)),
+    exts.some((ext) => String(f).endsWith(ext)),
   );
+
+  if (sortByMtime) {
+    allFiles.sort((a, b) => {
+      try {
+        return statSync(join(dirPath, String(b))).mtimeMs - statSync(join(dirPath, String(a))).mtimeMs;
+      } catch {
+        return 0;
+      }
+    });
+  }
+
   const clipped = allFiles.slice(0, fileLimit);
   if (allFiles.length > fileLimit) {
     core.info(
@@ -237,18 +389,31 @@ export function scanDirectory(dirPath, extensions, options = {}) {
   }
 
   return clipped.map((f) => {
+    const fileName = String(f);
     try {
-      const raw = readFileSync(join(dirPath, f), "utf8");
-      const content = contentLimit ? raw.substring(0, contentLimit) : raw;
-      if (contentLimit && raw.length > contentLimit) {
+      let raw = readFileSync(join(dirPath, fileName), "utf8");
+      if (clean) raw = cleanSource(raw);
+
+      let content;
+      if (outline && contentLimit && raw.length > contentLimit) {
+        const outlineText = generateOutline(raw, fileName);
+        const halfLimit = Math.floor(contentLimit / 2);
+        content = outlineText + "\n\n" + raw.substring(0, halfLimit);
         core.info(
-          `[scanDirectory] Clipped ${f}: ${raw.length} chars, returning ${contentLimit} (excess=${raw.length - contentLimit})`,
+          `[scanDirectory] Outlined ${fileName}: ${raw.length} chars → outline + ${halfLimit} chars`,
         );
+      } else {
+        content = contentLimit ? raw.substring(0, contentLimit) : raw;
+        if (contentLimit && raw.length > contentLimit) {
+          core.info(
+            `[scanDirectory] Clipped ${fileName}: ${raw.length} chars, returning ${contentLimit} (excess=${raw.length - contentLimit})`,
+          );
+        }
       }
-      return { name: f, content };
+      return { name: fileName, content };
     } catch (err) {
-      core.debug(`[scanDirectory] ${join(dirPath, f)}: ${err.message}`);
-      return { name: f, content: "" };
+      core.debug(`[scanDirectory] ${join(dirPath, fileName)}: ${err.message}`);
+      return { name: fileName, content: "" };
     }
   });
 }

@@ -5,7 +5,9 @@
 // Reviews existing features, creates new ones from mission/library analysis,
 // prunes completed/irrelevant features, and ensures quality.
 
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
+import { existsSync } from "fs";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, extractFeatureSummary } from "../copilot.js";
+import { checkWipLimit } from "../safety.js";
 
 /**
  * Maintain the feature set — create, update, or prune feature files.
@@ -17,10 +19,28 @@ export async function maintainFeatures(context) {
   const { config, instructions, writablePaths, model, octokit, repo } = context;
   const t = config.tuning || {};
 
+  // Check mission-complete signal
+  if (existsSync("MISSION_COMPLETE.md")) {
+    return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
+  }
+
+  // Check maintenance WIP limit
+  const wipCheck = await checkWipLimit(octokit, repo, "maintenance", config.maintenanceIssuesWipLimit);
+  if (!wipCheck.allowed) {
+    return { outcome: "wip-limit-reached", details: `Maintenance WIP limit reached (${wipCheck.count}/${config.maintenanceIssuesWipLimit})` };
+  }
+
   const mission = readOptionalFile(config.paths.mission.path);
   const featuresPath = config.paths.features.path;
   const featureLimit = config.paths.features.limit;
   const features = scanDirectory(featuresPath, ".md", { fileLimit: t.featuresScan || 10 });
+
+  // Sort features: incomplete (has unchecked items) first, then by name
+  features.sort((a, b) => {
+    const aIncomplete = /- \[ \]/.test(a.content) ? 0 : 1;
+    const bIncomplete = /- \[ \]/.test(b.content) ? 0 : 1;
+    return aIncomplete - bIncomplete || a.name.localeCompare(b.name);
+  });
   const libraryDocs = scanDirectory(config.paths.library.path, ".md", {
     contentLimit: t.documentSummary || 1000,
   });

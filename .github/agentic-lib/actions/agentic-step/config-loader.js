@@ -22,9 +22,7 @@ import { parse as parseToml } from "smol-toml";
  * @property {string} supervisor - Supervisor frequency (off | weekly | daily | hourly | continuous)
  * @property {string} model - Copilot SDK model for LLM requests
  * @property {Object<string, PathConfig>} paths - Mapped paths with permissions
- * @property {string} buildScript - Build command
- * @property {string} testScript - Test command
- * @property {string} mainScript - Main entry command
+ * @property {string} testScript - Self-contained test command (e.g. "npm ci && npm test")
  * @property {number} featureDevelopmentIssuesWipLimit - Max concurrent feature issues
  * @property {number} maintenanceIssuesWipLimit - Max concurrent maintenance issues
  * @property {number} attemptsPerBranch - Max attempts per branch
@@ -60,39 +58,67 @@ const LIMIT_DEFAULTS = {
   library: 32,
 };
 
-// Tuning profiles: min (fast/cheap), recommended (balanced), max (thorough)
-const TUNING_PROFILES = {
-  min: {
-    reasoningEffort: "low",
-    infiniteSessions: false,
-    featuresScan: 3,
-    sourceScan: 3,
-    sourceContent: 1000,
-    issuesScan: 5,
-    documentSummary: 500,
-    discussionComments: 5,
-  },
-  recommended: {
-    reasoningEffort: "medium",
-    infiniteSessions: true,
-    featuresScan: 10,
-    sourceScan: 10,
-    sourceContent: 5000,
-    issuesScan: 20,
-    documentSummary: 2000,
-    discussionComments: 10,
-  },
-  max: {
-    reasoningEffort: "high",
-    infiniteSessions: true,
-    featuresScan: 50,
-    sourceScan: 50,
-    sourceContent: 20000,
-    issuesScan: 100,
-    documentSummary: 10000,
-    discussionComments: 25,
-  },
+// Fallback profile defaults — used only when [profiles.*] is missing from TOML.
+// The canonical source of truth is the [profiles.*] sections in agentic-lib.toml.
+const FALLBACK_TUNING = {
+  reasoningEffort: "medium",
+  infiniteSessions: true,
+  transformationBudget: 8,
+  featuresScan: 10,
+  sourceScan: 10,
+  sourceContent: 5000,
+  testContent: 3000,
+  issuesScan: 20,
+  issueBodyLimit: 500,
+  staleDays: 30,
+  documentSummary: 2000,
+  discussionComments: 10,
 };
+
+const FALLBACK_LIMITS = {
+  featureIssues: 2,
+  maintenanceIssues: 1,
+  attemptsPerBranch: 3,
+  attemptsPerIssue: 2,
+  featuresLimit: 4,
+  libraryLimit: 32,
+};
+
+/**
+ * Parse a TOML profile section into tuning defaults (camelCase keys).
+ */
+function parseTuningProfile(profileSection) {
+  if (!profileSection) return null;
+  return {
+    reasoningEffort: profileSection["reasoning-effort"] || "medium",
+    infiniteSessions: profileSection["infinite-sessions"] ?? true,
+    transformationBudget: profileSection["transformation-budget"] || 8,
+    featuresScan: profileSection["max-feature-files"] || 10,
+    sourceScan: profileSection["max-source-files"] || 10,
+    sourceContent: profileSection["max-source-chars"] || 5000,
+    testContent: profileSection["max-test-chars"] || 3000,
+    issuesScan: profileSection["max-issues"] || 20,
+    issueBodyLimit: profileSection["issue-body-limit"] || 500,
+    staleDays: profileSection["stale-days"] || 30,
+    documentSummary: profileSection["max-summary-chars"] || 2000,
+    discussionComments: profileSection["max-discussion-comments"] || 10,
+  };
+}
+
+/**
+ * Parse a TOML profile section into limits defaults (camelCase keys).
+ */
+function parseLimitsProfile(profileSection) {
+  if (!profileSection) return null;
+  return {
+    featureIssues: profileSection["max-feature-issues"] || 2,
+    maintenanceIssues: profileSection["max-maintenance-issues"] || 1,
+    attemptsPerBranch: profileSection["max-attempts-per-branch"] || 3,
+    attemptsPerIssue: profileSection["max-attempts-per-issue"] || 2,
+    featuresLimit: profileSection["features-limit"] || 4,
+    libraryLimit: profileSection["library-limit"] || 32,
+  };
+}
 
 /**
  * Read package.json from the project root, returning empty string if not found.
@@ -112,10 +138,13 @@ function readPackageJson(tomlPath, depsRelPath) {
 
 /**
  * Resolve tuning configuration: start from profile defaults, apply explicit overrides.
+ * @param {Object} tuningSection - The [tuning] section from TOML
+ * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
  */
-function resolveTuning(tuningSection) {
+function resolveTuning(tuningSection, profilesSection) {
   const profileName = tuningSection.profile || "recommended";
-  const profile = TUNING_PROFILES[profileName] || TUNING_PROFILES.recommended;
+  const tomlProfile = profilesSection?.[profileName];
+  const profile = parseTuningProfile(tomlProfile) || FALLBACK_TUNING;
   const tuning = { ...profile, profileName };
 
   // "none" explicitly disables reasoning-effort regardless of profile
@@ -126,18 +155,41 @@ function resolveTuning(tuningSection) {
     tuning.infiniteSessions = tuningSection["infinite-sessions"];
   }
   const numericOverrides = {
-    "features-scan": "featuresScan",
-    "source-scan": "sourceScan",
-    "source-content": "sourceContent",
-    "issues-scan": "issuesScan",
-    "document-summary": "documentSummary",
-    "discussion-comments": "discussionComments",
+    "transformation-budget": "transformationBudget",
+    "max-feature-files": "featuresScan",
+    "max-source-files": "sourceScan",
+    "max-source-chars": "sourceContent",
+    "max-test-chars": "testContent",
+    "max-issues": "issuesScan",
+    "issue-body-limit": "issueBodyLimit",
+    "stale-days": "staleDays",
+    "max-summary-chars": "documentSummary",
+    "max-discussion-comments": "discussionComments",
   };
   for (const [tomlKey, jsKey] of Object.entries(numericOverrides)) {
     if (tuningSection[tomlKey] > 0) tuning[jsKey] = tuningSection[tomlKey];
   }
 
   return tuning;
+}
+
+/**
+ * Resolve limits configuration: start from profile defaults, apply explicit overrides.
+ * @param {Object} limitsSection - The [limits] section from TOML
+ * @param {string} profileName - Active profile name
+ * @param {Object} [profilesSection] - The [profiles] section from TOML (source of truth)
+ */
+function resolveLimits(limitsSection, profileName, profilesSection) {
+  const tomlProfile = profilesSection?.[profileName];
+  const profile = parseLimitsProfile(tomlProfile) || FALLBACK_LIMITS;
+  return {
+    featureIssues: limitsSection["max-feature-issues"] || profile.featureIssues,
+    maintenanceIssues: limitsSection["max-maintenance-issues"] || profile.maintenanceIssues,
+    attemptsPerBranch: limitsSection["max-attempts-per-branch"] || profile.attemptsPerBranch,
+    attemptsPerIssue: limitsSection["max-attempts-per-issue"] || profile.attemptsPerIssue,
+    featuresLimit: limitsSection["features-limit"] || profile.featuresLimit,
+    libraryLimit: limitsSection["library-limit"] || profile.libraryLimit,
+  };
 }
 
 /**
@@ -191,12 +243,14 @@ export function loadConfig(configPath) {
     }
   }
 
-  // Apply limits from [limits] section or use defaults
-  const limits = toml.limits || {};
-  paths.features.limit = limits["features-limit"] || LIMIT_DEFAULTS.features;
-  paths.library.limit = limits["library-limit"] || LIMIT_DEFAULTS.library;
+  const profilesSection = toml.profiles || {};
+  const tuning = resolveTuning(toml.tuning || {}, profilesSection);
+  const limitsSection = toml.limits || {};
+  const resolvedLimits = resolveLimits(limitsSection, tuning.profileName, profilesSection);
 
-  const tuning = resolveTuning(toml.tuning || {});
+  // Apply resolved limits to path objects
+  paths.features.limit = resolvedLimits.featuresLimit;
+  paths.library.limit = resolvedLimits.libraryLimit;
 
   const execution = toml.execution || {};
   const bot = toml.bot || {};
@@ -206,13 +260,12 @@ export function loadConfig(configPath) {
     model: toml.tuning?.model || toml.schedule?.model || "gpt-5-mini",
     tuning,
     paths,
-    buildScript: execution.build || "npm run build",
-    testScript: execution.test || "npm test",
-    mainScript: execution.start || "npm run start",
-    featureDevelopmentIssuesWipLimit: limits["feature-issues"] || 2,
-    maintenanceIssuesWipLimit: limits["maintenance-issues"] || 1,
-    attemptsPerBranch: limits["attempts-per-branch"] || 3,
-    attemptsPerIssue: limits["attempts-per-issue"] || 2,
+    testScript: execution.test || "npm ci && npm test",
+    featureDevelopmentIssuesWipLimit: resolvedLimits.featureIssues,
+    maintenanceIssuesWipLimit: resolvedLimits.maintenanceIssues,
+    attemptsPerBranch: resolvedLimits.attemptsPerBranch,
+    attemptsPerIssue: resolvedLimits.attemptsPerIssue,
+    transformationBudget: tuning.transformationBudget,
     seeding: toml.seeding || {},
     intentionBot: {
       intentionFilepath: bot["log-file"] || "intentïon.md",

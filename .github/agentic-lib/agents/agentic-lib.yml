@@ -42,9 +42,7 @@ paths:
     permissions: ["write"]
 
 # Execution commands
-buildScript: "npm run build"
-testScript: "npm test"
-mainScript: "npm run start"
+testScript: "npm ci && npm test"
 
 # How many issues should be available to be picked up?
 featureDevelopmentIssuesWipLimit: 2

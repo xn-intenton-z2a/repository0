@@ -1,8 +1,0 @@
-{
-  "cases": [
-    { "a": "1", "b": "4", "type": "Number", "result": 2 },
-    { "a": "1n", "b": "4n", "type": "BigInt", "result": 2 },
-    { "a": "1", "b": "4n", "type": "Mixed", "result": 2 },
-    { "a": "0n", "b": "0n", "type": "BigInt", "result": 0 }
-  ]
-}

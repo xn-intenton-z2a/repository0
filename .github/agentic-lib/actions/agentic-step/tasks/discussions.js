@@ -6,7 +6,7 @@
 // and provides status updates. Uses the Copilot SDK for natural conversation.
 
 import * as core from "@actions/core";
-import { existsSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { runCopilotTask, readOptionalFile, scanDirectory } from "../copilot.js";
 
 const BOT_LOGINS = ["github-actions[bot]", "github-actions"];
@@ -175,6 +175,22 @@ export async function discussions(context) {
   const replyBody = content.replace(/\[ACTION:\S+?\].+/, "").trim();
 
   core.info(`Discussion bot action: ${action}, arg: ${actionArg}`);
+
+  // Write MISSION_COMPLETE.md signal when bot declares mission complete
+  if (action === "mission-complete") {
+    const signal = [
+      "# Mission Complete",
+      "",
+      `- **Timestamp:** ${new Date().toISOString()}`,
+      `- **Detected by:** discussions`,
+      `- **Reason:** ${actionArg || "Declared via discussion bot"}`,
+      "",
+      "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
+    ].join("\n");
+    writeFileSync("MISSION_COMPLETE.md", signal);
+    core.info("Mission complete signal written (MISSION_COMPLETE.md)");
+  }
+
   await postReply(octokit, discussion.nodeId, replyBody);
 
   const argSuffix = actionArg ? ` (${actionArg})` : "";

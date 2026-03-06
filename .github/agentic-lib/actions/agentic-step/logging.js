@@ -27,6 +27,13 @@ import * as core from "@actions/core";
  * @param {string} [options.model] - Model used
  * @param {string} [options.details] - Additional details
  * @param {string} [options.workflowUrl] - URL to the workflow run
+ * @param {string} [options.profile] - Active tuning profile name
+ * @param {Array} [options.changes] - List of file changes { action, file, sizeInfo }
+ * @param {string} [options.contextNotes] - English notes about task observations
+ * @param {Array} [options.limitsStatus] - Limit status entries { name, value, remaining, status }
+ * @param {Array} [options.promptBudget] - Prompt budget entries { section, size, files, notes }
+ * @param {string} [options.closingNotes] - Auto-generated limit concern notes
+ * @param {number} [options.transformationCost] - Transformation cost for this entry (0 or 1)
  */
 export function logActivity({
   filepath,
@@ -43,6 +50,13 @@ export function logActivity({
   model,
   details,
   workflowUrl,
+  profile,
+  changes,
+  contextNotes,
+  limitsStatus,
+  promptBudget,
+  closingNotes,
+  transformationCost,
 }) {
   const dir = dirname(filepath);
   if (!existsSync(dir)) {
@@ -56,6 +70,7 @@ export function logActivity({
   if (prNumber) parts.push(`**PR:** #${prNumber}`);
   if (commitUrl) parts.push(`**Commit:** [${commitUrl}](${commitUrl})`);
   if (model) parts.push(`**Model:** ${model}`);
+  if (profile) parts.push(`**Profile:** ${profile}`);
   if (tokensUsed) parts.push(`**Token Count:** ${tokensUsed} (in: ${inputTokens || 0}, out: ${outputTokens || 0})`);
   if (cost) parts.push(`**Model Invocations:** ${cost}`);
   if (durationMs) {
@@ -63,7 +78,38 @@ export function logActivity({
     const mins = (durationMs / 60000).toFixed(1);
     parts.push(`**Duration:** ${secs}s (~${mins} GitHub Actions min)`);
   }
+  if (transformationCost != null) parts.push(`**agentic-lib transformation cost:** ${transformationCost}`);
   if (workflowUrl) parts.push(`**Workflow:** [${workflowUrl}](${workflowUrl})`);
+  if (changes && changes.length > 0) {
+    parts.push("", "### What Changed");
+    for (const c of changes) {
+      parts.push(`- ${c.action}: \`${c.file}\`${c.sizeInfo ? ` (${c.sizeInfo})` : ""}`);
+    }
+  }
+  if (contextNotes) {
+    parts.push("", "### Context Notes");
+    parts.push(contextNotes);
+  }
+  if (limitsStatus && limitsStatus.length > 0) {
+    parts.push("", "### Limits Status");
+    parts.push("| Limit | Value | Capacity | Status |");
+    parts.push("|---|---|---|---|");
+    for (const ls of limitsStatus) {
+      parts.push(`| ${ls.name} | ${ls.value} | ${ls.remaining} remaining | ${ls.status || ""} |`);
+    }
+  }
+  if (promptBudget && promptBudget.length > 0) {
+    parts.push("", "### Prompt Budget");
+    parts.push("| Section | Size | Files | Notes |");
+    parts.push("|---|---|---|---|");
+    for (const pb of promptBudget) {
+      parts.push(`| ${pb.section} | ${pb.size} chars | ${pb.files || "—"} | ${pb.notes || ""} |`);
+    }
+  }
+  if (closingNotes) {
+    parts.push("", "### Closing Notes");
+    parts.push(closingNotes);
+  }
   if (details) {
     parts.push("");
     parts.push(details);
@@ -90,6 +136,35 @@ export function logActivity({
   } else {
     writeFileSync(filepath, `# intentïon Activity Log\n${entry}`);
   }
+}
+
+/**
+ * Generate closing notes from limits status, flagging limits at or approaching capacity.
+ *
+ * @param {Array} limitsStatus - Array of { name, value, remaining, status, valueNum, capacityNum }
+ * @returns {string} Closing notes text
+ */
+export function generateClosingNotes(limitsStatus) {
+  if (!limitsStatus || limitsStatus.length === 0) return "";
+
+  const concerns = [];
+  let anyChecked = false;
+  for (const ls of limitsStatus) {
+    if (ls.status === "n/a") continue;
+    const used = ls.valueNum || 0;
+    const capacity = ls.capacityNum || 0;
+    if (capacity === 0) continue;
+    anyChecked = true;
+    const pct = Math.round((used / capacity) * 100);
+    if (pct >= 100) {
+      concerns.push(`${ls.name} at capacity (${ls.value}) — actions will be blocked.`);
+    } else if (pct >= 80) {
+      concerns.push(`${ls.name} approaching capacity (${ls.value}).`);
+    }
+  }
+
+  if (!anyChecked) return "";
+  return concerns.length > 0 ? concerns.join("\n") : "All limits within normal range.";
 }
 
 /**

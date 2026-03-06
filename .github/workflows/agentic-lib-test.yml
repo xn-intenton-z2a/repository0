@@ -23,17 +23,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: "npm"
 
-      - run: npm ci
+      - name: Read test command from config
+        id: config
+        shell: bash
+        run: |
+          if [ -f agentic-lib.toml ]; then
+            TEST_CMD=$(grep '^\s*test\s*=' agentic-lib.toml | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
+          fi
+          echo "test-command=${TEST_CMD:-npm ci && npm test}" >> $GITHUB_OUTPUT
 
       - name: Install sub-project dependencies (agentic-lib dev only)
         if: hashFiles('src/actions/agentic-step/package.json') != ''
         run: cd src/actions/agentic-step && npm ci
 
-      - run: npm test
+      - name: Run tests
+        run: ${{ steps.config.outputs.test-command }}

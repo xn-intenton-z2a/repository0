@@ -32,9 +32,9 @@ inputs:
     description: "Semicolon-separated paths the agent may write to (overrides config)"
     required: false
   test-command:
-    description: "Command to validate changes"
+    description: "Command to validate changes (default: from [execution].test in agentic-lib.toml)"
     required: false
-    default: "npm test"
+    default: ""
   discussion-url:
     description: "GitHub Discussion URL (for discussions task)"
     required: false

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-06T20:49:19.030Z
+# Schedule updated: 2026-03-06T23:38:43.233Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -155,7 +155,7 @@ jobs:
     steps:
       - name: PR cleanup
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const owner = context.repo.owner;
@@ -225,10 +225,10 @@ jobs:
       needs.params.outputs.mode == 'full' || needs.params.outputs.mode == 'dev-only' || needs.params.outputs.mode == 'review-only'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Gather telemetry
         id: gather
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -303,9 +303,9 @@ jobs:
       needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -338,11 +338,22 @@ jobs:
       needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Check mission-complete signal
+        id: mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping budget-consuming tasks"
+            cat MISSION_COMPLETE.md
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -365,6 +376,7 @@ jobs:
           echo "libraryWritablePaths=${LIBRARY};${SOURCES}" >> $GITHUB_OUTPUT
 
       - name: Maintain features
+        if: steps.mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -377,6 +389,7 @@ jobs:
           model: ${{ needs.params.outputs.model }}
 
       - name: Maintain library
+        if: steps.mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -404,11 +417,11 @@ jobs:
       needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -423,8 +436,19 @@ jobs:
         working-directory: .github/agentic-lib/actions/agentic-step
         run: npm ci
 
+      - name: Check mission-complete signal
+        id: fix-mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping fix-stuck"
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Find and fix stuck PRs
-        uses: actions/github-script@v7
+        if: steps.fix-mission-check.outputs.mission-complete != 'true'
+        uses: actions/github-script@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -484,14 +508,14 @@ jobs:
             }
 
       - name: Checkout PR branch
-        if: env.FIX_PR_NUMBER != ''
+        if: env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         run: |
           gh pr checkout ${{ env.FIX_PR_NUMBER }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Tier 1: Auto-resolve trivial merge conflicts"
-        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts'
+        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts' && steps.fix-mission-check.outputs.mission-complete != 'true'
         id: trivial-resolve
         run: |
           git fetch origin main
@@ -523,6 +547,7 @@ jobs:
       - name: "Tier 2: LLM fix (conflicts or failing checks)"
         if: |
           env.FIX_PR_NUMBER != '' &&
+          steps.fix-mission-check.outputs.mission-complete != 'true' &&
           (env.FIX_REASON != 'merge conflicts' ||
            steps.trivial-resolve.outputs.resolved == 'none')
         uses: ./.github/agentic-lib/actions/agentic-step
@@ -535,11 +560,11 @@ jobs:
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-apply-fix.md"
           pr-number: ${{ env.FIX_PR_NUMBER }}
-          test-command: "npm test"
+          # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
 
       - name: Commit and push fixes
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != ''
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.FIX_PR_NUMBER != '' && steps.fix-mission-check.outputs.mission-complete != 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: fix failing tests / resolve conflicts"
@@ -553,9 +578,9 @@ jobs:
       needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -598,12 +623,12 @@ jobs:
       needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "24"
 
@@ -632,9 +657,21 @@ jobs:
           DEPS=$(yq -r '.paths.dependenciesFilepath.path // "package.json"' "$CONFIG")
           echo "writablePaths=${SOURCE};${TESTS};${FEATURES};${DOCS};${LIBRARY};${SOURCES};${README};${DEPS}" >> $GITHUB_OUTPUT
 
+      - name: Check mission-complete signal
+        id: dev-mission-check
+        run: |
+          if [ -f MISSION_COMPLETE.md ]; then
+            echo "mission-complete=true" >> $GITHUB_OUTPUT
+            echo "Mission is complete — skipping dev transformation"
+            cat MISSION_COMPLETE.md
+          else
+            echo "mission-complete=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Find target issue
+        if: steps.dev-mission-check.outputs.mission-complete != 'true'
         id: issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const specificIssue = '${{ needs.params.outputs.issue-number }}';
@@ -674,7 +711,7 @@ jobs:
           task: "transform"
           config: ${{ needs.params.outputs.config-path }}
           instructions: ".github/agentic-lib/agents/agent-issue-resolution.md"
-          test-command: "npm test"
+          # test-command read from [execution].test in agentic-lib.toml
           model: ${{ needs.params.outputs.model }}
           issue-number: ${{ steps.issue.outputs.issue-number }}
           writable-paths: ${{ steps.config.outputs.writablePaths }}
@@ -688,7 +725,7 @@ jobs:
 
       - name: Create PR and attempt merge
         if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const owner = context.repo.owner;
@@ -780,7 +817,7 @@ jobs:
     if: always() && needs.params.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 

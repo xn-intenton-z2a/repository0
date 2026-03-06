@@ -35,11 +35,16 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     contentLimit: t.sourceContent || 5000,
     fileLimit: t.sourceScan || 20,
     recursive: true,
+    sortByMtime: true,
+    clean: true,
+    outline: true,
   });
   const testFiles = scanDirectory(config.paths.tests.path, [".test.js", ".test.ts"], {
-    contentLimit: t.sourceContent || 5000,
+    contentLimit: t.testContent || t.sourceContent || 5000,
     fileLimit: t.sourceScan || 20,
     recursive: true,
+    sortByMtime: true,
+    clean: true,
   });
   const docsFiles = scanDirectory(config.paths.documentation?.path || "docs/", [".md"], {
     fileLimit: t.featuresScan || 10,

@@ -6,7 +6,8 @@
 // and either creates features, issues, or code.
 
 import * as core from "@actions/core";
-import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection } from "../copilot.js";
+import { writeFileSync, existsSync } from "fs";
+import { runCopilotTask, readOptionalFile, scanDirectory, formatPathsSection, filterIssues, summariseIssue, extractFeatureSummary } from "../copilot.js";
 
 /**
  * Run the full transformation pipeline from mission to code.
@@ -25,18 +26,28 @@ export async function transform(context) {
     return { outcome: "nop", details: "No mission file found" };
   }
 
+  // Check mission-complete signal
+  if (existsSync("MISSION_COMPLETE.md")) {
+    core.info("Mission is complete — skipping transformation (MISSION_COMPLETE.md exists)");
+    return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
+  }
+
   const features = scanDirectory(config.paths.features.path, ".md", { fileLimit: t.featuresScan || 10 });
   const sourceFiles = scanDirectory(config.paths.source.path, [".js", ".ts"], {
     fileLimit: t.sourceScan || 10,
     contentLimit: t.sourceContent || 5000,
     recursive: true,
+    sortByMtime: true,
+    clean: true,
+    outline: true,
   });
 
-  const { data: openIssues } = await octokit.rest.issues.listForRepo({
+  const { data: rawIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
     state: "open",
     per_page: t.issuesScan || 20,
   });
+  const openIssues = filterIssues(rawIssues, { staleDays: t.staleDays || 30 });
 
   // Fetch target issue if specified
   let targetIssue = null;
@@ -91,13 +102,13 @@ export async function transform(context) {
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, t.documentSummary || 2000)}`),
+    ...features.map((f) => `### ${f.name}\n${extractFeatureSummary(f.content, f.name)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, t.issuesScan || 20).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, t.issuesScan || 20).map((i) => summariseIssue(i, t.issueBodyLimit || 500)),
     "",
     "## Output Artifacts",
     "If your changes produce output artifacts (plots, visualizations, data files, usage examples),",
@@ -141,6 +152,29 @@ export async function transform(context) {
 
   core.info(`Transformation step completed (${tokensUsed} tokens)`);
 
+  // Detect mission-complete: if the LLM made no changes and indicates mission satisfaction
+  const lowerResult = resultContent.toLowerCase();
+  if (lowerResult.includes("mission is satisfied") || lowerResult.includes("mission is complete") || lowerResult.includes("no changes needed")) {
+    core.info("Mission appears complete — writing MISSION_COMPLETE.md signal");
+    const signal = [
+      "# Mission Complete",
+      "",
+      `- **Timestamp:** ${new Date().toISOString()}`,
+      `- **Detected by:** transform`,
+      `- **Reason:** ${resultContent.substring(0, 200)}`,
+      "",
+      "This file was created automatically. To restart transformations, delete this file or run `npx @xn-intenton-z2a/agentic-lib init --reseed`.",
+    ].join("\n");
+    writeFileSync("MISSION_COMPLETE.md", signal);
+  }
+
+  const promptBudget = [
+    { section: "mission", size: mission.length, files: "1", notes: "full" },
+    { section: "features", size: features.reduce((s, f) => s + f.content.length, 0), files: `${features.length}`, notes: "" },
+    { section: "source", size: sourceFiles.reduce((s, f) => s + f.content.length, 0), files: `${sourceFiles.length}`, notes: sourceFiles.some((f) => f.content.includes("// file:")) ? "some outlined" : "all full" },
+    { section: "issues", size: openIssues.length * 80, files: `${openIssues.length}`, notes: `${rawIssues.length - openIssues.length} filtered` },
+  ];
+
   return {
     outcome: "transformed",
     tokensUsed,
@@ -149,6 +183,8 @@ export async function transform(context) {
     cost,
     model,
     details: resultContent.substring(0, 500),
+    promptBudget,
+    contextNotes: `Transformed with ${sourceFiles.length} source files (mtime-sorted, cleaned), ${features.length} features, ${openIssues.length} issues (${rawIssues.length - openIssues.length} stale filtered).`,
   };
 }
 
@@ -187,13 +223,13 @@ async function transformTdd({
     mission,
     "",
     `## Current Features (${features.length})`,
-    ...features.map((f) => `### ${f.name}\n${f.content.substring(0, t.documentSummary || 2000)}`),
+    ...features.map((f) => `### ${f.name}\n${extractFeatureSummary(f.content, f.name)}`),
     "",
     `## Current Source Files (${sourceFiles.length})`,
     ...sourceFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
     `## Open Issues (${openIssues.length})`,
-    ...openIssues.slice(0, t.issuesScan || 20).map((i) => `- #${i.number}: ${i.title}`),
+    ...openIssues.slice(0, t.issuesScan || 20).map((i) => summariseIssue(i, t.issueBodyLimit || 500)),
     "",
     formatPathsSection(writablePaths, readOnlyPaths, _config),
     "",

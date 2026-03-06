@@ -22,21 +22,20 @@ contributing = "CONTRIBUTING.md"
 library-sources = "SOURCES.md"
 
 [execution]
-build = "npm run build"
-test = "npm test"
-start = "npm run start"
+test = "npm ci && npm test"
 
 [limits]
-feature-issues = 2
-maintenance-issues = 1
-attempts-per-branch = 3
-attempts-per-issue = 2
-features-limit = 2
-library-limit = 32
+# Override profile defaults here. Omit to use the active profile's values.
+# max-feature-issues = 2
+# max-maintenance-issues = 1
+# max-attempts-per-branch = 3
+# max-attempts-per-issue = 2
+# features-limit = 2
+# library-limit = 32
 
 [tuning]
-# Profile sets defaults for all tuning knobs: min | recommended | max
-# min = fast & cheap (CI testing), recommended = balanced, max = thorough
+# Profile sets defaults for all tuning and limit knobs: min | recommended | max
+# Profile definitions live in [profiles.*] sections below.
 profile = "recommended"
 #
 # Model selection — each has different strengths:
@@ -50,12 +49,84 @@ model = "gpt-5-mini"
 # Override individual knobs below. Omit or comment out to use profile defaults.
 # reasoning-effort = "low"       # low | medium | high | none (none = disable entirely)
 infinite-sessions = false        # set to true for long sessions with compaction
-# features-scan = 3              # feature files to include in prompts
-# source-scan = 3                # source files to include
-# source-content = 1000          # max chars per source file
-# issues-scan = 5                # open issues to include
-# document-summary = 500         # max chars for document summaries
-# discussion-comments = 5        # discussion comments to include
+# transformation-budget = 4      # max code-changing cycles per run (0 = unlimited)
+# max-feature-files = 3
+# max-source-files = 3
+# max-source-chars = 1000
+# max-test-chars = 500
+# max-issues = 5
+# issue-body-limit = 200
+# stale-days = 14
+# max-summary-chars = 500
+# max-discussion-comments = 5
+
+# ─── Profile Definitions ────────────────────────────────────────────
+# Each profile defines tuning and limits defaults. The active profile
+# is set by [tuning].profile above. Override individual values in
+# [tuning] or [limits] to deviate from the active profile.
+
+[profiles.min]
+# Fast & cheap — CI testing, quick validation, budget-conscious iteration.
+reasoning-effort = "low"                # low | medium | high | none
+infinite-sessions = false               # enable session compaction for long runs
+transformation-budget = 4              # max code-changing cycles per run
+max-feature-files = 3                      # max feature files included in prompts
+max-source-files = 3                        # max source files included in prompts
+max-source-chars = 1000                  # max chars of each source file's content included in prompts
+max-test-chars = 500                     # max chars of each test file's content included in prompts
+max-issues = 5                        # max open issues included in prompts
+issue-body-limit = 200                 # max chars of each issue's body text included in prompts
+stale-days = 14                        # days since last activity before an issue is considered stale and excluded
+max-summary-chars = 500                 # max chars of each document's summary included in prompts
+max-discussion-comments = 5               # max recent discussion comments (newest first) included in prompts
+max-feature-issues = 1                     # max concurrent feature development issues
+max-maintenance-issues = 1                 # max concurrent maintenance issues
+max-attempts-per-branch = 2               # max transform attempts before abandoning a branch
+max-attempts-per-issue = 1                 # max transform attempts before abandoning an issue
+features-limit = 2                     # max feature files in features/ directory
+library-limit = 8                      # max library entries in library/ directory
+
+[profiles.recommended]
+# Balanced — good results without excessive cost. Default for consumer repos.
+reasoning-effort = "medium"            # low | medium | high | none
+infinite-sessions = true               # enable session compaction for long runs
+transformation-budget = 8             # max code-changing cycles per run
+max-feature-files = 10                     # max feature files included in prompts
+max-source-files = 10                       # max source files included in prompts
+max-source-chars = 5000                  # max chars of each source file's content included in prompts
+max-test-chars = 3000                    # max chars of each test file's content included in prompts
+max-issues = 20                       # max open issues included in prompts
+issue-body-limit = 500                 # max chars of each issue's body text included in prompts
+stale-days = 30                        # days since last activity before an issue is considered stale and excluded
+max-summary-chars = 2000                # max chars of each document's summary included in prompts
+max-discussion-comments = 10              # max recent discussion comments (newest first) included in prompts
+max-feature-issues = 2                     # max concurrent feature development issues
+max-maintenance-issues = 1                 # max concurrent maintenance issues
+max-attempts-per-branch = 3               # max transform attempts before abandoning a branch
+max-attempts-per-issue = 2                 # max transform attempts before abandoning an issue
+features-limit = 4                     # max feature files in features/ directory
+library-limit = 32                     # max library entries in library/ directory
+
+[profiles.max]
+# Thorough — maximum context, highest quality. For complex missions.
+reasoning-effort = "high"              # low | medium | high | none
+infinite-sessions = true               # enable session compaction for long runs
+transformation-budget = 32            # max code-changing cycles per run
+max-feature-files = 50                     # max feature files included in prompts
+max-source-files = 50                       # max source files included in prompts
+max-source-chars = 20000                 # max chars of each source file's content included in prompts
+max-test-chars = 15000                   # max chars of each test file's content included in prompts
+max-issues = 100                      # max open issues included in prompts
+issue-body-limit = 2000                # max chars of each issue's body text included in prompts
+stale-days = 90                        # days since last activity before an issue is considered stale and excluded
+max-summary-chars = 10000               # max chars of each document's summary included in prompts
+max-discussion-comments = 25              # max recent discussion comments (newest first) included in prompts
+max-feature-issues = 4                     # max concurrent feature development issues
+max-maintenance-issues = 2                 # max concurrent maintenance issues
+max-attempts-per-branch = 5               # max transform attempts before abandoning a branch
+max-attempts-per-issue = 4                 # max transform attempts before abandoning an issue
+features-limit = 8                     # max feature files in features/ directory
+library-limit = 64                     # max library entries in library/ directory
 
 [bot]
 log-file = "intentïon.md"
