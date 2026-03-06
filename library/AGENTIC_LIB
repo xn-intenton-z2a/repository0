@@ -1,0 +1,136 @@
+NORMALISED EXTRACT
+
+Table of Contents
+1. Project metadata and entry points
+2. NPM scripts and execution commands
+3. agentic-lib configuration — exact keys and values
+4. File responsibilities and code locations
+5. Testing and CI commands
+6. Troubleshooting and common fixes
+
+1. Project metadata and entry points
+- package.json fields:
+  name: repo
+  version: 0.1.0
+  type: module
+  main: src/lib/main.js
+  engines.node: >=24.0.0
+- Dependencies:
+  @xn-intenton-z2a/agentic-lib: ^7.1.60
+  devDependencies: vitest ^4.0.18, @vitest/coverage-v8 ^4.0.18
+- Entry point behavior:
+  src/lib/main.js exports function main(args) and executes main when invoked as a CLI script. The file uses ESM import syntax and checks process.argv[1] === fileURLToPath(import.meta.url) to detect direct execution.
+
+2. NPM scripts and execution commands (exact strings)
+- build: echo "Nothing to build"
+- test: vitest --run tests/unit/*.test.js
+- test:unit: vitest --run --coverage tests/unit/*.test.js
+- start: node src/lib/main.js
+Operational notes:
+- No build pipeline is required; build is a no-op.
+- Test runner: vitest with pattern tests/unit/*.test.js. Coverage uses @vitest/coverage-v8.
+- Runtime requires Node 24+ to satisfy ESM usage and engines constraint.
+
+3. agentic-lib configuration — exact keys and values (agentic-lib.toml)
+- [schedule]
+  supervisor = "off"             # allowed values: off | weekly | daily | hourly | continuous
+- [paths]
+  mission = "MISSION.md"
+  source = "src/lib/"
+  tests = "tests/unit/"
+  features = "features/"
+  library = "library/"
+  docs = "docs/"
+  examples = "examples/"
+  readme = "README.md"
+  dependencies = "package.json"
+  contributing = "CONTRIBUTING.md"
+  library-sources = "SOURCES.md"
+- [execution]
+  build = "npm run build"
+  test = "npm test"
+  start = "npm run start"
+- [limits]
+  feature-issues = 2
+  maintenance-issues = 1
+  attempts-per-branch = 3
+  attempts-per-issue = 2
+  features-limit = 2
+  library-limit = 32
+- [tuning]
+  profile = "recommended"
+  model = "gpt-5-mini"           # supported: gpt-5-mini | claude-sonnet-4 | gpt-4.1
+  infinite-sessions = false
+- [bot]
+  log-file = "intentïon.md"
+Operational implications:
+- Automation expects source under src/lib/, tests under tests/unit/, and library documents in library/.
+- CI and agent workflows will call the execution commands defined here; keep them stable to avoid breaking automation.
+
+4. File responsibilities and code locations
+- src/lib/main.js: primary program logic; exports named function main(args). When invoked as CLI, it collects process.argv.slice(2) and passes to main.
+- tests/unit/: unit tests to guard main.js behavior; vitest is the test runner.
+- MISSION.md: human-readable mission describing required behavior (in this repo, Roman numeral converter specification).
+- CONTRIBUTING.md: guidelines for contributions and automation behavior; includes sandbox paths for automated changes.
+- SOURCES.md: lists external references and repository URL used by library workflows.
+
+5. Testing and CI commands (actionable)
+- Local unit test: npm run test:unit
+- Run full tests: npm test
+- Start app locally (CLI): npm run start
+- CI requirement: ensure runner uses Node >=24.0.0 to satisfy engines constraint.
+
+6. Troubleshooting and common fixes (step-by-step)
+- Vitest no tests found:
+  1. Confirm test files exist under tests/unit/ and end with .test.js
+  2. Run vitest --run tests/unit/*.test.js locally to reproduce
+- Node version mismatch:
+  1. Use nvm or install Node 24+ in CI matrix
+  2. Confirm node --version in CI before running npm scripts
+- agentic-lib workflow path errors:
+  1. Verify agentic-lib.toml [paths] values match repository layout
+  2. If automation writes to sandbox, check CONTRIBUTING.md sandbox mappings
+
+SUPPLEMENTARY DETAILS
+- Exact file execution check in src/lib/main.js:
+  import { fileURLToPath } from "url";
+  export function main(args) { console.log(`Run with: ${JSON.stringify(args)}`); }
+  if (process.argv[1] === fileURLToPath(import.meta.url)) { const args = process.argv.slice(2); main(args); }
+- Roman-numeral mission (from MISSION.md) — required API surface for library (acceptance criteria):
+  toRoman(n): integer 1–3999 -> Roman numeral string using subtractive notation; throw RangeError if outside range
+  fromRoman(s): Roman numeral string -> integer; throw TypeError for invalid strings
+  Round-trip property required: fromRoman(toRoman(n)) === n for all valid n
+  Export both functions as named exports from src/lib/main.js
+
+REFERENCE DETAILS (exact specs and values)
+- package.json scripts:
+  build: command string: echo "Nothing to build"
+  test: command string: vitest --run tests/unit/*.test.js
+  test:unit: command string: vitest --run --coverage tests/unit/*.test.js
+  start: command string: node src/lib/main.js
+- Node engine constraint: "node": ">=24.0.0"
+- agentic-lib.toml keys and permitted values (copy): see section 3 above. Supervisor schedule accepts off | weekly | daily | hourly | continuous. Model accepts gpt-5-mini | claude-sonnet-4 | gpt-4.1.
+- src/lib/main.js exported runtime signature:
+  function main(args: string[]): void
+  When used as program entry, arguments passed are process.argv.slice(2).
+
+DETAILED DIGEST
+- Source repository URL: https://github.com/xn-intenton-z2a/repository0
+- Retrieved on: 2026-03-06T04:13:27.432Z
+- Files processed and byte sizes:
+  README.md: 3296 bytes
+  agentic-lib.toml: 1712 bytes
+  package.json: 583 bytes
+  src/lib/main.js: 350 bytes
+  CONTRIBUTING.md: 4240 bytes
+  MISSION.md: 1251 bytes
+  SOURCES.md: 263 bytes
+- Total bytes read: 10,695 bytes
+
+ATTRIBUTION
+- Source: repository https://github.com/xn-intenton-z2a/repository0
+- Files used: README.md, agentic-lib.toml, package.json, src/lib/main.js, CONTRIBUTING.md, MISSION.md, SOURCES.md
+- Retrieval date: 2026-03-06
+- Data size obtained during crawl: 10,695 bytes
+
+END OF DOCUMENT
