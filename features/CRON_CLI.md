@@ -2,62 +2,76 @@
 
 ## Summary
 
-Add a small, well-specified command-line interface (CLI) for the cron engine library that exposes parsing, next-run computation, matching, and string conversion as simple commands. The CLI is lightweight, implemented in the single source file src/lib/main.js (exported functions remain the library API), and documented in README.md with usage examples and sample output.
+A minimal, dependency-free command-line interface for the cron engine library implemented inside src/lib/main.js. The CLI exposes parse, next, next-n, matches, and tostring subcommands while reusing the same exported functions used by library consumers and tests.
 
 ## Goals
 
-- Provide a discoverable command-line surface for key library features: parse, next, next-n, matches, and toString.
-- Keep the CLI minimal and dependency-free; use only Node built-ins.
-- Reuse the same core code in src/lib/main.js so tests exercise both library functions and CLI behavior where appropriate.
-- Produce clear, machine-friendly output by default (JSON) and a human-friendly text mode for examples.
+- Provide a discoverable CLI for core library capabilities with machine-friendly default output.
+- Keep the CLI implementation small and free of external dependencies using only Node built-ins.
+- Ensure the CLI behavior is deterministic and testable from unit or light integration tests.
 
-## CLI UX
+## CLI Commands and Flags
 
 Commands (positional):
-- parse <expression>    : parse a cron expression and print the structured JSON representation
-- next <expression> [--after=<ISO>] : print the next run Date in ISO format (local time) after optional anchor
-- next-n <expression> <count> [--after=<ISO>] : print an array of next N run Dates in ISO format
-- matches <expression> <iso-date> : print true or false depending on whether the date matches
-- tostring <expression> : print the canonical cron string for the parsed expression
+- parse <expression>
+  - Print the parsed representation as JSON.
+- next <expression> [--after=<ISO>]
+  - Print the next run Date in ISO format (local time).
+- next-n <expression> <count> [--after=<ISO>]
+  - Print an array of the next N run Dates in ISO format (local time) as JSON.
+- matches <expression> <iso-date>
+  - Print true or false depending on whether the date matches.
+- tostring <expression>
+  - Print the canonical cron string for the parsed expression.
 
 Flags:
-- --after=<ISO> : optional anchor date in ISO 8601 format; defaults to now
-- --json : force JSON output regardless of command
-- --human : force human-friendly text output
+- --after=<ISO>  : anchor date in ISO 8601 format; defaults to now.
+- --json         : force JSON output when applicable.
+- --human        : force human-friendly text output.
 
-Behavior:
-- By default the CLI prints JSON for parse and next-n, ISO strings for single-date outputs, and plain true/false for matches.
-- Errors print a short descriptive message to stderr and exit with non-zero status.
+Default Output Rules:
+- parse and next-n print JSON arrays/objects by default.
+- next prints a single ISO string by default.
+- matches prints plain true or false.
+- Errors print a short descriptive message to stderr and exit with a non-zero status code.
 
 ## Implementation Notes
 
-- Implement CLI argument parsing with minimal code using process.argv; avoid adding external dependencies.
-- Implement a small dispatch in src/lib/main.js that checks if the module was run directly (node src/lib/main.js) and routes to CLI handling while keeping exports intact for library use.
-- Preserve the library's named exports: parseCron, nextRun, nextRuns, matches, toString.
-- Unit tests should call the exported functions directly; end-to-end CLI tests may spawn node processes or simulate argv to assert output formatting.
+- Implement argument parsing by reading process.argv and simple prefix matching for flags; do not add parsing libraries.
+- The CLI dispatch lives in the same file as the library and runs only when module is executed directly.
+- Keep output stable for tests: use Date.prototype.toISOString for serialized dates, and ensure JSON is deterministic (sorted keys where relevant).
 
-## Acceptance Criteria
+## Acceptance Criteria (testable)
 
-- parse command returns JSON matching parseCron output for a sample expression
-- next command returns the expected next run in ISO format for a deterministic anchor date
-- next-n returns exactly N ISO-formatted dates in ascending order
-- matches returns true for a matching date and false otherwise
-- CLI exits non-zero and prints a descriptive error for invalid cron expressions
-- README includes a concise CLI usage section demonstrating each command
-
-## Files to update
-
-- src/lib/main.js : add CLI dispatch while keeping named exports
-- README.md : add a CLI usage examples section
-- tests/unit/main.test.js : add or extend tests to cover CLI-related behavior or simulate arguments
+- parse command returns JSON matching parseCron output for a sample expression when invoked with node src/lib/main.js parse "*/15 * * * *".
+- next command returns the expected ISO timestamp for a deterministic anchor date when invoked with --after.
+- next-n returns exactly N ISO-formatted dates in ascending order in JSON when invoked with node src/lib/main.js next-n "@daily" 3 --after="2025-01-01T00:00:00".
+- matches returns true for a matching date and false otherwise.
+- Invalid cron expressions cause the CLI to print a descriptive error to stderr and exit with a non-zero code.
+- README.md includes a concise CLI usage section demonstrating each command and a sample run.
 
 ## Testing
 
-- Unit tests remain the primary validation for correctness (parse, matches, nextRun, nextRuns, toString).
-- Add one or two light integration tests that simulate running the CLI with known arguments and verify stdout and exit code.
+- Add light integration tests that spawn node src/lib/main.js with controlled argv or simulate process.argv and capture stdout/stderr and exit codes. Keep tests minimal and deterministic.
+- Unit tests should continue to exercise exported functions directly; CLI tests validate argument parsing, output formatting, and error exit codes.
 
-## Constraints and Notes
+## Files to update
 
-- The CLI must be implemented without adding new dependencies to package.json.
-- Keep the CLI surface stable and small; do not add advanced shell completion or subcommand frameworks.
-- Ensure all outputs handle local timezone semantics consistently with the library functions.
+- src/lib/main.js (add CLI dispatch while preserving exports)
+- README.md (add CLI usage examples)
+- tests/unit/main.test.js (add or extend CLI integration tests)
+
+## Constraints
+
+- Do not add new dependencies to package.json.
+- Keep the CLI surface small and stable.
+- Ensure local timezone semantics match library functions.
+
+## Acceptance checklist
+
+- [ ] parse prints parsed JSON matching parseCron output
+- [ ] next prints deterministic ISO for a fixed --after
+- [ ] next-n prints N ascending ISO dates in JSON
+- [ ] matches prints true/false and exits 0
+- [ ] CLI exits non-zero and prints descriptive errors for invalid input
+- [ ] README documents CLI usage examples
