@@ -1,4 +1,0 @@
-IIII -> 4 (lenient)
-mcmxciv -> 1994 (lenient)
-  mcm xciv  -> 1994 (lenient + normalize)
-IiIi -> 4 (lenient, case-insensitive)

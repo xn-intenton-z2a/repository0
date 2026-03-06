@@ -1,1 +1,0 @@
-{"tested":3999, "passed":3999, "note":"Round-trip verified for all integers 1..3999 using toRoman -> fromRoman"}

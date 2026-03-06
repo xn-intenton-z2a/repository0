@@ -1,8 +1,0 @@
-Examples of conversions
-
-1 -> I
-4 -> IV
-9 -> IX
-44 -> XLIV
-1994 -> MCMXCIV
-3999 -> MMMCMXCIX

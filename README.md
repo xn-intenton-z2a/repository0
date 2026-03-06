@@ -1,34 +1,79 @@
-# Roman Numeral Converter
+# repo
 
-Small library to convert between integers (1..3999) and Roman numeral strings.
+This repository is powered by [intentïon agentic-lib](https://github.com/xn-intenton-z2a/agentic-lib) — autonomous code transformation driven by GitHub Copilot. Write a mission, and the system generates issues, writes code, runs tests, and opens pull requests on a schedule.
 
-Exports:
+## Getting Started
 
-- `toRoman(n)` - convert integer to Roman string (1..3999)
-- `fromRoman(s, options)` - parse Roman string to integer. Options:
-  - `lenient` (boolean, default false) - opt-in lenient parsing accepting a small set of common nonstandard forms (lowercase input and repeated additive forms like "IIII").
-  - `normalize` (boolean, default true) - trim and collapse whitespace before parsing when enabled.
+1. **Write your mission** in [`MISSION.md`](MISSION.md) — describe what you want to build in plain English
+2. **Configure GitHub** — see [Setup](#setup) below
+3. **Push to main** — the autonomous workflows take over from here
 
-Examples
+The system will create issues from your mission, generate code to resolve them, run tests, and open PRs. A supervisor agent orchestrates the pipeline, and you can interact through GitHub Discussions.
 
-Strict mode (default):
+## Setup
 
-```js
-import { fromRoman, toRoman } from './src/lib/main.js'
-fromRoman('MCMXCIV') // 1994
-// fromRoman('IIII') -> throws TypeError in strict mode
+### Required Secrets
+
+Add these in your repository: **Settings → Secrets and variables → Actions → New repository secret**
+
+| Secret | How to create | Purpose |
+|--------|---------------|---------|
+| `COPILOT_GITHUB_TOKEN` | [Fine-grained PAT](https://github.com/settings/tokens?type=beta) with **GitHub Copilot** → Read permission | Authenticates with the Copilot SDK for all agentic tasks |
+| `WORKFLOW_TOKEN` | [Classic PAT](https://github.com/settings/tokens) with **workflow** scope | Allows `init.yml` to update workflow files (GITHUB_TOKEN cannot modify `.github/workflows/`) |
+
+### Repository Settings
+
+| Setting | Where | Value |
+|---------|-------|-------|
+| GitHub Actions | Settings → Actions → General | Allow all actions |
+| Workflow permissions | Settings → Actions → General | Read and write permissions |
+| Allow GitHub Actions to create PRs | Settings → Actions → General | Checked |
+| GitHub Discussions | Settings → General → Features | Enabled (for the discussions bot) |
+
+### Optional: Branch Protection
+
+For production repositories, consider adding branch protection on `main`:
+- Require pull request reviews before merging
+- Require status checks to pass (select the `test` workflow)
+
+## How It Works
+
+```
+MISSION.md → [supervisor] → dispatch workflows → Issue → Code → Test → PR → Merge
+                                                    ↑                          |
+                                                    +——————————————————————————+
 ```
 
-Lenient mode:
+The pipeline runs as GitHub Actions workflows. An LLM supervisor gathers repository context (issues, PRs, workflow runs, features) and strategically dispatches other workflows. Each workflow uses the Copilot SDK to make targeted changes.
 
-```js
-fromRoman('IIII', { lenient: true }) // 4
-fromRoman('mcmxciv', { lenient: true }) // 1994
-fromRoman('  mcm xciv  ', { lenient: true, normalize: true }) // 1994
-fromRoman('IiIi', { lenient: true }) // parsed case-insensitively -> 4
+## Configuration
+
+Edit `agentic-lib.toml` to tune the system:
+
+```toml
+[schedule]
+supervisor = "daily"    # off | weekly | daily | hourly | continuous
+
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+
+[limits]
+feature-issues = 2      # max concurrent feature issues
+attempts-per-issue = 2   # max retries per issue
 ```
 
-Notes
+## Updating
 
-- The lenient mode performs a narrow set of safe transformations and then reuses the strict validator; obviously malformed inputs (e.g., "ABC", "VXZ") are still rejected even in lenient mode.
-- Unknown options are ignored; the signature `fromRoman(s, options)` remains backward compatible.
+The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
+
+```bash
+npx @xn-intenton-z2a/agentic-lib@latest init
+```
+
+## Links
+
+- [MISSION.md](MISSION.md) — your project goals
+- [agentic-lib documentation](https://github.com/xn-intenton-z2a/agentic-lib) — full SDK docs
+- [intentïon website](https://xn--intenton-z2a.com)
