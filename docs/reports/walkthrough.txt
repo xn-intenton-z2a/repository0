@@ -1,0 +1,8 @@
+Walkthrough: Hamming distance examples and tests
+
+- README.md documents the public API for hammingDistance and hammingDistanceBits, including validation and Unicode semantics.
+- Examples are runnable with Node (ES modules) from the project root:
+  - node examples/hamming-usage/ascii.js
+  - node examples/hamming-usage/emoji.js
+- The outputs in docs/examples/* demonstrate the expected console output from the examples.
+- The unit tests that validate behavior are in tests/unit/hamming.test.js and contain the exact input/output pairs used in the examples.
