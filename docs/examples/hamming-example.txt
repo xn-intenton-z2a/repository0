@@ -1,0 +1,10 @@
+String examples:
+karolin vs kathrin => 3
+"" vs "" => 0
+"😊a" vs "😊b" => 1
+
+Integer examples:
+0 vs 0 => 0
+1 vs 4 => 2
+255 vs 0 => 8
+2**65 vs 0 => 1
