@@ -2,60 +2,86 @@
 
 # Overview
 
-Canonical specification for the library's Hamming distance utilities. This feature defines two named exports, hammingDistance and hammingDistanceBits, with strict input validation, Unicode-safe string comparison (by code points and NFC-normalized), and flexible bit-distance computation supporting Numbers, BigInts and byte-sequence buffers. The goal is a single authoritative feature that covers typical string use, integer-based bit comparison, and byte-buffer comparisons used for binary data.
+Authoritative feature specification for the repository's Hamming distance utilities. Provides two named exports: hammingDistance and hammingDistanceBits. The emphasis is correctness, Unicode-safe handling, explicit validation, and predictable behavior for large integers and byte-sequences.
 
-# Specification
+# Goals
 
-Functions
+- Provide a Unicode-correct Hamming distance for strings (compare code points, normalize with NFC).
+- Provide a bitwise Hamming distance for integers and byte sequences with explicit BigInt support and coercion rules.
+- Enforce clear, actionable validation errors (TypeError, RangeError).
+- Include precise acceptance criteria and tests suitable for automated verification.
 
-1. hammingDistance(a, b)
+# API
+
+1) hammingDistance(a, b)
 
 - Signature: hammingDistance(a: string, b: string) -> number
-- Description: Compute the Hamming distance between two strings of equal length measured in Unicode code points after normalizing both inputs to Unicode Normalization Form C (NFC).
-- Parameters:
-  - a: string — first input string
-  - b: string — second input string
-- Returns: number — count of positions where the code points differ
-- Validation and errors:
-  - If either a or b is not a string, throw TypeError with a clear message describing the expected types.
-  - Normalize both strings using String.prototype.normalize('NFC') before comparison.
-  - Compare strings by Unicode code points (use Array.from or for-of over the normalized string) rather than UTF-16 code units.
-  - If the two strings do not have the same number of code points, throw RangeError.
-- Behavior examples:
-  - hammingDistance("karolin", "kathrin") returns 3
-  - hammingDistance("", "") returns 0
-  - hammingDistance('e\u0301', 'é') returns 0 (combining sequence equals precomposed character after NFC)
-- Implementation notes:
-  - Iterate code points using for-of or Array.from(normalized) to ensure correct Unicode handling.
-  - Use a single pass comparison and avoid building large intermediate arrays when possible; for clarity tests may use Array.from.
+- Description: Count differing positions between two strings of identical length measured in Unicode code points after normalizing both inputs to NFC.
+- Behavior:
+  - Both parameters must be strings; otherwise throw TypeError.
+  - Normalize inputs with String.prototype.normalize('NFC').
+  - Compare sequences of Unicode code points (use an iterator or Array.from on the normalized string) so surrogate pairs and combined characters are treated correctly.
+  - If code point counts differ, throw RangeError.
+  - Return a non-negative integer equal to the number of code-point positions where the two inputs differ.
 
-2. hammingDistanceBits(x, y)
+2) hammingDistanceBits(x, y)
 
 - Signature: hammingDistanceBits(x, y) -> number
-- Description: Compute the number of differing bits between two non-negative integer values or between two equal-length byte sequences.
-
-- Supported input types and coercion rules:
-  - Numbers (JavaScript Number): must be integers, non-negative, and safe integers (Number.isSafeInteger). Two Number inputs take the fast Number path which uses 32-bit chunk operations for performance while remaining correct up to Number.MAX_SAFE_INTEGER.
-  - BigInt: supports arbitrary non-negative integers beyond Number.MAX_SAFE_INTEGER. When either input is a BigInt, the other may be a Number — if the Number is a safe integer it will be coerced to BigInt; if the Number is unsafe a RangeError is thrown and the caller should use BigInt values explicitly.
-  - Byte sequences (Uint8Array or ArrayBuffer): legacy behavior preserved — compare byte-by-byte and count differing bits using a popcount table. Buffer instances (Node) are supported via the Uint8Array subtype handling.
-
+- Description: Count differing bits between two non-negative integers or between two equal-length byte sequences.
+- Supported inputs and coercion rules:
+  - Number: must be an integer, non-negative, and Number.isSafeInteger must be true. Two Number inputs follow the fast Number path.
+  - BigInt: any non-negative BigInt is accepted. If one operand is BigInt and the other is Number, the Number is coerced to BigInt only if it is a safe integer. If the Number is unsafe, throw RangeError and require BigInt.
+  - Byte sequences: Uint8Array, ArrayBuffer, or Buffer (Node) are supported. Both inputs must be byte sequences of equal length. Byte sequences are not coerced to integers.
 - Validation and errors:
-  - Non-numeric, non-byte-sequence inputs throw TypeError.
-  - Negative values (Number < 0 or any negative BigInt) throw RangeError.
-  - Number values greater than Number.MAX_SAFE_INTEGER (unsafe) must be passed as BigInt; attempting to pass an unsafe Number throws RangeError.
-  - For byte-sequence inputs, lengths must match or a RangeError is thrown.
+  - TypeError: if inputs are not among supported types (string for hammingDistance; Number/BigInt/byte-sequence for hammingDistanceBits).
+  - RangeError: for unequal-length strings (by code points), unequal-length byte sequences, negative numeric inputs, or unsafe Number values where BigInt is required.
+- Return: always a finite JavaScript Number representing the count of differing bits.
 
-- Return value:
-  - Always returns a finite Number (JavaScript Number) representing the count of differing bits.
+# Validation Examples (contract)
 
-- Examples:
-  - hammingDistanceBits(1, 4) -> 2
-  - hammingDistanceBits(1n, 4n) -> 2
-  - hammingDistanceBits(1, 4n) -> 2 (Number coerced to BigInt)
-  - hammingDistanceBits(0n, 0n) -> 0
-  - hammingDistanceBits(new Uint8Array([0b00000001]), new Uint8Array([0b00000100])) -> 2
+- hammingDistance('karolin', 'kathrin') -> 3
+- hammingDistance('', '') -> 0
+- hammingDistance('a', 'bb') -> throws RangeError (code point length mismatch)
+- hammingDistance('e\u0301', 'é') -> 0 (NFC-normalized equality)
 
-- Implementation notes:
-  - Fast Number path splits 64-bit Number range into 32-bit chunks and uses a precomputed POPCOUNT table for bytes to avoid performance regressions.
-  - BigInt path uses Kernighan's algorithm adapted for BigInt: while (v !== 0n) { v &= v - 1n; count++; }
-  - The API intentionally enforces explicitness around unsafe Numbers to avoid silent precision bugs — prefer BigInt for very large integers.
+- hammingDistanceBits(1, 4) -> 2
+- hammingDistanceBits(1n, 4n) -> 2
+- hammingDistanceBits(1, 4n) -> 2 (safe Number coerced to BigInt)
+- hammingDistanceBits(0, 0) -> 0
+- hammingDistanceBits(new Uint8Array([1]), new Uint8Array([4])) -> 2
+- Passing Number > Number.MAX_SAFE_INTEGER -> throws RangeError (use BigInt)
+
+# Implementation Notes
+
+- hammingDistance: iterate code points via for-of or Array.from(normalizedString) to avoid UTF-16 unit issues; perform a single pass and count mismatches without allocating large arrays where possible.
+- hammingDistanceBits:
+  - Byte-sequence path: iterate bytes, XOR each pair, and sum popcount using a 256-entry lookup table for performance.
+  - Number path: when both operands are Numbers, process in 32-bit chunks or convert to byte arrays and use the same popcount lookup for correctness up to Number.MAX_SAFE_INTEGER.
+  - BigInt path: compute xorResult = BigInt(x) ^ BigInt(y) and use Kernighan's algorithm with BigInt: while (xorResult !== 0n) { xorResult &= xorResult - 1n; count++; }.
+  - Always return a Number (safe JS integer) for the popcount result. For extremely large BigInt inputs where the differing bit count exceeds Number.MAX_SAFE_INTEGER, the function should still return a Number but callers are expected to avoid such cases; throw RangeError if result cannot be represented as a safe Number (implementation preference: this library will assume inputs produce counts representable as safe Number).
+
+# Tests and Acceptance Criteria
+
+Each acceptance criterion below should have a corresponding unit test in tests/unit/main.test.js.
+
+Acceptance criteria:
+- hammingDistance('karolin', 'kathrin') returns 3
+- hammingDistance('', '') returns 0
+- hammingDistance('a', 'bb') throws RangeError
+- hammingDistance('e\u0301', 'é') returns 0 after NFC normalization
+- hammingDistanceBits(1, 4) returns 2
+- hammingDistanceBits(0, 0) returns 0
+- hammingDistanceBits(1n, 4n) returns 2
+- hammingDistanceBits(1, 4n) returns 2 (Number coerced to BigInt)
+- hammingDistanceBits(new Uint8Array([1]), new Uint8Array([4])) returns 2
+- Passing an unsafe Number (> Number.MAX_SAFE_INTEGER) into hammingDistanceBits without using BigInt throws RangeError
+- Negative numeric inputs (Number < 0 or negative BigInt) throw RangeError
+
+Test guidance:
+- Cover normal cases, edge cases (empty strings, zero, single-character, large integers), and error cases (type errors, range errors).
+- Use Node Buffer only in Node-specific tests; prefer Uint8Array in portable tests.
+- Ensure Unicode tests include composed and decomposed forms to verify NFC normalization.
+
+# Compatibility and Scope
+
+This feature is aligned with MISSION.md and is implementable entirely within src/lib/main.js along with unit tests and README examples. The feature does not introduce external dependencies and aims for deterministic, well-documented behavior.
