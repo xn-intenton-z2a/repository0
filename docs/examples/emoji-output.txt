@@ -1,0 +1,4 @@
+String A: a𝟘b
+String B: a𝟙b
+hammingDistance("a𝟘b", "a𝟙b") => 1
+Array.from lengths: 3 3

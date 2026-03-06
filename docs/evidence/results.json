@@ -1,0 +1,16 @@
+{
+  "examples": {
+    "ascii": {
+      "karolin_vs_kathrin": 3,
+      "empty_vs_empty": 0
+    },
+    "emoji": {
+      "a𝟘b_vs_a𝟙b": 1
+    },
+    "bits": {
+      "1_vs_4": 2,
+      "0_vs_0": 0
+    }
+  },
+  "tests_reference": "tests/unit/hamming.test.js"
+}
