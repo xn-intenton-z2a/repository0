@@ -1,0 +1,11 @@
+CLI Walkthrough
+
+Run the CLI to print FizzBuzz results.
+
+Examples:
+ - node src/lib/main.js --single 3  => prints "Fizz"
+ - node src/lib/main.js --range 15  => prints 1..15 with Fizz/Buzz replacements, one per line
+
+Errors (examples):
+ - node src/lib/main.js --single 3.5  => prints error to stderr and exits non-zero
+ - node src/lib/main.js 5 2 => prints error (start > end) and exits non-zero
