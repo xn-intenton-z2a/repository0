@@ -13,3 +13,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
 }
+
+// Re-export utilities
+export { fizzBuzz, fizzBuzzSingle } from './fizzbuzz.js';

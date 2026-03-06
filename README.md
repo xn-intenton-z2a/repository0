@@ -64,6 +64,21 @@ feature-issues = 2      # max concurrent feature issues
 attempts-per-issue = 2   # max retries per issue
 ```
 
+## FizzBuzz
+
+A small utility was added to demonstrate unit-tested features.
+
+Usage examples:
+
+import { fizzBuzz, fizzBuzzSingle } from './src/lib/fizzbuzz.js';
+
+- fizzBuzzSingle(3) -> "Fizz"
+- fizzBuzzSingle(5) -> "Buzz"
+- fizzBuzzSingle(15) -> "FizzBuzz"
+- fizzBuzz(5) -> ["1","2","Fizz","4","Buzz"]
+
+Machine-readable example output for n=15 is available at `docs/evidence/fizzbuzz.json` and a human-readable example at `docs/examples/fizzbuzz-output.txt`.
+
 ## Updating
 
 The `init.yml` workflow runs daily and updates the agentic infrastructure automatically. To update manually:
