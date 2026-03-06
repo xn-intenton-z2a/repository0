@@ -116,9 +116,12 @@ function readPackageJson(tomlPath, depsRelPath) {
 function resolveTuning(tuningSection) {
   const profileName = tuningSection.profile || "recommended";
   const profile = TUNING_PROFILES[profileName] || TUNING_PROFILES.recommended;
-  const tuning = { ...profile };
+  const tuning = { ...profile, profileName };
 
-  if (tuningSection["reasoning-effort"]) tuning.reasoningEffort = tuningSection["reasoning-effort"];
+  // "none" explicitly disables reasoning-effort regardless of profile
+  if (tuningSection["reasoning-effort"]) {
+    tuning.reasoningEffort = tuningSection["reasoning-effort"] === "none" ? "" : tuningSection["reasoning-effort"];
+  }
   if (tuningSection["infinite-sessions"] === true || tuningSection["infinite-sessions"] === false) {
     tuning.infiniteSessions = tuningSection["infinite-sessions"];
   }

@@ -52,6 +52,10 @@ outputs:
     description: "Total tokens consumed by the Copilot SDK"
   model:
     description: "Model used for the completion"
+  action:
+    description: "Action chosen by the task (e.g. request-supervisor, create-feature, nop)"
+  action-arg:
+    description: "Argument for the chosen action (free text)"
 
 runs:
   using: "node24"

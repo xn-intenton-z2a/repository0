@@ -95,6 +95,8 @@ async function run() {
     if (result.prNumber) core.setOutput("pr-number", String(result.prNumber));
     if (result.tokensUsed) core.setOutput("tokens-used", String(result.tokensUsed));
     if (result.model) core.setOutput("model", result.model);
+    if (result.action) core.setOutput("action", result.action);
+    if (result.actionArg) core.setOutput("action-arg", result.actionArg);
 
     // Log to intentïon.md (commit-if-changed excludes this on non-default branches)
     const intentionFilepath = config.intentionBot?.intentionFilepath;

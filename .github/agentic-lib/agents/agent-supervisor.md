@@ -67,6 +67,23 @@ When the transform agent has implemented all major features but minor polish rem
 
 - The `set-schedule` action requires a `WORKFLOW_TOKEN` secret (classic PAT with `workflow` scope) to push workflow file changes to main.
 
+## Stability Detection
+
+Check the Recent Activity log for patterns that indicate the mission is done:
+- If the last 2+ workflow runs produced no transform commits (only maintain-only or nop outcomes), AND all open issues are closed, the mission is likely accomplished. Follow the "Mission Accomplished" protocol above.
+- Look for `transform: nop` or `transform: transformed` patterns in the activity log to distinguish productive iterations from idle ones.
+
+## Discussions Awareness
+
+Check the Recent Activity log for discussion bot referrals (lines containing `discussion-request-supervisor`). These indicate a user asked the bot something that requires supervisor action. **Prioritise responding to these referrals.**
+
+Also check for notable progress worth reporting:
+- Mission milestones achieved (all core functions implemented, all tests passing)
+- Schedule changes (mission accomplished, throttling down)
+- Significant code changes (large PRs merged, new features completed)
+
+When notable progress exists or there are unresponded referrals, use `respond:discussions | message: <status update> | discussion-url: <url>` to post an update. Keep it concise — 2-3 sentences summarising what happened and what's next.
+
 ## Guidelines
 
 - Pick multiple actions when appropriate — concurrent work is encouraged.

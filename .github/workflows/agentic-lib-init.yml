@@ -154,7 +154,7 @@ jobs:
           node-version: "24"
 
       - name: Close hanging init PRs
-        if: env.INIT_MODE == 'purge' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && env.INIT_MODE == 'purge' && needs.params.outputs.dry-run != 'true'
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
@@ -203,7 +203,7 @@ jobs:
       - run: npm test
 
       - name: Update schedule (if requested)
-        if: needs.params.outputs.schedule != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.schedule != '' && needs.params.outputs.dry-run != 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -255,7 +255,7 @@ jobs:
             }
 
       - name: Commit and push to main [skip ci]
-        if: needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.params.outputs.dry-run != 'true'
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |

@@ -13,6 +13,10 @@ async function gatherContext(octokit, repo, config, t) {
   const mission = readOptionalFile(config.paths.mission.path);
   const recentActivity = readOptionalFile(config.intentionBot.intentionFilepath).split("\n").slice(-20).join("\n");
 
+  // Extract discussion URL from recent activity for supervisor reporting
+  const discussionUrlMatch = recentActivity.match(/https:\/\/github\.com\/[^/]+\/[^/]+\/discussions\/\d+/);
+  const activeDiscussionUrl = discussionUrlMatch ? discussionUrlMatch[0] : "";
+
   const featuresPath = config.paths.features.path;
   const featureNames = existsSync(featuresPath)
     ? scanDirectory(featuresPath, ".md").map((f) => f.name.replace(".md", ""))
@@ -80,6 +84,7 @@ async function gatherContext(octokit, repo, config, t) {
     packageJson: config.packageJson,
     featureIssuesWipLimit: config.featureDevelopmentIssuesWipLimit,
     maintenanceIssuesWipLimit: config.maintenanceIssuesWipLimit,
+    activeDiscussionUrl,
   };
 }
 
@@ -118,6 +123,7 @@ function buildPrompt(ctx, agentInstructions) {
     "```",
     "",
     ...(ctx.packageJson ? ["### Dependencies (package.json)", "```json", ctx.packageJson, "```", ""] : []),
+    ...(ctx.activeDiscussionUrl ? [`### Active Discussion`, `${ctx.activeDiscussionUrl}`, ""] : []),
     ...(ctx.oldestReadyIssue
       ? [`### Oldest Ready Issue`, `#${ctx.oldestReadyIssue.number}: ${ctx.oldestReadyIssue.title}`, ""]
       : []),

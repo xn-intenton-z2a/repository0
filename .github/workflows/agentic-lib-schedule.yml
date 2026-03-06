@@ -146,7 +146,7 @@ jobs:
             }
 
       - name: Commit and push
-        if: inputs.dry-run != 'true' && inputs.dry-run != true
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && inputs.dry-run != 'true' && inputs.dry-run != true
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |

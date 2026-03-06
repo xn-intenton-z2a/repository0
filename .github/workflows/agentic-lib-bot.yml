@@ -11,9 +11,9 @@
 
 name: agentic-lib-bot
 run-name: "agentic-lib-bot [${{ github.ref_name }}]"
-#concurrency:
-#  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
-#  cancel-in-progress: false
+concurrency:
+  group: agentic-lib-bot-${{ github.event.discussion.node_id || github.run_id }}
+  cancel-in-progress: false
 
 on:
   discussion:
@@ -86,6 +86,9 @@ jobs:
   respond:
     needs: params
     runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.respond.outputs.action }}
+      action-arg: ${{ steps.respond.outputs.action-arg }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,8 +117,19 @@ jobs:
             }
             core.setOutput('url', url);
 
+      - name: Skip if comment is from bot
+        id: guard
+        shell: bash
+        run: |
+          COMMENT_USER='${{ github.event.comment.user.login }}'
+          if [ "$COMMENT_USER" = "github-actions[bot]" ] || [ "$COMMENT_USER" = "github-actions" ]; then
+            echo "Bot comment detected — skipping to avoid self-reply loop"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Respond to discussion
-        if: steps.discussion-url.outputs.url != ''
+        id: respond
+        if: steps.discussion-url.outputs.url != '' && steps.guard.outputs.skip != 'true'
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -126,3 +140,18 @@ jobs:
           instructions: ".github/agentic-lib/agents/agent-discussion-bot.md"
           discussion-url: ${{ steps.discussion-url.outputs.url }}
           model: ${{ needs.params.outputs.model }}
+
+  dispatch-supervisor:
+    needs: [params, respond]
+    if: github.repository != 'xn-intenton-z2a/agentic-lib' && needs.respond.outputs.action == 'request-supervisor'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch supervisor workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run agentic-lib-workflow.yml \
+            --repo "${{ github.repository }}" \
+            -f mode=full \
+            -f model="${{ needs.params.outputs.model }}" \
+            -f message="${{ needs.respond.outputs.action-arg }}"

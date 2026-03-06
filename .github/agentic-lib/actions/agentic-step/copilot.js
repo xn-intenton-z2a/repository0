@@ -10,6 +10,11 @@ import { join } from "path";
 import { createAgentTools } from "./tools.js";
 import * as core from "@actions/core";
 
+// Models known to support the reasoningEffort SessionConfig parameter.
+// Updated from Copilot SDK ModelInfo.supportedReasoningEfforts (v0.1.30).
+// When in doubt, omit reasoning-effort — the SDK uses its default.
+const MODELS_SUPPORTING_REASONING_EFFORT = new Set(["gpt-5-mini", "o4-mini"]);
+
 /**
  * Build the CopilotClient options for authentication.
  *
@@ -39,6 +44,34 @@ export function buildClientOptions(githubToken) {
 }
 
 /**
+ * Log tuning parameter application with profile context.
+ *
+ * @param {string} param - Parameter name
+ * @param {*} value - Resolved value being applied
+ * @param {string} profileName - Profile the default came from
+ * @param {string} model - Model being used
+ * @param {Object} [clip] - Optional clipping info { available, requested }
+ */
+export function logTuningParam(param, value, profileName, model, clip) {
+  const clipInfo = clip
+    ? ` (requested=${clip.requested}, available=${clip.available}, excess=${clip.requested - clip.available})`
+    : "";
+  core.info(`[tuning] ${param}=${value} profile=${profileName} model=${model}${clipInfo}`);
+}
+
+/**
+ * Check if a model supports reasoningEffort.
+ * Uses the static allowlist; at runtime the SDK's models.list() could be used
+ * but that requires an authenticated client which isn't available at config time.
+ *
+ * @param {string} model - Model name
+ * @returns {boolean}
+ */
+export function supportsReasoningEffort(model) {
+  return MODELS_SUPPORTING_REASONING_EFFORT.has(model);
+}
+
+/**
  * Run a Copilot SDK session and return the response.
  * Handles the full lifecycle: create client → create session → send → stop.
  *
@@ -49,11 +82,21 @@ export function buildClientOptions(githubToken) {
  * @param {string[]} options.writablePaths - Paths the agent may modify
  * @param {string} [options.githubToken] - Optional token; falls back to COPILOT_GITHUB_TOKEN env var.
  * @param {Object} [options.tuning] - Tuning config (reasoningEffort, infiniteSessions)
+ * @param {string} [options.profileName] - Profile name for logging
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
-export async function runCopilotTask({ model, systemMessage, prompt, writablePaths, githubToken, tuning }) {
+export async function runCopilotTask({
+  model,
+  systemMessage,
+  prompt,
+  writablePaths,
+  githubToken,
+  tuning,
+  profileName,
+}) {
+  const profile = profileName || "unknown";
   core.info(
-    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, tuning=${tuning?.reasoningEffort || "default"})`,
+    `[copilot] Creating client (model=${model}, promptLen=${prompt.length}, writablePaths=${writablePaths.length}, tuning=${tuning?.reasoningEffort || "default"}, profile=${profile})`,
   );
 
   const clientOptions = buildClientOptions(githubToken);
@@ -68,12 +111,32 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
       onPermissionRequest: approveAll,
       workingDirectory: process.cwd(),
     };
-    if (tuning?.reasoningEffort) {
-      sessionConfig.reasoningEffort = tuning.reasoningEffort;
+
+    // Only set reasoningEffort for models that support it
+    if (tuning?.reasoningEffort && tuning.reasoningEffort !== "none") {
+      if (supportsReasoningEffort(model)) {
+        sessionConfig.reasoningEffort = tuning.reasoningEffort;
+        logTuningParam("reasoningEffort", tuning.reasoningEffort, profile, model);
+      } else {
+        core.info(
+          `[copilot] Skipping reasoningEffort="${tuning.reasoningEffort}" — not supported by model "${model}". Only supported by: ${[...MODELS_SUPPORTING_REASONING_EFFORT].join(", ")}`,
+        );
+      }
     }
+
     if (tuning?.infiniteSessions === true) {
       sessionConfig.infiniteSessions = {};
+      logTuningParam("infiniteSessions", true, profile, model);
     }
+
+    // Log scan/context tuning params
+    if (tuning?.featuresScan) logTuningParam("featuresScan", tuning.featuresScan, profile, model);
+    if (tuning?.sourceScan) logTuningParam("sourceScan", tuning.sourceScan, profile, model);
+    if (tuning?.sourceContent) logTuningParam("sourceContent", tuning.sourceContent, profile, model);
+    if (tuning?.issuesScan) logTuningParam("issuesScan", tuning.issuesScan, profile, model);
+    if (tuning?.documentSummary) logTuningParam("documentSummary", tuning.documentSummary, profile, model);
+    if (tuning?.discussionComments) logTuningParam("discussionComments", tuning.discussionComments, profile, model);
+
     const session = await client.createSession(sessionConfig);
     core.info(`[copilot] Session created: ${session.sessionId}`);
 
@@ -105,7 +168,9 @@ export async function runCopilotTask({ model, systemMessage, prompt, writablePat
         totalInputTokens += input;
         totalOutputTokens += output;
         totalCost += cost;
-        core.info(`[copilot] event=${eventType}: model=${d.model} input=${input} output=${output} cacheRead=${cacheRead} cost=${cost}`);
+        core.info(
+          `[copilot] event=${eventType}: model=${d.model} input=${input} output=${output} cacheRead=${cacheRead} cost=${cost}`,
+        );
       } else if (eventType === "session.idle") {
         core.info(`[copilot] event=${eventType}`);
       } else if (eventType === "session.error") {
@@ -161,18 +226,31 @@ export function scanDirectory(dirPath, extensions, options = {}) {
 
   if (!existsSync(dirPath)) return [];
 
-  return readdirSync(dirPath, recursive ? { recursive: true } : undefined)
-    .filter((f) => exts.some((ext) => f.endsWith(ext)))
-    .slice(0, fileLimit)
-    .map((f) => {
-      try {
-        const content = readFileSync(join(dirPath, f), "utf8");
-        return { name: f, content: contentLimit ? content.substring(0, contentLimit) : content };
-      } catch (err) {
-        core.debug(`[scanDirectory] ${join(dirPath, f)}: ${err.message}`);
-        return { name: f, content: "" };
+  const allFiles = readdirSync(dirPath, recursive ? { recursive: true } : undefined).filter((f) =>
+    exts.some((ext) => f.endsWith(ext)),
+  );
+  const clipped = allFiles.slice(0, fileLimit);
+  if (allFiles.length > fileLimit) {
+    core.info(
+      `[scanDirectory] Clipped ${dirPath}: ${allFiles.length} files found, returning ${fileLimit} (excess=${allFiles.length - fileLimit})`,
+    );
+  }
+
+  return clipped.map((f) => {
+    try {
+      const raw = readFileSync(join(dirPath, f), "utf8");
+      const content = contentLimit ? raw.substring(0, contentLimit) : raw;
+      if (contentLimit && raw.length > contentLimit) {
+        core.info(
+          `[scanDirectory] Clipped ${f}: ${raw.length} chars, returning ${contentLimit} (excess=${raw.length - contentLimit})`,
+        );
       }
-    });
+      return { name: f, content };
+    } catch (err) {
+      core.debug(`[scanDirectory] ${join(dirPath, f)}: ${err.message}`);
+      return { name: f, content: "" };
+    }
+  });
 }
 
 /**
