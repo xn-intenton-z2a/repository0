@@ -72,6 +72,27 @@ The `init.yml` workflow runs daily and updates the agentic infrastructure automa
 npx @xn-intenton-z2a/agentic-lib@latest init
 ```
 
+## Hamming distance utilities
+
+The repository includes two small utilities for computing Hamming distances.
+
+- `hammingDistance(a, b)` — Unicode-safe Hamming distance comparing two strings by Unicode code points after normalizing to NFC.
+  - Accepts two strings. Throws `TypeError` if inputs are not strings. Throws `RangeError` if the strings have different numbers of code points.
+  - Example: `hammingDistance('e\u0301', 'é') === 0` (canonical equivalence)
+
+- `hammingDistanceBits(x, y)` — byte-wise bit Hamming distance for binary data.
+  - Accepts `Buffer`, `Uint8Array`, or `ArrayBuffer`. Throws `TypeError` for other inputs and `RangeError` for unequal byte lengths.
+  - Example: `hammingDistanceBits(Uint8Array.from([0b1010]), Uint8Array.from([0b0011])) === 2`
+
+Importing (ESM):
+
+```js
+import { hammingDistance, hammingDistanceBits } from './src/lib/main.js';
+
+console.log(hammingDistance('e\u0301', 'é')); // 0
+console.log(hammingDistanceBits(Buffer.from('a'), Buffer.from('b'))); // 2
+```
+
 ## Links
 
 - [MISSION.md](MISSION.md) — your project goals

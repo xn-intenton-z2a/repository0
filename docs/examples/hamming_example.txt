@@ -1,0 +1,5 @@
+hammingDistance('abc', 'abc') => 0
+hammingDistance('e\u0301', 'é') => 0
+hammingDistance('👍a', '👎a') => 1
+hammingDistanceBits(Uint8Array.from([0b1010]), Uint8Array.from([0b0011])) => 2
+hammingDistanceBits(Buffer.from('a'), Buffer.from('b')) => 2
