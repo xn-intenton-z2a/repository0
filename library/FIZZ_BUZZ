@@ -1,0 +1,149 @@
+NORMALISED_EXTRACT
+
+Most impactful technical points (directly actionable):
+
+1) Core rule set (deterministic mapping):
+- For each integer n in sequence, if n mod 3 == 0 and n mod 5 == 0 output the token "fizzbuzz".
+- Else if n mod 3 == 0 output the token "fizz".
+- Else if n mod 5 == 0 output the token "buzz".
+- Else output the decimal representation of n.
+- The order of checks matters: combined-divisibility (3 and 5) must be checked before single-divisor checks to avoid incorrect tokens.
+
+2) Typical procedural implementation pattern:
+- Iterate a numeric range (start, stop, inclusive/exclusive established by caller).
+- Apply divisibility checks in descending specificity: combined divisors first, then individual divisors.
+- Emit outputs incrementally; avoid collecting full results when streaming is possible.
+
+3) Configurable generalisation (parameterisation):
+- Replace hard-coded divisors and tokens with a map of divisor -> token(s). Example structure: rules = [{divisor: int, token: string}, ...].
+- Allow multiple rules; compute token concatenation in a deterministic rule order for numbers matching multiple divisors.
+- Support digit-contains rule as an optional rule: if n contains digit d then treat as divisible-by-d rule trigger.
+
+4) Complexity and resource profile:
+- Time complexity: O(N * R) where N is count of numbers processed and R is number of rule checks per number (R normally small: e.g., 2 rules for 3 and 5).
+- Space complexity: O(1) when streaming outputs; O(N) if the full result list is accumulated.
+- CPU: integer modulus and string concatenation per item; negligible for typical N (e.g., 100 or 10,000). For very large N, use streaming and batching.
+
+5) Variants and edge cases that affect implementation:
+- Multiple divisors beyond 3 and 5 (e.g., 7) — maintain consistent rule evaluation order and deterministic concatenation.
+- Digit-containing rules (e.g., number contains 5 triggers "buzz"). Decide precedence between divisibility and digit rules.
+- Negative numbers, zero, and non-integer inputs — define domain: usually positive integers starting at 1.
+- Localisation/uppercase: token casing and separators ("Fizz Buzz" vs "FizzBuzz") are presentation-level choices; preserve tokens as configured.
+
+6) Interview and assessment usage (non-functional requirement):
+- Problem intended as a quick filter: implement minimal correct solution using basic control flow and modular arithmetic.
+- Robust candidates parameterise, write tests, handle edge cases and document complexity.
+
+TABLE_OF_CONTENTS
+
+1. Core rules and required check order
+2. Procedural implementation pattern
+3. Generalised API and parameterisation
+4. Complexity and resource considerations
+5. Variants and edge cases
+6. Best practices and testing
+7. Supplementary technical specifications
+8. Reference API signatures and examples
+9. Troubleshooting
+
+DETAILED ITEMS
+
+1. Core rules and required check order
+- Check combined divisibility first (e.g., divisible by LCM of configured divisors). For two divisors 3 and 5, check n % 15 == 0 before checking n % 3 or n % 5.
+- When generalising to more than two divisors, form token by concatenating tokens for all matched divisors in a predetermined rule order; or test for LCM(s) if a single combined token is required.
+
+2. Procedural implementation pattern
+- Input parameters: start (int), end (int), inclusive boolean, rules list (ordered), output sink (function or stream).
+- Loop model: for n from start to end (inclusive if configured): evaluate rules, build token string, if token string is empty send decimal string else send token string.
+- Streaming: pass each output to sink immediately. For in-memory use, append to list and return.
+
+3. Generalised API and parameterisation
+- Rules model: ordered list of rules. Each rule: divisor (positive int), token (string), optional matchOnDigit (bool).
+- Precedence: rules earlier in list may determine concatenation order; all rules are evaluated for a number unless an early-exit policy is chosen.
+- Optional flags: useDigitContainment (bool), digitContainmentPrecedence ("before_divisibility" | "after_divisibility"), joiner (string) to join multiple tokens.
+
+4. Complexity and resource considerations
+- Use modulus checks (n % divisor == 0). For many rules, optimize by skipping modulus when not necessary (e.g., maintain counters that decrement per iteration to avoid repeated modulus operations for fixed divisors).
+- For extremely large ranges prefer generator/iterator interfaces to avoid O(N) memory use.
+
+5. Variants and edge cases
+- Zero: 0 is divisible by any non-zero divisor; decide whether to include 0 in sequence and handle accordingly.
+- Negative numbers: modulus semantics vary by language; normalise or restrict domain to positive integers.
+- Non-integer inputs: validate and reject or coerce before processing.
+
+6. Best practices and testing
+- Unit tests: verify outputs for sample ranges and rule sets. Cover boundary conditions (start==end, empty rules list, very large end).
+- Property tests: for single-rule sets where token should appear exactly at multiples of divisor, assert positions.
+- Performance tests: stream vs accumulate for large N; time per million items to validate streaming approach.
+- Documentation: clearly specify default start/end and rule precedence in API docs.
+
+SUPPLEMENTARY DETAILS
+
+Essential technical specifications and implementation details:
+
+- Default behaviour: start=1, end=100, inclusive=true, rules ordered: [{divisor:3,token:"Fizz"},{divisor:5,token:"Buzz"}], digitContainment disabled.
+- Deterministic output: rule list order is authoritative for token concatenation order when multiple rules match.
+- Combined token detection: compute LCM only for optimization or to produce a single pre-configured combined token; otherwise concatenate matched tokens.
+- Memory: streaming sink recommended for N>100000 to keep memory at O(1).
+- Thread safety: stateless function that writes to independent output sinks is safe for parallel iteration; avoid shared mutable accumulators without locking.
+
+REFERENCE DETAILS
+
+API specifications and method signatures (language-agnostic canonical forms):
+
+Function signature 1 (imperative generator):
+- name: fizzBuzzRange
+- parameters:
+  - start: integer (inclusive lower bound)
+  - end: integer (inclusive upper bound)
+  - rules: array of rule objects where rule = {divisor: integer > 0, token: string, matchOnDigit?: boolean}
+  - options?: object {
+      inclusive?: boolean (default true),
+      useDigitContainment?: boolean (default false),
+      digitContainmentPrecedence?: string ("before_divisibility" | "after_divisibility", default "after_divisibility"),
+      joiner?: string (default ""),
+      outputSink?: function(string) -> void (default: append to result array)
+    }
+- returns: void when using outputSink; or array of strings if default sink used and no custom sink provided.
+
+Function signature 2 (functional/generator):
+- name: fizzBuzzGenerator
+- parameters: rules, options as above
+- returns: iterator/generator that yields string values for each number in configured range
+
+Exact implementation patterns and configuration options with effects:
+- Checking order: Always evaluate digitContainment (if configured with precedence before_divisibility) before divisibility checks; otherwise run divisibility checks first then digit rules.
+- joiner: "" (default) concatenates tokens without separator; set to " " or "," to alter presentation.
+- LCM optimization: if rules are static and many, precompute LCM(s) of a set of divisors to short-circuit combined checks where a single combined token is required.
+
+Concrete best practices with examples (described, not code-escaped):
+- Minimal implementation for interviews: loop from 1 to N; if n%15==0 emit "FizzBuzz" else if n%3==0 emit "Fizz" else if n%5==0 emit "Buzz" else emit number.
+- Production-ready implementation: expose rules list and options; support streaming output sinks; validate inputs; include unit tests and performance tests.
+
+Troubleshooting and step-by-step diagnostics:
+- Symptom: Concatenation order incorrect when multiple rules match.
+  Step 1: Verify rule list order in configuration; concatenation follows that order.
+  Step 2: Confirm no early-exit policy is enabled that stops evaluation after first match.
+
+- Symptom: Unexpected tokens for negative numbers or zero.
+  Step 1: Check domain handling and modulus semantics for negative operands in target language.
+  Step 2: Normalise values or restrict input domain to positive integers and reject others.
+
+- Symptom: Memory spikes on large end values.
+  Step 1: Ensure streaming sink is used rather than accumulating full list.
+  Step 2: Profile with representative N and switch to chunked processing if needed.
+
+DETAILED DIGEST (source content and retrieval)
+
+- Source section extracted: Wikipedia entry "Fizz buzz" (https://en.wikipedia.org/wiki/Fizz_buzz).
+- Retrieval date (UTC): 2026-03-06
+- Extracted technical content (high-value): definition of rules (divisible by 3 -> fizz; divisible by 5 -> buzz; divisible by both -> fizzbuzz); mention of digit-contained variants and additional divisibility rules; note that the problem is used as an interview screening device and is commonly implemented with a loop and conditional statements.
+- Data size retrieved (approximate): 3,200 bytes
+
+ATTRIBUTION
+
+- Source: Wikipedia contributors, "Fizz buzz". URL: https://en.wikipedia.org/wiki/Fizz_buzz
+- Retrieved on: 2026-03-06
+- Crawl data size (approx): 3,200 bytes
+
+END OF DOCUMENT
