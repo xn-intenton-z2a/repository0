@@ -1,0 +1,10 @@
+Usage examples (library):
+
+import { parseCron, nextRun, nextRuns, matches } from '@xn-intenton-z2a/repository0/src/lib/main.js';
+
+const p = parseCron('0 0 * * *'); // daily at 00:00 UTC
+const next = nextRun(p, new Date('2026-03-06T00:00:00Z'));
+console.log(next.toISOString());
+
+// CLI: node src/lib/main.js "@daily" --count 3 --after 2026-03-06T00:00:00Z
+// prints ISO timestamps for next runs
