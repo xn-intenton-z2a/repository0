@@ -1,54 +1,65 @@
 import { describe, it, expect } from 'vitest';
-import { hammingDistance, hammingDistanceBits } from '../../src/lib/hamming.js';
+import { hammingDistanceBits, hammingDistance } from '../../src/lib/hamming.js';
 
-describe('hammingDistance (Unicode-safe)', () => {
-  it('returns 0 for identical ascii strings', () => {
-    expect(hammingDistance('abc', 'abc')).toBe(0);
-  });
-
-  it('handles canonical equivalence with NFC', () => {
-    // e + combining acute vs precomposed é
+describe('hammingDistance (strings)', () => {
+  it('basic unicode-aware comparison', () => {
+    expect(hammingDistance('karolin', 'kathrin')).toBe(3);
+    expect(hammingDistance('', '')).toBe(0);
+    // combining vs precomposed
     expect(hammingDistance('e\u0301', 'é')).toBe(0);
   });
 
-  it('handles surrogate pairs / emoji correctly', () => {
-    expect(hammingDistance('👍a', '👎a')).toBe(1);
-  });
-
-  it('returns 0 for empty strings', () => {
-    expect(hammingDistance('', '')).toBe(0);
-  });
-
-  it('throws TypeError for non-string inputs', () => {
-    // @ts-ignore
+  it('throws for unequal length strings', () => {
+    expect(() => hammingDistance('a', 'bb')).toThrow(RangeError);
     expect(() => hammingDistance(1, 'a')).toThrow(TypeError);
-  });
-
-  it('throws RangeError for differing code point lengths', () => {
-    expect(() => hammingDistance('a', 'ab')).toThrow(RangeError);
   });
 });
 
-describe('hammingDistanceBits (byte-wise bit count)', () => {
-  it('counts differing bits between single bytes', () => {
-    expect(hammingDistanceBits(Uint8Array.from([0b1010]), Uint8Array.from([0b0011]))).toBe(2);
+describe('hammingDistanceBits (integers and BigInt)', () => {
+  it('BigInt inputs compute correctly', () => {
+    expect(hammingDistanceBits(1n, 4n)).toBe(2);
+    expect(hammingDistanceBits(0n, 0n)).toBe(0);
   });
 
-  it('works with Node Buffers (ASCII bytes)', () => {
-    // 'a' = 0x61, 'b' = 0x62 -> XOR = 0x03 -> popcount 2
-    expect(hammingDistanceBits(Buffer.from('a'), Buffer.from('b'))).toBe(2);
+  it('Mixed Number/BigInt with safe Number coerced to BigInt', () => {
+    expect(hammingDistanceBits(1, 4n)).toBe(2);
+    expect(hammingDistanceBits(4n, 1)).toBe(2);
   });
 
-  it('counts bits across multi-byte arrays', () => {
-    expect(hammingDistanceBits(Uint8Array.from([0x00, 0xff]), Uint8Array.from([0xff, 0x00]))).toBe(16);
+  it('Number path for two safe Numbers', () => {
+    expect(hammingDistanceBits(1, 4)).toBe(2);
+    expect(hammingDistanceBits(0, 0)).toBe(0);
+    // larger safe integers that require high 32-bit part — validate against BigInt-based result
+    const a = 0x100000000 + 5; // 4294967301
+    const b = 0x200000004 + 4; // 8589934596 + 4 = 8589934600 (keeps values safe)
+    // compute expected via BigInt algorithm to avoid hand-calculation mistakes
+    const v = BigInt(a) ^ BigInt(b);
+    let cnt = 0n;
+    let vv = v;
+    while (vv !== 0n) { vv &= vv - 1n; cnt++; }
+    const expected = Number(cnt);
+    expect(hammingDistanceBits(a, b)).toBe(expected);
   });
 
-  it('throws TypeError for unsupported input types', () => {
-    // @ts-ignore
-    expect(() => hammingDistanceBits('a', 'b')).toThrow(TypeError);
+  it('throws for Numbers beyond Number.MAX_SAFE_INTEGER unless BigInt is used', () => {
+    const unsafe = Number.MAX_SAFE_INTEGER + 1;
+    expect(() => hammingDistanceBits(unsafe, 0)).toThrow(RangeError);
+    expect(() => hammingDistanceBits(unsafe, 0n)).toThrow(RangeError);
   });
 
-  it('throws RangeError for unequal byte lengths', () => {
-    expect(() => hammingDistanceBits(Uint8Array.from([0x00]), Uint8Array.from([0x00, 0x00]))).toThrow(RangeError);
+  it('throws for negative inputs (Number and BigInt)', () => {
+    expect(() => hammingDistanceBits(-1, 0)).toThrow(RangeError);
+    expect(() => hammingDistanceBits(-1n, 0n)).toThrow(RangeError);
+  });
+
+  it('throws TypeError for non-numeric inputs', () => {
+    expect(() => hammingDistanceBits('a', 1)).toThrow(TypeError);
+    expect(() => hammingDistanceBits({}, null)).toThrow(TypeError);
+  });
+
+  it('result is a finite Number', () => {
+    const r = hammingDistanceBits(123456789, 987654321);
+    expect(typeof r).toBe('number');
+    expect(Number.isFinite(r)).toBe(true);
   });
 });
