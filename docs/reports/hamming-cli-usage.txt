@@ -1,5 +1,0 @@
-Hamming CLI usage report
-
-The examples/hamming-cli.js script demonstrates using the library from the command line. It calls named exports from src/lib/main.js and prints numeric results to stdout. Validation and error semantics come from the library and are surfaced to stderr by the CLI.
-
-See docs/examples/hamming-cli-output.txt and docs/evidence/hamming-cli.json for concrete outputs.

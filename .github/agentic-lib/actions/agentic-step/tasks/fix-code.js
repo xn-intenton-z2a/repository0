@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2025-2026 Polycode Limited
-// tasks/fix-code.js — Fix failing tests on a PR
+// tasks/fix-code.js — Fix failing tests or resolve merge conflicts on a PR
 //
-// Given a PR number with failing tests, analyzes the test output,
-// generates fixes using the Copilot SDK, and pushes a commit.
+// Given a PR number, detects merge conflicts or failing checks and resolves them.
+// Conflict resolution: reads files with conflict markers, asks the LLM to resolve.
+// Failing checks: analyzes test output, generates code fixes.
 
 import * as core from "@actions/core";
+import { readFileSync } from "fs";
 import { execSync } from "child_process";
 import { runCopilotTask, formatPathsSection } from "../copilot.js";
 
@@ -37,7 +39,90 @@ function fetchRunLog(runId) {
 }
 
 /**
- * Fix failing code on a pull request.
+ * Resolve merge conflicts on a PR using the Copilot SDK.
+ * Called when the workflow has started a `git merge origin/main` that left
+ * conflict markers in non-trivial files (listed in NON_TRIVIAL_FILES env var).
+ *
+ * @param {Object} params
+ * @returns {Promise<Object>} Result with outcome, tokensUsed, model
+ */
+async function resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand }) {
+  const nonTrivialEnv = process.env.NON_TRIVIAL_FILES || "";
+  const conflictedPaths = nonTrivialEnv
+    .split("\n")
+    .map((f) => f.trim())
+    .filter(Boolean);
+
+  if (conflictedPaths.length === 0) {
+    core.info(`PR #${prNumber} has conflicts but no non-trivial files listed. Returning nop.`);
+    return { outcome: "nop", details: "No non-trivial conflict files to resolve" };
+  }
+
+  core.info(`Resolving ${conflictedPaths.length} conflicted file(s) on PR #${prNumber}`);
+
+  const conflicts = conflictedPaths.map((f) => {
+    try {
+      return { name: f, content: readFileSync(f, "utf8") };
+    } catch (err) {
+      core.warning(`Could not read conflicted file ${f}: ${err.message}`);
+      return { name: f, content: "(could not read)" };
+    }
+  });
+
+  const agentInstructions = instructions || "Resolve the merge conflicts while preserving the PR's intended changes.";
+  const readOnlyPaths = config.readOnlyPaths;
+
+  const prompt = [
+    "## Instructions",
+    agentInstructions,
+    "",
+    `## Pull Request #${prNumber}: ${pr.title}`,
+    "",
+    pr.body || "(no description)",
+    "",
+    "## Task: Resolve Merge Conflicts",
+    "The PR branch has been merged with main but has conflicts in the files below.",
+    "Each file contains git conflict markers (<<<<<<< / ======= / >>>>>>>).",
+    "Resolve each conflict by keeping the PR's intended changes while incorporating",
+    "any non-conflicting updates from main.",
+    "",
+    `## Conflicted Files (${conflicts.length})`,
+    ...conflicts.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+    "",
+    formatPathsSection(writablePaths, readOnlyPaths, config),
+    "",
+    "## Constraints",
+    "- Remove ALL conflict markers (<<<<<<, =======, >>>>>>>)",
+    "- Preserve the PR's feature/fix intent",
+    `- Run \`${testCommand}\` to validate your resolution`,
+  ].join("\n");
+
+  const t = config.tuning || {};
+  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+    model,
+    systemMessage: `You are resolving git merge conflicts on PR #${prNumber}. Write resolved versions of each conflicted file, removing all conflict markers. Preserve the PR's feature intent while incorporating main's updates.`,
+    prompt,
+    writablePaths,
+    tuning: t,
+  });
+
+  core.info(`Conflict resolution completed (${tokensUsed} tokens)`);
+
+  return {
+    outcome: "conflicts-resolved",
+    tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
+    model,
+    details: `Resolved ${conflicts.length} conflicted file(s) on PR #${prNumber}`,
+  };
+}
+
+/**
+ * Fix failing code or resolve merge conflicts on a pull request.
+ *
+ * Priority: conflicts first (if NON_TRIVIAL_FILES env is set), then failing checks.
  *
  * @param {Object} context - Task context from index.js
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
@@ -49,8 +134,15 @@ export async function fixCode(context) {
     throw new Error("fix-code task requires pr-number input");
   }
 
-  // Fetch the PR and check runs
+  // Fetch the PR
   const { data: pr } = await octokit.rest.pulls.get({ ...repo, pull_number: Number(prNumber) });
+
+  // If we have non-trivial conflict files from the workflow's Tier 1 step, resolve them
+  if (process.env.NON_TRIVIAL_FILES) {
+    return resolveConflicts({ config, pr, prNumber, instructions, model, writablePaths, testCommand });
+  }
+
+  // Otherwise, check for failing checks
   const { data: checkRuns } = await octokit.rest.checks.listForRef({ ...repo, ref: pr.head.sha, per_page: 10 });
 
   const failedChecks = checkRuns.check_runs.filter((cr) => cr.conclusion === "failure");

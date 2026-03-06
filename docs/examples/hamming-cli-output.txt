@@ -1,7 +1,0 @@
-# Example outputs from examples/hamming-cli.js
-
-$ node examples/hamming-cli.js string karolin kathrin
-3
-
-$ node examples/hamming-cli.js bits 1 4
-2

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
+# Schedule updated: 2026-03-06T02:21:17.231Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -17,7 +18,7 @@ run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
 
 on:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "*/15 * * * *"
   workflow_call:
     inputs:
       model:
@@ -198,23 +199,8 @@ jobs:
                   core.warning(`Could not merge PR #${pr.number}: ${e.message}`);
                 }
               } else if (fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false) {
-                const isStale = new Date(pr.updated_at) < prCutoff;
-                if (isStale) {
-                  // Close stale conflicting PR
-                  core.info(`Closing stale conflicting PR #${pr.number}`);
-                  await github.rest.pulls.update({ owner, repo, pull_number: pr.number, state: 'closed' });
-                  try {
-                    await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pr.head.ref}` });
-                  } catch (e) { /* branch may already be gone */ }
-                  closedPRs.push(pr.number);
-                } else {
-                  // Remove automerge label from conflicting but fresh PR
-                  try {
-                    await github.rest.issues.removeLabel({ owner, repo, issue_number: pr.number, name: 'automerge' });
-                    await github.rest.issues.createComment({ owner, repo, issue_number: pr.number,
-                      body: 'Automerge label removed — PR has conflicts. Resolve and re-add label to retry.' });
-                  } catch (e) { /* label may not exist */ }
-                }
+                // Conflicting PR — leave it for fix-stuck to resolve instead of deleting
+                core.info(`PR #${pr.number} has merge conflicts — fix-stuck job will attempt resolution`);
               }
               // If unstable/unknown: skip, next run handles
             }
@@ -450,7 +436,7 @@ jobs:
               return;
             }
 
-            // Find PRs with failing checks on agentic branches
+            // Find PRs with failing checks or merge conflicts on agentic branches
             const { data: openPRs } = await github.rest.pulls.list({
               owner, repo, state: 'open', per_page: 10,
             });
@@ -460,12 +446,19 @@ jobs:
               if (!hasAutomerge) continue;
               if (!pr.head.ref.startsWith('agentic-lib-') && !pr.head.ref.startsWith('copilot/')) continue;
 
+              // Check for merge conflicts
+              const { data: fullPr } = await github.rest.pulls.get({
+                owner, repo, pull_number: pr.number,
+              });
+              const hasConflicts = fullPr.mergeable_state === 'dirty' || fullPr.mergeable === false;
+
               // Check if checks are failing
               const { data: checkRuns } = await github.rest.checks.listForRef({
                 owner, repo, ref: pr.head.sha,
               });
               const hasFailing = checkRuns.check_runs.some(c => c.conclusion === 'failure');
-              if (!hasFailing) continue;
+
+              if (!hasFailing && !hasConflicts) continue;
 
               // Check fix attempt count
               const { data: fixRuns } = await github.rest.actions.listWorkflowRuns({
@@ -478,24 +471,60 @@ jobs:
                 continue;
               }
 
-              core.info(`Will attempt to fix PR #${pr.number}`);
+              const reason = hasConflicts ? 'merge conflicts' : 'failing checks';
+              core.info(`Will attempt to fix PR #${pr.number} (${reason})`);
               core.exportVariable('FIX_PR_NUMBER', String(pr.number));
+              core.exportVariable('FIX_REASON', reason);
               break;
             }
 
-      - name: Checkout PR branch and fix
+      - name: Checkout PR branch
         if: env.FIX_PR_NUMBER != ''
         run: |
           gh pr checkout ${{ env.FIX_PR_NUMBER }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fix failing code
-        if: env.FIX_PR_NUMBER != ''
+      - name: "Tier 1: Auto-resolve trivial merge conflicts"
+        if: env.FIX_PR_NUMBER != '' && env.FIX_REASON == 'merge conflicts'
+        id: trivial-resolve
+        run: |
+          git fetch origin main
+          if git merge origin/main --no-edit 2>/dev/null; then
+            echo "resolved=clean" >> $GITHUB_OUTPUT
+          else
+            CONFLICTED=$(git diff --name-only --diff-filter=U)
+            TRIVIAL_PATTERN='intentïon\.md|intention\.md|package-lock\.json'
+            NON_TRIVIAL=$(echo "$CONFLICTED" | grep -vE "$TRIVIAL_PATTERN" || true)
+            if [ -z "$NON_TRIVIAL" ]; then
+              echo "All conflicts are trivial — auto-resolving"
+              for f in $CONFLICTED; do
+                git checkout --theirs "$f"
+                git add "$f"
+              done
+              npm install 2>/dev/null || true
+              git add package-lock.json 2>/dev/null || true
+              git commit --no-edit
+              echo "resolved=trivial" >> $GITHUB_OUTPUT
+            else
+              git merge --abort
+              echo "resolved=none" >> $GITHUB_OUTPUT
+              echo "non_trivial<<EOF" >> $GITHUB_OUTPUT
+              echo "$NON_TRIVIAL" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: "Tier 2: LLM fix (conflicts or failing checks)"
+        if: |
+          env.FIX_PR_NUMBER != '' &&
+          (env.FIX_REASON != 'merge conflicts' ||
+           steps.trivial-resolve.outputs.resolved == 'none')
         uses: ./.github/agentic-lib/actions/agentic-step
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          NON_TRIVIAL_FILES: ${{ steps.trivial-resolve.outputs.non_trivial }}
         with:
           task: "fix-code"
           config: ${{ needs.params.outputs.config-path }}
@@ -508,7 +537,7 @@ jobs:
         if: env.FIX_PR_NUMBER != ''
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
-          commit-message: "agentic-step: fix failing tests"
+          commit-message: "agentic-step: fix failing tests / resolve conflicts"
 
   # ─── Review: close resolved issues, enhance with criteria ──────────
   review-features:

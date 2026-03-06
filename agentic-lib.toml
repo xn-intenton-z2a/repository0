@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "daily"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"              # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -34,6 +33,21 @@ attempts-per-branch = 3
 attempts-per-issue = 2
 features-limit = 2
 library-limit = 32
+
+[tuning]
+# Profile sets defaults for all tuning knobs: min | recommended | max
+# min = fast & cheap (CI testing), recommended = balanced, max = thorough
+profile = "recommended"
+model = "gpt-5-mini"              # gpt-5-mini | claude-sonnet-4 | gpt-4.1
+# Override individual knobs below. Omit or comment out to use profile defaults.
+# reasoning-effort = "low"       # low | medium | high | xhigh
+infinite-sessions = false        # set to true for long sessions with compaction
+# features-scan = 3              # feature files to include in prompts
+# source-scan = 3                # source files to include
+# source-content = 1000          # max chars per source file
+# issues-scan = 5                # open issues to include
+# document-summary = 500         # max chars for document summaries
+# discussion-comments = 5        # discussion comments to include
 
 [bot]
 log-file = "intentïon.md"

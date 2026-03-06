@@ -13,8 +13,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   main(args);
 }
-
-// Re-export utility functions implemented in src/lib/hamming.js
-export { hammingDistanceString, hammingDistanceInt } from './hamming.js';
-// Also provide conventional aliases expected by the mission and consumers
-export { hammingDistanceString as hammingDistance, hammingDistanceInt as hammingDistanceBits } from './hamming.js';
