@@ -3,13 +3,17 @@
 
 /**
  * Compute the FizzBuzz result for a single integer.
- * @param {number} n - An integer (may be 0 or negative)
+ * @param {number} n - An integer (may be 0)
  * @returns {string} - "Fizz", "Buzz", "FizzBuzz", or the number as a string
  * @throws {TypeError} if n is not a finite integer
+ * @throws {RangeError} if n is negative
  */
 export function fizzBuzzSingle(n) {
   if (typeof n !== 'number' || !Number.isFinite(n) || !Number.isInteger(n)) {
     throw new TypeError('n must be an integer');
+  }
+  if (n < 0) {
+    throw new RangeError('n must be >= 0');
   }
 
   const divisibleBy3 = n % 3 === 0;
