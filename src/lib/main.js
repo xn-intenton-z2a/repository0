@@ -4,6 +4,7 @@
 // src/lib/main.js
 
 import { fileURLToPath } from "url";
+export { parseCron } from "./cron.js";
 
 export function main(args) {
   console.log(`Run with: ${JSON.stringify(args)}`);

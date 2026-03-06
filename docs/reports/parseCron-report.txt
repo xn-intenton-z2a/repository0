@@ -1,0 +1,10 @@
+parseCron Implementation Report
+
+This report demonstrates the new parseCron(expression) utility which supports:
+- Wildcards (*)
+- Ranges (A-B)
+- Lists (A,B,C)
+- Steps (/N) applied to wildcards or ranges
+- Mixed combinations (e.g., "*/15,7,10-12/2")
+
+See docs/evidence/parseCron-example.json for machine-readable output and tests in tests/unit/cron.test.js for behavior and validation expectations.
