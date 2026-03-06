@@ -1,7 +1,0 @@
-Example parseCron output for expression: "*/15 * * * *"
-
-minute: [0,15,30,45]
-hour: [0..23]
-dayOfMonth: [1..31]
-month: [1..12]
-dayOfWeek: [0..6]
