@@ -1,0 +1,4 @@
+[
+  { "cmd": "node examples/hamming-cli.js string karolin kathrin", "stdout": "3", "exit": 0 },
+  { "cmd": "node examples/hamming-cli.js bits 1 4", "stdout": "2", "exit": 0 }
+]
