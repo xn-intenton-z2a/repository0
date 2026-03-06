@@ -1,10 +1,7 @@
-Usage examples (library):
+Cron engine usage examples
 
-import { parseCron, nextRun, nextRuns, matches } from '@xn-intenton-z2a/repository0/src/lib/main.js';
+parseCron('*/15 0-23/1 * * *') -> parsed object with minutes [0,15,30,45]
+nextRun('0 0 * * *', new Date(2026,2,6,0,0,0)) -> 2026-03-07T00:00 local
+matches('0 0 25 12 *', new Date(2025,11,25,0,0,0)) -> true
 
-const p = parseCron('0 0 * * *'); // daily at 00:00 UTC
-const next = nextRun(p, new Date('2026-03-06T00:00:00Z'));
-console.log(next.toISOString());
-
-// CLI: node src/lib/main.js "@daily" --count 3 --after 2026-03-06T00:00:00Z
-// prints ISO timestamps for next runs
+See src/lib/main.js exports: parseCron, nextRun, nextRuns, matches, toString
