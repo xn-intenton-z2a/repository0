@@ -1,8 +1,1 @@
-# Sources
-
-Reference material and documentation sources for this project.
-
-Add URLs, papers, API docs, or other reference material here.
-The maintain-library workflow will process these into `library/` documents.
-
-- https://github.com/xn-intenton-z2a/repository0
+Source: Implemented roman numeral converter functions in src/lib/main.js for issue #2587

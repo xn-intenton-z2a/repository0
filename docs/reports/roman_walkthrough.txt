@@ -1,0 +1,11 @@
+Roman conversion walkthrough
+
+This library implements two functions:
+- toRoman(n): converts integer 1..3999 to standard-form Roman numeral using subtractive notation.
+- fromRoman(s): parses a Roman numeral string in standard form back to an integer, rejecting invalid or non-standard forms (e.g. 'IIII').
+
+Round-trip property: fromRoman(toRoman(n)) === n for all n in 1..3999 verified.
+
+Example:
+  toRoman(1994) -> MCMXCIV
+  fromRoman('MCMXCIV') -> 1994
