@@ -1,0 +1,10 @@
+Lenient parsing for fromRoman
+
+Implemented an opt-in preprocessing stage when calling fromRoman(s, { lenient: true }).
+Behavior:
+- normalize (default true) trims and collapses whitespace.
+- case-insensitive when lenient is enabled.
+- transforms common repeated additive forms: IIII -> IV, XXXX -> XL, CCCC -> CD.
+- after preprocessing the strict validator runs; malformed inputs are rejected.
+
+See docs/examples and docs/evidence for sample outputs.

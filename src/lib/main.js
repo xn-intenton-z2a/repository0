@@ -28,15 +28,42 @@ export function toRoman(n) {
   return result;
 }
 
-// Convert Roman numeral string to integer. Strict validation using standard form.
-export function fromRoman(s) {
+// Convert Roman numeral string to integer. Supports strict and optional lenient preprocessing.
+export function fromRoman(s, options = {}) {
+  const { lenient = false, normalize = true } = options;
   if (typeof s !== "string") {
     throw new TypeError("fromRoman: input must be a string");
   }
-  const str = s.trim().toUpperCase();
-  if (str.length === 0) {
-    throw new TypeError("fromRoman: input must be a non-empty Roman numeral string");
+
+  let str = s;
+
+  // Normalization: trim and optionally remove internal whitespace
+  if (normalize) {
+    str = str.trim().replace(/\s+/g, "");
   }
+
+  if (lenient) {
+    // Accept lowercase and mixed case by normalizing to upper
+    str = str.toUpperCase();
+    if (str.length === 0) {
+      throw new TypeError("fromRoman: input must be a non-empty Roman numeral string");
+    }
+    // Reject characters outside the Roman alphabet early
+    if (!/^[IVXLCDM]+$/.test(str)) {
+      throw new TypeError("fromRoman: invalid Roman numeral string");
+    }
+    // Common lenient replacements for clock-style and additive forms.
+    // Replace four repeats of I/X/C with their subtractive equivalents: IIII -> IV, XXXX -> XL, CCCC -> CD
+    // This is a narrow, documented set of transformations to maintain safety.
+    str = str.replace(/IIII/g, "IV").replace(/XXXX/g, "XL").replace(/CCCC/g, "CD");
+  } else {
+    // Strict behaviour: trim and uppercase, then validate
+    str = str.trim().toUpperCase();
+    if (str.length === 0) {
+      throw new TypeError("fromRoman: input must be a non-empty Roman numeral string");
+    }
+  }
+
   // Strict regex for valid roman numerals (1..3999)
   const validRoman = /^M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
   if (!validRoman.test(str)) {
