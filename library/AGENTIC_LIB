@@ -1,0 +1,137 @@
+AGENTIC_LIB
+
+NORMALISED EXTRACT
+
+TABLE OF CONTENTS
+1. Setup and Required Secrets
+2. Repository and Actions Settings
+3. Workflow Pipeline and Execution
+4. agentic-lib.toml: Keys, Values and Profiles
+5. Execution and Test Commands
+6. Mission: Hamming Functions API
+7. Implementation Notes and Algorithms
+8. Supplementary Details: Validation, Unicode, BigInt
+9. Reference Specifications: Signatures, Config Options
+10. Troubleshooting and Best Practices
+
+1. Setup and Required Secrets
+- COPILOT_GITHUB_TOKEN: Create a fine-grained Personal Access Token with "GitHub Copilot -> Read" permission. Purpose: authenticates Copilot SDK for agentic tasks that modify repository contents using the SDK.
+- WORKFLOW_TOKEN: Create a classic Personal Access Token with the "workflow" scope. Purpose: allows workflows (init.yml) to update files under .github/workflows/ (GITHUB_TOKEN cannot modify workflow files).
+- Add secrets via Settings → Secrets and variables → Actions → New repository secret.
+
+2. Repository and Actions Settings
+- GitHub Actions must be allowed (Settings → Actions → General).
+- Workflow permissions must be set to Read and write permissions for the repository actions to operate fully.
+- Allow GitHub Actions to create pull requests (checkbox in Actions settings).
+- Enable GitHub Discussions for the discussions bot (Settings → General → Features).
+- Optional branch protection recommendations: require PR review and require status checks (use test workflow).
+
+3. Workflow Pipeline and Execution
+- Canonical pipeline: MISSION.md -> supervisor -> dispatch workflows -> Issue -> Code -> Test -> PR -> Merge.
+- Supervisor acts as an LLM orchestrator; workflows use Copilot SDK to transform source, create tests, and open PRs.
+- agentic-lib provides init and maintenance workflows; init.yml updates the agentic infra and can be invoked manually via npx @xn-intenton-z2a/agentic-lib@latest init.
+
+4. agentic-lib.toml: Keys, Values and Profiles
+- [schedule].supervisor: off | weekly | daily | hourly | continuous (example: continuous in local config; recommended default: daily).
+- [paths]: mission, source, tests, features, library, docs, readme, dependencies, contributing, library-sources — use these to point workflows to repo layout.
+- [execution].test: Command run by supervisor to validate code changes (example: npm ci && npm test).
+- [limits]: max-feature-issues, max-maintenance-issues, max-attempts-per-branch, max-attempts-per-issue, features-limit, library-limit — numeric controls for agenting behavior.
+- [tuning].model: Select model string: gpt-5-mini | claude-sonnet-4 | gpt-4.1. Set reasoning-effort: low | medium | high | none. Other tuning: infinite-sessions boolean, transformation-budget (max change cycles), max-source-chars, etc.
+- Profiles: profiles.min, profiles.recommended, profiles.max. Each profile predefines reasoning-effort, infinite-sessions, transformation-budget, max-source-files, max-test-chars, max-issues, stale-days, max-summary-chars, max-discussion-comments, max-feature-issues, max-maintenance-issues, max-attempts-per-branch, max-attempts-per-issue, features-limit, library-limit.
+
+5. Execution and Test Commands
+- package.json scripts of interest:
+  - test: vitest --run tests/unit/*.test.js
+  - test:unit: vitest --run --coverage tests/unit/*.test.js
+  - start: node src/lib/main.js
+  - build: echo "Nothing to build"
+- Node engine requirement: node >= 24.0.0 (ensure CI environment matches this), use npm ci in CI to install pinned deps.
+- Primary dependency: @xn-intenton-z2a/agentic-lib (example version ^7.1.62).
+
+6. Mission: Hamming Functions API
+API signatures and behavior (to be exported as named exports from src/lib/main.js):
+- hammingDistance(a: string, b: string) -> number
+  - Parameters:
+    - a: string (Unicode string, compared by code points)
+    - b: string (Unicode string, compared by code points)
+  - Returns: non-negative integer representing number of positions where code points differ.
+  - Errors:
+    - Throws TypeError if a or b is not a string.
+    - Throws RangeError if code point lengths differ.
+  - Behavior:
+    - Operates on Unicode code points, not UTF-16 code units. Count code points per string and compare by index.
+    - Empty strings allowed; hammingDistance("", "") returns 0.
+- hammingDistanceBits(x: number | bigint, y: number | bigint) -> number
+  - Parameters:
+    - x: non-negative integer (Number limited to 53-bit safe integer or BigInt for larger values)
+    - y: non-negative integer (same constraints as x)
+  - Returns: non-negative integer equal to number of differing bits between x and y.
+  - Errors:
+    - Throws TypeError if x or y are not integer types (Number or BigInt) or not integral values when Number.
+    - Throws RangeError if negative.
+  - Behavior:
+    - For Number inputs: if values fit 32-bit bitwise operations, compute XOR and count set bits using a popcount algorithm. Be aware JavaScript bitwise operators operate on 32-bit signed integers.
+    - For values > 32-bit or requiring full precision, accept BigInt inputs and compute XOR using BigInt then count set bits (popcount on BigInt).
+    - hammingDistanceBits(1, 4) returns 2 (binary: 001 vs 100).
+
+7. Implementation Notes and Algorithms
+- Unicode code point comparison:
+  - Compute sequence of code points (or iterate with for...of on string which yields code points). Do not rely on string indexing by [i] for characters that may be surrogate pairs.
+  - If lengths differ after code-point normalization, throw RangeError.
+  - To compute distance: iterate index i from 0..n-1 where n is code point length; increment counter when codepointA[i] !== codepointB[i].
+
+- Bit Hamming distance (Number and BigInt):
+  - Safe approach for Numbers small enough for 32-bit ops: let diff = x ^ y; compute popcount using Kernighan's method (count and clear lowest set bit until zero).
+  - For Numbers outside 32-bit safe bitwise range, use BigInt inputs: diff = BigInt(x) ^ BigInt(y); count set bits by repeated diff &= diff - 1 loop until zero.
+  - Avoid JS pitfalls: Number bitwise operators coerce to 32-bit signed integers; prefer BigInt for correctness on large integers.
+
+8. Supplementary Details: Validation, Unicode, BigInt
+- Input validation rules:
+  - Strings: must be typeof 'string'. Count code points and ensure equality. Throw TypeError for non-strings, RangeError for unequal lengths.
+  - Integers: allow Number if Number.isInteger(value) and value >= 0 and value <= Number.MAX_SAFE_INTEGER if not using BigInt; prefer BigInt for very large values. Throw TypeError for non-integer types and RangeError for negative values.
+- Performance considerations:
+  - For extremely long strings, iterate once and compare code points directly; avoid creating large intermediate arrays when possible.
+  - For many bit computations, prefer built-in bit operations on 32-bit inputs for speed; use BigInt only when needed.
+
+9. Reference Specifications: Signatures, Config Options
+- Function signatures (required exact forms):
+  - export function hammingDistance(a: string, b: string): number
+    - Throws: TypeError | RangeError
+  - export function hammingDistanceBits(x: number | bigint, y: number | bigint): number
+    - Throws: TypeError | RangeError
+- agentic-lib.toml key spec (examples and allowed values):
+  - [schedule].supervisor = off | weekly | daily | hourly | continuous
+  - [paths].mission = string path (default: "MISSION.md")
+  - [execution].test = shell command (example: "npm ci && npm test")
+  - [tuning].model = "gpt-5-mini" | "claude-sonnet-4" | "gpt-4.1"
+  - [tuning].reasoning-effort = "low" | "medium" | "high" | "none"
+  - [profiles.*].transformation-budget = integer >= 0
+  - [limits].max-feature-issues = integer >= 0
+
+10. Troubleshooting and Best Practices
+- Tests failing due to Node version mismatch: ensure CI uses Node >= 24.0.0, update engine in CI matrix.
+- Unexpected character counts: confirm iteration is using code points (for...of) not code units (string[i]).
+- Bit counting errors for large integers: switch Number inputs to BigInt and use BigInt XOR and popcount.
+- Workflows cannot modify .github/workflows/: verify WORKFLOW_TOKEN exists and is used by init workflow.
+- If agentic infra changes are not applied: run npx @xn-intenton-z2a/agentic-lib@latest init locally to pull updates.
+- Avoid committing secrets; ensure tokens are stored in repository Secrets.
+
+DETAILED DIGEST
+- Source: repository at https://github.com/xn-intenton-z2a/repository0 and local repository files.
+- Extracted authoritative items:
+  - Required repository secrets: COPILOT_GITHUB_TOKEN (fine-grained, Copilot read), WORKFLOW_TOKEN (classic, workflow scope).
+  - Agent config options in agentic-lib.toml including schedule.supervisor values, paths mapping, execution.test command, tuning/model and profiles with transformation-budget and limits.
+  - Mission requirements: two exported functions (hammingDistance and hammingDistanceBits) with Unicode and integer validation and exact acceptance criteria.
+  - Package scripts and Node engine requirement (>=24.0.0) and dependency on @xn-intenton-z2a/agentic-lib.
+- Date retrieved: 2026-03-06T23:47:07.902Z
+
+ATTRIBUTION
+- Source URL: https://github.com/xn-intenton-z2a/repository0
+- Local files referenced: README.md, MISSION.md, agentic-lib.toml, src/lib/main.js, package.json, CONTRIBUTING.md, docs.md
+- Approximate data size crawled: 9.2 KB
+
+SUPPLEMENTARY NOTES
+- The document prioritizes implementation-level instructions for exporting the two mission functions, configuring agentic workflows, and validating runtime environment for CI.
+- For any changes to agentic workflow behavior, edit agentic-lib.toml and re-run the init workflow or use the npx initializer.
+
+END OF DOCUMENT
