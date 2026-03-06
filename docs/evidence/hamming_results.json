@@ -1,0 +1,11 @@
+{
+  "string_examples": [
+    {"a":"karolin","b":"kathrin","distance":3},
+    {"a":"e\u0301","b":"é","distance":0},
+    {"a":"👍","b":"👎","distance":1}
+  ],
+  "bit_examples": [
+    {"a":"0b1011101","b":"0b1001001","distance":2},
+    {"a":"a","b":"b","distance":2}
+  ]
+}

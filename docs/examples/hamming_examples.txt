@@ -1,0 +1,7 @@
+hammingDistance('karolin', 'kathrin') = 3
+hammingDistance('e\u0301', 'é') = 0
+hammingDistance('👍', '👎') = 1
+
+hammingDistanceBits(Buffer.from([0b1011101]), Buffer.from([0b1001001])) = 2
+hammingDistanceBits('a', 'b') = 2
+hammingDistanceBits('', '') = 0
