@@ -2,124 +2,174 @@ FIZZ_BUZZ
 
 NORMALISED_EXTRACT
 
-Table of Contents:
-1. Core Rules and Expected Output
-2. Canonical Single-pass Algorithm (imperative)
-3. Complexity and Resource Constraints
-4. Variants and Configuration Options
-5. Interview/Test Acceptance Criteria
+Key technical points (actionable rules and facts):
+- Core rule set:
+  - Replace integers divisible by 3 with the token fizz.
+  - Replace integers divisible by 5 with the token buzz.
+  - Replace integers divisible by both 3 and 5 with the token fizzbuzz.
+  - Counting proceeds incrementally from a defined start (commonly 1) to a defined end (commonly 100).
+- Variants and extensions:
+  - Additional divisibility rules can be introduced (e.g., 7 -> "pop").
+  - Digit-triggered rules: presence of a digit in the decimal representation triggers that rule (e.g., any number containing '5' triggers buzz behavior).
+  - Streaming vs batch: output may be generated as an in-memory list or as a generator/stream to reduce memory.
+- Typical use cases in engineering:
+  - Quick programming interview screening problem that exercises loops, conditionals, modulo arithmetic, and string composition.
+  - Teaching exercise for algorithmic thinking and test-driven development.
 
-1. Core Rules and Expected Output
-- Replace any integer divisible by 3 with the exact token: fizz
-- Replace any integer divisible by 5 with the exact token: buzz
-- Replace any integer divisible by both 3 and 5 with the exact token: fizzbuzz
-- For all other integers, output the integer itself as a decimal string
-- Typical usage: produce the sequence for a contiguous range 1..N (commonly N=100) in order, preserving one output per input index
+Table of Contents (technical topics):
+1. Rules & Variants
+2. Minimal Algorithm Patterns
+3. Function Signatures and APIs
+4. Configuration Options
+5. Complexity and Performance
+6. Edge Cases and Testing
+7. Best Practices and Implementation Patterns
+8. Troubleshooting Checklist
 
-2. Canonical Single-pass Algorithm (imperative)
-- Iterate i from 1 to N inclusive.
-- For each i compute two boolean conditions: divisibleBy3 = (i mod 3 == 0), divisibleBy5 = (i mod 5 == 0).
-- Build the output token by concatenation:
+DETAILED INFORMATION BY TOC ITEM
+
+1. Rules & Variants
+- Canonical mapping: if n % 3 == 0 -> fizz; if n % 5 == 0 -> buzz; if both -> fizzbuzz. Both means divisible by lcm(3,5)=15.
+- Digit-based variant: treat string(n) contains '3' or '5' as an additional trigger; combine with divisibility rules by defined precedence.
+- Extendable rules: represent rules as an ordered list of (divisor, token) pairs to generalize beyond 3 and 5.
+
+2. Minimal Algorithm Patterns
+- Pattern A (branch-first, explicit both-check): for each number x in range:
+  - if x mod 15 == 0 -> token fizzbuzz
+  - else if x mod 3 == 0 -> token fizz
+  - else if x mod 5 == 0 -> token buzz
+  - else -> string(x)
+  Rationale: single combined check first avoids conditional duplication and ensures correct precedence.
+
+- Pattern B (concatenation): for each number x:
   - result = empty string
-  - if divisibleBy3 then append "fizz" to result
-  - if divisibleBy5 then append "buzz" to result
-  - if result is empty then result = decimal string representation of i
-- Emit or collect result (preserve order).
-- This approach guarantees correct handling of numbers divisible by both 3 and 5 without separate special-case ordering.
+  - if x mod 3 == 0 append "fizz" to result
+  - if x mod 5 == 0 append "buzz" to result
+  - if result is empty, result = string(x)
+  Rationale: scales to arbitrary rule sets and digit-based rules; avoids explicit lcm computations.
 
-3. Complexity and Resource Constraints
-- Time complexity: O(N) where N is the count of numbers processed (one constant-time check per divisor per number).
-- Space complexity: O(1) additional space excluding output; O(N) if collecting outputs into an array.
-- Arithmetic and I/O considerations: use integer modulo (%) operations for divisibility; avoid expensive allocations inside hot loops (reuse buffer/strings where language permits).
-- Deterministic, constant-time per element; suitable for streaming large N because only per-element state is required.
+- Pattern C (config-driven rules): iterate rule list in deterministic order; for each rule, evaluate and append token when matched; after all rules evaluated, if empty emit number.
 
-4. Variants and Configuration Options
-- Additional divisors: extend the concatenation step to check any set of (divisor, token) pairs in a deterministic order; e.g., [(3,"fizz"),(5,"buzz"),(7,"bazz")].
-- Digit containment rule: trigger tokens when the decimal representation of i contains a digit equal to a divisor (e.g., any '5' triggers the "buzz" rule). Implementation: check via string containment or digit iteration.
-- Priority rules: instead of concatenation, some variants prefer precedence (e.g., if divisible by 3 then "fizz" else if divisible by 5 then "buzz"); specify behavior explicitly in the configuration.
-- Output formatting options: delimiter (comma, newline), streaming vs batch, start index (default 1), inclusive/exclusive end bounds.
+3. Function Signatures and APIs (precise):
+- JavaScript (Node/Browser):
+  - function fizzBuzz(n: number, options?: FizzOptions): string[]
+    - parameters: n (inclusive upper bound), options (optional config object, see Configuration Options)
+    - returns: array of strings length n-start+1
+  - function *fizzBuzzGenerator(start: number, end: number, options?: FizzOptions): Generator<string>
+    - yields each token/string lazily; memory O(1)
 
-5. Interview/Test Acceptance Criteria
-- Produces exactly N outputs for inputs 1..N in order.
-- Uses constant extra memory (if specified by problem) and runs in linear time.
-- Correctly handles numbers divisible by both 3 and 5 by producing the concatenated token "fizzbuzz" (not "fizz" or "buzz" alone) unless a different rule is explicitly requested.
-- Handles edge cases: N = 0 (produce zero outputs), negative N (typically invalid; define and document behavior), very large N (support streaming output or backpressure).
+- Python:
+  - def fizzbuzz(n: int, start: int = 1, options: dict | None = None) -> list[str]
+    - returns list of result strings
+  - def fizzbuzz_generator(start: int, end: int, options: dict | None = None) -> Iterator[str]
+    - yields values lazily
+
+- Java:
+  - List<String> fizzBuzz(int start, int end, Map<Integer,String> rules)
+    - returns an ArrayList with values from start..end
+  - Stream<String> fizzBuzzStream(int start, int end, Map<Integer,String> rules)
+    - returns a Java Stream for lazy processing
+
+- C# (.NET):
+  - IEnumerable<string> FizzBuzz(int start, int end, IDictionary<int,string> rules)
+    - supports yield return for streaming
+
+4. Configuration Options (exact option names and effects):
+- start (integer): inclusive start of sequence. Default 1.
+- end (integer): inclusive end of sequence. Default 100.
+- rules (ordered list or map of divisor -> token): evaluated in declared order. Default {3: "fizz", 5: "buzz"}.
+- digit_rules (boolean or list): when true, treat presence of divisor digit in decimal representation as a match for that divisor. Default false.
+- concat_mode (boolean): when true, build tokens by concatenation (Pattern B). When false, use precedence rules (Pattern A). Default depends on implementation but recommend true for extensibility.
+- output_mode ("list" | "stream"): whether to return an in-memory collection or a lazy iterator/generator. Default "list".
+
+5. Complexity and Performance
+- Time complexity: O(n * r * d) where n is count of numbers, r is number of rules, d is digit-check cost (if digit rules used). Typical r is small (2), so effectively O(n).
+- Space complexity: O(n) for list output; O(1) additional for streaming generator.
+- Performance tips:
+  - Prefer streaming for large end values to avoid memory blow-up.
+  - Use concatenation approach to avoid repeated lcm computations when rules increase.
+  - Precompute divisibility thresholds where applicable; keep rule evaluation order deterministic.
+
+6. Edge Cases and Testing
+- Edge cases to assert in unit tests:
+  - start > end -> empty output (or defined behavior). Decide and document.
+  - negative numbers and zero: define behavior; zero is divisible by any non-zero divisor, so typically fizzbuzz at zero.
+  - very large end values -> ensure streaming to avoid OOM.
+  - digit_rules interplay: test e.g., 53 when rules for 5 and digit_rules true.
+  - non-integer or null inputs -> validate and throw/raise appropriate error.
+- Minimal test vectors (express as assertions rather than code):
+  - fizzBuzz(15) includes "fizzbuzz" at position 15.
+  - With default rules, positions 3,6,9 -> fizz; 5,10 -> buzz; 15 -> fizzbuzz.
+
+7. Best Practices and Implementation Patterns (concrete):
+- Provide a configuration object for rule injection to make the function reusable in tests and interview variations.
+- Prefer deterministic, ordered rule evaluation to avoid non-determinism when rules conflict.
+- Expose both list and generator APIs so consumers can choose memory vs convenience.
+- Use concatenation approach for multi-rule extensibility; it is simpler to reason about and implement.
+- Document behavior for zero and negative ranges explicitly in the public API docs.
+
+8. Troubleshooting Checklist (step-by-step):
+- Symptom: "FizzBuzz not printing fizzbuzz at 15". Checkpoints:
+  1. Verify combined-case check (mod 15) runs before exclusive checks if using precedence approach; or ensure concatenation appends both tokens.
+  2. Verify integer arithmetic (no accidental floats). Ensure modulo operation semantics match language.
+  3. Confirm start/end indexing: ensure you are mapping index-to-number correctly (off-by-one errors).
+
+- Symptom: "Memory explosion on large N". Checkpoints:
+  1. Are you returning an array for very large end? Consider streaming/GPU processing.
+  2. Are temporary strings being retained? Use streaming yields to avoid accumulation.
 
 SUPPLEMENTARY DETAILS
 
-Essential specifications and implementation notes:
-- Input: positive integer N (recommended 32-bit signed integer or larger depending on language); function should validate type and range.
-- Output: ordered sequence of N items where item i corresponds to input integer i (1-based) and is either the exact token(s) specified or the decimal string for i.
-- Suggested API knobs:
-  - divisors: ordered list of integer divisors
-  - tokens: corresponding list of strings to append when divisor matches
-  - mode: concatenation | precedence
-  - digit_rule: boolean (if true, apply digit-containment triggers)
-  - output_mode: stream | batch
-  - start: integer (default 1)
-- Implementation tips per language:
-  - JavaScript/TypeScript: reuse a single string builder per iteration, push to array or yield via generator for streaming.
-  - Python: use list append for batch, yield in generator for streaming; prefer f-strings or str(i) only when needed.
-  - Java: use StringBuilder, print via buffered writer for large N.
-- Testing guidance:
-  - Unit tests: check canonical small ranges (1..15), edge values (3,5,15), and config variants (added divisors, digit rule).
-  - Property tests: for random N, verify that each output either equals str(i) or equals the concatenation of tokens for divisors of i.
+Essential specifications and implementation details:
+- LCM approach: check divisibility by lcm of divisors to decide a combined token when using precedence pattern; for default rules lcm(3,5)=15.
+- Digit-rule exactness: for digit_rules, define whether digit-based match should be combined with divisibility (e.g., contains digit 3 but not divisible by 3 still produces fizz) and whether digit-based tokens are appended or replace divisibility tokens.
+- Error handling: validate that rules map does not contain zero as a divisor; throw IllegalArgumentException/ValueError/TypeError based on language.
 
-REFERENCE DETAILS
+REFERENCE DETAILS (API signatures, configuration values, and patterns):
+- JavaScript API signature examples (types):
+  - type FizzOptions = { start?: number, end?: number, rules?: Array<[number,string]> | Record<number,string>, digitRules?: boolean, concatMode?: boolean, outputMode?: "list" | "stream" }
+  - function fizzBuzz(n: number, options?: FizzOptions): string[]
+  - function* fizzBuzzGenerator(start: number, end: number, options?: FizzOptions): Generator<string>
 
-Canonical API signatures and behaviors (explicit types and returns):
-- JavaScript / TypeScript (synchronous, batch):
-  - function fizzBuzz(n: number, options?: {divisors?: number[], tokens?: string[], mode?: 'concat'|'precedence', digitRule?: boolean, start?: number}): string[]
-  - Parameters: n (number, >=0), options optional with defaults: divisors [3,5], tokens ['fizz','buzz'], mode 'concat', digitRule false, start 1
-  - Return: array of strings length equal to max(0, n - start + 1)
+- Python signatures:
+  - def fizzbuzz(n: int, start: int = 1, options: dict | None = None) -> list[str]
+  - def fizzbuzz_generator(start: int, end: int, options: dict | None = None) -> Iterator[str]
 
-- JavaScript / TypeScript (generator streaming):
-  - function* fizzBuzzStream(n: number, options?): IterableIterator<string>
-  - Yields each output string in order; suitable for large n to avoid O(n) memory.
+- Java signatures:
+  - public static List<String> fizzBuzz(int start, int end, LinkedHashMap<Integer,String> rules)
+  - public static Stream<String> fizzBuzzStream(int start, int end, LinkedHashMap<Integer,String> rules)
 
-- Python (generator):
-  - def fizz_buzz(n: int, divisors: List[int]=[3,5], tokens: List[str]=['fizz','buzz'], mode: str='concat', digit_rule: bool=False, start: int=1) -> Iterator[str]
-  - Yields strings for i in range(start, n+1)
+- C# signatures:
+  - public static IEnumerable<string> FizzBuzz(int start, int end, IDictionary<int,string> rules)
 
-- Java (batch):
-  - List<String> fizzBuzz(int n, List<Integer> divisors, List<String> tokens, String mode, boolean digitRule, int start)
-  - Throws IllegalArgumentException for invalid arguments (e.g., mismatched divisors/tokens lengths)
+Configuration option values and effects (exact):
+- start: integer, default 1, inclusive
+- end: integer, default 100, inclusive
+- rules: ordered mapping (preserve insertion order). Example default: [{3:"fizz"},{5:"buzz"}]
+- digitRules: boolean, default false; if true, treat presence of divisor digit as a match
+- concatMode: boolean, default true; when true tokens are concatenated, otherwise precedence rules apply
+- outputMode: enum {"list","stream"}, default "list"
 
-Exact implementation pattern (concatenation mode) described in plain steps (no code escapes):
-1. validate inputs: ensure n and start are integers and start <= n+1
-2. for i from start to n inclusive:
-   a. set out = empty string
-   b. for each (divisor, token) in ordered pairs:
-       if i mod divisor == 0: append token to out
-       else if digit_rule is true and decimal representation of i contains digit equal to divisor: append token to out
-   c. if out is empty: out = decimal string of i
-   d. emit out
+Concrete best practices with implementation examples (patterns described):
+- Use concatenation pattern when rules count > 2 to reduce branching complexity.
+- Provide both high-level convenience function (simple signature for interviews) and extended config-driven function for production/teaching use.
+- For languages with lazy enumerables, provide generator/stream versions to support large ranges.
 
-Configuration options and effects:
-- concatenation mode: multiple matching divisors are concatenated in configured order (e.g., 3 then 5 => "fizzbuzz")
-- precedence mode: the first matching divisor's token is returned and remaining matches are ignored; reduces string concatenation overhead
-- digit_rule true: applies additional checks; increases per-iteration cost due to string operations
-- streaming vs batch: streaming reduces memory, batch easier for tests and small N
+Troubleshooting procedures (detailed):
+- Wrong token mapping: instrument evaluations by logging divisor checks for the failing number; verify modulo values and concatenation logic.
+- Unexpected exceptions on inputs: add input validation at API boundary and unit tests for invalid types and ranges.
 
-Best practices and examples (implementation-oriented):
-- Prefer concatenation for faithful behavior consistent with common FizzBuzz tasks; document when precedence is used.
-- For interview problems, aim for clarity and correctness over micro-optimizations; use the concatenation pattern as canonical.
-- For high-performance or very large N, implement streaming/generator and use buffered output.
-- For extensibility, accept an ordered list of (divisor, token) pairs rather than two separate arrays to avoid mismatches.
+DETAILED DIGEST FROM SOURCES.MD
 
-Troubleshooting
-- If outputs are missing "fizzbuzz" for numbers divisible by both 3 and 5, verify concatenation logic and order (do not use else-if chain that returns early).
-- Off-by-one: confirm inclusive/exclusive loop bounds and mapping from input index to output index (1-based vs 0-based).
-- Performance issues: profile modulo vs string containment; disable digit_rule for heavy workloads or implement digit checks using integer arithmetic when possible.
+- Source: Wikipedia page "Fizz buzz" (https://en.wikipedia.org/wiki/Fizz_buzz)
+- Retrieved: 2026-03-06
+- Extracted technical facts: canonical rules for divisibility-based token replacement (3->fizz, 5->buzz, both->fizzbuzz), common interview use, common variants (digit-based, other divisors), and references to Rosetta Code and enterprise/novel implementations.
+- Crawl data size (approx): ~1.7 KB of rendered text extracted from the page (HTML-to-text simplified).
 
-DETAILED DIGEST (source extraction)
-- Source: Wikipedia article "Fizz buzz" (URL: https://en.wikipedia.org/wiki/Fizz_buzz)
-- Date retrieved: 2026-03-06
-- Core textual facts extracted verbatim or normalized: rules for replacing multiples of 3 with "fizz", multiples of 5 with "buzz", and multiples of both with "fizzbuzz"; common use as a programming interview screening problem; common N=100 example; variant rules include other divisors such as 7 and digit-based triggers (number containing the digit triggers corresponding rule).
+ATTRIBUTION
 
-ATTRIBUTION AND METADATA
-- Source attribution: Wikipedia contributors, "Fizz buzz", retrieved 2026-03-06, URL: https://en.wikipedia.org/wiki/Fizz_buzz
-- Crawl data size (approx): 2 KB (text content only, simplified markdown conversion)
-- Extracted sections: game rules, example sequence, mention of interview use, variant rules, and external links (Rosetta Code, Enterprise FizzBuzz, Euler's FizzBuzz)
+Source: "Fizz buzz" — Wikipedia, The Free Encyclopedia. URL: https://en.wikipedia.org/wiki/Fizz_buzz
+Date retrieved: 2026-03-06
+Data size obtained during crawling: approximately 1.7 KB
 
-END
+END_OF_DOCUMENT
