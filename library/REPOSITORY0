@@ -5,156 +5,169 @@ NORMALISED_EXTRACT
 Table of Contents
 1. Project Overview
 2. Paths and Entry Points
-3. npm Scripts and Exact Commands
-4. Testing and Coverage
-5. agentic-lib Configuration (agentic-lib.toml key settings)
-6. Distributed Files and Restrictions
-7. Git Commit Trailer and Commit Rules
-8. Recommended Run & Troubleshooting Steps
-9. Supplementary Technical Specifications
-10. Reference Details (exact config values, commands, and patterns)
-11. Digest (source excerpt and retrieval date)
+3. CLI and Runtime Behavior
+4. npm Scripts and Exact Commands
+5. Testing: runner, patterns, and expectations
+6. agentic-lib Configuration (agentic-lib.toml exact values)
+7. Distributed-files policy and commit rules
+8. Supplementary Technical Notes
+9. Reference Details (function signatures, CLI flags, config keys)
+10. Troubleshooting & Runbook
 
 1) Project Overview
-- Package name: @xn-intenton-z2a/repository0 (package.json name: "repo", version 0.1.0).
-- Entry point: src/lib/main.js
-- Purpose: template repository demonstrating agentic-lib workflows; main focus file: src/lib/main.js; tests in tests/unit/ guard main.js behaviour.
-- Primary dependency: @xn-intenton-z2a/agentic-lib version ^7.1.60
-- Node engine requirement: node >= 24.0.0
+- Package name (package.json): repo, version: 0.1.0
+- Main export/entry: src/lib/main.js
+- Primary dependency: @xn-intenton-z2a/agentic-lib ^7.1.60
+- Node engine requirement: "node": ">=24.0.0"
+- Purpose: a minimal FizzBuzz library + CLI used as an agentic-lib workflow demonstration and test harness.
+- Core library contract (from MISSION.md): provide two named exports fizzBuzz(n) -> string[] and fizzBuzzSingle(n) -> string.
 
 2) Paths and Entry Points
-- Main executable path: src/lib/main.js (run with: node src/lib/main.js)
-- Tests folder: tests/unit/ (unit tests named *.test.js)
-- Config: agentic-lib.toml at project root governs agent/workflow behavior and path mappings.
-- Library documents live in library/ and are produced from SOURCES.md.
+- Source root: src/lib/
+- Main module: src/lib/main.js (exports fizzBuzz and fizzBuzzSingle)
+- Test folder: tests/unit/ (test files matching *.test.js)
+- README: README.md contains usage examples for CLI and library
+- Library documents: library/ produced from SOURCES.md
+- Sources index: SOURCES.md lists https://github.com/xn-intenton-z2a/repository0
 
-3) npm Scripts and Exact Commands
-- "build": echo "Nothing to build"
-- "test": vitest --run tests/unit/*.test.js
-- "test:unit": vitest --run --coverage tests/unit/*.test.js
-- "start": node src/lib/main.js
-- Use exact script names above when invoking via npm (npm test, npm run test:unit, npm start).
+3) CLI and Runtime Behavior (exact observed behavior from src/lib/main.js)
+- Exports: named exports fizzBuzz and fizzBuzzSingle are re-exported from src/lib/main.js.
+- CLI entry: when executed as a script (node src/lib/main.js) the module runs cli(process.argv.slice(2)).
+- Supported CLI usages (matching usage() output):
+  node src/lib/main.js --single N
+  node src/lib/main.js --range N
+  node src/lib/main.js N
+  node src/lib/main.js start end
+- Flag semantics:
+  --single N or --single=N : prints the single fizzBuzzSingle(N) value then exits. If N === 0, prints nothing and exits 0.
+  --range N or --range=N  : prints fizzBuzz(N) lines (1..N). If N === 0, prints nothing and exits 0.
+- Positional semantics:
+  Single positional N prints fizzBuzz(N) (one-per-line) except N === 0 prints nothing.
+  Two positionals start end: validates start >= 1 and end >= start, prints lines for inclusive range start..end using fizzBuzzSingle(i).
+- Input validation/errors:
+  Missing required numeric tokens or non-integer tokens throw TypeError with messages: "n is required" or "n must be an integer".
+  Negative or out-of-range numeric inputs produce RangeError (per MISSION tests).
+  Any thrown error prints concise err.message to stderr and sets process.exitCode = 1.
 
-4) Testing and Coverage
-- Test runner: vitest ^4.0.18 with coverage plugin @vitest/coverage-v8 ^4.0.18
-- Unit test invocation: npm run test:unit expands to: vitest --run --coverage tests/unit/*.test.js
-- Ensure tests target files in tests/unit/*.test.js; CI should run npm test which runs vitest --run tests/unit/*.test.js
+4) npm Scripts and Exact Commands (copy-paste safe)
+- build: echo "Nothing to build"
+- test: vitest --run tests/unit/*.test.js
+- test:unit: vitest --run --coverage tests/unit/*.test.js
+- start: node src/lib/main.js
+- Usage examples:
+  npm test
+  npm run test:unit
+  npm start
 
-5) agentic-lib Configuration (key settings from agentic-lib.toml)
-- schedule.supervisor = "off"
-- paths.mapping (explicit):
-  mission = "MISSION.md"
-  source = "src/lib/"
-  tests = "tests/unit/"
-  features = "features/"
-  library = "library/"
-  docs = "docs/"
-  examples = "examples/"
-  readme = "README.md"
-  dependencies = "package.json"
-  contributing = "CONTRIBUTING.md"
-  library-sources = "SOURCES.md"
-- execution commands:
-  build = "npm run build"
-  test = "npm test"
-  start = "npm run start"
-- limits: feature-issues=2, maintenance-issues=1, attempts-per-branch=3, attempts-per-issue=2, features-limit=2, library-limit=32
-- tuning defaults: model = "gpt-5-mini", infinite-sessions = false
+5) Testing: runner, patterns, and expectations
+- Test runner: vitest v4 (devDependency) with coverage plugin @vitest/coverage-v8
+- Test patterns used by scripts: tests/unit/*.test.js
+- Unit tests verify:
+  fizzBuzz(0) -> []
+  fizzBuzz(15) returns length 15 and last element equals "FizzBuzz"
+  fizzBuzzSingle(3) -> "Fizz"
+  fizzBuzzSingle(5) -> "Buzz"
+  fizzBuzzSingle(15) -> "FizzBuzz"
+  fizzBuzzSingle(7) -> "7"
+  negative numbers throw RangeError
+  non-integers throw TypeError
+- Tests are run with npm test which runs the vitest command above; coverage run via test:unit.
 
-6) Distributed Files and Restrictions (implementation-critical)
-- Many workflow and agent files are distributed from agentic-lib. Local edits to distributed files will be overwritten by npx @xn-intenton-z2a/agentic-lib init --purge.
-- Do not permanently edit distributed files unless you control agentic-lib source. Key distributed locations include .github/workflows/, .github/agentic-lib/, and specific seed files listed in agentic-lib.toml comments.
+6) agentic-lib Configuration (agentic-lib.toml exact key-values)
+[schedule]
+supervisor = "off"
 
-7) Git Commit Trailer and Commit Rules
-- All commits created by this assistant MUST include the trailer line exactly as below (append to commit message body):
+[paths]
+mission = "MISSION.md"
+source = "src/lib/"
+tests = "tests/unit/"
+features = "features/"
+library = "library/"
+docs = "docs/"
+examples = "examples/"
+readme = "README.md"
+dependencies = "package.json"
+contributing = "CONTRIBUTING.md"
+library-sources = "SOURCES.md"
+
+[execution]
+build = "npm run build"
+test = "npm test"
+start = "npm run start"
+
+[limits]
+feature-issues = 2
+maintenance-issues = 1
+attempts-per-branch = 3
+attempts-per-issue = 2
+features-limit = 2
+library-limit = 32
+
+[tuning]
+profile = "recommended"
+model = "gpt-5-mini"
+infinite-sessions = false
+
+[bot]
+log-file = "intentïon.md"
+
+7) Distributed-files policy and commit rules (implementation-critical)
+- Many workflow and agent files are distributed from agentic-lib; these can be overwritten via npx @xn-intenton-z2a/agentic-lib init --purge.
+- Do not edit distributed files persistently unless intentionally managing upstream agentic-lib sources.
+- Git commit trailer required for assistant-made commits (exact string):
   Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
-- Branch naming guidance: claude/<short-description> (policy in repo docs)
+- Branch naming guidance used by repository flows: claude/<short-description>
 - Do not rewrite history or delete branches without explicit permission.
 
-8) Recommended Run & Troubleshooting Steps
-- Prerequisites: Node.js >= 24.0.0, npm installed.
-- Install dependencies: npm ci or npm install
-- Run tests locally: npm test (unit) or npm run test:unit for coverage
-- If vitest fails to start: ensure Node >=24 and reinstall node_modules (rm -rf node_modules package-lock.json && npm ci).
-- If a script prints "Nothing to build" that indicates intentionally empty build step; no build artifacts expected.
-- For failing unit tests: run vitest with --reporter verbose by invoking directly: npx vitest --run tests/unit/*.test.js --reporter verbose
+8) Supplementary Technical Notes
+- Minimal-change policy: make smallest possible edits when modifying repository files (surgical changes only).
+- Plan file policy: for multi-step work create plan.md in session workspace before implementing and insert todos into session DB.
+- Session DB (todos, todo_deps) exists for task tracking; see agentic-lib docs for usage patterns.
+- Sandbox paths declared in repository README/mission guard where automation may write; review them before automation runs.
 
-9) Supplementary Technical Specifications
-- package.json exact dependency entries:
-  "dependencies": { "@xn-intenton-z2a/agentic-lib": "^7.1.60" }
-  "devDependencies": { "@vitest/coverage-v8": "^4.0.18", "vitest": "^4.0.18" }
-- engines field: "node": ">=24.0.0"
-- Test file pattern: tests/unit/*.test.js — vitest glob is used literally in scripts; avoid alternative glob expansions unless updating scripts.
-- Library limit: 32 (agentic-lib.toml tuning)
+9) Reference Details (API signatures, CLI flags, config keys, exact return types)
+- Library API (exact signatures and behaviors):
+  fizzBuzz(n)
+    Parameters: n (integer)
+    Returns: Array of strings of length n (if n >= 1), each element is either the decimal string of the integer or "Fizz"/"Buzz"/"FizzBuzz" per divisibility rules.
+    Edge cases: n === 0 -> returns [] ; n < 0 -> throw RangeError ; non-integer -> throw TypeError
 
-10) Reference Details (exact config values, commands, and patterns)
-- Exact npm script strings (copy/paste safe):
-  build: "echo \"Nothing to build\""
-  test: "vitest --run tests/unit/*.test.js"
-  test:unit: "vitest --run --coverage tests/unit/*.test.js"
-  start: "node src/lib/main.js"
-- agentic-lib.toml key-value pairs (exact):
-  [schedule]
-  supervisor = "off"
+  fizzBuzzSingle(n)
+    Parameters: n (integer)
+    Returns: string representing single-value substitutions: "Fizz" if divisible by 3, "Buzz" if divisible by 5, "FizzBuzz" if divisible by both, otherwise decimal string of n.
+    Edge cases: negative input -> RangeError ; non-integer -> TypeError
 
-  [paths]
-  mission = "MISSION.md"
-  source = "src/lib/"
-  tests = "tests/unit/"
-  features = "features/"
-  library = "library/"
-  docs = "docs/"
-  examples = "examples/"
-  readme = "README.md"
-  dependencies = "package.json"
-  contributing = "CONTRIBUTING.md"
-  library-sources = "SOURCES.md"
+- CLI flags and semantics (exact forms accepted):
+  --single=N or --single N  -> prints fizzBuzzSingle(N) then exits. N===0 -> prints nothing.
+  --range=N or --range N    -> prints fizzBuzz(N) lines in order 1..N. N===0 -> prints nothing.
+  Positional single N       -> prints fizzBuzz(N) (one-per-line)
+  Positional start end      -> prints fizzBuzzSingle(i) for each i in inclusive range start..end after validation start>=1 and end>=start
 
-  [execution]
-  build = "npm run build"
-  test = "npm test"
-  start = "npm run start"
+- Error messages (exact strings produced by parseIntegerToken and usage):
+  When token missing: "n is required"
+  When token not integer: "n must be an integer"
+  When start < 1: "start must be >= 1"
+  When end < start: "end must be >= start"
 
-  [limits]
-  feature-issues = 2
-  maintenance-issues = 1
-  attempts-per-branch = 3
-  attempts-per-issue = 2
-  features-limit = 2
-  library-limit = 32
+- npm scripts (exact strings): see section 4.
+- agentic-lib.toml keys and values: see section 6.
 
-- Co-authored-by trailer exact string (must exist in commit body):
-  Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+10) Troubleshooting & Runbook (step-by-step)
+1. Confirm Node version: node --version -> must be >= 24.0.0
+2. Install deps cleanly: rm -rf node_modules package-lock.json && npm ci
+3. Run tests: npm test ; for coverage: npm run test:unit
+4. If vitest errors: run npx vitest --run tests/unit/*.test.js --reporter verbose to see stack traces
+5. If CLI syntax errors occur: run node --check src/lib/main.js to get parse errors, or run node src/lib/main.js --range 15 to exercise runtime path.
+6. If distributed files cause unexpected repo state: re-initialize from agentic-lib source with npx @xn-intenton-z2a/agentic-lib init --purge (WARNING: overwrites distributed files)
 
-11) Digest (source excerpt and retrieval date)
-- Source: https://github.com/xn-intenton-z2a/repository0 (SOURCES.md entry)
-- Date retrieved: 2026-03-06
-- Extracted core technical facts: entry point, scripts, Node engine, vitest usage, agentic-lib mappings, distributed-file policy, commit trailer requirement.
-
-SUPPLEMENTARY DETAILS
-- Minimal change policy: "Make absolutely minimal modifications" — local agents and workflows enforce small, surgical edits.
-- Plan file policy: When substantial work begins, create a plan.md in session workspace and do not implement until user confirms (relevant for autonomous flows).
-- Session DB usage: repo tooling supports todos/todo_deps tables for task tracking (refer to agentic-lib docs in repository).
-
-TROUBLESHOOTING CHECKLIST (stepwise)
-1. Confirm Node version: node --version (must be >= v24.0.0)
-2. Clean install: rm -rf node_modules package-lock.json && npm ci
-3. Run unit tests: npm run test:unit ; if failures, run npx vitest --run tests/unit/*.test.js --reporter verbose to get stack traces.
-4. Verify main entry runs: node src/lib/main.js ; if syntax errors, run node --check src/lib/main.js to get parse errors.
-5. If agentic-lib distributed files cause unexpected behaviors, re-initialize from source: npx @xn-intenton-z2a/agentic-lib init --purge (note: this will overwrite distributed files).
-
-REFERENCE SNIPPETS (exact, copyable)
-- npm test: vitest --run tests/unit/*.test.js
-- npm run test:unit: vitest --run --coverage tests/unit/*.test.js
-- node engine requirement: ">=24.0.0"
-- dependency: "@xn-intenton-z2a/agentic-lib": "^7.1.60"
-
-DIGEST_SUMMARY
-This repository is a templated agentic-lib demonstration: primary implementation in src/lib/main.js, unit tests under tests/unit/, vitest for testing, agentic-lib.toml providing workflow and path mapping, and strict rules about distributed files and commit trailers. Use Node >=24 and the exact npm scripts listed above to run and test the project.
+SUPPLEMENTARY DIGEST
+- Source referenced in SOURCES.md: https://github.com/xn-intenton-z2a/repository0
+- Retrieval date: 2026-03-06
+- Extracted material used: package.json (scripts, deps, engines), agentic-lib.toml (paths, execution, limits, tuning), src/lib/main.js (CLI behavior, exports, input validation), tests/unit/main.test.js (expected behavior and assertions), MISSION.md (acceptance criteria), README.md (usage examples), CONTRIBUTING.md (contribution and policy notes).
 
 ATTRIBUTION
-- Source URL: https://github.com/xn-intenton-z2a/repository0
-- Retrieved on: 2026-03-06
-- Data size obtained while crawling: 334471606 bytes
+Source URL: https://github.com/xn-intenton-z2a/repository0
+Retrieved: 2026-03-06
+Data size obtained during crawl: 334471606 bytes
 
-END
+END OF DOCUMENT

@@ -2,46 +2,52 @@
 
 Summary
 
-A small companion feature that adds a command-line interface to the FizzBuzz library in a single-file implementation. The CLI is optional but provides a useful developer and demo UX for running fizzbuzz from the terminal and for simple end-to-end tests.
+A companion feature that provides a minimal, dependency-free command-line interface to the FizzBuzz library. The CLI offers a quick developer/demo UX and a small set of end-to-end tests that exercise the public library behavior via node invocation.
 
 Goals
 
-- Provide a minimal CLI entrypoint in src/lib/main.js or a thin wrapper that:
-  - When invoked with a single integer argument prints the fizzbuzzSingle result for that integer.
-  - When invoked with --range N or two positional arguments (start end) prints the fizzBuzz range or values from 1..N.
-  - Exit codes: 0 on success, non-zero for invalid input.
-- Add light e2e tests that exercise the CLI via node invocation (tests may spawn the node process and assert stdout).
-- Document CLI usage in README examples and examples/ directory.
+- Provide a CLI entrypoint implemented in src/lib/main.js (or a thin wrapper that delegates to the library) supporting:
+  - --single N or a single positional integer to print fizzBuzzSingle(N) to stdout.
+  - --range N or a single positional integer to print fizzBuzz(N) as one value per line (1..N replacements applied).
+  - Optional flags: --one-per-line to force line-separated output, default may be one-per-line for readability.
+  - Proper exit codes: 0 for success, non-zero for invalid input with explanatory message to stderr.
+- Add lightweight e2e tests that spawn node to run the CLI and assert stdout, stderr, and exit codes.
+- Document CLI usage with brief examples in README.md and examples/ directory.
 
 Usage
 
-- Run: node src/lib/main.js 15 -> prints the fizzBuzz array or one-per-line output depending on the flag.
-- Run: node src/lib/main.js --single 3 -> prints Fizz
-- Run: node src/lib/main.js --range 15 -> prints 1..15 with replacements, one-per-line
+- node src/lib/main.js --single 3  -> prints Fizz and exits 0
+- node src/lib/main.js --range 15   -> prints 15 lines, last line is FizzBuzz
+- node src/lib/main.js 3           -> prints Fizz (positional treated as single)
 
-Edge cases and validation
+Input validation and behavior
 
-- CLI should validate inputs the same as the library: negative numbers cause a non-zero exit and an explanatory message on stderr, non-integers cause a non-zero exit and explanatory message.
-- For zero range, print nothing and exit 0.
+- CLI must reuse library validation: negative inputs -> exit non-zero and write an error to stderr; non-integers and non-finite values -> exit non-zero with explanatory stderr.
+- For zero range, CLI prints nothing and exits 0.
+- CLI implementation must not add external dependencies and should keep parsing simple using process.argv.
 
 Testing and Acceptance Criteria
 
-- Tests include CLI e2e tests under tests/unit or tests/e2e that assert:
-  - node src/lib/main.js --single 3 prints Fizz and exits 0
-  - node src/lib/main.js --range 15 prints 15 lines and last line is FizzBuzz
-  - Invalid inputs print an error to stderr and exit with non-zero status
+E2E tests should be located under tests/e2e or tests/unit and include:
 
-- Acceptance checklist:
-  - CLI prints expected results for single and range modes
-  - CLI exits with appropriate exit codes for invalid input
-  - README contains brief CLI examples
+- node src/lib/main.js --single 3 prints "Fizz" to stdout and exits with code 0.
+- node src/lib/main.js --range 15 prints exactly 15 non-empty lines and the final line equals "FizzBuzz".
+- node src/lib/main.js 15 --one-per-line prints 15 lines identical to the --range behavior.
+- Invalid inputs (e.g., -1, 3.5, NaN) cause non-zero exit and write a helpful message to stderr.
+
+Acceptance checklist:
+
+- CLI prints expected results for single and range modes.
+- CLI exits with appropriate codes and messages for invalid input.
+- README contains brief CLI examples.
+- E2E tests pass via npm test.
 
 Implementation notes
 
-- Implement CLI argument parsing without adding external dependencies (use process.argv and simple parsing).
-- Keep CLI logic thin: delegate core logic to fizzBuzz and fizzBuzzSingle exports.
-- E2E tests may use child_process.spawnSync or spawn to execute node and capture stdout/stderr for assertions.
+- Implement argument parsing manually (process.argv) and delegate core logic to fizzBuzz and fizzBuzzSingle named exports.
+- Keep the CLI thin and ensure messages and exit codes match the library semantics.
+- Use child_process.spawnSync in tests to run node and capture stdout/stderr for assertions.
 
 Compatibility
 
-This feature sits on top of FIZZBUZZ_CORE and does not change the core API. It is achievable in a single source file and aligns with the mission to provide a minimal working FizzBuzz library and developer UX.
+This feature complements FIZZBUZZ_CORE, does not change the core API, and is achievable entirely inside the repository's single-file library and tests. It supports the project's mission by improving developer UX and providing end-to-end verification of library behaviour.
