@@ -1,42 +1,34 @@
 # Roman Numeral Converter
 
-A small JavaScript library for converting between integers (1..3999) and Roman numeral strings using standard subtractive notation.
+Small library to convert between integers (1..3999) and Roman numeral strings.
 
-Usage
+Exports:
+
+- `toRoman(n)` - convert integer to Roman string (1..3999)
+- `fromRoman(s, options)` - parse Roman string to integer. Options:
+  - `lenient` (boolean, default false) - opt-in lenient parsing accepting a small set of common nonstandard forms (lowercase input and repeated additive forms like "IIII").
+  - `normalize` (boolean, default true) - trim and collapse whitespace before parsing when enabled.
+
+Examples
+
+Strict mode (default):
 
 ```js
-import { toRoman, fromRoman } from './src/lib/main.js';
+import { fromRoman, toRoman } from './src/lib/main.js'
+fromRoman('MCMXCIV') // 1994
+// fromRoman('IIII') -> throws TypeError in strict mode
+```
 
-console.log(toRoman(1994)); // 'MCMXCIV'
-console.log(fromRoman('MCMXCIV')); // 1994
+Lenient mode:
+
+```js
+fromRoman('IIII', { lenient: true }) // 4
+fromRoman('mcmxciv', { lenient: true }) // 1994
+fromRoman('  mcm xciv  ', { lenient: true, normalize: true }) // 1994
+fromRoman('IiIi', { lenient: true }) // parsed case-insensitively -> 4
 ```
 
 Notes
 
-- toRoman(n) throws RangeError if n is outside 1..3999.
-- fromRoman(s) throws TypeError for invalid or non-standard Roman numeral strings (e.g. 'IIII' is rejected).
-
-Conversion table (common values)
-
-| Number | Roman |
-|--------|-------|
-| 1      | I     |
-| 4      | IV    |
-| 5      | V     |
-| 9      | IX    |
-| 10     | X     |
-| 40     | XL    |
-| 50     | L     |
-| 90     | XC    |
-| 100    | C     |
-| 400    | CD    |
-| 500    | D     |
-| 900    | CM    |
-| 1000   | M     |
-
-API
-
-- toRoman(n: number): string
-- fromRoman(s: string): number
-
-License: MIT
+- The lenient mode performs a narrow set of safe transformations and then reuses the strict validator; obviously malformed inputs (e.g., "ABC", "VXZ") are still rejected even in lenient mode.
+- Unknown options are ignored; the signature `fromRoman(s, options)` remains backward compatible.
