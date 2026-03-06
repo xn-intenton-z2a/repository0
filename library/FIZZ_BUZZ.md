@@ -3,122 +3,146 @@ DOCUMENT: FIZZ_BUZZ
 NORMALISED EXTRACT
 
 Core rules and behavior
-- For each positive integer in a counting sequence, replace values according to divisibility rules: divisible by 3 => output "fizz"; divisible by 5 => output "buzz"; divisible by both 3 and 5 => output "fizzbuzz".
-- Variants: additional divisors (e.g., 7) and rules that trigger when the number contains a digit (e.g., any number containing '5' triggers "buzz").
-- Game form: players count aloud and apply rules; in programming this maps to generating or streaming the sequence.
-- Common interview use: produce first N entries or print up to 100; used to verify basic control flow and edge-case handling.
+- Replace each integer in a counting sequence with labels according to divisibility rules: divisible by 3 => fizz; divisible by 5 => buzz; divisible by both 3 and 5 => fizzbuzz.
+- Extendable rules: add any divisor and label pair; optionally treat a rule as matching when the decimal representation contains a configured digit.
+- In implementations prefer label concatenation: evaluate every rule for a number and append matching labels; if none match, emit the decimal string.
+- Common usage: generate first N entries, stream results for large N, or use as a control-flow interview question.
 
 Table of Contents
 1. Rule set and core logic
 2. Function signatures and configuration
-3. Implementation patterns and optimizations
+3. Implementation patterns and performance optimizations
 4. Time/space complexity and scaling guidance
 5. Edge cases, tests and validation
-6. Troubleshooting checklist
+6. Supplementary implementation details
+7. Reference API specifications and method signatures
+8. Troubleshooting and best practices
+9. Digest and attribution
 
 1. Rule set and core logic
-- Primary mapping: if number % 3 == 0 and number % 5 == 0 => "fizzbuzz". Otherwise if number % 3 == 0 => "fizz". Otherwise if number % 5 == 0 => "buzz". Otherwise => the number's decimal representation.
-- Alternative implementation: iterate divisors in a deterministic order, concatenate corresponding labels when number divisible by each divisor; if concatenation is empty output number.
-- Combined-rule approach: compute label = concat(label_i for each divisor_i if number % divisor_i == 0); output label if non-empty else number.
-- Digit-containing rule: if enabled, also apply rule when the decimal representation contains the configured digit for that divisor.
+- Core algorithm (deterministic, extensible): for each integer i in [start, end]:
+  - Initialize label = empty string.
+  - For each rule in rules (ordered):
+    - If i % rule.divisor == 0 then append rule.label to label.
+    - If rule.matchDigit is true and decimalString(i) contains configured digit, append rule.label.
+  - Output label if non-empty; otherwise output decimalString(i).
+- Use deterministic rule ordering to ensure predictable concatenation when multiple rules match.
+- Avoid special-casing combined divisors when using concatenation; combined outputs produce naturally (for example, fizz + buzz => fizzbuzz).
 
 2. Function signatures and configuration
-- Generic signature (JavaScript): function fizzBuzzRange(start: integer, end: integer, rules: Array<{divisor:int,label:string,matchDigit?:boolean}>) => Array<string>
-- Minimal signature (Java/Python): List<String> fizzBuzz(int n) or def fizz_buzz(n: int) -> List[str]
-- Streaming/IO signature: void printFizzBuzz(int start, int end, OutputStream out) — writes line-delimited values to out.
-- Configuration options:
-  - start (integer, default 1): inclusive start of counting range
-  - end (integer): inclusive end of counting range
-  - rules (list): ordered list of divisor/label pairs; each entry: divisor (int > 0), label (string), matchDigit (boolean, optional)
-  - separator (string, default: single space or newline when streaming)
-  - lcmOptimization (boolean): if true, perform combined checks via LCM when many fixed divisors present
+- JavaScript (Node) primary signature:
+  function fizzBuzzRange(start: integer, end: integer, rules: Array<{divisor: number, label: string, matchDigit?: boolean}>, options?: {separator?: string, stream?: WritableStream, lcmOptimization?: boolean}) -> Array<string> | undefined
+  - start: integer, default 1. end: integer >= start. rules: ordered list of rule objects. options.stream: if present, function writes UTF-8 line-delimited output to stream and returns undefined. options.separator default '\n'.
+- Python signature:
+  def fizz_buzz(end: int, start: int = 1, rules: Sequence[Tuple[int, str]] = ((3, 'fizz'), (5, 'buzz')), match_digit: bool = False) -> List[str]
+  - Raises ValueError if end < start or any divisor <= 0.
+- Java signature:
+  List<String> fizzBuzz(int start, int end, List<Rule> rules)
+  - Rule: class Rule { int divisor; String label; boolean matchDigit; }
+- C# signature:
+  IEnumerable<string> FizzBuzzRange(int start, int end, IEnumerable<Rule> rules, bool stream = false)
+- Common options (cross-language):
+  - start: inclusive start integer (default 1)
+  - end: inclusive end integer
+  - rules: ordered list of (divisor > 0, label non-empty, optional matchDigit boolean)
+  - separator: string used when streaming (default newline)
+  - stream: writable destination to avoid collecting full output
+  - lcmOptimization: boolean to enable LCM-based combined checks when beneficial
 
-3. Implementation patterns and optimizations
-- Straightforward loop:
-  - For i from start to end: initialize outLabel = ""; for each rule in rules: if i % rule.divisor == 0 then outLabel += rule.label; if rule.matchDigit and decimalString(i) contains digit for rule.divisor, append label. If outLabel empty, output decimal string(i) else outLabel.
-- Combined-check ordering:
-  - Avoid checking combined (3 and 5) separately when concatenation approach is used; concatenation naturally produces "fizzbuzz" when both divisors match.
-  - When checking combined via single condition, use lcm = lcm(divisors) to detect combined-case: if i % lcm == 0 -> combined label.
-- Modulo reduction optimization for very high N:
-  - Use counters for each divisor: decrement counters and reset to divisor when zero instead of performing modulo for each i; reduces % operations to occasional resets.
-- Memory/IO optimization:
-  - Streaming output line-by-line to an OutputStream/Writer to avoid storing entire result for large ranges.
-  - Buffer writes to reduce syscalls (e.g., write in blocks of 8k).
-- Vectorized / SIMD / parallel:
-  - Parallelizing the core loop is possible for very large ranges if order isn't critical or outputs can be partitioned, but beware of IO ordering.
+3. Implementation patterns and performance optimizations
+- Baseline loop: O(n * r) time where n = end - start + 1 and r = number of rules. Implementation steps: convert integer to string only when needed (avoid unnecessary allocations).
+- Concatenation approach: evaluate all rules and append labels; this avoids special-case bugs for combined matches.
+- LCM-based combined-check: compute lcm of multiple divisors to detect simultaneous divisibility in a single modulo check when r is small and fixed. lcm(a,b) = abs(a*b)/gcd(a,b).
+- Counter (modulo reduction) optimization: for each divisor maintain counter_i initialized to divisor_i; on each iteration decrement counters; when counter_i reaches zero, append label and reset counter_i = divisor_i. This replaces per-iteration modulo with decrement and branch, reducing CPU cost under heavy iteration.
+- IO buffering: buffer writes into blocks (suggested 4k–8k bytes) then flush to stream to minimize syscalls. Use binary/UTF-8 writer appropriate to environment.
+- Parallelization: partition numeric range into contiguous blocks for workers; each worker computes its block into an in-memory buffer and then outputs in order. Preserve overall ordering by either sequentially writing worker buffers or assigning ordered blocks.
 
 4. Time/space complexity and scaling guidance
-- Time: O(n * r) where n = number of values (end - start + 1) and r = number of rules (divisors). Using counters reduces constant factor of modulo operations.
-- Space: O(n) if collecting results; O(1) extra when streaming.
-- Practical guidance: for n up to millions, stream and avoid collecting into memory; for n below ~1e6 collecting is safe in managed languages depending on element size.
+- Time complexity: O(n * r) worst-case; counters and other micro-optimizations reduce constant factors.
+- Space complexity: O(n) when collecting results; O(1) extra when streaming. For very large n prefer streaming to avoid OOM.
+- Practical thresholds: collecting into memory is suitable for n up to roughly 1e6 depending on per-element size and runtime; above that, prefer streaming.
 
 5. Edge cases, tests and validation
-- Input validation: n must be integer; start <= end; divisors > 0; labels non-empty.
-- Tests to include:
-  - Basic correctness: small ranges verifying known outputs (1..15 includes first fizzbuzz occurrence at 15).
-  - Custom rules: additional divisors and digit-matching rules.
-  - Boundaries: start == end; start > end returns empty or raises error depending on API contract.
-  - Large N streaming: verify no OOM and correct ordering.
-  - Negative and zero divisors: reject with ArgumentError/TypeError.
+- Input validation rules:
+  - start and end must be integers and start <= end.
+  - All divisors must be integers > 0.
+  - Labels must be non-empty strings.
+  - matchDigit flag must be boolean when present.
+- Unit tests to include:
+  - Known sequence verification for range 1..15 producing correct fizz, buzz, and fizzbuzz placements.
+  - Custom rule sets: verify behavior with additional divisors and digit-matching enabled.
+  - Boundary conditions: start == end returns single-element output; start > end should either return empty list or raise, per API contract.
+  - Invalid inputs: negative or zero divisors, non-integer start/end should raise appropriate exceptions.
+  - Large-range streaming: integration test ensuring no OOM and correct first/last elements.
 
-6. Troubleshooting checklist
-- "Fizz Buzz" missing for 15: check order of checks or concatenation logic; ensure both 3 and 5 are applied, or check combined LCM logic.
-- Wrong casing or spacing: verify label strings and separator configuration.
-- Performance issues at scale: switch from collecting to streaming and apply modulo-counter optimization.
-- Unexpected matches for digit rules: ensure digit-match uses decimal string and exact digit characters.
+6. Supplementary implementation details
+- LCM calculation: implement gcd via Euclid's algorithm using integer arithmetic; compute lcm(a,b) = (a / gcd(a,b)) * b to reduce intermediate overflow risk. For chains: lcm(a,b,c) = lcm(lcm(a,b),c).
+- Counter arrays: store counters in a fixed-size integer array aligned with rules; initialize counters[i] = rules[i].divisor. On each iteration decrement counters[i]; if counters[i] == 0 then append rules[i].label and reset counters[i] = rules[i].divisor.
+- Digit matching: compute decimal string once per iteration only if any rule has matchDigit enabled; match by character containment of the decimal digit corresponding to rule.divisor's relevant digit (usually use string of divisor or configured digit).
+- Buffering: use a buffer writer with capacity >= 4096 bytes; write entries separated by options.separator; flush at end or when buffer full.
+- Error handling: validate inputs at entry and raise precise exceptions (ValueError/IllegalArgumentException/ArgumentException) with messages including offending parameter and value.
 
-SUPPLEMENTARY DETAILS (technical specifications)
-- LCM for combined detection: lcm(a,b) = abs(a*b)/gcd(a,b). Use integer arithmetic to compute lcm safely; guard against overflow for very large divisors.
-- Counter optimization: maintain integer counter_i initialized to divisor_i; on each iteration decrement counter_i; when counter_i == 0, emit label and reset counter_i = divisor_i.
-- Buffering: use buffered writer with capacity >= 4096 bytes; flush at end or when buffer full.
-- Concurrency: partition range into contiguous blocks assigned to worker threads; each worker writes to its own buffer, then merge buffers preserving order or write to separate files.
+7. Reference API specifications and method signatures
+- JavaScript (Node) API
+  Signature
+    - function fizzBuzzRange(start, end, rules, options) -> Array<string> | undefined
+  Parameters
+    - start: integer, default 1. If not integer, throw TypeError.
+    - end: integer >= start. If end < start, throw RangeError or return empty array per chosen contract.
+    - rules: Array of objects with fields: divisor (integer > 0), label (non-empty string), matchDigit (optional boolean).
+    - options: object with optional fields: separator (string, default '\n'), stream (Writable stream), lcmOptimization (boolean, default false).
+  Return
+    - If options.stream provided: returns undefined and writes results to stream encoded as UTF-8 using options.separator between entries.
+    - Otherwise returns Array<string> of length end - start + 1.
+  Behavior details
+    - Deterministic: rules evaluated in provided order. Concatenate labels in that order.
+    - Side effects: when stream provided, function must not allocate the full output array.
 
-REFERENCE DETAILS (exact API signatures, options, behaviors)
-- JavaScript (Node):
-  - Signature: function fizzBuzzRange(start, end, rules, options) -> Array<string>
-    - start: integer >= 0
-    - end: integer >= start
-    - rules: [{divisor: number (>0), label: string, matchDigit?: boolean}]
-    - options: {separator?: string, stream?: WritableStream, lcmOptimization?: boolean}
-    - Returns: if options.stream provided, returns undefined and writes to stream; otherwise returns Array<string> of length end-start+1.
-- Python:
-  - Signature: def fizz_buzz(end: int, start: int = 1, rules: Sequence[Tuple[int,str]] = ((3,'fizz'),(5,'buzz')), match_digit: bool = False) -> List[str]
-  - Behavior: raises ValueError if end < start or any divisor <= 0.
-- Java:
-  - Signature: List<String> fizzBuzz(int start, int end, List<Rule> rules)
+- Python API
+  Signature
+    - def fizz_buzz(end: int, start: int = 1, rules: Sequence[Tuple[int, str]] = ((3, 'fizz'), (5, 'buzz')), match_digit: bool = False) -> List[str]
+  Parameter rules format
+    - rules: sequence of (divisor:int, label:str) tuples; matchDigit may be included as third element per rule or controlled globally via match_digit flag.
+  Exceptions
+    - Raises ValueError for invalid ranges or divisors.
+
+- Java API
+  Signature
+    - List<String> fizzBuzz(int start, int end, List<Rule> rules)
+  Rule class
     - class Rule { int divisor; String label; boolean matchDigit; }
-- C#:
-  - Signature: IEnumerable<string> FizzBuzzRange(int start, int end, IEnumerable<Rule> rules, bool stream = false)
+  Behavior
+    - Returns list of strings for inclusive range [start, end]. Validate inputs and throw IllegalArgumentException when invalid.
 
-Concrete configuration examples (descriptive):
-- Default rules: rules = [{divisor:3,label:"fizz"},{divisor:5,label:"buzz"}]
-- Digit rule: rules = [{divisor:3,label:"fizz"},{divisor:5,label:"buzz",matchDigit:true}]
+- C# API
+  Signature
+    - IEnumerable<string> FizzBuzzRange(int start, int end, IEnumerable<Rule> rules, bool stream = false)
+  Behavior
+    - When stream = true, write to provided TextWriter or yield strings lazily to avoid collecting.
 
-Best practices
-- Prefer concatenation approach (iterate rules and append labels) for extensibility and to avoid missing combined matches.
-- Use streaming output for large ranges to avoid memory pressure.
-- Validate inputs early and fail fast with clear error messages.
+8. Troubleshooting and best practices
+- Common issues and fixes
+  - Missing combined label (e.g., fizzbuzz at 15): ensure concatenation approach is used or the LCM-based combined check includes all relevant divisors.
+  - Incorrect digit-matching: normalize the integer to decimal string and use simple substring checks for the target digit; avoid numeric digit extraction pitfalls.
+  - Performance bottleneck dominated by modulo operations: apply counter optimization to remove repeated modulo operations.
+  - Memory pressure on large ranges: switch to streaming and buffer writes.
+- Best practices
+  - Use concatenation rule evaluation for extensibility and correctness.
+  - Validate input early and provide clear error messages.
+  - Prefer streaming and buffering for large N; benchmark before applying heavy parallelization.
 
-STEP-BY-STEP TROUBLESHOOTING
-1. Reproduce the failing input range and exact output.
-2. Verify rule list and ordering passed into function.
-3. For missing combined label, log per-iteration label building (or simulate for small range) to ensure both divisibility checks are evaluated.
-4. For performance regressions, profile: check time spent in modulo operations vs IO; if modulo dominates, apply counter optimization.
-5. For incorrect digit-matching, normalize to decimal string and check character containment rather than numeric operations.
-
-DIGEST
-- Source: Wikipedia — "Fizz buzz" (https://en.wikipedia.org/wiki/Fizz_buzz)
+9. Digest and attribution
+- Digest: Extracted authoritative technical details on core rules, extensible rule models (divisor and digit matches), algorithmic patterns (concatenation, LCM optimization, counter optimization), API signatures across JS/Python/Java/C#, input validation, buffering and streaming guidance, and troubleshooting steps.
+- Source reference: Wikipedia — "Fizz buzz" — URL: https://en.wikipedia.org/wiki/Fizz_buzz
 - Date retrieved: 2026-03-06
-- Extracted content: core rules, variants, interview usage, example sequence, references to Rosetta Code and other implementations.
-- Data size obtained during crawl: approximately 2.8 kilobytes of page text (HTML/plain extraction).
+- Data size obtained during crawl: approximately 2800 bytes
 
 ATTRIBUTION
-- Primary source: Wikipedia contributors, "Fizz buzz", retrieved 2026-03-06, URL: https://en.wikipedia.org/wiki/Fizz_buzz
-- Licensing: content from Wikipedia is available under CC BY-SA; include attribution when reusing substantial verbatim content.
+- Source: Wikipedia contributors, "Fizz buzz". Content licensed under CC BY-SA; include attribution when reusing verbatim content.
 
 CRAWL METADATA
 - Source URL: https://en.wikipedia.org/wiki/Fizz_buzz
-- Retrieved at: 2026-03-06T02:53:51.681Z
+- Retrieved at: 2026-03-06T03:02:17.642Z
 - Size (approx): 2800 bytes
 
 END OF DOCUMENT
