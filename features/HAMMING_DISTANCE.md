@@ -2,7 +2,7 @@
 
 # Overview
 
-Provide a concise, high-impact feature that implements the core Hamming distance functions required by the library mission. The feature defines two named exports, hammingDistance and hammingDistanceBits, with strict input validation, Unicode-safe string comparison (code points, not UTF-16 code units), and fast bit-distance computation for non-negative integers.
+Canonical specification for the library's Hamming distance utilities. This feature defines two named exports, hammingDistance and hammingDistanceBits, with strict input validation, Unicode-safe string comparison (by code points and NFC-normalized), and flexible bit-distance computation supporting Numbers, BigInts and byte-sequence buffers. The goal is a single authoritative feature that covers typical string use, integer-based bit comparison, and byte-buffer comparisons used for binary data.
 
 # Specification
 
@@ -10,39 +10,53 @@ Functions
 
 1. hammingDistance(a, b)
 
-- Description: Compute the Hamming distance between two strings of equal length measured in Unicode code points.
+- Signature: hammingDistance(a: string, b: string) -> number
+- Description: Compute the Hamming distance between two strings of equal length measured in Unicode code points after normalizing both inputs to Unicode Normalization Form C (NFC).
 - Parameters:
   - a: string — first input string
   - b: string — second input string
 - Returns: number — count of positions where the code points differ
 - Validation and errors:
-  - If either a or b is not a string, throw TypeError with a clear message.
-  - Compare strings by Unicode code points (for-of or Array.from) not by UTF-16 code units.
+  - If either a or b is not a string, throw TypeError with a clear message describing the expected types.
+  - Normalize both strings using String.prototype.normalize('NFC') before comparison.
+  - Compare strings by Unicode code points (use Array.from or for-of over the normalized string) rather than UTF-16 code units.
   - If the two strings do not have the same number of code points, throw RangeError.
 - Behavior examples:
   - hammingDistance("karolin", "kathrin") returns 3
   - hammingDistance("", "") returns 0
+  - hammingDistance('e\u0301', 'é') returns 0 (combining sequence equals precomposed character after NFC)
 - Implementation notes:
-  - Iterate code points using for-of or Array.from to ensure correct Unicode handling.
-  - Use a single pass comparison and avoid building large intermediate arrays when possible.
+  - Iterate code points using for-of or Array.from(normalized) to ensure correct Unicode handling.
+  - Use a single pass comparison and avoid building large intermediate arrays when possible; for clarity tests may use Array.from.
 
 2. hammingDistanceBits(x, y)
 
-- Description: Compute the number of differing bits between two non-negative integers.
-- Parameters:
-  - x: integer (Number) — non-negative integer
-  - y: integer (Number) — non-negative integer
-- Returns: number — count of bit positions that differ
+- Signature: hammingDistanceBits(x, y) -> number
+- Description: Compute the number of differing bits between two inputs. Supported input combinations fall into three modes:
+  a) Integer mode: both x and y are Number or BigInt representing non-negative integers. Mixed Number/BigInt calls are allowed; Numbers are coerced to BigInt when either operand is BigInt.
+  b) Buffer mode: both x and y are Buffer, Uint8Array, or ArrayBuffer. In this mode the function computes per-byte XOR and sums per-byte popcounts.
+  c) Fixed-width integer arrays may be represented as Uint8Array/ArrayBuffer and are handled by buffer mode.
+- Returns: number — count of bit positions that differ across the operands.
 - Validation and errors:
-  - If either x or y is not a Number or not an integer, throw TypeError.
-  - If either is negative, throw RangeError.
-  - For safety, validate integers are within Number.isSafeInteger range; if values exceed safe integer bounds, the implementation may accept BigInt optionally or throw RangeError — define chosen behavior in tests and README.
+  - If types do not match one of the supported modes, throw TypeError describing the supported signatures (Number/BigInt or Buffer/Uint8Array/ArrayBuffer).
+  - Integer mode:
+    - Accept Number or BigInt. If either operand is a Number and Number.isSafeInteger(value) is false, throw RangeError suggesting use of BigInt for large integers.
+    - After coercion, if either integer is negative, throw RangeError.
+  - Buffer mode:
+    - Accept Buffer, Uint8Array, or ArrayBuffer. Convert ArrayBuffer to Uint8Array view when necessary.
+    - If the two buffers have different byte lengths, throw RangeError.
 - Behavior examples:
   - hammingDistanceBits(1, 4) returns 2 (binary: 001 vs 100)
+  - hammingDistanceBits(1n, 4n) returns 2
   - hammingDistanceBits(0, 0) returns 0
+  - hammingDistanceBits(new Uint8Array([0b10100000]), new Uint8Array([0b00100001])) returns 3
 - Implementation notes:
-  - Use XOR (x ^ y) to get differing bits and Brian Kernighan's algorithm or builtin popcount (if available) to count set bits efficiently.
-  - Prefer Number-based implementation to keep the code simple; document limits related to Number.MAX_SAFE_INTEGER in README.
+  - Integer mode:
+    - Prefer Number-based bit operations when both operands are Numbers within safe integer range for performance.
+    - If BigInt is involved (or Numbers coerced due to size), use BigInt XOR and count set bits with an adapted Brian Kernighan algorithm for BigInt: while (xor !== 0n) { xor &= xor - 1n; count++; }.
+  - Buffer mode:
+    - Iterate bytes, compute byteXor = byteA ^ byteB, and use a small constant-time popcount table or Brian Kernighan on Numbers (0-255) to sum differing bits.
+  - Keep code paths separate to preserve performance for common Number-based use cases, while providing correct behavior for BigInt and buffer inputs.
 
 Exports
 
@@ -50,13 +64,23 @@ Exports
 
 # Tests and Examples
 
-Unit tests must be comprehensive and live under tests/unit/ as per repository conventions. Tests should cover:
+Unit tests must be comprehensive and live under tests/unit/ per repository conventions. Tests should cover:
 
-- Normal cases: typical short strings, typical integers
-- Edge cases: empty strings, zero, maximum safe integers, strings with multi-code-point characters (emoji, accented characters), very long strings
-- Error cases: wrong types (objects, null, undefined, arrays, floats for integer functions), unequal-length strings, negative integers, non-integer numbers for hammingDistanceBits
+- String cases:
+  - Typical ASCII strings and multi-codepoint characters (emoji, combining accents)
+  - Normalization examples where equivalent sequences compare equal (e.g., e + combining accent vs precomposed é)
+  - Unequal-length strings raising RangeError and wrong types raising TypeError
+- Integer cases:
+  - Number-based examples including 1 vs 4, 0 vs 0, large safe integers
+  - BigInt examples and mixed Number/BigInt combinations
+  - Negative integers and non-integer numbers should raise RangeError/TypeError as appropriate
+  - Numbers greater than Number.MAX_SAFE_INTEGER should throw RangeError unless caller uses BigInt
+- Buffer cases:
+  - Equal-length buffers with expected differing bit counts
+  - Different-length buffers should raise RangeError
+  - Accept Buffer, Uint8Array and ArrayBuffer
 
-Provide README examples showing basic usage and documenting Unicode handling and integer limits.
+Provide README examples showing usage, NFC-normalization note, BigInt guidance, and buffer-based examples.
 
 # Acceptance Criteria
 
@@ -65,14 +89,20 @@ The feature is complete when the following are satisfied and testable:
 - hammingDistance("karolin", "kathrin") returns 3
 - hammingDistance("", "") returns 0
 - hammingDistance("a", "bb") throws RangeError
+- hammingDistance("e\u0301", "é") returns 0 (normalization)
 - hammingDistanceBits(1, 4) returns 2
+- hammingDistanceBits(1n, 4n) returns 2
+- hammingDistanceBits(1, 4n) returns 2 (mixed coercion)
 - hammingDistanceBits(0, 0) returns 0
-- The library exports both functions as named exports from src/lib/main.js
-- All new unit tests covering normal, edge and error cases are present and pass
-- README contains usage examples and documents Unicode code point comparison and integer limits
+- hammingDistanceBits(new Uint8Array([1,2,3]), new Uint8Array([1,2,3])) returns 0
+- Passing Number > Number.MAX_SAFE_INTEGER without BigInt throws RangeError
+- Negative inputs throw RangeError
+- Non-numeric/non-buffer inputs throw TypeError
+- Both functions are exported as named exports from src/lib/main.js
+- All unit tests pass
 
 # Implementation notes and constraints
 
-- Keep the implementation contained to src/lib/main.js and tests in tests/unit/. Do not add new top-level dependencies.
-- Prefer simple, well-documented code that meets validation and Unicode requirements.
-- If Small follow-ups are needed (BigInt support or performance micro-optimizations), add them as separate incremental features later.
+- Implementation fits entirely in src/lib/main.js and tests in tests/unit/. Do not add new runtime dependencies.
+- Keep code clear and minimal; prefer branching on input types and implementing small, well-tested helpers for popcount and buffer handling.
+- Update README.md with usage examples and API documentation reflecting normalization and BigInt/buffer support.
