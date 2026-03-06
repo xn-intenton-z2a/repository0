@@ -1,2 +1,0 @@
-hammingDistance("karolin", "kathrin") => 3
-hammingDistance("", "") => 0
