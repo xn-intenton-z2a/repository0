@@ -1,0 +1,47 @@
+Normalised Extract
+
+Table of contents
+1. Installation Requirements
+2. Basic Usage and CLI
+3. Configuration and Projects
+4. Best Practices for Tests
+
+1. Installation Requirements
+- Vitest requires Node >= 20.0.0 and Vite >= 6.0.0. Install via npm install -D vitest (or yarn/pnpm/bun equivalents).
+
+2. Basic Usage and CLI
+- Typical npm script: "test": "vitest". Run tests once with vitest run; run in watch mode with vitest (no run). Additional CLI flags include --config <path> to supply custom config and --coverage to gather coverage.
+- Test file discovery: files must include .test. or .spec. in filename by default.
+
+3. Configuration and Projects
+- Configuration via vitest.config.[js|ts|mjs] or via test property in vite.config. Use defineConfig from 'vitest/config' for typed configs. You can supply multiple projects for parallel configs; project config objects accept environment, name, root, and setupFiles.
+- Projects support: arrays of glob patterns or explicit config objects to run multiple environments (node, happy-dom, etc.) in one Vitest process.
+
+4. Best Practices for Tests
+- Prefer local installation of vitest as a devDependency. For bundler-based projects use a vite config with test property so Vite plugins and aliases apply under test.
+- For CI use vitest run; manage automatic dependency prompts by setting VITEST_SKIP_INSTALL_CHECKS=1 in CI environments.
+
+Supplementary Details
+
+Technical specifications and implementation details
+- Config file formats supported: .js, .mjs, .cjs, .ts, .cts, .mts (not .json)
+- Merging configs: use mergeConfig to combine vite.config and vitest config when separate files exist.
+
+Reference Details
+
+APIs and signatures
+- CLI: vitest [options]
+- Node API: import { run } from 'vitest' (internal use; prefer CLI)
+- Config: defineConfig({ test: { /* options */ }})
+
+Detailed Digest
+
+Source section extracted: https://vitest.dev/guide/
+Retrieved: 2026-03-07T16:24:57.835Z
+Extracted content: getting started, installation commands, configuration mechanics, projects support, CLI usage, and examples.
+
+Attribution and Crawl Data
+- Source: Vitest Guide
+- Retrieved: 2026-03-07T16:24:57.835Z
+- Approx. data size retrieved: 35.0 KB
+- License: Vitest documentation, repository license applies

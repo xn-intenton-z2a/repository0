@@ -1,0 +1,60 @@
+Normalised Extract
+
+Table of contents
+1. Core Characteristics
+2. Indices and length relationship
+3. Empty slots and method semantics
+4. Mutating vs non-mutating methods
+5. Iterative callback signatures
+
+1. Core Characteristics
+- JavaScript arrays are resizable Array objects (not primitives) that can contain mixed data types. Arrays are zero-indexed; first element at index 0; last element index = length - 1.
+
+2. Indices and length relationship
+- Valid array indices are non-negative integers (or their string equivalents). Setting arr[5] updates length to at least 6. Increasing length via arr.length = N creates empty slots without element entries; decreasing length truncates and deletes elements beyond new length.
+
+3. Empty slots and method semantics
+- Sparse arrays contain empty slots. Iteration methods differ in treating empty slots: forEach, map, filter skip empty slots; newer methods like keys, entries, values treat empty slots as undefined. Methods like concat/copyWithin preserve empty slots.
+
+4. Mutating vs non-mutating methods
+- Mutating methods: copyWithin, fill, pop, push, reverse, shift, sort, splice, unshift. Non-mutating alternatives: use slice, concat, toReversed, toSorted, toSpliced, or use spread operator to copy first.
+- Where possible prefer non-mutating alternatives to maintain immutability in functional code.
+
+5. Iterative callback signatures
+- Methods that accept callbacks use signature callback(element, index, array) and optional thisArg. ForEach and other iterative methods call callback at most once per present element in index order.
+
+Supplementary Details
+
+Technical specifications and implementation details
+- Common method signatures and returns:
+  - push(...items) -> number (new length)
+  - pop() -> any (removed element or undefined)
+  - shift() -> any
+  - unshift(...items) -> number (new length)
+  - slice(start?, end?) -> Array
+  - splice(start, deleteCount?, ...items) -> Array (removed elements)
+  - map(callbackFn, thisArg?) -> Array
+  - forEach(callbackFn, thisArg?) -> undefined
+- Copy behavior is shallow; object references are copied, not deep-cloned.
+
+Reference Details
+
+API specifications and exact behavior
+- Iterator methods: keys() -> Iterator of indexes; values() -> Iterator of values (treat empty slots as undefined); entries() -> Iterator of [index,value].
+- Empty-slot behavior summary: forEach/Map/filter skip empty slots; keys/entries/values iterate across empty slots treating them as undefined.
+
+Best practices and implementation examples
+- Use [...arr] or arr.slice() to create a shallow copy before mutating to preserve original array when required.
+- Use Array.from when converting array-like or iterable sources to real arrays.
+
+Detailed Digest
+
+Source section extracted: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array
+Retrieved: 2026-03-07T16:24:57.835Z
+Extracted content: core array characteristics, index-length relationship, method behaviors with empty slots, mutation vs non-mutation lists, callback signatures, and examples.
+
+Attribution and Crawl Data
+- Source: MDN Array
+- Retrieved: 2026-03-07T16:24:57.835Z
+- Approx. data size retrieved: 15.0 KB
+- License: MDN content under CC BY-SA
