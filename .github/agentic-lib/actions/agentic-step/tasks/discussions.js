@@ -104,6 +104,18 @@ function buildPrompt(discussionUrl, discussion, context, t, repoContext, trigger
     parts.push("", "### Your Last Reply (DO NOT REPEAT THIS)", lastBotReply.body.substring(0, 500));
   }
 
+  // Include supervisor message if dispatched with context
+  const botMessage = process.env.BOT_MESSAGE || "";
+  if (botMessage) {
+    parts.push(
+      "",
+      "## Triggering Request",
+      "The supervisor dispatched you with the following message. This is your primary request — respond to it in the discussion thread:",
+      "",
+      botMessage,
+    );
+  }
+
   parts.push(
     "",
     "## Repository Context",

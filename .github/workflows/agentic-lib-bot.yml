@@ -32,6 +32,10 @@ on:
         type: string
         required: false
         default: ""
+      message:
+        type: string
+        required: false
+        default: ""
       model:
         type: string
         required: false
@@ -40,6 +44,11 @@ on:
     inputs:
       discussion-url:
         description: "Discussion URL to respond to"
+        type: string
+        required: false
+        default: ""
+      message:
+        description: "Context message from supervisor or lifecycle event"
         type: string
         required: false
         default: ""
@@ -169,6 +178,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
           TEST_RESULT: ${{ steps.tests.outputs.result }}
+          BOT_MESSAGE: ${{ inputs.message }}
         with:
           task: "discussions"
           config: ${{ env.configPath }}
