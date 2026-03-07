@@ -1,40 +1,25 @@
-# repo — FizzBuzz Library
+# FizzBuzz Library
 
-This repository provides a minimal JavaScript library that implements the classic FizzBuzz functions.
+A tiny JavaScript library exporting FizzBuzz functions.
 
-Features
-- fizzBuzz(n): returns an array of FizzBuzz strings from 1..n (empty array for n = 0)
-- fizzBuzzSingle(n): returns the FizzBuzz value for a single positive integer
-
-Edge cases
-- Non-integer inputs throw TypeError
-- Negative numbers throw RangeError
-- fizzBuzz(0) returns []
-
-Usage
-
-Node.js example:
+Usage (Node):
 
 ```js
 import { fizzBuzz, fizzBuzzSingle } from './src/lib/main.js';
 
-console.log(fizzBuzzSingle(3)); // 'Fizz'
-console.log(fizzBuzz(15));
+console.log(fizzBuzzSingle(3)); // "Fizz"
+console.log(fizzBuzz(15).join('\n'));
 ```
 
-Website demo
-
-Open `src/web/index.html` in a browser (or run `npm run build:web` and serve `docs/`) to see a small demo that calls the browser-compatible library and displays output.
-
-Tests
-
-Run unit tests with:
+CLI:
 
 ```bash
-npm ci
-npm test
+node src/lib/main.js  # runs basic identity output; use the exported functions in your scripts
 ```
 
-License
+Examples:
 
-MIT
+- fizzBuzz(15) returns an array of 15 strings ending with "FizzBuzz".
+- fizzBuzzSingle(7) returns "7".
+
+See docs/ for example output and evidence data.
