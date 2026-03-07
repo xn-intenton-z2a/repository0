@@ -213,10 +213,10 @@ jobs:
 
             const SCHEDULE_MAP = {
               off: null,
-              weekly: '0 6 * * 1',
-              daily: '0 6 * * *',
-              hourly: '0 * * * *',
-              continuous: '*/15 * * * *',
+              weekly: '15 6 * * 1',
+              daily: '15 6 * * *',
+              hourly: '15 * * * *',
+              continuous: '5,15,25,35,45,55 * * * *',
             };
 
             if (fs.existsSync(workflowPath)) {
