@@ -666,3 +666,63 @@ Updated HAMMING_DISTANCE.md to record the crawl timestamp and note missing per-s
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T19:56:20.428Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 100318 (in: 94572, out: 5746)
+**Duration:** 74s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806096953](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806096953)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 23/32 | 9 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Edited HAMMING_CORE.md to provide a focused, testable single-file spec for string, bit, and byte Hamming functions and accompanying tests and docs.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T19:57:44.242Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 128323 (in: 122276, out: 6047)
+**Duration:** 83s (~1.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806096953](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806096953)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 24/32 | 8 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Fetched the listed reference pages, extracted concrete implementation details for Hamming distance (algorithms, popcount strategies, JS-specific handling), and wrote a normalized library document so code and engineers can implement correctly.
+
+Maintained library (1 docs, limit 32)
+
+---

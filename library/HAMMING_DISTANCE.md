@@ -1,163 +1,178 @@
 HAMMING_DISTANCE
 
 TABLE OF CONTENTS
-1. Normalised Extract
+1. NORMALISED EXTRACT
   1.1 Definitions
-  1.2 Core algorithms
+  1.2 Core algorithms and computational patterns
   1.3 Bitwise and population-count implementations
-  1.4 JavaScript specifics (strings, code points, BigInt, bitwise ops)
-  1.5 Length and encoding policies
-2. Supplementary details (specs and implementation guidance)
-  2.1 Encoding pipeline: string -> bytes
-  2.2 Chunking and streaming strategy
-  2.3 Endianness and BigInt conversion
+  1.4 JavaScript-specific considerations
+  1.5 Length, encoding and equality policies
+2. SUPPLEMENTARY DETAILS
+  2.1 Encoding pipeline: string -> code points -> bytes
+  2.2 Chunking, word size and streaming strategy
+  2.3 Endianness, BigInt and machine-word conversions
   2.4 Performance notes and fallbacks
-3. Reference details (APIs, signatures, parameters, return types, exact patterns)
-  3.1 hammingDistanceBytes(bufferA, bufferB, options)
-  3.2 hammingDistanceWords32(left, right, options)
-  3.3 hammingDistanceBigInt(a, b, bitWidth)
-  3.4 popcount(value) / popcount64(value)
-  3.5 String handling and codePoint APIs (JS signatures)
-  3.6 BigInt APIs and restrictions
-4. Troubleshooting and step-by-step procedures
-5. Source digest and retrieval metadata
-6. Attribution and crawl data
+3. REFERENCE DETAILS (API SIGNATURES, PARAMETERS, RETURN TYPES, EFFECTS)
+  3.1 Signatures for library functions and exact behavior
+  3.2 popcount primitives and their contracts
+  3.3 String handling contract and code point APIs
+  3.4 BigInt and bitwise operations contract
+4. TROUBLESHOOTING AND PROCEDURES
+  4.1 Step-by-step algorithms and fallback checks
+  4.2 Edge cases and input validation
+5. SOURCE DIGEST AND RETRIEVAL METADATA
+6. ATTRIBUTION AND CRAWL DATA
 
 
 1. NORMALISED EXTRACT
 
 1.1 Definitions
-- Hamming distance: For two sequences A and B of equal length L, H(A,B) = count of indices i in [0..L-1] where A[i] != B[i].
-- Binary shortcut: For bit-vectors represented as integers, H(A,B) = popcount(A XOR B), where popcount counts set bits in the XOR result.
-- Minimum distance (dmin): used in coding theory to determine error-detection and error-correction capability. A code with minimum distance d can detect up to d-1 substitutions and correct up to floor((d-1)/2) substitutions.
+- Hamming distance: For two sequences A and B of equal length L, H(A, B) = count of positions i in [0..L-1] where A[i] != B[i].
+- For binary bit-vectors representable as integers, H(A, B) = popcount(A XOR B). popcount is the number of 1 bits in the integer result.
+- Minimum distance dmin: for a code with minimum Hamming distance d, the code can detect up to (d-1) substitutions and correct up to floor((d-1)/2) substitutions.
+- Hamming weight: synonym for population count; number of 1 bits in a word.
 
-1.2 Core algorithms
-- Byte-wise per-position compare (baseline): iterate i from 0..L-1; if a[i] !== b[i] then ++count. Complexity O(L). Use for small inputs or when allocation/bit-manipulation not desirable.
-- XOR + popcount (preferred for binary/bit sequences): for each machine word compute diff = leftWord XOR rightWord; add popcount(diff) to accumulator. Complexity O(ceil(L/wordSize)).
-- Wegner loop (bit-scanning popcount): Given val = x ^ y; while (val != 0) { val &= val - 1; count++; } This runs proportional to the Hamming weight (number of set bits) and is efficient when diff has few 1s.
-- Hardware popcount intrinsic: On platforms with popcount instruction use compiler intrinsics (e.g., GCC/Clang: __builtin_popcount, __builtin_popcountll) for 32/64-bit words; yields best throughput.
-- Big-Word processing: Process largest aligned word type available (32-bit words in JS bitwise ops, BigInt for >32-bit) then handle remaining tail bytes.
+1.2 Core algorithms and computational patterns (explicit, implementation-focused)
+- Baseline byte-wise algorithm (O(L) time, minimal memory): iterate index i = 0..L-1; increment count when a[i] != b[i]. Use when inputs are short, or when avoiding bitwise conversions.
+- XOR + popcount (word-oriented): process input in machine-word chunks (8/32/64-bit). For each word: diff = leftWord XOR rightWord; count += popcount(diff). Complexity O(ceil(L/wordSize)). Use for binary data and when popcount instruction or efficient software popcount is available.
+- Wegner bit-scanning popcount (branching loop): For 32/64-bit val = x ^ y; while (val != 0) { val &= val - 1; ++count; } Complexity proportional to number of set bits in diff (good when Hamming distance small relative to word size).
+- Builtin popcount intrinsics: where available, prefer hardware/popcount intrinsics for single-instruction speed. Example intrinsics: __builtin_popcount, __builtin_popcountll in GCC/Clang.
+- Handling remainder bytes: process full words first, then handle trailing bytes with byte-wise compare or smaller-word popcount.
 
-1.3 Bitwise and population-count implementations
-- Wegner bitclear algorithm: repeated val &= val - 1; increments count each iteration until val == 0. Correctness: removes lowest-order set bit each loop.
-- Builtin intrinsics: __builtin_popcount(unsigned int) -> int (32-bit popcount); __builtin_popcountll(unsigned long long) -> int (64-bit popcount).
-- XOR then builtin-popcount pattern: hamming = popcount(x ^ y).
-- Popcount table (byte lookup): Precompute POP8[0..255] = popcount(byte). For each byte in diff, sum POP8[byte]. Use for portable implementations where intrinsics unavailable.
+1.3 Bitwise and population-count implementations (explicit behaviors)
+- popcount contract: accept unsigned integer (word-width) and return integer number of 1 bits in two's-complement representation considered as bit pattern. popcount(0) == 0. popcount range 0..wordWidth.
+- Software popcount alternatives:
+  - Precomputed 8-bit lookup table: split word into bytes, sum table[byte]. Memory-time tradeoff; deterministic performance.
+  - SWAR (SIMD Within A Register) algorithm: parallel bit counting using arithmetic and masks for constant-time O(1) arithmetic operations per word.
+  - Wegner loop: val &= val - 1 until zero; counts set bits; runtime proportional to number of set bits.
+- Word-width choice:
+  - 64-bit words preferable on 64-bit platforms; fall back to 32-bit for portability.
+  - For very large sequences, use vectorized operations (SIMD) or library-specific bitset operations.
 
-1.4 JavaScript specifics (strings, code points, BigInt, bitwise ops)
-- Strings in JS are sequences of UTF-16 code units. Indexing and length operate on UTF-16 code units, not Unicode code points or grapheme clusters.
-- Iteration semantics:
-  - for...of and spread operator iterate by Unicode code points (handles surrogate pairs as single items).
-  - String.prototype.codePointAt(index) returns the code point at index; if index is a high surrogate it returns the surrogate pair code point; if index is trailing surrogate it returns the trailing surrogate code unit.
-- Implication for Hamming distance on textual data: choose iteration level explicitly: UTF-16 code-unit comparison (char-wise) vs. Unicode code point comparison vs. grapheme cluster comparison. For stable, cross-platform byte-level Hamming distance, normalize string (NFC or specific normalization) then TextEncoder('utf-8') to bytes and compare bytes.
-- Bitwise operators in JS operate on 32-bit signed integers for Number operands: &, |, ^, <<, >>; unsigned right shift >>> exists but bitwise operators coerce Number to 32-bit signed int. BigInt supports bitwise operators & | ^ ~ << >> but not >>> and BigInt and Number cannot be mixed in arithmetic/bitwise expressions.
-- BigInt usage: create by appending n or BigInt("123"). BigInt supports bitwise XOR/AND/OR and shifts. Beware: unsigned-right-shift operator is unsupported for BigInt; mixing BigInt and Number throws.
-- JSON: JSON.stringify throws on BigInt; implement replacer or toJSON to serialize BigInt values.
+1.4 JavaScript-specific considerations (strings, code points, BigInt, bitwise ops)
+- JavaScript string representation: sequence of UTF-16 code units. Characters outside BMP are surrogate pairs occupying two code units.
+- For character-level Hamming distance between strings, iterate by Unicode code points rather than UTF-16 code units to avoid counting surrogate halves separately. Use for...of or spread operator to iterate grapheme code points; or compute code points via String.prototype.codePointAt when iterating indices and skip surrogates.
+- String length mismatch: Hamming distance requires equal-length sequences; explicitly define what "length" means (code units vs code points vs grapheme clusters). Implementation must validate length according to chosen unit and throw or return an error when unequal.
+- BigInt for wide bit operations: BigInt supports integer arithmetic and bitwise operators (except unsigned right shift >>>). BigInt is signed, supports &, |, ^, ~, <<, >> and arithmetic; mixing BigInt and Number in arithmetic is not allowed without explicit conversion. Use BigInt for very long bit-vectors when native typed arrays are not applicable.
+- Bitwise operators in JS operate on 32-bit signed integers when applied to Number; for larger widths use BigInt and its bitwise operators.
+- JSON and BigInt: JSON.stringify throws on BigInt unless custom replacer or toJSON is provided; plan serialization accordingly.
 
-1.5 Length and encoding policies
-- Equal-length requirement: classical Hamming distance assumes sequences of equal length. Implementation options for differing lengths:
-  - throw: raise an error if lengths differ.
-  - pad-zero: treat the shorter sequence as zero bytes appended until lengths match.
-  - overlap+extra: compute distance over minLen then add abs(lenA - lenB) to account for unmatched trailing elements.
-- Encoding pipeline for text: specify Unicode normalization form (e.g., NFC) before encoding; then encode to bytes using UTF-8 (TextEncoder) to get a deterministic byte sequence across environments.
+1.5 Length and encoding policies (implementation directives)
+- Always define the unit of comparison in the public API: options.unit = 'bytes' | 'codeUnits' | 'codePoints' | 'graphemeClusters' | 'bits'. Default for byte/binary functions: bytes; for string functions: codePoints.
+- Validate equal lengths under the chosen unit before computing distance; return explicit error/exception on mismatch.
+- For strings with normalization differences, offer optional normalization (NFC/NFD) step prior to comparison. Provide options.normalize = 'NFC' | 'NFD' | false.
 
 
 2. SUPPLEMENTARY DETAILS
 
-2.1 Encoding pipeline: string -> bytes
-- Step 1: Normalise input strings to chosen Unicode Normalization Form (NFC recommended unless application requires otherwise): normalized = str.normalize('NFC').
-- Step 2: If comparison should be case-insensitive, apply locale-aware mapping or Intl.Collator for canonical comparison; avoid simple toLowerCase/toUpperCase for non-Latin text.
-- Step 3: Convert normalized string to bytes using TextEncoder('utf-8') in JS or equivalent encoder. Compare byte buffers with byte-wise or XOR+popcount approaches.
-- Rationale: UTF-8 byte representation is stable across platforms and allows straightforward bitwise comparison.
+2.1 Encoding pipeline: string -> code points -> bytes
+- Steps for string Hamming distance (Unicode-aware):
+  1. Optional normalization (NFC/NFD) if user requests to collapse equivalent code points.
+  2. Iterate by Unicode scalar values (code points) using for...of or Array.from(str) to get code points as strings; alternatively use codePointAt when iterating indices but advance index by 2 when encountering surrogate pairs.
+  3. Convert each code point to a canonical form for comparison (e.g., lowercasing with locale if needed) before equality check.
+  4. Compare code-point elements pairwise.
+- For binary data: accept typed arrays (Uint8Array) or Node.js Buffer. Compare raw bytes.
 
 2.2 Chunking and streaming strategy
-- When inputs exceed available memory or very large buffers are expected, process in fixed-size chunks (e.g., 64KiB or 4KiB) and stream: read chunkA, chunkB; if using XOR+popcount, convert per-chunk to word-aligned integers where possible; accumulate count; handle chunk-boundary alignment for word-size processing.
-- Maintain a carry or leftover tail between chunks for word-boundary alignment.
+- For large buffers, compute in streaming chunks of size that are multiples of wordWidth to optimize alignment.
+- Strategy: process chunkSize = k * wordBytes (e.g., 65536 bytes or 1 MiB depending on memory). For each chunk: load leftChunk and rightChunk, process word loops then remainder.
+- Keep accumulators in a native integer (JS Number safe for counts up to 2^53-1). For extremely large streams, consider BigInt accumulator or checkpointing sum to avoid overflow beyond Number.MAX_SAFE_INTEGER.
 
 2.3 Endianness and BigInt conversion
-- When converting byte arrays into multi-byte words or BigInt, define endianness explicitly. Typical canonical choice: big-endian for lexicographic portability or little-endian to match native CPU representation; but ensure both sides use same convention.
-- BigInt construction from bytes (big-endian): acc = 0n; for (byte of bytes) { acc = (acc << 8n) | BigInt(byte); }
-- For little-endian: process bytes in reverse and shift accordingly.
+- When reading multi-byte words from buffers, decide on endianness for constructing word integers: use native DataView methods with explicit endianness (getUint32(offset, littleEndian)). For XOR-based Hamming distance, bit order inside word is immaterial so long as the same endianness is applied to both inputs.
+- When converting a Uint8Array to a BigInt, use a consistent endianness and document it. Recommended: big-endian construction for human-intuitive mapping: value = (value << 8n) | BigInt(byte).
 
 2.4 Performance notes and fallbacks
-- Prefer built-in hardware popcount (intrinsic) where available; fallback to Wegner loop or POP8 lookup table when unavailable.
-- In JS, use 32-bit word XOR and use Math.imul/TypedArray DataView to load 32-bit words if manual optimization is required; otherwise per-byte TextEncoder output plus POP8 table is portable and predictable.
-- For low Hamming weight differences, Wegner loop on diff integers is often faster than iterating all bits.
+- Use platform intrinsics when available: Node.js native modules or WebAssembly can expose CPU popcount. In pure JS, prefer 32-bit chunking with table lookup or SWAR style bit twiddling.
+- For small inputs (<128 bytes), simple byte-by-byte loop often outperforms complex vectorized paths due to overhead.
+- Avoid creating intermediate large arrays when streaming; reuse buffers and work in-place where possible.
 
 
-3. REFERENCE DETAILS (APIs, signatures, returns, patterns)
+3. REFERENCE DETAILS (API SIGNATURES, PARAMETERS, RETURN TYPES, EFFECTS)
 
-3.1 hammingDistanceBytes(bufferA, bufferB, options)
-- Signature: hammingDistanceBytes(bufferA: Uint8Array, bufferB: Uint8Array, options?: { lengthPolicy?: 'throw'|'pad-zero'|'overlap+extra', popcount?: 'builtin'|'pop8'|'wegner' }) : number
-- Parameters:
-  - bufferA, bufferB: byte arrays of possibly different lengths.
-  - options.lengthPolicy: defines behaviour for unequal lengths (default: 'throw').
-  - options.popcount: choose implementation: 'builtin' attempts platform popcount; 'pop8' uses byte lookup table; 'wegner' uses bitclear loop.
-- Return: integer Hamming distance (non-negative).
-- Effects: deterministic; does not mutate inputs.
-- Implementation pattern: if using popcount table: for (i = 0; i < minLen; ++i) { diff = bufferA[i] ^ bufferB[i]; count += POP8[diff]; } then handle tail per lengthPolicy.
+3.1 Signatures for library functions and exact behavior (plain-text declarations)
+- hammingDistanceBytes(left: Uint8Array | Buffer, right: Uint8Array | Buffer, options?: {wordSize?: 32|64, chunkSize?: number}) -> number
+  - Behavior: validates left.length === right.length; processes in word-sized chunks; uses XOR+popcount per word; returns integer count of differing bits if options.bitLevel === true, otherwise differing bytes when options.unit === 'bytes'. Default returns differing bytes when comparing byte arrays.
+  - If options.bitLevel === true, returns Hamming distance in bits computed by popcount per word.
 
-3.2 hammingDistanceWords32(left, right, options)
-- Signature: hammingDistanceWords32(left: Uint8Array|ArrayBuffer, right: Uint8Array|ArrayBuffer, options?: { byteOffset?: number, length?: number, littleEndian?: boolean }) : number
-- Purpose: perform word-aligned 32-bit XOR + popcount using DataView.
-- Implementation: iterate over 4-byte words using DataView.getUint32(offset, littleEndian), compute diff ^ and use popcount32(diff) accumulated; handle leftover bytes with POP8 lookup.
+- hammingDistanceStrings(left: string, right: string, options?: {unit?: 'codePoints'|'codeUnits'|'graphemeClusters', normalize?: false|'NFC'|'NFD', locale?: string}) -> number
+  - Behavior: when unit === 'codePoints' iterate by Unicode code points (for...of); validate equal code point counts; compare code points pairwise; return count of differing code points.
+  - When normalize option provided, apply String.prototype.normalize(normalize) prior to iteration.
 
-3.3 hammingDistanceBigInt(a, b, bitWidth)
-- Signature: hammingDistanceBigInt(a: BigInt, b: BigInt, bitWidth?: number) : number
-- Behaviour: computes popcount(a ^ b) across provided bitWidth if specified; if bitWidth provided, mask = (1n << BigInt(bitWidth)) - 1n; diff = (a ^ b) & mask; return popcountBigInt(diff).
-- popcountBigInt: iterate that repeatedly clears lowest bit (wegner) or slice into 64-bit chunks and use builtin popcount on Number representations when safe.
-- Note: BigInt bitwise operators supported: &, |, ^, ~, <<, >>; unsupported: >>>.
+- hammingDistanceBitsBigInt(a: BigInt, b: BigInt, bitWidth?: number) -> number
+  - Behavior: compute diff = a ^ b (BigInt XOR); if bitWidth provided, mask both operands with ((1n << BigInt(bitWidth)) - 1n) before XOR to limit width; return popcountBigInt(diff).
+  - Note: BigInt bitwise ops are signed in semantics but operate on two's complement bit patterns; masking ensures expected finite-width behavior.
 
-3.4 popcount utilities
-- Signature: popcount32(x: number) : number
-  - Use __builtin_popcount when compiling native; in JS emulate via table or Kernighan loop: x = x - ((x >>> 1) & 0x55555555); x = (x & 0x33333333) + ((x >>> 2) & 0x33333333); x = ((x + (x >>> 4)) & 0x0F0F0F0F); return (x * 0x01010101) >>> 24; (32-bit SW algorithm)
-- Signature: popcount64(x: BigInt) : number
-  - Use loop: count = 0; while (x !== 0n) { x &= x - 1n; ++count; }
-- POP8 table: POP8[0..255] initialised as literal array where POP8[i] = number of set bits in i.
+- popcount32(x: number) -> number
+  - Contract: accepts a JS Number treated as unsigned 32-bit integer; returns number of set bits 0..32.
 
-3.5 String handling and codePoint APIs (JS signatures)
-- String.prototype.codePointAt(index: number) -> number | undefined
-  - Returns code point at index; if index points to leading surrogate returns combined code point; if trailing surrogate returns code unit value; out-of-range returns undefined.
-- Iteration:
-  - for (const cp of str) { /* cp is a string representing a code point */ } uses String.prototype[Symbol.iterator] which iterates by code points.
-- Normalization: str.normalize(form?: 'NFC'|'NFD'|'NFKC'|'NFKD') -> normalized string.
-- TextEncoder: new TextEncoder().encode(str) -> Uint8Array (UTF-8 bytes).
+- popcount64(xHigh: number, xLow: number) -> number
+  - Contract: accepts high and low 32-bit halves; returns popcount sum in 0..64. Useful when JS lacks native 64-bit integer types; combine two 32-bit popcounts.
 
-3.6 BigInt APIs and restrictions
-- BigInt(value) -> bigint; literal syntax: 123n
-- BigInt.asIntN(width: number, bigint: bigint) -> bigint; BigInt.asUintN(width, bigint) -> bigint
-- BigInt operators: + - * / % ** unary -; bitwise: &, |, ^, <<, >>, ~; unsupported: >>> (unsigned right shift)
-- JSON serialization: JSON.stringify will throw on encountering BigInt; use replacer or BigInt.prototype.toJSON to override.
+- popcountBigInt(x: BigInt) -> number
+  - Contract: returns number of 1 bits in the absolute bit representation of x; for negative x, caller should mask to intended bitWidth.
+
+3.2 popcount primitives and usage patterns
+- Preferred patterns (in descending order of performance/clarity depending on environment):
+  1. Use native/popcount intrinsic via compiler or WASM if available.
+  2. For Node.js in pure JS: use 32-bit chunking with builtin vpopcount via native addon or use a 256-entry table for nibble/byte popcounts.
+  3. For portability in JS: precompute table[256] and compute popcount for each byte as table[byte]. For large buffers, sum table lookups per word.
+
+3.3 String handling and code point APIs (JS specifics)
+- String iteration: for (const ch of string) iterates by Unicode code points (handles surrogate pairs).
+- String.prototype.codePointAt(index) -> returns numeric code point for code unit at index; if leading surrogate at index returns code point of pair; if trailing surrogate returns trailing surrogate code unit value.
+- Use Array.from(string) or [...string] to get code-point granularity array of strings representing each code point.
+
+3.4 BigInt and bitwise operations (JS specifics)
+- BigInt literals: append n to integer literals (e.g., 123n) or BigInt(string). BigInt supports &, |, ^, ~, <<, >>; unsigned right shift >>> is unsupported for BigInt.
+- When computing finite-width XOR on BigInt values, mask inputs: mask = (1n << BigInt(width)) - 1n; xMasked = x & mask; yMasked = y & mask; diff = xMasked ^ yMasked.
+- Serializing BigInt: JSON.stringify fails by default; provide replacer or BigInt.prototype.toJSON to convert to strings when persisting.
 
 
-4. TROUBLESHOOTING AND STEP-BY-STEP PROCEDURES
-- If result is unexpectedly large for textual inputs: verify normalization and encoding pipeline; compare byte sequences from both sides (hex dump) to spot normalization/casing mismatches.
-- If Hamming distance for binary integers appears wrong: confirm correct word alignment and endianness when packing bytes into words or BigInts; check masking for bitWidth.
-- If using BigInt and encountering TypeErrors: verify no mixing of Number and BigInt in expressions; coerce consistently.
-- If performance is poor: profile per input size. For small inputs (< few KB) byte-wise loop may be fastest due to lower setup costs; for large buffers, use word-wise XOR + hardware popcount or vectorized SIMD where available.
+4. TROUBLESHOOTING AND PROCEDURES
+
+4.1 Step-by-step algorithms and fallback checks
+- Byte-level Hamming (returning byte-differences):
+  1. Ensure left.length === right.length.
+  2. Choose wordWidth (64 if platform supports, 32 or 8 otherwise).
+  3. For offset = 0; offset + wordBytes <= length; offset += wordBytes:
+     a. Read leftWord, rightWord with DataView or typed-array view.
+     b. diff = leftWord XOR rightWord.
+     c. count += popcount(diff).
+  4. Process trailing bytes byte-by-byte, comparing equality if unit is bytes, or popcount(xor) if unit is bits.
+
+- Unicode string Hamming (code point unit):
+  1. Optionally normalize both strings with String.prototype.normalize.
+  2. Convert to arrays of code points: leftArr = Array.from(left); rightArr = Array.from(right).
+  3. If leftArr.length !== rightArr.length throw new Error('Unequal length under codePoint unit').
+  4. For i in 0..len-1: if leftArr[i] !== rightArr[i] ++count.
+
+4.2 Edge cases and input validation
+- If unit == 'bits' with byte arrays, require left.length === right.length and return bit-level Hamming by computing XOR per byte and using popcount lookup.
+- If inputs are streams, ensure synchronization of chunk boundaries; compare chunk offsets consistently.
+- For extremely long inputs, ensure accumulator does not overflow JS Number; if potential overflow, use BigInt accumulator or chunked partial sums persisted externally.
 
 
-5. SOURCE DIGEST
-- Sources consulted (retrieved 2026-03-07T19:45:52.334Z):
-  - https://en.wikipedia.org/wiki/Hamming_distance (Hamming distance definition, coding theory usage, Python/C examples, Wegner algorithm, popcount intrinsics) — core algorithms, complexity, Wegner loop, builtin-popcount patterns.
-  - https://en.wikipedia.org/wiki/Population_count (Hamming weight equivalence and terminology) — popcount concept.
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings (JS string internals, UTF-16, iterators, normalization guidance) — iteration differences between code units, code points, grapheme clusters.
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt (signature and behaviour of codePointAt) — return semantics for surrogates and recommendation to use for...of.
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt (BigInt operators, restrictions, JSON handling) — BigInt bitwise support and caveats (no >>>, JSON issues).
-  - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators (JS bitwise operator semantics, 32-bit coercion) — clarifies 32-bit behaviour and operator set.
-  - https://www.npmjs.com/package/hamming-distance (attempted; fetch returned HTTP 403 - not retrieved). Refer to local package metadata or mirror if needed.
-- Retrieval status: six sources fetched successfully; npm package page returned HTTP 403 and was not retrieved.
-- Data size obtained during crawling: not recorded by the retrieval tool; per-source sizes unavailable.
+5. SOURCE DIGEST AND RETRIEVAL METADATA
+- Sources consulted (as listed in project SOURCES.md):
+  1. https://en.wikipedia.org/wiki/Hamming_distance (Hamming distance definition, coding-theory application, XOR+popcount equivalence, Wegner algorithm, builtin popcount intrinsics examples)
+  2. https://en.wikipedia.org/wiki/Population_count (population count / Hamming weight definition)
+  3. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings (JS string representation, UTF-16, code units vs code points, iteration strategies)
+  4. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt (codePointAt behavior and surrogate handling)
+  5. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt (BigInt operations, JSON serialization caveats, operator support and restrictions)
+  6. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators (JS bitwise operator semantics and 32-bit truncation of Number-based bitwise ops)
+  7. https://www.npmjs.com/package/hamming-distance (attempted but access returned HTTP 403 during fetch)
+
+- Retrieval date: 2026-03-07 (content fetched on this date). Several MDN pages include last-modified metadata in their pages; local fetch responses were used to extract precise API contracts for String.codePointAt, BigInt operators, and bitwise operator behavior.
+- Notes on fetched content: Wikipedia Hamming distance pages include explicit example algorithms (Python/C examples demonstrating byte-wise and XOR+popcount/Wegner loops); MDN pages include exact JS function semantics and operator restrictions.
 
 
 6. ATTRIBUTION AND CRAWL DATA
-- Attribution:
-  - Hamming distance and population count definitions and algorithms: Wikipedia contributors (Hamming distance page; Population count page).
-  - JavaScript string, codePointAt, BigInt, and bitwise operator details: MDN Web Docs (Mozilla Developer Network).
-- Crawl metadata:
-  - Retrieval date: 2026-03-07T19:36:02.195Z (UTC).
-  - Sources fetched: 6 of 7 listed in SOURCES.md; npm package page returned 403.
-  - Data notes: fetched pages were truncated by the retrieval tool at size limits in some cases; full specification links are provided in the sources above.
+- Attribution: content derived from public documentation and reference pages listed above (Wikipedia and MDN). Use these authoritative pages for formal citations when necessary.
+- Crawl status and data notes:
+  - Number of sources fetched: 6 (5 MDN/Wikipedia pages fully fetched; npm package page returned HTTP 403 and was not retrievable).
+  - Some fetch responses were truncated by the fetch tool due to length limits; full pages are available at their canonical URLs.
+  - Exact byte counts for fetched content are not available in this run. The retrieval succeeded for the following URLs: Wikipedia Hamming distance, Wikipedia Population count, MDN String page (iterating), MDN String.codePointAt, MDN BigInt, MDN Bitwise Operators. npm package fetch failed with HTTP 403.
 
 
 END OF DOCUMENT
