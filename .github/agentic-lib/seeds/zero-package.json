@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.69"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.70"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18",
