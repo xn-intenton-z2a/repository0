@@ -29,12 +29,12 @@ TABLE OF CONTENTS
 1.1 Definitions
 - Hamming distance: For two sequences A and B of equal length L, H(A,B) = count of indices i in [0..L-1] where A[i] != B[i].
 - Binary shortcut: For binary sequences represented as bit-vectors, H(A,B) = popcount(A XOR B), where popcount returns the number of 1 bits.
-- Length policy options (choose one and document):
+- Length policy options:
   - throw: raise an error if lengths differ.
   - pad-zero: treat missing bytes as zero until lengths match.
   - overlap+extra: compute distance over minLen, then add |lenA - lenB| to account for unmatched bytes.
 
-1.2 Core algorithms (implementation directives)
+1.2 Core algorithms
 - Per-position compare (byte-wise): iterate i from 0 to L-1; if a[i] !== b[i] then increment counter. Complexity O(L). Use for small inputs or when allocations must be minimal.
 - XOR + popcount (byte/word): produce aligned views of input as bytes or words; for each unit compute diff = leftUnit ^ rightUnit; add popcount(diff) to accumulator. Best for medium-to-large buffers.
 - Word-wise with fallback: operate on largest aligned word type supported (Uint32 for JS Numbers; BigUint64 where supported). After processing aligned portion, handle remaining tail bytes with byte-wise POP8 table.
@@ -47,25 +47,25 @@ TABLE OF CONTENTS
 - BigInt routine: assemble BigInt from bytes in consistent endianness, compute diff = aBig ^ bBig, then use a BigInt popcount method (Kernighan loop or split into bytes + POP8) to count bits.
 - Endianness: when constructing multi-byte words or BigInt values, use the same endianness for both inputs; otherwise results are undefined. Prefer big-endian assembly for deterministic cross-platform representation unless system-level APIs require little-endian.
 
-1.4 Population count methods (precise algorithms)
+1.4 Population count methods
 - POP8 lookup table: array POP8[256] where POP8[i] equals integer count of set bits in byte i. Initialize once at module startup.
 - Kernighan loop (Number or BigInt): while x != 0 { x = x & (x - 1); count++; } safe for Numbers (32-bit) and BigInt (arbitrary length) though loop iterations equal to popcount.
 - SWAR 32-bit sequence (unsigned):
   - Step 1: x = x - ((x >>> 1) & 0x55555555)
   - Step 2: x = (x & 0x33333333) + ((x >>> 2) & 0x33333333)
   - Step 3: x = ((x + (x >>> 4)) & 0x0F0F0F0F) * 0x01010101 >>> 24
-  - Result: x >>> 0 yields integer 0..32.
+  - Result: integer 0..32.
 - 64-bit / BigInt: either split 64-bit value into bytes and use POP8, or implement BigInt SWAR-like operations using BigInt constants and shifts. Kernighan with BigInt is simplest and correct.
 - Hardware acceleration: native POPCNT is fastest. For very large workloads, use WebAssembly or native addon that performs word-sized XOR with POPCNT.
 
-1.5 JavaScript specifics (implementation notes)
+1.5 JavaScript specifics
 - Bitwise operators operate on signed 32-bit integers; use >>> 0 to coerce to unsigned 32-bit for SWAR and popcount32 sequences.
 - BigInt bitwise operators are available and operate on BigInt types; never mix Number and BigInt in the same bitwise expression.
 - Text encoding: TextEncoder.encode(string) -> Uint8Array of UTF-8 bytes. Use this for consistent byte-level comparison.
 - Iterating strings: for (const ch of str) iterates full Unicode code points; avoid indexing str[i] if code points beyond BMP are possible.
 - TypedArray alignment: when constructing typed views (Uint32Array, BigUint64Array), ensure buffer.byteLength is divisible by elementSize or handle remainder bytes explicitly.
 
-1.6 Unicode & string handling (requirements)
+1.6 Unicode & string handling
 - Unicode normalization: apply a.normalize('NFC') or chosen normalization form before encoding strings to bytes to ensure canonically equivalent sequences match.
 - Grapheme cluster comparison: to compare user-visible characters, segment strings using Intl.Segmenter or a grapheme library; compute Hamming distance across clusters rather than code points or bytes.
 - Surrogate pairs and combining marks: use code point iteration or TextEncoder to avoid splitting surrogate pairs; combining marks may require normalization or grapheme segmentation.
@@ -89,7 +89,7 @@ TABLE OF CONTENTS
 - Choose chunkSize = 64 * 1024 bytes (64 KiB) or larger multiples of word size for streaming.
 - For each chunk pair: create typed views aligned to word size; process words; handle tail bytes; accumulate result; proceed until streams exhausted.
 
-2.4 POP8 initialization (exact code outline)
+2.4 POP8 initialization (exact pattern)
 - Allocate POP8 length 256. For i in 0..255 calculate count bits by Kernighan or table-driven assignment. Keep POP8 as module-level constant to avoid reallocation.
 
 3. REFERENCE DETAILS (APIS, SIGNATURES, PARAMETERS, RETURNS, EFFECTS)
@@ -147,9 +147,9 @@ TABLE OF CONTENTS
   3. Use byte-wise fallback when uncertain.
 
 6. SOURCE DIGEST AND METADATA
-- Items extracted verbatim into normalized technical content were taken from the following pages: Wikipedia Hamming distance, Wikipedia Population count, MDN documentation for String iteration, String.codePointAt, BigInt, Bitwise Operators, and the npm hamming-distance package page.
+- Items extracted into normalized technical content were taken from: Wikipedia Hamming distance; Wikipedia Population count; MDN String iteration; MDN String.codePointAt; MDN BigInt; MDN Bitwise Operators; npm hamming-distance package page.
 - Retrieval date: 2026-03-07
-- Consolidated extracted text size: approximately 18 KiB of distilled technical material (summaries and algorithmic steps), derived from multiple small web pages.
+- Consolidated extracted text size: approximately 18 KiB of distilled technical material.
 
 7. ATTRIBUTION
 - Source list:
