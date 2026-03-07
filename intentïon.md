@@ -125,3 +125,63 @@ Extracted JSON-LD, RDF, OWL, Schema.org, and jsonld npm technical details from t
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T21:43:09.682Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 142956 (in: 139623, out: 3333)
+**Duration:** 65s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807824733](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807824733)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 5/32 | 27 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a WEB_EXAMPLE feature spec to document a runnable web demo and verified existing features remain relevant to demonstrate and test the ontology library.
+
+Maintained features (3 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T21:44:53.043Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 218432 (in: 211823, out: 6609)
+**Duration:** 103s (~1.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807824733](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807824733)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 6/32 | 26 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Extracted and consolidated JSON-LD, RDF, OWL, and schema.org technical details into a single actionable library document for implementation and API integration.
+
+Maintained library (0 docs, limit 32)
+
+---
