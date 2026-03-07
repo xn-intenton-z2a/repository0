@@ -425,3 +425,64 @@ Created a focused JSON-LD 1.1 document to capture implementation-ready details f
 Maintained library (5 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T22:07:39.169Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 25691 (in: 23211, out: 2480)
+**Duration:** 35s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808223896](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808223896)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 15/32 | 17 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining |  |
+| library | 6/32 | 26 remaining | n/a |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+features at capacity (5/4) — actions will be blocked.
+
+### Narrative
+Added a concise, testable web and CLI demo feature spec to make the ontology library demonstrable in-browser and via node using the existing data seed and exported API.
+
+Maintained features (5 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T22:08:56.336Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 37911 (in: 32408, out: 5503)
+**Duration:** 77s (~1.3 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808223896](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808223896)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 16/32 | 16 remaining |  |
+| max-feature-issues | 2/2 | 0 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining |  |
+
+### Closing Notes
+max-feature-issues at capacity (2/2) — actions will be blocked.
+
+### Narrative
+Created a normalized, actionable JSON-LD 1.1 reference document in library/JSON_LD_11.md to support implementation and tooling.
+
+Maintained library (6 docs, limit 32)
+
+---
