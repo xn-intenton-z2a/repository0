@@ -5,36 +5,6 @@
 
 ---
 
-## maintain-features at 2026-03-07T17:22:57.665Z
-
-**Outcome:** features-maintained
-**Model:** gpt-5-mini
-**Profile:** recommended
-**Token Count:** 33314 (in: 28741, out: 4573)
-**Duration:** 97s (~1.6 GitHub Actions min)
-**agentic-lib transformation cost:** 1
-**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22803583027](https://github.com/xn-intenton-z2a/repository0/actions/runs/22803583027)
-
-### Limits Status
-| Limit | Value | Capacity | Status |
-|---|---|---|---|
-| transformation-budget | 1/32 | 31 remaining |  |
-| max-feature-issues | 0/2 | 2 remaining |  |
-| max-maintenance-issues | 0/1 | 1 remaining |  |
-| max-attempts-per-issue | ?/2 | ? remaining | n/a |
-| max-attempts-per-branch | ?/3 | ? remaining | n/a |
-| features | 3/4 | 1 remaining |  |
-| library | 0/32 | 32 remaining | n/a |
-
-### Closing Notes
-All limits within normal range.
-
-### Narrative
-Created three feature specifications to define the core Hamming API, Unicode code point behavior, and a CLI wrapper so implementation and tests can proceed.
-
-Maintained features (0 existing, limit 4)
-
----
 ## maintain-library at 2026-03-07T17:23:44.347Z
 
 **Outcome:** sources-discovered
@@ -904,6 +874,67 @@ transformation-budget approaching capacity (30/32).
 
 ### Narrative
 Read the SOURCES.md URLs, fetched MDN and Wikipedia content, and verified/updated the six corresponding library documents with precise technical extracts and retrieval metadata (npm page blocked by 403).
+
+Maintained library (6 docs, limit 32)
+
+---
+## maintain-features at 2026-03-07T20:56:39.922Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 24385 (in: 21459, out: 2926)
+**Duration:** 42s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807065474](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807065474)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 31/32 | 1 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 6/32 | 26 remaining | n/a |
+
+### Closing Notes
+transformation-budget approaching capacity (31/32).
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a GRAPHEME_SUPPORT feature spec to provide a grapheme-cluster aware Hamming distance function so the library can compare user-perceived characters like emoji and combining sequences correctly.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T20:57:39.203Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 75434 (in: 71853, out: 3581)
+**Duration:** 59s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807065474](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807065474)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 32/32 | 0 remaining | EXHAUSTED |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 7/32 | 25 remaining |  |
+
+### Closing Notes
+transformation-budget at capacity (32/32) — actions will be blocked.
+
+### Narrative
+Documented a failed automated fetch of the npm package page and added precise commands and troubleshooting steps to retrieve authoritative package metadata for implementation.
 
 Maintained library (6 docs, limit 32)
 
