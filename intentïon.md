@@ -306,3 +306,63 @@ Wrote a focused HAMMING_DISTANCE library document that consolidates implementati
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T18:17:36.437Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 21520 (in: 18885, out: 2635)
+**Duration:** 39s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804497010](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804497010)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 11/32 | 21 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Created a JSDOC_TYPES feature spec to add in-source JSDoc annotations and README guidance so editors and TypeScript-aware tooling provide accurate types and better DX for the Hamming distance library.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T18:19:18.766Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 57288 (in: 49872, out: 7416)
+**Duration:** 102s (~1.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804497010](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804497010)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 12/32 | 20 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Consolidated and normalized Hamming-distance technical material from SOURCES.md into a single actionable library document for implementation and troubleshooting.
+
+Maintained library (1 docs, limit 32)
+
+---
