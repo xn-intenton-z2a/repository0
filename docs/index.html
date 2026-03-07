@@ -1,24 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>repository0</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hamming Distance Demo</title>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; color: #333; }
-    h1 { border-bottom: 2px solid #eee; padding-bottom: 0.5rem; }
-    a { color: #0366d6; }
-    .status { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; padding: 2rem; }
+    .box { margin-bottom: 1rem; }
+    input, textarea { width: 100%; font-size: 1rem; padding: .5rem; }
+    button { padding: .5rem 1rem; font-size: 1rem; }
+    pre { background:#f6f8fa; padding:1rem; border-radius:6px; }
   </style>
 </head>
 <body>
-  <h1>repository0</h1>
-  <div class="status">
-    <p>This website is maintained by the autonomous pipeline. It showcases the library built from the project's mission.</p>
-  </div>
-  <h2>About</h2>
-  <p>See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
-  <h2>Demo</h2>
-  <p><em>The pipeline will evolve this section to demonstrate the library's capabilities.</em></p>
+  <h1>Hamming Distance Demo</h1>
+  <p>This demo shows string and bit Hamming distances. The library compares Unicode strings by code points after NFC normalization.</p>
+
+  <section class="box">
+    <h2>String Hamming</h2>
+    <textarea id="a" rows="2">karolin</textarea>
+    <textarea id="b" rows="2">kathrin</textarea>
+    <button id="computeStr">Compute String Distance</button>
+    <pre id="outStr">---</pre>
+  </section>
+
+  <section class="box">
+    <h2>Bits Hamming (hex bytes, comma-separated)</h2>
+    <input id="x" value="00,ff" />
+    <input id="y" value="ff,00" />
+    <button id="computeBits">Compute Bits Distance</button>
+    <pre id="outBits">---</pre>
+  </section>
+
+  <script>
+    // Simple implementations mirroring the library behaviour for demo (no external deps)
+    function normalizeNFC(s) { try { return s.normalize('NFC'); } catch(e){ return s; } }
+    function hammingDistance(a,b){
+      if (typeof a !== 'string' || typeof b !== 'string') throw new TypeError('strings only');
+      const pa = Array.from(normalizeNFC(a));
+      const pb = Array.from(normalizeNFC(b));
+      if (pa.length !== pb.length) throw new RangeError('lengths differ');
+      let d=0; for (let i=0;i<pa.length;i++){ if (pa[i]!==pb[i]) d++; } return d;
+    }
+    function hexToBytes(s){ return s.split(',').map(x=>parseInt(x.trim(),16)||0); }
+    function hammingBitsFromArrays(ax,ay){
+      if (ax.length!==ay.length) throw new RangeError('lengths differ');
+      let pop=[0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4];
+      let total=0;
+      for (let i=0;i<ax.length;i++){ let v=ax[i]^ay[i]; total += ( (v&15) ? pop[v&15] : 0 ) + ( (v>>4) ? pop[(v>>4)&15] : 0 ); }
+      return total;
+    }
+
+    document.getElementById('computeStr').onclick = () => {
+      const a = document.getElementById('a').value;
+      const b = document.getElementById('b').value;
+      try { document.getElementById('outStr').textContent = String(hammingDistance(a,b)); }
+      catch(e){ document.getElementById('outStr').textContent = e.toString(); }
+    };
+
+    document.getElementById('computeBits').onclick = () => {
+      try {
+        const ax = hexToBytes(document.getElementById('x').value);
+        const ay = hexToBytes(document.getElementById('y').value);
+        document.getElementById('outBits').textContent = String(hammingBitsFromArrays(ax,ay));
+      } catch(e) { document.getElementById('outBits').textContent = e.toString(); }
+    };
+  </script>
 </body>
 </html>
