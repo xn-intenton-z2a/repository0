@@ -271,6 +271,7 @@ export function loadConfig(configPath) {
     intentionBot: {
       intentionFilepath: bot["log-file"] || "intentïon.md",
     },
+    init: toml.init || null,
     tdd: toml.tdd === true,
     writablePaths,
     readOnlyPaths,

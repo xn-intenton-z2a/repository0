@@ -53,7 +53,7 @@ async function fetchDiscussion(octokit, discussionUrl, commentsLimit = 10) {
   }
 }
 
-function buildPrompt(discussionUrl, discussion, context, t) {
+function buildPrompt(discussionUrl, discussion, context, t, repoContext) {
   const { config, instructions } = context;
   const { title, body, comments } = discussion;
 
@@ -99,6 +99,28 @@ function buildPrompt(discussionUrl, discussion, context, t) {
     `### Mission\n${mission}`,
     contributing ? `### Contributing\n${contributing}` : "",
     `### Current Features\n${featureNames.join(", ") || "none"}`,
+  );
+
+  // Add issue context
+  if (repoContext?.issuesSummary?.length > 0) {
+    parts.push(`### Open Issues (${repoContext.issuesSummary.length})`, repoContext.issuesSummary.join("\n"));
+  }
+
+  // Add actions-since-init context
+  if (repoContext?.actionsSinceInit?.length > 0) {
+    parts.push(
+      `### Actions Since Last Init${repoContext.initTimestamp ? ` (${repoContext.initTimestamp})` : ""}`,
+      ...repoContext.actionsSinceInit.map((a) => {
+        let line = `- ${a.name}: ${a.conclusion} (${a.created}) [${a.commitSha}] ${a.commitMessage}`;
+        if (a.prNumber) {
+          line += ` — PR #${a.prNumber}: +${a.additions}/-${a.deletions} in ${a.changedFiles} file(s)`;
+        }
+        return line;
+      }),
+    );
+  }
+
+  parts.push(
     recentActivity ? `### Recent Activity\n${recentActivity}` : "",
     config.configToml ? `### Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
     config.packageJson ? `### Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",
@@ -151,15 +173,72 @@ async function postReply(octokit, nodeId, replyBody) {
  * @returns {Promise<Object>} Result with outcome, action, tokensUsed, model
  */
 export async function discussions(context) {
-  const { octokit, model, discussionUrl } = context;
-  const t = context.config?.tuning || {};
+  const { octokit, model, discussionUrl, repo, config } = context;
+  const t = config?.tuning || {};
 
   if (!discussionUrl) {
     throw new Error("discussions task requires discussion-url input");
   }
 
+  // Gather repo context: issues + actions since init
+  const repoContext = { issuesSummary: [], actionsSinceInit: [], initTimestamp: null };
+  if (octokit && repo) {
+    try {
+      const { data: openIssues } = await octokit.rest.issues.listForRepo({
+        ...repo, state: "open", per_page: 10, sort: "created", direction: "asc",
+      });
+      repoContext.issuesSummary = openIssues
+        .filter((i) => !i.pull_request)
+        .map((i) => {
+          const labels = i.labels.map((l) => l.name).join(", ");
+          return `#${i.number}: ${i.title} [${labels || "no labels"}]`;
+        });
+    } catch (err) {
+      core.warning(`Could not fetch issues for discussion context: ${err.message}`);
+    }
+
+    const initTimestamp = config?.init?.timestamp || null;
+    repoContext.initTimestamp = initTimestamp;
+    try {
+      const { data: runs } = await octokit.rest.actions.listWorkflowRunsForRepo({
+        ...repo, per_page: 20,
+      });
+      const initDate = initTimestamp ? new Date(initTimestamp) : null;
+      const relevantRuns = initDate
+        ? runs.workflow_runs.filter((r) => new Date(r.created_at) >= initDate)
+        : runs.workflow_runs.slice(0, 10);
+
+      for (const run of relevantRuns) {
+        const commit = run.head_commit;
+        const entry = {
+          name: run.name,
+          conclusion: run.conclusion || run.status,
+          created: run.created_at,
+          commitMessage: commit?.message?.split("\n")[0] || "",
+          commitSha: run.head_sha?.substring(0, 7) || "",
+        };
+        if (run.head_branch?.startsWith("agentic-lib-issue-")) {
+          try {
+            const { data: prs } = await octokit.rest.pulls.list({
+              ...repo, head: `${repo.owner}:${run.head_branch}`, state: "all", per_page: 1,
+            });
+            if (prs.length > 0) {
+              entry.prNumber = prs[0].number;
+              entry.additions = prs[0].additions;
+              entry.deletions = prs[0].deletions;
+              entry.changedFiles = prs[0].changed_files;
+            }
+          } catch { /* ignore */ }
+        }
+        repoContext.actionsSinceInit.push(entry);
+      }
+    } catch (err) {
+      core.warning(`Could not fetch workflow runs for discussion context: ${err.message}`);
+    }
+  }
+
   const discussion = await fetchDiscussion(octokit, discussionUrl, t.discussionComments || 10);
-  const prompt = buildPrompt(discussionUrl, discussion, context, t);
+  const prompt = buildPrompt(discussionUrl, discussion, context, t, repoContext);
   const { content, tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
     systemMessage:
@@ -205,33 +284,44 @@ export async function discussions(context) {
     }
   }
 
+  // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
+  const isSdkRepo = process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib";
+
   // Request supervisor evaluation
   if (action === "request-supervisor") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...context.repo,
-        workflow_id: "agentic-lib-workflow.yml",
-        ref: "main",
-        inputs: { message: actionArg || "Discussion bot referral" },
-      });
-      core.info(`Dispatched supervisor with message: ${actionArg}`);
-    } catch (err) {
-      core.warning(`Failed to dispatch supervisor: ${err.message}`);
+    if (isSdkRepo) {
+      core.info("Skipping supervisor dispatch — running in SDK repo");
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...context.repo,
+          workflow_id: "agentic-lib-workflow.yml",
+          ref: "main",
+          inputs: { message: actionArg || "Discussion bot referral" },
+        });
+        core.info(`Dispatched supervisor with message: ${actionArg}`);
+      } catch (err) {
+        core.warning(`Failed to dispatch supervisor: ${err.message}`);
+      }
     }
   }
 
   // Stop automation
   if (action === "stop") {
-    try {
-      await octokit.rest.actions.createWorkflowDispatch({
-        ...context.repo,
-        workflow_id: "agentic-lib-schedule.yml",
-        ref: "main",
-        inputs: { frequency: "off" },
-      });
-      core.info("Automation stopped via discussions bot");
-    } catch (err) {
-      core.warning(`Failed to stop automation: ${err.message}`);
+    if (isSdkRepo) {
+      core.info("Skipping schedule dispatch — running in SDK repo");
+    } else {
+      try {
+        await octokit.rest.actions.createWorkflowDispatch({
+          ...context.repo,
+          workflow_id: "agentic-lib-schedule.yml",
+          ref: "main",
+          inputs: { frequency: "off" },
+        });
+        core.info("Automation stopped via discussions bot");
+      } catch (err) {
+        core.warning(`Failed to stop automation: ${err.message}`);
+      }
     }
   }
 

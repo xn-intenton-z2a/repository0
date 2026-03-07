@@ -110,13 +110,55 @@ async function gatherContext(octokit, repo, config, t) {
     return `#${pr.number}: ${pr.title} (${pr.head.ref}) [${labels || "no labels"}] (${age}d old)`;
   });
 
+  // Read init timestamp for epoch boundary
+  const initTimestamp = config.init?.timestamp || null;
+
   let workflowsSummary = [];
+  let actionsSinceInit = [];
   try {
     const { data: runs } = await octokit.rest.actions.listWorkflowRunsForRepo({
       ...repo,
-      per_page: 10,
+      per_page: 20,
     });
     workflowsSummary = runs.workflow_runs.map((r) => `${r.name}: ${r.conclusion || r.status} (${r.created_at})`);
+
+    // Build detailed actions-since-init with commit context
+    const initDate = initTimestamp ? new Date(initTimestamp) : null;
+    const relevantRuns = initDate
+      ? runs.workflow_runs.filter((r) => new Date(r.created_at) >= initDate)
+      : runs.workflow_runs.slice(0, 10);
+
+    for (const run of relevantRuns) {
+      const commit = run.head_commit;
+      const entry = {
+        name: run.name,
+        conclusion: run.conclusion || run.status,
+        created: run.created_at,
+        commitMessage: commit?.message?.split("\n")[0] || "",
+        commitSha: run.head_sha?.substring(0, 7) || "",
+        branch: run.head_branch || "",
+      };
+
+      // For transform branches, try to get PR change stats
+      if (run.head_branch?.startsWith("agentic-lib-issue-")) {
+        try {
+          const { data: prs } = await octokit.rest.pulls.list({
+            ...repo,
+            head: `${repo.owner}:${run.head_branch}`,
+            state: "all",
+            per_page: 1,
+          });
+          if (prs.length > 0) {
+            entry.prNumber = prs[0].number;
+            entry.prTitle = prs[0].title;
+            entry.additions = prs[0].additions;
+            entry.deletions = prs[0].deletions;
+            entry.changedFiles = prs[0].changed_files;
+          }
+        } catch { /* ignore */ }
+      }
+      actionsSinceInit.push(entry);
+    }
   } catch (err) {
     core.warning(`Could not fetch workflow runs: ${err.message}`);
   }
@@ -132,6 +174,8 @@ async function gatherContext(octokit, repo, config, t) {
     oldestReadyIssue,
     prsSummary,
     workflowsSummary,
+    actionsSinceInit,
+    initTimestamp,
     supervisor: config.supervisor,
     configToml: config.configToml,
     packageJson: config.packageJson,
@@ -175,6 +219,20 @@ function buildPrompt(ctx, agentInstructions) {
     `### Recent Workflow Runs`,
     ctx.workflowsSummary.join("\n") || "none",
     "",
+    ...(ctx.actionsSinceInit.length > 0
+      ? [
+          `### Actions Since Last Init${ctx.initTimestamp ? ` (${ctx.initTimestamp})` : ""}`,
+          "Each entry: workflow | outcome | commit | branch | changes",
+          ...ctx.actionsSinceInit.map((a) => {
+            let line = `- ${a.name}: ${a.conclusion} (${a.created}) [${a.commitSha}] ${a.commitMessage}`;
+            if (a.prNumber) {
+              line += ` — PR #${a.prNumber}: +${a.additions}/-${a.deletions} in ${a.changedFiles} file(s)`;
+            }
+            return line;
+          }),
+          "",
+        ]
+      : []),
     `### Recent Activity`,
     ctx.recentActivity || "none",
     "",
@@ -289,6 +347,12 @@ async function executeDispatch(octokit, repo, actionName, params) {
   if (params["pr-number"]) inputs["pr-number"] = params["pr-number"];
   if (params["issue-number"]) inputs["issue-number"] = params["issue-number"];
 
+  // Guard: never dispatch workflows from the SDK repo itself (agentic-lib)
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info(`Skipping dispatch of ${workflowFile} — running in SDK repo`);
+    return `skipped:sdk-repo:${workflowFile}`;
+  }
+
   // Guard: skip transform dispatch if one is already running
   if (workflowFile === "agentic-lib-workflow.yml") {
     try {
@@ -370,6 +434,10 @@ async function executeRespondDiscussions(octokit, repo, params) {
   const message = params.message || "";
   const url = params["discussion-url"] || "";
   if (message) {
+    if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+      core.info("Skipping bot dispatch — running in SDK repo");
+      return `skipped:sdk-repo:respond-discussions`;
+    }
     core.info(`Dispatching discussions bot with response: ${message.substring(0, 100)}`);
     const inputs = { message };
     if (url) inputs["discussion-url"] = url;
@@ -397,15 +465,17 @@ async function executeMissionComplete(octokit, repo, params) {
   ].join("\n");
   writeFileSync("MISSION_COMPLETE.md", signal);
   core.info(`Mission complete signal written: ${reason}`);
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "off" },
-    });
-  } catch (err) {
-    core.warning(`Could not set schedule to off: ${err.message}`);
+  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+    } catch (err) {
+      core.warning(`Could not set schedule to off: ${err.message}`);
+    }
   }
   return `mission-complete:${reason.substring(0, 100)}`;
 }
@@ -423,15 +493,17 @@ async function executeMissionFailed(octokit, repo, params) {
   ].join("\n");
   writeFileSync("MISSION_FAILED.md", signal);
   core.info(`Mission failed signal written: ${reason}`);
-  try {
-    await octokit.rest.actions.createWorkflowDispatch({
-      ...repo,
-      workflow_id: "agentic-lib-schedule.yml",
-      ref: "main",
-      inputs: { frequency: "off" },
-    });
-  } catch (err) {
-    core.warning(`Could not set schedule to off: ${err.message}`);
+  if (process.env.GITHUB_REPOSITORY !== "xn-intenton-z2a/agentic-lib") {
+    try {
+      await octokit.rest.actions.createWorkflowDispatch({
+        ...repo,
+        workflow_id: "agentic-lib-schedule.yml",
+        ref: "main",
+        inputs: { frequency: "off" },
+      });
+    } catch (err) {
+      core.warning(`Could not set schedule to off: ${err.message}`);
+    }
   }
   return `mission-failed:${reason.substring(0, 100)}`;
 }
@@ -449,6 +521,10 @@ async function executeSetSchedule(octokit, repo, frequency) {
   const valid = ["off", "weekly", "daily", "hourly", "continuous"];
   if (!valid.includes(frequency)) {
     return `skipped:invalid-frequency:${frequency}`;
+  }
+  if (process.env.GITHUB_REPOSITORY === "xn-intenton-z2a/agentic-lib") {
+    core.info(`Skipping schedule dispatch — running in SDK repo`);
+    return `skipped:sdk-repo:set-schedule:${frequency}`;
   }
   core.info(`Setting supervisor schedule to: ${frequency}`);
   await octokit.rest.actions.createWorkflowDispatch({

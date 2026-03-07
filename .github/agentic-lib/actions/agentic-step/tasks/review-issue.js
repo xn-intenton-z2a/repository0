@@ -60,6 +60,24 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
 
   const agentInstructions = instructions || "Review whether this issue has been resolved by the current codebase.";
 
+  // Gather recent commits since init for context
+  let recentCommitsSummary = [];
+  try {
+    const initTimestamp = config.init?.timestamp || null;
+    const since = initTimestamp || new Date(Date.now() - 7 * 86400000).toISOString();
+    const { data: commits } = await octokit.rest.repos.listCommits({
+      ...repo,
+      sha: "main",
+      since,
+      per_page: 10,
+    });
+    recentCommitsSummary = commits.map((c) => {
+      const msg = c.commit.message.split("\n")[0];
+      const sha = c.sha.substring(0, 7);
+      return `- [${sha}] ${msg} (${c.commit.author?.date || ""})`;
+    });
+  } catch { /* ignore */ }
+
   const prompt = [
     "## Instructions",
     agentInstructions,
@@ -83,6 +101,9 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
       : []),
     ...(docsFiles.length > 0
       ? [`## Documentation (${docsFiles.length} files)`, ...docsFiles.map((f) => `- ${f.name}`), ""]
+      : []),
+    ...(recentCommitsSummary.length > 0
+      ? [`## Recent Commits (since init)`, ...recentCommitsSummary, ""]
       : []),
     config.configToml ? `## Configuration (agentic-lib.toml)\n\`\`\`toml\n${config.configToml}\n\`\`\`` : "",
     config.packageJson ? `## Dependencies (package.json)\n\`\`\`json\n${config.packageJson}\n\`\`\`` : "",

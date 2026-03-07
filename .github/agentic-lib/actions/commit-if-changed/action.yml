@@ -26,6 +26,8 @@ runs:
         git config --local user.email 'action@github.com'
         git config --local user.name 'GitHub Actions[bot]'
         git add -A
+        # Unstage workflow files — GITHUB_TOKEN cannot push workflow changes
+        git reset HEAD -- '.github/workflows/' 2>/dev/null || true
         # Unstage log files on non-default branches to avoid merge conflicts
         REF="${{ inputs.push-ref }}"
         if [ -n "$REF" ] && [ "$REF" != "main" ] && [ "$REF" != "master" ]; then
