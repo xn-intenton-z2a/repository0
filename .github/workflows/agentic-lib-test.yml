@@ -23,6 +23,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   test:
@@ -95,3 +96,24 @@ jobs:
               echo "::warning::Failed to push screenshot after 3 attempts"
             fi
           done
+
+  # ─── Dispatch fix workflow when tests fail on main ─────────────────
+  dispatch-fix:
+    needs: [test, behaviour]
+    if: >-
+      always()
+      && github.ref == 'refs/heads/main'
+      && github.event_name != 'pull_request'
+      && github.repository != 'xn-intenton-z2a/agentic-lib'
+      && (needs.test.result == 'failure' || needs.behaviour.result == 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch agentic-lib-workflow to fix broken build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Tests failed on main — dispatching agentic-lib-workflow to fix"
+          gh workflow run agentic-lib-workflow.yml \
+            --repo "${{ github.repository }}" \
+            -f mode=full \
+            -f message="Build broken on main: agentic-lib-test run ${{ github.run_id }} failed. Please fix."

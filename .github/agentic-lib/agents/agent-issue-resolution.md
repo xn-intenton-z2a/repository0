@@ -21,6 +21,11 @@ When writing both tests and implementation:
 - Ensure the implementation passes those tests before delivering
 - Do not write tests with different expectations than the implementation produces
 
+**Both unit tests AND behaviour tests must pass.** If the project has a `test:behaviour` npm script
+(typically Playwright-based, testing the website), run it after your changes. If your changes affect
+the website (`src/web/`) or library exports, ensure the behaviour test still finds the expected
+elements (e.g. `#demo-output`, `#lib-name`, `#lib-version`).
+
 Follow the linting guidelines and the formatting guidelines from the included config.
 
 ## Evidence Gathering

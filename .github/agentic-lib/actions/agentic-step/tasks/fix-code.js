@@ -121,9 +121,67 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
 }
 
 /**
- * Fix failing code or resolve merge conflicts on a pull request.
+ * Fix a broken main branch build.
+ * Called when no PR is involved — just a failing workflow run on main.
+ */
+async function fixMainBuild({ config, runId, instructions, model, writablePaths, testCommand }) {
+  const logContent = fetchRunLog(runId);
+  if (!logContent) {
+    core.info(`Could not fetch log for run ${runId}. Returning nop.`);
+    return { outcome: "nop", details: `Could not fetch log for run ${runId}` };
+  }
+
+  const agentInstructions = instructions || "Fix the failing tests by modifying the source code.";
+  const readOnlyPaths = config.readOnlyPaths;
+
+  const prompt = [
+    "## Instructions",
+    agentInstructions,
+    "",
+    "## Broken Build on Main",
+    `Workflow run ${runId} failed on the main branch.`,
+    "Fix the code so that the build passes.",
+    "",
+    "## Failed Run Log",
+    logContent,
+    "",
+    formatPathsSection(writablePaths, readOnlyPaths, config),
+    "",
+    "## Constraints",
+    `- Run \`${testCommand}\` to validate your fixes`,
+    "- Make minimal changes to fix the failing tests",
+    "- Do not introduce new features — focus on making the build green",
+  ].join("\n");
+
+  const t = config.tuning || {};
+  const { tokensUsed, inputTokens, outputTokens, cost, content: resultContent } = await runCopilotTask({
+    model,
+    systemMessage: `You are an autonomous coding agent fixing a broken build on the main branch. The test/build workflow has failed. Analyze the error log and make minimal, targeted changes to fix it.` + NARRATIVE_INSTRUCTION,
+    prompt,
+    writablePaths,
+    tuning: t,
+  });
+
+  core.info(`Main build fix completed (${tokensUsed} tokens)`);
+
+  return {
+    outcome: "fix-applied",
+    tokensUsed,
+    inputTokens,
+    outputTokens,
+    cost,
+    model,
+    details: `Applied fix for broken main build (run ${runId})`,
+    narrative: extractNarrative(resultContent, `Fixed broken main build (run ${runId}).`),
+  };
+}
+
+/**
+ * Fix failing code or resolve merge conflicts on a pull request,
+ * or fix a broken build on main.
  *
- * Priority: conflicts first (if NON_TRIVIAL_FILES env is set), then failing checks.
+ * Priority: main build fix (if FIX_RUN_ID env is set),
+ * then conflicts (if NON_TRIVIAL_FILES env is set), then failing checks.
  *
  * @param {Object} context - Task context from index.js
  * @returns {Promise<Object>} Result with outcome, tokensUsed, model
@@ -131,8 +189,14 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
 export async function fixCode(context) {
   const { octokit, repo, config, prNumber, instructions, writablePaths, testCommand, model } = context;
 
+  // Fix main build (no PR involved)
+  const fixRunId = process.env.FIX_RUN_ID || "";
+  if (fixRunId && !prNumber) {
+    return fixMainBuild({ config, runId: fixRunId, instructions, model, writablePaths, testCommand });
+  }
+
   if (!prNumber) {
-    throw new Error("fix-code task requires pr-number input");
+    throw new Error("fix-code task requires pr-number input or FIX_RUN_ID env var");
   }
 
   // Fetch the PR

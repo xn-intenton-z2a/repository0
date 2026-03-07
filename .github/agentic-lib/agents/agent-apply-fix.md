@@ -15,6 +15,10 @@ do it. Don't limit yourself to the minimal fix when you can deliver the whole mi
 The repository has a website in `src/web/` that uses the JS library. If a fix affects library
 exports or behaviour, also update the website files to stay in sync.
 
+**Both unit tests AND behaviour tests must pass.** If the project has a `test:behaviour` npm script
+(typically Playwright-based, testing the website), run it after your changes. If the behaviour test
+expects elements like `#demo-output`, `#lib-name`, or `#lib-version`, ensure the website provides them.
+
 ## Merge Conflict Resolution
 
 When resolving merge conflicts (files containing <<<<<<< / ======= / >>>>>>> markers):
