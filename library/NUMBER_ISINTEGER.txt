@@ -1,0 +1,41 @@
+NUMBER_ISINTEGER
+
+NORMALISED_EXTRACT
+Table of contents:
+1. Signature
+2. Behaviour and semantics
+3. Edge cases
+4. Implementation notes
+
+1. Signature
+Number.isInteger(value) -> Boolean
+
+2. Behaviour and semantics
+- Returns true if value is of the Number type and is an integer value (i.e., finite and with zero fractional component).
+- Implementation equivalent conditions: typeof value === 'number' && isFinite(value) && Math.floor(value) === value.
+
+3. Edge cases
+- Number.isInteger(NaN) -> false
+- Number.isInteger(Infinity/-Infinity) -> false
+- Number.isInteger(3.0) -> true
+- Number.isInteger('3') -> false (no coercion performed)
+
+4. Implementation notes
+- Use to distinguish numeric integers from floats and from string-numeric values; avoids coercion performed by global isFinite/parseInt.
+- For environments lacking Number.isInteger, polyfill using the equivalent conditions above.
+
+SUPPLEMENTARY DETAILS
+- Use-case: validation of integer-only inputs (counts, indices). For BigInt values, Number.isInteger returns false; use typeof value === 'bigint' to detect BigInt if needed.
+
+REFERENCE DETAILS
+- Exact signature: Number.isInteger(value) -> boolean
+- Returns: boolean. No exceptions thrown for non-number inputs, simply returns false.
+
+DIGEST
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+Retrieved: 2026-03-07
+Content extracted: signature, semantics, edge cases, polyfill pattern.
+
+ATTRIBUTION AND DATA SIZE
+Attribution: MDN Web Docs (Number.isInteger) URL from SOURCES.md.
+Data items extracted: 1 source entry; approximate characters extracted: ~900.

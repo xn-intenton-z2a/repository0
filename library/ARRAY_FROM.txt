@@ -1,0 +1,46 @@
+ARRAY_FROM
+
+NORMALISED_EXTRACT
+Table of contents:
+1. Signature
+2. Parameters semantics
+3. Return value
+4. Edge cases and type conversions
+5. Performance considerations
+
+1. Signature
+Array.from(arrayLike[, mapFn[, thisArg]]) -> Array
+
+2. Parameters semantics
+- arrayLike: any iterable or array-like object (object with length property and indexed elements) or an iterable object implementing @@iterator.
+- mapFn (optional): function called on each element after conversion; receives (element, index) and thisArg-bound as its this when provided.
+- thisArg (optional): value to use as this when calling mapFn.
+
+3. Return value
+- A new Array instance containing converted elements. If arrayLike is already an Array and no mapFn provided, returns a shallow copy of the array.
+- For iterables, values are consumed in iteration order and placed into indices 0..n-1.
+
+4. Edge cases and type conversions
+- If arrayLike.length is not an integer, it is converted via ToLength operation (clamped to max safe integer as defined by ECMAScript ToLength semantics).
+- mapFn is applied to each element after extraction; exceptions in mapFn propagate and abort conversion.
+- If arrayLike is null or undefined, a TypeError is thrown.
+
+5. Performance considerations
+- Prefer direct iteration when the input is already an array to avoid creation of a copy if mutability is not a concern; Array.from is convenient for converting iterables and node lists where a real Array is required.
+
+SUPPLEMENTARY DETAILS
+- Implementation note: Array.from uses iterator protocol when available; otherwise uses length and index access.
+- For typed arrays and array-like NodeList, Array.from creates a boxed Array of plain JS values.
+
+REFERENCE DETAILS
+- Exact signature: Array.from(source, mapFn? , thisArg?) -> Array
+- Errors: TypeError if source is nullish; propagate errors from mapFn. Conversion of length uses internal ToLength algorithm.
+
+DIGEST
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+Retrieved: 2026-03-07
+Content extracted: function signature, parameter semantics, return behaviour, ToLength handling.
+
+ATTRIBUTION AND DATA SIZE
+Attribution: MDN Web Docs (Array.from) URL from SOURCES.md.
+Data items extracted: 1 source entry; approximate characters extracted: ~1600.

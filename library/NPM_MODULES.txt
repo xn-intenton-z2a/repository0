@@ -1,0 +1,58 @@
+NPM_MODULES
+
+NORMALISED_EXTRACT
+Table of contents:
+1. package.json minimal fields for module packages
+2. Export surface and entry points
+3. Publishing basics
+4. Packaging files and metadata
+5. Best practices for dual-publish (CJS + ESM)
+
+1. package.json minimal fields for module packages
+- name (string): package name, must be lowercase, URL-safe.
+- version (semver string): e.g., "1.2.3".
+- description: short description string.
+- main: path to CommonJS entry (optional when using exports field).
+- exports: map of entry points for different importers (see below).
+- type: "module" to treat .js as ESM, "commonjs" to treat as CJS.
+- files: array of paths to include in published package; otherwise npm ignores dev files.
+- keywords, repository, license, author: metadata for npm registry.
+
+2. Export surface and entry points
+- "main": CommonJS entry for older consumers; points to a single file path.
+- "module": conventional field that many bundlers use to locate ESM build (not enforced by Node.js core).
+- "exports": explicit conditional exports object supporting subpath exports and conditions (import, require, node, default). Example patterns: {
+    "./package.json": "./package.json",
+    ".": {"import": "./esm/index.js", "require": "./cjs/index.js"}
+  }
+- "types" or "typings": path to TypeScript declaration file for consumers.
+
+3. Publishing basics
+- npm publish uses package.json fields; ensure version bumped before publishing unless using tags.
+- Use npm pack to inspect tarball content locally; use npm publish --access public for scoped public packages.
+
+4. Packaging files and metadata
+- Use .npmignore to exclude files, or populate "files" to whitelist included files.
+- Include README.md and LICENSE in package for clarity.
+
+5. Best practices for dual-publish (CJS + ESM)
+- Build both formats into distinct directories (cjs/, esm/) and use conditional exports in package.json to direct consumers.
+- Ensure CommonJS consumers can require the package by providing a require-compatible entry; ensure ESM consumers get tree-shakeable ESM code.
+- Provide a single source of truth for types (types field) pointing to declaration files.
+
+SUPPLEMENTARY DETAILS
+- Avoid publishing extraneous files to reduce package size; use npm pack to validate final artifact.
+- Use semantic-release or CI automation to manage versioning and publishing from CI on release tags.
+
+REFERENCE DETAILS
+- package.json fields: name: string, version: string, main?: string, module?: string, exports?: object | string, type?: "module" | "commonjs", files?: string[], types?: string
+- npm pack -> generates .tgz; npm publish [--access public]
+
+DIGEST
+Source: https://docs.npmjs.com/creating-node-js-modules
+Retrieved: 2026-03-07
+Content extracted: package.json fields, exports field usage, publishing steps, packaging best practices.
+
+ATTRIBUTION AND DATA SIZE
+Attribution: npm docs (creating node js modules) URL from SOURCES.md.
+Data items extracted: 1 source entry; approximate characters extracted: ~3200.

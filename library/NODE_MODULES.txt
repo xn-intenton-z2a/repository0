@@ -1,0 +1,54 @@
+NODE_MODULES
+
+NORMALISED_EXTRACT
+Table of contents:
+1. Core module system APIs
+2. ESM runtime specifics in Node.js
+3. Module resolution and package exports
+4. Interop helper APIs
+5. Diagnostic and debugging hooks
+
+1. Core module system APIs
+- require(id) -> any : synchronous CommonJS module loader; returns module.exports from resolved module id.
+- module.exports: object exported by current CommonJS module.
+- exports: alias to module.exports; reassigning exports breaks reference if module.exports replaced.
+
+2. ESM runtime specifics in Node.js
+- import specifier resolution for ESM respects package.json exports and file extensions. import() returns Promise<ModuleNamespace>.
+- import.meta.url contains the current module URL string; use URL and fileURLToPath to derive file path.
+- Top-level await supported in ESM: awaiting at module top-level pauses module evaluation.
+
+3. Module resolution and package exports
+- Resolution steps: if specifier is relative or absolute, resolve to file path and try file extensions (.js .mjs .cjs .json .node) and index files.
+- For bare specifiers, locate nearest package.json in node_modules and apply its "exports" map if present; otherwise use main field or index resolution.
+- exports field supports conditional exports and subpath patterns; an exports field present restricts access to only declared paths.
+
+4. Interop helper APIs
+- Module.createRequire(importMetaUrl) -> returns a require function usable inside ESM modules to load CommonJS modules.
+- import('module').then(ns => ns.default or named) for dynamic consumption.
+- require('module').createRequire ? createRequire is available on module to interoperably require.
+
+5. Diagnostic and debugging hooks
+- --trace-warnings, --trace-deprecation, NODE_DEBUG=module environment variable for troubleshooting module loading.
+- Errors: ERR_MODULE_NOT_FOUND, ERR_INVALID_PACKAGE_CONFIG, ERR_PACKAGE_PATH_NOT_EXPORTED thrown by resolver; examine stack and message for diagnostics.
+
+SUPPLEMENTARY DETAILS
+- For native addons (.node) loader and binary modules, resolution and loading happen via dlopen; ensure ABI compatibility.
+- Conditional exports example: use conditions "import" and "require" to point to ESM/CJS builds respectively.
+
+REFERENCE DETAILS
+- Function signatures:
+  - require(id: string) -> any
+  - import(id: string) -> Promise<ModuleNamespaceObject>
+  - Module.createRequire(filenameOrUrl: string) -> Function (require)
+  - import.meta.url: string
+- Errors and their constants: ERR_MODULE_NOT_FOUND, ERR_INVALID_PACKAGE_CONFIG, ERR_PACKAGE_PATH_NOT_EXPORTED.
+
+DIGEST
+Source: https://nodejs.org/api/modules.html
+Retrieved: 2026-03-07
+Content extracted: Node module APIs, resolution algorithm, interop helpers, diagnostic errors.
+
+ATTRIBUTION AND DATA SIZE
+Attribution: Node.js Modules API docs URL from SOURCES.md.
+Data items extracted: 1 source entry; approximate characters extracted: ~4200.
