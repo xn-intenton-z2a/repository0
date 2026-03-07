@@ -1,11 +1,8 @@
-Usage:
+Example usage:
 
-Require and call the fizzbuzz function from src/web/lib-browser.js
+import { fizzBuzz } from './src/lib/main.js';
 
-Example:
-const fizzbuzz = require('../../src/web/lib-browser');
-console.log(fizzbuzz(15)); // -> "FizzBuzz"
+const out = fizzBuzz(15);
+console.log(out.join('\n'));
 
-Running tests:
-- Install deps (if any)
-- Run your test runner (e.g., mocha or npm test) to execute tests in tests/unit
+See docs/examples/fizzbuzz-output.txt for sample output.

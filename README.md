@@ -1,6 +1,6 @@
 # repo — FizzBuzz Library
 
-This repository provides a minimal JavaScript library that implements the classic FizzBuzz functions.
+Minimal JavaScript library implementing FizzBuzz with comprehensive tests and a small web demo.
 
 Features
 - fizzBuzz(n): returns an array of FizzBuzz strings from 1..n (empty array for n = 0)
@@ -22,18 +22,31 @@ console.log(fizzBuzzSingle(3)); // 'Fizz'
 console.log(fizzBuzz(15));
 ```
 
+CLI
+
+Run the CLI demo:
+
+```bash
+node src/lib/main.js --identity
+```
+
 Website demo
 
-Open `src/web/index.html` in a browser (or run `npm run build:web` and serve `docs/`) to see a small demo that calls the browser-compatible library and displays output.
+Run `npm run build:web` then serve the `docs/` directory (or open `src/web/index.html`) to see an interactive demo that calls the browser-compatible library and displays the output.
 
 Tests
 
 Run unit tests with:
 
 ```bash
-npm ci
 npm test
 ```
+
+Docs and examples
+
+- docs/examples/fizzbuzz-output.txt — sample output for n=15
+- docs/evidence/fizzbuzz.json — machine-readable JSON output
+- docs/reports/usage.txt — short usage walkthrough
 
 License
 
