@@ -185,3 +185,63 @@ Extracted and consolidated JSON-LD, RDF, OWL, and schema.org technical details i
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T21:53:27.157Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 73499 (in: 70148, out: 3351)
+**Duration:** 52s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807990481](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807990481)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Enhanced the WEB_EXAMPLE feature to add a CLI usage spec and expanded test and README acceptance criteria so both web and CLI demos verify the ontology library using the animal seed.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T21:55:10.173Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 234097 (in: 228436, out: 5661)
+**Duration:** 103s (~1.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22807990481](https://github.com/xn-intenton-z2a/repository0/actions/runs/22807990481)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/32 | 24 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 2/32 | 30 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created an OWL2_OVERVIEW library document extracting concrete OWL 2 constructs, syntax patterns, profiles, mapping rules, and troubleshooting steps to support ontology implementation and tooling.
+
+Maintained library (1 docs, limit 32)
+
+---
