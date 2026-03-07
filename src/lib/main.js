@@ -57,8 +57,9 @@ export function fizzBuzz(n) {
   return out;
 }
 
-export function main(args) {
-  console.log(`Run with: ${JSON.stringify(args)}`);
+export function main(args = null) {
+  const used = args === null ? process.argv.slice(2) : args;
+  console.log(`Run with: ${JSON.stringify(used)}`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
