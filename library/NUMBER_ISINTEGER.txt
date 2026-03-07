@@ -1,0 +1,54 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Syntax and return semantics
+2. Edge cases and numeric precision
+3. Examples and expected outputs
+
+1. Syntax and return semantics
+- Function: Number.isInteger(value)
+- Parameter: value (any type)
+- Returns: boolean true if value is of numeric type and is mathematically an integer within the representable floating-point encoding; otherwise false.
+- Behavior: returns false for NaN, Infinity, -Infinity, non-number types.
+
+2. Edge cases and numeric precision
+- Floating point representation (IEEE-754) can make values like 5.0000000000000001 be represented as 5; Number.isInteger returns true for such cases because representation equals integer value.
+- Near Number.MAX_SAFE_INTEGER precision loss may cause non-integer literals to be treated as integers by this function (e.g., 4500000000000000.1 may return true).
+- For numeric strings or boxed numbers (e.g., new Number(2)) the function returns false if type is not primitive number; ensure explicit coercion if required.
+
+3. Examples and expected outputs
+- Number.isInteger(0) -> true
+- Number.isInteger(0.1) -> false
+- Number.isInteger(NaN) -> false
+- Number.isInteger(Infinity) -> false
+- Number.isInteger(5.0) -> true
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Implementation must test both typeof value === 'number' and the mathematical integer predicate: isFinite(value) && Math.floor(value) === value (or value % 1 === 0), with caveats for precision limits.
+- Polyfills: use core-js or es-shims number.isinteger polyfills for older environments.
+
+REFERENCE DETAILS
+
+Exact signature:
+- Number.isInteger(value: any) -> boolean
+Implementation patterns:
+- Recommended check:
+  if (typeof value !== 'number') return false;
+  if (!isFinite(value)) return false;
+  return Math.floor(value) === value;
+
+Troubleshooting:
+- If unexpected true for large floats: check floating-point precision limits; consider using BigInt for exact integer semantics beyond Number.MAX_SAFE_INTEGER.
+
+DETAILED DIGEST
+
+Source: MDN Web Docs - Number.isInteger
+Retrieved: 2026-03-07
+Extracted technical points: syntax, return semantics, precision caveats, recommended implementation checks, polyfill references.
+
+ATTRIBUTION
+
+Source: MDN Web Docs (Number.isInteger) retrieved 2026-03-07
+Data size obtained during crawling: approximately 1.5 KB (HTML text extracted)

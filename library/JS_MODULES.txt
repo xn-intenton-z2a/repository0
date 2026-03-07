@@ -1,0 +1,65 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Module export and import forms
+2. Module file resolution rules
+3. Import maps and specifiers
+4. Feature detection and best practices
+
+1. Module export and import forms
+- Export top-level declarations: export const name = "value"; export function f(...) { }
+- Aggregate export: export { a, b, c } at module end.
+- Default export: export default expression
+- Import forms:
+  - Named import: import { a, b } from "./mod.js"  (requires exact specifier with extension for relative/absolute)
+  - Default import: import someName from "./mod.js"
+  - Namespace import: import * as ns from "./mod.js"
+  - Dynamic import: await import('./mod.js') returns a module namespace object asynchronously
+
+2. Module file resolution rules
+- Three specifier types: relative ('./x.js' extension mandatory), bare ('pkg' or 'pkg/sub'), absolute ('file:///path/file.js').
+- Mandatory file extension for relative/absolute import specifiers in browsers and Node ESM: include ".js", ".mjs", etc.
+- When unspecified, environments may require an import map or package exports field to resolve bare specifiers.
+- Modules resolved and cached by URL; different query/fragment produce separate cached modules.
+
+3. Import maps and specifiers
+- Import map JSON keys map specifier strings to URL values; use imports and scopes keys.
+- imports: map bare names to URL strings (absolute or relative); values resolved relative to document base.
+- scopes: provide scoped remapping for specific referrer paths; lookup selects longest matching scope key.
+- Path-prefix mapping uses trailing slash on key and value to remap whole path sets.
+
+4. Feature detection and best practices
+- Use HTMLScriptElement.supports('importmap') to detect import map support.
+- Serve modules with correct Content-Type: text/javascript to avoid MIME errors.
+- Use .mjs for clarity in some runtimes but ensure server support for Content-Type; prefer .js plus proper server headers for portability.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Input expected: module specifier string; resolution algorithm differs by specifier type.
+- Implementation rules: always provide file extension for relative imports; treat bare specifiers only resolvable by environment (Node package resolution or browser import map).
+- Caching semantics: module identity is the resolved URL including query string and fragment.
+
+REFERENCE DETAILS
+
+API signatures and exact behaviors:
+- Dynamic import: import(specifier: string, options?: object) -> Promise<ModuleNamespace>
+  - Returns module namespace with named and default exports.
+- Export behavior: exported bindings are live read-only views; the exporter can reassign export values and importers observe updates for exported objects; imported bindings cannot be re-assigned by importer.
+- Import map structure: { "imports": { "name": "url" }, "scopes": { "path/": { "name": "url" } } }
+- Browser requirement: script tag for import map: <script type="importmap"> JSON </script> applies to document only; not for workers.
+
+Examples and troubleshooting:
+- If imports fail with TypeError: ensure specifier resolves (provide extension or define import map) and server sets Content-Type: text/javascript.
+- If duplicate module loads: check that specifiers differ by query or fragment; normalize to consistent specifiers.
+
+DETAILED DIGEST
+
+Source: MDN Web Docs - JavaScript Guide/Modules
+Retrieved: 2026-03-07
+Extracted technical points: export/import forms, specifier types, mandatory extensions for relative imports, import map structure and usage, caching by URL, recommendations on file extensions and server content-type.
+
+ATTRIBUTION
+
+Source: MDN Web Docs (Modules) retrieved 2026-03-07
+Data size obtained during crawling: approximately 12 KB (HTML text extracted)

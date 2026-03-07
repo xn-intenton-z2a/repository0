@@ -1,0 +1,66 @@
+NORMALISED EXTRACT
+
+Table of contents:
+1. Rules and mapping
+2. Implementation algorithm
+3. Edge cases and variants
+
+1. Rules and mapping
+- For each positive integer n in sequence:
+  - If n divisible by 3 and 5 -> output: FizzBuzz
+  - Else if n divisible by 3 -> output: Fizz
+  - Else if n divisible by 5 -> output: Buzz
+  - Else -> output: decimal representation of n
+- Divisibility definition: n % k == 0 (integer remainder zero)
+- Typical interview requirement: produce first 100 outputs or first N outputs.
+
+2. Implementation algorithm
+- Iterate integer counter i from 1 to N inclusive.
+- For each i compute r3 = (i % 3 == 0), r5 = (i % 5 == 0).
+- Use branch ordering: check (r3 && r5) before single divisibility checks to ensure combined case.
+- Output selection: if r3 && r5 -> FizzBuzz; else if r3 -> Fizz; else if r5 -> Buzz; else string(i).
+- Complexity: O(N) time, O(1) auxiliary space (excluding output storage). For streaming output write each result sequentially.
+
+3. Edge cases and variants
+- Negative integers: apply same divisibility rules using absolute value or require positive input; specify contract.
+- Zero: 0 is divisible by any non-zero integer; standard FizzBuzz for sequences starting at 1 does not include 0. If included, 0 yields FizzBuzz.
+- Large N: watch integer overflow in constrained numeric types; use arbitrary-precision integers if required.
+- Alternative rules: include additional divisors (e.g., 7) or digit-containment triggers (e.g., contains '3')—apply deterministic rule precedence and document ordering.
+
+SUPPLEMENTARY DETAILS
+
+Technical specifications and implementation details:
+- Input: positive integer N
+- Output: list or stream of N strings per mapping above.
+- Deterministic ordering: combined rule (3 and 5) must be applied before single-divisor rules.
+- Implementation patterns: prefer single-pass loop computing simple modulus operations; avoid repeated string concatenation inside loops in high-performance contexts; precompute constant strings "Fizz", "Buzz", "FizzBuzz".
+
+REFERENCE DETAILS
+
+Concrete patterns and examples (no quoting wrapper):
+- Function signature (pseudo): function fizzBuzz(N: integer) -> array of string
+  - Parameters: N (integer >= 0)
+  - Returns: array of strings length N
+- Example implementation steps:
+  1. result = []
+  2. for i = 1; i <= N; i++:
+     a. if i % 3 == 0 and i % 5 == 0: result.push("FizzBuzz")
+     b. else if i % 3 == 0: result.push("Fizz")
+     c. else if i % 5 == 0: result.push("Buzz")
+     d. else result.push(String(i))
+  3. return result
+- Best practice: use modular checks once per iteration and short-circuit combined case; for streaming output write directly to sink to avoid O(N) memory cost.
+- Troubleshooting:
+  - If combined case missing: ensure check for both divisors precedes single-divisor checks.
+  - If off-by-one: verify loop bounds (1..N inclusive vs 0..N-1).
+
+DETAILED DIGEST
+
+Source: https://en.wikipedia.org/wiki/Fizz_buzz
+Retrieved: 2026-03-07
+Extracted technical points: rules of divisibility mapping, standard algorithmic approach, interview usage, variants (digit containment, extra divisors), complexity notes.
+
+ATTRIBUTION
+
+Source: Wikipedia (Fizz buzz) retrieved 2026-03-07
+Data size obtained during crawling: approximately 2.5 KB (HTML text extracted)
