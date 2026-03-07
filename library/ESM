@@ -1,0 +1,67 @@
+NORMALISED_EXTRACT
+
+TABLE_OF_CONTENTS:
+1. Module modes and file resolution
+2. package.json "type" field and file extensions
+3. Import and export syntax and forms
+4. Dynamic import and top-level await
+5. Common interop patterns with CommonJS
+6. import.meta and filesystem/URL helpers
+7. Exports field and conditional exports
+
+1. Module modes and file resolution
+- Node.js supports ECMAScript modules (ESM) with two dominant resolution modes: the file extension (.mjs) selects ESM explicitly; projects set package.json property "type": "module" to treat .js files as ESM.
+- In "type": "module" packages, .cjs files are treated as CommonJS; in default mode .mjs is needed for ESM.
+- Import paths are resolved using file URL resolution; bare specifiers must match package exports or be resolvable via node_modules package entry points.
+
+2. package.json "type" field and file extensions
+- package.json: { "type": "module" } makes .js files ESM by default.
+- Use .cjs extension for CommonJS modules in ESM packages.
+
+3. Import and export syntax and forms
+- Named import: import { name } from 'module'
+- Default import: import defaultExport from 'module'
+- Namespace import: import * as ns from 'module'
+- Named export: export function f() {}
+- Default export: export default value
+- Re-export: export { x } from 'module' ; export * from 'module'
+
+4. Dynamic import and top-level await
+- Dynamic import(expression) returns a Promise resolving to module namespace object; use for conditional loading.
+- Top-level await is supported in ESM contexts; it enables awaiting async initialisation at module top-level.
+
+5. Common interop patterns with CommonJS
+- createRequire from module can construct a require function in ESM contexts: createRequire(import.meta.url) to load CommonJS modules.
+- Default export interop rules: importing a CommonJS module with import defaultSpecifier from 'cjs-module' may return the entire module.exports as default; use named accessors carefully.
+- __dirname and __filename are not defined in ESM; derive using import.meta.url and URL utilities.
+
+6. import.meta and filesystem/URL helpers
+- import.meta.url provides the module file URL string; derive filesystem paths with URL and path utilities: new URL('.', import.meta.url) and url.fileURLToPath
+
+7. Exports field and conditional exports
+- package.json "exports" field can map import specifiers to specific entry points and support conditions for node/browser/workspace.
+- Use exports to lock public surface and prevent deep imports: "exports": {"./feature": "./dist/feature.js"}
+
+REFERENCE_DETAILS
+
+Essential config:
+- package.json: "type": "module" to enable .js as ESM
+- Use .mjs for explicit module files when not changing package type
+
+Canonical patterns and function signatures:
+- import(moduleSpecifier: string) -> Promise<ModuleNamespace>
+- export default <value>
+- export function f(...args) { }
+- createRequire(fileUrl: string) -> function require(moduleSpecifier)
+- import.meta.url -> string (file URL for current module)
+
+DETAILED_DIGEST
+
+Source: https://nodejs.org/api/esm.html
+Retrieved: 2026-03-07
+Extracted technical content: package.json type semantics, file extension resolution, import/export syntax forms, dynamic import behaviour, top-level await, CommonJS interop recommendations and import.meta usage.
+
+ATTRIBUTION_AND_SIZE
+
+Attribution: Node.js ESM documentation
+Data size retrieved during crawl (approximate): 8 KB.

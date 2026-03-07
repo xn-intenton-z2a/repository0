@@ -1,0 +1,59 @@
+NORMALISED_EXTRACT
+
+TABLE_OF_CONTENTS:
+1. Purpose and semantics
+2. Function signature and return behaviour
+3. Edge cases and numeric categories
+4. Implementation notes and polyfill
+5. Examples of correct usage patterns
+
+1. Purpose and semantics
+- Number.isInteger(value) tests whether value is of the ECMAScript Number primitive type and is an integer (no fractional component).
+- It returns a boolean true only for finite numbers with zero fractional part; it returns false for NaN, Infinite, non-number types, and numeric strings.
+
+2. Function signature and return behaviour
+- Signature: Number.isInteger(value) -> boolean
+- Implementation behaviour: return typeof value === 'number' && isFinite(value) && Math.floor(value) === value.
+- Observable results:
+  - Number.isInteger(3) -> true
+  - Number.isInteger(3.0) -> true
+  - Number.isInteger(3.1) -> false
+  - Number.isInteger(NaN) -> false
+  - Number.isInteger(Infinity) -> false
+  - Number.isInteger('3') -> false
+
+3. Edge cases and numeric categories
+- Large integers within IEEE-754 safe integer range behave as expected; outside Number.MAX_SAFE_INTEGER results may be subject to precision issues but the integer check still uses truncation equality.
+- Negative integers are valid and return true.
+- Non-number primitives and objects: always false unless value is a number primitive.
+
+4. Implementation notes and polyfill
+- Polyfill canonical implementation:
+  - function isInteger(value) { return typeof value === 'number' && isFinite(value) && Math.floor(value) === value; }
+- Consider using Number.isSafeInteger(value) when integer range needs to be constrained to 53-bit safe integers.
+
+5. Examples of correct usage patterns
+- Use at API boundaries to validate numeric inputs (e.g., when function requires integer counts or indices).
+- For parsing strings to integers, explicitly coerce then validate: parsed = Number(input); if (!Number.isInteger(parsed)) -> handle error.
+
+SUPPLEMENTARY_DETAILS
+
+- Distinguish between numeric-string acceptance and numeric primitives; do not accept implicit conversions for strict validation.
+- When interoperating with BigInt use typeof value === 'bigint' check; Number.isInteger does not accept BigInt.
+
+REFERENCE_DETAILS
+
+API signature: Number.isInteger(value: any) -> boolean
+Implementation formula: return typeof value === 'number' && isFinite(value) && Math.trunc(value) === value
+Recommended companion: Number.isSafeInteger(value: any) -> boolean to enforce 53-bit safe integer bounds
+
+DETAILED_DIGEST
+
+Source: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+Retrieved: 2026-03-07
+Extracted technical content: precise semantics, edge cases, typical polyfill, relation to Number.isSafeInteger and BigInt.
+
+ATTRIBUTION_AND_SIZE
+
+Attribution: MDN Web Docs — Number.isInteger
+Data size retrieved during crawl (approximate): 2 KB.
