@@ -47,7 +47,7 @@
     <p>Enter a UUID to see how different encodings compare in length:</p>
     <input type="text" class="demo-input" id="uuid-input" placeholder="550e8400-e29b-41d4-a716-446655440000" value="550e8400-e29b-41d4-a716-446655440000">
     <button onclick="encodeUUID()">Encode UUID</button>
-    <div id="uuid-results" class="demo-output">Enter a UUID above to see encoding comparison</div>
+    <div id="demo-output" class="demo-output">Enter a UUID above to see encoding comparison</div>
   </div>
 
   <h2>Encoding Statistics</h2>
@@ -111,7 +111,7 @@
     } catch (e) {
       document.getElementById('lib-version').textContent = '(build required)';
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
-      document.getElementById('uuid-results').textContent = 'Library not yet built. Run: npm run build:web';
+      document.getElementById('demo-output').textContent = 'Library not yet built. Run: npm run build:web';
     }
 
     async function initDemo() {
@@ -148,7 +148,7 @@
       if (!lib) return;
       
       const uuid = document.getElementById('uuid-input').value;
-      const resultsDiv = document.getElementById('uuid-results');
+      const resultsDiv = document.getElementById('demo-output');
       
       if (!/^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$/i.test(uuid)) {
         resultsDiv.textContent = 'Invalid UUID format. Please enter a valid UUID.';
