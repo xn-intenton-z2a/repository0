@@ -6,7 +6,8 @@
 # During init:
 
 [schedule]
-supervisor = "hourly"              # off | weekly | daily | hourly | continuous
+supervisor = "off"              # off | weekly | daily | hourly | continuous
+model = "gpt-5-mini"
 
 [paths]
 mission = "MISSION.md"
