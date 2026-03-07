@@ -1,7 +1,7 @@
 {
   "name": "repo",
   "version": "0.1.0",
-  "description": "",
+  "description": "Dense binary-to-text encoding library with UUID optimization",
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
