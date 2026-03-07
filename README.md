@@ -4,8 +4,8 @@ This repository now exposes a small, deterministic FizzBuzz core library.
 
 Usage examples:
 
-- fizzBuzzSingle(15) => "fizzbuzz"
-- fizzBuzz(1, 5) => ["1","2","fizz","4","buzz"]
+- fizzBuzzSingle(15) => "FizzBuzz"
+- fizzBuzz(5) => ["1","2","Fizz","4","Buzz"]
 
 API:
 
@@ -13,9 +13,9 @@ API:
   - Throws TypeError for non-integers, NaN, Infinity, or non-number types.
   - Accepts mathematically-integer floats (e.g., 3.0).
 
-- export function fizzBuzz(start, end): returns an array of strings for inclusive range [start, end].
-  - Throws TypeError if start or end are not integers.
-  - Returns [] if start > end.
+- export function fizzBuzz(n): returns an array of strings for the sequence 1..n.
+  - Throws TypeError if n is not an integer.
+  - Returns [] if n <= 0.
 
 Run tests:
 
