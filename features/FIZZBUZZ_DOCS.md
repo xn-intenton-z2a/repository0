@@ -8,7 +8,8 @@ Specification
 
 - Update README.md to include usage examples for both fizzBuzz and fizzBuzzSingle with expected outputs, and a short section showing how to run the CLI with npm run start:cli.
 - Add a concise examples section describing expected outputs for common inputs (3, 5, 15) and edge cases (0, negative, non-integer).
-- Ensure package.json scripts reference the CLI appropriately and the docs build copies examples into docs/ when building the website.
+- Ensure package.json scripts reference the CLI appropriately and that the build:web script continues to copy src/web into docs/.
+- Keep documentation focused on the mission and avoid extraneous content.
 
 Testing
 
@@ -22,5 +23,5 @@ Acceptance Criteria
 
 Implementation Notes
 
-- Make minimal, focused edits to README.md only; do not add new files outside features/ unless necessary for examples already allowed by repo constraints.
-- Keep the documentation concise and aligned with the mission statement in MISSION.md.
+- Make minimal, focused edits to README.md only for usage examples and CLI instructions unless examples in src/web are added (see FIZZBUZZ_WEB).
+- Keep examples concise and copyable so users can verify outputs locally.
