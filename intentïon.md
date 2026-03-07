@@ -245,3 +245,63 @@ Created an OWL2_OVERVIEW library document extracting concrete OWL 2 constructs, 
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T21:57:19.879Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 40014 (in: 37209, out: 2805)
+**Duration:** 41s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808054650](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808054650)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 9/32 | 23 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining |  |
+| library | 2/32 | 30 remaining | n/a |
+
+### Closing Notes
+features at capacity (5/4) — actions will be blocked.
+
+### Narrative
+Added a validation feature spec and removed a non-markdown features file so the repository has at most four feature files and gains a lightweight ontology validator.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T21:58:50.911Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 34632 (in: 27319, out: 7313)
+**Duration:** 91s (~1.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808054650](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808054650)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 10/32 | 22 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining | n/a |
+| library | 5/32 | 27 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Added three concise, technical library documents (RDF primer, schema.org guide, jsonld npm API) to enable direct implementation from SOURCES.md entries.
+
+Maintained library (2 docs, limit 32)
+
+---
