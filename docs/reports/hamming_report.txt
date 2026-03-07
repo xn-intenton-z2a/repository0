@@ -1,7 +1,0 @@
-Hamming Distance Feature Report
-
-Implemented two functions:
- - hammingDistance(a, b): compares Unicode strings by code point after NFC normalization and returns the count of differing code points.
- - hammingDistanceBits(x, y): compares binary sequences (Buffer/Uint8Array/ArrayBuffer) by XOR-ing bytes and summing differing bits using a popcount table.
-
-Tests include ASCII, combining marks (NFD/NFC), emoji, empty inputs, mismatched lengths (RangeError), type validation (TypeError), table-driven bit tests, randomized bit checks and a small performance run.
