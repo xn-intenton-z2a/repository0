@@ -38,6 +38,7 @@ When open issues with the `automated` label lack the `ready` label and are more 
 ### Mission Initialised (init completed)
 When recent workflow runs show an init completion, the repository has a fresh or updated mission.
 Dispatch the discussions bot to announce the new mission to the community.
+Include the website URL in the announcement — the site is at `https://<owner>.github.io/<repo>/`.
 
 ### Mission Accomplished (bounded missions)
 When ALL of the following conditions are met, the mission is accomplished:
@@ -47,7 +48,7 @@ When ALL of the following conditions are met, the mission is accomplished:
 4. Evidence artifacts exist under `docs/` (example outputs, test results, or walkthroughs)
 
 When all conditions are met:
-1. `dispatch:agentic-lib-bot` — announce mission accomplished in the discussions thread
+1. `dispatch:agentic-lib-bot` — announce mission accomplished in the discussions thread. Include the website URL (`https://<owner>.github.io/<repo>/`) so users can see the finished product.
 2. `set-schedule:off` — stop the workflow. The mission is done.
 3. Log `mission-accomplished` in the activity log.
 
@@ -81,6 +82,7 @@ Also check for notable progress worth reporting:
 - Mission milestones achieved (all core functions implemented, all tests passing)
 - Schedule changes (mission accomplished, throttling down)
 - Significant code changes (large PRs merged, new features completed)
+- Website first deployed or significantly updated (include the URL: `https://<owner>.github.io/<repo>/`)
 
 When notable progress exists or there are unresponded referrals, use `respond:discussions | message: <status update> | discussion-url: <url>` to post an update. Keep it concise — 2-3 sentences summarising what happened and what's next.
 

@@ -21,3 +21,17 @@ When implementing features, also produce evidence artifacts under `docs/`:
 
 Design the library API with hooks that make evidence capture easy: return structured result objects,
 support `outputFile` options where appropriate, and emit results that observers can record.
+
+## Website Showcase
+
+Maintain a website in `src/web/` that visually demonstrates the library's capabilities. The website is
+published to GitHub Pages automatically (from `docs/` via `npm run build:web`).
+
+- `src/web/index.html` is the main page — evolve it to showcase the library interactively
+- You may add CSS, JS, images, or additional HTML pages in `src/web/`
+- The website should demonstrate what the library does in a way a visitor can see and interact with
+- Keep it self-contained (no external CDN dependencies unless essential)
+- Link back to the repository for source code and mission details
+- When the library produces visual output (plots, graphs, data), embed or render it on the website
+- When the library is computational (algorithms, utilities), create an interactive demo or show example results
+- The website tests in `tests/unit/web.test.js` verify the HTML exists and is structurally valid — you may extend them

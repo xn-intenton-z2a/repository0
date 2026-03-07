@@ -25,11 +25,10 @@ export async function maintainLibrary(context) {
     return { outcome: "nop", details: "Mission already complete (MISSION_COMPLETE.md signal)" };
   }
 
-  const sources = readOptionalFile(config.paths.librarySources.path);
-  if (!sources.trim()) {
-    core.info("No sources found. Returning nop.");
-    return { outcome: "nop", details: "No SOURCES.md or empty" };
-  }
+  const sourcesPath = config.paths.librarySources.path;
+  const sources = readOptionalFile(sourcesPath);
+  const mission = readOptionalFile(config.paths.mission.path);
+  const hasUrls = /https?:\/\//.test(sources);
 
   const libraryPath = config.paths.library.path;
   const libraryLimit = config.paths.library.limit;
@@ -37,26 +36,50 @@ export async function maintainLibrary(context) {
 
   const agentInstructions = instructions || "Maintain the library by updating documents from sources.";
 
-  const prompt = [
-    "## Instructions",
-    agentInstructions,
-    "",
-    "## Sources",
-    sources,
-    "",
-    `## Current Library Documents (${libraryDocs.length}/${libraryLimit} max)`,
-    ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
-    "",
-    "## Your Task",
-    "1. Read each URL in SOURCES.md and extract technical content.",
-    "2. Create or update library documents based on the source content.",
-    "3. Remove library documents that no longer have corresponding sources.",
-    "",
-    formatPathsSection(writablePaths, config.readOnlyPaths, config),
-    "",
-    "## Constraints",
-    `- Maximum ${libraryLimit} library documents`,
-  ].join("\n");
+  let prompt;
+  if (!hasUrls) {
+    // SOURCES.md has no URLs — ask the LLM to find relevant sources based on the mission
+    core.info("SOURCES.md has no URLs — asking LLM to discover relevant sources from the mission.");
+    prompt = [
+      "## Instructions",
+      agentInstructions,
+      "",
+      "## Mission",
+      mission || "(no mission file found)",
+      "",
+      "## Current SOURCES.md",
+      sources || "(empty)",
+      "",
+      "## Your Task",
+      `SOURCES.md has no URLs yet. Research the mission above and populate ${sourcesPath} with 3-8 relevant reference URLs.`,
+      "Find documentation, tutorials, API references, Wikipedia articles, or npm packages related to the mission's core topic.",
+      "Use web search to discover high-quality, stable URLs (prefer official docs, Wikipedia, MDN, npm).",
+      `Write the URLs as a markdown list in ${sourcesPath}, keeping the existing header text.`,
+      "",
+      formatPathsSection(writablePaths, config.readOnlyPaths, config),
+    ].join("\n");
+  } else {
+    prompt = [
+      "## Instructions",
+      agentInstructions,
+      "",
+      "## Sources",
+      sources,
+      "",
+      `## Current Library Documents (${libraryDocs.length}/${libraryLimit} max)`,
+      ...libraryDocs.map((d) => `### ${d.name}\n${d.content}`),
+      "",
+      "## Your Task",
+      "1. Read each URL in SOURCES.md and extract technical content.",
+      "2. Create or update library documents based on the source content.",
+      "3. Remove library documents that no longer have corresponding sources.",
+      "",
+      formatPathsSection(writablePaths, config.readOnlyPaths, config),
+      "",
+      "## Constraints",
+      `- Maximum ${libraryLimit} library documents`,
+    ].join("\n");
+  }
 
   const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
     model,
@@ -67,13 +90,18 @@ export async function maintainLibrary(context) {
     tuning: t,
   });
 
+  const outcomeLabel = hasUrls ? "library-maintained" : "sources-discovered";
+  const detailsMsg = hasUrls
+    ? `Maintained library (${libraryDocs.length} docs, limit ${libraryLimit})`
+    : `Discovered sources for SOURCES.md from mission`;
+
   return {
-    outcome: "library-maintained",
+    outcome: outcomeLabel,
     tokensUsed,
     inputTokens,
     outputTokens,
     cost,
     model,
-    details: `Maintained library (${libraryDocs.length} docs, limit ${libraryLimit})`,
+    details: detailsMsg,
   };
 }

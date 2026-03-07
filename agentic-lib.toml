@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "continuous"              # off | weekly | daily | hourly | continuous
+supervisor = "off"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -14,6 +14,7 @@ source = "src/lib/"
 tests = "tests/unit/"
 features = "features/"
 library = "library/"
+web = "src/web/"
 docs = "docs/"
 examples = "examples/"
 readme = "README.md"

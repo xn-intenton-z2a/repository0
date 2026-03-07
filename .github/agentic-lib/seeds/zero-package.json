@@ -5,16 +5,18 @@
   "type": "module",
   "main": "src/lib/main.js",
   "scripts": {
-    "build": "echo \"Nothing to build\"",
+    "build": "npm run build:web",
+    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || echo 'No web files to build'",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
-    "start": "node src/lib/main.js"
+    "start": "node src/lib/main.js",
+    "start:web": "npx serve docs"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.62"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.66"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18",

@@ -1,7 +1,0 @@
-hammingDistance('karolin', 'kathrin') => 3
-hammingDistance('1011101', '1001001') => 2
-hammingDistance(Buffer.from([1,2,3]), Buffer.from([1,0,3])) => 1
-
-hammingDistanceBits(0b1011101, 0b1001001) => 2
-hammingDistanceBits(0, 15) => 4
-hammingDistanceBits(0n, 16n) => 1

@@ -210,8 +210,43 @@ export function supportsReasoningEffort(model) {
 }
 
 /**
+ * Detect whether an error is an HTTP 429 Too Many Requests (rate limit) response.
+ * The Copilot SDK may surface this as an Error with a status, statusCode, or message.
+ *
+ * @param {unknown} err - The error to test
+ * @returns {boolean}
+ */
+export function isRateLimitError(err) {
+  if (!err || typeof err !== "object") return false;
+  const status = err.status ?? err.statusCode ?? err.code;
+  if (status === 429 || status === "429") return true;
+  const msg = (err.message || "").toLowerCase();
+  return msg.includes("429") || msg.includes("too many requests") || msg.includes("rate limit");
+}
+
+/**
+ * Extract the retry delay in milliseconds from a rate-limit error.
+ * Tries the Retry-After header (seconds) first, then falls back to exponential backoff.
+ *
+ * @param {unknown} err - The error (may have headers or retryAfter)
+ * @param {number} attempt - Zero-based attempt number (0 = first retry)
+ * @param {number} [baseDelayMs=60000] - Base delay for exponential backoff (ms)
+ * @returns {number} Milliseconds to wait before retrying
+ */
+export function retryDelayMs(err, attempt, baseDelayMs = 60000) {
+  const retryAfterHeader =
+    err?.headers?.["retry-after"] ?? err?.retryAfter ?? err?.response?.headers?.["retry-after"];
+  if (retryAfterHeader != null) {
+    const parsed = Number(retryAfterHeader);
+    if (!isNaN(parsed) && parsed > 0) return parsed * 1000;
+  }
+  return baseDelayMs * Math.pow(2, attempt);
+}
+
+/**
  * Run a Copilot SDK session and return the response.
  * Handles the full lifecycle: create client → create session → send → stop.
+ * Retries automatically on HTTP 429 rate-limit responses (up to maxRetries times).
  *
  * @param {Object} options
  * @param {string} options.model - Copilot SDK model name
@@ -221,9 +256,42 @@ export function supportsReasoningEffort(model) {
  * @param {string} [options.githubToken] - Optional token; falls back to COPILOT_GITHUB_TOKEN env var.
  * @param {Object} [options.tuning] - Tuning config (reasoningEffort, infiniteSessions)
  * @param {string} [options.profileName] - Profile name for logging
+ * @param {number} [options.maxRetries=3] - Maximum number of retry attempts on rate-limit errors
  * @returns {Promise<{content: string, tokensUsed: number}>}
  */
 export async function runCopilotTask({
+  model,
+  systemMessage,
+  prompt,
+  writablePaths,
+  githubToken,
+  tuning,
+  profileName,
+  maxRetries = 3,
+}) {
+  const profile = profileName || "unknown";
+
+  // Attempt 0 is the initial call; attempts 1..maxRetries are retries after 429s.
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await _runCopilotTaskOnce({ model, systemMessage, prompt, writablePaths, githubToken, tuning, profileName: profile });
+    } catch (err) {
+      if (isRateLimitError(err) && attempt < maxRetries) {
+        const delayMs = retryDelayMs(err, attempt);
+        core.warning(
+          `[copilot] Rate limit (429) hit — waiting ${Math.round(delayMs / 1000)}s before retry ${attempt + 1}/${maxRetries}`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      } else {
+        throw err;
+      }
+    }
+  }
+  // Unreachable: loop always returns or throws, but satisfies static analysis.
+  throw new Error("[copilot] runCopilotTask: all retry attempts exhausted");
+}
+
+async function _runCopilotTaskOnce({
   model,
   systemMessage,
   prompt,
