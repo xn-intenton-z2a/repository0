@@ -1,0 +1,1 @@
+This repository now includes an OWL-like JSON-LD ontology library. See docs/ontology.md for details and examples.

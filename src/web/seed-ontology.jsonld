@@ -1,0 +1,34 @@
+{
+  "@context": {
+    "ex": "http://example.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "owl": "http://www.w3.org/2002/07/owl#"
+  },
+  "@graph": [
+    {
+      "@id": "http://example.org/Animal",
+      "@type": "owl:Class"
+    },
+    {
+      "@id": "http://example.org/Mammal",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": { "@id": "http://example.org/Animal" }
+    },
+    {
+      "@id": "http://example.org/hasFriend",
+      "@type": "owl:ObjectProperty",
+      "rdfs:domain": { "@id": "http://example.org/Animal" },
+      "rdfs:range": { "@id": "http://example.org/Animal" }
+    },
+    {
+      "@id": "http://example.org/fluffy",
+      "@type": "http://example.org/Mammal",
+      "http://example.org/hasFriend": { "@id": "http://example.org/buddy" }
+    },
+    {
+      "@id": "http://example.org/buddy",
+      "@type": "http://example.org/Animal"
+    }
+  ]
+}
