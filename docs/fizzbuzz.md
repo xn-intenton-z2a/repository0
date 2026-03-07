@@ -1,22 +1,40 @@
 # FizzBuzz
 
-This project includes a small FizzBuzz library with a minimal, dependency-free API.
+This project provides a FizzBuzz library and CLI exported from `src/lib/main.js`.
 
 API (ESM)
 
-- fizz(value): returns "Fizz", "Buzz", "FizzBuzz", or the number as a string for a single integer value >= 1.
-- fizzSequence(n): returns an array of fizz(...) results for integers 1..n. n === 0 returns an empty array. Negative values throw RangeError; non-integers throw TypeError.
+- fizzBuzz(n): returns an array of strings for 1..n (n >= 0)
+- fizzBuzzSingle(n): returns the single FizzBuzz string for n (n >= 1)
+- fizzBuzzStream(n): returns an async iterable that yields strings for 1..n
+- createFizzBuzzReadable(n): returns a Node.js Readable (objectMode) that emits the same strings
+
+Validation rules:
+- Values must be integers
+- fizzBuzz: n >= 0 (zero returns [])
+- fizzBuzzSingle: n >= 1
+- Negative values throw RangeError; non-integers throw TypeError
 
 Examples
 
 ```js
-import { fizz } from '../src/lib/fizzbuzz.js';
-import { fizzSequence } from '../src/lib/fizzbuzz.js';
+import { fizzBuzz, fizzBuzzSingle } from '../src/lib/main.js';
+console.log(fizzBuzzSingle(3)); // 'Fizz'
+console.log(fizzBuzz(15)); // array of 1..15 with substitutions
 
-console.log(fizz(3)); // "Fizz"
-console.log(fizz(5)); // "Buzz"
-console.log(fizz(15)); // "FizzBuzz"
-console.log(fizzSequence(15));
+// streaming
+for await (const v of fizzBuzzStream(5)) console.log(v);
+
+// readable
+const r = createFizzBuzzReadable(5);
+for await (const v of r) console.log(v);
 ```
 
-The website includes a short demonstration and example output in docs/examples.
+CLI
+
+```bash
+node src/lib/main.js single 3
+node src/lib/main.js range 15
+```
+
+See docs/examples/fizz_output.txt and docs/evidence/fizz_output.json for sample output.
