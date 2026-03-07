@@ -2,40 +2,59 @@
 
 Summary
 
-A focused feature to implement and document the core Hamming distance library functions required by the mission: hammingDistance and hammingDistanceBits exported as named exports from src/lib/main.js. This feature ensures Unicode-aware string comparison, correct integer bit comparisons, input validation, and comprehensive unit tests and README examples.
+Implement and document the library's core Hamming distance functions: named exports hammingDistance and hammingDistanceBits in src/lib/main.js. The functions must be small, pure, and correct: Unicode-aware code point comparison for strings and correct bitwise comparison for Numbers and BigInts with strict input validation.
 
 Motivation
 
-Provide the primary functionality of the repository: a small, dependable JavaScript library that computes Hamming distances for strings and integers with correct Unicode and input validation semantics. This is the core product the rest of the repository depends on.
+Deliver the single-responsibility core of this repository: reliable Hamming distance computations that other features and users can depend on (CLI, batch helpers, BigInt support). The implementation must be suitable for unit testing and easy to reuse.
 
 Specification
 
-- Export two named functions from src/lib/main.js: hammingDistance and hammingDistanceBits.
-- hammingDistance(a, b):
-  - Accepts two strings.
-  - Compares by Unicode code points (not by UTF-16 code units).
-  - Throws TypeError when either argument is not a string.
-  - Throws RangeError when strings have different lengths (in code points).
-  - Returns an integer count of positions where code points differ.
-- hammingDistanceBits(x, y):
-  - Accepts two non-negative integers or BigInt values (see BIGINT_SUPPORT for BigInt specifics).
-  - Throws TypeError when arguments are not numbers or BigInts.
-  - Throws RangeError for negative numeric inputs.
-  - Returns the number of differing bits between the two integer values.
+API
 
-Behavior and Edge Cases
+- hammingDistance(a, b)
+  - Parameters: a (string), b (string)
+  - Returns: number (non-negative integer)
+  - Behavior:
+    - Use Unicode code points for comparison (use Array.from or equivalent) so that astral symbols are treated as single positions.
+    - If either argument is not a string, throw TypeError with a descriptive message.
+    - If the two strings have different code-point lengths, throw RangeError with a descriptive message.
+    - Otherwise return the count of positions where corresponding code points differ.
 
-- Empty strings should return 0.
-- Zero and equal integers should return 0.
-- Large integers should be handled within JavaScript number limits; see BIGINT_SUPPORT for larger ranges.
-- Surrogate pairs and astral Unicode characters must be counted as single code points.
+- hammingDistanceBits(x, y)
+  - Parameters: x (Number|BigInt), y (Number|BigInt)
+  - Returns: number (non-negative integer)
+  - Behavior:
+    - Accept Number or BigInt. If either operand is BigInt, perform comparison in BigInt space to avoid precision loss (coerce Number to BigInt safely).
+    - Throw TypeError when an argument is not a Number or BigInt.
+    - Throw RangeError when either numeric argument is negative.
+    - Compute differing bits using x ^ y and count set bits efficiently; use BigInt-aware bit operations when needed. Return the bit-difference count as a Number.
+
+Validation and Errors
+
+- Use precise exception types: TypeError for invalid types, RangeError for invalid ranges (unequal string lengths or negative integers).
+- Error messages should be short and actionable (e.g., "hammingDistance: inputs must be strings", "hammingDistanceBits: negative value not allowed").
+
+Implementation Notes
+
+- Keep implementations pure and free of side effects so they can be used in other modules and in tests.
+- For Unicode string handling, use Array.from to obtain code points. Avoid operating on UTF-16 code units.
+- For Numbers, use safe bitwise operations when both operands fit into 32-bit unsigned space; otherwise, coerce to BigInt and use BigInt operations to compute x ^ y and count set bits.
+- Convert the final bit count to a JavaScript Number (it will be small for test cases and practical inputs).
+- Do not add external runtime dependencies.
 
 Tests
 
-Add unit tests in tests/unit/main.test.js covering:
-- Normal cases: hammingDistance("karolin", "kathrin") => 3, hammingDistanceBits(1,4) => 2.
-- Edge cases: empty strings, single-character strings, identical inputs.
-- Error cases: TypeError for non-strings, RangeError for different-length strings, negative integers.
+- Add or update tests in tests/unit/main.test.js to cover:
+  - Basic string case: hammingDistance("karolin", "kathrin") => 3
+  - Empty strings: hammingDistance("", "") => 0
+  - Unequal-length strings: hammingDistance("a", "bb") throws RangeError
+  - Unicode astral characters: hammingDistance("𝌆a", "𝌇a") correct counting (astral code points count as single positions)
+  - Basic bit case: hammingDistanceBits(1, 4) => 2
+  - Zeros: hammingDistanceBits(0, 0) => 0
+  - BigInt values: hammingDistanceBits(1n, 4n) => 2 and large BigInt differences
+  - Negative numbers/BigInts: hammingDistanceBits(-1, 1) throws RangeError
+  - Type errors: passing non-string to hammingDistance or non-number/BigInt to hammingDistanceBits throws TypeError
 
 Acceptance Criteria
 
@@ -44,14 +63,18 @@ Acceptance Criteria
 - hammingDistance("a", "bb") throws RangeError
 - hammingDistanceBits(1, 4) returns 2
 - hammingDistanceBits(0, 0) returns 0
+- hammingDistanceBits(1n, 4n) returns 2
 - Both functions are exported as named exports from src/lib/main.js
-- Unit tests exist and pass locally with npm test
+- Unit tests are present in tests/unit/main.test.js and pass with npm test
 
 Examples
 
 - hammingDistance("abc", "abd") => 1
-- hammingDistanceBits(3, 5) => 2 (011 vs 101)
+- hammingDistance("𝌆a", "𝌆b") => 1 (astral character treated correctly)
+- hammingDistanceBits(3, 5) => 2
+- hammingDistanceBits(9007199254740993n, 9007199254740995n) returns the correct bit difference
 
-Compatibility
+Compatibility and Scope
 
-This feature adheres to CONTRIBUTING.md guidelines for concise, test-driven changes and matches the mission in MISSION.md.
+- Implementation fits entirely within src/lib/main.js and unit tests. This feature is intentionally limited to core computation and validation; CLI, batch, and BigInt-specific documentation live in their respective feature specs and will reuse these functions.
+- Follow CONTRIBUTING.md for concise changes, tests first, and minimal diffs.

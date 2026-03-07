@@ -3,147 +3,146 @@ DOCUMENT: HAMMING_UTILS
 NORMALISED EXTRACT
 
 Table of contents
-1. Function signatures and types
-2. Hamming distance for sequences (hammingDistance)
-3. Hamming distance for integers/bits (hammingDistanceBits)
-4. Error conditions and thrown exceptions
-5. Operational details and implementation patterns
-6. Performance characteristics
+1. API signatures and types
+2. Sequence Hamming distance (hammingDistance)
+3. Integer/bit Hamming distance (hammingDistanceBits)
+4. Errors and validations
+5. Implementation patterns and algorithms
+6. Performance and memory characteristics
 
-1. Function signatures and types
-export function hammingDistance(a, b)
-- Parameters:
-  a: string | Buffer | Uint8Array | ArrayLike
-  b: string | Buffer | Uint8Array | ArrayLike
-- Returns: number (count of differing positions)
-- Behaviour: For strings, comparison is by Unicode code points using Array.from(a) and Array.from(b). For Buffer, Uint8Array, or other array-like values, comparison iterates over numeric elements. Inputs must be equal length; otherwise a RangeError is thrown. Unsupported types cause a TypeError.
+1. API signatures and types
+- hammingDistance(a, b)
+  - Parameters: a: string | Buffer | Uint8Array | ArrayLike, b: string | Buffer | Uint8Array | ArrayLike
+  - Returns: number (integer >= 0) — count of differing positions
+  - Throws: RangeError when lengths differ; TypeError for unsupported types
+- hammingDistanceBits(x, y)
+  - Parameters: x: number | bigint, y: number | bigint
+  - Returns: number (integer >= 0) — count of differing bit positions
+  - Throws: TypeError for non-number/non-BigInt inputs; RangeError for negative BigInt
 
-export function hammingDistanceBits(x, y)
-- Parameters:
-  x: number | bigint
-  y: number | bigint
-- Returns: number (count of differing bits)
-- Behaviour: Accepts Numbers (treated as unsigned 32-bit via >>>0) and BigInts. If either argument is BigInt, both are compared as BigInt (Numbers coerced by Number(x) >>> 0 then BigInt). Negative BigInt causes RangeError. Only Number or BigInt allowed; otherwise TypeError is thrown.
+2. Sequence Hamming distance (hammingDistance)
+- Input normalization: strings are converted using Array.from to produce code point arrays; typed arrays and Buffers are used as-is.
+- Length check: if normalized lengths differ, throw RangeError("Inputs must be the same length").
+- Comparison algorithm: single-pass index-wise comparison; increment counter when element mismatch detected. For strings comparison uses strict equality of code points.
+- Supported inputs: string, Buffer (if Buffer exists), Uint8Array, and any array-like object exposing numeric length and index access.
+- Environment notes: Buffer detection uses typeof Buffer !== 'undefined' && Buffer.isBuffer(v) to remain compatible between Node and browser.
 
-2. Hamming distance for sequences (hammingDistance)
-- Input normalization:
-  - Strings: split into Unicode code points via Array.from to ensure grapheme code point accuracy for multi-byte characters.
-  - Binary/array-like: use length and numeric index access (a[i]) to compare elements.
-- Length requirement: Both inputs must have identical length; mismatch results in RangeError("Inputs must be the same length").
-- Difference count algorithm: single pass linear scan increments counter when element mismatch is found.
-- Supported types: string, Buffer (Node.js Buffer.isBuffer), Uint8Array, and any object with numeric length property (array-like). Strings are detected via typeof v === "string"; Buffer via Buffer.isBuffer when Buffer exists.
-- Failure modes: If types are mixed but both are array-like (e.g., Array and Uint8Array), algorithm compares index-wise values; if types are unsupported (e.g., object without length), throws TypeError('Unsupported input types for hammingDistance. Use strings, Buffer, Uint8Array or array-like.').
+3. Integer/bit Hamming distance (hammingDistanceBits)
+- Number handling: Number values are coerced to unsigned 32-bit via Number(x) >>> 0 before XOR.
+- BigInt handling: If either operand is BigInt, both operands are compared as BigInt. Coercion: Number -> BigInt(Number >>> 0). Negative BigInt values are rejected to avoid ambiguous two's-complement semantics.
+- Bit-diff algorithm: compute diff = ax ^ ay, then count set bits using Kernighan's algorithm: while(diff) { diff &= diff - 1; count++ } (use BigInt variants when operands are BigInt).
+- Mixing Number and BigInt: allowed; Number is coerced to unsigned 32-bit then to BigInt.
 
-3. Hamming distance for integers/bits (hammingDistanceBits)
-- Numbers handling: Numbers coerced to unsigned 32-bit using Number(x) >>> 0; equality / xor computed on 32-bit values.
-- BigInt handling: When either operand is BigInt, both are represented as BigInt; Number values are coerced to BigInt(Number >>> 0). Negative BigInts are rejected with RangeError.
-- Bit-differ count algorithm: use bitwise XOR to get differing bits, then Kernighan's algorithm (diff &= diff - 1) in a loop to count set bits. For BigInt use BigInt operations (diff &= diff - 1n) and count with integer loop.
-- Mixing Number and BigInt is supported via coercion of Number to unsigned 32-bit then to BigInt.
+4. Errors and validations
+- RangeError("Inputs must be the same length") thrown by hammingDistance when lengths mismatch.
+- TypeError('Unsupported input types for hammingDistance. Use strings, Buffer, Uint8Array or array-like.') thrown for invalid sequence inputs.
+- TypeError('hammingDistanceBits accepts only Number or BigInt') thrown for invalid numeric types.
+- RangeError('Negative BigInt is not allowed') thrown when a BigInt < 0n is provided.
 
-4. Error conditions and thrown exceptions
-- RangeError("Inputs must be the same length") raised when sequence lengths differ in hammingDistance or when comparing negative BigInt in hammingDistanceBits.
-- TypeError raised when passed unsupported types to either function (e.g., non-numeric non-BigInt for hammingDistanceBits or non-string/non-array-like for hammingDistance).
+5. Implementation patterns and algorithms
+- Unicode-safe string comparison: Array.from(string) to get code points; does not perform grapheme cluster segmentation — use a grapheme library or Intl.Segmenter if needed for user-visible clusters.
+- Array-like acceptance: prefer checking for length property and numeric indexing rather than Array.isArray to accept typed arrays and Buffer.
+- Buffer safety: check for Buffer existence before calling Buffer.isBuffer to avoid ReferenceError in browser contexts.
+- Bit counting: Kernighan's algorithm for set-bit counting gives iteration proportional to number of set bits rather than bit-width.
 
-5. Operational details and implementation patterns
-- String comparison by Unicode code points: Use Array.from to ensure surrogate pairs and combined code points are treated as single entries.
-- Array-like detection: check for presence of length property and numeric indexing rather than relying on Array.isArray, to accept typed arrays and Buffer.
-- Buffer detection: use typeof Buffer !== 'undefined' && Buffer.isBuffer(v) to safely operate in environments where Buffer may be unavailable.
-- Bit counting: Kernighan's algorithm used for O(k) where k is number of set bits; worst-case complexity O(w) where w is word width (32 for numbers, length of BigInt in bits otherwise).
-
-6. Performance characteristics
-- hammingDistance: time O(n) where n is sequence length; constant extra space excluding input normalization for strings (Array.from creates arrays proportional to string length). For very large strings, prefer pre-normalized code point arrays to avoid double memory.
-- hammingDistanceBits: time proportional to number of set bits in xor result; worst-case bounded by word size (32 loops for Number, proportional to bit-length for BigInt).
+6. Performance and memory characteristics
+- hammingDistance: O(n) time where n is the sequence length. For string inputs, Array.from creates an intermediate array of size n — consider precomputing code point arrays for repeated comparisons to save memory and time.
+- hammingDistanceBits: time proportional to number of differing bits (Kernighan), worst-case bounded by word size (32 for Number) or bit-length for BigInt.
 
 SUPPLEMENTARY DETAILS
 
-A. Implementation constraints
-- Node.js environment recommended for Buffer support; functions also work in browser environments for string and Uint8Array.
-- Node engine requirement in repository package.json: node >= 24.0.0. Package type is module.
+Essential implementation and runtime specifications
+- Module type: ESM; exported from src/lib/main.js as named exports.
+- Node engine requirement: package.json specifies node >= 24.0.0.
+- CLI entry: main(args) prints JSON stringified args and is executed when script run directly (process.argv detection using fileURLToPath(import.meta.url)).
 
-B. Security and correctness notes
-- Unicode: Array.from yields code points; does not perform grapheme cluster segmentation. For user-visible grapheme equality, normalize with Intl.Segmenter or a grapheme library before comparison.
-- BigInt negative check: code rejects negative BigInt to avoid ambiguous interpretations for bit-width and two's complement behavior.
+Security, correctness, and interoperability notes
+- Unicode normalization: Input strings should be normalized to a consistent Unicode normalization form (NFC/NFD) prior to Hamming comparison when user-visible equivalence matters.
+- Grapheme clusters: Array.from yields code points; to compare grapheme clusters exactly use Intl.Segmenter or a dedicated grapheme library and compare the resulting segments.
+- BigInt semantics: Negative BigInt is refused to avoid implicit two's-complement width assumptions; if negative values must be compared by bit pattern, pre-normalize to unsigned BigInt representation explicitly.
 
-C. Integration patterns
-- Exported as ESM from src/lib/main.js. Import via "import { hammingDistance } from './src/lib/main.js'".
-- CLI entrypoint: main(args) exists to print run arguments and is invoked when script executed directly. main is side-effect free beyond console.log.
+Integration and usage patterns
+- Importing: import { hammingDistance, hammingDistanceBits } from './src/lib/main.js'
+- Prefer using Uint8Array or Buffer for binary data comparisons to avoid string normalization overhead.
+- When comparing many pairs against the same base sequence, pre-normalize the base once (Array.from for strings or reuse typed array) and reuse it to avoid repeated allocations.
 
-REFERENCE DETAILS (API SPECIFICATIONS and exact signatures)
+REFERENCE DETAILS (API specifications, signatures, options, patterns)
 
-1) hammingDistance(a, b)
-Signature: export function hammingDistance(a, b)
-Parameters:
-- a: string | Buffer | Uint8Array | ArrayLike
-- b: string | Buffer | Uint8Array | ArrayLike
-Returns: number (integer >= 0)
-Throws:
-- RangeError("Inputs must be the same length") when lengths differ.
-- TypeError('Unsupported input types for hammingDistance. Use strings, Buffer, Uint8Array or array-like.') for unsupported types.
-Exact algorithm:
-- If both typeof === 'string':
-  - pa = Array.from(a); pb = Array.from(b)
-  - if pa.length !== pb.length -> throw RangeError
-  - iterate i from 0 to pa.length - 1; if pa[i] !== pb[i] increment diff
-  - return diff
-- Else if both are Buffer/Uint8Array/array-like:
-  - la = a.length; lb = b.length; if la !== lb -> throw RangeError
-  - iterate i and compare a[i] !== b[i] to count differences
-- Else: throw TypeError
+API: hammingDistance(a, b)
+- Signature: export function hammingDistance(a, b)
+- Parameters:
+  - a: string | Buffer | Uint8Array | ArrayLike — must support length and numeric index access; strings are accepted and normalized via Array.from.
+  - b: same types as a
+- Return: number — non-negative integer count of differing positions
+- Throws:
+  - RangeError("Inputs must be the same length") if lengths differ
+  - TypeError('Unsupported input types for hammingDistance. Use strings, Buffer, Uint8Array or array-like.') for invalid types
+- Exact implementation pattern:
+  - if typeof a === 'string' && typeof b === 'string':
+    - pa = Array.from(a); pb = Array.from(b)
+    - if (pa.length !== pb.length) throw RangeError
+    - diff = 0; for i in 0..pa.length-1 if pa[i] !== pb[i] diff++
+  - else if both are array-like (Buffer/Uint8Array/array-like):
+    - if lengths differ throw RangeError
+    - index-wise numeric comparison and count mismatches
+  - else throw TypeError
 
-2) hammingDistanceBits(x, y)
-Signature: export function hammingDistanceBits(x, y)
-Parameters:
-- x: number | bigint
-- y: number | bigint
-Returns: number (integer >= 0)
-Throws:
-- TypeError('hammingDistanceBits accepts only Number or BigInt') if inputs not Number/BigInt
-- RangeError('Negative BigInt is not allowed') when BigInt argument < 0n
-Exact algorithm:
-- Determine isBigInt(x) or isBigInt(y)
-- If either operand is BigInt:
-  - ax = isBigInt(x) ? x : BigInt(Number(x) >>> 0)
-  - ay = isBigInt(y) ? y : BigInt(Number(y) >>> 0)
-  - if ax < 0n || ay < 0n -> throw RangeError
-  - diff = ax ^ ay
-  - count set bits by while(diff) { diff &= diff - 1n; count++ }
-  - return count
-- Else (both Numbers):
-  - ux = Number(x) >>> 0; uy = Number(y) >>> 0
-  - v = ux ^ uy
-  - c = 0; while(v) { v &= v - 1; c++ }
-  - return c
+API: hammingDistanceBits(x, y)
+- Signature: export function hammingDistanceBits(x, y)
+- Parameters:
+  - x: number | bigint
+  - y: number | bigint
+- Return: number — non-negative integer count of differing bits
+- Throws:
+  - TypeError('hammingDistanceBits accepts only Number or BigInt') for invalid types
+  - RangeError('Negative BigInt is not allowed') for negative BigInt inputs
+- Exact implementation pattern:
+  - determine if either operand is BigInt
+  - if BigInt-mode:
+    - ax = isBigInt(x) ? x : BigInt(Number(x) >>> 0)
+    - ay = isBigInt(y) ? y : BigInt(Number(y) >>> 0)
+    - if ax < 0n || ay < 0n throw RangeError
+    - diff = ax ^ ay
+    - count = 0; while (diff) { diff &= diff - 1n; count++ }
+    - return count
+  - else (Numbers):
+    - ux = Number(x) >>> 0; uy = Number(y) >>> 0
+    - v = ux ^ uy
+    - c = 0; while (v) { v &= v - 1; c++ }
+    - return c
 
-BEST PRACTICES and USAGE PATTERNS
-- For long strings where memory matters, avoid calling hammingDistance directly on raw long strings; pre-convert to code-point arrays once and reuse.
-- For comparing user-visible text, normalize Unicode form (NFC/NFD) before comparison to avoid false differences due to canonical decomposition.
-- When comparing large integer spaces, prefer BigInt usage to avoid implicit 32-bit truncation when that is not intended.
+Configuration options and effects
+- Node version: node >= 24. Using older Node may fail due to ESM and modern language features.
+- Buffer behavior: In browser environments Buffer may be undefined; ensure data uses Uint8Array or polyfill Buffer for cross-environment consistency.
 
-TROUBLESHOOTING
-- Symptom: RangeError Inputs must be the same length. Fix: verify inputs have identical lengths after the normalization step used (Array.from for strings). If comparing grapheme clusters, pre-segment and compare segment arrays.
-- Symptom: Unexpected TypeError for hammingDistance in browser. Cause: Buffer not defined; ensure inputs are strings, Uint8Array, or array-like; or polyfill Buffer if needed.
-- Symptom: hammingDistanceBits returns larger-than-expected bit differences for Numbers. Cause: Number input coerced to unsigned 32-bit via >>>0; if comparing full 64-bit semantics, use BigInt explicitly.
+Best practices and implementation examples (pattern descriptions)
+- High-volume comparisons: convert repeated input strings to code-point arrays once and reuse those arrays for each comparison to avoid O(n) allocation per call.
+- Unicode-safe comparisons: normalize using string.normalize('NFC') before Array.from to remove canonical equivalence differences.
+- Choosing numeric type: when comparing values that may exceed 32-bit semantics (e.g., 64-bit identifiers), use BigInt consistently to avoid truncation.
+
+Step-by-step troubleshooting
+- Error: RangeError("Inputs must be the same length")
+  - Verify both inputs are the same type after normalization. For strings, compare Array.from(a).length === Array.from(b).length. If comparing grapheme clusters, segment both inputs uniformly first.
+- Error: TypeError('Unsupported input types for hammingDistance...')
+  - Ensure inputs are strings, Buffer, Uint8Array, or array-like. In browsers, replace Buffer with Uint8Array or provide a Buffer polyfill.
+- Unexpected large bit-difference from hammingDistanceBits
+  - Confirm whether Number inputs were intended as 32-bit unsigned; if not, use BigInt inputs to preserve full-width semantics.
 
 DETAILED DIGEST (most valuable technical content extracted)
-- Extracted the repository entry point implementing two utilities: hammingDistance and hammingDistanceBits with precise type handling and explicit error conditions.
-- hammingDistance uses Unicode code point array conversion for strings and index-wise numeric comparison for binary/array-like inputs. Throws RangeError for length mismatches and TypeError for unsupported types.
-- hammingDistanceBits supports Number and BigInt, coercing Numbers to unsigned 32-bit; when BigInt is used, Numbers are coerced to BigInt(Number >>> 0). Uses XOR + Kernighan bit-count algorithm for set-bit counting. Negative BigInt is disallowed.
-- Exported ESM functions; package.json declares module type and Node engine >= 24.0.0.
+- The repository exposes two precise utilities: hammingDistance for sequences and hammingDistanceBits for integer bit comparisons. Both export ESM functions with explicit type handling and strict validation.
+- hammingDistance uses Array.from for strings to operate on Unicode code points and index-wise comparisons for array-like data. It enforces equal length and throws clear errors on misuse.
+- hammingDistanceBits supports Numbers (unsigned 32-bit coercion) and BigInts, using XOR and Kernighan's algorithm for efficient set-bit counting; negative BigInt is rejected.
+- Integration notes: ESM exports, Node >=24 requirement, Buffer checks for cross-environment compatibility, and a minimal CLI entrypoint.
 
-Source retrieval details
-- Sources crawled: https://github.com/xn-intenton-z2a/repository0
-- Files retrieved locally and byte sizes:
-  - src/lib/main.js: 3173 bytes
-  - README.md: 792 bytes
-  - package.json: 583 bytes
-  - tests/unit/main.test.js: 315 bytes
-  - docs.md: 0 bytes
-  - Total retrieved: 4863 bytes
-- Retrieval date: 2026-03-06T23:58:30.645Z
+SOURCE AND RETRIEVAL
+- Source: https://github.com/xn-intenton-z2a/repository0 (local clone used)
+- Files read locally during extraction: src/lib/main.js, README.md, SOURCES.md
+- Data size retrieved: approximately 4863 bytes
+- Retrieval date: 2026-03-07
 
 ATTRIBUTION
-- Source repository: https://github.com/xn-intenton-z2a/repository0
-- Author/maintainers: project repository (see package.json for declared package and license MIT)
-- Data size obtained during crawl: 4863 bytes
+- Repository: xn-intenton-z2a/repository0 (MIT licensed code)
+- Maintainers: see repository package.json
+- Crawl data size: ~4863 bytes
 
 END OF DOCUMENT
