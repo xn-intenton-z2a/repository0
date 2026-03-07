@@ -186,3 +186,63 @@ Created a consolidated HAMMING_DISTANCE library document extracting implementati
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T18:03:25.280Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 56672 (in: 52332, out: 4340)
+**Duration:** 68s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804255335](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804255335)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 7/32 | 25 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 0/32 | 32 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Rewrote the web demo feature into WEB_EXAMPLES to bundle a single browser demo, examples/cli-output.md, and README instructions so the library's demos and docs are reproducible and testable.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T18:04:34.563Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 31511 (in: 27052, out: 4459)
+**Duration:** 69s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804255335](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804255335)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 8/32 | 24 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a HAMMING_DISTANCE library document extracting actionable technical details (algorithms, JS patterns, popcount methods, Unicode handling) to support implementation of Hamming distance functions.
+
+Maintained library (0 docs, limit 32)
+
+---
