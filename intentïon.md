@@ -786,3 +786,64 @@ Extracted technical details about Hamming distance, popcount algorithms, JavaScr
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T20:27:34.433Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 138878 (in: 134231, out: 4647)
+**Duration:** 85s (~1.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806593958](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806593958)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 27/32 | 5 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+transformation-budget approaching capacity (27/32).
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the UNICODE_SUPPORT feature spec to require code-point-based comparisons, explicit validation messages, and concrete unit tests and README examples to ensure correct Unicode behavior across the library and CLI.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T20:29:35.834Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 66498 (in: 57065, out: 9433)
+**Duration:** 121s (~2.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806593958](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806593958)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 28/32 | 4 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining |  |
+
+### Closing Notes
+transformation-budget approaching capacity (28/32).
+
+### Narrative
+Created condensed technical library documents by extracting actionable algorithmic and API details from the supplied sources to support implementation of Hamming/popcount and related JS string/BigInt/bitwise behaviors.
+
+Maintained library (1 docs, limit 32)
+
+---
