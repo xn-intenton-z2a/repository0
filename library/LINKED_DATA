@@ -1,0 +1,204 @@
+DOCUMENT: LINKED_DATA
+
+NORMALISED EXTRACT
+
+Table of Contents
+1. JSON-LD Core Concepts
+2. JSON-LD Processing Forms and Algorithms
+3. Contexts and Term Definitions
+4. JSON-LD Keywords and Containers
+5. Forms: Expanded, Compacted, Flattened, Framed
+6. JSON-LD and RDF Interop
+7. RDF Data Model (Triples, IRIs, Literals, Blank Nodes, Datasets)
+8. RDF Serializations (Turtle, N-Triples, N-Quads, TriG, RDF/XML, JSON-LD mapping)
+9. OWL 2: Structure, Syntaxes, Semantics, Profiles
+10. Schema.org Markup (Microdata, RDFa, JSON-LD embedding)
+11. jsonld (npm) API Reference (node/javascript)
+
+
+1. JSON-LD Core Concepts
+- JSON-LD serializes Linked Data in JSON. Documents are JSON objects that map keys to IRIs via a context (@context).
+- Identifiers: node identifiers use @id and must be IRIs or blank node identifiers. Use absolute or relative IRIs; relative IRIs are resolved against base IRI.
+- Types: use @type to assign RDF types (IRIs) to nodes. Multiple types are allowed as arrays.
+- Values: value objects may include @value, @type, @language, and @direction. Typed values use XML Schema datatypes (xsd:dateTime, xsd:integer, etc.).
+- Graphs: use @graph to contain multiple node objects representing an RDF graph. Named graphs use graph containers and dataset constructs.
+- Node objects: JSON objects representing nodes must follow node-object grammar; properties map to IRIs via term definitions or compact IRIs.
+
+2. JSON-LD Processing Forms and Algorithms
+- Processing algorithms: expand, compact, frame, flatten, flattening, toRDF, fromRDF, normalize (URDNA2015), merge, and framing algorithm.
+- expand(input, options): produces the expanded form where all terms resolved to absolute IRIs; keywords preserved; values normalized into value objects.
+- compact(input, context, options): uses supplied @context to shorten IRIs into terms or compact IRIs, performs type coercion per context definitions.
+- frame(input, frame, options): restructures data to match a frame (template) producing nested results and ordering defined by frame semantics.
+- flatten(input, context?, options): produces an array of node objects where each node has a distinct @id; useful for deterministic iteration and graph manipulation.
+- toRDF(input, options): maps JSON-LD to an RDF dataset (quads) following the RDF conversion rules (IRIs, literals, blank nodes, graphs).
+- fromRDF(dataset, options): converts RDF datasets (N-Quads style) back to JSON-LD structures; requires mapping rules for datatype/language detection.
+- normalize(input, options): canonicalizes RDF dataset using URDNA2015 (or URGNA2012) to produce a deterministic normalized N-Quads string for signing or comparison.
+
+3. Contexts and Term Definitions
+- @context may be an object, array, or IRI. A context maps terms to IRIs and can include:
+  - term definition components: @id (IRI or compact IRI), @type (IRI or "@id"/"@vocab" for coercion), @container (none, @list, @set, @index, @language, @graph), @language default, @reverse, @context (scoped contexts), @protected, @prefix boolean.
+  - @vocab defines a default vocabulary IRI to prepend to terms without a colon or absolute IRI.
+  - @base defines base IRI for relative IRI resolution.
+  - Context import: contexts may reference remote contexts via an IRI; processors load and merge term maps following import rules and scoping.
+- Compact IRIs: prefix:suffix forms are expanded by mapping prefix to IRI in context; if prefix maps to @vocab or IRI, expand to prefix+suffix.
+- Scoped contexts: term definitions may include nested @context to apply only when the term is used as an object value.
+- Protected terms: term definitions with @protected true prevent overriding by later context merges.
+
+4. JSON-LD Keywords and Containers
+- Keywords: @context, @id, @type, @value, @language, @list, @set, @graph, @included, @reverse, @index, @container, @vocab, @base, @protected, @nest.
+- Container types supported in term definitions: @list, @set, @index, @language, @graph, @id, @type; choose container to control representation shape in compacted form.
+- @reverse: used to express reverse properties; the value is an object mapping properties to values which point back to the subject.
+- @included: include external nodes that are to be merged into main graph without renaming.
+
+5. Forms: Expanded, Compacted, Flattened, Framed
+- Expanded form: every term replaced with full IRI keys; values are normalized as arrays and value objects; no context present.
+- Compacted form: user-supplied context shortens IRIs to terms; single-valued properties may be represented as scalars per context coercion; ordering not guaranteed.
+- Flattened form: single array of node objects each with unique @id; graph structure preserved via @graph references; useful for bulk processing.
+- Framed form: the result of applying a frame template; can include default values, require presence of properties, and produce nested structures matching application schema.
+
+6. JSON-LD and RDF Interop
+- Mapping rules: JSON-LD provides a precise Mapping to RDF Graphs: node objects map to RDF subjects, properties to predicates (IRIs), values to objects (IRIs or literals with datatype/language), graphs to named graphs.
+- RDF serializations: JSON-LD can be losslessly converted to RDF and vice versa when JSON-LD uses RDF-compatible constructs; blank nodes are preserved via generated identifiers.
+- Data typing: JSON-LD maps typed values to xsd datatypes; language maps to rdf:langString (or named string with language) per RDF 1.1.
+
+7. RDF Data Model
+- Triples: statements of form subject predicate object. Subject: IRI or blank node; predicate: IRI; object: IRI, literal, or blank node.
+- IRIs: internationalized identifiers; may appear in all triple positions; relative IRIs resolved against base.
+- Literals: typed with datatypes (xsd:string, xsd:boolean, xsd:dateTime, xsd:integer); may have language tags (@lang).
+- Blank nodes: anonymous nodes used when no global IRI is available; appear in subject or object positions; serializations may assign internal labels (_:b0).
+- Datasets: collections of multiple graphs (default graph plus named graphs) used in SPARQL and RDF datasets (N-Quads representation).
+
+8. RDF Serializations
+- Turtle: compact, human-readable RDF syntax using prefixes and triples terminated by dots.
+- N-Triples: line-based plain serialization of triples; one triple per line; suitable for streaming and diffing.
+- N-Quads / TriG: N-Quads extends N-Triples with graph name (for datasets); TriG is a Turtle-like syntax for datasets.
+- RDF/XML: XML serialization; required minimal support by OWL 2 tools for interchange.
+- JSON-LD: JSON-based RDF serialization; use @context to control compacting and term mapping; toRDF/fromRDF algorithms define mapping.
+
+9. OWL 2: Structure, Syntaxes, Semantics, Profiles
+- Ontology elements: classes, properties (object/data), individuals, datatype values, axioms (subClassOf, equivalentClass, disjointWith, property characteristics).
+- Syntaxes: RDF/XML (mandatory), OWL/XML, Functional-Style Syntax, Manchester Syntax, Turtle (optional). RDF/XML must be supported for interchange; other syntaxes optional.
+- Semantics: Direct Semantics (mapping to SROIQ description logic; used for OWL 2 DL reasoning) and RDF-Based Semantics (assigns meaning to RDF graphs; allows OWL 2 Full).
+- Profiles: OWL 2 EL (polynomial-time reasoning; large ontologies), OWL 2 QL (conjunctive query rewriting to SQL; suitable for databases), OWL 2 RL (rule-based, RDF triple-oriented; polynomial implementations, may be incomplete).
+- Mapping to RDF: OWL structural forms map to RDF graphs via a specified Mapping to RDF Graphs; ensure syntactic constraints for OWL 2 DL (e.g., transitive properties in number restrictions constraints).
+
+10. Schema.org Markup
+- Embedding options: Microdata attributes (itemscope, itemtype, itemprop), RDFa attributes, or JSON-LD script elements (type="application/ld+json").
+- Microdata patterns: itemscope declares the item, itemtype points to type IRI (e.g., https://schema.org/Movie), itemprop names properties; nested items use nested itemscope with itemprop.
+- JSON-LD embedding: place a script tag with type application/ld+json containing a JSON-LD document; inherit base IRI from HTML base element; respect script element restrictions.
+- Dates/times: use time element with datetime attribute in ISO 8601 format for unambiguous date/time values (YYYY-MM-DD or combined dateTime).
+- Enumerations: use link or explicit schema.org enumeration IRIs (e.g., https://schema.org/InStock) via link href to unambiguously identify enumeration values.
+
+11. jsonld (npm) API Reference (Node/JavaScript)
+- Core async API methods and signatures (Promise-based):
+  - expand(input[, options]) -> Promise<expandedDoc>
+    - input: JSON-LD document or object
+    - options: { base: string, documentLoader: fn, expandContext: object|IRI, processingMode: string }
+    - returns: expanded JSON-LD (arrays, fully expanded IRIs)
+  - compact(input, context[, options]) -> Promise<compactedDoc>
+    - context: context object or IRI
+    - options: { base, documentLoader, expandContext, processingMode, compactToRelative }
+  - flatten(input[, contextOrOptions]) -> Promise<flattenedDoc>
+  - frame(input, frame[, options]) -> Promise<framedDoc>
+  - toRDF(input[, options]) -> Promise<rdfDataset>
+    - options: { format: 'application/n-quads' | 'internal', produceGeneralizedRdf: boolean }
+    - returns: RDF dataset (N-Quads string or internal dataset object)
+  - fromRDF(dataset[, options]) -> Promise<jsonldDoc>
+    - dataset: N-Quads string or dataset object
+    - options: { expandContext, useRdfType }
+  - normalize(input[, options]) -> Promise<normalizedNQuads>
+    - options: { algorithm: 'URDNA2015'|'URGNA2012', format: 'application/n-quads' }
+  - documentLoader(url) -> Promise{document}
+    - pluggable loader used by processors to fetch contexts and remote documents; must return { contextUrl, documentUrl, document }.
+- Error handling: methods reject Promises with Error objects detailing misuse (invalid context, unknown keywords, I/O failures in loaders).
+- Implementation patterns: chain operations: jsonld.expand(doc).then(exp => jsonld.flatten(exp)).then(flat => jsonld.compact(flat, ctx)). Use async/await in modern Node.
+
+
+SUPPLEMENTARY DETAILS
+
+JSON-LD Processing Modes
+- processingMode option values: 'json-ld-1.1' (default for JSON-LD 1.1 processors), 'json-ld-1.0' for legacy behaviour; determines expansion/compaction rules (e.g., coercion, @language maps).
+
+Context merging precedence
+- Context application order: local contexts (within node object) override parent contexts; when merging arrays of contexts, later contexts overwrite earlier definitions unless @protected is set.
+
+RDF Conversion specifics
+- toRDF maps JSON-LD value objects to RDF literals: if value object has @type use that datatype; if has @language use rdf:langString; bare strings default to xsd:string or rdf:langString when language map used.
+- IRIs in JSON-LD may use blank node identifiers with prefix _:; mapping to RDF uses same blank node labels if preserved; processors may rename during normalization.
+
+OWL Practical Constraints
+- For OWL 2 DL conformance avoid using RDF constructs that violate DL syntactic restrictions: do not use transitive properties in cardinality restrictions, and ensure property hierarchy and datatype usage follow OWL 2 DL structural spec.
+
+Schema.org Microdata implementation specifics
+- Use itemprop="url" on anchor elements when listing multiple items to map the listed item's canonical URL. Use link with itemprop and href for enumerations and canonical references.
+
+
+REFERENCE DETAILS (APIS, SIGNATURES, CONFIGURATION)
+
+jsonld API (Node) precise signatures and option shapes
+- expand(input, options): Promise<any>
+  - options: {
+      base?: string,
+      documentLoader?: (url) => Promise<{ contextUrl?: string, documentUrl?: string, document: any }>,
+      expandContext?: object | string,
+      processingMode?: 'json-ld-1.1' | 'json-ld-1.0',
+      keepFreeFloatingNodes?: boolean
+    }
+- compact(input, context, options): Promise<any>
+  - context: object | string
+  - options: { base?, documentLoader?, processingMode?, compactToRelative?: boolean }
+- frame(input, frame, options): Promise<any>
+  - options: { base?, documentLoader?, processingMode?, embed?: boolean, explicit?: boolean, omitGraph?: boolean }
+- flatten(input, contextOrOptions): Promise<any>
+- toRDF(input, options): Promise<string|object>
+  - options: { format?: 'application/n-quads'|'internal', produceGeneralizedRdf?: boolean, documentLoader? }
+  - returns: if format is 'application/n-quads' returns Promise<string> containing N-Quads; if 'internal' returns dataset object mapping graph names to arrays of quads.
+- fromRDF(dataset, options): Promise<any>
+  - dataset: string (N-Quads) or internal dataset object
+  - options: { format?: 'application/n-quads'|'internal', useRdfType?: boolean, rdfDirection?: boolean }
+- normalize(input, options): Promise<string>
+  - options: { algorithm?: 'URDNA2015'|'URGNA2012', format?: 'application/n-quads' }
+
+Document loader contract
+- documentLoader(url) must return a Promise resolving to object: { contextUrl?: string, documentUrl: string, document: any }
+- document returned for context requests must be either a JSON-LD context object or a JSON document containing @context to be processed.
+- Custom loaders must handle caching, HTTP caching headers, content-type negotiation, and provide error details on fetch failures.
+
+Configuration options that affect behaviour
+- processingMode: 'json-ld-1.1' enables JSON-LD 1.1 behaviors (default); set to 'json-ld-1.0' for legacy rules.
+- compactToRelative: when true, allows compacting IRIs to relative forms using @base and @vocab rules.
+- produceGeneralizedRdf: when true, allows producing RDF datasets containing triples with blank nodes or non-standard constructs; false for strict RDF 1.1 compliance.
+
+BEST PRACTICES AND PATTERNS
+- Embed JSON-LD in HTML using a single script type="application/ld+json" per entity when possible; keep contexts small and import shared contexts via stable HTTPS IRI.
+- Use remote shared contexts for consistent term mappings across services; host contexts with correct CORS and cache headers, and include link rel="alternate" when appropriate.
+- Prefer compacted documents with a curated @context for public API responses to reduce payload and improve readability.
+- For signing and canonicalization, convert to RDF dataset and run normalize with URDNA2015 to produce deterministic N-Quads.
+- When publishing schema.org data, include canonical enumerations using schema.org IRIs via link or JSON-LD values to avoid parsing ambiguity.
+
+TROUBLESHOOTING
+- Invalid context errors: verify that @context entries are valid JSON objects or reachable IRIs; ensure document loader can fetch referenced contexts.
+- Unexpected expansion/compaction shapes: check term definition @container and @type settings; use expand to see fully resolved IRIs and value objects.
+- Blank node collisions: run normalize to assign deterministic canonical blank node identifiers before diffing or signing.
+- RDF round-trip differences: ensure toRDF/fromRDF options match expected formats and useRdfType handling; prefer using JSON-LD constructs that map cleanly to RDF.
+
+DETAILED DIGEST
+Sources processed and retrieval date:
+- https://www.w3.org/TR/json-ld11/ (JSON-LD 1.1 Recommendation) — retrieved 2026-03-07
+  - Key technical content extracted: context definition details, keywords, processing forms, algorithms (expand/compact/frame/flatten/toRDF/fromRDF/normalize), mapping to RDF, processing modes, forms and grammar sections.
+- https://json-ld.org/ (JSON-LD community site) — retrieved 2026-03-07
+  - Key technical content extracted: overview of JSON-LD, playground reference, available implementations, learning materials.
+- https://www.w3.org/TR/rdf11-primer/ (RDF 1.1 Primer) — retrieved 2026-03-07
+  - Key technical content extracted: RDF data model (triples, IRIs, literals, blank nodes, datasets), serialization options, relationship to SPARQL and Linked Data use cases.
+- https://www.w3.org/TR/owl2-overview/ (OWL 2 Overview) — retrieved 2026-03-07
+  - Key technical content extracted: OWL 2 syntaxes, semantics (Direct/RDF-Based), profiles (EL/QL/RL), mapping to RDF graphs, structural constraints for OWL 2 DL.
+- https://schema.org/docs/gs.html (Schema.org Getting Started) — retrieved 2026-03-07
+  - Key technical content extracted: Microdata attributes (itemscope, itemtype, itemprop), JSON-LD embedding best practices, date/time formatting guidance, enumerations via link href, testing markup guidance.
+- https://www.npmjs.com/package/jsonld (jsonld npm) — attempted retrieval 2026-03-07 but fetch returned HTTP 403; API signatures included in this document are based on stable public jsonld API as implemented by the jsonld.js library and JSON-LD WG references.
+
+Attribution and Data Size
+- Sources: W3C JSON-LD 1.1, JSON-LD community site, W3C RDF 1.1 Primer, W3C OWL 2 Overview, Schema.org Getting Started, jsonld (npm) metadata.
+- Crawl retrieval date: 2026-03-07
+- Total data extracted (approximate characters): 55,000 characters across all fetched pages (approximate; jsonld npm page fetch failed and was not included in byte count).
+
+END OF DOCUMENT
