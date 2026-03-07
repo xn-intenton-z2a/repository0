@@ -246,3 +246,63 @@ Created a HAMMING_DISTANCE library document extracting actionable technical deta
 Maintained library (0 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T18:11:51.692Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 76906 (in: 72135, out: 4771)
+**Duration:** 86s (~1.4 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804385245](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804385245)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 9/32 | 23 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the HAMMING_CORE feature spec to add binary/byte-sequence support and comprehensive tests so the library can compute Hamming distances for strings, integers/BigInt, and byte buffers.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T18:13:02.150Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 43188 (in: 38999, out: 4189)
+**Duration:** 70s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804385245](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804385245)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 10/32 | 22 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Wrote a focused HAMMING_DISTANCE library document that consolidates implementation-ready technical details and exact API patterns from the SOURCES.md entries for use in development and tooling.
+
+Maintained library (1 docs, limit 32)
+
+---
