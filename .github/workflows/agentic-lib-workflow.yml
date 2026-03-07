@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2025-2026 Polycode Limited
 # .github/workflows/agentic-lib-workflow.yml
-# Schedule updated: 2026-03-07T01:45:52.797Z
 #
 # Main autonomous pipeline: supervisor + maintain + review + dev + PR cleanup.
 # Replaces agent-supervisor, agent-flow-transform, agent-flow-review,
@@ -17,6 +16,8 @@ run-name: "agentic-lib-workflow [${{ github.ref_name }}]"
 #  cancel-in-progress: false
 
 on:
+  schedule:
+    - cron: "0 6 * * 1"
   workflow_call:
     inputs:
       model:
@@ -720,15 +721,35 @@ jobs:
         run: |
           npm run build:web 2>/dev/null || echo "No build:web script"
 
+      - name: Run tests before committing
+        id: pre-commit-test
+        if: steps.issue.outputs.issue-number != ''
+        run: |
+          CONFIG="${{ needs.params.outputs.config-path }}"
+          TEST_CMD=$(grep -E '^\s*test\s*=' "$CONFIG" 2>/dev/null | sed 's/.*=\s*"\(.*\)"/\1/' | head -1)
+          TEST_CMD="${TEST_CMD:-npm ci && npm test}"
+          echo "Running: $TEST_CMD"
+          set +e
+          eval "$TEST_CMD" 2>&1 | tail -30
+          EXIT_CODE=$?
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "tests-passed=false" >> $GITHUB_OUTPUT
+            echo "WARNING: Tests failed (exit $EXIT_CODE) — skipping commit and PR"
+          else
+            echo "tests-passed=true" >> $GITHUB_OUTPUT
+            echo "Tests passed"
+          fi
+
       - name: Commit and push
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
         uses: ./.github/agentic-lib/actions/commit-if-changed
         with:
           commit-message: "agentic-step: transform issue #${{ steps.issue.outputs.issue-number }}"
           push-ref: ${{ steps.branch.outputs.branchName }}
 
       - name: Create PR and attempt merge
-        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true'
+        if: github.repository != 'xn-intenton-z2a/agentic-lib' && steps.issue.outputs.issue-number != '' && needs.params.outputs.dry-run != 'true' && steps.pre-commit-test.outputs.tests-passed == 'true'
         uses: actions/github-script@v8
         with:
           script: |

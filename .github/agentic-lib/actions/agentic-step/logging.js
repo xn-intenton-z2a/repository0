@@ -34,6 +34,7 @@ import * as core from "@actions/core";
  * @param {Array} [options.promptBudget] - Prompt budget entries { section, size, files, notes }
  * @param {string} [options.closingNotes] - Auto-generated limit concern notes
  * @param {number} [options.transformationCost] - Transformation cost for this entry (0 or 1)
+ * @param {string} [options.narrative] - LLM-generated narrative description of the change
  */
 export function logActivity({
   filepath,
@@ -57,6 +58,7 @@ export function logActivity({
   promptBudget,
   closingNotes,
   transformationCost,
+  narrative,
 }) {
   const dir = dirname(filepath);
   if (!existsSync(dir)) {
@@ -109,6 +111,10 @@ export function logActivity({
   if (closingNotes) {
     parts.push("", "### Closing Notes");
     parts.push(closingNotes);
+  }
+  if (narrative) {
+    parts.push("", "### Narrative");
+    parts.push(narrative);
   }
   if (details) {
     parts.push("");

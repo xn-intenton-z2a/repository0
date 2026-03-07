@@ -35,7 +35,7 @@ import { parse as parseToml } from "smol-toml";
  */
 
 // Keys whose paths are writable by agents
-const WRITABLE_KEYS = ["source", "tests", "features", "dependencies", "docs", "readme", "examples"];
+const WRITABLE_KEYS = ["source", "tests", "features", "dependencies", "docs", "readme", "examples", "web"];
 
 // Default paths — every key that task handlers might access
 const PATH_DEFAULTS = {
@@ -50,6 +50,7 @@ const PATH_DEFAULTS = {
   library: "library/",
   librarySources: "SOURCES.md",
   contributing: "CONTRIBUTING.md",
+  web: "src/web/",
 };
 
 // Default limits for path-specific constraints
@@ -63,7 +64,7 @@ const LIMIT_DEFAULTS = {
 const FALLBACK_TUNING = {
   reasoningEffort: "medium",
   infiniteSessions: true,
-  transformationBudget: 8,
+  transformationBudget: 32,
   featuresScan: 10,
   sourceScan: 10,
   sourceContent: 5000,
@@ -92,7 +93,7 @@ function parseTuningProfile(profileSection) {
   return {
     reasoningEffort: profileSection["reasoning-effort"] || "medium",
     infiniteSessions: profileSection["infinite-sessions"] ?? true,
-    transformationBudget: profileSection["transformation-budget"] || 8,
+    transformationBudget: profileSection["transformation-budget"] || 32,
     featuresScan: profileSection["max-feature-files"] || 10,
     sourceScan: profileSection["max-source-files"] || 10,
     sourceContent: profileSection["max-source-chars"] || 5000,

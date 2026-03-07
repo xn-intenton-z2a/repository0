@@ -98,7 +98,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
   ].join("\n");
 
   const t = config.tuning || {};
-  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const { tokensUsed, inputTokens, outputTokens, cost, content: resultContent } = await runCopilotTask({
     model,
     systemMessage: `You are resolving git merge conflicts on PR #${prNumber}. Write resolved versions of each conflicted file, removing all conflict markers. Preserve the PR's feature intent while incorporating main's updates.`,
     prompt,
@@ -116,6 +116,7 @@ async function resolveConflicts({ config, pr, prNumber, instructions, model, wri
     cost,
     model,
     details: `Resolved ${conflicts.length} conflicted file(s) on PR #${prNumber}`,
+    narrative: (resultContent || "").substring(0, 2000),
   };
 }
 
@@ -186,7 +187,7 @@ export async function fixCode(context) {
   ].join("\n");
 
   const t = config.tuning || {};
-  const { tokensUsed, inputTokens, outputTokens, cost } = await runCopilotTask({
+  const { tokensUsed, inputTokens, outputTokens, cost, content: resultContent } = await runCopilotTask({
     model,
     systemMessage: `You are an autonomous coding agent fixing failing tests on PR #${prNumber}. Make minimal, targeted changes to fix the test failures.`,
     prompt,
@@ -204,5 +205,6 @@ export async function fixCode(context) {
     cost,
     model,
     details: `Applied fix for ${failedChecks.length} failing check(s) on PR #${prNumber}`,
+    narrative: (resultContent || "").substring(0, 2000),
   };
 }

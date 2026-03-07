@@ -99,5 +99,6 @@ export async function resolveIssue(context) {
     model,
     commitUrl: null,
     details: `Generated code for issue #${issueNumber}: ${resultContent.substring(0, 200)}`,
+    narrative: (resultContent || "").substring(0, 2000),
   };
 }

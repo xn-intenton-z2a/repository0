@@ -46,6 +46,13 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     sortByMtime: true,
     clean: true,
   });
+  const webFiles = scanDirectory(config.paths.web?.path || "src/web/", [".html", ".css", ".js"], {
+    fileLimit: t.sourceScan || 20,
+    contentLimit: t.sourceContent || 5000,
+    recursive: true,
+    sortByMtime: true,
+    clean: true,
+  });
   const docsFiles = scanDirectory(config.paths.documentation?.path || "docs/", [".md"], {
     fileLimit: t.featuresScan || 10,
     contentLimit: t.documentSummary || 2000,
@@ -66,6 +73,14 @@ async function reviewSingleIssue({ octokit, repo, config, targetIssueNumber, ins
     `## Current Tests (${testFiles.length} files)`,
     ...testFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
     "",
+    ...(webFiles.length > 0
+      ? [
+          `## Website Files (${webFiles.length} files)`,
+          "The website in `src/web/` uses the JS library.",
+          ...webFiles.map((f) => `### ${f.name}\n\`\`\`\n${f.content}\n\`\`\``),
+          "",
+        ]
+      : []),
     ...(docsFiles.length > 0
       ? [`## Documentation (${docsFiles.length} files)`, ...docsFiles.map((f) => `- ${f.name}`), ""]
       : []),

@@ -25,6 +25,9 @@ paths:
   targetSourcePath:
     path: "src/lib/"
     permissions: ["write"]
+  targetWebPath:
+    path: "src/web/"
+    permissions: ["write"]
   dependenciesFilepath:
     path: "package.json"
     permissions: ["write"]

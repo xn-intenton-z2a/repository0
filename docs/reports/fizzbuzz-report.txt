@@ -1,8 +1,0 @@
-FizzBuzz report
-
-Functions implemented:
-- fizzBuzzSingle(n): returns 'fizz', 'buzz', 'fizzbuzz', or the number for positive integers; throws TypeError for invalid input.
-- fizzBuzz(limit): returns array 1..limit mapped through fizzBuzzSingle; returns [] for 0.
-
-Example: docs/examples/fizzbuzz-output.txt
-Machine JSON: docs/evidence/fizzbuzz.json

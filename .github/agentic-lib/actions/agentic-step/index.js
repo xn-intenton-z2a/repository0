@@ -101,7 +101,7 @@ async function run() {
 
     // Compute limits status for enriched logging
     const limitsStatus = [
-      { name: "transformation-budget", valueNum: 0, capacityNum: config.transformationBudget || 0, value: `0/${config.transformationBudget || 0}`, remaining: `${config.transformationBudget || 0} remaining`, status: "" },
+      { name: "transformation-budget", valueNum: 0, capacityNum: config.transformationBudget || 0, value: `0/${config.transformationBudget || 0}`, remaining: `${config.transformationBudget || 0}`, status: "" },
       { name: "max-feature-issues", valueNum: 0, capacityNum: config.featureDevelopmentIssuesWipLimit, value: `?/${config.featureDevelopmentIssuesWipLimit}`, remaining: "?", status: "" },
       { name: "max-maintenance-issues", valueNum: 0, capacityNum: config.maintenanceIssuesWipLimit, value: `?/${config.maintenanceIssuesWipLimit}`, remaining: "?", status: "" },
       { name: "max-attempts-per-issue", valueNum: 0, capacityNum: config.attemptsPerIssue, value: `?/${config.attemptsPerIssue}`, remaining: "?", status: task === "resolve-issue" ? "" : "n/a" },
@@ -122,7 +122,7 @@ async function run() {
     const profileName = config.tuning?.profileName || "unknown";
 
     // Transformation cost: 1 for code-changing tasks, 0 otherwise
-    const COST_TASKS = ["transform", "fix-code"];
+    const COST_TASKS = ["transform", "fix-code", "maintain-features", "maintain-library"];
     const isNop = result.outcome === "nop" || result.outcome === "error";
     const transformationCost = COST_TASKS.includes(task) && !isNop ? 1 : 0;
 
@@ -151,6 +151,7 @@ async function run() {
         promptBudget: result.promptBudget,
         closingNotes,
         transformationCost,
+        narrative: result.narrative,
       });
     }
 

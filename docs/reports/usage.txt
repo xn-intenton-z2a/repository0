@@ -1,5 +1,0 @@
-Example usage report
-
-Command: node -e "import('./src/lib/main.js').then(m=>console.log(m.fizzBuzz(15).join('\n')))"
-Output saved to docs/examples/fizzbuzz-15.txt
-JSON saved to docs/evidence/fizzbuzz-15.json

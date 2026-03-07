@@ -6,7 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
+supervisor = "daily"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -37,7 +37,7 @@ test = "npm ci && npm test"
 [tuning]
 # Profile sets defaults for all tuning and limit knobs: min | recommended | max
 # Profile definitions live in [profiles.*] sections below.
-profile = "min"
+profile = "recommended"
 #
 # Model selection — each has different strengths:
 #   gpt-5-mini      — Fast, cheap, supports reasoning-effort. Best for CI and iteration.
@@ -70,7 +70,7 @@ infinite-sessions = false        # set to true for long sessions with compaction
 # Fast & cheap — CI testing, quick validation, budget-conscious iteration.
 reasoning-effort = "low"                # low | medium | high | none
 infinite-sessions = false               # enable session compaction for long runs
-transformation-budget = 4              # max code-changing cycles per run
+transformation-budget = 16             # max code-changing cycles per run
 max-feature-files = 3                      # max feature files included in prompts
 max-source-files = 3                        # max source files included in prompts
 max-source-chars = 1000                  # max chars of each source file's content included in prompts
@@ -91,7 +91,7 @@ library-limit = 8                      # max library entries in library/ directo
 # Balanced — good results without excessive cost. Default for consumer repos.
 reasoning-effort = "medium"            # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
-transformation-budget = 8             # max code-changing cycles per run
+transformation-budget = 32             # max code-changing cycles per run
 max-feature-files = 10                     # max feature files included in prompts
 max-source-files = 10                       # max source files included in prompts
 max-source-chars = 5000                  # max chars of each source file's content included in prompts
@@ -112,7 +112,7 @@ library-limit = 32                     # max library entries in library/ directo
 # Thorough — maximum context, highest quality. For complex missions.
 reasoning-effort = "high"              # low | medium | high | none
 infinite-sessions = true               # enable session compaction for long runs
-transformation-budget = 32            # max code-changing cycles per run
+transformation-budget = 128           # max code-changing cycles per run
 max-feature-files = 50                     # max feature files included in prompts
 max-source-files = 50                       # max source files included in prompts
 max-source-chars = 20000                 # max chars of each source file's content included in prompts
