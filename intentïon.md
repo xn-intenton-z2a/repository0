@@ -606,3 +606,63 @@ Created a consolidated HAMMING_DISTANCE library document by extracting technical
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T19:45:50.157Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 22019 (in: 19876, out: 2143)
+**Duration:** 28s (~0.5 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22805937355](https://github.com/xn-intenton-z2a/repository0/actions/runs/22805937355)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 21/32 | 11 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a CLI_BYTES feature specification to expose byte-wise Hamming distance from the existing CLI, with strict validation, mapping of library errors to friendly messages, tests, and example outputs.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T19:46:48.092Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 41463 (in: 37285, out: 4178)
+**Duration:** 57s (~1.0 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22805937355](https://github.com/xn-intenton-z2a/repository0/actions/runs/22805937355)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 22/32 | 10 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Updated HAMMING_DISTANCE.md to record the crawl timestamp and note missing per-source size metadata so the library document reflects current retrieval details.
+
+Maintained library (1 docs, limit 32)
+
+---

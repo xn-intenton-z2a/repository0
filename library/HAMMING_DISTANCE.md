@@ -138,7 +138,7 @@ TABLE OF CONTENTS
 
 
 5. SOURCE DIGEST
-- Sources consulted (retrieved 2026-03-07):
+- Sources consulted (retrieved 2026-03-07T19:45:52.334Z):
   - https://en.wikipedia.org/wiki/Hamming_distance (Hamming distance definition, coding theory usage, Python/C examples, Wegner algorithm, popcount intrinsics) — core algorithms, complexity, Wegner loop, builtin-popcount patterns.
   - https://en.wikipedia.org/wiki/Population_count (Hamming weight equivalence and terminology) — popcount concept.
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String#iterating_over_strings (JS string internals, UTF-16, iterators, normalization guidance) — iteration differences between code units, code points, grapheme clusters.
@@ -147,6 +147,7 @@ TABLE OF CONTENTS
   - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators (JS bitwise operator semantics, 32-bit coercion) — clarifies 32-bit behaviour and operator set.
   - https://www.npmjs.com/package/hamming-distance (attempted; fetch returned HTTP 403 - not retrieved). Refer to local package metadata or mirror if needed.
 - Retrieval status: six sources fetched successfully; npm package page returned HTTP 403 and was not retrieved.
+- Data size obtained during crawling: not recorded by the retrieval tool; per-source sizes unavailable.
 
 
 6. ATTRIBUTION AND CRAWL DATA
