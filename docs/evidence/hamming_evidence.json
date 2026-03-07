@@ -1,0 +1,8 @@
+{
+  "tests_run": "unit",
+  "summary": {
+    "string_cases": 6,
+    "binary_cases": 9
+  },
+  "notes": "See tests/unit/hamming.test.js for full coverage including normalization and random checks."
+}
