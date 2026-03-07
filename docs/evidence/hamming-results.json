@@ -1,0 +1,8 @@
+{
+  "examples": [
+    { "a": "karolin", "b": "kathrin", "hamming": 3 },
+    { "a": "", "b": "", "hamming": 0 },
+    { "x": 1, "y": 4, "hammingBits": 2 },
+    { "x": 0, "y": 0, "hammingBits": 0 }
+  ]
+}
