@@ -366,3 +366,63 @@ Consolidated and normalized Hamming-distance technical material from SOURCES.md 
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T18:21:58.473Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 21500 (in: 18887, out: 2613)
+**Duration:** 38s (~0.6 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804567469](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804567469)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 13/32 | 19 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Added a DEFAULT_EXPORT feature spec to provide a non-breaking, ergonomic default module export that groups the library's named functions for easier consumption and updated tests/README accordingly.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T18:22:45.698Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 76024 (in: 73713, out: 2311)
+**Duration:** 47s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22804567469](https://github.com/xn-intenton-z2a/repository0/actions/runs/22804567469)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 14/32 | 18 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Confirmed HAMMING_DISTANCE.md contains the extracted technical details from the provided sources and left it unchanged except noting the npm page fetch failure.
+
+Maintained library (1 docs, limit 32)
+
+---
