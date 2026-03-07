@@ -1,0 +1,11 @@
+{
+  "summary": {
+    "classes": 2,
+    "properties": 1,
+    "individuals": 2
+  },
+  "examples": [
+    { "id": "http://example.org/fluffy", "types": ["http://example.org/Mammal"] },
+    { "id": "http://example.org/buddy", "types": ["http://example.org/Animal"] }
+  ]
+}
