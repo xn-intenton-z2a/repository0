@@ -27,7 +27,7 @@
       <dd id="lib-description">loading...</dd>
     </dl>
   </div>
-  <h2>Output</h2>
+  <h2>FizzBuzz Demo</h2>
   <div id="demo-output">Loading library...</div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
@@ -37,8 +37,12 @@
       document.getElementById('lib-name').textContent = name;
       document.getElementById('lib-version').textContent = version;
       document.getElementById('lib-description').textContent = description || '(no description)';
-      document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
+
+      // Import browser-compatible fizzbuzz demo and show results
+      const { fizzBuzz } = await import('./lib-browser.js');
+      const out = fizzBuzz(15);
+      document.getElementById('demo-output').textContent = out.join('\n');
     } catch (e) {
       document.getElementById('lib-version').textContent = '(build required)';
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';
