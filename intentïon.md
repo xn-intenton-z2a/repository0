@@ -365,3 +365,63 @@ Read SOURCES.md and library files, extracted and validated that each source has 
 Maintained library (5 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T22:04:21.032Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 38697 (in: 35549, out: 3148)
+**Duration:** 43s (~0.7 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808166711](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808166711)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 13/32 | 19 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining |  |
+| library | 5/32 | 27 remaining | n/a |
+
+### Closing Notes
+features at capacity (5/4) — actions will be blocked.
+
+### Narrative
+Added a feature spec to enable simple rdfs:subClassOf transitive inference so queries and stats can optionally include inherited membership.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T22:05:15.224Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 35082 (in: 30617, out: 4465)
+**Duration:** 54s (~0.9 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22808166711](https://github.com/xn-intenton-z2a/repository0/actions/runs/22808166711)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 14/32 | 18 remaining |  |
+| max-feature-issues | 1/2 | 1 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 5/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a focused JSON-LD 1.1 document to capture implementation-ready details from the W3C spec for use in the project's library.
+
+Maintained library (5 docs, limit 32)
+
+---
