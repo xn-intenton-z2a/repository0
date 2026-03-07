@@ -1,0 +1,208 @@
+JS_MODULES
+
+NORMALISED EXTRACT
+
+Table of contents
+1. Module systems and resolution
+2. Export syntaxes and re-exporting
+3. Import maps and remapping rules
+4. package.json fields affecting modules (type, main, exports, imports)
+5. Loading ESM via require() and interoperability rules
+6. Module caching and execution model
+7. Array.from usage patterns (sequence generation/range)
+8. Number.isInteger semantics and numeric edge-cases
+9. RangeError usage and constructor
+10. Creating and publishing Node.js modules (npm)
+
+Detailed technical content
+
+1. Module systems and resolution
+- Node supports two module systems: CommonJS and ECMAScript modules (ESM). Files are treated according to file extension and nearest package.json "type" field.
+- Files are treated as CommonJS by default unless one of: file extension .mjs; nearest package.json contains "type": "module" and file has .js; or file contains ES module syntax and no enclosing package.json declares "type":"commonjs".
+- require() resolves modules using algorithm: core modules check, path handling for absolute (/), relative (./ ../) and package specifiers; then LOAD_AS_FILE, LOAD_AS_DIRECTORY, LOAD_NODE_MODULES, with package.json "main" taken when present.
+- Pseudocode steps for require resolution (implementation-level):
+  1. If X is core module -> return core module
+  2. If X is path-like: attempt LOAD_AS_FILE(X) then LOAD_AS_DIRECTORY(X)
+  3. If X begins with '#' -> LOAD_PACKAGE_IMPORTS
+  4. Attempt package self/exports resolution and node_modules walking (NODE_MODULES_PATHS)
+  5. On failure throw not found
+- LOAD_AS_FILE behavior: check candidate filenames: X, X.js, X.json, X.node. For X.js, decide module type by package.json "type" field in closest package scope then MAYBE_DETECT_AND_LOAD to allow ESM detection when needed.
+
+2. Export syntaxes and re-exporting
+- Named exports: export let name1, name2; export function f(); export { name1, name2 }.
+- Default exports: export default expression; export default function fname() {}. Only one default export permitted per module.
+- Re-export/aggregation: export * from "module-name" (re-exports named exports only; default not re-exported), export { name as alias } from "module-name", export { default as name } from "module-name".
+- Duplicate star re-exports that produce the same name cause that name to be absent (conflict rule: conflicting star exports are not re-exported).
+- Export declaration semantics: exports are module-level declarations and not subject to TDZ when exporting before declaration; exported bindings are live read-only views to importers.
+
+3. Import maps and remapping rules
+- Import map JSON structure: top-level keys: "imports" (module specifier map) and "scopes" (scoped remaps keyed by absolute or relative paths).
+- "imports" entries map bare specifier or specifier prefixes (when trailing slash present) to absolute/relative URLs; trailing slash on key indicates path-prefix matching.
+- "scopes" is a map from path prefix -> module specifier map used when referrer URL matches the scope; the most specific scope (longest prefix) wins.
+- Browser resolution: if multiple keys match, the longest matching key is chosen.
+- Import maps allow using bare names in browsers and remapping hashed filenames to stable names for caching.
+
+4. package.json fields affecting modules
+- "type": "module" or "commonjs" in nearest parent package.json affects how .js files are parsed: "module" makes .js parsed as ESM; "commonjs" makes .js parsed as CommonJS.
+- "main": legacy entry point for package when loaded as package directory; used by LOAD_AS_DIRECTORY when package.json present.
+- "exports": defines conditional subpath exports. Resolution uses PACKAGE_EXPORTS_RESOLVE with conditions such as ["node","require","module-sync"] for require() resolving; matching may return file paths or mappings; value null/undefined disables exports resolution.
+- "imports": package imports (package import maps) used for resolving specifiers beginning with '#'. Requires a package scope (nearest package.json).
+
+5. Loading ESM via require() and interoperability rules
+- require() can synchronously load ESM modules only when: module contains no top-level await AND one of: file has .mjs; file has .js and closest package.json has "type":"module"; file has .js and closest package.json does not declare "type":"commonjs" but module contains ES module syntax.
+- When require() returns an ES module namespace object, default export is placed at .default; tools may also see __esModule:true to signal default presence (interop helper for transpilers).
+- Special export name "module.exports" can be exported from an ES module to customize the value returned via require(). Using that replaces named exports for CommonJS consumers unless named exports are attached to the default object.
+- Loading ESM via require() will throw ERR_REQUIRE_ASYNC_MODULE if module or imported graph contains top-level await; use import() in that case.
+
+6. Module caching and execution model
+- Modules are cached after first load by resolved filename; subsequent require() calls return same object unless require.cache modified.
+- Partially executed modules can be returned to support cycles; this means initialization order matters.
+- Cache key is the resolved filename; on case-insensitive filesystems different casings may produce duplicate cache entries and multiple loads.
+- Built-in modules can be referenced with node: prefix to bypass cache and ensure built-in resolution.
+
+7. Array.from usage patterns (sequence generation/range)
+- Signature: Array.from(items) or Array.from(items, mapFn, thisArg)
+- items can be iterable or array-like (length + numeric indices). Array.from never creates a sparse array; missing indices become undefined.
+- Common pattern for ranges: Array.from({ length: N }, (_, i) => start + i * step) where length computed via Math.ceil((stop - start)/step).
+- When using as subclass factory, Array.from uses this constructor if it is a constructor accepting a length argument; for iterable case constructor called with no args.
+
+8. Number.isInteger semantics and numeric edge-cases
+- Signature: Number.isInteger(value) -> boolean
+- Returns true for values that are numbers and equal to integer value; returns false for NaN, Infinity, non-number types.
+- Due to IEEE-754 representation, values like 5.0000000000000001 may be represented as 5 and return true; values near MAX_SAFE_INTEGER lose precision and can incorrectly return true for non-integers.
+
+9. RangeError usage and constructor
+- RangeError is a built-in Error subclass thrown when an argument is outside allowed range (e.g., invalid array length or numeric method arguments).
+- Constructor: RangeError([message]) creates RangeError instance with name "RangeError".
+- RangeError instances inherit Error properties and are serializable with structuredClone and transferable across postMessage between Workers.
+
+10. Creating and publishing Node.js modules (npm)
+- Steps: run npm init (or npm init --scope=@scope for scoped packages) to create package.json; set name, version, and main field.
+- Implement entry file matching "main"; export functions by assigning to exports or module.exports for CommonJS packages.
+- Test by publishing (npm publish or npm publish --access public for scoped public) and then installing in a separate test directory: npm install <module-name> and require/import it to verify behavior.
+- Publishing requires 2FA enabled or a granular access token with bypass 2FA.
+
+SUPPLEMENTARY DETAILS
+
+A. Exact function signatures and behaviors
+- Array.from(items[, mapFn[, thisArg]]) -> Array
+  - items: iterable or array-like
+  - mapFn(element, index): optional mapping function called per element; thisArg binds this inside mapFn
+  - Returns new Array instance or instance of subclass when called as inherited method
+
+- Number.isInteger(value) -> Boolean
+  - value: any
+  - Returns true when typeof value is 'number' and is finite integer value per ECMAScript spec
+
+- RangeError([message]) -> RangeError instance
+  - message: optional string
+  - name property: "RangeError"
+
+B. package.json fields and effects
+- "type": "module" -> .js files parsed as ESM in that package scope
+- "type": "commonjs" -> .js files parsed as CommonJS
+- "main": string path resolved by LOAD_AS_DIRECTORY when requiring package as directory
+- "exports": object or string: implements conditional exports; resolver evaluates conditions in order and returns mapped file paths; when absent, older main/index resolution used
+- "imports": object used to resolve package-internal specifiers beginning with '#'
+
+C. Import map JSON shape (browser)
+- { "imports": { "key": "address", "prefix/": "path/" }, "scopes": { "/path/": { "key": "address" } } }
+- Values are URLs (absolute or relative) resolved against document base URL
+- Trailing slash on key indicates prefix match
+- Scopes are matched by longest prefix then imports fallback used
+
+D. require() ESM loading conditions
+- require() loads ESM synchronously only when module graph contains no top-level await and file meets one of: .mjs extension; .js with package.json "type":"module" or .js with no "type":"commonjs" and module parses as ESM
+- If module contains top-level await, require() throws ERR_REQUIRE_ASYNC_MODULE
+
+REFERENCE DETAILS (API SPECIFICATIONS, SIGNATURES, CONFIG OPTIONS)
+
+1. Array.from
+Signature: Array.from(items[, mapFn[, thisArg]]) -> Array
+Parameters:
+- items: iterable or array-like (object with length and indexed properties)
+- mapFn: optional function called with (element, index)
+- thisArg: optional receiver for mapFn
+Return: new Array instance (or subclass instance)
+Effects: never creates sparse arrays; for array-like inputs length normalized before construction; mapFn invoked as elements are produced
+
+2. Number.isInteger
+Signature: Number.isInteger(value) -> Boolean
+Behavior: true iff typeof value === 'number' AND isFinite(value) AND floor(value) === value
+Edge-cases: IEEE-754 precision can make numeric literals represent integers when written with insignificant fractional part beyond precision
+
+3. RangeError
+Constructor: RangeError([message]) -> RangeError
+Properties: name = "RangeError"; prototype inherits from Error.prototype
+Throw conditions examples: invalid array length, invalid numeric method arguments
+
+4. export syntax (ECMAScript module)
+Named export forms:
+- export let name1, name2;
+- export const name = value;
+- export function fname() {}
+- export { name1, name2 };
+- export { localName as exportedName };
+Default export forms:
+- export default expression;
+- export default function fname() {} (one default per module)
+Re-exporting:
+- export { name } from "module";
+- export { default as name } from "module";
+- export * from "module"; (does not re-export default)
+Behavioral notes: duplicate export names cause SyntaxError; star re-exports that conflict omit the conflicting name
+
+5. package.json fields
+- "type": "module" | "commonjs" — determines parser behavior for .js in package scope
+- "main": string — entry point used for directory requires
+- "exports": conditional mapping object — controls what subpath strings map to; provides package boundary encapsulation
+- "imports": object — maps '#'-style specifiers within package scope
+
+6. require() resolution algorithm (high-level pseudocode)
+require(X) from module at path Y
+1. If X is core module -> return core module
+2. If X begins with '/', set base root
+3. If X is '.' or begins './' '../' -> LOAD_AS_FILE(Y+X) then LOAD_AS_DIRECTORY(Y+X) else continue
+4. If X begins with '#' -> LOAD_PACKAGE_IMPORTS
+5. LOAD_PACKAGE_SELF
+6. LOAD_NODE_MODULES
+7. Throw not found
+LOAD_AS_FILE tries: X, X.js, X.json, X.node; for X.js uses package scope "type" field to decide parsing mode or MAYBE_DETECT_AND_LOAD
+
+TROUBLESHOOTING & BEST PRACTICES (CONCRETE STEPS)
+
+1. Fixing module not found errors
+- Ensure module specifier path is correct and includes .js when serving in browser without import maps.
+- For package entry issues, verify package.json has "main" pointing to existing file or define "exports" correctly.
+- Use import maps in browsers to enable bare specifiers or remap hashed filenames.
+
+2. Interop between CommonJS and ESM
+- To provide a CommonJS-compatible default when authoring ESM, export an object as default and attach named exports as properties to that default so require() consumers can access them via .default or direct properties.
+- Avoid relying on __esModule heuristics; explicitly provide module.exports via export { Point as 'module.exports' } when appropriate.
+
+3. Avoiding top-level await when synchronous require is needed
+- Remove top-level await from modules that must be loadable via require(); use async initializers exported as functions instead.
+
+DETAILED DIGEST (SOURCES AND RETRIEVAL)
+
+Sources used (retrieved 2026-03-07):
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export (MDN Export reference) — retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules (MDN Modules Guide) — retrieved 2026-03-07
+- https://nodejs.org/api/modules.html (Node.js Modules documentation) — retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from (MDN Array.from) — retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger (MDN Number.isInteger) — retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError (MDN RangeError) — retrieved 2026-03-07
+- https://docs.npmjs.com/creating-node-js-modules (npm creating node modules) — retrieved 2026-03-07
+- https://en.wikipedia.org/wiki/Fizz_buzz (Wikipedia Fizz buzz) — retrieved 2026-03-07
+
+Approximate data sizes retrieved during crawling (combined approximations):
+- MDN pages (export, modules, Array.from, Number.isInteger, RangeError): approx. 6–20 KB each
+- Node.js modules API: approx. 20–60 KB
+- npm docs: approx. 2–6 KB
+- Wikipedia FizzBuzz: approx. 2–4 KB
+Total approximate bytes retrieved: ~80 KB
+
+ATTRIBUTION
+Content extracted verbatim or closely paraphrased from the listed sources; original authors and pages retained above. All source pages were public documentation (MDN, Node.js docs, npm docs, Wikipedia). Retrieval date: 2026-03-07.
+
+END OF DOCUMENT
