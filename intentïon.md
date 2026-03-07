@@ -847,3 +847,64 @@ Created condensed technical library documents by extracting actionable algorithm
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T20:45:27.745Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 63432 (in: 58461, out: 4971)
+**Duration:** 65s (~1.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806881638](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806881638)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 29/32 | 3 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 6/32 | 26 remaining | n/a |
+
+### Closing Notes
+transformation-budget approaching capacity (29/32).
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Updated the HAMMING_CORE feature to add an explicit, opt-in Unicode normalization option for hammingDistance so callers can request canonical equivalence while keeping default behaviour strict and fully tested.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T20:46:18.813Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 60410 (in: 57273, out: 3137)
+**Duration:** 51s (~0.8 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22806881638](https://github.com/xn-intenton-z2a/repository0/actions/runs/22806881638)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 30/32 | 2 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 6/32 | 26 remaining |  |
+
+### Closing Notes
+transformation-budget approaching capacity (30/32).
+
+### Narrative
+Read the SOURCES.md URLs, fetched MDN and Wikipedia content, and verified/updated the six corresponding library documents with precise technical extracts and retrieval metadata (npm page blocked by 403).
+
+Maintained library (6 docs, limit 32)
+
+---
