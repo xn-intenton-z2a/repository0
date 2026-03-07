@@ -1,0 +1,80 @@
+TABLE OF CONTENTS
+
+1. Binary-to-Text Overview
+2. RFC 4648 (Base16/Base32/Base64) Rules
+3. Base64 Practical Details
+4. Ascii85 / Base85 (Adobe btoa variant)
+5. basE91 (base91) Summary and Efficiency
+6. Implementation notes and edge cases
+7. Supplementary details (specs and patterns)
+8. Reference details (alphabet tables, padding, delimiters)
+
+1. Binary-to-Text Overview
+
+- Definition: Encoding arbitrary sequences of 8-bit octets into printable text characters restricted to a reduced alphabet (commonly printable ASCII).
+- Purpose: Transfer/store binary data over channels that are not 8-bit clean, avoid control codes, avoid delimiter collisions, and meet line-length restrictions.
+- Efficiency metric: log2(n)/8 where n is alphabet size. Example efficiencies: Base16 50%, Base32 62.5%, Base64 75%, Base85/Ascii85 80%.
+
+2. RFC 4648 (Base16/Base32/Base64) Rules (direct, implementable extracts)
+
+- MUST/SHOULD semantics: follow RFC verbatim for interoperability (MUST/MUST NOT etc.).
+- Line feeds: Implementations MUST NOT introduce line feeds into base-encoded data unless the referring specification requires line-wrapping. MIME historically used 76 chars max; RFC4648 disallows inserting line feeds by default.
+- Padding: Implementations MUST include appropriate pad characters '=' at the end of encoded data unless the referring spec explicitly states otherwise. Base16 does not use padding; Base32 and Base64 use padding rules as defined.
+- Rejection/acceptance: Implementations MUST reject encoded data that contains characters outside the chosen base alphabet unless the referring spec explicitly allows ignoring non-alphabet characters (MIME allows treating CR/LF as ignorable). Implementations MAY ignore excess pad characters at the end.
+- Canonical encoding: Encoders MUST set pad bits to zero so that a canonical encoding is produced; decoders MAY reject encodings where pad bits are not zero.
+
+3. Base64 Practical Details (from RFC4648 and Wikipedia combined)
+
+- Alphabet (RFC4648 canonical): value->char mapping: 0..25 => A-Z, 26..51 => a-z, 52..61 => 0-9, 62 => +, 63 => /. Pad character '='.
+- URL-safe variant (Base64URL): replace + with - and / with _; pad '=' optional but RFC4648 requires padding unless spec says otherwise; when embedding in URIs, percent-encoding of '=' may be required if present.
+- Encoding groups: take 24-bit groups (3 bytes) -> 4 Base64 chars. If input not multiple of 3 bytes, pad with zero bits on the right and append '=' characters: 1 remaining byte -> output two chars + '=='; 2 remaining bytes -> three chars + '='.
+- Decoding rules: 4 chars -> 3 bytes; with padding handle truncated final quantum. Decoding without padding: allowed in practice but may be ambiguous; implementations must handle both if spec permits but beware canonical ambiguity and security issues.
+- Implementation note: when concatenating Base64 strings, padding is required to preserve boundaries.
+
+4. Ascii85 / Base85 (Adobe btoa variant) (concrete algorithmic steps)
+
+- Grouping: encode 4 input bytes (32-bit big-endian integer) -> convert to 5 base-85 digits by repeatedly dividing by 85 and taking remainders (most significant digit first).
+- Alphabet: ASCII 33 ('!') through 117 ('u') map to base-85 digits 0..84 by adding 33 to digit.
+- Special-case: group of four zero bytes (32-bit value 0) may be encoded as single character 'z' (compression). Some variants (btoa) also historically had a 'y' for four space bytes; Adobe Ascii85 does not include 'y'.
+- Delimiters (Adobe): Ascii85 strings may be delimited by <~ and ~> in PostScript/PDF contexts. When decoding, ignore whitespace anywhere in the encoded stream.
+- Padding: If final input block < 4 bytes, pad with up to 3 NUL bytes before encoding; after encoding, drop as many output characters from the end as were added as padding (Adobe method). For decoding, pad final 5-tuple with 'u' characters before converting back and then trim padding bytes.
+- Error conditions: 5-tuples that decode to a value >= 2^32 will cause a decoding error; 'z' in middle of a 5-char block is invalid.
+
+5. basE91 (base91) Summary and Efficiency
+
+- Encoding approach: variable-width encoding that packs bits into 91-symbol alphabet; it's more efficient than Base64 for many inputs.
+- Overhead: ranges from ~14% to 23% depending on input; canonical reported maximum overhead 23% and typical down to 14%.
+- Alphabet and implementation: basE91 uses 91 printable characters; algorithm details: accumulate bits into an integer buffer, output values modulo 91, handle variable output width; implementors should consult source C implementation for exact bit-buffer management.
+
+6. Implementation notes and edge cases (actionable)
+
+- Choice of alphabet: avoid ambiguous characters (0 vs O, 1 vs l vs I) when human transcription is expected. Choose URL-safe alphabets for web embedding (use Base64URL or custom alphabets).
+- Line breaks: do not insert line breaks unless required by target spec (e.g., MIME); decoders may ignore CR/LF but encoders must not add them by default.
+- Padding handling: be explicit in APIs whether padding is included or optional; document behaviour and provide both padded and unpadded options for Base64.
+- Whitespace tolerance: decoders should optionally ignore whitespace when the target environments (e.g., email) insert it; make this configurable.
+- Security: input validation must reject non-alphabet characters unless explicitly permissive; pad-bit canonical checks can be used to detect malformed encodings. Avoid accepting both padded and unpadded forms silently where canonical form is required.
+
+7. Supplementary details (specifications and implementation details)
+
+- Base64 canonical mapping table (explicit mapping): 0:A ... 25:Z, 26:a ... 51:z, 52:0 ... 61:9, 62:+, 63:/; '=' padding. Use URL variant mapping 62:- 63:_ when HTTP/URI use.
+- Ascii85 conversion algorithm (pseudocode sequence): for each 4-byte chunk B[0..3] form uint32 = (B0<<24)|(B1<<16)|(B2<<8)|B3; if uint32==0 output 'z'; else for i=4..0 compute digit[i]=uint32 %85; uint32/=85; output char code = digit+33 in reverse order.
+- Ascii85 padding rule: pad final incomplete word with zeros then encode and truncate output by number of padding bytes.
+- basE91 bit buffer approach: accumulate raw bytes into accumulator and use while accumulator has enough bits produce an output value = accumulator % 91; reduce accumulator accordingly; consult basE91 C reference for exact bit thresholds and table order.
+
+8. Reference details (alphabet tables, padding, delimiters)
+
+- Base64 alphabet (RFC4648): see explicit mapping above.
+- Base64URL alphabet: same except + -> - and / -> _; padding '=' optional per application.
+- Ascii85 alphabet: printable ASCII 33..117 mapping 0..84; special 'z' shorthand for 0x00000000; Adobe delimiters '<~' and '~>' mark start/end.
+- basE91: 91-character printable ASCII set (implementation-specific order). Consult basE91 source for exact alphabet sequence and C reference.
+
+DIGEST (sources & retrieval)
+
+- Sources consulted (SOURCES.md): Wikipedia Binary-to-text encoding, Base64, Ascii85; RFC 4648; basE91 project page. Retrieved 2026-03-07. Requested up to 15000 characters per source in crawl.
+- Data retrieved: sources fetched with up to 15000 chars each (8 sources requested), total requested 120000 chars. Individual source excerpts used are the RFC 4648 normative sections, ASCII85 algorithmic text, Base64 alphabet and padding sections, basE91 efficiency notes.
+
+ATTRIBUTION
+
+- Content extracted from: RFC 4648 (Josefsson, 2006), Wikipedia pages (Binary-to-text encoding; Base64; Ascii85), basE91 project page.
+- Retrieval date: 2026-03-07
+- Size: requested up to 15000 chars per source (see DIGEST).

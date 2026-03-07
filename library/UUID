@@ -1,0 +1,75 @@
+TABLE OF CONTENTS
+
+1. UUID Overview
+2. Bit layout, variants and textual representation
+3. Version-specific layouts and algorithms
+   3.1 Version 1 (time+node)
+   3.2 Version 6 (reordered time)
+   3.3 Version 3 and 5 (name-based, MD5/SHA-1)
+   3.4 Version 4 (random)
+   3.5 Version 7 (timestamp+random)
+4. Field sizes and byte ordering
+5. Implementation rules and checks
+6. Reference details (exact layouts and fields)
+
+1. UUID Overview
+
+- UUID (128-bit identifier) provides practically-unique identifiers without central coordination. Standardized in RFC 4122 and updated by RFC 9562 (2024).UUID textual canonical format: 32 hex digits displayed in 5 groups separated by hyphens: 8-4-4-4-12 (for example 8be4df61-93ca-11d2-aa0d-00e098032b8c).
+
+2. Bit layout, variants and textual representation
+
+- Variant field: located in the most-significant bits of octet 8 (the 9th byte). Common variants:
+  - Variant 0 (NCS): 0xxx (obsolete)
+  - Variant 1 (RFC4122/DCE): bits pattern 10xx (most common)
+  - Variant 2 (Microsoft): bits 110x (legacy)
+- Version field: high 4 bits of octet 6 (the 7th byte). Typical versions: 1,3,4,5,6,7,8.
+- Textual format mapping to fields: time_low (4 bytes) - time_mid (2 bytes) - time_hi_and_version (2 bytes) - clock_seq_hi_and_reserved clock_seq_low (2 bytes) - node (6 bytes).
+
+3. Version-specific layouts and algorithms
+
+3.1 Version 1 (date-time and MAC node)
+- Timestamp: 60-bit value: number of 100-nanosecond intervals since 00:00:00.00, 15 Oct 1582 (Gregorian). Stored across fields: time_low (low 32 bits), time_mid (next 16 bits), time_hi_and_version (high 12 bits + 4-bit version). Timestamp may be treated as signed or unsigned by implementations; RFC 4122 semantics apply; RFC9562 clarifies some behaviours.
+- Clock sequence: 13 bits (sometimes 14) used to avoid duplicates when clock moves backwards or node changes. Stored in clock_seq_hi_and_reserved (top bits include variant) and clock_seq_low (low 8 bits).
+- Node: 48-bit node id typically MAC address; use random 48-bit when privacy required.
+- Layout bytes (big-endian network order for the time fields inside the UUID representation as specified for version 1 in RFCs).
+
+3.2 Version 6
+- Same components as v1 but timestamp bit order changed to allow lexicographic sorting by creation time: timestamp bits ordered most-significant-first in the UUID fields so bytewise lexical sort equals time order.
+
+3.3 Versions 3 and 5 (name-based)
+- Input: namespace UUID (16 bytes) + name (octet sequence).
+- Hash: version 3 uses MD5 (128-bit), version 5 uses SHA-1 (truncate 160-bit digest to 128 bits). After hashing, set version bits (4 high bits of byte 6) and variant bits. Deterministic: same namespace+name => same UUID.
+
+3.4 Version 4 (random)
+- Generate 122 random bits for variant-1 UUIDs: set version bits = 4 and variant bits per variant. For variant 1 (RFC), 6 predetermined bits (version+variant), leaving 122 random bits.
+- Note: use cryptographically secure RNG for unpredictability if desired; implementations commonly use secure RNGs.
+
+3.5 Version 7 (timestamp + random)
+- Field construction: 48-bit big-endian unsigned Unix epoch timestamp in milliseconds, then 4-bit version set to 7, then 12 bits of randomness and remaining random bits to fill 128-bit UUID.
+- Purpose: lexicographically sortable, creation-time-ordered keys and locality improvements for databases.
+
+4. Field sizes and byte ordering (explicit)
+- time_low: 4 bytes (32 bits)
+- time_mid: 2 bytes (16 bits)
+- time_hi_and_version: 2 bytes (16 bits) (high 4 bits are version)
+- clock_seq_hi_and_reserved: 1 byte (top bits contain variant)
+- clock_seq_low: 1 byte
+- node: 6 bytes (48 bits)
+- Textual hyphenation: time_low (8 hex chars) - time_mid (4 hex) - time_hi_and_version (4 hex) - clock_seq (4 hex) - node (12 hex)
+
+5. Implementation rules and checks (actionable)
+- On parsing textual UUIDs: validate hex chars, hyphen positions, then validate variant bits and version bits are within expected ranges for the application. Reject if non-hex or incorrect field lengths.
+- When generating v1: ensure clock sequence increments when clock goes backwards and persist node/clock sequence between restarts to avoid collisions.
+- For privacy, avoid embedding MAC addresses; use random node values and set multicast bit per RFC if indicating random node.
+- For databases requiring monotonic ordering, use v6 or v7 for lexicographic ordering; v1 has time but not lexical ordering by textual representation.
+
+6. Reference details (exact layouts and fields)
+- Example RFC layout (version 1):
+  time_low (4 bytes) | time_mid (2 bytes) | time_hi_and_version (2 bytes) | clock_seq_hi_and_reserved (1 byte) | clock_seq_low (1 byte) | node (6 bytes)
+- Variant bit masks (in clock_seq_hi_and_reserved):
+  - For variant 1 (RFC): binary 10xx xxxx -> mask check (value & 0xE0) == 0x80 for top three bits? Implementors should mask and compare according to RFC bit placements.
+- Version extraction: version = (time_hi_and_version >> 12) & 0xF
+
+DIGEST & ATTRIBUTION
+- Sources: Wikipedia Universally unique identifier (UUID), RFC 4122, RFC 9562 (where referenced). Retrieval date: 2026-03-07.
+- Size: extracted sections for layouts, versions and field definitions from the crawled sources.
