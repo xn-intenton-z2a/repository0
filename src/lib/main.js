@@ -5,6 +5,7 @@
 
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
+import { fizz as fizzBuzzSingle, fizzSequence as fizzBuzz } from './fizzbuzz.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require("../../package.json");
@@ -28,6 +29,9 @@ export function main(args) {
   }
   console.log(`${name}@${version}`);
 }
+
+// Export FizzBuzz API (aliases to the fizz module)
+export { fizzBuzz, fizzBuzzSingle };
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
