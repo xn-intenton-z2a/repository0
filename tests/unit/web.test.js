@@ -25,9 +25,4 @@ describe("Website", () => {
     expect(html).toContain("lib-name");
     expect(html).toContain("lib-version");
   });
-
-  test("index.html has social share links", () => {
-    const html = readFileSync("src/web/index.html", "utf8");
-    expect(html).toMatch(/share.*(twitter|x\.com|linkedin)/is);
-  });
 });

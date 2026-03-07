@@ -14,9 +14,6 @@
     .identity { background: #f6f8fa; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-family: monospace; }
     .identity dt { font-weight: bold; color: #666; }
     .identity dd { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-    .social { display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap; }
-    .social a { display: inline-block; padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; font-size: 0.9rem; }
-    .social a:hover { background: #f6f8fa; }
     #demo-output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; font-family: monospace; white-space: pre-wrap; min-height: 2rem; }
   </style>
 </head>
@@ -32,12 +29,6 @@
   </div>
   <h2>Output</h2>
   <div id="demo-output">Loading library...</div>
-  <h2>Links</h2>
-  <div class="social">
-    <a id="share-github" href="https://github.com/xn-intenton-z2a/repository0" target="_blank" rel="noopener">GitHub</a>
-    <a id="share-twitter" href="#" target="_blank" rel="noopener">X/Twitter</a>
-    <a id="share-linkedin" href="#" target="_blank" rel="noopener">LinkedIn</a>
-  </div>
   <h2>About</h2>
   <p>This website uses the library. See <a href="https://github.com/xn-intenton-z2a/repository0">the repository</a> for source code and mission details.</p>
   <script type="module">
@@ -48,10 +39,6 @@
       document.getElementById('lib-description').textContent = description || '(no description)';
       document.getElementById('demo-output').textContent = JSON.stringify({ name, version, description }, null, 2);
       document.title = name + ' v' + version;
-      const pageUrl = encodeURIComponent(window.location.href);
-      const text = encodeURIComponent('Check out ' + name + ' v' + version + ' — ' + description);
-      document.getElementById('share-twitter').href = 'https://x.com/intent/tweet?url=' + pageUrl + '&text=' + text;
-      document.getElementById('share-linkedin').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + pageUrl;
     } catch (e) {
       document.getElementById('lib-version').textContent = '(build required)';
       document.getElementById('lib-description').textContent = 'Run npm run build:web to generate library metadata';

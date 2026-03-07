@@ -6,8 +6,7 @@
 # During init:
 
 [schedule]
-supervisor = "off"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
+supervisor = "continuous"              # off | weekly | daily | hourly | continuous
 
 [paths]
 mission = "MISSION.md"
@@ -132,3 +131,9 @@ library-limit = 64                     # max library entries in library/ directo
 
 [bot]
 log-file = "intentïon.md"
+
+[init]
+timestamp = "2026-03-07T14:39:42.801Z"
+mode = "purge"
+mission = "fizz-buzz"
+version = "7.1.72"
