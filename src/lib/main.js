@@ -44,7 +44,7 @@ export function main(args) {
       const ont = await OntologyClass.load(seed);
       console.log('OWL Ontology Summary');
       console.log('Classes:', ont.getClasses().map(c => c.id).join(', '));
-      console.log('Properties:', ont.getProperties().map(p => `${p.id} (domain=${p.domain}, range=${p.range})`).join('\n'));
+      console.log('Properties:', ont.getProperties().map(p => `${p.id} (domain=${p.domain}, range=${p.range})`).join('\\n'));
       console.log('Individuals:', ont.getIndividuals().map(i => i.id).join(', '));
     })();
     return;
