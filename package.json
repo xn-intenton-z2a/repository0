@@ -6,9 +6,10 @@
   "main": "src/lib/main.js",
   "scripts": {
     "build": "npm run build:web",
-    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && mkdir -p docs/examples && cp examples/cli-output.md docs/examples/cli-output.md 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
+    "build:web": "mkdir -p docs && touch docs/.nojekyll && cp -r src/web/* docs/ 2>/dev/null || true && node --input-type=commonjs -p \"var p=require('./package.json');['name','version','description'].map(function(k){return 'export const '+k+' = '+JSON.stringify(p[k])+';'}).join('\\n')\" > docs/lib-meta.js",
     "test": "vitest --run tests/unit/*.test.js",
     "test:unit": "vitest --run --coverage tests/unit/*.test.js",
+    "test:behaviour": "npm run build:web && npx playwright test --config playwright.config.js",
     "start": "npm run build:web && npx serve docs",
     "start:cli": "node src/lib/main.js"
   },
@@ -16,10 +17,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@xn-intenton-z2a/agentic-lib": "^7.1.76"
+    "@xn-intenton-z2a/agentic-lib": "^7.1.81"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "@vitest/coverage-v8": "^4.0.18",
+    "serve": "^14.2.4",
     "vitest": "^4.0.18"
   },
   "engines": {

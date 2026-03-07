@@ -7,7 +7,6 @@
 
 [schedule]
 supervisor = "continuous"              # off | weekly | daily | hourly | continuous
-model = "gpt-5-mini"
 
 [paths]
 mission = "MISSION.md"
@@ -134,7 +133,7 @@ library-limit = 64                     # max library entries in library/ directo
 log-file = "intentïon.md"
 
 [init]
-timestamp = "2026-03-07T17:07:31.779Z"
+timestamp = "2026-03-07T21:05:59.116Z"
 mode = "purge"
-mission = "hamming-distance"
-version = "7.1.76"
+mission = "owl-ontology"
+version = "7.1.81"

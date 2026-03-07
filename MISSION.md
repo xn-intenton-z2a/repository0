@@ -1,26 +1,34 @@
 # Mission
 
-A JavaScript library exporting Hamming distance functions.
+A JavaScript library that manages a simple OWL-like ontology stored as JSON-LD files in a `data/` directory. The pipeline should both build the library AND populate it with example ontology data over successive transform cycles.
+
+This is an ongoing mission. Do not set schedule to off.
 
 ## Core Functions
 
-- `hammingDistance(a, b)` — compute the Hamming distance between two strings of equal length (number of positions where characters differ). Throw an error if the strings have different lengths.
-- `hammingDistanceBits(x, y)` — compute the Hamming distance between two non-negative integers (count the number of differing bits).
+- `defineClass(name, superclass?)` — define an ontology class, optionally as a subclass.
+- `defineProperty(name, domain, range, opts?)` — define a property linking two classes.
+- `addIndividual(className, id, properties)` — add an instance of a class with property values.
+- `query(pattern)` — basic pattern matching over the ontology (e.g. find all instances of a class, find by property value).
+- `load(dir?)` — load ontology from JSON-LD files in the data directory.
+- `save(dir?)` — persist the ontology to JSON-LD files.
+- `stats()` — return counts of classes, properties, and individuals.
 
 ## Requirements
 
-- Handle Unicode strings correctly (compare code points, not UTF-16 code units).
-- Validate inputs: throw `TypeError` for non-string/non-integer arguments, `RangeError` for unequal-length strings or negative integers.
-- Export both functions as named exports from `src/lib/main.js`.
-- Comprehensive unit tests covering normal cases, edge cases (empty strings, zero, large integers), and error cases.
-- README with usage examples and API documentation.
+- Store data as JSON-LD files in `data/` (one file per class or a single graph file — implementer's choice).
+- The library should be usable both programmatically and to build up ontology data over time.
+- Export all functions as named exports from `src/lib/main.js`.
+- Include seed ontology data (e.g. a simple animal taxonomy) to demonstrate the library works.
+- Unit tests covering CRUD operations, querying, and persistence.
+- README with usage examples.
 
 ## Acceptance Criteria
 
-- [ ] `hammingDistance("karolin", "kathrin")` returns `3`
-- [ ] `hammingDistance("", "")` returns `0`
-- [ ] `hammingDistance("a", "bb")` throws `RangeError`
-- [ ] `hammingDistanceBits(1, 4)` returns `2` (binary: 001 vs 100)
-- [ ] `hammingDistanceBits(0, 0)` returns `0`
+- [ ] Can define classes and properties
+- [ ] Can add individuals and query them
+- [ ] Data persists to and loads from JSON-LD files
+- [ ] At least one example ontology (e.g. animals) is populated in `data/`
+- [ ] `stats()` returns correct counts
 - [ ] All unit tests pass
-- [ ] README documents usage with examples
+- [ ] README documents the API with examples
