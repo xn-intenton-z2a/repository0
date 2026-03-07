@@ -1,0 +1,95 @@
+TITLE: JS_MODULES
+SOURCE_URLS:
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- https://nodejs.org/api/modules.html
+- https://docs.npmjs.com/creating-node-js-modules
+
+NORMALISED EXTRACT
+Table of contents:
+1. Module file types and resolution
+2. Export syntax and semantics
+3. Re-exporting and aggregation patterns
+4. Import specifiers, import maps, and MIME requirements
+5. Node.js module systems and interop
+6. Package metadata and npm module packaging
+
+1. Module file types and resolution
+- File extensions and package.json "type" determine parsing:
+  - .mjs => parsed as ECMAScript module (ESM).
+  - .cjs => parsed as CommonJS.
+  - .js => parsed as CommonJS by default unless nearest parent package.json has "type": "module".
+  - If package.json lacks "type" or is "commonjs", .js files are CommonJS unless ES module syntax forces module parsing.
+- Servers must serve modules with JavaScript MIME type (e.g., Content-Type: text/javascript) otherwise browsers may reject with strict MIME type errors.
+
+2. Export syntax and semantics
+- Named export forms:
+  - export let name1, name2;
+  - export const name = value;
+  - export function fname(){}, export class C{}
+  - export { name1, name2 as alias } (re-exporting local bindings)
+- Default exports:
+  - export default expression;
+  - export default function fname() {} or anonymous function/class allowed; function/class declarations are hoisted.
+- Only one default export per module; duplicate export names or multiple default exports produce SyntaxError at evaluation time.
+- Export declarations are declarations only and can appear before the binding is declared (not using the value during module evaluation).
+
+3. Re-exporting and aggregation patterns
+- Syntax: export { x } from "mod"; export * from "mod"; export * as ns from "mod"; export { default as name } from "mod".
+- export * re-exports named exports only; default export of source is not re-exported unless explicitly exported as default.
+- Conflicting star exports for the same name cause that name to be omitted; importing directly will throw a SyntaxError for conflicting star exports.
+- Barrel module pattern: create an aggregator module that re-exports selected features from multiple modules to provide a single entry point.
+
+4. Import specifiers, import maps, and MIME requirements
+- Module specifier resolution in browsers supports absolute URLs, relative URLs, or mapped names via import maps.
+- Use relative paths (./, ../) for portability; bare specifiers require an import map in browser contexts.
+- To run modules locally, serve over HTTP; file:// will hit CORS and MIME issues.
+- Use .mjs for clarity if you need to ensure runtimes parse as ESM; ensure server sets correct Content-Type for .mjs.
+
+5. Node.js module systems and interop
+- Node supports CommonJS (require/module.exports/exports) and ESM (import/export). Module type rules above govern which applies.
+- require() always invokes the CommonJS loader; import() invokes ESM loader.
+- require() can synchronously load ESM provided module meets constraints: fully synchronous (no top-level await) and file extension/package type conditions are met (.mjs or package.json type: module or ES-syntax heuristics).
+- When require() loads an ESM, the returned value is a module namespace object; default export appears as .default; tooling may add __esModule: true for interop.
+- CommonJS modules export by assigning module.exports = value or adding properties to exports object. Assigning to exports directly will not change module.exports unless exports is mutated appropriately.
+- Node wraps modules in a function scope; local variables are private to the module. require.main === module can be used to detect if a file is executed directly.
+- Node module resolution looks for node_modules up the directory tree and resolves symlinks by realpath; recommended package layout uses node_modules/<name>/<version> with symlinks to support multiple versions.
+
+6. Package metadata and npm module packaging
+- Use npm init to create package.json; provide name, version, and main fields; follow semantic versioning, start at 1.0.0.
+- main points to the entry file loaded when requiring the package; create that file and expose API by assigning properties on exports or module.exports.
+- For publishing: two-factor auth or granular token required; npm publish or npm publish --access public for scoped public packages.
+- Testing a published module: install it in a separate directory and require it to validate exported APIs behave as expected.
+
+SUPPLEMENTARY DETAILS
+- ESM hoisting: export declarations are static; they are resolved at module parse time. Default export expressions are evaluated at runtime but declaration hoisting applies to function/class declarations used with export default.
+- Re-export limitations: export * from "mod" does not re-export default; use export { default as name } from "mod" to re-export default.
+- Use barrels with caution: conflicting names across aggregated modules will cause silent omissions and runtime import errors for direct imports.
+
+REFERENCE DETAILS (API signatures, config values, patterns)
+- Export signatures (syntax forms):
+  - Named: export { name1, name2 as alias };
+  - Declaration: export function fname(...args){}, export const x = value;
+  - Default: export default expression; export default function fname() {}
+  - Re-export: export { name } from "./mod.js"; export * from "./mod.js"; export * as ns from "./mod.js"
+- Node package.json fields affecting modules:
+  - "type": "module" => treat .js as ESM
+  - "main": "./lib/index.js" => CommonJS entry point used by require() when package is required
+  - Use .mjs/.cjs file extensions to explicitly opt into ESM/CommonJS per-file
+- Node require() interop constraints for loading ESM synchronously:
+  - ESM module must have no top-level await and meet extension/type conditions
+- Server config: Content-Type header must be text/javascript when serving .js or .mjs module files
+
+TROUBLESHOOTING CHECKLIST
+- Browser rejects a module: verify server sets Content-Type: text/javascript and that module is requested over HTTP(S) not file://
+- Duplicate export error: check for conflicting export names in aggregated barrel modules; resolve by renaming or explicit re-exporting with aliases
+- require() returns namespace with .default: when mixing CJS/ESM, expect default export to be on module.default; adjust consumer code accordingly or provide module.exports compatibility
+- Module not found: ensure correct relative paths, check node_modules placement, and verify package.json "type" if using .js ESM
+
+DIGEST
+- Sources used: MDN Modules guide; MDN export reference; Node.js modules docs; npm creating-node-js-modules. Retrieved 2026-03-07.
+- Extracted content focuses on export/import syntax, ESM vs CommonJS rules, package.json "type" behavior, server MIME requirements, re-export patterns, and npm packaging steps.
+
+ATTRIBUTION AND DATA SIZE
+- Attribution: MDN Web Docs (MDN contributors), Node.js docs, npm docs. URLs listed above.
+- Approximate fetched data size: 38 KB total (aggregated HTML/plain content retrieved from the four technical sources listed above).

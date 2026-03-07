@@ -1,0 +1,66 @@
+TITLE: JS_UTILS
+SOURCE_URLS:
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError
+
+NORMALISED EXTRACT
+Table of contents:
+1. Array.from usage and signature
+2. Array.from behavior details and patterns
+3. Number.isInteger signature and edge cases
+4. RangeError semantics and constructor
+
+1. Array.from usage and signature
+- Signatures:
+  - Array.from(items)
+  - Array.from(items, mapFn)
+  - Array.from(items, mapFn, thisArg)
+- Parameters:
+  - items: iterable or array-like object (has length and indexed elements)
+  - mapFn (optional): function(element, index) -> mappedValue executed during creation
+  - thisArg (optional): value used as this when calling mapFn
+- Return: a new Array instance (or an instance of subclass if called on subclass constructor)
+
+2. Array.from behavior details and patterns
+- Converts iterables (Set, Map, NodeList) and array-like objects (arguments, {length: N, 0: v}) to arrays
+- Never creates sparse arrays: missing indices become undefined in result
+- mapFn executes during array construction; Array.from(items, mapFn) is equivalent to creating array then .map(mapFn) but without intermediate array and with mapFn receiving only (element, index)
+- Typed arrays: Array.from is implemented to match TypedArray.from signature; use when converting to typed arrays to avoid truncation pitfalls
+- Subclassing: Array.from uses this value as constructor if it is a constructor accepting length; when items is iterable, constructor called with no args; when array-like, constructor called with normalized length
+- Common pattern: range generator using Array.from({ length: Math.ceil((stop-start)/step) }, (_, i) => start + i*step)
+
+3. Number.isInteger signature and edge cases
+- Signature: Number.isInteger(value) -> boolean
+- Returns true when value is an integer number type; false for NaN, Infinity, non-number types
+- Floating point values representing integer due to IEEE-754 precision (e.g., 5.0000000000000001 encoded as 5) return true
+- Numbers beyond MAX_SAFE_INTEGER can yield surprising results due to precision; Number.isInteger may return true for non-integers because of representation loss
+
+4. RangeError semantics and constructor
+- RangeError is thrown when a value is outside allowed range (e.g., invalid array length, invalid numeric method arguments)
+- Constructor: RangeError([message]) returns a RangeError instance; prototype.name === "RangeError"
+- RangeError is serializable and can be cloned with structuredClone or transferred between Workers via postMessage
+- Handling pattern: throw new RangeError("message") and catch by checking instanceof RangeError
+
+SUPPLEMENTARY DETAILS
+- Array.from mapFn receives only (element, index) and not the whole array; it is executed during creation and avoids intermediate arrays when mapping from iterables
+- For converting NodeList to array of element properties, use Array.from(nodeList, el => el.property)
+
+REFERENCE DETAILS (API signatures and examples)
+- Array.from(items, mapFn?, thisArg?) -> Array
+  - items: Iterable or array-like
+  - mapFn(element, index) -> mappedValue
+  - thisArg: used as this in mapFn
+- Number.isInteger(value) -> boolean
+- RangeError constructor: RangeError([message]) -> RangeError instance
+
+TROUBLESHOOTING
+- Unexpected integer detection: check Number.isInteger behavior around floating point precision and MAX_SAFE_INTEGER
+- Sparse-array expectations: Array.from never yields sparse arrays; missing indexes become undefined
+
+DIGEST
+- Sources: MDN Array.from, Number.isInteger, RangeError. Retrieved 2026-03-07.
+
+ATTRIBUTION AND DATA SIZE
+- Attribution: MDN Web Docs (MDN contributors). URLs above.
+- Approximate fetched data size: 13 KB aggregated from the three MDN pages.
