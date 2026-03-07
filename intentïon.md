@@ -546,3 +546,63 @@ Updated the HAMMING_DISTANCE library document to consolidate and normalize techn
 Maintained library (1 docs, limit 32)
 
 ---
+## maintain-features at 2026-03-07T19:35:59.790Z
+
+**Outcome:** features-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 144176 (in: 136675, out: 7501)
+**Duration:** 125s (~2.1 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22805752029](https://github.com/xn-intenton-z2a/repository0/actions/runs/22805752029)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 19/32 | 13 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining |  |
+| library | 1/32 | 31 remaining | n/a |
+
+### Closing Notes
+features at capacity (4/4) — actions will be blocked.
+
+### Narrative
+Rewrote the UNICODE_SUPPORT feature file to define a CLI_BYTES feature so the repo gains a bytes subcommand spec for the CLI while staying within the four-feature limit.
+
+Maintained features (4 existing, limit 4)
+
+---
+## maintain-library at 2026-03-07T19:37:09.429Z
+
+**Outcome:** library-maintained
+**Model:** gpt-5-mini
+**Profile:** recommended
+**Token Count:** 88491 (in: 83167, out: 5324)
+**Duration:** 69s (~1.2 GitHub Actions min)
+**agentic-lib transformation cost:** 1
+**Workflow:** [https://github.com/xn-intenton-z2a/repository0/actions/runs/22805752029](https://github.com/xn-intenton-z2a/repository0/actions/runs/22805752029)
+
+### Limits Status
+| Limit | Value | Capacity | Status |
+|---|---|---|---|
+| transformation-budget | 20/32 | 12 remaining |  |
+| max-feature-issues | 0/2 | 2 remaining |  |
+| max-maintenance-issues | 0/1 | 1 remaining |  |
+| max-attempts-per-issue | ?/2 | ? remaining | n/a |
+| max-attempts-per-branch | ?/3 | ? remaining | n/a |
+| features | 4/4 | 0 remaining | n/a |
+| library | 1/32 | 31 remaining |  |
+
+### Closing Notes
+All limits within normal range.
+
+### Narrative
+Created a consolidated HAMMING_DISTANCE library document by extracting technical details from the provided SOURCES.md URLs and normalizing them into definitions, algorithms, JS-specific behavior, APIs, and troubleshooting guidance.
+
+Maintained library (1 docs, limit 32)
+
+---
