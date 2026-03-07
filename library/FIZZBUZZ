@@ -1,0 +1,163 @@
+FIZZBUZZ
+
+1. NORMALISED EXTRACT
+
+Table of contents
+- FizzBuzz rules
+- Remainder operator (%) semantics
+- Number.isInteger API
+- RangeError usage and constructor
+- Node.js ECMAScript Modules (ESM) rules required for implementation
+- Vitest testing commands and API
+- FizzBuzz implementation constraints and validation patterns
+
+Detailed technical content
+
+FizzBuzz rules
+- Sequence: iterate positive integers starting at 1 and for each integer n:
+  - If n divisible by both 3 and 5, output FizzBuzz
+  - Else if n divisible by 3, output Fizz
+  - Else if n divisible by 5, output Buzz
+  - Else output the decimal representation of n
+- Divisibility is tested via the JavaScript remainder operator and integer checks.
+
+Remainder operator (%) semantics
+- Operator: a % b
+- Result definition: r = a - Math.trunc(a / b) * b (ECMAScript specification)
+- Behavior:
+  - Returns the mathematical remainder after truncating quotient toward zero
+  - Sign of r follows sign of dividend a
+  - If b is 0, result is NaN
+  - Both operands are converted to numeric values per ToNumeric coercion rules before computation
+- Use strict equality checks for divisibility: n % k === 0
+
+Number.isInteger API
+- Signature: Number.isInteger(value) -> boolean
+- Returns true if value is a Number primitive representing an integer (including 5.0), false if value is NaN, Infinity, non-number, or a non-integer fractional value
+- Implementation note: use Number.isInteger(n) to validate that inputs intended to be integers are representable as integers in IEEE-754 double precision
+
+RangeError usage and constructor
+- Constructor: RangeError([message]) -> RangeError instance
+- Throw a RangeError when an argument falls outside the allowed numeric range (for example, negative upper bound, start > end, non-finite values when finite required)
+- RangeError is an instanceof Error and has name property "RangeError"
+
+Node.js ECMAScript Modules (ESM) rules required for implementation
+- Enable ESM for Node.js by one of:
+  - package.json contains "type": "module"
+  - Use .mjs file extension for module files
+  - Use --input-type=module on the Node CLI for inline code
+- Import specifiers:
+  - Relative specifiers must include file extensions (e.g., ./module.js)
+  - Bare specifiers resolve via Node module resolution and package.json exports field when present
+  - Supported URL schemes: file:, node:, data: with restrictions (data: can import text/javascript as module, application/json with with { type: 'json' })
+- File imports are resolved and cached by full URL, including query and fragment; importing the same path with different query strings yields separate module records
+
+Vitest testing commands and API
+- CLI command to run repository tests: vitest --run tests/unit/*.test.js
+- Programmatic test API patterns:
+  - Import test functions: import { describe, it, test, expect, beforeEach, afterEach } from 'vitest'
+  - Assertions: expect(value).toBe(expected), expect(value).toEqual(obj), expect(fn).toThrow(), snapshot support available
+- Vitest is Vite-native: it reuses Vite config and supports ESM, TypeScript, JSX out of the box
+
+FizzBuzz implementation constraints and validation patterns
+- Input validation:
+  - Ensure input is numeric and integer: Number.isInteger(n) === true
+  - If function accepts a start and end range, validate start and end are integers and start <= end; throw RangeError("message") on invalid range
+  - Guard against non-finite values: Number.isFinite(n) can be used
+- Divisibility checks:
+  - Evaluate both-conditions first: if (n % 3 === 0 && n % 5 === 0) => FizzBuzz
+  - Then test n % 3 === 0 => Fizz
+  - Then test n % 5 === 0 => Buzz
+- Edge cases:
+  - Zero: 0 is divisible by any non-zero integer (0 % k === 0) so FizzBuzz rules will apply (0 -> FizzBuzz)
+  - Negative numbers: modulo semantics keep sign of dividend; divisibility checks using === 0 still work for negative multiples
+  - Large numbers: floating point precision may cause Number.isInteger to misreport integers near Number.MAX_SAFE_INTEGER; avoid relying on integers beyond safe integer range or use BigInt alternatives
+
+2. SUPPLEMENTARY DETAILS
+
+Implementation specifications and examples (compact form)
+- Function signature (recommended): function fizzbuzzRange(start, end) -> Array<string>
+- Input requirements:
+  - start: integer (Number.isInteger(start) === true)
+  - end: integer (Number.isInteger(end) === true)
+  - start <= end; otherwise throw RangeError("start must be <= end")
+- Algorithm:
+  - Allocate result array of length end - start + 1
+  - For i from start to end inclusive:
+    - if i % 3 === 0 && i % 5 === 0 push "FizzBuzz"
+    - else if i % 3 === 0 push "Fizz"
+    - else if i % 5 === 0 push "Buzz"
+    - else push String(i)
+- Testing pattern:
+  - Unit tests: assert fizzbuzzRange(1, 15)[14] === "FizzBuzz" and sample positions for Fizz and Buzz
+  - Boundary tests: start === end, negative ranges, zero in range, invalid ranges cause RangeError
+
+3. REFERENCE DETAILS (API signatures, configuration options, exact patterns)
+
+JavaScript language and runtime APIs
+- Number.isInteger(value) : any -> boolean
+  - Returns true only for Number primitives that are integers
+- Number.isFinite(value) : any -> boolean
+  - Returns true for finite number primitives
+- Remainder operator: a % b
+  - Semantic definition: a % b = a - Math.trunc(a / b) * b
+  - Use for exact divisibility by comparing to 0 with strict equality
+- RangeError(message?: string) : constructor -> RangeError
+  - Use: throw new RangeError("message")
+
+Node.js ESM configuration
+- package.json "type" field
+  - "type": "module" -> interpret .js files as ES modules
+  - Absence or "commonjs" -> .js interpreted as CommonJS
+- Mandatory file extensions for import specifiers
+  - import x from './mod.js' is required; ./mod without .js will not resolve as ESM
+- CLI flags
+  - node --input-type=module -p "..." for evaluating module code
+
+Vitest configuration and commands
+- CLI: vitest --run <pattern> to run tests once without watch
+- Programmatic import: import { describe, it, expect } from 'vitest'
+- Common assertions and matchers: toBe, toEqual, toMatchSnapshot, toThrow
+- Use Vite config for module resolution when tests reuse project build configuration
+
+Best practices and implementation examples
+- Always validate inputs with Number.isInteger and Number.isFinite before modulo operations
+- Check combined divisibility first (3 and 5) to avoid incorrect outputs
+- Throw RangeError for invalid numeric ranges with clear messages
+- Use ESM consistent project configuration: set package.json "type": "module" if source files use import/export with .js extensions
+- Write unit tests covering typical positions and boundaries; use vitest --run in CI scripts
+
+Troubleshooting procedures
+- If import fails with ERR_MODULE_NOT_FOUND: ensure relative import includes file extension and package.json "type": "module" is set if using .js modules
+- If modulo results unexpected for very large integers: verify Number.isInteger and avoid numbers above Number.MAX_SAFE_INTEGER; consider BigInt if integers above safe range required
+- If tests fail to run under Node: ensure vitest version supports Node engine; run npm ci then npm test; ensure package.json test script maps to vitest --run pattern
+
+4. DETAILED DIGEST
+
+Sources used and retrieval date: 2026-03-07
+- https://en.wikipedia.org/wiki/Fizz_buzz — rules and variants for divisibility and digit-based rules; retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger — API signature, return semantics, edge cases with IEEE-754 precision; retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Arithmetic_operators#remainder — arithmetic operator list and remainder semantics; retrieved 2026-03-07
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError — RangeError description, constructor and usage examples; retrieved 2026-03-07
+- https://nodejs.org/api/esm.html — Node.js ESM enabling, import specifier rules, mandatory file extensions, file/data/node URL behaviors; partial content retrieved (truncated) on 2026-03-07
+- https://vitest.dev/ — Vitest testing framework characteristics, CLI and API patterns; retrieved 2026-03-07
+- https://www.npmjs.com/package/fizzbuzz — blocked (403) when fetching on 2026-03-07; not included
+
+Approximate fetched data sizes (characters, truncated where applicable)
+- Wikipedia Fizz_buzz: ~1500 chars
+- MDN Number.isInteger: ~1200 chars
+- MDN Remainder operator: ~1800 chars (truncated)
+- MDN RangeError: ~900 chars
+- Node ESM doc: ~8000 chars (truncated at fetch limit)
+- Vitest homepage: ~3500 chars
+- npm package page: fetch failed with HTTP 403
+
+Attribution
+- Content compiled verbatim where possible from the above authoritative sources; each section references the specific URL above and was retrieved on 2026-03-07.
+
+5. METADATA
+- Document name: FIZZBUZZ
+- Source list: mirrors SOURCES.md entries
+- Size of compiled normalised extract: approximately 7 KB text
+
+End of document
