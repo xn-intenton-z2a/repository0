@@ -23,3 +23,12 @@ API:
 Run tests:
 
 npm ci && npm test
+
+CLI example:
+
+- Run the library via the included node entrypoint:
+
+  npm start -- 1 15
+
+  (When invoked with two numeric args, the CLI prints the range; use the exported functions in code for deterministic behavior.)
+
